@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>Quick Start - Leaflet</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        .leaflet-container {
+            height: 400px;
+            width: 600px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+
+
+</head>
+<body>
+
+
+
+<div id="map" style="width: 100%; height: 100%;"></div>
+<script>
+    var gpxTrackUrls = [];//["http://localhost:8080/public/gpx/10043.gpx"];
+    if(window.location.search.length > 0){
+        var values = window.location.search.substring(1).split("=");
+        if(values.length == 2){
+            gpxTrackUrls.push(values[1]);
+        }
+    }
+
+    var map = L.map('map', {zoomControl: false}).setView([51.505, -0.09], 14);
+
+    var tiles = L.tileLayer('https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+    }).addTo(map);
+
+    if(gpxTrackUrls.length > 0){
+        new L.GPX(gpxTrackUrls[0], {
+            async: true,
+            marker_options: {
+                startIconUrl: 'pin-stopsign.png',
+                endIconUrl: 'pin-icon-start.png',
+                shadowUrl: 'pin-shadow.png'
+            },
+            polyline_options: {
+                color: 'blue',
+                opacity: 1,
+                weight: 6,
+                lineCap: 'round'
+            }
+        }).on('loaded', function(e) {
+            map.fitBounds(e.target.getBounds().pad(0.15));
+        }).addTo(map);
+    }
+
+
+</script>
+</body>
+</html>

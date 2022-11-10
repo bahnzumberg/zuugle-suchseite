@@ -1,0 +1,26 @@
+// Update with your config settings.
+
+module.exports = {
+  production: {
+    client: 'mysql',
+    connection: {
+      host: '',
+      user: 'tourendb_user',
+      password: '',
+      database: 'tourendatenbank',
+      charset: 'utf8',
+    }
+  },
+  development: {
+    client: 'mysql',
+    connection: {
+      host: '',
+      user: 'tourendb_user',
+      password: '',
+      database: 'tourendatenbank',
+      charset: 'utf8',
+    }
+  }
+};
+
+
