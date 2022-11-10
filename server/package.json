@@ -1,0 +1,16 @@
+{
+  "name": "blaue-kennzeichen-server",
+  "version": "0.0.1",
+  "description": "Server um alle Anfragen an die richtige (React)Applikation weiterzuleiten",
+  "author": "MOSTDATA KG <info@mostdata.at>",
+  "copyright": "Copyright 2019 MOSTDATA KG",
+  "license": "MIT",
+  "private": true,
+  "homepage": ".",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.14.0",
+    "http-proxy-middleware": "0.19.1",
+    "path": "^0.12.7"
+  }
+}
