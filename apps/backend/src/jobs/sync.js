@@ -221,7 +221,7 @@ export async function syncFahrplan(mode='delta'){
     let orwhere = {delta_type: 'noc'};
     let countResult = 0;
     let count = 0;
-    const _limit = pLimit(5);
+    const _limit = pLimit(15);
     let bundles = [];
 
     if(mode=='delta'){
@@ -265,7 +265,7 @@ const syncFahrplan_del = async () => {
     let orwhere = {delta_type: 'xxx'};
     let countResult = 0;
     let count = 0;
-    const _limit = pLimit(5);
+    const _limit = pLimit(15);
     let bundles = [];
 
     try {
