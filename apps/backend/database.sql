@@ -47,6 +47,33 @@ CREATE TABLE tour (
       PRIMARY KEY (id)
 );
 
+ALTER TABLE tour ADD COLUMN full_text TEXT;
+ALTER TABLE tour ADD COLUMN search_column tsvector;
+ALTER TABLE tour ADD COLUMN separator smallint;
+ALTER TABLE tour ADD COLUMN gpx_data JSONB;
+ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
+
+UPDATE tour SET search_column = to_tsvector( 'german', full_text );
+UPDATE tour SET separator=MOD(hashed_url, 30);
+
+CREATE index on tour (internal_status);
+CREATE INDEX ON tour (provider, hashed_url);
+CREATE INDEX ON tour (provider);
+CREATE INDEX ON tour (hashed_url);
+CREATE INDEX ON tour (country_at);
+CREATE INDEX ON tour (country_de);
+CREATE INDEX ON tour (country_it);
+CREATE INDEX ON tour (country_ch);
+CREATE INDEX ON tour (cities);
+CREATE INDEX ON tour (cities_object);
+CREATE INDEX ON tour (month_order);
+CREATE INDEX ON tour (range);
+CREATE INDEX ON tour (traverse);
+CREATE INDEX ON tour (title);
+CREATE INDEX search_column_idx ON tour USING GIN (search_column);
+CREATE INDEX ON tour (separator);
+
+
 -- weekday types
 -- businessday, saturday, sunday,
 
@@ -56,6 +83,8 @@ CREATE TABLE city (
       city_country varchar(128) NOT NULL,
       PRIMARY KEY (city_slug)
 );
+
+CREATE INDEX ON city (city_slug);
 
 CREATE TABLE city_favourites (
       city_slug varchar(64) NOT NULL,
@@ -118,13 +147,12 @@ CREATE TABLE fahrplan (
      PRIMARY KEY (id)
 );
 
-CREATE INDEX ON fahrplan (hashed_url, tour_provider);
-ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
-CREATE index on tour (internal_status);
 
-// CREATE index on fahrplan (internal_status);
+
 ALTER TABLE fahrplan ADD COLUMN connection_url VARCHAR(100);
 ALTER TABLE fahrplan ADD COLUMN return_url VARCHAR(100);
+
+CREATE INDEX ON fahrplan (hashed_url, tour_provider);
 CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (hashed_url);
 CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);
@@ -137,32 +165,7 @@ CREATE INDEX ON fahrplan (fromtour_track_duration);
 CREATE INDEX ON fahrplan (city_slug);
 CREATE INDEX ON fahrplan (weekday_type);
 
-ALTER TABLE tour ADD COLUMN full_text TEXT;
--- CREATE INDEX full_text_idx ON tour USING GIN (to_tsvector('german', full_text));
--- CREATE INDEX title_idx ON tour USING GIN (to_tsvector('german', title));
-CREATE INDEX ON tour (provider, hashed_url);
-CREATE INDEX ON tour (provider);
-CREATE INDEX ON tour (hashed_url);
-CREATE INDEX ON tour (country_at);
-CREATE INDEX ON tour (country_de);
-CREATE INDEX ON tour (country_it);
-CREATE INDEX ON tour (country_ch);
-CREATE INDEX ON tour (cities);
-CREATE INDEX ON tour (cities_object);
-CREATE INDEX ON tour (month_order);
-CREATE INDEX ON tour (range);
-CREATE INDEX ON tour (traverse);
-CREATE INDEX ON tour (title);
 
-ALTER TABLE tour ADD COLUMN search_column tsvector;
-UPDATE tour SET search_column = to_tsvector( 'german', full_text );
-CREATE INDEX search_column_idx ON tour USING GIN (search_column);
-
-ALTER TABLE tour ADD COLUMN separator smallint;
-CREATE INDEX ON tour (separator);
-UPDATE tour SET separator=MOD(hashed_url, 30);
-
-CREATE INDEX ON city (city_slug);
 
 CREATE TABLE kpi (
       name varchar(30) NOT NULL,
@@ -189,20 +192,6 @@ CREATE TABLE logsearchphrase (
      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (id)
 );
-
-CREATE TABLE logclickresult (
-     id SERIAL,
-     provider varchar(30) NOT NULL,
-     hashed_url varchar(100) NOT NULL,
-     city_slug varchar(64) NOT NULL,
-     click_intern_extern char(1) DEFAULT 'i',
-     click_time timestamp DEFAULT CURRENT_TIMESTAMP,
-     PRIMARY KEY (id)
-);
-
-
-ALTER TABLE tour ADD COLUMN gpx_data JSONB;
-
 
 
 CREATE TABLE fahrplan_del (
