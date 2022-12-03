@@ -11,7 +11,7 @@ import {
 } from "./sync";
 import moment from "moment";
 
-console.log('FULL LOAD (will last a few hours): ', moment().format('HH:mm:ss'));
+console.log('FULL LOAD: ', moment().format('HH:mm:ss'));
 console.log('START SYNC TOURS: ', moment().format('HH:mm:ss'));
 syncTours().then(res => {
     console.log('DONE SYNC TOURS: ', moment().format('HH:mm:ss'));

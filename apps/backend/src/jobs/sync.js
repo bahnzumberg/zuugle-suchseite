@@ -35,19 +35,14 @@ export async function writeKPIs(){
 
 export async function getProvider(){
     await knex.raw(`TRUNCATE provider;`);
-    console.log('getProvider Check 2');
     var query_result;
-    console.log('getProvider Check 3');
     try {
         query_result = await knexTourenDb('lookup_provider').select().where({active: 'y'});
-        console.log('getProvider Check 4');
     }
     catch(err){
-        console.log('getProvider Check 5 (Fehlerfall)');
         console.log('error: ', err)
         return false;
     }
-    console.log('getProvider Check 6');
     if(!!query_result && query_result.length > 0){
         for(let i=0; i<query_result.length; i++){
             const entry = query_result[i];
@@ -203,70 +198,130 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
 
 export async function syncFahrplan(mode='delta'){
 
-    await syncFahrplan_del();
+    if(mode=='delta'){
+        // delta mode
+        await syncFahrplan_del();
 
-    try {
-        await knex.raw(`DELETE FROM fahrplan WHERE calendar_date < CURRENT_DATE;`);
-        await knex.raw(`DELETE FROM fahrplan WHERE id IN (SELECT id FROM fahrplan_del);`);
-    } catch(err){
-        console.log('error: ', err)
+        try {
+            await knex.raw(`DELETE FROM fahrplan WHERE calendar_date < CURRENT_DATE;`);
+            await knex.raw(`DELETE FROM fahrplan WHERE id IN (SELECT id FROM fahrplan_del);`);
+        } catch(err){
+            console.log('error: ', err)
+        }
+        // console.log('del Inserts done');
     }
-    console.log('Delete: done');
+    else {
+        // In full load mode, we want everything gone and inserted new
+        try {
+            await knex.raw(`TRUNCATE fahrplan;`);
+        } catch(err){
+            console.log('error: ', err)
+        }
+        // console.log('Truncate done');
+    }
 
     // Now add new lines
-    let limit = 500;
-    let offset = 0;
+    let limit = 10000;
     let counter = 0;
     let where = {delta_type: 'add'};
     let orwhere = {delta_type: 'noc'};
-    let countResult = 0;
-    let count = 0;
-    const _limit = pLimit(15);
+    const _limit = pLimit(2);
     let bundles = [];
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
+    let trigger_id_min_array = [];
+    let trigger_id_max_array = [];
+    let chunksizer = 0;
 
     if(mode=='delta'){
         orwhere = {delta_type: 'xxx'};
     }
 
     try {
-        const query_add = knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').where(where).orWhere(orwhere);
-        // console.log('syncFahrplan add query: ', query_add.toQuery());
-        countResult = await query_add;
+        const query_add_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const query_add_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
+        // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
+        trigger_id_min_array = await query_add_min;
+        trigger_id_max_array = await query_add_max;
+        trigger_id_min = trigger_id_min_array[0]['min(`trigger_id`)']
+        trigger_id_max = trigger_id_max_array[0]['max(`trigger_id`)'];
     } catch(err){
-        console.log('error: ', err)
+        console.log('error: ', err);
     }
 
-    count = 0;
-    if(!!countResult && countResult.length == 1 && countResult[0]["anzahl"]){
-        count = countResult[0]["anzahl"];
+    const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
+    chunksizer = round( query_count[0]["anzahl"] / limit, 0 );
+    if (isNaN(chunksizer) || chunksizer < 1) { 
+        chunksizer = 1;
     }
-    bundles = [];
-    while((counter *  limit) <= count){
+
+    console.log('(Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
+    while (counter < chunksizer) {
         bundles.push({
-            limit: limit,
-            offset: offset
+            leftover: counter,
+            chunksizer: chunksizer
         });
-        offset = offset + limit;
         counter++;
     }
-    
+
+    // console.log('Starting add Inserts');
+
+    // remove all indizes from PostgreSQL table "fahrplan" for quicker inserts
+    try {
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_best_connection_duration_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_city_slug_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_connection_duration_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_duration_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_key_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_tour_provider_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_internal_status_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_duration_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_key_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_tour_provider_hashed_url_city_slug_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_tour_provider_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_weekday_type_idx;`);
+    } catch(err){
+        console.log('error: ', err);
+    }
+
     const promises_add = bundles.map(bundle => {
         return _limit(() => readAndInsertFahrplan(bundle, where, orwhere));
     });
     await Promise.all(promises_add);
 
+
+    // set all indizes on PostgreSQL table "fahrplan" again
+    try{
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (best_connection_duration);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (totour_track_duration);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_duration);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (weekday_type);`);
+    } catch(err){
+        console.log('error: ', err);
+    }
 }
 
+
 const syncFahrplan_del = async () => {
-    let limit = 1000;
-    let offset = 0;
+    let limit = 5000;
     let counter = 0;
     let where = {delta_type: 'del'};
-    let orwhere = {delta_type: 'xxx'};
-    let countResult = 0;
-    let count = 0;
     const _limit = pLimit(15);
     let bundles = [];
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
+    let trigger_id_min_array = [];
+    let trigger_id_max_array = [];
 
     try {
         await knex.raw(`TRUNCATE fahrplan_del;`);
@@ -274,33 +329,42 @@ const syncFahrplan_del = async () => {
         console.log('error: ', err)
     }
 
-    const query_del = knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').where(where).orWhere(orwhere);
-    // console.log('syncFahrplan del query: ', query_del.toQuery());
-    countResult = await query_del;
-
-    count = 0;
-    if(!!countResult && countResult.length == 1 && countResult[0]["anzahl"]){
-        count = countResult[0]["anzahl"];
+    try {
+        const query_del_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').where(where);
+        const query_del_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').where(where);
+        // console.log('syncFahrplan query del min: ', query_del_min.toQuery());
+        // console.log('syncFahrplan query del max: ', query_del_max.toQuery());
+        trigger_id_min_array = await query_del_min;
+        trigger_id_max_array = await query_del_max;
+        trigger_id_min = trigger_id_min_array[0]['min(`trigger_id`)'];
+        trigger_id_max = trigger_id_max_array[0]['max(`trigger_id`)'];
+    } catch(err){
+        console.log('error: ', err)
     }
+
+    counter = trigger_id_min;
     bundles = [];
-    while((counter *  limit) <= count){
+    while(counter <= (trigger_id_max + limit)){
         bundles.push({
-            limit: limit,
-            offset: offset
+            from: counter,
+            to: counter + limit
         });
-        offset = offset + limit;
-        counter++;
+        counter = counter + limit;
     }
       
     const promises_del = bundles.map(bundle => {
-        return _limit(() => readAndInsertFahrplan_del(bundle, where, orwhere));
+        return _limit(() => readAndInsertFahrplan_del(bundle, where));
     });
     await Promise.all(promises_del);
 }
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
-        const result = await knexTourenDb('interface_fplan_to_search_delta').select().where(where).orWhere(orwhere).orderBy('trigger_id', 'asc').limit(bundle.limit).offset(bundle.offset);
+        const result_query = knexTourenDb('interface_fplan_to_search_delta').select().whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
+        
+        const result = await result_query;
+
         if(!!result && result.length > 0){
             await insertFahrplanMultiple(result);
         }
@@ -311,7 +375,7 @@ const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
 
 const readAndInsertFahrplan_del = (bundle, where = {}) => {
     return new Promise(async resolve => {
-        const result = await knexTourenDb('interface_fplan_to_search_delta').select('trigger_id').where(where).orderBy('trigger_id', 'asc').limit(bundle.limit).offset(bundle.offset);
+        const result = await knexTourenDb('interface_fplan_to_search_delta').select('trigger_id').where(where).andWhere('trigger_id', '>=', bundle.from).andWhere('trigger_id', '<', bundle.to);
         if(!!result && result.length > 0){
             await insertFahrplanMultiple_del(result);
         }
@@ -349,8 +413,6 @@ const insertFahrplanMultiple = async (entries) => {
     });
 
     try {
-        // await knex('fahrplan').insert([..._entries]).onConflict('id').ignore();
-        // await knex('fahrplan').insert([..._entries]);
         await knex.raw(knex('fahrplan').insert([..._entries]).toString()+" ON CONFLICT(id) DO NOTHING");
         return true;
     } catch(err){
