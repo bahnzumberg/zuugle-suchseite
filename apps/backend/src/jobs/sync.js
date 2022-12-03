@@ -35,19 +35,14 @@ export async function writeKPIs(){
 
 export async function getProvider(){
     await knex.raw(`TRUNCATE provider;`);
-    console.log('getProvider Check 2');
     var query_result;
-    console.log('getProvider Check 3');
     try {
         query_result = await knexTourenDb('lookup_provider').select().where({active: 'y'});
-        console.log('getProvider Check 4');
     }
     catch(err){
-        console.log('getProvider Check 5 (Fehlerfall)');
         console.log('error: ', err)
         return false;
     }
-    console.log('getProvider Check 6');
     if(!!query_result && query_result.length > 0){
         for(let i=0; i<query_result.length; i++){
             const entry = query_result[i];
@@ -213,7 +208,7 @@ export async function syncFahrplan(mode='delta'){
         } catch(err){
             console.log('error: ', err)
         }
-        console.log('del Inserts done');
+        // console.log('del Inserts done');
     }
     else {
         // In full load mode, we want everything gone and inserted new
@@ -222,11 +217,11 @@ export async function syncFahrplan(mode='delta'){
         } catch(err){
             console.log('error: ', err)
         }
-        console.log('Truncate done');
+        // console.log('Truncate done');
     }
 
     // Now add new lines
-    let limit = 20000;
+    let limit = 10000;
     let counter = 0;
     let where = {delta_type: 'add'};
     let orwhere = {delta_type: 'noc'};
@@ -243,8 +238,8 @@ export async function syncFahrplan(mode='delta'){
     }
 
     try {
-        const query_add_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').where(where).orWhere(orwhere);
-        const query_add_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').where(where).orWhere(orwhere); 
+        const query_add_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const query_add_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
         // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
         trigger_id_min_array = await query_add_min;
@@ -255,13 +250,13 @@ export async function syncFahrplan(mode='delta'){
         console.log('error: ', err);
     }
 
-    const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').where(where).orWhere(orwhere); 
+    const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
     chunksizer = round( query_count[0]["anzahl"] / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }
 
-    console.log('counter=', counter, ', chunksizer=', chunksizer, ', query_count=', query_count[0]["anzahl"]);
+    console.log('(Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
@@ -270,7 +265,7 @@ export async function syncFahrplan(mode='delta'){
         counter++;
     }
 
-    console.log('Starting add Inserts');
+    // console.log('Starting add Inserts');
 
     // remove all indizes from PostgreSQL table "fahrplan" for quicker inserts
     try {
@@ -365,8 +360,7 @@ const syncFahrplan_del = async () => {
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
-        // const result_query = knexTourenDb('interface_fplan_to_search_delta').select().where( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ).andWhere('trigger_id', '>=', bundle.from).andWhere('trigger_id', '<', bundle.to);
-        const result_query = knexTourenDb('interface_fplan_to_search_delta').select().whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover}`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const result_query = knexTourenDb('interface_fplan_to_search_delta').select().whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
