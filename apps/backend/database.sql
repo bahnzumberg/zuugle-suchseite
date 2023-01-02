@@ -54,7 +54,6 @@ ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
 
 UPDATE tour SET search_column = to_tsvector( 'german', full_text );
-UPDATE tour SET separator=MOD(hashed_url, 30);
 
 CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);

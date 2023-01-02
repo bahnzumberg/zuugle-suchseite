@@ -14,10 +14,10 @@ module.exports = {
   development: {
     client: 'mysql',
     connection: {
-      host: '',
-      user: 'tourendb_user',
-      password: '',
-      database: 'tourendatenbank',
+      host: 'sql371.your-server.de',
+      user: 'tourendb_uat_r',
+      password: 'CcM34L1WqJuGtbHs',
+      database: 'tourendatenbank_uat',
       charset: 'utf8',
     }
   }

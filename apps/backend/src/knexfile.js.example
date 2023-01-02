@@ -16,10 +16,10 @@ module.exports = {
     client: 'pg',
     version: '11',
     connection: {
-      host : '',
+      host : 'localhost',
       port : 5432,
-      user : 'zuugle_dev',
-      password : '',
+      user : 'postgres',
+      password : 'docker',
       database : 'zuugle_suchseite_dev'
     }
   }

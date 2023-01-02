@@ -1,20 +1,26 @@
 # zuugle.at API
 
+
 ## Erstinstallation
 Im Projekt-Verzeichnis 
- 
+
     nvm use
- ausführen und dann 
+ausführen und dann 
  
     npm install
-ausführen um sämtliche Dependencies zu installieren.
+ausführen und sämtliche Abhängigkeiten installieren.
+
+
+## Knexfiles umbenennen
+Im src Verzeichnis liegen zwei Example Dateien: knexfile.js.example und knexfileTourenDb.js.example. 
+Bitte diese auf knexfile.js und knexfileTourenDb.js umbenennen.
+
 
 ### Datenbank einrichten
-
-1. Eine Postgres Instanz mit der Version 11 installieren 
-2. Eine Datenbank „zuugle“ anlegen
-3. Danach das File „database.sql“ vom Root-Verzeichnis in der DB ausführen
-4. Sicherstellen dass folgende Folder existieren:
+1. Docker lokal installieren
+2. docker build -t zuugle-postgres-db
+3. docker run -d --name zuugle-container -p 5432:5432 zuugle-postgres-db
+4. Sicherstellen, dass folgende Folder existieren:
     * public/gpx
     * public/gpx-image
     * public/gpx-image-with-track
@@ -23,33 +29,13 @@ ausführen um sämtliche Dependencies zu installieren.
     * public/range-image 
 5. Um die Daten lokal einzurichten müssen folgende Befehle ausgeführt werden:
     1. npm run build
-    2. npm run import-data (for delta load) or npm run import-data-full (for full load)
+    2. npm run import-data-full
+	2b. Alternativ für Delta Load (an jedem folgenden Tag): npm run import-data
     3. npm run import-files
-6. Danach sollten sämtliche Daten und Files vorhanden sein und können lokal genutzt werden
+6. Danach sollten sämtliche Daten und Files vorhanden sein
 
 
 ## Lokal ausführen
-
 Sobald die Dependencies und die Datenbank eingerichtet sind, kann die Applikation mit 
-
-    npm run start
-    
+    npm run start 
 lokal gestartet werden.
-
-## Deployment
-
-Vorabinfo: Das File .deploy/deploy.sh muss angepasst werden, je nachdem wo dein Keyfile liegt. Das selbe gilt für .deploy/connect.sh
-
-Aufruf von
-    
-    sh .deploy/deploy.sh
-    
-Dieser Befehl führt den Build aus und lädt die Daten auf den Server
-    
-Mit Server verbinden 
-
-    .deploy/connect.sh
-
-Auf Server folgenden Befehl ausführen 
-    
-    pm2 restart zuugle_api
