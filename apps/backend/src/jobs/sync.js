@@ -175,7 +175,7 @@ async function _syncGPX(prov, h_url, title){
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
         if(process.env.NODE_ENV != "production"){
-            console.log(`create file [${filePath}]`);
+            // console.log(`create file [${filePath}]`);
         }
         
         const root = create({ version: '1.0' })
@@ -778,7 +778,9 @@ const deleteFileModulo30 = (h_url, filePath) => {
         if (today == hash_day) {
             try {
                 fs.unlinkSync(filePath);
-                // console.log('GPX Track deleted successfully: ', filePath);
+                if(process.env.NODE_ENV != "production"){
+                    console.log('File deleted successfully: ', filePath);
+                }
             } catch(err) {
                 console.log(err.message);
             }

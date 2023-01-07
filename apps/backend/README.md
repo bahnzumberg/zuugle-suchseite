@@ -20,13 +20,11 @@ Bitte diese auf knexfile.js und knexfileTourenDb.js umbenennen.
 1. Docker (https://www.docker.com/) lokal installieren
 2. docker build -t zuugle-postgres-db ./
 3. docker run -d --name zuugle-container -p 5432:5432 zuugle-postgres-db
-4. Sicherstellen, dass folgende Folder existieren:
+4. Manuell diese leeren Folder anlegen:
     * public/gpx
     * public/gpx-image
     * public/gpx-image-with-track
     * public/gpx-track
-    * public/headless-leaflet
-    * public/range-image 
 5. Um die Daten lokal einzurichten müssen folgende Befehle ausgeführt werden:
     1. npm run build
     2. npm run import-data-full
