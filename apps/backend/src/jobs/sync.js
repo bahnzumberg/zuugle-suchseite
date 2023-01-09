@@ -712,7 +712,8 @@ const bulk_insert_tours = async (entries) => {
             quality_rating: entry.quality_rating,
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
-            gpx_data: entry.gpx_data
+            gpx_data: entry.gpx_data,
+            difficulty_orig: entry.difficulty_orig
         });
     }
 

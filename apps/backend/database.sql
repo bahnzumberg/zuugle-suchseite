@@ -52,6 +52,7 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
+ALTER TABLE tour ADD COLUMN difficulty_orig varchar(45) default NULL;
 
 UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
