@@ -34,7 +34,7 @@ const getWrapper = async (req, res) => {
     if(!!!id){
         res.status(404).json({success: false});
     } else {
-        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
+        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'difficulty_orig'];
         let entry = await knex('tour').select(selects).where({id: id}).first();
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({success: true, tour: entry});
@@ -60,7 +60,7 @@ const listWrapper = async (req, res) => {
     let addDetails = !!!map;
 
 
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'difficulty_orig'];
     if(!!map){
         selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
     }
@@ -993,6 +993,20 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         /** add provider_name to result */
         let provider_result = await knex('provider').select('provider_name').where({provider: entry.provider}).first();
         entry.provider_name = provider_result.provider_name;
+
+        /** Translation function to be established in the future for more languages */
+        if (entry.difficulty == 1) {
+            entry.difficulty = `leicht`;
+        }
+        else if (entry.difficulty == 2) {
+            entry.difficulty = `mittel`;
+        }
+        else if (entry.difficulty == 3) {
+            entry.difficulty = `schwer`;
+        }
+        else {
+            entry.difficulty = `unbestimmt`;
+        }
     }
     return entry;
 }

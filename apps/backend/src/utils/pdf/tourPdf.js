@@ -8,11 +8,6 @@ import {createSingleImageFromMap} from "../gpx/gpxUtils";
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
     const TEMPLATE = "tour-details";
 
-    if (tour.difficulty == 1) { let _difficulty='leicht' }
-    else if (tour.difficulty == 2) { let _difficulty='mittel' }
-    else if (tour.difficulty == 3) { let _difficulty='schwer' }
-    else { let _difficulty='nicht gesetzt' }
-
     let properties = [
         {title: "Schwierigkeit", value: `${_difficulty}`},
         {title: "Sportart", value: `${tour.type}`},
