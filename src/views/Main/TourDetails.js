@@ -207,11 +207,13 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             </Box>
 
             <Box sx={{marginTop: '20px'}}>
-                <DifficultyContainer value={tour.difficulty} disabled={true}/>
-            </Box>
-
-            <Box sx={{marginTop: '20px'}}>
                 <Grid container spacing={'20px'}>
+                <Grid item xs={6}>
+                        <TourProperty title={"Schwierigkeit l/m/s"} text={tour.difficulty}/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TourProperty title={"Schwierigkeit {tour.provider_name}"} text={tour.difficulty_orig} />
+                    </Grid>
                     <Grid item xs={6}>
                         <TourProperty title={"Sportart"} text={tour.type}/>
                     </Grid>
