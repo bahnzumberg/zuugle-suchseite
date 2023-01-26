@@ -13,7 +13,7 @@ export default function Footer({}){
                         <img src={`/app_static/img/logo140.png`} height={"20px"} width={"36px"}/>
                     </Grid>
                     <Grid item xs={12} md={3} >
-                        <Typography sx={{marginLeft: "10px", color: "#4992FF"}}>© 2022 Zuugle</Typography>
+                        <Typography sx={{marginLeft: "10px", color: "#4992FF"}}>© 2023 Zuugle</Typography>
                     </Grid>
                     <Grid item xs  md={3}>
                         <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`https://www.bahnzumberg.at`)}>Bahn zum Berg</Typography>
