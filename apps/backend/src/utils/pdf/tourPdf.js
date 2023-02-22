@@ -1,15 +1,20 @@
 import {getLogoBase64, writePdf} from "./utils";
 import {get_image_base64} from "../fileFunctions";
-import {formatTime} from "../utils";
+// import {formatTime} from "../utils";
 import moment from "moment";
 import {convertNumToTime} from "../helper";
 import {createSingleImageFromMap} from "../gpx/gpxUtils";
+import { convertDifficulty, titleCase } from "../dataConversion";
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
     const TEMPLATE = "tour-details";
 
+    tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
+    tour.difficulty_orig = titleCase(tour.difficulty_orig)
     let properties = [
-        {title: "Schwierigkeit", value: `${_difficulty}`},
+        // {title: "Schwierigkeit", value: `${tour.difficulty}/10`}, 
+        {title: "Schwierigkeit Zuugle", value: `${tour.difficulty}`}, 
+        {title: "Schwierigkeit original", value: `${tour.difficulty_orig}`}, 
         {title: "Sportart", value: `${tour.type}`},
         {title: "Distanz", value: `${tour.distance} km`},
         {title: "Dauer", value: ((!!tour.number_of_days && tour.number_of_days > 1) ? `${tour.number_of_days} Tage` : `${convertNumToTime(tour.duration)}`)},
@@ -28,10 +33,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     let fileConnection = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
     let fileReturn = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
 
-    //Auf Basiskarte wird nur noch die Tour angezeigt, wodurch kein neues JPEG erzeugt werden muss.
-    /*if((!!connectionReturn && !!connectionReturn.fromtour_track_key) || (!!connection && !!connection.totour_track_key)){
-        file = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, connectionReturn.fromtour_track_key, connection.totour_track_key);
-    }*/
+ 
 
     if(!!connection && !!connection.totour_track_key){
         fileConnection = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
@@ -247,3 +249,14 @@ export const getIconFromText = (text) => {
         return BASE + "ic_transport_walk.svg";
     }
 }
+// Description:
+// This code exports a function named tourPdf that generates a PDF file with details about a tour.
+// The function takes an object as an argument, which contains information about the tour and some related data, such as connections, returns, and the referral.
+// The function starts by defining a constant TEMPLATE, which is a string with the value "tour-details".  
+// The code then defines an array properties, which contains information about the tour, such as its difficulty, type, distance, duration, ascent, descent, whether it's suitable for children, and whether it's a traverse.
+// The function then declares some variables that will hold the base64-encoded image data of the tour and its connections/returns.
+// It then creates the file paths for the images of the tour, the connection, and the returns. The code creates the images of the tour and the connection by calling the createSingleImageFromMap function with the relevant parameters, while the return images are not created in this code.
+// The function then calls the parseImageToValidBase64 function to convert the images to base64-encoded format, and stores the results in the variables declared earlier.
+// The code then processes the connection description detail and creates an array connectionEntries of connection details.
+// It then processes the return description detail and creates an array allReturn of return details.
+// Finally, the code creates an object data with all the information and data needed to generate the PDF, and returns it.

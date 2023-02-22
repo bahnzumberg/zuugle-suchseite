@@ -1,3 +1,4 @@
+//configuration allows a server to accept requests from specific domains ("whitelist") and reject requests from all other domains.
 export const getZuugleCors = () => {
     const whitelist = ['http://localhost:3000', 'http://localhost:8080', 'https://www.zuugle.at', 'https://www.zuugle.de', 'https://www.zuugle.ch', 'https://www.zuugle.it']
     const corsOptions = {

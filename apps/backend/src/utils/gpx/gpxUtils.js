@@ -59,8 +59,10 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
 
-            let url = process.env.NODE_ENV === "production" ? "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" :
-                                                                "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/"
+            let url = process.env.NODE_ENV === "production" ? 
+            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
+            :
+            "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/"
 
 
             const chunkSize = 10;
@@ -81,7 +83,7 @@ export const createImagesFromMap = async (ids) => {
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
                         await createImageFromMap(browser, filePath, url + ch + ".gpx", 90);
-                        // console.log('Big generated successfully: ', filePath);
+                        console.log('Big generated successfully: ', filePath);
 
                         try {
                             await sharp(filePath).resize({
@@ -89,7 +91,7 @@ export const createImagesFromMap = async (ids) => {
                                 height: 400,
                                 fit: "inside"
                             }).jpeg({quality: 50}).toFile(filePathSmall);
-                            // console.log('Small generated successfully: ', filePathSmall);
+                            console.log('Small generated successfully: ', filePathSmall);
                         } catch(e){
                             console.error(e);
                         }
@@ -100,7 +102,7 @@ export const createImagesFromMap = async (ids) => {
                 })));
             }
         } catch (err) {
-            console.log(err.message);
+            console.log("Error Line 105 -->",err.message);
         } finally {
             if (browser) {
                 await browser.close();
@@ -115,22 +117,22 @@ export const createImagesFromMap = async (ids) => {
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
-            // console.log('createImageFromMap ', filePath, ' ', url, ' ', picquality);
+            console.log('createImageFromMap , L120 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
             const page = await browser.newPage();
             await page.emulateMediaType('print');
             await page.setCacheEnabled(false);
             await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' });
             await page.waitForTimeout(10);
             await page.bringToFront();
-            // console.log('Screenshot start');
+            console.log('Screenshot start');
             await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
-            // console.log('Screenshot done: ', filePath);
+            console.log('Screenshot done: ', filePath);
             await page.close();
-            // console.log('page close done');
+            console.log('page close done');
         }
     } catch (err) {
-        console.log('createImageFromMap error: ', err);
-        console.log(err.message);
+        console.log('createImageFromMap error: ', err.message);
+        // console.log(err.message);
     }
 }
 
@@ -182,7 +184,8 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
             const page = await browser.newPage();
             await page.emulateMediaType('print');
             await page.setCacheEnabled(false);
-            await page.goto(url, { timeout: 45000, waitUntil: 'networkidle0' });
+            await page.goto(url, { timeout: 1000000, waitUntil: 'networkidle0' });
+            // await page.goto(url, { timeout: 45000, waitUntil: 'networkidle0' });
             await page.waitForTimeout(20);
             await page.bringToFront();
             await page.screenshot({path: filePath, type: "jpeg", quality: 90});
@@ -250,3 +253,9 @@ const getSequenceFromFile = async (file) => {
     }
     return null;
 }
+
+// description:
+// This script exports a single function called createImagesFromMap, which creates and saves images of GPX files. It does so by using the puppeteer library to launch a headless instance of the Google Chrome browser, load a webpage that displays GPX files on a map, and then take screenshots of the resulting maps.
+// The function accepts an array of GPX file IDs, and for each ID, it generates a large and small image of the corresponding GPX file on a map. The images are stored in the public/gpx-image/ directory, with filenames based on the GPX file IDs.
+// Before creating the images, the function first checks if the images already exist in the public/gpx-image/ directory. If they do, it skips generating them and moves on to the next GPX file ID.
+// The script also contains some configuration options for running the script in different environments (development or production). It sets the path to the Chrome executable, sets the browser launch options, and sets the base URL for loading the GPX files in the browser.

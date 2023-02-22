@@ -8,6 +8,7 @@ CREATE TABLE tour (
       ascent int NOT NULL,
       descent int NOT NULL,
       difficulty int DEFAULT NULL,
+      difficulty_orig varchar(45) DEFAULT NULL,
       duration decimal(6,2) DEFAULT NULL,
       distance decimal(6,2) DEFAULT NULL,
       title varchar(255) DEFAULT NULL,
@@ -52,7 +53,6 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
-ALTER TABLE tour ADD COLUMN difficulty_orig varchar(45) default NULL;
 
 UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
