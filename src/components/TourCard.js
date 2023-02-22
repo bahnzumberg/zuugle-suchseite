@@ -62,6 +62,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         if(!!loadTourConnections && !!city && tour.cities && tour.cities.length > 0){
             setConnectionLoading(true);
             loadTourConnections({id: tour.id, city: city}).then(res => {
+                // console.log("Line 65 TourCard:",res.data)
                 setConnectionLoading(false);
                 setConnections(res.data.connections);
                 setReturns(res.data.returns);
@@ -102,7 +103,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             });
             values.push({
                 icon: <Intensity style={{fill: "transparent"}} />,
-                text: tour.difficulty + "/10",
+                text: tour.difficulty,
             })
             values.push({
                 icon: <Walk style={{fill: "transparent"}} />,
@@ -115,11 +116,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             values.push({
                 icon: <ArrowHorizontal style={{fill: "transparent"}} />,
                 text: formatNumber(tour.distance, " km"),
-            })
+            });
         }
 
-        return <Typography display="inline" style={{whiteSpace: "break-spaces"}}>{values.map(entry => {
-            return <Box display="inline-block" sx={{marginRight: "10px"}}>
+        return <Typography display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
+            return <Box key={index} display="inline-block" sx={{marginRight: "10px"}}>
                 {entry.icon}
                 <Typography display={"inline"} variant={"subtitle2"} sx={{lineHeight: "24px", position: "relative", top: "-7px", left: "4px"}}>{entry.text}</Typography>
             </Box>
@@ -128,8 +129,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     const getConnectionReturnList = () => {
         if(!!returns && returns.length > 0){
-            return returns.map(r => {
-                return <Box style={{display: "inline-block", marginRight: "20px"}}>
+            return returns.map((r,index) => {
+                return <Box key={index} style={{display: "inline-block", marginRight: "20px"}}>
                     <TourConnectionCard departureStop={r.connection_returns_departure_stop} datetimeString={r.return_departure_arrival_datetime_string}/>
                 </Box>
             })
@@ -158,7 +159,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
 
-    return  <Card className="tour-card cursor-link" onClick={() => {onSelectTour(tour)}}>
+    return  <Card className="tour-card cursor-link" onClick={() => {
+        onSelectTour(tour)}}>
         <CardMedia
             component="img"
             height="140"
@@ -172,7 +174,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             </div>
             <div className="mt-3">
                 <Typography variant="h4" style={{whiteSpace: "break-spaces"}}>{tour.title}</Typography>
-                <Typography variant="mt-3" style={{whiteSpace: "break-spaces"}}>{shortened_url()}</Typography>
+                <Typography variant="h5" style={{whiteSpace: "break-spaces"}}>{shortened_url()}</Typography>
             </div>
             <div className="mt-3" style={{whiteSpace: "break-space"}}>
                 {renderProps()}

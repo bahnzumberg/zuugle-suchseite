@@ -14,7 +14,7 @@ export default function RangeCardContainer({onSelectTour, ranges}){
         return <Box>
             <Box style={{width: "100%", overflowX: "scroll", whiteSpace: "nowrap", display: "flex", alignItems: "stretch"}}>
                 {
-                    (!!ranges && ranges.length > 0 ? ranges : []).map(range => <Box className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
+                    (!!ranges && ranges.length > 0 ? ranges : []).map((range,index) => <Box key={index} className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
                             <RangeCard onSelectTour={onSelectTour} range={range}/>
                         </Box>
                     )

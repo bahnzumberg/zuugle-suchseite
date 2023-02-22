@@ -1,6 +1,5 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import React from "react";
 
 export function convertNumToTime(number) {
     // Check sign of given number
@@ -182,3 +181,8 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
     }
     return "";
 }
+
+export const titleCase = (string = '') =>{
+    if(typeof string === 'string')
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }

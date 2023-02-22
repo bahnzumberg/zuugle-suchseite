@@ -18,7 +18,7 @@ import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/g
 import {useLocation} from 'react-router-dom';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useMatomo} from "@datapunt/matomo-tracker-react";
-import {useBackListener} from "../../utils/backListener";
+// import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
 import {loadGPX} from "../../actions/fileActions";
@@ -31,7 +31,6 @@ const Search = lazy(() => import('../../components/Search/Search'));
 const Detail = lazy(() => import('./Detail'));
 const ResultBar = lazy(() => import('../../components/ResultBar'));
 const TourCardContainer = lazy(() => import('../../components/TourCardContainer'));
-
 
 function Fragment(props) {
     return null;
@@ -52,9 +51,9 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const [mapView, setMapView] = React.useState(false);
     const [directLink, setDirectLink] = React.useState(null);
 
-    useBackListener(({ location }) => {
-        navigate('/');
-    });
+    // useBackListener(({ location }) => {
+    //     navigate('/');
+    // });
 
     useEffect(() => {
         const city = searchParams.get('city');
@@ -103,6 +102,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             setDetailOpen(true);
         }
     }, [location])
+
+    // console.log("Line 106 tour :", tour);
 
     useEffect(() => {
         setFilterActive(countFilterActive());
@@ -157,6 +158,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }
 
     const onSelectTour = (tour) => {
+        // console.log("Main L 161, onSelectTour , tour value: " + tour);
         setTour(tour)
         toggleDetailOpen();
     }
@@ -164,6 +166,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const onLoadAndSelectTour = (id) => {
         loadTour(id, searchParams.get('city')).then(res => {
             if(!!res && !!res.data && !!res.data.tour){
+                // console.log("Main : tour data L168",res.data.tour)
                 setTour(res.data.tour);
                 toggleDetailOpen();
             }
@@ -251,6 +254,7 @@ const mapDispatchToProps = {
 
 
 const mapStateToProps = (state) => {
+    // console.log("Main L256 list of ALL tours : state.tours.tours :", state.tours.tours)
     return {
         loading: state.tours.loading,
         tours: state.tours.tours,

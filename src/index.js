@@ -6,7 +6,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from "./rootReducer";
 import { Helmet } from 'react-helmet';
-import {createBrowserHistory} from 'history';
 import { Provider } from 'react-redux'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -16,7 +15,6 @@ export const store = createStore(rootReducer, composeEnhancers(
 
 
 
-export const history = createBrowserHistory();
 
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
     var msViewportStyle = document.createElement('style');
@@ -27,8 +25,6 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
     );
     document.head.appendChild(msViewportStyle);
 }
-
-let host = window.location.protocol + "//" +window.location.hostname;
 
 ReactDOM.render((
     <Provider store={store}>

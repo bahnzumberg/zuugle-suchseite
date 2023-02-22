@@ -16,7 +16,7 @@ export default function ScrollingTourCardContainer({tours, onSelectTour, loadTou
     if(!!isMobile){
         return <Box>
             <Box style={{width: "100%", overflowX: "scroll", whiteSpace: "nowrap", display: "flex", alignItems: "stretch"}}>
-                {(!!tours ? tours : []).map(tour => <Box className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
+                {(!!tours ? tours : []).map((tour,index) => <Box key={index} className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
                     <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
                 </Box>)
             }

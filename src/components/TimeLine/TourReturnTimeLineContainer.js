@@ -46,14 +46,14 @@ export default function TourReturnTimeLineContainer({connections, loading, date,
         if(!!connections && !!connections.returns && !!connections.returns.length > 0){
             return connections.returns.map((entry, index) => {
                 const isSelected = index === selectedIndex;
-                return <Box style={{display: "inline-block", marginRight: "20px"}} className={"cursor-link"} onClick={() => {
+                return <Box key={index} style={{display: "inline-block", marginRight: "20px"}} className={"cursor-link"} onClick={() => {
                     setInternalLoading(true)
                     setTimeout(() => {
                         setSelectedIndex(index)
                         setInternalLoading(false)
                     }, 150)
                 }}>
-                    <Box sx={{backgroundColor: (isSelected ? "#4992FF" : "#F7F7F7"), padding: "12px", borderRadius: "12px"}}>
+                    <Box key={index} sx={{backgroundColor: (isSelected ? "#4992FF" : "#F7F7F7"), padding: "12px", borderRadius: "12px"}}>
                         <Typography sx={{color: (isSelected ? "#FFFFFF" : "#101010"), fontWeight: 600}}>{formatOnlyTime(entry.return_departure_datetime)}-{formatOnlyTime(entry.return_arrival_datetime)}</Typography>
                         <Typography sx={{color: (isSelected ? "rgba(255,255,255, 0.7)" : "#8B8B8B"), fontWeight: 600}}>{convertNumToTime(entry.return_duration_minutes / 60)} | {entry.return_no_of_transfers} Umst.</Typography>
                     </Box>

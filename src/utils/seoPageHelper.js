@@ -17,10 +17,11 @@ export const getPageHeader = (directLink) => {
             <meta name="description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
         </Helmet>
     }
-    return <></>
+    // return <></>
 }
 
 export const checkIfSeoPageCity = (location, cities) => {
+    console.log(location.pathname)
     if(!!location && !!location.pathname && location.pathname == "/suche"){
         return null;
     } else if(!!location && !!location.pathname && cities.length > 0){
@@ -44,12 +45,12 @@ export const checkIfSeoPageRange = (location, ranges) => {
 
 export const listAllCityLinks = (cities, searchParams = null) => {
     if(!!cities){
-        const entries = cities.map(city => {
+        const entries = cities.map((city,index) => {
             let link = `${city.value}`;
             if(!!searchParams && !!searchParams.get('p')){
                 link = `${link}?p=${searchParams.get('p')}`
             }
-            return <Grid item xs={12} sm={6} md={4}><a href={`/${link}`} className={"seo-city-link"}>{city.label}</a></Grid>
+            return <Grid key={index} item xs={12} sm={6} md={4} ><a href={`/${link}`} className={"seo-city-link"}>{city.label}</a></Grid>
         });
 
         return <Box sx={{textAlign: "left"}}>
@@ -64,12 +65,12 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
     if(!!ranges){
-        const entries = ranges.map(range => {
+        const entries = ranges.map((range,index) => {
             let link = `${range.range_slug}`;
             if(!!searchParams && !!searchParams.get('p')){
                 link = `${link}?p=${searchParams.get('p')}`
             }
-            return <Grid item xs={12} sm={6} md={4}><a href={`/${parseRangeToUrl(link)}`} className={"seo-city-link"}>{range.range}</a></Grid>
+            return <Grid key={index} item xs={12} sm={6} md={4}><a href={`/${parseRangeToUrl(link)}`} className={"seo-city-link"}>{range.range}</a></Grid>
         });
 
         return <Box sx={{textAlign: "left"}}>

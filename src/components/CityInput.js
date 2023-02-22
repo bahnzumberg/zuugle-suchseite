@@ -53,7 +53,8 @@ export default function CityInput({loadCities, city, setCity, onFocus, isOpen, s
         fullWidth
         disabled={disabled}
         value={city}
-        disableAutoFocus={true}
+        disableautofocus="true"
+        // disableAutoFocus={true}
         autoComplete={"off"}
         key={"city-input"}
         onChange={(event) => {

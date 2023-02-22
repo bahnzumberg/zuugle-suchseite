@@ -251,8 +251,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             })
         }
-        return types.map(type => {
-            return  <Grid item xs={6}>
+        return types.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
                         <Box>
                             <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
                         </Box>
@@ -271,8 +271,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             })
         }
 
-        return ranges.map(type => {
-            return  <Grid item xs={6}>
+        return ranges.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
                 <Box>
                     <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(rangeValues, type.value)} onChange={({target}) => {onChangedCheckbox(rangeValues, type.value, target.checked, setRangeValues)}}/>} label={type.label} />
                 </Box>

@@ -2,6 +2,8 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import {Typography} from "@mui/material";
+import { spacing } from '@mui/system';
+
 
 function Impressum({}){
 
@@ -12,9 +14,9 @@ function Impressum({}){
             <Box style={{textAlign: "left"}}>
                 <Typography variant={"h5"}>Für den Inhalt verantwortlich</Typography>
                 <Typography>Bahn zum Berg – Verein zur Förderung der nachhaltigen Mobilität bei der Anreise zu Outdoor-Aktivitäten</Typography>
-                <Typography>Linke Bahngasse 5/11</Typography>
-                <Typography>A-1030 Wien</Typography>
-                <Typography>ZVR: 1112324997</Typography>
+                <Typography> Wipplingerstraße 18/9 </Typography>
+                <Typography>A-1010 Wien</Typography>
+                <Typography sx={{marginTop: "10px"}} >ZVR: 1112324997</Typography>
                 <Typography>Zuständige Behörde: Bundespolizeidirektion Wien, A-1010 Wien, Schottenring 7-9</Typography>
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>Spendenkonto</Typography>
