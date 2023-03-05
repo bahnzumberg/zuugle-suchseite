@@ -3,7 +3,7 @@ import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-lea
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-fullscreen/dist/styles.css";
 import { FullscreenControl } from "react-leaflet-fullscreen";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, useMemo} from "react";
 import L from 'leaflet';
 import {useSearchParams} from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -22,6 +22,13 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         iconAnchor: [15, 41],
     });
 
+    let EndIcon = L.icon({
+        iconUrl: 'app_static/img/pin-icon-end.png',
+        shadowUrl: 'app_static/img/pin-shadow.png',
+        iconSize: [30, 41],
+        iconAnchor: [15, 41],
+    });
+
     const mapRef = useRef();
     const clusterRef = useRef();
 
@@ -29,7 +36,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     const [gpxTrack, setGpxTrack] = useState([]);
     const [mapLoading, setMapLoading] = useState(true);
 
-    React.useEffect(() => {
+    useEffect(() => {
         updateBounds();
     }, [tours]);
 
@@ -41,7 +48,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         }
     }
 
-    const markerComponents = React.useMemo(() => {
+    const markerComponents = useMemo(() => {
         return (!!tours ? tours : []).map((tour, index) => {
             let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ == "first") : null;
             if(!!data){
@@ -75,15 +82,15 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     }
 
     const getStartMarker = () => {
-        /*if(!!gpxTrack && gpxTrack.length > 0){
+        if(!!gpxTrack && gpxTrack.length > 0){
             return <Marker position={gpxTrack[0]} icon={StartIcon}></Marker>;
-        }*/
+        }
     }
 
     const getEndMarker = () => {
-        /*if(!!gpxTrack && gpxTrack.length > 0){
+        if(!!gpxTrack && gpxTrack.length > 0){
             return <Marker position={gpxTrack[gpxTrack.length - 1]} icon={EndIcon}></Marker>;
-        }*/
+        }
     }
 
     const createClusterCustomIcon = function (cluster) {
@@ -134,7 +141,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             {
                 getEndMarker()
             }
-
+{/* 
             <MarkerClusterGroup
                 ref={clusterRef}
                 maxClusterRadius={getClusterRadius}
@@ -144,8 +151,8 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                 showCoverageOnHover={false}
                 iconCreateFunction={createClusterCustomIcon}
             >
+            </MarkerClusterGroup> */}
                 {markerComponents}
-            </MarkerClusterGroup>
             <MyComponent />
 
         </MapContainer>
