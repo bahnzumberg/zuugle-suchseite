@@ -33,6 +33,10 @@ const setGpxTrack = (url, loadGPX, _function) => {
     })
 }
 
+//description:
+//The TourDetails component takes in various props such as tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, and returnConnections. It uses useState and useEffect hooks to set and update various state variables such as gpxPositions, anreiseGpxPositions, abreiseGpxPositions, and searchParams.
+// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
+// The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
 
     const [gpxPositions, setGpxPositions] = useState(null);

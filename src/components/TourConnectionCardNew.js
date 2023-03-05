@@ -4,6 +4,10 @@ import Box from "@mui/material/Box";
 import Anreise from "../icons/Anreise";
 import {convertNumToTime} from "../utils/globals";
 
+//description
+//TourConnectionCardNew is a React component that returns a card containing information about a connection between two stops on a tour. It takes in a connection object as a prop, which contains information such as the departure and arrival stops, the duration of the connection, and the number of transfers required.
+// The component uses the from_to() function to determine whether the departure and arrival stops are the same, and if not, displays them both with a hyphen in between. It also uses the duration_and_transfers() function to display the duration of the connection and the number of transfers required.
+// If there are missing days for the connection, the component displays them in a separate subtitle. Additionally, the component renders an icon representing the transportation method of the connection on the right side of the card.
 export default function TourConnectionCardNew({connection}){
     const from_to = () => {
         if (connection.connection_departure_stop === connection.connection_arrival_stop) {

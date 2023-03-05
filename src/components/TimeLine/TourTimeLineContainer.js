@@ -13,6 +13,12 @@ import {
     getNumberOfTransfers
 } from "./utils";
 
+//description
+//TourTimeLineContainer is a React component that displays a timeline of connections for a tour, along with information about the departure point and the number of transfers.
+//The component takes two props, connections and loading. connections is an object containing information about the connections for the tour, and loading is a boolean indicating whether the data is still loading.
+//The component first checks if there are any connections for the tour. If there are no connections, it displays a message saying that no connections were found. Otherwise, it parses the connection data using parseTourConnectionDescription function and sets the result to the entries state variable using useState hook.
+//The component then displays the departure information and the number of transfers. The departure information includes the departure text and the departure time, while the number of transfers is displayed as an icon with the number of transfers next to it.
+//Finally, the component displays the timeline of connections using the Timeline component from Material UI. It calls the createEntries function to create the individual entries for the timeline. At the bottom of the component, there is a button that, when clicked, opens a live timetable for the tour's connection using the get_live_timetable_link_there function.
 export default function TourTimeLineContainer({connections, loading}){
 
     const [entries, setEntries] = useState([]);

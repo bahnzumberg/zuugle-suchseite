@@ -4,6 +4,7 @@ import {Grid, Typography} from "@mui/material";
 import {Helmet} from "react-helmet";
 
 export const getPageHeader = (directLink) => {
+    console.log("directLink :", directLink)
     if(!!directLink && !!directLink.header){
         return <Helmet>
             <title>{directLink.header}</title>
@@ -21,10 +22,13 @@ export const getPageHeader = (directLink) => {
 }
 
 export const checkIfSeoPageCity = (location, cities) => {
-    console.log(location.pathname)
     if(!!location && !!location.pathname && location.pathname == "/suche"){
         return null;
     } else if(!!location && !!location.pathname && cities.length > 0){
+        //description:
+        // If location is null or pathname is null or undefined or the path is not a city path, the function returns null.
+        // If a city is found in the cities array that matches the value of the path name, the function returns an object representing the found city.
+        // If no city is found in the cities array that matches the value of the path name, the function returns undefined.
         const found = cities.find(city => city.value == location.pathname.substring(1));
         return found;
     } else {
@@ -43,6 +47,8 @@ export const checkIfSeoPageRange = (location, ranges) => {
     }
 }
 
+//description
+//This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
     if(!!cities){
         const entries = cities.map((city,index) => {

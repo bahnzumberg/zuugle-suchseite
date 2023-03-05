@@ -11,6 +11,20 @@ import {
 } from "./utils";
 import Rueckreise from "../../icons/Rueckreise";
 
+//description:
+//This is a React component that displays a timeline of return connections for a given tour. It uses the Material-UI Timeline component to display the connections in chronological order.
+//The component receives the following props:
+//connections: an object containing an array of return connections for the tour.
+// loading: a boolean indicating whether the connections are currently being loaded.
+// date: the date of the tour.
+// selectedIndex: the index of the currently selected connection.
+// setSelectedIndex: a function to update the currently selected connection.
+//The component also uses several utility functions to format the data:
+//parseTourConnectionDescription: a function that parses the description of a tour connection to extract relevant information, such as departure and arrival times and the number of transfers.
+// convertNumToTime: a function that converts a number of hours to a formatted time string.
+// formatOnlyTime: a function that formats a date object to display only the time component.
+//The component renders a header section with the date and a list of return connections. Each connection is displayed as a clickable box with information about the departure and arrival times, duration, and number of transfers. When a connection is clicked, the setSelectedIndex function is called to update the selected connection.
+//Below the header section, the component renders the timeline of return connections using the createReturnEntries function. This function generates an array of TimelineItem components, each representing a single connection, and includes information about the departure and arrival times, the duration, and the stops along the way.
 export default function TourReturnTimeLineContainer({connections, loading, date, selectedIndex, setSelectedIndex}){
 
     const [internalLoading, setInternalLoading] = useState(false);

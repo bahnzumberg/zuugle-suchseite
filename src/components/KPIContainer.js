@@ -6,6 +6,10 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {useNavigate} from "react-router";
 
+//description
+//The KPIContainer.js file is a JavaScript module that exports a functional React component, which displays key performance indicators (KPIs) related to a web application called "Zuugle." The component imports several dependencies from the Material-UI library, including Typography, Paper, Box, Grid, and Button. It also imports useNavigate from the react-router library, which is used to handle navigation to a different route when the "Jetzt Öffi-Tour suchen" button is clicked.
+// The KPIContainer component takes in several props, including totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider, which are used to display various statistics related to the web application. The goto function is called when the user clicks the "Jetzt Öffi-Tour suchen" button, and it uses the navigate function from react-router to navigate to a new route with the sort and city query parameters.
+// The component returns a Paper component with a blue background and rounded corners, containing a series of Box components with various KPIs related to the Zuugle application. The KPIs include the total number of Öffi-Bergtouren (public transportation-enabled mountain tours), the number of Tourenportale (tour portals) searched, the number of Wanderregionen (hiking regions), the number of verfügbare Heimatbahnhöfe (available home train stations), and the total number of Öffi-Verbindungen (public transportation connections). The component also includes a brief description of the Zuugle application and a button to search for Öffi tours.
 export default function KPIContainer({totalTours, totalConnections, totalRanges, totalCities, city, totalProvider}){
     const navigate = useNavigate();
     const goto = () => {
