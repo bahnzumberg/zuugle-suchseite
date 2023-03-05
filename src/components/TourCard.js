@@ -3,7 +3,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import TourConnectionCard from "./TourConnectionCard";
 import CustomStarRating from "./CustomStarRating";
 import {checkIfImageExists, convertNumToTime, formatNumber} from "../utils/globals";
 import Clock from "../icons/Clock";
@@ -20,15 +19,24 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
+//description
+// This component is used to display detailed information about a tour and its associated connections.
+//detailed information:
+//It imports various components and icons from the @mui/material library and some custom components and utility functions.
+// The component takes in several props such as tour, onSelectTour, loadTourConnections, and city. It uses the useState hook to keep track of the state of various variables such as image, imageOpacity, connectionLoading, connections, and returns. It also uses the useEffect hook to fetch and set the image, connections, and returns based on the tour and city props.
+// The renderProps() function returns an array of JSX elements that contain information about the tour such as its duration, difficulty, type, distance, and ascent/descent. 
+// The component also includes a shortened_url() function which returns a shortened version of the URL for the tour.
 export default function TourCard({tour, onSelectTour, loadTourConnections, city}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const [imageOpacity, setImageOpacity] = useState(1)
+    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
 
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
 
+    //description
+    //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
     useEffect(() => {
 
         if(!!tour.image_url && tour.provider==='bahnzumberg'){
@@ -62,7 +70,10 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         if(!!loadTourConnections && !!city && tour.cities && tour.cities.length > 0){
             setConnectionLoading(true);
             loadTourConnections({id: tour.id, city: city}).then(res => {
-                // console.log("Line 65 TourCard:",res.data)
+                //clg
+                // console.log("Line 74 TourCard:",res.data.connections)
+                // console.log("Line 75 TourCard:",res.data.returns)
+                // console.log("Line 75 TourCard:",res.data)
                 setConnectionLoading(false);
                 setConnections(res.data.connections);
                 setReturns(res.data.returns);
@@ -127,17 +138,6 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         })}</Typography>;
     }
 
-    const getConnectionReturnList = () => {
-        if(!!returns && returns.length > 0){
-            return returns.map((r,index) => {
-                return <Box key={index} style={{display: "inline-block", marginRight: "20px"}}>
-                    <TourConnectionCard departureStop={r.connection_returns_departure_stop} datetimeString={r.return_departure_arrival_datetime_string}/>
-                </Box>
-            })
-        } else {
-            return <Fragment></Fragment>
-        }
-    }
 
     const getAnreise = () => {
         if(!!connections && connections.length > 0){
@@ -186,9 +186,13 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         {(!!connections && connections.length > 0) && <Fragment>
             <div className="bottom-container">
                 <CardContent>
-                    {!!connectionLoading ? <Box sx={{padding: "20px"}}>
+                    {!!connectionLoading 
+                    ? 
+                    <Box sx={{padding: "20px"}}>
                         <LinearProgress />
-                    </Box> : <Fragment>
+                    </Box> 
+                    : 
+                    <Fragment>
                         {getAnreise()}
                         {getAbreise()}
                     </Fragment>
