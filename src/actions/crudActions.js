@@ -30,6 +30,8 @@ export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, da
 }
 
 export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true) {
+    //clg
+    // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}`)
     if(!!useState){
         dispatch({...data, type: typeBefore});
     }
