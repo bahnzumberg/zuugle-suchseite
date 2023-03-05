@@ -3,11 +3,9 @@ import './App.css';
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import {theme} from "./theme";
 import Start from "./views/Start/Start";
-//import Main from "./views/Main/Main";
 import ModalRoot from "./components/ModalRoot";
 import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
-// import {createBrowserHistory} from 'history';
-import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
+// import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 // import TestComp from '../TestComp';
