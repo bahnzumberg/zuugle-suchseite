@@ -38,7 +38,7 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-    console.log("tourActions, LoadTour L41 :",data)
+    // console.log("tourActions, LoadTour L41 :",id)
     return (dispatch, getState) => {
         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", {city: city });
     };
@@ -52,7 +52,7 @@ export function loadTotalTours() {
 }
 
 export function loadTourConnections(data) {
-    console.log("tourActions, loadTourConnections L55 :", data)
+    // console.log("tourActions, loadTourConnections L55 :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false);
@@ -83,7 +83,7 @@ export function setSelectedDate(date) {
 
 export function loadTourPdf(data) {
     return (dispatch, getState) => {
-        console.log("L: 86 -> LOAD_TOUR_PDF_DONE :", LOAD_TOUR_PDF_DONE)
+        // console.log("tourActions, L: 86 -> LOAD_TOUR_PDF_DONE :", LOAD_TOUR_PDF_DONE)
         return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
     }
 }
