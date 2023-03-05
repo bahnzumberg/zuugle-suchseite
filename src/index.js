@@ -15,7 +15,8 @@ export const store = createStore(rootReducer, composeEnhancers(
 
 
 
-
+//description:
+//This code is a workaround for a bug in Internet Explorer Mobile 10.0, where the viewport size is not calculated properly. The code detects if the user agent matches this version of IE Mobile and then injects a style tag into the HTML head, which sets the width of the viewport to "auto!important", overriding any previous CSS rules. This fixes the bug and allows the page to be displayed correctly on IE Mobile 10.0.
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
     var msViewportStyle = document.createElement('style');
     msViewportStyle.appendChild(
