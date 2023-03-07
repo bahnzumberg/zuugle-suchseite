@@ -141,7 +141,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             {
                 getEndMarker()
             }
-{/* 
+
             <MarkerClusterGroup
                 ref={clusterRef}
                 maxClusterRadius={getClusterRadius}
@@ -151,8 +151,8 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                 showCoverageOnHover={false}
                 iconCreateFunction={createClusterCustomIcon}
             >
-            </MarkerClusterGroup> */}
                 {markerComponents}
+            </MarkerClusterGroup> 
             <MyComponent />
 
         </MapContainer>
