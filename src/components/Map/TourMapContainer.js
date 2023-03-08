@@ -14,7 +14,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 const DEFAULT_ZOOM_LEVEL = 13;
 
 export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX}){
-    console.log("onSelectTour :", onSelectTour);
+
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',
         shadowUrl: 'app_static/img/pin-shadow.png',
