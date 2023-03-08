@@ -14,7 +14,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 const DEFAULT_ZOOM_LEVEL = 13;
 
 export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX}){
-
+    console.log("onSelectTour :", onSelectTour);
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',
         shadowUrl: 'app_static/img/pin-shadow.png',
@@ -22,12 +22,12 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         iconAnchor: [15, 41],
     });
 
-    let EndIcon = L.icon({
-        iconUrl: 'app_static/img/pin-icon-end.png',
-        shadowUrl: 'app_static/img/pin-shadow.png',
-        iconSize: [30, 41],
-        iconAnchor: [15, 41],
-    });
+    // let EndIcon = L.icon({
+    //     iconUrl: 'app_static/img/pin-icon-end.png',
+    //     shadowUrl: 'app_static/img/pin-shadow.png',
+    //     iconSize: [30, 41],
+    //     iconAnchor: [15, 41],
+    // });
 
     const mapRef = useRef();
     const clusterRef = useRef();
@@ -88,9 +88,9 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     }
 
     const getEndMarker = () => {
-        if(!!gpxTrack && gpxTrack.length > 0){
-            return <Marker position={gpxTrack[gpxTrack.length - 1]} icon={EndIcon}></Marker>;
-        }
+        // if(!!gpxTrack && gpxTrack.length > 0){
+        //     return <Marker position={gpxTrack[gpxTrack.length - 1]} icon={EndIcon}></Marker>;
+        // }
     }
 
     const createClusterCustomIcon = function (cluster) {
