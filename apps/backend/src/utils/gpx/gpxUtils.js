@@ -124,7 +124,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
             await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' });
             await page.waitForTimeout(10);
             await page.bringToFront();
-            console.log('Screenshot start');
+            // console.log('Screenshot start');
             await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
             console.log('Screenshot done: ', filePath);
             await page.close();
