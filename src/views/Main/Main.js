@@ -218,16 +218,15 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             if(!!res && !!res.data && !!res.data.tour){
                 //clg
                 // console.log("Main : tour data 220",res.data.tour)
-                // setTour(res.data.tour);
-                // toggleDetailOpen();
+                setTour(res.data.tour);
+                toggleDetailOpen();
             }
         })
     }
 
     return <div>
         {/* description
-        getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page header. The directLink prop has been inside one of the useEffects() hooks above and now is passed as an argument to this getPageHeader, and it is used to customize the header text and link based on the current page URL. */}
-           {/* { console.log("directLink /Main:", directLink)} */}
+        getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page header. The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
 
         {getPageHeader(directLink)}
         {/* description:
