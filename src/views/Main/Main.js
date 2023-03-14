@@ -77,8 +77,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
     //details:  
     // code sets up a React useEffect hook that runs only once when the component is mounted. The hook performs several operations:
-    // It calls the loadAllCities function, which loads a list of all cities from table cities , it goes through loadAllCities() in cityActions.js which in turn calls loadList fcn in crudActions.js, this fcn makes an axios call to the database and sets the store state accordingly.
-    // It calls the loadRanges function with two options: ignore_limit and remove_duplicates, which loads the ranges data into the store state using loadRanges() inside rangeActions.js which in turn uses loadList fcn in crudActions.js .
+    // It calls the loadAllCities function, which loads a list of all cities from table cities , it goes through loadAllCities() in cityActions.js which in turn calls loadList() fcn in crudActions.js, this fcn makes an axios call to the database and sets the store state accordingly.
+    // It calls the loadRanges function with two options: ignore_limit and remove_duplicates, which loads the ranges data into the store state using loadRanges() inside rangeActions.js which in turn uses loadList() fcn in crudActions.js .
     // It gets the city value from local storage and the city search parameter from the URL query string, if it exists.
     // If there is a city value in local storage and no city search parameter in the URL query string, it sets the city search parameter in the URL query string to the value in local storage using the setSearchParams state method.
     useEffect(() => {
@@ -122,12 +122,11 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                 navigate('/');
             }
         }
-
     }, [allCities && allRanges]);
 
     //description
     // This hook is essentially checking if the user navigated to the current page from a tour detail page, and if so, it extracts the tour object from the location state and sets it in the tour local state. The detailOpen state is set to true to open the tour detail modal by default when the page loads.
-    // The hook depends on the location object, so it is set as a dependency in the dependency array. This ensures that the hook is executed whenever the location object changes, which could happen if the user navigates to a different page within the app.
+    // The hook depends on the location object, so it is set as a dependency in the dependency array. This ensures that the hook is executed whenever the location object changes, which could happen if the user navigates to a different page.
     useEffect(() => {
         if(!!location && !!location.state &&!!location.state.tour){
             setTour(location.state.tour);
@@ -212,6 +211,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     // It calls the loadTour function which makes an API call to fetch the tour data using the id and city as parameters -loadTour is a function in tourActions.js and uses the function loadOne inside of crudActions.js- , If the response contains valid tour data, the setTour function is called to update the state with the newly loaded tour, and toggleDetailOpen function is called to open the tour detail view.
     // If there is an error or the response does not contain valid tour data, nothing happens and the user remains on the same page.
     const onLoadAndSelectTour = (id) => {
+        // clg
         // console.log(id);
         // console.log(searchParams.get('city'));
         loadTour(id, searchParams.get('city')).then(res => {
@@ -226,11 +226,11 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
 
     return <div>
         {/* description
-        getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page header. The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
+        getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
 
+        {console.log("directLink L 230:",directLink) } {/*  seems to be always on null value */}
         {getPageHeader(directLink)}
-        {/* description:
-        a container element that wraps the search bar and result bar components. It has a custom class to apply specific styling. */}
+        
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
             {
                 // description:
@@ -301,7 +301,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             }}
         >
             {/* description:
-            Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the "tour" state as a prop, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. */}
+            Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. */}
             <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>
         </Drawer>
     </div>
@@ -325,7 +325,7 @@ const mapDispatchToProps = {
 
 
 const mapStateToProps = (state) => {
-    // console.log("Main L256 list of ALL tours : state.tours.tours :", state.tours.tours)
+    // console.log("Main L328 list of ALL tours : state.tours.tours :", state.tours.tours)
     return {
         loading: state.tours.loading,
         tours: state.tours.tours,
