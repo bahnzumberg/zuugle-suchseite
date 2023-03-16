@@ -107,7 +107,7 @@ export const crypt = (salt, text) => {
 
 export const getDomainText = () => {
     const host = location.hostname;
-    if(host.indexOf('zuugle.at') >= 0) {
+    if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
     } else if(host.indexOf('zuugle.de') >= 0){
         return "Zuugle.de"
@@ -115,7 +115,13 @@ export const getDomainText = () => {
         return "Zuugle.ch"
     } else if(host.indexOf('zuugle.it') >= 0){
         return "Zuugle.it"
-    } else {
+    } else if(host.indexOf('zuugle.fr') >= 0){
+        return "Zuugle.fr"
+    } else if(host.indexOf('zuugle.si') >= 0){
+        return "Zuugle.si"
+    } else if(host.indexOf('www2.zuugle.at') >= 0){
+    return "UAT Zuugle.at"
+}else {
         return "Localhost"
     }
 }
