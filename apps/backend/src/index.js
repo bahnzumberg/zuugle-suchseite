@@ -20,6 +20,9 @@ let port = 8080;
 if(process.env.NODE_ENV === "production"){
     port = 6060;
 }
+else if (process.env.NODE_ENV === "uat"){
+    port = 7070;
+}
 
 let corsOptions = getZuugleCors();
 

@@ -18,7 +18,8 @@
     "import-data-full": "node build/jobs/syncDataFull.js",
     "import-files": "node build/jobs/syncFiles.js",
     "sync-gpx-tours": "node build/jobs/syncGpxTours.js",
-    "import-uat": "NODE_ENV=uat node jobs/syncDataFull.js"
+    "import-uat-data": "NODE_ENV=uat node jobs/syncDataFull.js",
+    "import-uat-files": "NODE_ENV=uat node jobs/syncFiles.js"
   },
   "keywords": [],
   "author": "",
