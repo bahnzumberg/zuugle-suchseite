@@ -6,7 +6,7 @@ module.exports = {
             log_date_format: "YYYY-MM-DD",
             exec_mode: "fork_mode",
             env: {
-                NODE_ENV: 'production'
+                NODE_ENV: 'uat'
             },
         }
     ],

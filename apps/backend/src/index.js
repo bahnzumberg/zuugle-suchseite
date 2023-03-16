@@ -76,7 +76,7 @@ process.on('exit',  async () => {
     await shutdownBrowser();
 });
 
-if(process.env.NODE_ENV !== "production"){
+if(process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "uat"){
     process.once('SIGUSR2', async function () {
         await shutdownBrowser();
         process.kill(process.pid, 'SIGUSR2');

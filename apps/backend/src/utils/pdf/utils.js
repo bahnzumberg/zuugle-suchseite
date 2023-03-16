@@ -65,7 +65,7 @@ const htmlToPdf = async (html, saveToDisk = false, fileName = null, landscape = 
 
 const readTemplate = (name = 'standard') => {
     let filePath = path.join(__dirname, "../../templates", name + '.html');
-    if(process.env.NODE_ENV !== "production"){
+    if(process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "uat"){
         filePath = path.join(__dirname, "../../../templates", name + '.html');
     }
     return readFile(filePath, 'utf-8');

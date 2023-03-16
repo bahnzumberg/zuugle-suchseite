@@ -300,29 +300,33 @@ export const get_file_file = (file_id, width, height, res, user = null) => {
 }
 
 export const get_image_base64 = async (file, resizeWith = 1200) => {
-    if (file.content_type.startsWith("image")) {
-        let filePath = path.join(__dirname, "../", file.file);
-        if (process.env.NODE_ENV !== "production") {
-            filePath = path.join(__dirname, "../../", file.file);
-        }
-
-        filePath = ("" + filePath).split("\\").join("/");
-        return fs.promises.readFile(filePath)
-            .then(async data => {
-                const image = await sharp(data)
-                    .resize({ width: resizeWith })
-                    .toFormat('jpeg')
-                    .jpeg({
-                        quality: 100,
-                        force: true,
-                    })
-                    .toBuffer();
-
-                return image.toString('base64');
-            })
-            .catch(err => {
-                console.error(err);
-                return null;
-            });
+  if (file.content_type.startsWith("image")) {
+    let filePath = path.join(__dirname, "../", file.file);
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "uat"
+    ) {
+      filePath = path.join(__dirname, "../../", file.file);
     }
+
+    filePath = ("" + filePath).split("\\").join("/");
+    return fs.promises
+      .readFile(filePath)
+      .then(async (data) => {
+        const image = await sharp(data)
+          .resize({ width: resizeWith })
+          .toFormat("jpeg")
+          .jpeg({
+            quality: 100,
+            force: true,
+          })
+          .toBuffer();
+
+        return image.toString("base64");
+      })
+      .catch((err) => {
+        console.error(err);
+        return null;
+      });
+  }
 };

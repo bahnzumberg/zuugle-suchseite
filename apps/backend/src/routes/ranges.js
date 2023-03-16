@@ -34,6 +34,8 @@ const listWrapper = async (req, res) => {
     if(!!result){
         var host = "http://localhost:8080";
         if (process.env.NODE_ENV === "production") {
+            host = "https://www.zuugle.at";
+        }else if (process.env.NODE_ENV === "uat") {
             host = "https://www2.zuugle.at";
         }
         for(let i=0; i<result.length;i++){

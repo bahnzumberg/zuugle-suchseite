@@ -15,8 +15,9 @@ export class BrowserService {
 
     async init() {
         let addParam = {};
-        if(process.env.NODE_ENV == "production"){
-            addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/chrome')
+        if(process.env.NODE_ENV == "production" || process.env.NODE_ENV === "uat"){
+            addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
+            // addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/chrome')
         }
 
         this._browser = await puppeteer.launch({
