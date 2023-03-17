@@ -17,11 +17,8 @@ process.env.TZ = 'Europe/Berlin';
 
 /* start api */
 let port = 8080;
-if(process.env.NODE_ENV === "production"){
+if(process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"){
     port = 6060;
-}
-else if (process.env.NODE_ENV === "uat"){
-    port = 7070;
 }
 
 let corsOptions = getZuugleCors();
