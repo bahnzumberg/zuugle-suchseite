@@ -551,7 +551,9 @@ export async function mergeToursWithFahrplan(){
                     country_at: false,
                     country_de: false,
                     country_ch: false,
-                    country_it: false
+                    country_it: false,
+                    country_fr: false,
+                    country_si: false
                 };
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
@@ -571,6 +573,10 @@ export async function mergeToursWithFahrplan(){
                             countryObject['country_ch'] = true;
                         } else if(cityEntryFound.city_country === "IT" && countryObject['country_it'] === false){
                             countryObject['country_it'] = true;
+                        } else if(cityEntryFound.city_country === "SI" && countryObject['country_si'] === false){
+                            countryObject['country_si'] = true;
+                        } else if(cityEntryFound.city_country === "FR" && countryObject['country_fr'] === false){
+                            countryObject['country_fr'] = true;
                         }
                     }
                 })
