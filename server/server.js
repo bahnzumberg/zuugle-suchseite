@@ -10,7 +10,7 @@ app.use(compression());
 
 app.use("/app_static", express.static(path.join(__dirname, '../suche/app_static')));
 
-if(process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"){
+if(process.env.NODE_ENV === "production"){
   proxy_port = 6060;
 }
 else {

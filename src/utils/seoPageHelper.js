@@ -97,6 +97,10 @@ const getCountryName = () => {
         return "Deutschland"
     } else if(host.indexOf('zuugle.it') >= 0){
         return "Italien"
+    } else if(host.indexOf('zuugle.fr') >= 0){
+        return "Frankreich"
+    } else if(host.indexOf('zuugle.si') >= 0){
+        return "Slowenien"
     } else {
         return "Österreich";
     }
