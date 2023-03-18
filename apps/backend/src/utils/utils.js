@@ -28,7 +28,7 @@ export function formatTime(date){
 }
 
 export function getHost(origin){
-    if(process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"){
+    if(process.env.NODE_ENV === "production"){
         return `https://${origin}`;
     }
     return "http://localhost:8080";

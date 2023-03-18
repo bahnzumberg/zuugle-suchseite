@@ -954,8 +954,7 @@ const tourGpxWrapper = async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=31557600');
 
     try {
-        // let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
-        let BASE_PATH = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"? "../" : "../../";
+        let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
             let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${keyAbreise}.gpx`));

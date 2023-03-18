@@ -49,7 +49,7 @@ export const createImagesFromMap = async (ids) => {
         try {
 
             let addParam = {};
-               if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+               if(process.env.NODE_ENV == "production"){
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
                 // addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/chrome')
             }
@@ -61,11 +61,14 @@ export const createImagesFromMap = async (ids) => {
             });
 
             let url = process.env.NODE_ENV === "production" ? 
-            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
-            :         process.env.NODE_ENV === "uat" ? 
-            "https://www2.zuugle.at/public/headless-leaflet/index.html?gpx=https://www2.zuugle.at/public/gpx/" 
+            "/public/headless-leaflet/index.html?gpx=/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
+
+            // "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
+            // :         process.env.NODE_ENV === "uat" ? 
+            // "https://www2.zuugle.at/public/headless-leaflet/index.html?gpx=https://www2.zuugle.at/public/gpx/" 
+            
 
 
             const chunkSize = 10;
@@ -76,7 +79,7 @@ export const createImagesFromMap = async (ids) => {
 
                     let filePath = undefined;
                     let filePathSmall = undefined;
-                    if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+                    if(process.env.NODE_ENV == "production"){
                         filePath = path.join(__dirname, "../../", "public/gpx-image/"+ch+"_gpx.jpg");
                         filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+ch+"_gpx_small.jpg");
                     } else {
@@ -145,16 +148,14 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
     let browser = null;
     try {
 
-        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `https://www.zuugle.at/public/headless-leaflet/${template}` 
-        :                   process.env.NODE_ENV === "uat" ?            `https://www2.zuugle.at/public/headless-leaflet/${template}` 
+        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `/public/headless-leaflet/${template}` 
         :                                                               `http://localhost:8080/public/headless-leaflet/${template}`;
 
-        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "https://www.zuugle.at/public/gpx/" 
-        :                   process.env.NODE_ENV === "uat" ?            "https://www2.zuugle.at/public/gpx/" 
+        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "/public/gpx/" 
         :                                                                "http://localhost:8080/public/gpx/";
-        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "https://www.zuugle.at/public/gpx-track/" 
-        :                        process.env.NODE_ENV === "uat" ?       "https://www2.zuugle.at/public/gpx-track/"
-        :                                                               "http://localhost:8080/public/gpx-track/";
+
+        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "/public/gpx-track/" 
+        :                                                                "http://localhost:8080/public/gpx-track/";
 
         let url = "";
 
@@ -168,13 +169,13 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
         }
 
         let addParam = {};
-        if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+        if(process.env.NODE_ENV == "production"){
             addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
         }
 
         let filePath = undefined;
         let baseFilePath = "public/gpx-image-with-track/"+providerhashedUrl+ "_"+ getValidUndefinedFileName(toTourTrackKey) + "_" + getValidUndefinedFileName(fromTourTrackKey) + fileNamePostfix +"_gpx.jpg";
-        if(process.env.NODE_ENV == "production" || process.env.NODE_ENV === "uat"){
+        if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../../", baseFilePath);
         } else {
             filePath = path.join(__dirname, "../../../", baseFilePath);

@@ -70,7 +70,7 @@ export async function getProvider(){
 async function _syncConnectionGPX(key, fileName, title){
     return new Promise(async resolve => {
         let filePath = '';
-        if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+        if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../", fileName);
         } else {
             filePath = path.join(__dirname, "../../", fileName);
@@ -151,7 +151,7 @@ async function _syncGPX(prov, h_url, title){
         try {
             let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
             let filePath = '';
-            if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+            if(process.env.NODE_ENV == "production"){
                 filePath = path.join(__dirname, "../", fileName);
             } else {
                 filePath = path.join(__dirname, "../../", fileName);
@@ -174,7 +174,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        if(process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "uat"){
+        if(process.env.NODE_ENV !== "production"){
             console.log(`create file [${filePath}]`);
         }
         
