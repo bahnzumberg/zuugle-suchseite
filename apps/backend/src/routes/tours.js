@@ -1042,7 +1042,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         }
 
         if(!!city){
-            !!domain && console.log("tours.js L1046, domain:",domain);
+            // !!domain && console.log("tours.js L1046, domain:",domain);
             const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('totour_track_key').first();
             const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
