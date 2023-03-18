@@ -36,17 +36,15 @@ const listWrapper = async (req, res) => {
     if(!!result){
         // const hostname = location.hostname;
         const hostname = os.hostname();
-        // console.log("hostname :",hostname);
-        const host = hostname.includes('zuugle') ? `https://${hostname}` : "http://localhost:8080";
 
-        // var host = "http://localhost:8080";
+        var host = "http://localhost:8080";
         
-        // if(hostname.indexOf('www.zuugle') >= 0) {
-        //     host = "https://www.zuugle.at";
-        // }
-        // else if(hostname.indexOf('www2.zuugle') >= 0) {
-        //     host = "https://www2.zuugle.at";
-        // }
+        if(hostname.indexOf('www.zuugle') >= 0) {
+            host = "https://www.zuugle.at";
+        }
+        else if(hostname.indexOf('www2.zuugle') >= 0) {
+            host = "https://www2.zuugle.at";
+        }
 
         for(let i=0; i<result.length;i++){
             let entry = result[i];
