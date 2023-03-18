@@ -16,7 +16,7 @@ Im src Verzeichnis liegen zwei Example Dateien: knexfile.js.example und knexfile
 Bitte diese auf knexfile.js und knexfileTourenDb.js umbenennen.
 
 
-### Datenbank einrichten
+### Datenbank PostgreSQL 13.9 einrichten
 1. Docker (https://www.docker.com/) lokal installieren
 2. docker build -t zuugle-postgres-db ./
 3. docker run -d --name zuugle-container -p 5432:5432 zuugle-postgres-db
