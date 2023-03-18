@@ -70,7 +70,7 @@ export async function getProvider(){
 async function _syncConnectionGPX(key, fileName, title){
     return new Promise(async resolve => {
         let filePath = '';
-        if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+        if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../", fileName);
         } else {
             filePath = path.join(__dirname, "../../", fileName);
@@ -151,7 +151,7 @@ async function _syncGPX(prov, h_url, title){
         try {
             let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
             let filePath = '';
-            if(process.env.NODE_ENV == "production" || process.env.NODE_ENV == "uat"){
+            if(process.env.NODE_ENV == "production"){
                 filePath = path.join(__dirname, "../", fileName);
             } else {
                 filePath = path.join(__dirname, "../../", fileName);
@@ -174,7 +174,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        if(process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "uat"){
+        if(process.env.NODE_ENV !== "production"){
             console.log(`create file [${filePath}]`);
         }
         
@@ -551,7 +551,9 @@ export async function mergeToursWithFahrplan(){
                     country_at: false,
                     country_de: false,
                     country_ch: false,
-                    country_it: false
+                    country_it: false,
+                    country_fr: false,
+                    country_si: false
                 };
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
@@ -571,6 +573,10 @@ export async function mergeToursWithFahrplan(){
                             countryObject['country_ch'] = true;
                         } else if(cityEntryFound.city_country === "IT" && countryObject['country_it'] === false){
                             countryObject['country_it'] = true;
+                        } else if(cityEntryFound.city_country === "SI" && countryObject['country_si'] === false){
+                            countryObject['country_si'] = true;
+                        } else if(cityEntryFound.city_country === "FR" && countryObject['country_fr'] === false){
+                            countryObject['country_fr'] = true;
                         }
                     }
                 })

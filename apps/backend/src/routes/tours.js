@@ -34,7 +34,7 @@ const getWrapper = async (req, res) => {
     if(!!!id){
         res.status(404).json({success: false});
     } else {
-        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
+        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
         let entry = await knex('tour').select(selects).where({id: id}).first();
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({success: true, tour: entry});
@@ -69,7 +69,7 @@ const listWrapper = async (req, res) => {
 
     //describe:
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object'];
 
     if(!!map){
         selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
@@ -954,8 +954,7 @@ const tourGpxWrapper = async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=31557600');
 
     try {
-        // let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
-        let BASE_PATH = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"? "../" : "../../";
+        let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
             let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${keyAbreise}.gpx`));

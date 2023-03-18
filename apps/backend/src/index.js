@@ -17,7 +17,7 @@ process.env.TZ = 'Europe/Berlin';
 
 /* start api */
 let port = 8080;
-if(process.env.NODE_ENV === "production" || process.env.NODE_ENV === "uat"){
+if(process.env.NODE_ENV === "production"){
     port = 6060;
 }
 
@@ -76,7 +76,7 @@ process.on('exit',  async () => {
     await shutdownBrowser();
 });
 
-if(process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "uat"){
+if(process.env.NODE_ENV !== "production"){
     process.once('SIGUSR2', async function () {
         await shutdownBrowser();
         process.kill(process.pid, 'SIGUSR2');

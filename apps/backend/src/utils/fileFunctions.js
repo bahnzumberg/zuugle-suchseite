@@ -303,8 +303,7 @@ export const get_image_base64 = async (file, resizeWith = 1200) => {
   if (file.content_type.startsWith("image")) {
     let filePath = path.join(__dirname, "../", file.file);
     if (
-      process.env.NODE_ENV !== "production" &&
-      process.env.NODE_ENV !== "uat"
+      process.env.NODE_ENV !== "production"
     ) {
       filePath = path.join(__dirname, "../../", file.file);
     }
