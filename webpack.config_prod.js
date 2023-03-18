@@ -12,7 +12,7 @@ console.log('BUILD_DIR', BUILD_DIR);
 console.log('SRC_DIR', SRC_DIR);
 
 module.exports = {
-  mode: "production",
+  mode: "uat",
   output: {
     path: BUILD_DIR,
     filename: './app_static/[name].bundle.js'
