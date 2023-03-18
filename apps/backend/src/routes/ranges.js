@@ -2,7 +2,7 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 import {getWhereFromDomain} from "../utils/utils";
-// import os from 'os';
+import os from 'os';
 
 router.get('/', (req, res) => listWrapper(req, res));
 
@@ -34,8 +34,8 @@ const listWrapper = async (req, res) => {
 
     let result = await query;
     if(!!result){
-        const hostname = location.hostname;
-        // const hostname = os.hostname();
+        // const hostname = location.hostname;
+        const hostname = os.hostname();
 
         var host = "http://localhost:8080";
         
