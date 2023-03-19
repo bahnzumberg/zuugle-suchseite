@@ -29,7 +29,7 @@ process.setMaxListeners(0);
 app.use(bodyParser.json({limit: '1024mb'}));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json({limit: '1024mb'}));
-app.use(express.urlencoded({limit: '1024mb'}));
+app.use(express.urlencoded({limit: '1024mb',extended: false}));
 
 //static file access
 app.use("/public", cors({}), express.static('public'));

@@ -2,6 +2,8 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 import {getWhereFromDomain} from "../utils/utils";
+import os from 'os';
+
 router.get('/', (req, res) => listWrapper(req, res));
 
 const listWrapper = async (req, res) => {
@@ -32,10 +34,18 @@ const listWrapper = async (req, res) => {
 
     let result = await query;
     if(!!result){
+        // const hostname = location.hostname;
+        const hostname = os.hostname();
+
         var host = "http://localhost:8080";
-        if (process.env.NODE_ENV === "production") {
+        
+        if(hostname.indexOf('www.zuugle') >= 0) {
+            host = "https://www.zuugle.at";
+        }
+        else if(hostname.indexOf('www2.zuugle') >= 0) {
             host = "https://www2.zuugle.at";
         }
+
         for(let i=0; i<result.length;i++){
             let entry = result[i];
             if(!!entry){

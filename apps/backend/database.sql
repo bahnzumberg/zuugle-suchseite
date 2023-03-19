@@ -8,6 +8,7 @@ CREATE TABLE tour (
       ascent int NOT NULL,
       descent int NOT NULL,
       difficulty int DEFAULT NULL,
+      difficulty_orig varchar(45) DEFAULT NULL,
       duration decimal(6,2) DEFAULT NULL,
       distance decimal(6,2) DEFAULT NULL,
       title varchar(255) DEFAULT NULL,
@@ -52,7 +53,8 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
-ALTER TABLE tour ADD COLUMN difficulty_orig varchar(45) default NULL;
+ALTER TABLE tour ADD COLUMN country_si boolean DEFAULT false;
+ALTER TABLE tour ADD COLUMN country_fr boolean DEFAULT false;
 
 UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
@@ -64,6 +66,8 @@ CREATE INDEX ON tour (country_at);
 CREATE INDEX ON tour (country_de);
 CREATE INDEX ON tour (country_it);
 CREATE INDEX ON tour (country_ch);
+CREATE INDEX ON tour (country_fr);
+CREATE INDEX ON tour (country_si);
 CREATE INDEX ON tour (cities);
 CREATE INDEX ON tour (cities_object);
 CREATE INDEX ON tour (month_order);

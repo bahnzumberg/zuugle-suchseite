@@ -174,8 +174,8 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        if(process.env.NODE_ENV != "production"){
-            // console.log(`create file [${filePath}]`);
+        if(process.env.NODE_ENV !== "production"){
+            console.log(`create file [${filePath}]`);
         }
         
         const root = create({ version: '1.0' })
@@ -256,7 +256,7 @@ export async function syncFahrplan(mode='delta'){
         chunksizer = 1;
     }
 
-    console.log('(Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
+    console.log('Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
@@ -551,7 +551,9 @@ export async function mergeToursWithFahrplan(){
                     country_at: false,
                     country_de: false,
                     country_ch: false,
-                    country_it: false
+                    country_it: false,
+                    country_fr: false,
+                    country_si: false
                 };
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
@@ -571,6 +573,10 @@ export async function mergeToursWithFahrplan(){
                             countryObject['country_ch'] = true;
                         } else if(cityEntryFound.city_country === "IT" && countryObject['country_it'] === false){
                             countryObject['country_it'] = true;
+                        } else if(cityEntryFound.city_country === "SI" && countryObject['country_si'] === false){
+                            countryObject['country_si'] = true;
+                        } else if(cityEntryFound.city_country === "FR" && countryObject['country_fr'] === false){
+                            countryObject['country_fr'] = true;
                         }
                     }
                 })
@@ -683,6 +689,7 @@ const bulk_insert_tours = async (entries) => {
             ascent: entry.ascent,
             descent: entry.descent,
             difficulty: entry.difficulty,
+            difficulty_orig: entry.difficulty_orig,
             duration: entry.duration,
             distance: entry.distance,
             title: entry.title,
@@ -712,8 +719,7 @@ const bulk_insert_tours = async (entries) => {
             quality_rating: entry.quality_rating,
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
-            gpx_data: entry.gpx_data,
-            difficulty_orig: entry.difficulty_orig
+            gpx_data: entry.gpx_data
         });
     }
 
@@ -776,12 +782,11 @@ const deleteFileModulo30 = (h_url, filePath) => {
     if (!!fs.existsSync(filePath)) {
         const today = moment().format('D');
         const hash_day = hashString(h_url) % 30 + 1;
+        
         if (today == hash_day) {
             try {
                 fs.unlinkSync(filePath);
-                if(process.env.NODE_ENV != "production"){
-                    console.log('File deleted successfully: ', filePath);
-                }
+                // console.log('File deleted successfully: ', filePath);
             } catch(err) {
                 console.log(err.message);
             }

@@ -17,6 +17,10 @@ const listWrapper = async (req, res) => {
         where['city_country'] = "CH";
     } else if(domain.indexOf("zuugle.it") >= 0){
         where['city_country'] = "IT";
+    } else if(domain.indexOf("zuugle.si") >= 0){
+        where['city_country'] = "SI";
+    } else if(domain.indexOf("zuugle.fr") >= 0){
+        where['city_country'] = "FR";
     }
 
     let result = [];

@@ -8,17 +8,6 @@ export const round = (value, decimals) => {
     return (value < 0) ? ret * -1 : ret;
 };
 
-export function formatMoney(n, showCurrency = true, c, d, t) {
-
-    var c = isNaN(c = Math.abs(c)) ? 2 : c,
-        d = d == undefined ? "," : d,
-        t = t == undefined ? " " : t,
-        s = n < 0 ? "-" : "",
-        i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
-        j = (j = i.length) > 3 ? j % 3 : 0;
-    return (showCurrency ? "€ " : "") + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
-}
-
 export function listOfDays(startDate, endDate) {
     let dates = [];
 
@@ -79,6 +68,10 @@ export const getWhereFromDomain = (domain) => {
             return {country_ch: true}
         } else if(domain.indexOf('zuugle.it') >= 0){
             return {country_it: true}
+        } else if(domain.indexOf('zuugle.si') >= 0){
+            return {country_si: true}
+        } else if(domain.indexOf('zuugle.fr') >= 0){
+            return {country_fr: true}
         } else {
             return {country_at: true}
         }
@@ -95,6 +88,10 @@ export const getTldFromDomain = (domain) => {
         return "CH";
     } else if(domain.indexOf('zuugle.it') >= 0){
         return "IT";
+    } else if(domain.indexOf('zuugle.si') >= 0){
+        return "SI";
+    } else if(domain.indexOf('zuugle.fr') >= 0){
+        return "FR";
     } else {
         return "AT";
     }
