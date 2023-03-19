@@ -37,31 +37,31 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
 
             <Box sx={{marginTop: '50px'}}>
                 <Grid container>
-                    <Grid item xs={5} sm={2} sx={{marginBottom: "16px"}}>
+                    <Grid item xs={6} sm={2} sx={{marginBottom: "16px"}}>
                         <Box>
                             <Typography variant={"h3"}>{Number(totalTours).toLocaleString()}</Typography>
                             <Typography variant={"text"} color={"#FFFFFF"}>Öffi-Bergtouren</Typography>
                         </Box>
                     </Grid>
-                    <Grid item xs={5} sm={2} sx={{marginBottom: "16px"}}>
+                    <Grid item xs={6} sm={2} sx={{marginBottom: "16px"}}>
                         <Box>
                             <Typography variant={"h3"}>{totalProvider}</Typography>
                             <Typography variant={"text"} color={"#FFFFFF"}>durchsuchte Tourenportale</Typography>
                         </Box>
                     </Grid>
-                    <Grid item xs={5} sm={2} sx={{marginBottom: "16px"}}>
+                    <Grid item xs={6} sm={2} sx={{marginBottom: "16px"}}>
                         <Box>
                             <Typography variant={"h3"}>{totalRanges}</Typography>
                             <Typography variant={"text"} color={"#FFFFFF"}>Wanderregionen</Typography>
                         </Box>
                     </Grid>
-                    <Grid item xs={5} sm={2} sx={{marginBottom: "16px"}}>
+                    <Grid item xs={6} sm={2} sx={{marginBottom: "16px"}}>
                         <Box>
                             <Typography variant={"h3"}>{totalCities}</Typography>
                             <Typography variant={"text"} color={"#FFFFFF"}>verfügbare Heimatbahnhöfe</Typography>
                         </Box>
                     </Grid>
-                    <Grid item xs={5} sm={2} sx={{marginBottom: "16px"}}>
+                    <Grid item xs={6} sm={2} sx={{marginBottom: "16px"}}>
                         <Box>
                             <Typography variant={"h3"}>{Number(totalConnections).toLocaleString()}</Typography>
                             <Typography variant={"text"} color={"#FFFFFF"}>Anzahl Öffi-Verbindungen</Typography>
