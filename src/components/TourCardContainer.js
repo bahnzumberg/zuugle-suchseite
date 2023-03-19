@@ -55,7 +55,7 @@ export default function TourCardContainer({tours, onSelectTour, loadTourConnecti
             >
                 <Grid container spacing={2}>
                     {
-                        (!!tours ? tours : []).filter(tour => !!!tour.is_map_entry).map(tour => <Grid item xs={12} sm={6} lg={4} style={{marginBottom: "5px"}}>
+                        (!!tours ? tours : []).filter(tour => !!!tour.is_map_entry).map((tour,index) => <Grid key={index} item xs={12} sm={6} lg={4} style={{marginBottom: "5px"}}>
                             <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
                         </Grid>)
                     }

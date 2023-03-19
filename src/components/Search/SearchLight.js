@@ -12,6 +12,11 @@ import {useSearchParams} from "react-router-dom";
 import {hideModal, showModal} from "../../actions/modalActions";
 import {CityResultList} from "./CityResultList";
 
+//description
+//a search bar UI component that allows users to search for cities and potentially triggers other actions related to the searched city.
+// The component receives various props, including functions for loading cities, regions, tours, and favourite tours, as well as functions for showing and hiding modals. It also uses React hooks such as useState and useEffect.
+// The component renders a CityInput component and a CityResultList component conditionally based on the openCitySearch state. The CityInput component allows users to input a city name, and the CityResultList component displays a list of cities that match the search query.
+// When a city is selected from the list, the onCitySelected function is called, and the selected city is passed as an argument. The setSearchParams function is also called to update the search parameters with the selected city.
 function SearchLight({loadCities, cities, loadRegions, regions, loadTours, isCityLoading, goto, isMain, loadFavouriteTours, showModal, hideModal, onCitySelected}){
 
     const [searchParams, setSearchParams] = useSearchParams();

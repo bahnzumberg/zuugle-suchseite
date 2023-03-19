@@ -251,8 +251,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             })
         }
-        return types.map(type => {
-            return  <Grid item xs={6}>
+        return types.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
                         <Box>
                             <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
                         </Box>
@@ -271,8 +271,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             })
         }
 
-        return ranges.map(type => {
-            return  <Grid item xs={6}>
+        return ranges.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
                 <Box>
                     <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(rangeValues, type.value)} onChange={({target}) => {onChangedCheckbox(rangeValues, type.value, target.checked, setRangeValues)}}/>} label={type.label} />
                 </Box>
@@ -558,32 +558,13 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             <Typography variant={"error"}><TextWithIcon text={difficulty} iconRight={<Intensity style={{stroke: "#FF540B", fill: "none", strokeWidth: 1.5}}/>} /></Typography>
                         </Box>
                         <Typography variant={"subtitle1"}>Schwierigkeit</Typography>
-                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>Der Schwierigkeitswert wurde nach den allgemein verfügbaren Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann zwischen 1 (leicht) bis 10 (sehr schwierig) variieren.</Typography>
+                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>Der Schwierigkeitswert wurde nach den Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann "leicht", "mittel" oder "schwer" sein.</Typography>
                         <DifficultySlider
                             containerSx={{marginTop: '20px', marginRight: '10px'}}
                             defaultValue={10}
                             value={difficulty}
                             onChange={({target}) => setDifficulty(target.value)}
                         />
-                    </Box>
-                    <Box className={"filter-box"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>Weitere Filter</Typography>
-                        <Box sx={{paddingTop: "16px"}}>
-                            <Grid container>
-                                <Grid item xs={10}>
-                                    <Typography variant={"subtitle3"}>Kinderfreundlich</Typography>
-                                    <Typography variant={"subtitle2"} sx={{fontSize: "16px", fontWeight: 400}}>Der Autor hat diese Tour aus seiner persönlichen Sicht als kinderfreundlich bewertet. Bitte die Tour jedenfalls selbst bewerten und dem Alter und Können der Kinder entsprechend wählen.</Typography>
-                                </Grid>
-                                <Grid item xs={2} sx={{textAlign: "right"}}>
-                                    <Switch
-                                        checked={children}
-                                        onChange={() => setChildren(!!!children)}
-                                        disabled={!!!getFilterProp(filter, "isChildrenPossible")}
-                                    />
-                                </Grid>
-                            </Grid>
-                            
-                        </Box>
                     </Box>
                 </Box>
                 <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>

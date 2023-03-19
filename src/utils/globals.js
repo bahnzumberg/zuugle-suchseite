@@ -1,6 +1,5 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import React from "react";
 
 export function convertNumToTime(number) {
     // Check sign of given number
@@ -108,7 +107,7 @@ export const crypt = (salt, text) => {
 
 export const getDomainText = () => {
     const host = location.hostname;
-    if(host.indexOf('zuugle.at') >= 0) {
+    if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
     } else if(host.indexOf('zuugle.de') >= 0){
         return "Zuugle.de"
@@ -116,7 +115,13 @@ export const getDomainText = () => {
         return "Zuugle.ch"
     } else if(host.indexOf('zuugle.it') >= 0){
         return "Zuugle.it"
-    } else {
+    } else if(host.indexOf('zuugle.fr') >= 0){
+        return "Zuugle.fr"
+    } else if(host.indexOf('zuugle.si') >= 0){
+        return "Zuugle.si"
+    } else if(host.indexOf('www2.zuugle.at') >= 0){
+    return "UAT Zuugle.at"
+}else {
         return "Localhost"
     }
 }
@@ -182,3 +187,8 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
     }
     return "";
 }
+
+export const titleCase = (string = '') =>{
+    if(typeof string === 'string')
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }

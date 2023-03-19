@@ -24,8 +24,9 @@ export function RegionResultList({regions, setRegion, setRegionInput, onFocusReg
             </ListItem>
         }
 
-        {(!!_ranges) ? _ranges.map(_region => {
+        {(!!_ranges) ? _ranges.map((_region,index) => {
             return <ListItem
+                key={index}
                 onMouseDown={(event) => {
                     setRegion(_region);
                     setRegionInput(_region.label)
@@ -80,8 +81,9 @@ export function RegionResultList({regions, setRegion, setRegionInput, onFocusReg
         }
 
 
-        {(_types) ? _types.map(_region => {
+        {(_types) ? _types.map((_region,index) => {
             return <ListItem
+                key={index}
                 onMouseDown={(event) => {
                     setRegion(_region);
                     setRegionInput(_region.label)

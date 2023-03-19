@@ -6,7 +6,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from "./rootReducer";
 import { Helmet } from 'react-helmet';
-import {createBrowserHistory} from 'history';
 import { Provider } from 'react-redux'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -16,8 +15,8 @@ export const store = createStore(rootReducer, composeEnhancers(
 
 
 
-export const history = createBrowserHistory();
-
+//description:
+//This code is a workaround for a bug in Internet Explorer Mobile 10.0, where the viewport size is not calculated properly. The code detects if the user agent matches this version of IE Mobile and then injects a style tag into the HTML head, which sets the width of the viewport to "auto!important", overriding any previous CSS rules. This fixes the bug and allows the page to be displayed correctly on IE Mobile 10.0.
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
     var msViewportStyle = document.createElement('style');
     msViewportStyle.appendChild(
@@ -27,8 +26,6 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
     );
     document.head.appendChild(msViewportStyle);
 }
-
-let host = window.location.protocol + "//" +window.location.hostname;
 
 ReactDOM.render((
     <Provider store={store}>

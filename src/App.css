@@ -1,8 +1,8 @@
 /* @import '~material-design-icons/iconfont/material-icons.css' */
 
-html, body {
-  /*overflow-x: hidden; */
-}
+/* html, body {
+  overflow-x: hidden;
+} */
 
 body * {
   -webkit-font-smoothing: subpixel-antialiased !important;
@@ -590,7 +590,7 @@ ul.about-bullets {
   height: 50px;
   border-radius: 50%;
   opacity: 0.5;
-  backgroundColor: #000;
+  background-color: #000;
   color: #FFF;
 }
 

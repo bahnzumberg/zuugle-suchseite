@@ -51,8 +51,11 @@ export function CityResultList({cities, setCity, setCityInput, onFocusCity, isCi
     }
 
     const generateLinkEntry = (url, linkText, label) => {
+        // console.log("L54 : URL passed to list item",url)
+        // console.log("L55 : linkText passed to list item",linkText)
+        // console.log("L56 : label passed to list item",label)
         return  <ListItem
-            onMouseDown={() => {window.location.href = url}}
+            onMouseDown={() => {window.location.href = url}} //sets up a redirect to the specified URL when the mouse button is pressed down on the ListItem.
             sx={{borderBottom: "1px solid #ECECEC"}}
             className={"cursor-link"}
             secondaryAction={
@@ -95,8 +98,9 @@ export function CityResultList({cities, setCity, setCityInput, onFocusCity, isCi
         </ListItem>
         }
 
-        {(!!_cities ? _cities : []).map(_city => {
+        {(!!_cities ? _cities : []).map((_city,index) => {
             return <ListItem
+                key={index}
                 onMouseDown={(event) => {
                     setCity(_city);
                     setCityInput(_city.label);

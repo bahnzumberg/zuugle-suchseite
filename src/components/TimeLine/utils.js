@@ -216,7 +216,7 @@ export const getDetailedEntries = (connection, field1 = "connection_description_
     let entries = connection[field1].slice(1);
 
     return entries.map((entry, index) => {
-        return <TimelineItem>
+        return <TimelineItem key={index}>
             <TimelineOppositeContent color="text.secondary" sx={{flex: 0.2, marginTop: "auto", marginBottom: "auto"}} className={"timeline-opposite-container"}>
                 <div>
                     {getIconFromText(entry)}

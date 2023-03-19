@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import {useEffect, useState} from "react";
 import {checkIfImageExists} from "../utils/globals";
 
-const DEFAULT_IMAGE = `${window.location.protocol}//${window.location.host}/public/range-image/default.jpg`;
+const DEFAULT_IMAGE = `${window.location.origin}/app_static/img/default.jpg`;
 
 export default function RangeCard({range, onSelectTour}){
     const [image, setImage] = useState(DEFAULT_IMAGE);

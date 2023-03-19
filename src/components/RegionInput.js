@@ -38,7 +38,8 @@ export default function RegionInput({loadRegions, region, setRegion, onFocus, is
         fullWidth
         disabled={disabled}
         value={region}
-        disableAutoFocus={true}
+        disableautofocus="true"
+        // disableAutoFocus={true}
         key={"region-input"}
         autoComplete={"off"}
         onChange={(event) => {

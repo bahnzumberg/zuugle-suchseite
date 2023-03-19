@@ -12,6 +12,7 @@ import {getFilterProp} from "../utils/globals";
 
 export default function ResultBar({total, showModal, hideModal, filter, filterActive, everythingDisabled = false, clearTours}){
 
+    // console.log("Total in ResultBar: " + total);
     const [searchParams, setSearchParams] = useSearchParams();
     const [order, setOrder] = React.useState("relevanz");
     const [mapView, setMapView] = React.useState(false);

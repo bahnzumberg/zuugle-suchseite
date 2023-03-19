@@ -27,6 +27,17 @@ const CssTextField = styled(TextField)({
     },
 });
 
+//description
+//a React functional component, receives several props:
+// loadCities: a function to load a list of cities based on the input value
+// city: a string representing the current value of the input
+// setCity: a function to update the value of the input
+// onFocus: a function to be called when the input is focused
+// isOpen: a boolean to determine if the input is currently open (expanded)
+// showRightIcon: a boolean to determine if the chevron icon should be displayed on the right side of the input
+// onClick: a function to be called when the input is clicked
+// disabled: a boolean to determine if the input is disabled or not
+// The component renders a Material-UI TextField component that has customized styles. It also includes two icons (Home and ChevronDown/ChevronUp) as input adornments on the left and right sides respectively. The onChange handler is used to update the city state and call loadCities to load a list of cities based on the input value. The onFocus and onBlur handlers are used to call the onFocus function if it is provided. Finally, the onClick handler is used to call the onClick function if it is provided.
 
 export default function CityInput({loadCities, city, setCity, onFocus, isOpen, showRightIcon = true, onClick, disabled}){
 
@@ -53,7 +64,8 @@ export default function CityInput({loadCities, city, setCity, onFocus, isOpen, s
         fullWidth
         disabled={disabled}
         value={city}
-        disableAutoFocus={true}
+        disableautofocus="true"
+        // disableAutoFocus={true}
         autoComplete={"off"}
         key={"city-input"}
         onChange={(event) => {
