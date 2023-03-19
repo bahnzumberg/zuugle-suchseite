@@ -256,7 +256,7 @@ export async function syncFahrplan(mode='delta'){
         chunksizer = 1;
     }
 
-    console.log('(Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
+    console.log('Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
@@ -782,10 +782,11 @@ const deleteFileModulo30 = (h_url, filePath) => {
     if (!!fs.existsSync(filePath)) {
         const today = moment().format('D');
         const hash_day = hashString(h_url) % 30 + 1;
+        
         if (today == hash_day) {
             try {
                 fs.unlinkSync(filePath);
-                // console.log('GPX Track deleted successfully: ', filePath);
+                // console.log('File deleted successfully: ', filePath);
             } catch(err) {
                 console.log(err.message);
             }

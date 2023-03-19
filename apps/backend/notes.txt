@@ -257,7 +257,7 @@ Command:
 	START SYNC TOURS:  23:25:09
 	DONE SYNC TOURS:  23:25:11
 	START SYNC FAHRPLAN:  23:25:11
-	(Info: Handling  164730  rows fplan data.
+	Info: Handling  164730  rows fplan data.
 	DONE SYNC FAHRPLAN:  23:26:26
 	START SYNC CITIES:  23:26:26
 	DONE SYNC CITIES:  23:26:26
