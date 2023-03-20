@@ -3,6 +3,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
 
 const BUILD_DIR = path.resolve(__dirname, 'build');
@@ -90,6 +91,16 @@ module.exports = {
       },
     }),
     new webpack.DefinePlugin({}),
-  ]
+  ],
+  optimization: {
+    minimizer: [new TerserPlugin({
+      terserOptions: {
+        format: {
+          comments: false,
+        },
+      },
+      extractComments: false,
+    })],
+  },
 }
 ;
