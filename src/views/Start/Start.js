@@ -96,7 +96,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 // An additional state object is passed as an option to the navigate function. This state object contains a single key-value pair, where the key is tour and the value is the selected tour.
 // The purpose of onSelectTour  within the Start.js file is to allow users to navigate to the search page with the selected tour as the search query. The state object is passed along so that the search page has access to the tour information.
     const onSelectTour = (tour) => {
-        console.log('tour is :L99', tour)
+        // console.log('tour is :L99', tour)
         let _city = searchParams.get('city');
         const navUrl = `/suche?sort=relevanz&search=${tour.title.replace(/[()-]/g, ' ')}${!!_city ? '&city='+_city : ''}`;
         //clgs

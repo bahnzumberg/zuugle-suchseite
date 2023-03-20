@@ -45,7 +45,7 @@ function a11yProps(index) {
 }
 
 export default function Detail({tour, loadTourConnectionsExtended, onClose}){
-    console.log("tour value: ",tour)
+    // console.log("tour value: ",tour)
     const [value, setValue] = React.useState(0);
     const [connectionEntity, setConnectionEntity] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -100,7 +100,7 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
                 return entry.connections[0];
             }
         }
-        console.log("L93 : RETURN A NULL inside fcn 'getConnectionFromIndex' ")
+        // console.log("L93 : RETURN A NULL inside fcn 'getConnectionFromIndex' ")
         return null;
     }
 

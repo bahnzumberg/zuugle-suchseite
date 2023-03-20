@@ -4,7 +4,7 @@ import {Grid, Typography} from "@mui/material";
 import {Helmet} from "react-helmet";
 
 export const getPageHeader = (directLink) => {
-    console.log("directLink :", directLink) // seems to be always on null value 
+    //console.log("directLink :", directLink) // seems to be always on null value 
     if(!!directLink && !!directLink.header){
         return <Helmet>
             <title>{directLink.header}</title>

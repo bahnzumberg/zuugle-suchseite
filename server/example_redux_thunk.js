@@ -63,7 +63,7 @@ const fetchUsers = () => {
 
 // The reducer function takes the previous state and an action as arguments, and returns the new state based on the type of action.
 const reducer = (state = initialState, action) => {
-  console.log(action.type)
+  // console.log(action.type)
   switch (action.type) {
     case FETCH_USERS_REQUEST:
       return {
@@ -87,7 +87,7 @@ const reducer = (state = initialState, action) => {
 // The state store is created using createStore, passing the reducer function and applying thunkMiddleware.
 const store = createStore(reducer, applyMiddleware(thunkMiddleware))
 // The state store is subscribed to console log updated state.
-store.subscribe(() => { console.log(store.getState()) })
+// store.subscribe(() => { console.log(store.getState()) })
 // the fetchUsers action is dispatched to trigger the API call and update the state
 store.dispatch(fetchUsers())
 // In a Redux context, dispatch is a method provided by the Redux store that allows you to trigger an action and update the state of the application. When you call dispatch with an action object, the Redux store will pass the action and the current state to the root reducer, which will compute the new state based on the action type and return the updated state. This updated state will then replace the previous state in the store and trigger any registered listeners, such as component re-renders.

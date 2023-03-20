@@ -228,7 +228,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         {/* description
         getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
 
-        {console.log("directLink L 230:",directLink) } {/*  seems to be always on null value */}
+        {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
         {getPageHeader(directLink)}
         
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
