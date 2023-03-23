@@ -39,7 +39,7 @@ export default function Header({totalTours, allCities}){
                 <Box sx={{display: "flex", alignItems: "center", marginBottom: "16px"}}>
                     <img src={`/app_static/img/logo-white.png`} height={"16px"} width={"29px"}/><Typography style={{fontSize: "16px", color: "#FFF", lineHeight: "16px", marginLeft: "5px"}}>{getDomainText()}</Typography>
                 </Box>
-                <Typography variant={"h1"}>{totalTours.toLocaleString()} Touren im deutschsprachigen Alpenraum – erreichbar mit Bahn & Bus</Typography>
+                <Typography variant={"h1"}>{totalTours.toLocaleString()} Bergtouren im deutschsprachigen Alpenraum – erreichbar mit Bahn & Bus</Typography>
             </Box>
             {(!!allCities && allCities.length > 0) &&
                 <SearchContainer goto={"/suche"}/>
