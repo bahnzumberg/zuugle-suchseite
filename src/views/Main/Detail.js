@@ -58,6 +58,7 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
         //given the tour id and the city to depart from, this function will fetch related tour connections from the dbase and set the state
         loadTourConnectionsExtended({id: tour.id, city: city}).then(res => {
             if(!!res && !!res.data){
+                //clg
                 //res.data.result is :
                 // console.log("res.data.result L58 :",res.data.result) // an array of objects: each is {conections{}, returns{}, date}
                 setConnectionEntity(res.data.result);
@@ -100,6 +101,7 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
                 return entry.connections[0];
             }
         }
+        //clg
         // console.log("L93 : RETURN A NULL inside fcn 'getConnectionFromIndex' ")
         return null;
     }
