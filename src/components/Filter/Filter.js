@@ -161,6 +161,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
+        //clg
+        // console.log("Filter.js count is : " + count)
+
         return count;
     }
 
