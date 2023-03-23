@@ -190,9 +190,9 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
 
         setSearchParams(searchParams);
         for (const entry of searchParams.entries()) {
-            console.log(entry);
+            // console.log(entry);
           }
-console.log("You are here, 195")
+// console.log("You are here, 195")
         if(!!goto){
             navigate(goto + "?" + searchParams);
         } else {
@@ -279,7 +279,6 @@ console.log("You are here, 195")
                                 <CityInput loadCities={loadCities} city={cityInput} setCity={setCityInput} onFocus={!!!isResponsive() && onFocusCity} isOpen={openCitySearch} onClick={!!isResponsive() && showCityModal} disabled={!!isResponsive()}/>
                             </Grid>
                             <Grid item xs={12} md={5}>
-                                {console.log("You are at 282")}
                                 <RegionInput setOpenRegionSearch={setOpenRegionSearch} onCustomSubmit={onCustomRegionSubmit} loadRegions={loadRegions} region={regionInput} setRegion={(value) => changeTextMiddleware(value, setRegionInput, setRegion)} onFocus={!!!isResponsive() && onFocusRegion} isOpen={openRegionSearch} city={city} onClick={!!isResponsive() && showRegionInput} disabled={!!isResponsive()} resetInput={resetRegionInput}/>
                             </Grid>
                             <Grid item xs={12} md={2}>

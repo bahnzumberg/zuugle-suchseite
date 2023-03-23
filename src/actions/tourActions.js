@@ -23,7 +23,7 @@ import {
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
 
 export function loadTours(data = {}) {
-    console.log("tourActions, LoadTours L26 :", data)
+    // console.log("tourActions, LoadTours L26 :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false);
@@ -31,7 +31,7 @@ export function loadTours(data = {}) {
 }
 
 export function loadFilter(data = {}) {
-    console.log("tourActions, LoadFilter L34 :",data)
+    // console.log("tourActions, LoadFilter L34 :",data)
     return (dispatch, getState) => {
         return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false);
     };
@@ -45,7 +45,7 @@ export function loadTour(id, city) {
 }
 
 export function loadTotalTours() {
-    console.log("tourActions, loadTotalTours L48 , no data here")
+    // console.log("tourActions, loadTotalTours L48 , no data here")
     return (dispatch, getState) => {
         return loadOneReturnAll(dispatch, getState, LOAD_TOTAL_TOURS, LOAD_TOTAL_TOURS_DONE, "total", "tours/");
     };
@@ -60,7 +60,7 @@ export function loadTourConnections(data) {
 }
 
 export function loadTourConnectionsExtended(data) {
-    console.log("tourActions, loadTourConnectionsExtended L63 :", data)
+    // console.log("tourActions, loadTourConnectionsExtended L63 :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS_EXTENDED, LOAD_TOUR_CONNECTIONS_EXTENDED_DONE, "tours", data, "tours/" + data.id + "/connections-extended", "connections", false);
@@ -68,7 +68,7 @@ export function loadTourConnectionsExtended(data) {
 }
 
 export function loadFavouriteTours(data = {}) {
-    console.log("tourActions, loadFavouriteTours L71 :", data)
+    // console.log("tourActions, loadFavouriteTours L71 :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false);
@@ -89,14 +89,14 @@ export function loadTourPdf(data) {
 }
 
 export function loadTourGpx(data) {
-    console.log("tourActions, loadFTourGpx L92 :", data)
+    // console.log("tourActions, loadFTourGpx L92 :", data)
     return (dispatch, getState) => {
         return loadFile(dispatch, getState, LOAD_TOUR_GPX, LOAD_TOUR_GPX_DONE, "tours", data, "tours/" + data.id + "/gpx", "gpx", "buffer");
     }
 }
 
 export function clearTours(){
-    console.log("tourActions, clearTours L99, no data ")
+    // console.log("tourActions, clearTours L99, no data ")
     return (dispatch, getState) => {
         dispatch({type: CLEAR_TOURS});
     };

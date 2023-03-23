@@ -20,8 +20,8 @@ export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, da
         params: params,
         timeout: 2000000,
     }).then(res => {
-        console.log("crudActions , L23", params)
-        console.log("crudActions:responseType , L23", responseType)
+        // console.log("crudActions , L23", params)
+        // console.log("crudActions:responseType , L23", responseType)
         dispatch({
             type: typeDone,
         });
@@ -82,7 +82,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
 
 export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
     dispatch({type: typeBefore});
-    console.log("L83: route + id : ", route+id)
+    // console.log("L83: route + id : ", route+id)
     return axios.get(route+id, { params: {...params, domain: window.location.host } }).then(res => {
         const entity = res.data[entityName];
 

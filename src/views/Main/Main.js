@@ -155,7 +155,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         // Finally, the function returns the value of count.
         const _filter = getFilterFromParams(searchParams);
         let count = 0;
-        if(!!_filter && !!filter){
+        let filterType = typeof filter === 'object'
+        if(!!_filter && !!filter && !!filterType){
             if(!(!!_filter.singleDayTour && !!_filter.multipleDayTour)){
                 count++;
             }
@@ -190,7 +191,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                 count++;
             }
         }
-
+        //clg
+        // console.log("Main.js count is : " + count)
         return count;
     }
 
@@ -227,8 +229,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     return <div>
         {/* description
         getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
-
-        {console.log("directLink L 230:",directLink) } {/*  seems to be always on null value */}
+        {/* clg */}
+        {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
         {getPageHeader(directLink)}
         
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
@@ -267,11 +269,13 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                 //either display 100% size map or display the TourCardContainer 
                 !!mapView ? (
                     <Box className={"map-container"}>
+                        {/* clg */}
                         {/* {console.log("tours[0].id : L271",tours[0].id)} */}
                         {/* {console.log("loadGPX : L269",loadGPX)} */}
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                         {/* {console.log("loading : L272",loading)} */}
                         <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>
+                        {/* clg */}
                         {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour(tours[0].id)} loading={loading}/> */}
                     </Box>)
                     : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
@@ -325,6 +329,7 @@ const mapDispatchToProps = {
 
 
 const mapStateToProps = (state) => {
+    //clg
     // console.log("Main L328 list of ALL tours : state.tours.tours :", state.tours.tours)
     return {
         loading: state.tours.loading,

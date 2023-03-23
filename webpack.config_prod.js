@@ -3,13 +3,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
 
 const BUILD_DIR = path.resolve(__dirname, 'build');
-const SRC_DIR = path.resolve(__dirname, 'src');
+// const SRC_DIR = path.resolve(__dirname, 'src');
 
-console.log('BUILD_DIR', BUILD_DIR);
-console.log('SRC_DIR', SRC_DIR);
+// console.log('BUILD_DIR', BUILD_DIR);
+// console.log('SRC_DIR', SRC_DIR);
 
 module.exports = {
   mode: "production",
@@ -90,6 +91,16 @@ module.exports = {
       },
     }),
     new webpack.DefinePlugin({}),
-  ]
+  ],
+  optimization: {
+    minimizer: [new TerserPlugin({
+      terserOptions: {
+        format: {
+          comments: false,
+        },
+      },
+      extractComments: false,
+    })],
+  },
 }
 ;
