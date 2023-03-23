@@ -5,7 +5,7 @@ import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, getWhereFromDomain, replaceFilePath, round} from "../utils/utils";
+import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country} from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 const fs = require('fs');
 const path = require('path');
@@ -241,7 +241,7 @@ const listWrapper = async (req, res) => {
         let searchparam = '';
         if (search !== undefined) { 
             searchparam = search.replace("'",'"'); 
-            const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug) VALUES('${searchparam}', ${count['count']}, '${req.query.city}');`;
+            const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', 'de', '${get_domain_country(domain)}');`;
             await knex.raw(sql);
         };
     } catch(e){

@@ -23,6 +23,22 @@ export function listOfDays(startDate, endDate) {
     return dates;
 };
 
+export function get_domain_country(domain) {
+    if (domain.indexOf("zuugle.de") >= 0){
+        return "DE";
+    } else if(domain.indexOf("zuugle.ch") >= 0){
+        return "CH";
+    } else if(domain.indexOf("zuugle.it") >= 0){
+        return "IT";
+    } else if(domain.indexOf("zuugle.si") >= 0){
+        return "SI";
+    } else if(domain.indexOf("zuugle.fr") >= 0){
+        return "FR";
+    } else {
+        return "AT";
+    }
+}
+
 export function formatTime(date){
     return !!date ? moment(date).format("HH:mm") : undefined;
 }

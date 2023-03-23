@@ -2,6 +2,7 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 router.get('/', (req, res) => listWrapper(req, res));
+import {get_domain_country} from "../utils/utils"
 
 const listWrapper = async (req, res) => {
     const search = req.query.search;
@@ -9,6 +10,7 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain;
     let where = {};
 
+    /*
     if(domain.indexOf("zuugle.at") >= 0 || domain.indexOf("localhost") >= 0){
         where['city_country'] = "AT";
     } else if(domain.indexOf("zuugle.de") >= 0){
@@ -22,6 +24,8 @@ const listWrapper = async (req, res) => {
     } else if(domain.indexOf("zuugle.fr") >= 0){
         where['city_country'] = "FR";
     }
+    */
+    where['city_country'] = get_domain_country(domain);
 
     let result = [];
 

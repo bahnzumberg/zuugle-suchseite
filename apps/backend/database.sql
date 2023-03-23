@@ -202,3 +202,7 @@ CREATE TABLE fahrplan_del (
      id SERIAL,
      PRIMARY KEY (id)
 );
+
+
+ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
+ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
