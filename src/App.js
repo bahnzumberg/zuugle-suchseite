@@ -42,8 +42,8 @@ function App() {
     // })
 
 
-    // <MatomoProvider value={instance}>
     return (
+        // <MatomoProvider value={instance}>
             <ThemeProvider theme={theme}>
                 <div className="App">
                     <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
@@ -68,8 +68,8 @@ function App() {
                 </div>
                 <ModalRoot />
             </ThemeProvider>
-    );
     // </MatomoProvider>
+    );
 }
 
 export default App;
