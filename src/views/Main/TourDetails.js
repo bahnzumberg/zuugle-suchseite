@@ -8,7 +8,8 @@ import Button from "@mui/material/Button";
 import TourProperty from "../../components/TourProperty";
 import {convertNumToTime, formatNumber, parseFileName, titleCase} from "../../utils/globals";
 import Expand from "../../icons/Expand";
-import InteractiveMap from "../../components/InteractiveMap";
+// import InteractiveMap from "../../components/InteractiveMap";
+import InteractiveMap from "../../components/InteractiveMap_leaflet";
 import {useEffect, useState} from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
@@ -38,6 +39,8 @@ const setGpxTrack = (url, loadGPX, _function) => {
 // The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
 // The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
+    console.log('tour is :');
+    console.log(tour);
 
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
@@ -53,6 +56,8 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     }, [tour]);
 
+    console.log('tour.gpx_file is :');
+    console.log(tour.gpx_file)
     useEffect(() => {
         if(!!connection && !!connection.gpx_file){
             setGpxTrack(connection.gpx_file, loadGPX, setAnreiseGpxPositions);
@@ -174,7 +179,8 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     </Grid>
                     <Grid item xs={4}>
                         <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={onDownload}>
-                            {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}</Button>
+                            {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+                        </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Button variant="contained" fullWidth disabled={!!!tour.url} onClick={() => {
