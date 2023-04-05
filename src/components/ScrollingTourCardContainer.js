@@ -21,7 +21,7 @@ export default function ScrollingTourCardContainer({tours, onSelectTour, loadTou
     const isMobile = useMediaQuery('(max-width:600px)');
 
     if(!!isMobile){
-        return <Box>
+        return <Box component="div">
             <Box style={{width: "100%", overflowX: "scroll", whiteSpace: "nowrap", display: "flex", alignItems: "stretch"}}>
                 {(!!tours ? tours : []).map((tour,index) => <Box key={index} className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
                     <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
@@ -32,7 +32,7 @@ export default function ScrollingTourCardContainer({tours, onSelectTour, loadTou
     }
 
 
-    return <Box>
+    return <Box component="div">
         <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow} >
             {
                 (!!tours ? tours : []).map(tour => <Card
@@ -53,6 +53,7 @@ function Card({ tour, onSelectTour, loadTourConnections, city }) {
         <Box
             className={"react-horizontal-scrolling-card"}
             tabIndex={0}
+            component="div"
         >
             <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
         </Box>
