@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {MapContainer, TileLayer, Marker, Polyline} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import "react-leaflet-fullscreen/dist/styles.css";
-import { FullscreenControl } from "react-leaflet-fullscreen";
+// import "react-leaflet-fullscreen/dist/styles.css";
+// import { FullscreenControl } from "react-leaflet-fullscreen";
 import {useEffect, useRef} from "react";
 import L from 'leaflet';
 
@@ -81,7 +81,7 @@ export default function InteractiveMap({gpxPositions, anreiseGpxPositions, abrei
             getEndMarker()
         }
 
-        <FullscreenControl />
+        {/* <FullscreenControl /> */}
     </MapContainer>
 }
 
