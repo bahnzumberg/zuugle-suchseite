@@ -17,9 +17,9 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/globals";
 import {useLocation} from 'react-router-dom';
 import CircularProgress from "@mui/material/CircularProgress";
-import {useMatomo} from "@datapunt/matomo-tracker-react";
+// import {useMatomo} from "@datapunt/matomo-tracker-react";
 // import {useBackListener} from "../../utils/backListener";
-import TourMapContainer from "../../components/Map/TourMapContainer";
+import TourMapContainer from "../../components/Map/TourMapContainer_leaflet";
 import * as PropTypes from "prop-types";
 import {loadGPX} from "../../actions/fileActions";
 import {Typography} from "@mui/material";
@@ -51,10 +51,26 @@ Fragment.propTypes = {children: PropTypes.node};
 // renders various child components, such as the search bar, tour cards, and tour map.
 
 export function Main({loadTours, loadAllCities, tours, showModal, hideModal, totalTours, loadTourConnections, filter, loadTourConnectionsExtended, pageTours, loading, allCities, loadFilter, isLoadingFilter, loadGPX, loadTour, clearTours, allRanges, loadRanges}){
+
+    //if filter is a string then convert to object
+    if(typeof(filter) === 'string') {
+        filter = JSON.parse(filter) ;
+        // console.log('Filter is string : ')
+    }else if(typeof(filter) === 'object'){
+        filter = filter;
+        // console.log('Filter is object : ')
+    }else{
+        filter={};
+    }
+
+    // console.log("L55: Main , totalTours upon entry:",totalTours)
+    // console.log("L56: Main , tours.length upon entry:",tours.length)
+    // console.log("L57: Main , filter upon entry:",filter)
+
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { trackPageView, trackEvent } = useMatomo()
+    // const { trackPageView, trackEvent } = useMatomo()
 
     const [detailOpen, setDetailOpen] = useState(false);
     const [tour, setTour] = useState(null);
@@ -68,10 +84,10 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     // });
 
     //Matomo related
-    useEffect(() => {
-        const city = searchParams.get('city');
-        myTrackPageView("Main", trackPageView, city);
-    }, [])
+    // useEffect(() => {
+    //     const city = searchParams.get('city');
+    //     myTrackPageView("Main", trackPageView, city);
+    // }, [])
 
     //describe:
     // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -153,10 +169,13 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         // It initializes a variable called count to 0, which will keep track of the number of active filters.
         // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
         // Finally, the function returns the value of count.
-        const _filter = getFilterFromParams(searchParams);
+
         let count = 0;
-        let filterType = typeof filter === 'object'
-        if(!!_filter && !!filter && !!filterType){
+        // console.log("L172: Main filter:",filter);
+
+        const _filter = getFilterFromParams(searchParams);
+
+        if(!!_filter && !!filter){
             if(!(!!_filter.singleDayTour && !!_filter.multipleDayTour)){
                 count++;
             }
@@ -275,10 +294,11 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                         {/* {console.log("loading : L272",loading)} */}
                         <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>
-                        {/* clg */}
                         {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour(tours[0].id)} loading={loading}/> */}
                     </Box>)
                     : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
+                        {/* {console.log('total passed to TourCardContainer',totalTours)}
+                        {console.log('tours.length passed to TourCardContainer',tours.length)} */}
                         <TourCardContainer onSelectTour={onSelectTour}
                                            tours={tours}
                                            loadTourConnections={loadTourConnections} city={searchParams.get("city")}
@@ -330,7 +350,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => {
     //clg
-    // console.log("Main L328 list of ALL tours : state.tours.tours :", state.tours.tours)
+    // console.log("Main L333 list of ALL tours : state.tours.tours :", state.tours.tours)
+    // console.log("Main L334 : Store state mapping, state.tours.total :", state.tours.total)
     return {
         loading: state.tours.loading,
         tours: state.tours.tours,
