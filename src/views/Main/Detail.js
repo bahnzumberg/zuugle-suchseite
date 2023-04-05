@@ -14,7 +14,7 @@ import {Button} from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight} from "@mui/icons-material";
 
 //description:
-// The TabPanel function is a helper function that returns a React component that displays the content of a single tab panel within the Detail component. It takes in a set of props, including children, value, and index, and returns a div element that shows the content only if the value of the TabPanel matches the current selected tab value (value === index).
+// The TabPanel function is a helper function that returns a React component that displays the content of a single tab panel within the Detail component (currently: 'TOURDETAILS' & 'AN- & ABREISE'). It takes in a set of props, including children, value, and index, and returns a div element that shows the content only if the value of the TabPanel matches the current selected tab value (value === index).
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
