@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import "react-leaflet-fullscreen/dist/styles.css";
-import { FullscreenControl } from "react-leaflet-fullscreen";
+// import "react-leaflet-fullscreen/dist/styles.css";
+// import { FullscreenControl } from "react-leaflet-fullscreen";
 import {useEffect, useRef, useState, useMemo} from "react";
 import L from 'leaflet';
 import {useSearchParams} from "react-router-dom";
