@@ -294,7 +294,6 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                         {/* {console.log("loading : L272",loading)} */}
                         <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>
-                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour(tours[0].id)} loading={loading}/> */}
                     </Box>)
                     : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
                         {/* {console.log('total passed to TourCardContainer',totalTours)}
