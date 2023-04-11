@@ -31,7 +31,6 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 const root = createRoot(document.getElementById('root'))
 
 root.render(
-//   <React.StrictMode>
     <Provider store={store}>
       <div>
         <Helmet>
@@ -46,5 +45,4 @@ root.render(
       </div>
       <App />
     </Provider>
-//   </React.StrictMode>
 );
