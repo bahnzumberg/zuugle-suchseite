@@ -87,7 +87,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 
     }, [])
 
-    //description:
+//description:
 // onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
 // Here's what the function does step by step:
 // The _city variable is created and set to the value of the city in the searchParams object.
@@ -109,7 +109,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
             }
         })
     }
-    //description:
+//description:
 // The onSelectRange is a constant declaration for a JavaScript arrow function in the Start.js file.
 // The function takes one parameter range, which represents a selected range object. The function then extracts the city value from the searchParams object, which is an instance of the URLSearchParams API.
 // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?sort=relevanz&range=${range.range}${!!_city ? '&city='+_city : ''}.
@@ -120,7 +120,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
             navigate(`/suche?sort=relevanz&range=${range.range}${!!_city ? '&city='+_city : ''}`)
         }
     }
-    //description
+//description
 // The getRangeText is a function that returns a string depending on the value of _city which is extracted from the searchParams object.
 // The function first checks if _city is truthy (not null, undefined, or an empty string) and has a length greater than 0. If this condition is met, the function returns the string "Die schönsten Wanderdestinationen in deiner Nähe".
 // Otherwise, if the condition is not met, the function returns the string "Die schönsten Wanderdestinationen".
