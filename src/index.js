@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import {createRoot} from 'react-dom/client';
 // import ReactDOM from 'react-dom';
 import './index.css';
@@ -31,6 +31,7 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 const root = createRoot(document.getElementById('root'))
 
 root.render(
+  <React.StrictMode>
     <Provider store={store}>
       <div>
         <Helmet>
@@ -40,9 +41,10 @@ root.render(
             rel="icon"
             href="/app_static/favicon.png"
             type="image/x-icon"
-          />
+            />
         </Helmet>
       </div>
       <App />
     </Provider>
+  </React.StrictMode>
 );
