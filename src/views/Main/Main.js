@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {lazy, useEffect, useState} from "react";
+import {lazy, useEffect, useState, useMemo, useCallback} from "react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import {compose } from "redux";
@@ -51,7 +51,7 @@ Fragment.propTypes = {children: PropTypes.node};
 // renders various child components, such as the search bar, tour cards, and tour map.
 
 export function Main({loadTours, loadAllCities, tours, showModal, hideModal, totalTours, loadTourConnections, filter, loadTourConnectionsExtended, pageTours, loading, allCities, loadFilter, isLoadingFilter, loadGPX, loadTour, clearTours, allRanges, loadRanges}){
-
+    
     //if filter is a string then convert to object
     if(typeof(filter) === 'string') {
         filter = JSON.parse(filter) ;
@@ -78,6 +78,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const [filterActive, setFilterActive] = React.useState(0);
     const [mapView, setMapView] = React.useState(false);
     const [directLink, setDirectLink] = React.useState(null);
+    const [tourID, setTourID] = useState(null);
+
 
     // useBackListener(({ location }) => {
     //     navigate('/');
@@ -101,7 +103,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         loadAllCities();
         loadRanges({ignore_limit: true, remove_duplicates: true});
         let searchParamCity = searchParams.get('city');
-        const city = localStorage.getItem('city');
+        const city = localStorage.getItem('city')  ;
         if(!!city && !!!searchParamCity){
             searchParams.set('city', city);
             setSearchParams(searchParams);
@@ -244,6 +246,32 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             }
         })
     }
+    
+    // NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
+    // const onLoadAndSelectTour = useCallback(
+    //     ()=>{
+
+    //         (tourID) => {
+    //             !!tourID && loadTour(tourID, searchParams.get('city')).then(res => {
+
+    //                 if(!!res && !!res.data && !!res.data.tour){
+    //                     //clg
+    //                     // console.log("L258 Main : tour data ",res.data.tour)
+    //                     console.log("L259 Main : res.data.tour.id ",res.data.tour.id)
+    //                     console.log("L260 Main : tourID state ",tourID)
+    //                     setTour(res.data.tour);
+    //                     toggleDetailOpen();
+    //                 }
+    //             })
+    //         }
+    //     }
+    //   ,
+    //   [tourID]
+    // )
+    
+    const memoTourMapContainer = useMemo(()=> {
+        return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading} setTourID={setTourID} tourID={tourID}/>)
+    });
 
     return <div>
         {/* description
@@ -293,7 +321,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                         {/* {console.log("loadGPX : L269",loadGPX)} */}
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                         {/* {console.log("loading : L272",loading)} */}
-                        <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>
+                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
+                        {memoTourMapContainer}
                     </Box>)
                     : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
                         {/* {console.log('total passed to TourCardContainer',totalTours)}
