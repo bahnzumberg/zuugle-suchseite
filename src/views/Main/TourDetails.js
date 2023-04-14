@@ -36,7 +36,7 @@ const setGpxTrack = (url, loadGPX, _function) => {
 
 //description:
 //The TourDetails component takes in various props such as tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, and returnConnections. It uses useState and useEffect hooks to set and update various state variables such as gpxPositions, anreiseGpxPositions, abreiseGpxPositions, and searchParams.
-// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
+// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in the states : gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
 // The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
     console.log('tour is :');
@@ -58,6 +58,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     console.log('tour.gpx_file is :');
     console.log(tour.gpx_file)
+
     useEffect(() => {
         if(!!connection && !!connection.gpx_file){
             setGpxTrack(connection.gpx_file, loadGPX, setAnreiseGpxPositions);
@@ -70,10 +71,25 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     const onDownload = () => {
         const datum = searchParams.get("datum");
+        // console.log("L 74: datum from Param is :", datum)
+        // console.log("L 75: tour.id :", tour.id)
+        // !!connection ? console.log("L 75: connection :", connection) : console.log("connection is falsy")
+        // !!returnConnection ? console.log("L 75: returnConnection.id :", returnConnection.id) : console.log("returnConnection is falsy")
+        // if(!!returnConnections ) {
+        //     console.log("returnConnection(s) id list :")
+        //     returnConnections.map(e =>console.log(e.id))
+        // }else console.log("returnConnection(s) is falsy")
+
         loadTourPdf({ id: tour.id, connection_id: !!connection ? connection.id : undefined, connection_return_id: !!returnConnection ? returnConnection.id : undefined, connection_return_ids: (!!returnConnections ? returnConnections.map(e => e.id) : []), datum}).then(
             (res) => {
+                // console.log("response from server :")
+                // res.data ? console.log(res.data) : console.log("res.data is falsy")
+                // console.log("response from server : res.data.pdf")
+                // res.data ? console.log(res.data.pdf) : console.log("res.data.pdf is falsy")
                 if(!!res && !!res.data && !!res.data.pdf){
                     const buf = Buffer.from(res.data.pdf, 'base64');
+                    // console.log("buf value :")
+                    // !!buf ? console.log(buf) : console.log("buf is falsy")
                     FileDownload(buf, res.data.fileName, "application/pdf");
                 }
             },
