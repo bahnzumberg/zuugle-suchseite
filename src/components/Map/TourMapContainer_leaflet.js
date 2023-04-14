@@ -1,6 +1,7 @@
 import * as React from 'react';
-import {useEffect,useLayoutEffect, useRef, useState, useMemo} from "react";
+import {useEffect,useLayoutEffect, useRef, useState, useMemo, useCallback} from "react";
 import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
+import { useMap } from 'react-leaflet/hooks';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import {useSearchParams} from "react-router-dom";
@@ -11,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const DEFAULT_ZOOM_LEVEL = 13;
 
-export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX}){
+export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX, setTourID}){
     //clg
     // loading ? console.log("loading :",loading) : console.log(" not loading",loading);
     // (tours && tours.length) ? console.log("tours inside TMC :",tours.length) : console.log("tours type :",typeof(tours))
@@ -26,10 +27,49 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 
     const mapRef = useRef();
     const clusterRef = useRef();
+    const polyRef = useRef();
 
-    const [searchParams, setSearchParams] = useSearchParams();
     const [gpxTrack, setGpxTrack] = useState([]);
     const [mapLoading, setMapLoading] = useState(false);
+
+    // useEffect(() => {
+    //     const map = mapRef.current?.leafletElement;
+    
+    //     function handleClick() {
+    //       console.log('Map clicked!');
+    //     }
+    
+    //     if (map) {
+    //       map.on('click', handleClick);
+    //     }
+    
+    //     return () => {
+    //       if (map) {
+    //         map.off('click', handleClick);
+    //       }
+    //     };
+    //   }, []);
+
+    useEffect(() => {
+    console.log("L 57: inside first useEffect ")
+    const map = mapRef.current;
+
+    // remove previous layers and markers
+    !!map && map.eachLayer(layer => {
+      if (!layer._url) { // ignore tile layers
+        map.removeLayer(layer);
+      }
+    });
+
+    if (!!polyRef.current){
+      map.fitBounds(polyRef.current.getBounds());
+    }
+
+    return () => {
+      // remove the map when the component is unmounted
+      !!map && map.remove();
+    }
+  }, []);
 
     useEffect(() => {
         // console.log("L34 mapRef :", mapRef)
@@ -55,8 +95,9 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         }
     }
 
+
     const markerComponents = useMemo(() => {
-        return (!!tours ? tours : []).map((tour, index) => {
+         return (!!tours ? tours : []).map((tour, index) => {
             let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ == "first") : null;
             // data && console.log("Data L53, TourMapContainer: " + JSON.stringify(data));
             if(!!data){
@@ -67,6 +108,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                     icon={StartIcon}
                     eventHandlers={{
                         click: (e) => {
+                            setTourID(tour.id)  //DELETE ALL tourID when memoising MapContainer works !
                             setCurrentGpxTrack(tour.gpx_file);
                             onSelectTour(tour.id);
                         },
@@ -88,7 +130,10 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                     setGpxTrack(track);
                 }
             }
-        })
+        }).catch(error => {
+            console.error('Error loading GPX:', error);
+            setGpxTrack([]);
+          });
     }
 
     const getStartMarker = () => {
@@ -112,7 +157,10 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     }
 
     function MyComponent() {
+        // const mapUse = useMap()
+        // console.log("L118 : map.getCenter() :", mapUse.getCenter());
         const map = useMapEvents({
+
             click: (e) => {
                 setGpxTrack([]);
             }
@@ -120,8 +168,78 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         return null;
     }
 
+    // const  MyComponent = useCallback(
+    //   () => {
+    //     () => {
+    //         const map = useMapEvents({
+    
+    //             click: (e) => {
+    //                 setGpxTrack([]);
+    //             }
+    //         });
+    //         return null;
+    //     }
+    //   },
+    //   [gpxTrack]
+    // )
+    
+
     const getClusterRadius = (zoom) => (zoom > 13 ? 100 : 100);
 
+    // const memoizedMapContainer = useMemo( () => {
+    //     return (
+    //         <MapContainer
+    //         ref={mapRef}
+    //         scrollWheelZoom={true}
+    //         maxZoom={15}
+    //         center={[47.800499,13.044410]}
+    //         zoom={DEFAULT_ZOOM_LEVEL}
+    //         // whenCreated={(mapInstance) => { 
+    //         //     mapRef.current = mapInstance; 
+    //         //     console.log("L139 type of mapInstance:", typeof(mapInstance))
+    //         //     console.log("L141 mapRef.current :", mapRef.current)
+    //         //     updateBounds(); 
+    //         //     setMapLoading(true)}
+    //         // }
+    //         // key={new Date().getTime()}
+    //         bounds={() => {
+    //             updateBounds(); 
+    //             setMapLoading(true)
+    //         }}
+    //         style={{ height: "100%", width: "100%" }}
+    //     >
+    //         <TileLayer
+    //             url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
+    //         />
+
+    //         {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
+    //             pathOptions={{ fillColor: 'red', color: 'red' }}
+    //             positions={gpxTrack}
+    //             ref={polyRef}
+    //         />]} 
+
+    //         {
+    //             getStartMarker()
+    //         }
+    //         {
+    //             getEndMarker()
+    //         }
+
+    //         <MarkerClusterGroup
+    //             ref={clusterRef}
+    //             maxClusterRadius={getClusterRadius}
+    //             spiderfyOnMaxZoom={true}
+    //             chunkedLoading={true}
+    //             zoomToBoundsOnClick={true}
+    //             showCoverageOnHover={false}
+    //             iconCreateFunction={createClusterCustomIcon}
+    //         >
+    //             {markerComponents}
+    //         </MarkerClusterGroup> 
+    //         <MyComponent />
+    //     </MapContainer>
+    //     )
+    // },[markerComponents,tours,gpxTrack])
 
     return <Box
         style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
@@ -130,6 +248,8 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         {(!!loading || !!mapLoading) && <Box className={"map-spinner"}>
             <CircularProgress />
         </Box>}
+            {/* {memoizedMapContainer} */}
+
         <MapContainer
             ref={mapRef}
             scrollWheelZoom={true}
@@ -179,5 +299,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             </MarkerClusterGroup> 
             <MyComponent />
         </MapContainer>
+    
     </Box>
 }
