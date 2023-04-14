@@ -83,15 +83,16 @@ export function setSelectedDate(date) {
 
 export function loadTourPdf(data) {
     return (dispatch, getState) => {
-        // console.log("tourActions, L: 86 -> LOAD_TOUR_PDF_DONE :", LOAD_TOUR_PDF_DONE)
-        return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
+        console.log("tourActions, L: 86 -> LOAD_TOUR_PDF_DONE :", `value is : ${LOAD_TOUR_PDF_DONE}`)
+        // return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
+        return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "arraybuffer");
     }
 }
 
 export function loadTourGpx(data) {
     // console.log("tourActions, loadFTourGpx L92 :", data)
     return (dispatch, getState) => {
-        return loadFile(dispatch, getState, LOAD_TOUR_GPX, LOAD_TOUR_GPX_DONE, "tours", data, "tours/" + data.id + "/gpx", "gpx", "buffer");
+        return loadFile(dispatch, getState, LOAD_TOUR_GPX, LOAD_TOUR_GPX_DONE, "tours", data, "tours/" + data.id + "/gpx", "gpx", "arraybuffer");
     }
 }
 
