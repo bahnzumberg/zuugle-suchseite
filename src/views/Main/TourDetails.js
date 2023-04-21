@@ -4,11 +4,9 @@ import CustomStarRating from "../../components/CustomStarRating";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-// import DifficultyContainer from "../../components/DifficultyContainer";
 import TourProperty from "../../components/TourProperty";
 import {convertNumToTime, formatNumber, parseFileName, titleCase} from "../../utils/globals";
 import Expand from "../../icons/Expand";
-// import InteractiveMap from "../../components/InteractiveMap";
 import InteractiveMap from "../../components/InteractiveMap_leaflet";
 import {useEffect, useState} from "react";
 import {compose} from "redux";
@@ -16,7 +14,8 @@ import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import {loadTourGpx, loadTourPdf} from "../../actions/tourActions";
 let gpxParser = require('gpxparser');
-import FileDownload from "react-file-download";
+// import FileDownload from "react-file-download";
+var fileDownload = require('js-file-download');
 import {Buffer} from 'buffer';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useSearchParams} from "react-router-dom";
@@ -39,8 +38,9 @@ const setGpxTrack = (url, loadGPX, _function) => {
 // The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in the states : gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
 // The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
-    console.log('tour is :');
-    console.log(tour);
+    //clgs:
+    // console.log('tour is :');
+    // console.log(tour);
 
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
@@ -50,14 +50,10 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
     const returnsLength = !!returnConnection ? returnConnection.connection_returns_trips_back : 0;
 
     useEffect(() => {
-        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions); //(url:string, )
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
-
     }, [tour]);
-
-    console.log('tour.gpx_file is :');
-    console.log(tour.gpx_file)
 
     useEffect(() => {
         if(!!connection && !!connection.gpx_file){
@@ -69,42 +65,50 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     }, [connection || returnConnection]);
 
-    const onDownload = () => {
+        
+            
+    async function onDownload() {
         const datum = searchParams.get("datum");
-        // console.log("L 74: datum from Param is :", datum)
-        // console.log("L 75: tour.id :", tour.id)
-        // !!connection ? console.log("L 75: connection :", connection) : console.log("connection is falsy")
-        // !!returnConnection ? console.log("L 75: returnConnection.id :", returnConnection.id) : console.log("returnConnection is falsy")
-        // if(!!returnConnections ) {
-        //     console.log("returnConnection(s) id list :")
-        //     returnConnections.map(e =>console.log(e.id))
-        // }else console.log("returnConnection(s) is falsy")
-
-        loadTourPdf({ id: tour.id, connection_id: !!connection ? connection.id : undefined, connection_return_id: !!returnConnection ? returnConnection.id : undefined, connection_return_ids: (!!returnConnections ? returnConnections.map(e => e.id) : []), datum}).then(
-            (res) => {
-                // console.log("response from server :")
-                // res.data ? console.log(res.data) : console.log("res.data is falsy")
-                // console.log("response from server : res.data.pdf")
-                // res.data ? console.log(res.data.pdf) : console.log("res.data.pdf is falsy")
-                if(!!res && !!res.data && !!res.data.pdf){
-                    const buf = Buffer.from(res.data.pdf, 'base64');
-                    // console.log("buf value :")
-                    // !!buf ? console.log(buf) : console.log("buf is falsy")
-                    FileDownload(buf, res.data.fileName, "application/pdf");
+        try {
+            const response = await loadTourPdf({ id: tour.id, connection_id: !!connection ? connection.id : undefined, connection_return_id: !!returnConnection ? returnConnection.id : undefined, connection_return_ids: (!!returnConnections ? returnConnections.map(e => e.id) : []), datum})
+            // handle response here
+            if(response) {
+                let pdf = undefined;
+                if(!!response.data) {
+                    response.data = JSON.parse(response.data);
+                    if(!!response.data.pdf) {
+                        pdf = response.data.pdf
+                    };
+                    // console.log("L 80 response.data from loadTourPdf :", response.data)
+                }else if(!response.data || !response.data.pdf ) {
+                    console.log("no response")
                 }
-            },
-            (err) => {
-                console.log('error: ', err)
+                
+                if(!!pdf){
+                    const fileName = response.data.fileName ? response.data.fileName   : "";
+                    // clg
+                    // console.log("L87 fileName :", fileName);
+                    const buf = Buffer.from(pdf, 'base64');
+                    // clgs
+                    // !!buf ? console.log("L87 buf value is real") : console.log("buf is falsy")
+                    fileDownload(buf, fileName, "application/pdf");
+                }
+            }else{
+                console.log("no response is returned")
             }
-        );
+        } catch (error) {
+            console.log('error : ', error)
+            // console.log('error from TourDetails : ', error)
+        }
     }
+    
 
     const onDownloadGpx = () => {
 
         if(!!returnConnection && returnConnection.fromtour_track_key && !!connection && !!connection.totour_track_key){
             loadTourGpx({id: tour.id, key_anreise: connection.totour_track_key, key_abreise: returnConnection.fromtour_track_key, type: "all"}).then( (res) => {
                     if(!!res && !!res.data){
-                        FileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
                     }
                 },
                 (err) => {
@@ -113,7 +117,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
         } else {
             loadTourGpx({id: tour.id}).then( (res) => {
                     if(!!res && !!res.data){
-                        FileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
                     }
                 },
                 (err) => {
@@ -236,14 +240,12 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 {/* {console.log('tour value L210', tour)} */}
                 {/* {console.log((tour.difficulty_orig).toUpperCase())}
                 {console.log(titleCase(tour.difficulty_orig))} */}
-                {/* <DifficultyContainer value={tour.difficulty} disabled={true}/> */}
                 
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
                         <TourProperty title={"Schwierigkeit Zuugle"} text={`${titleCase(tour.difficulty)}`}/>
                     </Grid>
                     <Grid item xs={6}>
-                        {/* <TourProperty title={"Schwierigkeit original"} text={`${tour.provider} : ${tour.difficulty_orig}`} /> */}
                         <TourProperty title={"Schwierigkeit original"} text={`${titleCase(tour.difficulty_orig)}`} />
                     </Grid>
                 </Grid>
