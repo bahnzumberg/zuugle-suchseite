@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import TourProperty from "../../components/TourProperty";
 import {convertNumToTime, formatNumber, parseFileName, titleCase} from "../../utils/globals";
 import Expand from "../../icons/Expand";
-import InteractiveMap from "../../components/InteractiveMap_leaflet";
+import InteractiveMap from "../../components/InteractiveMap";
 import {useEffect, useState} from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
