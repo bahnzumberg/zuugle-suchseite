@@ -792,6 +792,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // console.log('params : ')
     // console.log(params)
     if(params.filter){
+        //clg
         // console.log("L774 params.singleDayTour :", params.filter.singleDayTour);     
         // console.log("L774 params.multipleDayTour :", params.filter.multipleDayTour);     
         // console.log("L774 params.children :", params.filter.children);     
@@ -1016,7 +1017,9 @@ const tourPdfWrapper = async (req, res) => {
 
     if(!!tour){
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
+        // console.log("L1019 tours /tourPdfWrapper / pdf value :", !!pdf); // value : true
         if(!!pdf){
+            // console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
             return;
         }
