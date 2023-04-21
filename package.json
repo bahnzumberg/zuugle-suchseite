@@ -20,6 +20,7 @@
     "fast-memoize": "^2.5.2",
     "gpxparser": "^3.0.0",
     "history": "^5.3.0",
+    "js-file-download": "^0.4.12",
     "leaflet": "^1.9.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
@@ -44,7 +45,7 @@
     "@types/react": "^18.0.0"
   },
   "scripts": {
-    "start": "webpack serve --port 3000 --open --hot --progress --host localhost --static .",
+    "start": "webpack serve --mode development --port 3000 --open --hot --progress --host localhost --static .",
     "build": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
