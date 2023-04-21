@@ -15,7 +15,6 @@ const Impressum = lazy(() => import('./views/Pages/Impressum'));
 const Privacy = lazy(() => import('./views/Pages/Privacy'));
 
 function App() {
-    // const history = createBrowserHistory();
 
     let siteId = 11;
     if (process.env.NODE_ENV !== "production") {
