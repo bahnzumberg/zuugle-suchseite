@@ -14,8 +14,8 @@ import {
 import {hideModal, showModal} from "../../actions/modalActions";
 import {loadAllCities} from "../../actions/cityActions";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/globals";
 import {useLocation} from 'react-router-dom';
+import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useMatomo} from "@datapunt/matomo-tracker-react";
 // import {useBackListener} from "../../utils/backListener";
@@ -62,7 +62,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }else{
         filter={};
     }
-
+    //clgs
     // console.log("L55: Main , totalTours upon entry:",totalTours)
     // console.log("L56: Main , tours.length upon entry:",tours.length)
     // console.log("L57: Main , filter upon entry:",filter)
@@ -78,9 +78,16 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const [filterActive, setFilterActive] = React.useState(0);
     const [mapView, setMapView] = React.useState(false);
     const [directLink, setDirectLink] = React.useState(null);
+    // tourID is not working to eliminate the error "MapContainer is already initialized" so may be unnecessary
     const [tourID, setTourID] = useState(null);
 
-
+    // alternative code for useBacklistener
+    // useBackListener(() => {
+    //     navigate("/");
+    //   });
+    // useBackListener(navigate, () => {
+    //     navigate("/");
+    // });
     // useBackListener(({ location }) => {
     //     navigate('/');
     // });
@@ -247,7 +254,8 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         })
     }
     
-    // NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
+    // testing tourID to solve the error "MapContainer is already initialized"
+    //NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
     // const onLoadAndSelectTour = useCallback(
     //     ()=>{
 
@@ -270,8 +278,9 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     // )
     
     const memoTourMapContainer = useMemo(()=> {
+        // console.log("L 273 tourID : " + tourID)
         return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading} setTourID={setTourID} tourID={tourID}/>)
-    });
+    },tourID);
 
     return <div>
         {/* description
