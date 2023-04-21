@@ -19,7 +19,7 @@ import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/g
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useMatomo} from "@datapunt/matomo-tracker-react";
 // import {useBackListener} from "../../utils/backListener";
-import TourMapContainer from "../../components/Map/TourMapContainer_leaflet";
+import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
 import {loadGPX} from "../../actions/fileActions";
 import {Typography} from "@mui/material";
