@@ -191,7 +191,7 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
             ...addParam
         });
 
-
+        // !!filePath ? console.log("L194, gpxUtils/ filePath", filePath) : console.log("L194, gpxUtils/No filePath available")
         if(!!filePath){
             const page = await browser.newPage();
             await page.emulateMediaType('print');
