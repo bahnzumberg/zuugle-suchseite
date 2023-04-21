@@ -5,6 +5,12 @@ const path = require("path");
 const handlebars = require("handlebars");
 
 export const writePdf = async (data, TEMPLATE, saveToDisk, fileName, landscape = false, toSaveFolder = null) => {
+    //clg :
+    // console.log("L 8 utils.js/ writePdf, param/TEMPLATE :", TEMPLATE);
+    // console.log("L 8 utils.js/ writePdf, param/saveToDisk :", saveToDisk);
+    // console.log("L 8 utils.js/ writePdf, param/fileName :", fileName);
+    // console.log("L 8 utils.js/ writePdf, param/landscape :", landscape);
+    // console.log("L 8 utils.js/ writePdf, param/toSaveFolder :", toSaveFolder);
     let templateHtml = readTemplate(TEMPLATE);
     if(templateHtml){
         handlebars.registerHelper('breaklines', function(text) {
@@ -15,10 +21,17 @@ export const writePdf = async (data, TEMPLATE, saveToDisk, fileName, landscape =
 
         let template = handlebars.compile(templateHtml);
         let html = template(data);
+        //clg
+        //console.log("L 24 : html is :", html) // true 
         if(html){
             return await new Promise(async (resolve, reject) => {
                 try {
                     const base64 = await htmlToPdf(html, saveToDisk, fileName, landscape, toSaveFolder);
+                    // fs.writeFile('./pdfExample.txt', base64, (err) => {
+                    //     if (err) throw err;
+                    //     console.log('The file has been saved!');
+                    //   });
+                    // console.log("L28 : utils.js / base64 is :", typeof(base64))
                     resolve(base64);
                 } catch(e){
                     console.log(e);
@@ -31,6 +44,7 @@ export const writePdf = async (data, TEMPLATE, saveToDisk, fileName, landscape =
     }
     return null;
 }
+
 
 const htmlToPdf = async (html, saveToDisk = false, fileName = null, landscape = false, toSaveFolder = null) => {
     var options = {
@@ -48,14 +62,21 @@ const htmlToPdf = async (html, saveToDisk = false, fileName = null, landscape = 
         landscape: landscape,
     };
 
-    const instance = await BrowserService.getInstance();
+    const instance = await BrowserService.getInstance(); // puppeteer instance
     if(!!instance) {
-        console.log('create page on puppeteer instance');
         const page = await instance.createNewPage();
         if (!!page) {
+            //clg
+            // console.log('L69 utils.js/ New page created with puppeteer instance');
             await page.setContent(html);
             const pdf = await page.pdf(options);
+            //clg
+            // !!pdf && console.log(pdf)
+            // !!pdf && console.log(typeof(pdf))
             await instance.closePage(page);
+            // clg
+            // let pdfInst = pdf.toString('base64')
+            // console.log("pdf.toString ia true : ", !!pdfInst)
             return pdf.toString('base64');
         }
     } else {
@@ -72,6 +93,8 @@ const readTemplate = (name = 'standard') => {
 };
 
 const readFile = (name, contentType = null) => {
+    //clg
+    // console.log("L81, utils.js /readFile /filePath", name)// this is correct:/Users/falsalih/Documents/ACTIVEFILE/Zuugle-current/zuugle-api-update-versions/templates/tour-details.html
     try {
         return fs.readFileSync(name, contentType);
     } catch(e){
