@@ -81,13 +81,20 @@ export function setSelectedDate(date) {
     };
 }
 
-export function loadTourPdf(data) {
-    return (dispatch, getState) => {
-        console.log("tourActions, L: 86 -> LOAD_TOUR_PDF_DONE :", `value is : ${LOAD_TOUR_PDF_DONE}`)
-        // return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
-        return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "arraybuffer");
-    }
+export const loadTourPdf =  (data) => async (dispatch, getState) => {
+
+    try {
+        let response = await loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
+        
+        // console.log("L91 tourActions / loadTourPdf response :", response)
+         // e.g. Promise {<fulfilled>: undefined}[[Prototype]] :  Promise [[PromiseState]] :  "fulfilled" [[PromiseResult]] : undefined
+        return response
+    } catch (error) {
+        console.log("L94, tourActions Error: " + error.message);
+        throw error
+    } 
 }
+
 
 export function loadTourGpx(data) {
     // console.log("tourActions, loadFTourGpx L92 :", data)
