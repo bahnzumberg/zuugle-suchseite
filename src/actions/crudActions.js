@@ -1,6 +1,6 @@
 import axios from "../axios";
 
-export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "arraybuffer") {
+export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
     const state = getState()[stateName];
     let params = {};
@@ -14,20 +14,33 @@ export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, da
         }
     }
 
-    return axios.get(route, {
-        data: {},
-        responseType: responseType,
-        params: params,
-        timeout: 2000000,
-    }).then(res => {
-        // console.log("crudActions , L23", params)
-        // console.log("crudActions:responseType , L23", responseType)
+    try{
+        let res = await axios.get(route, {
+            data: {},
+            // data: data,
+            responseType: responseType,
+            params: params,
+            timeout: 60000,
+            // headers: {
+            //     Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4"
+            //   },
+        });
+
         dispatch({
             type: typeDone,
-        });
-        return res;
-    })
+        })
+
+        //clgs
+        // console.log("L34 crudActions /getFileFromServer res :", res)
+        // console.log("L39 crudActions /getFileFromServer res.request.responseURL :", res.request.responseURL) 
+        return res
+        
+    } catch (error) {
+        console.log(" error :, L39", error.message)
+        throw error
+    }
 }
+
 
 export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true) {
     //clg
