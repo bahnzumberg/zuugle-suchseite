@@ -107,7 +107,6 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
                         <Grid item xs={12} sm={12} md={6}>
                             <Box className={"order-container cursor-link"} style={{display: "flex"}}>
                                 <Typography style={{alignSelf: "center", paddingRight: "10px"}}>{sortLabel}</Typography>
-                                {/* <Typography style={{alignSelf: "center", paddingRight: "10px"}}>Sortieren nach</Typography> */}
                                 <SortInput onChange={(value) => handleChange("order", value)} value={order} disabled={everythingDisabled}/>
                             </Box>
                         </Grid>
