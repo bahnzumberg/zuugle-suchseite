@@ -8,7 +8,6 @@ import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
 // import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-// import TestComp from '../TestComp';
 const Main = lazy(() => import('./views/Main/Main'));
 const About = lazy(() => import('./views/Pages/About'));
 const Impressum = lazy(() => import('./views/Pages/Impressum'));
