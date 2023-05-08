@@ -3,6 +3,9 @@ import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 // import {listAllCityLinks} from "../../utils/seoPageHelper";
+import { Trans } from 'react-i18next';
+
+
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -24,10 +27,18 @@ export default function Footer({}){
                         <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`https://www.bahnzumberg.at`)}>Bahn zum Berg</Typography>
                     </Grid>
                     <Grid item xs  >
-                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`${window.location.protocol}//${window.location.host}/privacy`)}>Datenschutz</Typography>
+                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`${window.location.protocol}//${window.location.host}/privacy`)}>
+                            <Trans i18nKey='start.datenschutz'> 
+                                Datenschutz
+                            </Trans> 
+                        </Typography>
                     </Grid>
                     <Grid item xs  >
-                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`${window.location.protocol}//${window.location.host}/imprint`)}>Impressum</Typography>
+                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`${window.location.protocol}//${window.location.host}/imprint`)}>
+                            <Trans i18nKey='start.impressum'> 
+                                Impressum
+                            </Trans> 
+                        </Typography>
                     </Grid>
                 </Grid>
             </Grid>
