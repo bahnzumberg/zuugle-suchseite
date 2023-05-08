@@ -27,7 +27,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     // Translation-related
     const {t} = useTranslation();
 
-    const tourlänge_label = t('filter.tourlaenge');
+    const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
     const mehrtagestour_label = t('filter.mehrtagestour');
     const jahreszeit_label = t('filter.jahreszeit');
@@ -351,7 +351,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
 
                     <Box className={"filter-box border"}>
-                        <Typography variant={"subtitle1"}>{tourlänge_label}</Typography>
+                        <Typography variant={"subtitle1"}>{tourlaenge_label}</Typography>
                         <Grid container>
                             <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
                                 <Grid container spacing={0}>
