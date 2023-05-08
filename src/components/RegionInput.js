@@ -5,6 +5,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Destination from "../icons/Destination";
 import Close from "../icons/Close";
 import CloseFilled from "../icons/CloseFilled";
+import { useTranslation } from 'react-i18next';
 
 const CssTextField = styled(TextField)({
     '& label.Mui-focused': {
@@ -30,10 +31,12 @@ const CssTextField = styled(TextField)({
 
 export default function RegionInput({loadRegions, region, setRegion, onFocus, isOpen, city, onClick, disabled, onCustomSubmit, setOpenRegionSearch, resetInput}){
 
+    const {t} = useTranslation();
+
     return <CssTextField
         className={"city-input"}
-        label={"Suche (optional)"}
-        placeholder={"Berggipfel, Region, Sportart, ..."}
+        label={t("start.suche")}
+        placeholder={t("start.placeholder_suche")}
         variant="outlined"
         fullWidth
         disabled={disabled}
