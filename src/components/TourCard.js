@@ -16,6 +16,8 @@ import LinearProgress from "@mui/material/LinearProgress";
 import TourConnectionCardNew from "./TourConnectionCardNew";
 import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTranslation } from 'react-i18next';
+import {tourTypes} from "../utils/language_Utils";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
@@ -34,6 +36,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
+
+    // i18next
+    const {t} = useTranslation();
 
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
@@ -106,6 +111,28 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
     const renderProps = () => {
+
+        const translateDiff = (diff) =>{
+            if(diff === "Leicht"){
+                return t('start.leicht');
+            }else if(diff === "Schwer") {
+                return t('start.schwer');
+            }else return t('start.mittel');
+        };
+
+        const translateTourType = (type) =>{
+            let translatedType = null; 
+            tourTypes.map((typ)=>{
+                type = type.toLowerCase();
+                if(typ === type){   //correct the small cap so both can be equal
+                    // console.log("filter.${type} : ", `filter.${type}`)
+                    translatedType = t(`filter.${type}`)
+                }
+            })
+            return translatedType;
+        };
+
+
         const values = [];
         if(!!tour){
             values.push({
@@ -114,11 +141,13 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             });
             values.push({
                 icon: <Intensity style={{fill: "transparent"}} />,
-                text: tour.difficulty,
+                text: translateDiff(tour.difficulty),
+                // text: tour.difficulty,
             })
             values.push({
                 icon: <Walk style={{fill: "transparent"}} />,
-                text: tour.type,
+                text: translateTourType(tour.type),
+                // text: tour.type,
             })
             values.push({
                 icon: <ArrowVertical style={{fill: "transparent"}} />,
