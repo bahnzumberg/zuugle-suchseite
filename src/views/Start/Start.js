@@ -18,6 +18,7 @@ import {useNavigate} from "react-router";
 // import {myTrackPageView} from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import {getPageHeader, listAllCityLinks, listAllRangeLinks} from "../../utils/seoPageHelper";
+import { useTranslation, Trans } from 'react-i18next';
 
 const RangeCardContainer = lazy(() => import('../../components/RangeCardContainer'));
 const ScrollingTourCardContainer = lazy(() => import('../../components/ScrollingTourCardContainer'));
@@ -47,6 +48,10 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     // const { trackPageView } = useMatomo()
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
+    //i18next
+    let count = totalProvider;
+    const {t, i18n} = useTranslation();
+
 
     // description
     // makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
@@ -127,9 +132,14 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const getRangeText = () => {
         let _city = searchParams.get('city');
         if(!!_city && _city.length > 0){
-            return "Die schönsten Wanderdestinationen in deiner Nähe";
+            // return t('schoene_wanderungen_nahe');
+            return <Trans i18nKey='start.schoene_wanderungen_nahe'>
+                    Die schönsten Wanderdestinationen in deiner Nähe
+                </Trans>
         } else {
-            return "Die schönsten Wanderdestinationen";
+            return <Trans i18nKey='start.schoene_wanderungen'>
+            Die schönsten Wanderdestinationen
+        </Trans>
         }
     }
 
@@ -138,9 +148,16 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const getFavouriteToursText = () => {
         let _city = searchParams.get('city');
         if(!!_city && _city.length > 0){
-            return "Beliebte Bergtouren in deiner Nähe";
+            // return "Beliebte Bergtouren in deiner Nähe";
+            return <Trans i18nKey='start.beliebte_bergtouren_nahe'>
+                    Beliebte Bergtouren in deiner NÃ¤he
+                </Trans>
+
         } else {
-            return "Beliebte Bergtouren";
+            // return "Beliebte Bergtouren";
+            return <Trans i18nKey='start.beliebte_bergtouren'>
+                    Beliebte Bergtouren
+                </Trans>
         }
     }
 
@@ -170,8 +187,14 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
             {getPageHeader(null)}
             <Header totalTours={totalTours} allCities={allCities}/>
             <Box elevation={0} className={"header-line"}>
-                <Box sx={{padding: "20px"}}>
-                    <Typography color={"#FFFFFF"} sx={{textAlign: "left"}}>Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren</Typography>
+                <Box sx={{padding: "20px",textAlign: "left"}} >
+                    <Trans i18nKey='start.zuugle_sucht_fuer_dich' count={count}>
+                        <>
+                            <Typography color={"#FFFFFF"} >
+                                Zuugle sucht für dich in {{count}} Tourenportalen nach Öffi-Bergtouren
+                            </Typography>
+                        </>
+                    </Trans>
                 </Box>
             </Box>
             <Box className={'start-body-container'}>
