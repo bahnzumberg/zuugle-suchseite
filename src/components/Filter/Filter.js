@@ -20,8 +20,51 @@ import {hideModal, showModal} from "../../actions/modalActions";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
+import { useTranslation } from 'react-i18next';
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter}){
+
+    // Translation-related
+    const {t} = useTranslation();
+
+    const tourlänge_label = t('filter.tourlaenge');
+    const tagestour_label = t('filter.tagestour');
+    const mehrtagestour_label = t('filter.mehrtagestour');
+    const jahreszeit_label = t('filter.jahreszeit');
+    const sommertour_label = t('filter.sommertour');
+    const wintertour_label = t('filter.wintertour');
+    const nur_ueberschreitungen_label = t('filter.nur_ueberschreitungen');
+    const tourstart_ende_andere_stops_label = t('filter.tourstart_ende_andere_stops');
+    
+    const anstieg_label = t('filter.anstieg');
+    const abstieg_label = t('main.abstieg');
+    const hoehenmeter_label = t('filter.hoehenmeter');
+    const anfahrtszeit_label = t('main.anfahrtszeit');
+    const gehdistanz_label = t('filter.gehdistanz');
+    const sportart_label = t('main.sportart');
+    const alle_an_abwaehlen_label = t('filter.alle_an_abwaehlen');
+
+    const schwierigkeit_label = t('filter.schwierigkeit');
+    const schwierigkeitswert_label = t('filter.schwierigkeitswert');
+    const regionen_label = t('filter.regionen');
+    const filter_anwenden_label = t('filter.filter_anwenden');
+    const filter_loeschen_label = t('filter.filter_loeschen');
+    const minimum_label = t('filter.minimum');
+    const maximum_label = t('filter.maximum');
+
+    let sportTypesArray = [
+        {"Bike & Hike": t('filter.bike_hike')},
+        {"Hochtour": t('filter.hochtour')},
+        { "Klettern" : t('filter.klettern')},
+        { "Klettersteig" : t('filter.klettersteig')},
+        { "Langlaufen" : t('filter.langlaufen')},
+        { "Rodeln" : t('filter.rodeln')},
+        { "Schneeschuh" : t('filter.schneeschuh')},
+        { "Skitour" : t('filter.skitour')},
+        { "Wandern" : t('filter.wandern')},
+        { "weitwandern" : t('filter.Weitwandern')},
+    ]    
+    
 
     useEffect(() => {
         let city = searchParams.get('city');
@@ -246,14 +289,17 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const getTypes = () => {
         let types = [];
-        if(!!filter && !!filter.types){
-            types = filter.types.map(entry => {
+        if (!!filter && !!filter.types) {
+            types = filter.types.map((entry) => {
+                const foundType = sportTypesArray.find(typeObj => Object.keys(typeObj)[0] === entry);
+                const translatedValue = foundType ? Object.values(foundType)[0] : '';
                 return {
-                    value: entry,
-                    label: entry
+                value: translatedValue,
+                label: translatedValue
                 }
             })
         }
+
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                         <Box>
@@ -305,12 +351,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
 
                     <Box className={"filter-box border"}>
-                        <Typography variant={"subtitle1"}>Tourlänge</Typography>
+                        <Typography variant={"subtitle1"}>{tourlänge_label}</Typography>
                         <Grid container>
                             <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>Tagestour</Typography>
+                                        <Typography variant={"subtitle3"}>{tagestour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{textAlign: "right"}}>
                                         <Switch
@@ -324,7 +370,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             <Grid item xs={6} sx={{paddingLeft: "24px"}} className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>Mehrtagestour</Typography>
+                                        <Typography variant={"subtitle3"}>{mehrtagestour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{textAlign: "right"}}>
                                         <Switch
@@ -338,12 +384,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} style={{paddingTop: "20px", paddingBottom: "20px"}}>
-                        <Typography variant={"subtitle1"}>Jahreszeit</Typography>
+                        <Typography variant={"subtitle1"}>{jahreszeit_label}</Typography>
                         <Grid container>
                             <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}} className={"toggle-container-left"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>Sommertour</Typography>
+                                        <Typography>{sommertour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{textAlign: "right"}}>
                                         <Switch
@@ -357,7 +403,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>Wintertour</Typography>
+                                        <Typography>{wintertour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{textAlign: "right"}}>
                                         <Switch
@@ -374,8 +420,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         <Box sx={{paddingTop: "16px"}}>
                             <Grid container sx={{paddingTop: "16px"}}>
                                 <Grid item xs={10}>
-                                    <Typography variant={"subtitle1"}>Nur Überschreitungen</Typography>
-                                    <Typography variant={"subtitle2"} sx={{fontSize: "16px", fontWeight: 400}}>Tourstart und Tourende sind unterschiedliche Haltestellen.</Typography>
+                                    <Typography variant={"subtitle1"}>{nur_ueberschreitungen_label}</Typography>
+                                    <Typography variant={"subtitle2"} sx={{fontSize: "16px", fontWeight: 400}}>{tourstart_ende_andere_stops_label}</Typography>
                                 </Grid>
                                 <Grid item xs={2} sx={{textAlign: "right"}}>
                                     <Switch
@@ -390,7 +436,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
                         <Grid container>
                             <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
-                                <Typography>Anstieg (hm)</Typography>
+                                <Typography>{anstieg_label} (hm)</Typography>
                                 <GeneralSlider
                                     containerSx={{marginRight: '10px'}}
                                     step={100}
@@ -408,7 +454,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label= {minimum_label}
                                                 variant="filled"
                                                 value={minAscent}
                                                 endAdormentLabel={null}
@@ -417,7 +464,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label= {maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxAscent}
@@ -425,10 +473,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {maxAscent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ Höhenmeter</div>}
+                                {maxAscent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ {hoehenmeter_label}</div>}
                             </Grid>
                             <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>Abstieg (hm)</Typography>
+                                <Typography>{abstieg_label} (hm)</Typography>
                                 <GeneralSlider
                                     containerSx={{marginRight: '10px'}}
                                     step={100}
@@ -445,7 +493,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label= {minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDescent}
@@ -454,7 +503,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label= {maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDescent}
@@ -462,14 +512,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {maxDescent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ Höhenmeter</div>}
+                                {maxDescent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ {hoehenmeter_label} </div>}
                             </Grid>
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
                         <Grid container>
                             <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA",paddingRight: "24px"}} className={"toggle-container-left"}>
-                                <Typography>Anfahrtszeit (h)</Typography>
+                                <Typography>{anfahrtszeit_label} (h)</Typography>
                                 <GeneralSlider
                                     containerSx={{marginRight: '10px'}}
                                     step={0.50}
@@ -487,7 +537,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label= {minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(minTransportDuration)}
@@ -496,7 +547,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label= {maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(maxTransportDuration)}
@@ -506,7 +558,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 </Box>
                             </Grid>
                             <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>Gehdistanz (km)</Typography>
+                                <Typography>{gehdistanz_label} (km)</Typography>
                                 <GeneralSlider
                                     containerSx={{marginRight: '10px'}}
                                     step={2}
@@ -523,7 +575,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label= {minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDistance}
@@ -532,7 +585,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label= {maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDistance}
@@ -545,13 +599,13 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>Sportart <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllTypeValues}>Alle ab-/anwählen</Typography></Typography>
+                        <Typography variant={"subtitle1"}>{sportart_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllTypeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{paddingTop: "16px"}}>
                             {getTypes()}
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>Regionen <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllRangeValues}>Alle ab-/anwählen</Typography></Typography>
+                        <Typography variant={"subtitle1"}>{regionen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllRangeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{paddingTop: "16px"}}>
                             {getRanges()}
                         </Grid>
@@ -560,8 +614,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         <Box sx={{position: "absolute", top: '20px', right: '20px'}}>
                             <Typography variant={"error"}><TextWithIcon text={difficulty} iconRight={<Intensity style={{stroke: "#FF540B", fill: "none", strokeWidth: 1.5}}/>} /></Typography>
                         </Box>
-                        <Typography variant={"subtitle1"}>Schwierigkeit</Typography>
-                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>Der Schwierigkeitswert wurde nach den Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann "leicht", "mittel" oder "schwer" sein.</Typography>
+                        <Typography variant={"subtitle1"}>{schwierigkeit_label}</Typography>
+                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>{schwierigkeitswert_label}</Typography>
                         <DifficultySlider
                             containerSx={{marginTop: '20px', marginRight: '10px'}}
                             defaultValue={10}
@@ -572,8 +626,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 </Box>
                 <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>
                     <Box sx={{float: "right", padding: "20px"}}>
-                        <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}>Filter löschen</Button>
-                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} Filter anwenden</Button>
+                        <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}> {filter_loeschen_label}</Button>
+                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
                     </Box>
                 </Box>
             </Fragment>
