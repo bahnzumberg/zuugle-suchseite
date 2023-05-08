@@ -2,11 +2,20 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import UserRecommendationCard from "./UserRecommendationCard";
 import {Typography} from "@mui/material";
+import { useTranslation, Trans } from 'react-i18next';
 
 
 export default function UserRecommendationContainer({}){
+
+    // const{t, i18n}= useTranslation();
+    
+
     return <Box style={{backgroundColor: "#FFF", padding: "20px", borderRadius: "32px", borderColor: "#ECECEC", borderWidth: "1px"}}>
-        <Typography variant={"h4"} sx={{textAlign: "left", paddingTop: '20px', paddingBottom: "15px"}}>Nutzer:innen über Zuugle</Typography>
+        <Trans i18nKey='start.nutzer_innen_ueber_zuugle'>
+            <Typography variant={"h4"} sx={{textAlign: "left", paddingTop: '20px', paddingBottom: "15px"}}>
+                Nutzer:innen über Zuugle
+            </Typography>
+        </Trans>
         <Box style={{width: "100%", overflowX: "scroll", whiteSpace: "nowrap", display: "flex", alignItems: "stretch"}}>
             <Box className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
                 <UserRecommendationCard
