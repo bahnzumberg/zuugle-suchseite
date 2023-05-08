@@ -1,7 +1,10 @@
 import * as React from 'react';
 import Select from "react-select";
+import { useTranslation } from 'react-i18next';
 
 export default function SortInput({onChange, value, disabled}){
+
+    const{t} =useTranslation();
 
 
     const styles = {
@@ -30,11 +33,10 @@ export default function SortInput({onChange, value, disabled}){
     }
 
     const options = [
-        { value: 'relevanz', label: 'Relevanz' },
-        // { value: 'bewertung', label: 'Bewertung' },
-        { value: 'anfahrtszeit', label: 'Anfahrtszeit' },
-        { value: 'tourdistanz', label: 'Tourdistanz' },
-        { value: 'tourdauer', label: 'Tourdauer' }
+        { value: 'relevanz', label: t('main.relevanz') },
+        { value: 'anfahrtszeit', label: t('main.anfahrtszeit') },
+        { value: 'tourdistanz', label: t('main.tourdistanz') },
+        { value: 'tourdauer', label: t('main.tourdauer') }
     ]
 
 
