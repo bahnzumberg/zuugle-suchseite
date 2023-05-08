@@ -19,6 +19,7 @@ import {CityResultList} from "./CityResultList";
 import FullScreenCityInput from "../FullScreenCityInput";
 import {RegionResultList} from "./RegionResultList";
 import FullScreenRegionInput from "../FullScreenRegionInput";
+import { useTranslation } from 'react-i18next';
 
 
 export function Search({loadCities, cities, loadRegions, regions, loadTours, isCityLoading, goto, isMain, loadFavouriteTours, showModal, hideModal, allCities}){
@@ -32,6 +33,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
     const [openRegionSearch, setOpenRegionSearch] = useState(false);
 
     const navigate = useNavigate();
+    const {t} = useTranslation();
 
 
     useEffect(() => {
@@ -282,7 +284,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
                                 <RegionInput setOpenRegionSearch={setOpenRegionSearch} onCustomSubmit={onCustomRegionSubmit} loadRegions={loadRegions} region={regionInput} setRegion={(value) => changeTextMiddleware(value, setRegionInput, setRegion)} onFocus={!!!isResponsive() && onFocusRegion} isOpen={openRegionSearch} city={city} onClick={!!isResponsive() && showRegionInput} disabled={!!isResponsive()} resetInput={resetRegionInput}/>
                             </Grid>
                             <Grid item xs={12} md={2}>
-                                <Button variant="contained" fullWidth style={{height: 55}} onClick={() => search()}>Ergebnisse anzeigen</Button>
+                                <Button variant="contained" fullWidth style={{height: 55}} onClick={() => search()}>{t("start.ergebnisse_anzeigen")}</Button>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -295,7 +297,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
                             <RegionInput setOpenRegionSearch={setOpenRegionSearch} onCustomSubmit={onCustomRegionSubmit} loadRegions={loadRegions} region={regionInput} setRegion={(value) => changeTextMiddleware(value, setRegionInput, setRegion)} onFocus={!!!isResponsive() && onFocusRegion} isOpen={openRegionSearch} city={city} onClick={!!isResponsive() && showRegionInput} disabled={!!isResponsive()} resetInput={resetRegionInput}/>
                         </Grid>
                         <Grid item xs={12} md={2}>
-                            <Button variant="contained" fullWidth style={{height: 55}} onClick={() => search()}>Ergebnisse anzeigen</Button>
+                            <Button variant="contained" fullWidth style={{height: 55}} onClick={() => search()}>{t("start.ergebnisse_anzeigen")}</Button>
                         </Grid>
                     </Grid>
 
