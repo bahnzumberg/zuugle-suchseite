@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react';
+import React from 'react';
 import {createRoot} from 'react-dom/client';
 // import ReactDOM from 'react-dom';
 import './index.css';
@@ -8,6 +8,7 @@ import thunk from 'redux-thunk';
 import rootReducer from "./rootReducer";
 import { Helmet } from 'react-helmet';
 import { Provider } from 'react-redux';
+import "./translations/i18n";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(
