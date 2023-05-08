@@ -2,8 +2,13 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import {Grid, Typography} from "@mui/material";
 import {Helmet} from "react-helmet";
+import { useTranslation, Trans } from 'react-i18next';
 
+
+//ToDo: Translate meta content in getPageHeader
 export const getPageHeader = (directLink) => {
+    const {t} = useTranslation();
+
     //console.log("directLink :", directLink) // seems to be always on null value 
     if(!!directLink && !!directLink.header){
         return <Helmet>
@@ -13,7 +18,7 @@ export const getPageHeader = (directLink) => {
         </Helmet>
     } else {
         return <Helmet>
-            <title>Zuugle - die Suchmaschine für Öffi-Bergtouren</title>
+            <title>{t("start.helmet_title")}</title>
             <meta name="title" content="Zuugle - die Suchmaschine für Öffi-Bergtouren" />
             <meta name="description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
         </Helmet>
@@ -50,6 +55,9 @@ export const checkIfSeoPageRange = (location, ranges) => {
 //description
 //This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
+
+    const country = translatedCountry();
+
     if(!!cities){
         const entries = cities.map((city,index) => {
             let link = `${city.value}`;
@@ -58,9 +66,12 @@ export const listAllCityLinks = (cities, searchParams = null) => {
             }
             return <Grid key={index} item xs={12} sm={6} md={4} ><a href={`/${link}`} className={"seo-city-link"}>{city.label}</a></Grid>
         });
-
         return <Box sx={{textAlign: "left"}}>
-            <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Heimatbahnhöfe in {getCountryName()}</Typography>
+                <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
+                     <Trans i18nKey='start.heimatbahnhoefe_in' country={country}> 
+                         <>Heimatbahnhöfe in {{country}}</> 
+                     </Trans> 
+                </Typography>
             <Grid container>
                 {entries}
             </Grid>
@@ -70,6 +81,8 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 }
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
+    const country = translatedCountry();
+
     if(!!ranges){
         const entries = ranges.map((range,index) => {
             let link = `${range.range_slug}`;
@@ -80,13 +93,47 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
         });
 
         return <Box sx={{textAlign: "left"}}>
-            <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Die schönsten Wanderdestinationen in {getCountryName()}</Typography>
+            {/* <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Die schönsten Wanderdestinationen in {getCountryName()}</Typography> */}
+            {/* <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Die schönsten Wanderdestinationen in {getCountryName()}</Typography> */}
+            <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
+                     <Trans i18nKey='start.wanderdestinationen' country={country}> 
+                        <>Die schönsten Wanderdestinationen in {{country}}</> 
+                     </Trans> 
+                </Typography>
             <Grid container>
                 {entries}
             </Grid>
         </Box>
     }
     return [];
+}
+
+
+const translatedCountry =()=>{
+
+    const {t} = useTranslation();
+    const country =  getCountryName(); 
+    const countryKey = getCountryKey(country);
+    
+    return t(`start.${countryKey}`);
+}
+
+
+
+const getCountryKey = (name) => {
+
+    switch (name) {
+        case name === "der Schweiz":
+            return "schweiz";
+        case name === "Österreich":
+            return "oesterreich";
+        case name === "Deutschland":
+            return "deutschland";
+        case name === "Frankreich":
+            return "frankreich";
+        default:
+            return "oesterreich";
+    }
 }
 
 const getCountryName = () => {
