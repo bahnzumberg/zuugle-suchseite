@@ -9,8 +9,16 @@ import Box from "@mui/material/Box";
 import {FormControlLabel, Typography} from "@mui/material";
 import Switch from "@mui/material/Switch";
 import {getFilterProp} from "../utils/globals";
+import { useTranslation } from 'react-i18next';
 
 export default function ResultBar({total, showModal, hideModal, filter, filterActive, everythingDisabled = false, clearTours}){
+
+    const{t} = useTranslation();
+
+   const resultLabel = total == 1 ? 'Ergebnis' : t('main.ergebnisse');
+   const mapLabel = t('main.karte');
+   const sortLabel = t('main.sortieren_nach');
+
 
     // console.log("Total in ResultBar: " + total);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -78,7 +86,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         <div>
             <Grid container rowSpacing={0} columnSpacing={1}>
                 <Grid item xs={12} sm={12} md={3} style={{alignSelf: "center", textAlign: "left"}} className={"result-text"}>
-                    {Number(total).toLocaleString()} {total == 1 ? 'Ergebnis' : 'Ergebnisse'}
+                    {Number(total).toLocaleString()} {resultLabel}
                 </Grid>
                 <Grid item xs={12} sm={12} md={9}>
                     <Grid container>
@@ -89,7 +97,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
                                     handleChange('view', {value: !!!mapView})
                                     setMapView(!!!mapView)
                                 }}
-                            />} label="Karte" labelPlacement="end"/>
+                            />} label={mapLabel} labelPlacement="end"/>
                         </Grid>
                         <Grid item xs={12} sm={12} md={4}>
                             <Box className={"filter-button-container"}>
@@ -98,7 +106,8 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
                         </Grid>
                         <Grid item xs={12} sm={12} md={6}>
                             <Box className={"order-container cursor-link"} style={{display: "flex"}}>
-                                <Typography style={{alignSelf: "center", paddingRight: "10px"}}>Sortieren nach</Typography>
+                                <Typography style={{alignSelf: "center", paddingRight: "10px"}}>{sortLabel}</Typography>
+                                {/* <Typography style={{alignSelf: "center", paddingRight: "10px"}}>Sortieren nach</Typography> */}
                                 <SortInput onChange={(value) => handleChange("order", value)} value={order} disabled={everythingDisabled}/>
                             </Box>
                         </Grid>
