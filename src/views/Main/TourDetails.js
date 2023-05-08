@@ -19,6 +19,7 @@ var fileDownload = require('js-file-download');
 import {Buffer} from 'buffer';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useSearchParams} from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -41,13 +42,43 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
     //clgs:
     // console.log('tour is :');
     // console.log(tour);
-
+    
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const returnsLength = !!returnConnection ? returnConnection.connection_returns_trips_back : 0;
+
+
+     //Translation related
+     const {t} = useTranslation();
+     const GPXDownloadLabel = t('main.gpx_download');
+ 
+     const  getFoundJourney = ()=> {    
+        let oneJourney = t('main.eine_rueckfahrt');
+        let manyJourneys = t('main.viele_rueckfahrten');
+        let fig99 = returnsLength >= 100 ? "99+" : returnsLength;
+        let oneOrMore = returnsLength > 1 ? manyJourneys : oneJourney ;
+        let translatedText = t('main.anreise_gefunden');  
+        return (`${translatedText} ${fig99} ${oneOrMore}`)
+     }
+
+     const journeyNotFoundText = t('main.keine_anreise_gefunden') ;
+     const difficulty_label_zuugle = t('main.schwierigkeit_zuugle');
+     const difficulty_label_original = t('main.schwierigkeit_original');
+     const sportart_label = t('main.sportart');
+     const distance_label = t('main.distanz');
+     const duration_label = t('main.dauer');
+     const days_label = t('main.tage');
+     const ascent_label = t('main.aufstieg');
+     const descent_label = t('main.abstieg');
+     const child_friendly_label = t('main.kinderfreundlich');
+     const overrun_label = t('main.ueberschreitung');
+     const yes_label = t('main.ja');
+     const no_label = t('main.nein');
+
+    // console.log( "difficulty_label: " + difficulty_label)
 
     useEffect(() => {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions); //(url:string, )
@@ -195,7 +226,9 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     <Grid item xs={4}>
                         <Button variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={() => {
                             onDownloadGpx();
-                        }}>{!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'GPX Download'}</Button>
+                        }}>
+                            {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : <>{GPXDownloadLabel}</>}
+                        </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={onDownload}>
@@ -229,8 +262,12 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
             <Box sx={{marginTop: '20px'}}>
                 <Box sx={{ bgcolor: 'info.main', borderRadius: '16px', padding: '20px', position: 'relative' }}>
-                    {!!connection && !!connection.id ? <Typography>Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'}</Typography>
-                        : <Typography>Keine öffentliche Anreise gefunden</Typography>
+                    {!!connection && !!connection.id ? 
+                    <Typography>
+                        {/* Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'} */}
+                        { getFoundJourney()}
+                    </Typography>
+                        : <Typography>{journeyNotFoundText}</Typography>
                     }
 
                 </Box>
@@ -243,10 +280,10 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
-                        <TourProperty title={"Schwierigkeit Zuugle"} text={`${titleCase(tour.difficulty)}`}/>
+                        <TourProperty title={difficulty_label_zuugle} text={`${titleCase(tour.difficulty)}`}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Schwierigkeit original"} text={`${titleCase(tour.difficulty_orig)}`} />
+                        <TourProperty title={difficulty_label_original} text={`${titleCase(tour.difficulty_orig)}`} />
                     </Grid>
                 </Grid>
             </Box>
@@ -254,25 +291,25 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             <Box sx={{marginTop: '20px'}}>
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
-                        <TourProperty title={"Sportart"} text={tour.type}/>
+                        <TourProperty title={sportart_label} text={tour.type}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Distanz"} text={formatNumber(tour.distance) + ' km'} />
+                        <TourProperty title={distance_label} text={formatNumber(tour.distance) + ' km'} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Dauer"} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ' Tage') : convertNumToTime(tour.total_tour_duration)} />
+                        <TourProperty title={duration_label} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + days_label) : convertNumToTime(tour.total_tour_duration)} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Aufstieg"} text={formatNumber(tour.ascent, ' hm')} />
+                        <TourProperty title={ascent_label} text={formatNumber(tour.ascent, ' hm')} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Abstieg"} text={formatNumber(tour.descent, ' hm')} />
+                        <TourProperty title={descent_label} text={formatNumber(tour.descent, ' hm')} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Kinderfreundlich"} text={!!tour.children ? 'Ja' : 'Nein'} />
+                        <TourProperty title={child_friendly_label} text={!!tour.children ? yes_label : no_label} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Überschreitung"} text={!!tour.traverse ? 'Ja' : 'Nein'} />
+                        <TourProperty title={overrun_label} text={!!tour.traverse ? yes_label : no_label} />
                     </Grid>
                 </Grid>
             </Box>
