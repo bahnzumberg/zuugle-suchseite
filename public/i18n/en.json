@@ -64,7 +64,7 @@
         "distanz_km": "to be translated",
         "dauer": "to be translated",
         "umstiege": ", Changes:  ",
-        "anzahl_rueckreiseoptionen": "<0>Number of possible return trips :</0><1>{{retOptions}}</1>",
+        "anzahl_rueckreiseoptionen": "<0><0>Number of possible return trips :{{retOptions}}</0><0>",
         "letze_moeglichkeit": "Final possibility: ",
         "uhr": " Hour",
         "ueber_zuugle": "<0>About Zuugle</0>",
