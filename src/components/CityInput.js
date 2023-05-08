@@ -5,6 +5,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Home from "../icons/Home";
 import ChevronDown from "../icons/ChevronDown";
 import ChevronUp from "../icons/ChevronUp";
+import { useTranslation} from 'react-i18next';
+
 
 const CssTextField = styled(TextField)({
     '& label.Mui-focused': {
@@ -41,6 +43,8 @@ const CssTextField = styled(TextField)({
 
 export default function CityInput({loadCities, city, setCity, onFocus, isOpen, showRightIcon = true, onClick, disabled}){
 
+    const {t} = useTranslation();
+
     const placeholder = () => {
         let host = window.location.host;
         if(host.indexOf("zuugle.at") >= 0){
@@ -58,7 +62,7 @@ export default function CityInput({loadCities, city, setCity, onFocus, isOpen, s
 
     return <CssTextField
         className={"city-input"}
-        label={"Heimatbahnhof"}
+        label={t('start.heimatbahnhof')}
         placeholder={placeholder()}
         variant="outlined"
         fullWidth
@@ -94,6 +98,7 @@ export default function CityInput({loadCities, city, setCity, onFocus, isOpen, s
 
             ),
             className: "search-bar-input"}}
-    />;
+    />
+
 
 };
