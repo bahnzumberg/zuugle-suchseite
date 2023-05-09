@@ -483,9 +483,10 @@ export async function syncTours(){
     }
 
     while((counter *  limit) <= count){
-        const query = knexTourenDb.raw(`select s.*, g1.lat as lat_start, g1.lon as lon_start, g2.lat as lat_end, g2.lon as lon_end from interface_touren_to_search s
+        const query = knexTourenDb.raw(`select s.*, g1.lat as lat_start, g1.lon as lon_start, g2.lat as lat_end, g2.lon as lon_end, g3.ele as max_ele from interface_touren_to_search s
                                                 LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
                                                 LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
+                                                LEFT JOIN Interface_GPX_to_search g3 ON s.provider = g3.provider AND s.hashed_url = g3.hashed_url AND g3.typ = "top"
                                                 limit ${limit} offset ${offset};`);
 
         /*
