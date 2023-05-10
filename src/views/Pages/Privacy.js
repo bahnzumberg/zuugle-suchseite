@@ -3,14 +3,12 @@ import Box from "@mui/material/Box";
 import Header from "./Header";
 import {Typography} from "@mui/material";
 import { getPrivacyLabels } from '../../translations/translation.labels';
-import { useTranslation} from 'react-i18next';
 
 
 function Privacy({}){
 
     
     //translation related
-    const { t } = useTranslation();
     const PrivacyLabels = getPrivacyLabels();
     const matomo_link  = <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>
 
@@ -28,15 +26,7 @@ function Privacy({}){
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>{PrivacyLabels.analysedienst }</Typography>
                 <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>{PrivacyLabels.welcher_dienst }</Typography>
-                {/* <Typography>
-                    <Trans i18nKey="privacy.matomo" values={{ matomo: <a href="https://matomo.org/" target="_blank">Matomo</a> }} />
-                </Typography>
-                 */}
-                 <Typography>{t('privacy.matomo', { matomo: matomo_link })}</Typography>
-
-                {/* <Typography>{t('privacy.matomo', { matomo: <a href="https://matomo.org/" target="_blank">Matomo</a> })} </Typography> */}
-                {/* <Typography>{PrivacyLabels.matomo_1 } <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>{PrivacyLabels.matomo_2 } </Typography> */}
-                {/* <Typography>Wir setzen die Open Source Software <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>in der selbst-gehosteten Variante ein. Die Daten befinden sich daher auf einem Server in Deutschland in der EU. </Typography> */}
+                <Typography>{PrivacyLabels.matomo_1} {matomo_link} {PrivacyLabels.matomo_2} </Typography>
                 <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>{PrivacyLabels.welche_daten }</Typography>
                 <Typography>{PrivacyLabels.abgespeichert_werden }</Typography>
 
