@@ -8,6 +8,7 @@ import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
 // import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
+import DetailReworked from "./views/Main/DetailReworked";
 const Main = lazy(() => import('./views/Main/Main'));
 const About = lazy(() => import('./views/Pages/About'));
 const Impressum = lazy(() => import('./views/Pages/Impressum'));
@@ -51,6 +52,7 @@ function App() {
                                 <Route path="/" element={<Start/>}/>
                                 <Route path="/suche" element={<Main/>}/>
                                 <Route path="/about" element={<About/>}/>
+                                <Route path="/tour" element={<DetailReworked/>}/>
                                 <Route path="/imprint" element={<Impressum/>}/>
                                 <Route path="/privacy" element={<Privacy/>}/>
                                 <Route path="/:city" element={<Main/>}/>
