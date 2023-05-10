@@ -1,3 +1,5 @@
+import React from "react";
+
 export const tourTypes = [
     "wandern",
     "schneeschuh",
@@ -50,4 +52,12 @@ export const localMissingDays = (daysArr, lng) => {
     return retDays;
 
 }
+//used for creating links to pass as object values to the attribute "components" in Trans 
+export const LinkText = (props) => {
+    return (
+        <a href={props.to || '#'} target="_blank" title={props.title || ''}>
+            {props.children}
+        </a>
+    );
+};
 
