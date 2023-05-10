@@ -25,6 +25,9 @@ import {loadGPX} from "../../actions/fileActions";
 import {Typography} from "@mui/material";
 import { checkIfSeoPageCity, checkIfSeoPageRange, getPageHeader} from "../../utils/seoPageHelper";
 import {loadRanges} from "../../actions/rangeActions";
+import DetailReworked from "./DetailReworked";
+import moment from "moment/moment";
+import tourDetails from "./TourDetails";
 
 const Search = lazy(() => import('../../components/Search/Search'));
 const Detail = lazy(() => import('./Detail'));
@@ -230,10 +233,14 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }
 
     const onSelectTour = (tour) => {
-        //clg:
-        // console.log("Main L 205, onSelectTour , tour value: " + tour);
-        setTour(tour)
-        toggleDetailOpen();
+        // //clg:
+        // // console.log("Main L 205, onSelectTour , tour value: " + tour);
+        // setTour(tour)
+        // toggleDetailOpen();
+        let updatedSearchParams = new URLSearchParams(searchParams.toString());
+        updatedSearchParams.set("datum", moment().format("YYYY-MM-DD"));
+        const w = window.open('/tour?' + updatedSearchParams.toString());
+        w.selectedTour = {tour};
     }
 
     //description:
@@ -288,7 +295,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         {/* clg */}
         {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
         {getPageHeader(directLink)}
-        
+
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
             {
                 // description:
@@ -309,7 +316,9 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             }
             {/* description:
             ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
-            <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+            {
+                (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+            }
         </Box>
 
         {(!!loading && !!!mapView) &&
@@ -347,24 +356,28 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
 
         }
 
-        <Drawer
-            anchor={"right"}
-            open={detailOpen}
-            onClose={toggleDetailOpen}
-            PaperProps={{
-                sx: {
-                    backgroundColor: "info.main",
-                    width: {
-                        xs: "100%",
-                        sm: "500px"
-                    }
-                }
-            }}
-        >
-            {/* description:
-            Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. */}
-            <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>
-        </Drawer>
+        {/*{*/}
+        {/*    (detailOpen) && <><DetailReworked></DetailReworked></>*/}
+        {/*}*/}
+
+        {/*<Drawer*/}
+        {/*    anchor={"right"}*/}
+        {/*    open={detailOpen}*/}
+        {/*    onClose={toggleDetailOpen}*/}
+        {/*    PaperProps={{*/}
+        {/*        sx: {*/}
+        {/*            backgroundColor: "info.main",*/}
+        {/*            width: {*/}
+        {/*                xs: "100%",*/}
+        {/*                sm: "500px"*/}
+        {/*            }*/}
+        {/*        }*/}
+        {/*    }}*/}
+        {/*>*/}
+        {/*    /!* description:*/}
+        {/*    Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. *!/*/}
+        {/*    <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>*/}
+        {/*</Drawer>*/}
     </div>
 }
 
