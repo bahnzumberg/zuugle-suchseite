@@ -62,7 +62,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Schneeschuh" : t('filter.schneeschuh')},
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
-        { "weitwandern" : t('filter.Weitwandern')},
+        { "weitwandern" : t('filter.weitwandern')},
     ]    
     
 
