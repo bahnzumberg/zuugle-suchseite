@@ -2,15 +2,21 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import {Typography} from "@mui/material";
+import { getAboutLabels } from '../../translations/translation.labels';
 
 function About({}){
+
+    const AboutLabels = getAboutLabels();
+    console.log("AboutLabels", AboutLabels);
 
     return <Box className={"about-container"}>
         <Header title={"Was ist Zuugle?"}/>
 
         <Box className={'start-body-container'} style={{maxWidth: "1000px", marginLeft: "auto", marginRight: "auto"}}>
             <Box style={{textAlign: "left"}}>
-                <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "16px"}}>Was ist <i>Zuugle</i>?</Typography>
+                <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "16px"}}> 
+                {AboutLabels.was_ist_zuugle} 
+                <i>Zuugle</i>?</Typography>
 
                 <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}><i>Zuugle</i> ist eine Suchmaschine für öffentlich erreichbare Bergtouren.</Typography>
 
