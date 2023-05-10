@@ -311,6 +311,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             }
 
             <MarkerClusterGroup
+                key={new Date().getTime()}
                 ref={clusterRef}
                 maxClusterRadius={getClusterRadius}
                 spiderfyOnMaxZoom={true}
