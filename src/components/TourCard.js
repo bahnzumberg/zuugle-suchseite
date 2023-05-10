@@ -171,6 +171,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const getAnreise = () => {
         if(!!connections && connections.length > 0){
             let connection = connections[0];
+            // console.log("TourCard connection: ") ;
+            // console.log(connection)
             return <TourConnectionCardNew connection={connection}/>
         } else {
             return <Fragment></Fragment>
