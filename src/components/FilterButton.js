@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Settings} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import {styled} from "@mui/material/styles";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation} from 'react-i18next';
 
 export default function FilterButton({openFilter, filterActive = 0, disabled = false}){
 

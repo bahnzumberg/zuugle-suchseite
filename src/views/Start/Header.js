@@ -4,7 +4,7 @@ import {Typography, Grid} from "@mui/material";
 import SearchContainer from "./SearchContainer";
 import {useEffect, useState} from "react";
 import {getDomainText, isResponsive} from "../../utils/globals";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation} from 'react-i18next';
 import LanguageDropdown from "../../components/Language/LanguageDropdown";
 
 
@@ -14,7 +14,7 @@ const LINEAR_GRADIENT = "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45
 export default function Header({totalTours, allCities}){
 
     let totalToursCount = totalTours.toLocaleString()
-    // const {t, i18nKey} = useTranslation();
+    const {t} = useTranslation();
  
     const [backgroundImage, setBackgroundImage] = useState(`${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny.jpeg)`);
     const _isMobile = isResponsive();
@@ -33,11 +33,9 @@ export default function Header({totalTours, allCities}){
                 <Box sx={{display: "flex", alignItems: "center", marginBottom: "16px"}}>
                     <img src={`/app_static/img/logo-white.png`} height={"16px"} width={"29px"}/><Typography style={{fontSize: "16px", color: "#FFF", lineHeight: "16px", marginLeft: "5px"}}>{getDomainText()}</Typography>
                 </Box>
-                <Trans i18nKey='start.wartungsmodus'>
                     <Typography variant={"h1"}>
-                        Zuugle befindet sich gerade im Wartungsmodus. Bitte schau später wieder vorbei.
+                        {t('start.wartungsmodus')}
                     </Typography>
-                </Trans>
             </Box>
         </Box>
     }
@@ -82,14 +80,12 @@ export default function Header({totalTours, allCities}){
                         <LanguageDropdown/>
                         </Typography>
                     </Box>
-                    <Trans i18nKey='start.tourenanzahl_untertitel' totalToursCount={totalToursCount}>
                       <Typography variant={"h1"} >
                         <>
-                        {{totalToursCount}} Bergtouren im deutschsprachigen
-                        Alpenraum – erreichbar mit Bahn & Bus
+                        {totalToursCount}
+                        {t('start.tourenanzahl_untertitel')}
                         </>
                       </Typography>
-                    </Trans>
                   </Box>
                   {!!allCities && allCities.length > 0 && (
                     <SearchContainer goto={"/suche"} />

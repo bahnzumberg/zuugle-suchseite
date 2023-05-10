@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Rueckreise from "../icons/Rueckreise";
 import {formatOnlyTime} from "../utils/globals";
 import {Fragment} from "react";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation} from 'react-i18next';
 
 //description
 //This is another React component used inside TourCard. It displays information about the return trip options for a tour.
@@ -71,15 +71,12 @@ export default function TourConnectionReturnCardNew({returns}){
         <Box sx={{paddingRight: "50px"}}>
             <Typography variant="subtitle1" className="station">{from_to_back()}</Typography>
         </Box>
-            <Trans i18nKey='start.anzahl_rueckreiseoptionen' retOptions={retOptions}>
-                <Typography variant="subtitle2" className="time">
-                    <>
-                        Anzahl Rückreiseoptionen :
-                        {{retOptions}}
-                    </>
-                    
-                </Typography>
-            </Trans>
+            <Typography variant="subtitle2" className="time">
+                <>
+                    {t('start.anzahl_rueckreiseoptionen')} 
+                    {retOptions}
+                </>
+            </Typography>
         <Typography variant="subtitle2" className="time">{lastReturn_datetime()}</Typography>
     </div>;
 }

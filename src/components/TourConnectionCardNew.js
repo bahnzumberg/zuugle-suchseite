@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Box from "@mui/material/Box";
 import Anreise from "../icons/Anreise";
 import {convertNumToTime} from "../utils/globals";
-import { useTranslation,Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {localMissingDays} from '../utils/language_Utils';
 
 //description
@@ -12,7 +12,7 @@ import {localMissingDays} from '../utils/language_Utils';
 // The component uses the from_to() function to determine whether the departure and arrival stops are the same, and if not, displays them both with a hyphen in between. It also uses the duration_and_transfers() function to display the duration of the connection and the number of transfers required.
 // If there are missing days for the connection, the component displays them in a separate subtitle. Additionally, the component renders an icon representing the transportation method of the connection on the right side of the card.
 export default function TourConnectionCardNew({connection}){
-
+    
     // translation related
     const {t,i18n} =useTranslation();
 
@@ -22,6 +22,7 @@ export default function TourConnectionCardNew({connection}){
         const mDays = await connection.missing_days;
         if (mDays.length > 0) {
         const days = localMissingDays(mDays, i18n.language);
+        console.log("missing days", days)
         setMissingDays(days);
         } else {
         console.log("mDays.length is empty");
@@ -53,7 +54,6 @@ export default function TourConnectionCardNew({connection}){
         }
     }
 
-    //render
     return <div className="tour-connection-card">
         <Box style={{width: "40px", height: "40px", backgroundColor: "#c5c5c5", borderRadius: "12px", position: "absolute", right: "16px", top: "16px"}}>
             <Box sx={{display: "flex", justifyContent: "center", width: "100%", height: "100%", alignItems: "center"}}>
@@ -64,11 +64,9 @@ export default function TourConnectionCardNew({connection}){
             <Typography variant="subtitle1" className="station">{from_to()}</Typography>
         </Box>
         {(!!connection.missing_days && connection.missing_days.length > 0) &&
-            <Trans i18nKey='main.keine_verbindung' missingDays={missingDays} >
-                <Typography  variant="subtitle2" className="time" translatedmissingdates={ translatedmissingdates }>
-                    Keine Verbindung: {{translatedmissingdates}}
+                <Typography  variant="subtitle2" className="time">
+                {t('start.keine_verbindung')} {translatedmissingdates}
                 </Typography>
-            </Trans>
         }
         <Typography variant="subtitle2" className="time">{duration_and_transfers()}</Typography>
     </div>;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import {Grid, Typography} from "@mui/material";
 import {Helmet} from "react-helmet";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 
 //ToDo: Translate meta content in getPageHeader
@@ -55,6 +55,7 @@ export const checkIfSeoPageRange = (location, ranges) => {
 //description
 //This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
+    const {t} = useTranslation();
 
     const country = translatedCountry();
 
@@ -68,9 +69,10 @@ export const listAllCityLinks = (cities, searchParams = null) => {
         });
         return <Box sx={{textAlign: "left"}}>
                 <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
-                     <Trans i18nKey='start.heimatbahnhoefe_in' country={country}> 
-                         <>Heimatbahnhöfe in {{country}}</> 
-                     </Trans> 
+                    <>                           
+                        {t('start.heimatbahnhoefe_in')} 
+                        {country}
+                    </> 
                 </Typography>
             <Grid container>
                 {entries}
@@ -81,6 +83,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 }
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
+    const {t} = useTranslation();
     const country = translatedCountry();
 
     if(!!ranges){
@@ -93,12 +96,11 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
         });
 
         return <Box sx={{textAlign: "left"}}>
-            {/* <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Die schönsten Wanderdestinationen in {getCountryName()}</Typography> */}
-            {/* <Typography variant={"h4"} sx={{marginBottom: "20px"}}>Die schönsten Wanderdestinationen in {getCountryName()}</Typography> */}
             <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
-                     <Trans i18nKey='start.wanderdestinationen' country={country}> 
-                        <>Die schönsten Wanderdestinationen in {{country}}</> 
-                     </Trans> 
+                <>                           
+                    {t('start.wanderdestinationen')} 
+                    {country}
+                </>  
                 </Typography>
             <Grid container>
                 {entries}

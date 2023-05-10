@@ -18,7 +18,7 @@ import {useNavigate} from "react-router";
 // import {myTrackPageView} from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import {getPageHeader, listAllCityLinks, listAllRangeLinks} from "../../utils/seoPageHelper";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 const RangeCardContainer = lazy(() => import('../../components/RangeCardContainer'));
 const ScrollingTourCardContainer = lazy(() => import('../../components/ScrollingTourCardContainer'));
@@ -53,7 +53,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const {t, i18n} = useTranslation();
 
 
-    // description
+    // Matomo
     // makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
     // useEffect(() => {
     //     const city = searchParams.get('city');
@@ -61,7 +61,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     //     myTrackPageView("Start", trackPageView, city);
     // }, []);
 
-    // description
+// description
 // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
 // The loadAllCities function takes an optional parameter data and returns a function that is used to dispatch actions to the Redux store. The data object is used to pass any additional data that needs to be sent to the server. In this case, the data object has a property all set to true.
 // The dispatch function is used to dispatch actions to the store and the getState function is used to get the current state of the store.
@@ -132,14 +132,9 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const getRangeText = () => {
         let _city = searchParams.get('city');
         if(!!_city && _city.length > 0){
-            // return t('schoene_wanderungen_nahe');
-            return <Trans i18nKey='start.schoene_wanderungen_nahe'>
-                    Die schönsten Wanderdestinationen in deiner Nähe
-                </Trans>
+            return t('start.schoene_wanderungen_nahe');
         } else {
-            return <Trans i18nKey='start.schoene_wanderungen'>
-            Die schönsten Wanderdestinationen
-        </Trans>
+            return t('start.schoene_wanderungen');
         }
     }
 
@@ -148,16 +143,9 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const getFavouriteToursText = () => {
         let _city = searchParams.get('city');
         if(!!_city && _city.length > 0){
-            // return "Beliebte Bergtouren in deiner Nähe";
-            return <Trans i18nKey='start.beliebte_bergtouren_nahe'>
-                    Beliebte Bergtouren in deiner NÃ¤he
-                </Trans>
-
+            return t('start.beliebte_bergtouren_nahe');            
         } else {
-            // return "Beliebte Bergtouren";
-            return <Trans i18nKey='start.beliebte_bergtouren'>
-                    Beliebte Bergtouren
-                </Trans>
+            return t('start.beliebte_bergtouren');
         }
     }
 
@@ -188,13 +176,9 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
             <Header totalTours={totalTours} allCities={allCities}/>
             <Box elevation={0} className={"header-line"}>
                 <Box sx={{padding: "20px",textAlign: "left"}} >
-                    <Trans i18nKey='start.zuugle_sucht_fuer_dich' count={count}>
-                        <>
-                            <Typography color={"#FFFFFF"} >
-                                Zuugle sucht für dich in {{count}} Tourenportalen nach Öffi-Bergtouren
-                            </Typography>
-                        </>
-                    </Trans>
+                        <Typography color={"#FFFFFF"} >
+                            {t('start.zuugle_sucht_fuer_dich_1')} {count} {t('start.zuugle_sucht_fuer_dich_2')}
+                        </Typography>
                 </Box>
             </Box>
             <Box className={'start-body-container'}>

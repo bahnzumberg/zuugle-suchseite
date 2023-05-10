@@ -4,7 +4,7 @@ import {Paper} from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation} from 'react-i18next';
 
 //description
 //The AboutZuugleContainer.js file is a React component that exports a function component named RegionCard. This component returns a Paper component from Material UI with a dark background color and rounded corners. Inside the Paper, there is a Box component that contains a Grid component. The Grid has two columns, one for an image and the other for some text content. The image is sourced from a placeholder image and has rounded corners. The text content includes a heading, a subheading, a list of bullet points, and a button. The button redirects the user to the About page of the website. The component is intended to be used as a card that provides information about the Zuugle service to users.
@@ -23,49 +23,34 @@ export default function RegionCard({}){
                </Grid>
                <Grid item sm={6}>
                    <Box sx={{textAlign: 'left'}}>
-                        <Trans i18nKey='start.ueber_zuugle'>
-                            <Typography variant={"link"}>Über Zuugle</Typography>
-                        </Trans>
+                        <Typography variant={"link"}>{t('start.ueber_zuugle')}</Typography>
                    </Box>
-                        <Trans i18nKey='start.entdecke_bergtouren'>
-                            <Typography variant={"h3"} sx={{textAlign: 'left', marginTop: '10px'}}>
-                                Entdecke vielseitige Bergtouren im deutschsprachigen Alpenraum per Zug & Bus
-                            </Typography>
-                        </Trans>
+                    <Typography variant={"h3"} sx={{textAlign: 'left', marginTop: '10px'}}>
+                        {t('start.entdecke_bergtouren')}                            
+                    </Typography>
 
                    <ul className={"about-bullets"}>
                        <li>
-                            <Trans i18nKey="start.oeffentliche_erreichbarkeit">
-                                <Typography variant={"text"}>Öffentliche Erreichbarkeit garantiert</Typography><br/>
-                            </Trans>
+                            <Typography variant={"text"}>{t('start.oeffentliche_erreichbarkeit')}</Typography><br/>
                        </li>
                        <li>
-                            <Trans i18nKey="start.hin_und_rueckreise">
-                                <Typography variant={"text"}>Hin- & Rückreise </Typography><br/>
-                            </Trans>
+                            <Typography variant={"text"}>{t('start.hin_und_rueckreise')} </Typography><br/>
                        </li>
                        <li>
-                            <Trans i18nKey='start.anerkannte_hochwertige_touren' >
-                                <Typography  variant={"text"}>
-                                    Anerkannte qualitativ hochwertige Touren
-                                </Typography><br/>
-                            </Trans>
+                            <Typography  variant={"text"}>
+                                {t('start.anerkannte_hochwertige_touren')}                                
+                            </Typography><br/>
                        </li>
                        <li>
-                            <Trans i18nKey='start.ein_und_mehrtagestouren'>
-                                <Typography variant={"text"}>
-                                    Eintages & Mehrtagestouren
-                                </Typography><br/>
-                            </Trans>
-
+                            <Typography variant={"text"}>
+                                {t('start.ein_und_mehrtagestouren')}                                
+                            </Typography><br/>
                        </li>
                    </ul>
                    <Box sx={{textAlign: 'left', marginTop: '20px'}}>
-                        <Trans i18nKey='start.mehr_erfahren'>
-                            <Button variant={"contained"} className={"button-more"} onClick={() => window.open(`${window.location.protocol}//${window.location.host}/about`)}> 
-                                Mehr erfahren
-                            </Button>
-                        </Trans>
+                        <Button variant={"contained"} className={"button-more"} onClick={() => window.open(`${window.location.protocol}//${window.location.host}/about`)}> 
+                            {t('start.mehr_erfahren')} 
+                        </Button>
                    </Box>
                </Grid>
            </Grid>
