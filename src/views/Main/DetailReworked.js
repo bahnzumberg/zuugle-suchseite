@@ -6,12 +6,23 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {useSearchParams} from "react-router-dom";
-import {loadTour, loadTourConnections, loadTourConnectionsExtended, loadTours} from "../../actions/tourActions";
+import {
+    loadTour,
+    loadTourConnectionsExtended,
+    loadTourGpx,
+    loadTours,
+    loadTourPdf
+} from "../../actions/tourActions";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import GpxParser from "gpxparser";
 import moment from "moment/moment";
+import {Buffer} from "buffer";
+import fileDownload from "js-file-download";
+import {parseFileName} from "../../utils/globals";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -29,7 +40,6 @@ const setGpxTrack = (url, loadGPX, _function) => {
 const DetailReworked = ({
                             loadTour,
                             loadTours,
-                            loadTourConnections,
                             loadTourConnectionsExtended,
                             loadGPX,
                             loadTourGpx,
@@ -43,18 +53,17 @@ const DetailReworked = ({
     const [tour, setTour] = useState(null);
     const [connections, setConnections] = useState(null);
     const [activeConnection, setActiveConnection] = useState(null);
-    const [currentDate, setCurrentDate] = useState(null);
-    const [activeConnectionIndex, setActiveConnectionIndex] = useState(null);
+    const [activeReturnConnection, setActiveReturnConnection] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
 
+    const date = moment().format("YYYY-MM-DD");
+
     useEffect(() => {
         const tourId = searchParams.get("id");
         const city = searchParams.get("city");
-
-        setCurrentDate(moment().format("YYYY-MM-DD"));
 
         if (tourId && !tour) {
             console.log(tourId, tour);
@@ -67,9 +76,10 @@ const DetailReworked = ({
 
         if (tourId && city && !connections) {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
-                if (!!res && !!res.data) {
+                if (res && res.data) {
                     setConnections(res.data.result);
-                    setActiveConnectionIndex(0);
+                    setActiveConnection(res.data.result[0].connections[0]); // TODO
+                    setActiveReturnConnection(res.data.result[0].returns[0]); // TODO
                 }
             })
         }
@@ -83,18 +93,71 @@ const DetailReworked = ({
         }
     }, [!!tour]);
 
-    useEffect(() => {
-        setActiveConnection(getConnectionFromIndex())
-    }, [activeConnectionIndex]);
+    async function onDownload() {
+        try {
+            const response = await loadTourPdf({
+                id: tour?.id,
+                connection_id: !!activeConnection ? activeConnection.id : undefined,
+                connection_return_id: !!activeReturnConnection ? activeReturnConnection.id : undefined,
+                connection_return_ids: (!!connections[0].returns ? connections[0].returns.map(e => e.id) : []),
+                date
+            }) // TODO change to currently selected index
+            // handle response here
+            if (response) {
+                let pdf = undefined;
+                if (!!response.data) {
+                    response.data = JSON.parse(response.data);
+                    if (!!response.data.pdf) {
+                        pdf = response.data.pdf
+                    }
+                    ;
+                } else if (!response.data || !response.data.pdf) {
+                    console.log("no response")
+                }
 
-    const getConnectionFromIndex = () => {
-        if(!!connections && connections.length > activeConnectionIndex){
-            let entry = connections[activeConnectionIndex];
-            if(!!entry && entry.connections && entry.connections.length > 0){
-                return entry.connections[0];
+                if (!!pdf) {
+                    const fileName = response.data.fileName ? response.data.fileName : "";
+                    const buf = Buffer.from(pdf, 'base64');
+                    fileDownload(buf, fileName, "application/pdf");
+                }
+            } else {
+                console.log("no response is returned")
             }
+        } catch (error) {
+            console.log('error : ', error)
         }
-        return null;
+    }
+
+
+    const onDownloadGpx = () => {
+        if (!!activeReturnConnection && activeReturnConnection.fromtour_track_key && !!activeConnection && !!activeConnection.totour_track_key) {
+            loadTourGpx({
+                id: tour.id,
+                key_anreise: activeConnection.totour_track_key,
+                key_abreise: activeReturnConnection.fromtour_track_key,
+                type: "all"
+            }).then((res) => {
+                    if (!!res && !!res.data) {
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                    }
+                },
+                (err) => {
+                    console.log('error: ', err)
+                });
+        } else {
+            loadTourGpx({id: tour.id}).then((res) => {
+                    if (!!res && !!res.data) {
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                    }
+                },
+                (err) => {
+                    console.log('error: ', err)
+                });
+        }
+    }
+
+    const buttonsDisabled = () => {
+        return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
     }
 
 
@@ -118,12 +181,31 @@ const DetailReworked = ({
             </Box>
         </div>
         <div>
-
+            <Box sx={{marginTop: '20px'}}>
+                <Button variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={() => {
+                    onDownloadGpx();
+                }}>
+                    {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}}
+                                                        size={"small"}/> : <>GPX Download</>}
+                </Button>
+                <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={buttonsDisabled()}
+                        onClick={onDownload}>
+                    {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+                </Button>
+                {!!buttonsDisabled() &&
+                    <div style={{marginTop: "10px"}}>
+                        <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte
+                            {/*<span style={{lineHeight: "12px", color: "#4992FF"}} className={"cursor-link"}*/}
+                            {/*      onClick={() => handleTabChange(null, 1)}> hier </span>*/}
+                            einen anderen Tag zu wählen.</span>
+                    </div>
+                }
+            </Box>
         </div>
         <div>
             <pre>All connections: {JSON.stringify(connections?.length)}</pre>
-            <pre>Active connection index: {JSON.stringify(activeConnectionIndex)}</pre>
             <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>
+            <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>
         </div>
         <Footer></Footer>
     </>;
@@ -132,9 +214,10 @@ const DetailReworked = ({
 const mapDispatchToProps = {
     loadTour,
     loadTours,
-    loadTourConnections,
     loadTourConnectionsExtended,
     loadGPX,
+    loadTourGpx,
+    loadTourPdf
 };
 
 function mapStateToProps(state) {
