@@ -10,13 +10,12 @@ import {loadTour, loadTourConnections, loadTourConnectionsExtended, loadTours} f
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
-import gpxParser from "gpxparser";
-
+import GpxParser from "gpxparser";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
         if (!!res && !!res.data) {
-            let gpx = new gpxParser(); //Create gpxParser Object
+            let gpx = new GpxParser(); //Create gpxParser Object
             gpx.parse(res.data);
             if (gpx.tracks.length > 0) {
                 const positions = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
@@ -26,11 +25,23 @@ const setGpxTrack = (url, loadGPX, _function) => {
     })
 }
 
-const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConnectionsExtended, loadGPX}) => {
+const DetailReworked = ({
+                            loadTour,
+                            loadTours,
+                            loadTourConnections,
+                            loadTourConnectionsExtended,
+                            loadGPX,
+                            loadTourGpx,
+                            isGpxLoading,
+                            loadTourPdf,
+                            isPdfLoading
+                        }) => {
 
     console.log(loadTour);
 
     const [tour, setTour] = useState(null);
+    const [connections, setConnections] = useState(null);
+    const [activeConnection, setActiveConnection] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
@@ -50,12 +61,28 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
     }, []);
 
     useEffect(() => {
+        console.log('in connections useEffect');
+        const tourId = searchParams.get("id");
+        const city = searchParams.get("city");
+        if (tourId && city && !connections) {
+            console.log('load connections');
+            loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
+                if (!!res && !!res.data) {
+                    setConnections(res.data.result);
+                    setActiveConnection(res.data.result[0]);
+                }
+            })
+        }
+    }, [])
+
+
+    useEffect(() => {
         if (tour) {
             setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
             setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
             setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         }
-    }, [!!tour]); // Nicki ?
+    }, [!!tour]);
 
     return <>
         <SearchContainer goto={"/suche"}/>
@@ -78,6 +105,13 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
         </div>
         <div>
 
+        </div>
+        <div>
+            <pre>All connections: {JSON.stringify(connections?.length)}</pre>
+            <pre>Active connection: {JSON.stringify(activeConnection?.date)}</pre>
+        </div>
+        <div>
+            action buttons
         </div>
         <Footer></Footer>
     </>;
