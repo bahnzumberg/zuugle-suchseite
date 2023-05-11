@@ -11,7 +11,7 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import gpxParser from "gpxparser";
-import {Chip} from "@mui/material";
+import {Chip, Divider} from "@mui/material";
 import TourDetailProperties from "../../components/TourDetailProperties";
 
 
@@ -71,7 +71,7 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-range-tag" >{tour?.range}</span>
+                    <span className="tour-detail-tag" >{tour?.range}</span>
                 </Box>
             </Box>
             <div>
@@ -79,7 +79,30 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
                     <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
                                     abreiseGpxPositions={abreiseGpxPositions}/>
                 </Box>
-                <TourDetailProperties tour={tour}></TourDetailProperties>
+                <div className="tour-detail-data-container">
+                    <TourDetailProperties tour={tour}></TourDetailProperties>
+                    <Box sx={{"text-align": "left"}}>
+                        <div class="tour-detail-difficulties">
+                            <Typography variant="h5alt">{tour?.difficulty_orig}</Typography>
+                            <span className="tour-detail-tag tour-detail-tag-gray" >{tour?.difficulty}</span>
+                        </div>
+                        <Typography variant="textSmall">{tour?.description}</Typography>
+                    </Box>
+                    <div className="tour-detail-provider-container">
+                        <div className="tour-detail-provider-icon"></div>
+                        <div  className="tour-detail-provider-name-link">
+                            <span className="tour-detail-provider-name">{tour?.provider_name}</span>
+                            <span className="tour-detail-provider-link">{tour?.url}</span>
+                        </div>
+                    </div>
+                    <Divider variant="middle" />
+                    <div className="tour-detail-img-container">
+                        <img
+                            src={tour?.image_url}
+                            alt="image"
+                        />
+                    </div>
+                </div>
             </div>
             <div>
 
