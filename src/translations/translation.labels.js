@@ -70,19 +70,24 @@ const labels_about = {
   zuugle_erklaerung_2: '...',
   zuugle_erklaerung_3: '...',
   wie_und_wofuer: '...',
+  nutzen: '...',
   entwicklung_von_zuugle_1: '...',
-  entwicklung_von_zuugle_2:'...',
+  entwicklung_von_zuugle_2_1:'...',
+  entwicklung_von_zuugle_2_2:'...',
   entwicklung_von_zuugle_3:'...',
   entwicklung_von_zuugle_4:'...',
   entwicklung_von_zuugle_5:'...',
+  link_zur_fb:'...',
+  user_group:'...',
 }
 
 export const getAboutLabels =()=> {
   const{t} =useTranslation();
+  let labels = [];
 
   Object.keys(labels_about).forEach(key => {
-    labels_about[key] = t(`about.${key} `)
+    labels[key] = t(`about.${key}`)
   })
 
-  return labels_about;
+  return labels;
 }
