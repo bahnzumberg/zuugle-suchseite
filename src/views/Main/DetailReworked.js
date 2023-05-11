@@ -2,6 +2,7 @@ import * as React from 'react';
 import {useEffect, useState} from 'react';
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
+import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {useSearchParams} from "react-router-dom";
@@ -9,6 +10,21 @@ import {loadTour, loadTourConnections, loadTourConnectionsExtended, loadTours} f
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
+import gpxParser from "gpxparser";
+
+
+const setGpxTrack = (url, loadGPX, _function) => {
+    loadGPX(url).then(res => {
+        if (!!res && !!res.data) {
+            let gpx = new gpxParser(); //Create gpxParser Object
+            gpx.parse(res.data);
+            if (gpx.tracks.length > 0) {
+                const positions = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
+                _function(positions);
+            }
+        }
+    })
+}
 
 const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConnectionsExtended, loadGPX}) => {
 
@@ -16,6 +32,9 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
 
     const [tour, setTour] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [gpxPositions, setGpxPositions] = useState(null);
+    const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
+    const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
 
     useEffect(() => {
         const tourId = searchParams.get("id");
@@ -29,6 +48,14 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
                 });
         }
     }, []);
+
+    useEffect(() => {
+        if (tour) {
+            setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+            setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
+            setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+        }
+    }, [!!tour]); // Nicki ?
 
     return <>
         <SearchContainer goto={"/suche"}/>
@@ -44,7 +71,10 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
             </Box>
         </Box>
         <div>
-            map
+            <Box sx={{width: "100%", position: "relative", height: 300}}>
+                <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
+                                abreiseGpxPositions={abreiseGpxPositions}/>
+            </Box>
         </div>
         <div>
 
@@ -62,7 +92,10 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
-    return {};
+    return {
+        // isPdfLoading: state.tours.isPdfLoading,
+        // isGpxLoading: state.tours.isGpxLoading
+    }
 }
 
 export default compose(
