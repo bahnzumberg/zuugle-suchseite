@@ -237,10 +237,15 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         // // console.log("Main L 205, onSelectTour , tour value: " + tour);
         // setTour(tour)
         // toggleDetailOpen();
-        let updatedSearchParams = new URLSearchParams(searchParams.toString());
-        updatedSearchParams.set("datum", moment().format("YYYY-MM-DD"));
+        let currentSearchParams = new URLSearchParams(searchParams.toString());
+        const city = currentSearchParams.get("city");
+        const updatedSearchParams = new URLSearchParams();
+        updatedSearchParams.set("id", tour.id);
+
+        if (city) {
+            updatedSearchParams.set("city", city);
+        }
         const w = window.open('/tour?' + updatedSearchParams.toString());
-        w.selectedTour = {tour};
     }
 
     //description:
