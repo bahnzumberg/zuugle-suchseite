@@ -11,6 +11,8 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import gpxParser from "gpxparser";
+import {Chip} from "@mui/material";
+import TourDetailProperties from "../../components/TourDetailProperties";
 
 
 const setGpxTrack = (url, loadGPX, _function) => {
@@ -50,6 +52,7 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
     }, []);
 
     useEffect(() => {
+        console.log('HALLO');
         if (tour) {
             setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
             setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
@@ -57,30 +60,33 @@ const DetailReworked = ({loadTour, loadTours, loadTourConnections, loadTourConne
         }
     }, [!!tour]); // Nicki ?
 
-    return <>
-        <SearchContainer goto={"/suche"}/>
-        {(window?.selectedTour) && <div>
-            <pre>{JSON.stringify(window?.selectedTour, null, 2)}</pre>
-        </div>}
-        <Box sx={{padding: 3}}>
-            <Box className="mt-3">
-                <Typography variant="h5">{tour?.range}</Typography>
-            </Box>
-            <Box className="mt-3">
-                <Typography variant="h4">{tour?.title}</Typography>
-            </Box>
-        </Box>
-        <div>
-            <Box sx={{width: "100%", position: "relative", height: 300}}>
-                <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
-                                abreiseGpxPositions={abreiseGpxPositions}/>
-            </Box>
-        </div>
-        <div>
+    return <Box sx={{"background-color": "#FFFFFF"}}>
+        <Box sx={{background: "#4992FF"}}>
 
-        </div>
+        <SearchContainer goto={"/suche"}/>
+        </Box>
+        <Box>
+            <Box sx={{padding: 3, "text-align": "left"}}>
+                <Box className="mt-3">
+                    <Typography variant="h4">{tour?.title}</Typography>
+                </Box>
+                <Box className="mt-3">
+                    <span className="tour-detail-range-tag" >{tour?.range}</span>
+                </Box>
+            </Box>
+            <div>
+                <Box sx={{width: "100%", position: "relative", height: 300}}>
+                    <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
+                                    abreiseGpxPositions={abreiseGpxPositions}/>
+                </Box>
+                <TourDetailProperties tour={tour}></TourDetailProperties>
+            </div>
+            <div>
+
+            </div>
+        </Box>
         <Footer></Footer>
-    </>;
+    </Box>;
 }
 
 const mapDispatchToProps = {

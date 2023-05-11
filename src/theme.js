@@ -132,6 +132,11 @@ export const theme = createTheme({
             fontWeight: 700,
             textTransform: "uppercase"
         },
+        h5alt: {
+            fontSize: 18,
+            fontWeight: 600,
+            textTransform: "uppercase"
+        },
         text: {
             fontSize: '16px',
             lineHeight: '22px',
