@@ -159,15 +159,14 @@ const DetailReworked = ({
         }
     }
 
-    const buttonsDisabled = () => {
+    const downloadButtonsDisabled = () => {
         return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
     }
 
 
     return <Box sx={{"background-color": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
-
-        <SearchContainer goto={"/suche"}/>
+            <SearchContainer goto={"/suche"}/>
         </Box>
         <Box>
             <Box sx={{padding: 3, "text-align": "left"}}>
@@ -175,7 +174,7 @@ const DetailReworked = ({
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-range-tag" >{tour?.range}</span>
+                    <span className="tour-detail-range-tag">{tour?.range}</span>
                 </Box>
             </Box>
             <div>
@@ -189,33 +188,29 @@ const DetailReworked = ({
 
             </div>
         </Box>
-        <div>
-            <Box sx={{marginTop: '20px'}}>
-                <Button variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={() => {
-                    onDownloadGpx();
-                }}>
-                    {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}}
-                                                        size={"small"}/> : <>GPX Download</>}
-                </Button>
-                <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={buttonsDisabled()}
-                        onClick={onDownload}>
-                    {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
-                </Button>
-                {!!buttonsDisabled() &&
-                    <div style={{marginTop: "10px"}}>
-                        <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte
-                            {/*<span style={{lineHeight: "12px", color: "#4992FF"}} className={"cursor-link"}*/}
-                            {/*      onClick={() => handleTabChange(null, 1)}> hier </span>*/}
-                            einen anderen Tag zu wählen.</span>
-                    </div>
-                }
-            </Box>
-        </div>
-        <div>
+        <Box>
+            {/*Calender*/}
             <pre>All connections: {JSON.stringify(connections?.length)}</pre>
             <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>
             <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>
-        </div>
+        </Box>
+        <Box>
+            <Button variant="outlined" fullWidth disabled={downloadButtonsDisabled()} onClick={() => {
+                onDownloadGpx();
+            }}>
+                {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}}
+                                                    size={"small"}/> : <>GPX Download</>}
+            </Button>
+            <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={downloadButtonsDisabled()}
+                    onClick={onDownload}>
+                {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+            </Button>
+            {!!downloadButtonsDisabled() &&
+                <div style={{marginTop: "10px"}}>
+                    <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>
+                </div>
+            }
+        </Box>
         <Footer></Footer>
     </Box>;
 }
