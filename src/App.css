@@ -635,7 +635,7 @@ ul.about-bullets {
   background: #F5F5F5;
 }
 
-.tour-detail-range-tag {
+.tour-detail-tag {
   padding: 2px 5px;
   color: #c5c5c5;
   background: rgba(16, 16, 16, 0.8);
@@ -645,11 +645,91 @@ ul.about-bullets {
   line-height: 18px;
 }
 
+.tour-detail-tag-gray {
+  color: #8B8B8B;
+  background: #DDDDDD;
+}
+
 .tour-detail-properties-el {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.tour-detail-difficulties {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  margin-top: 2rem;
+}
+
+.tour-detail-difficulty-orig {
+
+}
+
+.tour-detail-data-container {
+  padding: 1rem;
+}
+
+.tour-detail-provider-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background: #4992FF;
+  border: 1px solid #DDDDDD;
+  border-radius: 18px;
+  max-width: 400px;
+
+  margin: 2rem 0;
+}
+.tour-detail-provider-icon {
+  width: 48px;
+  height: 47px;
+  /*background: #FFFFFF;*/
+  /*border: 2px solid #DDDDDD;*/
+  margin: 0 5px;
+}
+.tour-detail-provider-name-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.tour-detail-provider-name {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.tour-detail-provider-link {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.tour-detail-img-container {
+  margin: 2rem 0;
+}
+
+.tour-detail-img-container img {
+  height: 300px;
+  width: 400px;
+  border-radius: 18px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -662,6 +742,11 @@ ul.about-bullets {
   }
 }
 @media only screen and (min-width: 601px) {
+
+  .tour-detail-data-container {
+    padding: 2rem;
+  }
+
   .tour-detail-properties {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
