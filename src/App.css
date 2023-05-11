@@ -630,3 +630,45 @@ ul.about-bullets {
   line-height: 24px;
   color: #4992FF;
 }
+
+.tour-detail-container {
+  background: #F5F5F5;
+}
+
+.tour-detail-range-tag {
+  padding: 2px 5px;
+  color: #c5c5c5;
+  background: rgba(16, 16, 16, 0.8);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.tour-detail-properties-el {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .tour-detail-properties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .tour-detail-properties-el:nth-child(even) {
+    border-left: 1px solid #DDDDDD;
+  }
+}
+@media only screen and (min-width: 601px) {
+  .tour-detail-properties {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .tour-detail-properties-el:nth-child(even),
+  .tour-detail-properties-el:nth-child(3){
+    border-left: 1px solid #DDDDDD;
+  }
+}
