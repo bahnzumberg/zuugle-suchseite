@@ -89,12 +89,79 @@ const DetailReworked = ({
             setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
             setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         }
-    }, [!!tour]); // Nicki ?
+    }, [!!tour]);
+
+    async function onDownload() {
+        try {
+            const response = await loadTourPdf({
+                id: tour?.id,
+                connection_id: !!activeConnection ? activeConnection.id : undefined,
+                connection_return_id: !!activeReturnConnection ? activeReturnConnection.id : undefined,
+                connection_return_ids: (!!connections[0].returns ? connections[0].returns.map(e => e.id) : []),
+                date
+            }) // TODO change to currently selected index
+            // handle response here
+            if (response) {
+                let pdf = undefined;
+                if (!!response.data) {
+                    response.data = JSON.parse(response.data);
+                    if (!!response.data.pdf) {
+                        pdf = response.data.pdf
+                    }
+                    ;
+                } else if (!response.data || !response.data.pdf) {
+                    console.log("no response")
+                }
+
+                if (!!pdf) {
+                    const fileName = response.data.fileName ? response.data.fileName : "";
+                    const buf = Buffer.from(pdf, 'base64');
+                    fileDownload(buf, fileName, "application/pdf");
+                }
+            } else {
+                console.log("no response is returned")
+            }
+        } catch (error) {
+            console.log('error : ', error)
+        }
+    }
+
+
+    const onDownloadGpx = () => {
+        if (!!activeReturnConnection && activeReturnConnection.fromtour_track_key && !!activeConnection && !!activeConnection.totour_track_key) {
+            loadTourGpx({
+                id: tour.id,
+                key_anreise: activeConnection.totour_track_key,
+                key_abreise: activeReturnConnection.fromtour_track_key,
+                type: "all"
+            }).then((res) => {
+                    if (!!res && !!res.data) {
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                    }
+                },
+                (err) => {
+                    console.log('error: ', err)
+                });
+        } else {
+            loadTourGpx({id: tour.id}).then((res) => {
+                    if (!!res && !!res.data) {
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                    }
+                },
+                (err) => {
+                    console.log('error: ', err)
+                });
+        }
+    }
+
+    const downloadButtonsDisabled = () => {
+        return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
+    }
+
 
     return <Box sx={{"background-color": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
-
-        <SearchContainer goto={"/suche"}/>
+            <SearchContainer goto={"/suche"}/>
         </Box>
         <Box>
             <Box sx={{padding: 3, "text-align": "left"}}>
@@ -102,7 +169,7 @@ const DetailReworked = ({
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-range-tag" >{tour?.range}</span>
+                    <span className="tour-detail-range-tag">{tour?.range}</span>
                 </Box>
             </Box>
             <div>
@@ -115,6 +182,29 @@ const DetailReworked = ({
             <div>
 
             </div>
+        </Box>
+        <Box>
+            {/*Calender*/}
+            <pre>All connections: {JSON.stringify(connections?.length)}</pre>
+            <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>
+            <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>
+        </Box>
+        <Box>
+            <Button variant="outlined" fullWidth disabled={downloadButtonsDisabled()} onClick={() => {
+                onDownloadGpx();
+            }}>
+                {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}}
+                                                    size={"small"}/> : <>GPX Download</>}
+            </Button>
+            <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={downloadButtonsDisabled()}
+                    onClick={onDownload}>
+                {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+            </Button>
+            {!!downloadButtonsDisabled() &&
+                <div style={{marginTop: "10px"}}>
+                    <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>
+                </div>
+            }
         </Box>
         <Footer></Footer>
     </Box>;
