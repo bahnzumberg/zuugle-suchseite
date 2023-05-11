@@ -11,6 +11,7 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import GpxParser from "gpxparser";
+import moment from "moment/moment";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -42,6 +43,8 @@ const DetailReworked = ({
     const [tour, setTour] = useState(null);
     const [connections, setConnections] = useState(null);
     const [activeConnection, setActiveConnection] = useState(null);
+    const [currentDate, setCurrentDate] = useState(null);
+    const [activeConnectionIndex, setActiveConnectionIndex] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
@@ -50,6 +53,9 @@ const DetailReworked = ({
     useEffect(() => {
         const tourId = searchParams.get("id");
         const city = searchParams.get("city");
+
+        setCurrentDate(moment().format("YYYY-MM-DD"));
+
         if (tourId && !tour) {
             console.log(tourId, tour);
             loadTour(tourId, city)
@@ -58,23 +64,16 @@ const DetailReworked = ({
                     setTour(res?.data?.tour);
                 });
         }
-    }, []);
 
-    useEffect(() => {
-        console.log('in connections useEffect');
-        const tourId = searchParams.get("id");
-        const city = searchParams.get("city");
         if (tourId && city && !connections) {
-            console.log('load connections');
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (!!res && !!res.data) {
                     setConnections(res.data.result);
-                    setActiveConnection(res.data.result[0]);
+                    setActiveConnectionIndex(0);
                 }
             })
         }
-    }, [])
-
+    }, []);
 
     useEffect(() => {
         if (tour) {
@@ -83,6 +82,21 @@ const DetailReworked = ({
             setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         }
     }, [!!tour]);
+
+    useEffect(() => {
+        setActiveConnection(getConnectionFromIndex())
+    }, [activeConnectionIndex]);
+
+    const getConnectionFromIndex = () => {
+        if(!!connections && connections.length > activeConnectionIndex){
+            let entry = connections[activeConnectionIndex];
+            if(!!entry && entry.connections && entry.connections.length > 0){
+                return entry.connections[0];
+            }
+        }
+        return null;
+    }
+
 
     return <>
         <SearchContainer goto={"/suche"}/>
@@ -108,10 +122,8 @@ const DetailReworked = ({
         </div>
         <div>
             <pre>All connections: {JSON.stringify(connections?.length)}</pre>
-            <pre>Active connection: {JSON.stringify(activeConnection?.date)}</pre>
-        </div>
-        <div>
-            action buttons
+            <pre>Active connection index: {JSON.stringify(activeConnectionIndex)}</pre>
+            <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>
         </div>
         <Footer></Footer>
     </>;
@@ -127,8 +139,8 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
     return {
-        // isPdfLoading: state.tours.isPdfLoading,
-        // isGpxLoading: state.tours.isGpxLoading
+        isPdfLoading: state.tours.isPdfLoading,
+        isGpxLoading: state.tours.isGpxLoading
     }
 }
 
