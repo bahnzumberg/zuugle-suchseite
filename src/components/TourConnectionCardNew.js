@@ -22,7 +22,6 @@ export default function TourConnectionCardNew({connection}){
         const mDays = await connection.missing_days;
         if (mDays.length > 0) {
         const days = localMissingDays(mDays, i18n.language);
-        console.log("missing days", days)
         setMissingDays(days);
         } else {
         console.log("mDays.length is empty");
@@ -65,7 +64,7 @@ export default function TourConnectionCardNew({connection}){
         </Box>
         {(!!connection.missing_days && connection.missing_days.length > 0) &&
                 <Typography  variant="subtitle2" className="time">
-                {t('start.keine_verbindung')} {translatedmissingdates}
+                {t('main.keine_verbindung')} {translatedmissingdates}
                 </Typography>
         }
         <Typography variant="subtitle2" className="time">{duration_and_transfers()}</Typography>
