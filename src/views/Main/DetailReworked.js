@@ -91,7 +91,6 @@ const DetailReworked = ({
     }, []);
 
     useEffect(() => {
-        console.log('HALLO');
         if (tour) {
             setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
             setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
@@ -167,36 +166,36 @@ const DetailReworked = ({
     }
 
 
-    return <Box sx={{"background-color": "#FFFFFF"}}>
+    return <Box sx={{"backgroundColor": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
             <SearchContainer goto={"/suche"}/>
         </Box>
         <Box>
-            <Box sx={{padding: 3, "text-align": "left"}}>
+            <Box sx={{padding: 3, "textAlign": "left"}}>
                 <Box className="mt-3">
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-tag">{tour?.range}</span>
+                    <span className="tour-detail-tag" >{tour?.range}</span>
                 </Box>
             </Box>
             <div>
-                <Box sx={{width: "100%", position: "relative", height: 300}}>
+                <Box sx={{width: "100%", position: "relative"}} className="tour-detail-map-container">
                     <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
                                     abreiseGpxPositions={abreiseGpxPositions}/>
                 </Box>
                 <div className="tour-detail-data-container">
                     <TourDetailProperties tour={tour}></TourDetailProperties>
-                    <Box sx={{"text-align": "left"}}>
+                    <Box sx={{"textAlign": "left"}}>
                         <div className="tour-detail-difficulties">
-                            <Typography variant="h5alt">{tour?.difficulty_orig}</Typography>
-                            <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span>
+                            <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span>
+                            <span className="tour-detail-tag tour-detail-tag-gray" >{tour?.difficulty}</span>
                         </div>
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
-                    <div className="tour-detail-provider-container">
+                    <div className="tour-detail-provider-container" onClick={() => {window.location.href = tour?.url;}}>
                         <div className="tour-detail-provider-icon">
-                            <ProviderLogo provider={tour?.provider} style={{strokeWidth: 0}}/>
+                            <ProviderLogo provider={tour?.provider} style={{strokeWidth: 0, transform: "scale(1.5)"}}/>
                         </div>
                         <div className="tour-detail-provider-name-link">
                             <span className="tour-detail-provider-name">{tour?.provider_name}</span>

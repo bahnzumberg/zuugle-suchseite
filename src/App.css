@@ -655,6 +655,9 @@ ul.about-bullets {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  border-bottom: 1px solid #DDDDDD;
+  padding: 1rem;
+  position: relative;
 }
 
 .tour-detail-difficulties {
@@ -664,8 +667,18 @@ ul.about-bullets {
   align-items: center;
 
   margin-top: 2rem;
+
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 26px;
 }
 
+.tour-detail-difficulty {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 26px;
+  margin-right: .5rem;
+}
 .tour-detail-difficulty-orig {
 
 }
@@ -685,10 +698,18 @@ ul.about-bullets {
   max-width: 400px;
 
   margin: 2rem 0;
+  cursor: pointer;
 }
 .tour-detail-provider-icon {
-  width: 48px;
-  height: 47px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
   /*background: #FFFFFF;*/
   /*border: 2px solid #DDDDDD;*/
   margin: 0 5px;
@@ -732,14 +753,26 @@ ul.about-bullets {
   border-radius: 18px;
 }
 
+.tour-detail-map-container {
+  width: 100%;
+  height: 250px;
+}
+
 @media only screen and (max-width: 600px) {
   .tour-detail-properties {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
-  .tour-detail-properties-el:nth-child(even) {
-    border-left: 1px solid #DDDDDD;
+  .tour-detail-properties-el:nth-child(even):before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 19px;
+    height: 41px;
+    width: 1px;
+    background: #DDDDDD;
   }
+
 }
 @media only screen and (min-width: 601px) {
 
@@ -752,8 +785,20 @@ ul.about-bullets {
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  .tour-detail-properties-el:nth-child(even),
-  .tour-detail-properties-el:nth-child(3){
-    border-left: 1px solid #DDDDDD;
+  .tour-detail-properties-el:nth-child(3n)::before,
+  .tour-detail-properties-el:nth-child(3n-1)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 19px;
+    height: 41px;
+    width: 1px;
+    background: #DDDDDD;
+  }
+
+
+  .tour-detail-map-container {
+    width: 100%;
+    height: 450px;
   }
 }
