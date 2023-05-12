@@ -94,26 +94,18 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 
 //description:
 // onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
-// Here's what the function does step by step:
-// The _city variable is created and set to the value of the city in the searchParams object.
-// A navUrl variable is created, which represents the URL that the user will be navigated to. The value of this URL is constructed using string manipulation and includes the tour title, the sort order and the city. The tour title is first cleaned up by replacing characters like (, ), - with spaces.
-// The navigate function is called with the navUrl as the argument. The navigate function part of react-route library, with a purpose to navigate the user to a new page.
-// An additional state object is passed as an option to the navigate function. This state object contains a single key-value pair, where the key is tour and the value is the selected tour.
-// The purpose of onSelectTour  within the Start.js file is to allow users to navigate to the search page with the selected tour as the search query. The state object is passed along so that the search page has access to the tour information.
     const onSelectTour = (tour) => {
-        // console.log('tour is :L99', tour)
-        let _city = searchParams.get('city');
-        const navUrl = `/suche?sort=relevanz&search=${tour.title.replace(/[()-]/g, ' ')}${!!_city ? '&city='+_city : ''}`;
-        //clgs
-        // console.log('Line 73: URL is :', navUrl);
-        // console.log(tour)
-        // example : navigate(`/suche?sort=relevanz&search=Winterwanderung+über+die+Sonnsteine&city=bad-ischl&datum=2023-02-02`,{
-        navigate(navUrl, {
-            state: {
-                tour: tour,
-            }
-        })
+        let currentSearchParams = new URLSearchParams(searchParams.toString());
+        const city = currentSearchParams.get("city");
+        const updatedSearchParams = new URLSearchParams();
+        updatedSearchParams.set("id", tour.id);
+
+        if (city) {
+            updatedSearchParams.set("city", city);
+        }
+        const w = window.open('/tour?' + updatedSearchParams.toString());
     }
+
 //description:
 // The onSelectRange is a constant declaration for a JavaScript arrow function in the Start.js file.
 // The function takes one parameter range, which represents a selected range object. The function then extracts the city value from the searchParams object, which is an instance of the URLSearchParams API.
