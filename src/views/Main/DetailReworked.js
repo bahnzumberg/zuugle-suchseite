@@ -26,6 +26,8 @@ import {parseFileName} from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ProviderLogo from "../../icons/ProviderLogo";
+import DownloadIcon from "../../icons/DownloadIcon";
+import PdfIcon from "../../icons/PdfIcon";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -175,7 +177,7 @@ const DetailReworked = ({
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-tag" >{tour?.range}</span>
+                    <span className="tour-detail-tag">{tour?.range}</span>
                 </Box>
             </Box>
             <div>
@@ -186,9 +188,9 @@ const DetailReworked = ({
                 <div className="tour-detail-data-container">
                     <TourDetailProperties tour={tour}></TourDetailProperties>
                     <Box sx={{"text-align": "left"}}>
-                        <div class="tour-detail-difficulties">
+                        <div className="tour-detail-difficulties">
                             <Typography variant="h5alt">{tour?.difficulty_orig}</Typography>
-                            <span className="tour-detail-tag tour-detail-tag-gray" >{tour?.difficulty}</span>
+                            <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span>
                         </div>
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
@@ -196,12 +198,12 @@ const DetailReworked = ({
                         <div className="tour-detail-provider-icon">
                             <ProviderLogo provider={tour?.provider} style={{strokeWidth: 0}}/>
                         </div>
-                        <div  className="tour-detail-provider-name-link">
+                        <div className="tour-detail-provider-name-link">
                             <span className="tour-detail-provider-name">{tour?.provider_name}</span>
                             <span className="tour-detail-provider-link">{tour?.url}</span>
                         </div>
                     </div>
-                    <Divider variant="middle" />
+                    <Divider variant="middle"/>
                     <div className="tour-detail-img-container">
                         <img
                             src={tour?.image_url}
@@ -223,12 +225,19 @@ const DetailReworked = ({
                 <Button variant="outlined" fullWidth disabled={downloadButtonsDisabled()} onClick={() => {
                     onDownloadGpx();
                 }}>
-                    {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}}
-                                                        size={"small"}/> : <>GPX Download</>}
+                    <div><DownloadIcon/>GPX</div>
+                    {!!isGpxLoading ?
+                        <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
+                        : 'Track für GPS-Gerät herunterladen'
+                    }
                 </Button>
                 <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={downloadButtonsDisabled()}
                         onClick={onDownload}>
-                    {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+                    <PdfIcon/>PDF
+                    {!!isPdfLoading ?
+                        <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
+                        : 'Download für Druck / Mailversand'
+                    }
                 </Button>
                 {!!downloadButtonsDisabled() &&
                     <div style={{marginTop: "10px"}}>
