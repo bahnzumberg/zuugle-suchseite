@@ -6,18 +6,12 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {useSearchParams} from "react-router-dom";
-import {
-    loadTour,
-    loadTourConnectionsExtended,
-    loadTourGpx,
-    loadTours,
-    loadTourPdf
-} from "../../actions/tourActions";
+import {loadTour, loadTourConnectionsExtended, loadTourGpx, loadTourPdf, loadTours} from "../../actions/tourActions";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
-import gpxParser from "gpxparser";
-import {Chip, Divider} from "@mui/material";
+import GpxParser from "gpxparser";
+import {Divider} from "@mui/material";
 import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import {Buffer} from "buffer";
@@ -176,7 +170,7 @@ const DetailReworked = ({
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
-                    <span className="tour-detail-tag" >{tour?.range}</span>
+                    <span className="tour-detail-tag">{tour?.range}</span>
                 </Box>
             </Box>
             <div>
@@ -189,13 +183,15 @@ const DetailReworked = ({
                     <Box sx={{"textAlign": "left"}}>
                         <div className="tour-detail-difficulties">
                             <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span>
-                            <span className="tour-detail-tag tour-detail-tag-gray" >{tour?.difficulty}</span>
+                            <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span>
                         </div>
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
-                    <div className="tour-detail-provider-container" onClick={() => {window.location.href = tour?.url;}}>
+                    <div className="tour-detail-provider-container" onClick={() => {
+                        window.location.href = tour?.url;
+                    }}>
                         <div className="tour-detail-provider-icon">
-                            <ProviderLogo provider={tour?.provider} style={{strokeWidth: 0, transform: "scale(1.5)"}}/>
+                            <ProviderLogo provider={tour?.provider}/>
                         </div>
                         <div className="tour-detail-provider-name-link">
                             <span className="tour-detail-provider-name">{tour?.provider_name}</span>
@@ -220,24 +216,37 @@ const DetailReworked = ({
             {/*    <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>*/}
             {/*    <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>*/}
             {/*</Box>*/}
-            <Box>
-                <Button variant="outlined" fullWidth disabled={downloadButtonsDisabled()} onClick={() => {
+            <Divider variant="middle"/>
+            <Box sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", margin: "1rem 0"}}>
+                <Button sx={{
+                    borderRadius: "12px",
+                    border: "1.5px solid #101010",
+                    width: "330px",
+                    height: "56px",
+                    margin: "1rem 0"
+                }} disabled={downloadButtonsDisabled()} onClick={() => {
                     onDownloadGpx();
                 }}>
-                    <div><DownloadIcon/>GPX</div>
+                    <DownloadIcon/><span style={{padding: '0 .5rem', color: "#101010", width: "43px"}}>GPX</span>
                     {!!isGpxLoading ?
                         <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                        : 'Track für GPS-Gerät herunterladen'
+                        : <span style={{color: "#8B8B8B"}}>Track für GPS-Gerät herunterladen</span>
                     }
                 </Button>
-                <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={downloadButtonsDisabled()}
+                <Button sx={{
+                    borderRadius: "12px",
+                    border: "1.5px solid #101010",
+                    width: "330px",
+                    height: "56px"
+                }} disabled={downloadButtonsDisabled()}
                         onClick={onDownload}>
-                    <PdfIcon/>PDF
+                    <PdfIcon/><span style={{padding: '0 .5rem', color: "#101010", width: "43px"}}>PDF</span>
                     {!!isPdfLoading ?
                         <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                        : 'Download für Druck / Mailversand'
+                        : <span style={{color: "#8B8B8B"}}>Download für Druck / Mailversand</span>
                     }
                 </Button>
+
                 {!!downloadButtonsDisabled() &&
                     <div style={{marginTop: "10px"}}>
                         <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>

@@ -1,7 +1,7 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-export function convertNumToTime(number) {
+export function convertNumToTime(number, nonseparate = false) {
     // Check sign of given number
     var sign = (number >= 0) ? 1 : -1;
 
@@ -23,7 +23,7 @@ export function convertNumToTime(number) {
         minute = '0' + minute;
     }
 
-    return `${hour} h ${minute} min`;
+    return (!nonseparate) ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
 }
 
 export function formatNumber(number, postfix = ""){
