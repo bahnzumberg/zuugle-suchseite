@@ -762,11 +762,6 @@ ul.about-bullets {
   height: 250px;
 }
 
-.tour-detail-action-btn {
-  border-radius: 10px;
-  outline: black 2px;
-}
-
 @media only screen and (max-width: 600px) {
   .tour-detail-properties {
     display: grid;
