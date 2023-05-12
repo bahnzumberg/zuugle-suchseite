@@ -51,8 +51,6 @@ const DetailReworked = ({
                             loadAllCities
                         }) => {
 
-    console.log(loadTour);
-
     const [tour, setTour] = useState(null);
     const [connections, setConnections] = useState(null);
     const [activeConnection, setActiveConnection] = useState(null);
@@ -65,17 +63,14 @@ const DetailReworked = ({
     const date = moment().format("YYYY-MM-DD");
 
     useEffect(() => {
-        console.log("loading cities")
         loadAllCities();
         loadCities({limit: 5});
         const tourId = searchParams.get("id");
         const city = searchParams.get("city");
 
         if (tourId && !tour) {
-            console.log(tourId, tour);
             loadTour(tourId, city)
                 .then(res => {
-                    console.log(res?.data?.tour);
                     setTour(res?.data?.tour);
                 });
         }
