@@ -776,7 +776,10 @@ ul.about-bullets {
     width: 1px;
     background: #DDDDDD;
   }
-
+  .tour-detail-img-container img {
+    width: 100%;
+    height: auto;
+  }
 }
 @media only screen and (min-width: 601px) {
 
