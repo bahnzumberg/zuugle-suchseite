@@ -784,6 +784,13 @@ ul.about-bullets {
     padding: 2rem;
   }
 
+  .tour-detail-properties-el {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
   .tour-detail-properties {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
