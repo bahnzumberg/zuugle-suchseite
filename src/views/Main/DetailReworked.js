@@ -22,6 +22,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
+import {loadAllCities, loadCities} from "../../actions/cityActions";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -44,7 +45,10 @@ const DetailReworked = ({
                             loadTourGpx,
                             isGpxLoading,
                             loadTourPdf,
-                            isPdfLoading
+                            isPdfLoading,
+                            allCities,
+                            loadCities,
+                            loadAllCities
                         }) => {
 
     console.log(loadTour);
@@ -61,6 +65,9 @@ const DetailReworked = ({
     const date = moment().format("YYYY-MM-DD");
 
     useEffect(() => {
+        console.log("loading cities")
+        loadAllCities();
+        loadCities({limit: 5});
         const tourId = searchParams.get("id");
         const city = searchParams.get("city");
 
@@ -162,7 +169,9 @@ const DetailReworked = ({
 
     return <Box sx={{"backgroundColor": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
-            <SearchContainer goto={"/suche"}/>
+            {(!!allCities && allCities.length > 0) &&
+                <SearchContainer goto={"/suche"}/>
+            }
         </Box>
         <Box>
             <Box sx={{padding: 3, "textAlign": "left"}}>
@@ -264,13 +273,17 @@ const mapDispatchToProps = {
     loadTourConnectionsExtended,
     loadGPX,
     loadTourGpx,
-    loadTourPdf
+    loadTourPdf,
+    loadCities,
+    loadAllCities
 };
 
 function mapStateToProps(state) {
     return {
         isPdfLoading: state.tours.isPdfLoading,
-        isGpxLoading: state.tours.isGpxLoading
+        isGpxLoading: state.tours.isGpxLoading,
+        cities: state.cities.cities,
+        allCities: state.cities.all_cities,
     }
 }
 
