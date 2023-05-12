@@ -55,7 +55,6 @@ ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
 ALTER TABLE tour ADD COLUMN country_si boolean DEFAULT false;
 ALTER TABLE tour ADD COLUMN country_fr boolean DEFAULT false;
-ALTER TABLE tour ADD COLUMN max_ele INT default 0;
 
 UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
@@ -207,3 +206,5 @@ CREATE TABLE fahrplan_del (
 
 ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
 ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
+
+ALTER TABLE tour ADD COLUMN max_ele INT default 0;

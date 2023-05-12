@@ -483,11 +483,55 @@ export async function syncTours(){
     }
 
     while((counter *  limit) <= count){
-        const query = knexTourenDb.raw(`select s.*, g1.lat as lat_start, g1.lon as lon_start, g2.lat as lat_end, g2.lon as lon_end, CAST(g3.ele AS INT) as max_ele from interface_touren_to_search s
-                                                LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
-                                                LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
-                                                LEFT JOIN Interface_GPX_to_search g3 ON s.provider = g3.provider AND s.hashed_url = g3.hashed_url AND g3.typ = "top"
-                                                limit ${limit} offset ${offset};`);
+        const query = knexTourenDb.raw(`SELECT 
+                                        s.url,
+                                        s.provider,
+                                        s.hashed_url,
+                                        s.description,
+                                        s.country,
+                                        s.state,
+                                        s.range_slug,
+                                        s.range_name,
+                                        s.image_url,
+                                        s.ascent,
+                                        s.descent,
+                                        s.difficulty,
+                                        s.duration,
+                                        s.distance,
+                                        s.title,
+                                        s.typ,
+                                        s.children,
+                                        s.number_of_days,
+                                        s.traverse,
+                                        s.season,
+                                        s.jan,
+                                        s.feb,
+                                        s.mar,
+                                        s.apr,
+                                        s.may,
+                                        s.jun,
+                                        s.jul,
+                                        s.aug,
+                                        s.sep,
+                                        s.oct,
+                                        s.nov,
+                                        s.dec,
+                                        s.full_text,
+                                        s.publishing_date,
+                                        s.quality_rating,
+                                        s.user_rating_avg,
+                                        s.difficulty_orig,
+                                        s.text_lang, 
+                                        g1.lat as lat_start, 
+                                        g1.lon as lon_start, 
+                                        g2.lat as lat_end, 
+                                        g2.lon as lon_end, 
+                                        CAST(g3.ele AS INT) as max_ele 
+                                        from interface_touren_to_search s
+                                        LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
+                                        LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
+                                        LEFT JOIN Interface_GPX_to_search g3 ON s.provider = g3.provider AND s.hashed_url = g3.hashed_url AND g3.typ = "top"
+                                        limit ${limit} offset ${offset};`);
 
         /*
         if(process.env.NODE_ENV != "production"){
@@ -720,7 +764,8 @@ const bulk_insert_tours = async (entries) => {
             quality_rating: entry.quality_rating,
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
-            gpx_data: entry.gpx_data
+            gpx_data: entry.gpx_data,
+            max_ele: entry.max_ele
         });
     }
 
