@@ -25,6 +25,7 @@ import fileDownload from "js-file-download";
 import {parseFileName} from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import ProviderLogo from "../../icons/ProviderLogo";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -192,7 +193,9 @@ const DetailReworked = ({
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
                     <div className="tour-detail-provider-container">
-                        <div className="tour-detail-provider-icon"></div>
+                        <div className="tour-detail-provider-icon">
+                            <ProviderLogo provider={tour?.provider} style={{strokeWidth: 0}}/>
+                        </div>
                         <div  className="tour-detail-provider-name-link">
                             <span className="tour-detail-provider-name">{tour?.provider_name}</span>
                             <span className="tour-detail-provider-link">{tour?.url}</span>
@@ -210,12 +213,12 @@ const DetailReworked = ({
             <div>
 
             </div>
-            <Box>
-                {/*Calender*/}
-                <pre>All connections: {JSON.stringify(connections?.length)}</pre>
-                <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>
-                <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>
-            </Box>
+            {/*<Box>*/}
+            {/*    /!*Calender*!/*/}
+            {/*    <pre>All connections: {JSON.stringify(connections?.length)}</pre>*/}
+            {/*    <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>*/}
+            {/*    <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>*/}
+            {/*</Box>*/}
             <Box>
                 <Button variant="outlined" fullWidth disabled={downloadButtonsDisabled()} onClick={() => {
                     onDownloadGpx();
