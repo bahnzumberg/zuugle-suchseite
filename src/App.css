@@ -696,6 +696,8 @@ ul.about-bullets {
   border: 1px solid #DDDDDD;
   border-radius: 18px;
   max-width: 400px;
+  min-height: 70px;
+  padding: 0 .5rem;
 
   margin: 2rem 0;
   cursor: pointer;
@@ -729,7 +731,8 @@ ul.about-bullets {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 320px;
+  /*max-width: 320px;*/
+  max-width: 225px;
 }
 
 .tour-detail-provider-link {
@@ -740,7 +743,8 @@ ul.about-bullets {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 320px;
+  /*max-width: 320px;*/
+  max-width: 225px;
 }
 
 .tour-detail-img-container {
@@ -756,6 +760,11 @@ ul.about-bullets {
 .tour-detail-map-container {
   width: 100%;
   height: 250px;
+}
+
+.tour-detail-action-btn {
+  border-radius: 10px;
+  outline: black 2px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -800,5 +809,9 @@ ul.about-bullets {
   .tour-detail-map-container {
     width: 100%;
     height: 450px;
+  }
+
+  .tour-detail-provider-link {
+    max-width: 320px;
   }
 }

@@ -18,20 +18,24 @@ const provider = {
     WANDERN_STEIERMARK: 'wandernsteiermarkat'
 }
 
+const providerStyles = {width: "48px" , height: "48px"};
 
 export default function ProviderLogo(props) {
     switch (props.provider) {
         case provider.BAHN_ZUM_BERG:
-            return <BahnZumBergLogo style={{...styles, ...props.style}}/>
+            return <BahnZumBergLogo style={{...providerStyles, ...props.style, }}/>
         case provider.ALPENVEREIN_AKTIV:
-            return <AlpenvereinAktivLogo style={{...styles, ...props.style}}/>
-        case provider.BERGFEXDE || provider.BERGFEXAT  || provider.BERGFEXCH || provider.BERGFEXIT:
-            return <BergfexLogo style={{...styles, ...props.style}}/>
+            return <AlpenvereinAktivLogo style={{...providerStyles, ...props.style}}/>
+        case provider.BERGFEXDE:
+        case provider.BERGFEXAT:
+        case provider.BERGFEXCH:
+        case provider.BERGFEXIT:
+            return <BergfexLogo style={{...providerStyles, ...props.style}}/>
         case provider.HOEHENRAUSCH:
-            return <HoehenrauschLogo style={{...styles, ...props.style}}/>
+            return <HoehenrauschLogo style={{...providerStyles, ...props.style}}/>
         case provider.WANDERN_STEIERMARK:
-            return <WandernSteiermarkLogo style={{...styles, ...props.style}}/>
+            return <WandernSteiermarkLogo style={{...providerStyles, ...props.style}}/>
         default:
-            return <FallbackLogo style={{...styles, ...props.style}}/>
+            return <FallbackLogo style={{...providerStyles, ...props.style}}/>
     }
 }
