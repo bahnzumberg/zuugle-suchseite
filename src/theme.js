@@ -139,7 +139,7 @@ export const theme = createTheme({
             color: "#101010",
             '@media (max-width:600px)': {
                 fontSize: "12px",
-                lineHeight: "18px",
+                lineHeight: "18px"
             },
         },
         text: {
