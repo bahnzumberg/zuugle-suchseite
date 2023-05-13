@@ -56,7 +56,7 @@ ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
 ALTER TABLE tour ADD COLUMN country_si boolean DEFAULT false;
 ALTER TABLE tour ADD COLUMN country_fr boolean DEFAULT false;
 
-UPDATE tour SET search_column = to_tsvector( 'german', full_text );
+-- UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
 CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);
@@ -208,3 +208,4 @@ ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
 ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
 
 ALTER TABLE tour ADD COLUMN max_ele INT default 0;
+ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';

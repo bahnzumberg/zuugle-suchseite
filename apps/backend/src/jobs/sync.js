@@ -10,7 +10,15 @@ const path = require('path');
 import pLimit from 'p-limit';
 
 export async function fixTours(){
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text );`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE 'text_lang'='de';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE 'text_lang'='en';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE 'text_lang'='it';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE 'text_lang'='sl';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE 'text_lang'='fr';`);
+
+    // Is there an advantage in setting the full_text to ''? I do not know. Trying it.
+    // await knex.raw(`UPDATE tour SET full_text = '';`);
+
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 }
 
@@ -467,7 +475,7 @@ const insertFahrplanMultiple_del = async (entries) => {
 
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
-    await knex.raw('UPDATE kpi SET VALUE=0 WHERE name=\'total_tours\';');
+    await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
@@ -504,18 +512,18 @@ export async function syncTours(){
                                         s.number_of_days,
                                         s.traverse,
                                         s.season,
-                                        s.jan,
-                                        s.feb,
-                                        s.mar,
-                                        s.apr,
-                                        s.may,
-                                        s.jun,
-                                        s.jul,
-                                        s.aug,
-                                        s.sep,
-                                        s.oct,
-                                        s.nov,
-                                        s.dec,
+                                        CASE WHEN s.jan=0 THEN 'false' ELSE 'true' END jan,
+                                        CASE WHEN s.feb=0 THEN 'false' ELSE 'true' END feb,
+                                        CASE WHEN s.mar=0 THEN 'false' ELSE 'true' END mar,
+                                        CASE WHEN s.apr=0 THEN 'false' ELSE 'true' END apr,
+                                        CASE WHEN s.may=0 THEN 'false' ELSE 'true' END may,
+                                        CASE WHEN s.jun=0 THEN 'false' ELSE 'true' END jun,
+                                        CASE WHEN s.jul=0 THEN 'false' ELSE 'true' END jul,
+                                        CASE WHEN s.aug=0 THEN 'false' ELSE 'true' END aug,
+                                        CASE WHEN s.sep=0 THEN 'false' ELSE 'true' END sep,
+                                        CASE WHEN s.oct=0 THEN 'false' ELSE 'true' END oct,
+                                        CASE WHEN s.nov=0 THEN 'false' ELSE 'true' END nov,
+                                        CASE WHEN s.dec=0 THEN 'false' ELSE 'true' END 'dec',
                                         s.full_text,
                                         s.publishing_date,
                                         s.quality_rating,
@@ -526,7 +534,7 @@ export async function syncTours(){
                                         g1.lon as lon_start, 
                                         g2.lat as lat_end, 
                                         g2.lon as lon_end, 
-                                        CAST(g3.ele AS INT) as max_ele 
+                                        FLOOR(g3.ele) as maxele 
                                         from interface_touren_to_search s
                                         LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
                                         LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
@@ -725,6 +733,7 @@ const bulk_insert_tours = async (entries) => {
             });
         }
         entry.gpx_data = JSON.stringify(gpxData);
+
         queries.push({
             url: entry.url,
             provider: entry.provider,
@@ -765,10 +774,13 @@ const bulk_insert_tours = async (entries) => {
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
             gpx_data: entry.gpx_data,
-            max_ele: entry.max_ele
+            text_lang: entry.text_lang,
+            max_ele: entry.maxele
         });
     }
 
+    // let query = knex('tour').insert(queries).toString();
+    // console.log('SQL hier: ', query);
     try {
         await knex('tour').insert(queries);
         return true;
