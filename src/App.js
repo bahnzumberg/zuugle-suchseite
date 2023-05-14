@@ -16,33 +16,40 @@ const Privacy = lazy(() => import('./views/Pages/Privacy'));
 
 function App() {
 
-    let siteId = 11;
-    if (process.env.NODE_ENV !== "production") {
-      siteId = 9;
+    let matomoConfig = {
+        siteId: 11,
+        useSecureCookie: false
     }
-    // ******  MATOMO CODE ******
-    // const instance = createInstance({
-    //     urlBase: `${window.location.protocol}//${window.location.host}`,
-    //     siteId: 9,
-    //     trackerUrl: 'https://stats.bahnzumberg.at/matomo.php',
-    //     srcUrl: 'https://stats.bahnzumberg.at/matomo.js', 
-    //     disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
-    //     heartBeat: { // optional, enabled by default
-    //         active: true, // optional, default value: true
-    //         seconds: 10 // optional, default value: `15
-    //     },
-    //     linkTracking: true, // optional, default value: true
-    //     configurations: { // optional, default value: {}
-    //         // any valid matomo configuration, all below are optional
-    //         disableCookies: true,
-    //         setSecureCookie: true,
-    //         setRequestMethod: 'POST'
-    //     }
-    // })
+
+    if (process.env.NODE_ENV === "production") {
+      matomoConfig = {
+          siteId: 9,
+          useSecureCookie: true
+      }
+    }
+
+     const instance = createInstance({
+         urlBase: `${window.location.protocol}//${window.location.host}`,
+         siteId: matomoConfig.siteId,
+         trackerUrl: 'https://stats.bahnzumberg.at/matomo.php',
+         srcUrl: 'https://stats.bahnzumberg.at/matomo.js',
+         disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
+         heartBeat: { // optional, enabled by default
+             active: true, // optional, default value: true
+             seconds: 10 // optional, default value: `15
+         },
+         linkTracking: true, // optional, default value: true
+         configurations: { // optional, default value: {}
+             // any valid matomo configuration, all below are optional
+             disableCookies: true,
+             setSecureCookie: matomoConfig.useSecureCookie,
+             setRequestMethod: 'POST'
+         }
+     })
 
 
     return (
-        // <MatomoProvider value={instance}>
+        <MatomoProvider value={instance}>
             <ThemeProvider theme={theme}>
                 <div className="App">
                     <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
@@ -68,7 +75,7 @@ function App() {
                 </div>
                 <ModalRoot />
             </ThemeProvider>
-    // </MatomoProvider>
+        </MatomoProvider>
     );
 }
 
