@@ -368,7 +368,24 @@ const syncFahrplan_del = async () => {
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
-        const result_query = knexTourenDb('interface_fplan_to_search_delta').select().whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const result_query = knexTourenDb('interface_fplan_to_search_delta').select('tour_provider', 'tour_id',
+                                            'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
+                                            'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
+                                            'connection_rank', 'connection_departure_datetime', 'connection_duration', 
+                                            'connection_no_of_transfers', 'connection_description', 'connection_description_detail',
+                                            'connection_departure_stop', 'connection_departure_stop_lon', 'connection_departure_stop_lat',
+                                            'connection_arrival_stop', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat',
+                                            'connection_arrival_datetime', 'connection_returns_departure_stop', 'connection_returns_trips_back',
+                                            'connection_returns_min_waiting_duration', 'connection_returns_max_waiting_duration',
+                                            'connection_returns_warning_level', 'connection_returns_warning', 
+                                            'return_row', 'return_waiting_duration', 'return_departure_datetime',
+                                            'return_duration', 'return_no_of_transfers', 'return_description',
+                                            'return_description_detail', 'return_departure_stop_lon',
+                                            'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
+                                            'return_arrival_stop_lat', 'return_arrival_datetime',
+                                            'totour_track_key', 'totour_track_duration', 
+                                            'fromtour_track_key', 'fromtour_track_duration',
+                                            'connection_url', 'return_url').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
