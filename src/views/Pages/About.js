@@ -28,20 +28,20 @@ function About({}){
                     {AboutLabels.zuugle_erklaerung_2} 
                  </Typography>
                 
-                <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>
+                {/* <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>
                     {AboutLabels.zuugle_erklaerung_3} 
-                </Typography>
+                </Typography> */}
                 
-                <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>
-                {AboutLabels.wie_und_wofuer} {AboutLabels.nutzen}</Typography>
+                {/* <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>
+                {AboutLabels.wie_und_wofuer} {AboutLabels.nutzen}</Typography> */}
 
                 <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>
                 {AboutLabels.entwicklung_von_zuugle_1}
                 </Typography>
 
                 <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}> 
-                    {AboutLabels.entwicklung_von_zuugle_2_1} 
-                    {AboutLabels.entwicklung_von_zuugle_2_2} 
+                    {AboutLabels.entwicklung_von_zuugle_2} 
+                    {/* {AboutLabels.entwicklung_von_zuugle_2_2}  */}
                 </Typography>
 
                 <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>{AboutLabels.entwicklung_von_zuugle_3}</Typography>
@@ -50,9 +50,9 @@ function About({}){
 
                 <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}>{AboutLabels.entwicklung_von_zuugle_5}</Typography>
 
-                <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}><i>Zuugle</i> {AboutLabels.user_group}</Typography>
+                {/* <Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}><i>Zuugle</i> {AboutLabels.user_group}</Typography>
 
-                <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`https://www.facebook.com/groups/zuugle/`)}>{AboutLabels.link_zur_fb} </Typography>
+                <Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`https://www.facebook.com/groups/zuugle/`)}>{AboutLabels.link_zur_fb} </Typography> */}
             </Box>
         </Box>
     </Box>
