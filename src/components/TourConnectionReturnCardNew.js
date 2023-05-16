@@ -54,7 +54,7 @@ export default function TourConnectionReturnCardNew({returns}){
             return 'Ende direkt bei Haltestelle';
         }
         else {
-            return t('start.letze_moeglichkeit') + formatOnlyTime(lastReturn.return_departure_datetime) + t('start.uhr');
+            return t('start.letze_moeglichkeit') + ": " +formatOnlyTime(lastReturn.return_departure_datetime) + " " +t('start.uhr');
         }
     }
 
@@ -73,7 +73,9 @@ export default function TourConnectionReturnCardNew({returns}){
         </Box>
             <Typography variant="subtitle2" className="time">
                 <>
+
                     {t('start.anzahl_rueckreiseoptionen')} 
+                    {": "}
                     {retOptions}
                 </>
             </Typography>
