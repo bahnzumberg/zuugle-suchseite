@@ -85,7 +85,7 @@
         "weil_es_braucht_kein_auto": "Weil: Es braucht kein Auto, um in die Natur zu kommen. Wir sagen dir gerne wie.",
         "jetzt_oeffitour_suchen": "Jetzt Öffi-Tour suchen",
         "öffi_bergtouren": "Öffi-Bergtouren",
-        "heimatbahnhoefe_in": "Heimatbahnhöfe in",
+        "heimatbahnhoefe_in": "Heimatbahnhöfe in ",
         "durchsuchte_portale": "durchsuchte Tourenportale",
         "wanderregionen": "Wanderregionen",
         "verfügbare_heimatbahnhöfe": "verfügbare Heimatbahnhöfe",
@@ -168,9 +168,5 @@
         "minimum": "Minimum",
         "maximum": "Maximum",
         "tourstart_ende_andere_stops": "Tourstart und Tourende sind unterschiedliche Haltestellen"
-    },
-    "index": {
-        "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
-        "no_javascript": "Es scheint, dass du Javascript nicht aktiviert hast. Diese Suchmaschine für Öffi-Bergtouren benötigt aber Javascript um zu funktionieren. Bitte aktiviere Javacript in deinem Browser."
     }
 }
