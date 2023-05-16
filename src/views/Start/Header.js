@@ -83,6 +83,7 @@ export default function Header({totalTours, allCities}){
                       <Typography variant={"h1"} >
                         <>
                         {totalToursCount}
+                        {" "}
                         {t('start.tourenanzahl_untertitel')}
                         </>
                       </Typography>

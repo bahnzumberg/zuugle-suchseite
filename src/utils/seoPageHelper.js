@@ -99,6 +99,7 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
             <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
                 <>                           
                     {t('start.wanderdestinationen')} 
+                    {" "}
                     {country}
                 </>  
                 </Typography>
