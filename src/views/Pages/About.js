@@ -10,7 +10,6 @@ function About({}){
 
     return <Box className={"about-container"}>
         <Header title={AboutLabels.was_ist_zuugle}/>
-        <Header title={AboutLabels.was_ist_zuugle}/>
 
         <Box className={'start-body-container'} style={{maxWidth: "1000px", marginLeft: "auto", marginRight: "auto"}}>
             <Box style={{textAlign: "left"}}>
