@@ -41,11 +41,17 @@ function Impressum({}){
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}> {ImpressumLabels.ziel_und_ausrichtung} </Typography>
 
                 <Typography>
-                    {ImpressumLabels.non_profit_org1} <a href={"https://www.bahn-zum-berg.at"} target={"_blank"}>www.bahn-zum-berg.at</a> {ImpressumLabels.und}
-                    <a href={"https://www.zuugle.at/"} target={"_blank"}>www.zuugle.at</a> {ImpressumLabels.betreiben}
+                    {ImpressumLabels.non_profit_org1} 
+                     {/* <a href={"https://www.bahn-zum-berg.at"} target={"_blank"}>www.bahn-zum-berg.at</a> 
+                     {ImpressumLabels.und}
+                    <a href={"https://www.zuugle.at/"} target={"_blank"}>www.zuugle.at</a> 
+                    {ImpressumLabels.betreiben} */}
                 </Typography>
 
-                <Typography sx={{marginTop: "10px"}}> {ImpressumLabels.non_profit_org2} <a href={"https://www.bahnzumberg.at"} target={"_blank"}>www.bahnzumberg.at</a> </Typography>
+                <Typography sx={{marginTop: "10px"}}> 
+                {ImpressumLabels.non_profit_org2} 
+                {/* <a href={"https://www.bahnzumberg.at"} target={"_blank"}>www.bahnzumberg.at</a>  */}
+                </Typography>
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>{ImpressumLabels.haftung_inhalte }</Typography>
                 <Typography> { ImpressumLabels.beschreibungen_fotos} </Typography>
@@ -54,7 +60,16 @@ function Impressum({}){
                 <Typography> { ImpressumLabels.verknuepfung_links} </Typography>
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>{ImpressumLabels.lizenzbedingungen }</Typography>
-                <Typography> {ImpressumLabels.anfuehrung_quellen} <a href={"https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"} target={"_blank"}>{ImpressumLabels.hier}</a> {ImpressumLabels.angeführt}</Typography>
+                <Typography> 
+                    {ImpressumLabels.anfuehrung_quellen} 
+                    <a href={"https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"} target={"_blank"}>
+                       {" "} bahn-zum-berg
+                    </a> 
+                    {/* <a href={"https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"} target={"_blank"}>
+                        {ImpressumLabels.hier}
+                    </a>  */}
+                    {/* {ImpressumLabels.angeführt} */}
+                </Typography>
                 <Typography> </Typography>
             </Box>
         </Box>
