@@ -30,13 +30,13 @@
     },
     "privacy": {
         "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have avoid many options that are technically possible but would invade the privacy of our visitors.",
-        "datenschutzerklaerung": "",
+        "datenschutzerklaerung": "Privacy policy",
         "welche_personenbezogenen_daten": "WHAT PERSONAL DATA OF YOURS WE COLLECT AND WHY",
         "keine_personenbezogenen_daten": "We do not collect any personal data.",
         "analysedienst": "ANALYSIS SERVICE",
         "welcher_dienst": "WHICH SERVICE IS USED",
-        "matomo_1": "We use the open source software Matomo in the self-hosted variant. The data is therefore located on a server in Germany in the EU.",
-        "matomo_2": "",
+        "matomo_1": "We use the open source software ",
+        "matomo_2": "in the self-hosted variant. The data is therefore located on a server in Germany in the EU",
         "welche_daten": "WHAT DATA IS COLLECTED",
         "abgespeichert_werden": "The name of the website accessed, the time and the first two segments of the IP address are stored. It is not possible to track a specific person with this considerate approach.",
         "cookies": "COOKIES",
@@ -58,10 +58,10 @@
         "ergebnisse_anzeigen": "Show results",
         "zuugle_sucht_fuer_dich_1": "Zuugle searches for you in ",
         "zuugle_sucht_fuer_dich_2": "portals to find all hikes which are reachable via public transportation",
-        "schoene_wanderungen": "",
+        "schoene_wanderungen": "The most beautiful hiking destinations",
         "schoene_wanderungen_nahe": "The most beautiful hiking destinations near you",
         "beliebte_bergtouren_nahe": "Popular mountain tours near you",
-        "beliebte_bergtouren": "",
+        "beliebte_bergtouren": "Popular mountain tours",
         "leicht": "Easy",
         "mittel": "Medium",
         "schwer": "Hard",
@@ -134,7 +134,7 @@
         "ja": "Yes",
         "nein": "No",
         "keine_verbindung": "No connection:",
-        "direkt_bei_der_haltestelle": ""
+        "direkt_bei_der_haltestelle": "Start directly at railway or bus stop"
     },
     "filter": {
         "tourlaenge": "Tour length",
@@ -168,5 +168,9 @@
         "minimum": "Minimum",
         "maximum": "Maximum",
         "tourstart_ende_andere_stops": "Tour start and tour end are different stops"
+    },
+    "index": {
+        "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
+        "no_javascript": "It seems that you do not have Javascript enabled. However, this search engine for public transport mountain tours requires Javascript to work. Please enable Javascript in your browser."
     }
 }
