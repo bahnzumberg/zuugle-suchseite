@@ -99,8 +99,13 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
         return <Box sx={{textAlign: "left"}}>
             <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
                 <>                           
+<<<<<<< HEAD
                     {t('start.wanderdestinationen')}
                     {" "} 
+=======
+                    {t('start.wanderdestinationen')} 
+                    {" "}
+>>>>>>> origin/languages-merged-basis-new-uix-tour-detail
                     {country}
                 </>  
                 </Typography>

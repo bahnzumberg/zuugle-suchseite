@@ -116,6 +116,10 @@
         "tourdetails": "Détails de l'itinéraire",
         "an_und_abreise": "Trajet aller et retour",
         "gpx_download": "Télécharger la trace GPX",
+<<<<<<< HEAD
+=======
+        "gpx_download": "Télécharger la trace GPX",
+>>>>>>> origin/languages-merged-basis-new-uix-tour-detail
         "pdf": "PDF",
         "anreise_gefunden": "Accès public trouvé avec",
         "keine_anreise_gefunden": "Aucun accès public trouvé",

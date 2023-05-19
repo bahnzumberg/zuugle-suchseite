@@ -61,7 +61,7 @@
         "schoene_wanderungen": "Najlepše pohodniške destinacije",
         "schoene_wanderungen_nahe": "Najlepše pohodniške destinacije v tvoji okolici",
         "beliebte_bergtouren_nahe": "Priljubljene gorske ture v tvoji okolici",
-        "beliebte_bergtouren": "Priljubljene gorske ture",
+        "beliebte_bergtouren": "",
         "leicht": "Lahko",
         "mittel": "Srednje zahtevno",
         "schwer": "Zahtevno",
@@ -131,8 +131,13 @@
         "abstieg": "Sestop / spust",
         "kinderfreundlich": "Otrokom prijazno",
         "ueberschreitung": "Prečenje",
+<<<<<<< HEAD
         "ja": "",
         "nein": "",
+=======
+        "ja": "Da",
+        "nein": "Ne",
+>>>>>>> origin/languages-merged-basis-new-uix-tour-detail
         "keine_verbindung": "Ni povezave:",
         "direkt_bei_der_haltestelle": "Začnite neposredno na postajališču"
     },
