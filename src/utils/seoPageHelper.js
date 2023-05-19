@@ -71,6 +71,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
                 <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
                     <>                           
                         {t('start.heimatbahnhoefe_in')} 
+                        {" "}
                         {country}
                     </> 
                 </Typography>
@@ -98,7 +99,8 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
         return <Box sx={{textAlign: "left"}}>
             <Typography variant={"h4"} sx={{marginBottom: "20px"}}>
                 <>                           
-                    {t('start.wanderdestinationen')} 
+                    {t('start.wanderdestinationen')}
+                    {" "} 
                     {country}
                 </>  
                 </Typography>

@@ -49,7 +49,7 @@ export default function TourConnectionCardNew({connection}){
             return t('main.direkt_bei_der_haltestelle');
         }
         else {
-            return t('main.dauer') + convertNumToTime(connection.best_connection_duration_minutes / 60) + t('start.umstiege')+ connection.connection_no_of_transfers;
+            return t('main.dauer') + convertNumToTime(connection.best_connection_duration_minutes / 60) + ", " +t('start.umstiege')+": "+connection.connection_no_of_transfers;
         }
     }
 
