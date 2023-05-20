@@ -5,7 +5,7 @@ import {theme} from "./theme";
 import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
 import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
-// import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
+import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
