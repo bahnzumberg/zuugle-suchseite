@@ -23,6 +23,9 @@ import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
 import {loadAllCities, loadCities} from "../../actions/cityActions";
+import { useTranslation } from 'react-i18next';
+import { getDetailsLabels } from '../../translations/translation.labels';
+import { translateDiff } from '../../utils/language_Utils';
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -61,6 +64,15 @@ const DetailReworked = ({
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
 
     const date = moment().format("YYYY-MM-DD");
+    // Translation-related
+    const {t} = useTranslation();
+    const translateDiff = (diff) =>{
+        if(diff === "Leicht"){
+            return t('start.leicht');
+        }else if(diff === "Schwer") {
+            return t('start.schwer');
+        }else return t('start.mittel');
+    };
 
     useEffect(() => {
         loadAllCities();
@@ -180,14 +192,16 @@ const DetailReworked = ({
             <div>
                 <Box sx={{width: "100%", position: "relative"}} className="tour-detail-map-container">
                     <InteractiveMap gpxPositions={gpxPositions} anreiseGpxPositions={anreiseGpxPositions}
-                                    abreiseGpxPositions={abreiseGpxPositions}/>
+                                    abreiseGpxPositions={abreiseGpxPositions} scrollWheelZoom={false}/>
                 </Box>
                 <div className="tour-detail-data-container">
                     <TourDetailProperties tour={tour}></TourDetailProperties>
                     <Box sx={{"textAlign": "left"}}>
                         <div className="tour-detail-difficulties">
-                            <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span>
-                            <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span>
+                            {/* <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span> */}
+                            {/* <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span> */}
+                            <span className="tour-detail-difficulty">{tour && translateDiff(tour.difficulty_orig)}</span>
+                            <span className="tour-detail-tag tour-detail-tag-gray">{tour && translateDiff(tour.difficulty)}</span>
                         </div>
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
