@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import 'leaflet/dist/leaflet.css';
 import L, { divIcon } from 'leaflet';
 
-export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom }) {
+export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom=false }) {
     const polyRef = useRef();
     const mapRef  = useRef(null);
 
