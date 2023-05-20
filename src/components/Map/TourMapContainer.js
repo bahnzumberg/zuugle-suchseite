@@ -12,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const DEFAULT_ZOOM_LEVEL = 13;
 
-export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX, setTourID}){
+export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX, setTourID, scrollWheelZoom=false}) {
     //clg
     // loading ? console.log("loading :",loading) : console.log(" not loading",loading);
     // (tours && tours.length) ? console.log("tours inside TMC :",tours.length) : console.log("tours type :",typeof(tours))
@@ -276,7 +276,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 
         <MapContainer
             ref={mapRef}
-            scrollWheelZoom={true}
+            scrollWheelZoom={scrollWheelZoom}
             maxZoom={15}
             center={[47.800499,13.044410]}
             zoom={DEFAULT_ZOOM_LEVEL}
