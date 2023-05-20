@@ -90,3 +90,31 @@ export const getAboutLabels =()=> {
 
   return labels;
 }
+
+const labels_details = {
+
+  keine_anreise_gefunden : '...',
+  schwierigkeit_zuugle : '...',
+  schwierigkeit_original : '...',
+  sportart : '...',
+  distanz : '...',
+  dauer : '...',
+  tage : '...',
+  aufstieg : '...',
+  abstieg : '...',
+  kinderfreundlich : '...',
+  ueberschreitung : '...',
+  ja : '...',
+  nein : '...',
+}
+
+export const getDetailsLabels = ()=>{
+  const{t} =useTranslation();
+  let labels = [];
+
+  Object.keys(labels_details).forEach(key => {
+    labels[key] = t(`about.${key}`)
+  })
+
+  return labels;
+}
