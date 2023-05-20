@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import 'leaflet/dist/leaflet.css';
 import L, { divIcon } from 'leaflet';
 
-export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions }) {
+export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom }) {
     const polyRef = useRef();
     const mapRef  = useRef(null);
 
@@ -231,7 +231,7 @@ useEffect(() => {
     <MapContainer
       // key={()=>generateKey()}
       ref={mapRef}
-      scrollWheelZoom={true}
+      scrollWheelZoom={scrollWheelZoom}
       maxZoom={17}
       center={[47.800499, 13.04441]}
       zoom={13}
