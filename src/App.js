@@ -5,7 +5,7 @@ import {theme} from "./theme";
 import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
 import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
-import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
+// import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react';
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
@@ -28,28 +28,28 @@ function App() {
       }
     }
 
-     const instance = createInstance({
-         urlBase: `${window.location.protocol}//${window.location.host}`,
-         siteId: matomoConfig.siteId,
-         trackerUrl: 'https://stats.bahnzumberg.at/matomo.php',
-         srcUrl: 'https://stats.bahnzumberg.at/matomo.js',
-         disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
-         heartBeat: { // optional, enabled by default
-             active: true, // optional, default value: true
-             seconds: 10 // optional, default value: `15
-         },
-         linkTracking: true, // optional, default value: true
-         configurations: { // optional, default value: {}
-             // any valid matomo configuration, all below are optional
-             disableCookies: true,
-             setSecureCookie: matomoConfig.useSecureCookie,
-             setRequestMethod: 'POST'
-         }
-     })
+    //  const instance = createInstance({
+    //      urlBase: `${window.location.protocol}//${window.location.host}`,
+    //      siteId: matomoConfig.siteId,
+    //      trackerUrl: 'https://stats.bahnzumberg.at/matomo.php',
+    //      srcUrl: 'https://stats.bahnzumberg.at/matomo.js',
+    //      disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
+    //      heartBeat: { // optional, enabled by default
+    //          active: true, // optional, default value: true
+    //          seconds: 10 // optional, default value: `15
+    //      },
+    //      linkTracking: true, // optional, default value: true
+    //      configurations: { // optional, default value: {}
+    //          // any valid matomo configuration, all below are optional
+    //          disableCookies: true,
+    //          setSecureCookie: matomoConfig.useSecureCookie,
+    //          setRequestMethod: 'POST'
+    //      }
+    //  })
 
 
     return (
-        <MatomoProvider value={instance}>
+        // <MatomoProvider value={instance}>
             <ThemeProvider theme={theme}>
                 <div className="App">
                     <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
@@ -75,7 +75,7 @@ function App() {
                 </div>
                 <ModalRoot />
             </ThemeProvider>
-        </MatomoProvider>
+        // </MatomoProvider>
     );
 }
 
