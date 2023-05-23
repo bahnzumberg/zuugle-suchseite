@@ -1,4 +1,5 @@
 import React from "react";
+import i18n  from "i18next";
 
 export const tourTypes = [
     "wandern",
@@ -60,4 +61,44 @@ export const LinkText = (props) => {
         </a>
     );
 };
+// SET LANGUAGE UPON ENTRY
+// 1:   IF localStorage(“lang”) exists   then:
+//             IF i18n.resolvedLanguage != localStorage("lang")  [change to a new language ]
+//                  then let lang=localStorage("lang") be as current set language as such : i18n.changeLanguage(lang);
+//             else [both localStorage(“lang”) AND current resolved are the same]
+//                  DO nothing
+//      else if localStorage(“lang”) DOES NOT exist
+//          then FIND lang which is a seperate function extractLanguage() to pass on to 'lang' string variable and do i18n.changeLanguage(lang)   
 
+//const extractLanguage = () =>{ 
+//      1. getTopLevelDomain() and return the TLD
+//      2. make the axios call to the backend passing the TLD
+//      3. return the language string from the call, (e.g., 'en', 'fr', 'de', etc.)
+//      4. If no language is available, you can return a default language code.
+//}
+
+
+function extractLanguage() {
+    const languages = ['en', 'de', 'sl', 'fr', 'it'];
+    const randomIndex = Math.floor(Math.random() * languages.length);
+    console.log("randomIndex",randomIndex) ; // 2. second clg executed -> page entry with no localStorage (gives a value)
+    return languages[randomIndex];
+}
+// 3. third clg executed (inside Start.js) -> will give "curLocalLanguage : X " , X being whatever language was created by extractLanguage()
+export function setLanguage() {
+  const storedLanguage = localStorage.getItem('lang');
+  console.log("storedLanguage",storedLanguage)  // 1. first clg executed -> page entry with no localStorage gives value = null
+
+  if (storedLanguage) {
+    if (i18n.resolvedLanguage !== storedLanguage) {
+      i18n.changeLanguage(storedLanguage);
+    }
+  } else {
+    const lang = extractLanguage();
+    i18n.changeLanguage(lang);
+    localStorage.setItem('lang', lang);
+  }
+}
+
+
+export default setLanguage;
