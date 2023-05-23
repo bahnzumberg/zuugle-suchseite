@@ -21,9 +21,9 @@ export async function loadFile(dispatch, getState, typeBefore, typeDone, stateNa
             responseType: responseType,
             params: params,
             timeout: 60000,
-            // headers: {
-            //     Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4"
-            //   },
+            headers: {
+                Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4"
+            },
         });
 
         dispatch({
