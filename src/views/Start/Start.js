@@ -19,6 +19,8 @@ import {useNavigate} from "react-router";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import {getPageHeader, listAllCityLinks, listAllRangeLinks} from "../../utils/seoPageHelper";
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
+import { setLanguage } from '../../utils/language_Utils';
 
 const RangeCardContainer = lazy(() => import('../../components/RangeCardContainer'));
 const ScrollingTourCardContainer = lazy(() => import('../../components/ScrollingTourCardContainer'));
@@ -50,8 +52,21 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const navigate = useNavigate();
     //i18next
     let count = totalProvider;
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
+    // console.log("i18n.languages:", i18n.languages);
+    // console.log("i18n.resolved:", i18n.resolvedLanguage);
 
+    useEffect(() => {
+        setLanguage();
+        // let curLocalLanguage = localStorage.getItem('lang') === undefined ? 'de' :  localStorage.getItem('lang');
+        let curLocalLanguage = localStorage.getItem('lang') 
+        !!curLocalLanguage && console.log("curLocalLanguage :", curLocalLanguage)
+    
+    //   return () => {
+    //     second
+    //   }
+    }, [])
+    
 
     // Matomo
     // makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
