@@ -19,8 +19,8 @@ import {useNavigate} from "react-router";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import {getPageHeader, listAllCityLinks, listAllRangeLinks} from "../../utils/seoPageHelper";
 import { useTranslation } from 'react-i18next';
-import i18n from 'i18next';
 import { setLanguage } from '../../utils/language_Utils';
+
 
 const RangeCardContainer = lazy(() => import('../../components/RangeCardContainer'));
 const ScrollingTourCardContainer = lazy(() => import('../../components/ScrollingTourCardContainer'));
@@ -58,13 +58,8 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 
     useEffect(() => {
         setLanguage();
-        // let curLocalLanguage = localStorage.getItem('lang') === undefined ? 'de' :  localStorage.getItem('lang');
-        let curLocalLanguage = localStorage.getItem('lang') 
-        !!curLocalLanguage && console.log("curLocalLanguage :", curLocalLanguage)
-    
-    //   return () => {
-    //     second
-    //   }
+        let curLocalStorageLanguage = localStorage.getItem('lang') 
+        !!curLocalStorageLanguage && console.log("curLocalStorageLanguage :", curLocalStorageLanguage)
     }, [])
     
 
