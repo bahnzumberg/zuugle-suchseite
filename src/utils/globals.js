@@ -139,6 +139,13 @@ export function parseIfNeccessary(value) {
 };
 
 export const getTopLevelDomain = () => {
+    //This is testing code and if statment can be deleted when set for production builds
+    // if(process.env.NODE_ENV === "development") {
+    //     const domainNames = ['EN', 'DE', 'SL', 'FR', 'IT'];
+    //     const randomIndex = Math.floor(Math.random() * domainNames.length);
+    //     console.log("randomIndex",domainNames[randomIndex]) ; 
+    //     return domainNames[randomIndex];
+    // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
     return host.substring(host.length-2).toUpperCase();
