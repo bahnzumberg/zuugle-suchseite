@@ -25,7 +25,7 @@ export default function LanguageDropdown() {
     i18n.changeLanguage(selectedLanguage);
     localStorage.setItem('lang', selectedLanguage);
   };
-    // Check if the formatted language is a valid option, otherwise fallback to an empty string
+    // Check if the formatted language is a valid option, otherwise fallback to an agreed language
   const selectedValue = Object.keys(lngs).includes(i18LangFormatted) ? i18LangFormatted : 'de';
 
   return (
