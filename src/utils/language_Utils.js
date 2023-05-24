@@ -1,5 +1,7 @@
 import React from "react";
 import i18n  from "i18next";
+import axios from "../axios";
+import { getTopLevelDomain } from "./globals";
 
 export const tourTypes = [
     "wandern",
@@ -22,7 +24,6 @@ const daysFR = ['LU', 'MA', 'ME', 'JE', 'VE', 'SA', 'DI'];
 
 export const localMissingDays = (daysArr, lng) => {
 
-    // daysArr !== [] ? console.log("daysArr :", daysArr) : console.log("daysArr is falsy");
     //description
     // daysArr contains the days in text short form e,g. ['MON', 'DI']
     // the lng is the language we want to transform into e.g. 'en'
@@ -53,7 +54,8 @@ export const localMissingDays = (daysArr, lng) => {
     return retDays;
 
 }
-//used for creating links to pass as object values to the attribute "components" in Trans 
+
+//LinkText could be used for creating links to pass as object values to the attribute "components" in Trans of i18next 
 export const LinkText = (props) => {
     return (
         <a href={props.to || '#'} target="_blank" title={props.title || ''}>
@@ -61,7 +63,7 @@ export const LinkText = (props) => {
         </a>
     );
 };
-// SET LANGUAGE UPON ENTRY
+// Logic description: SET LANGUAGE UPON ENTRY
 // 1:   IF localStorage(“lang”) exists   then:
 //             IF i18n.resolvedLanguage != localStorage("lang")  [change to a new language ]
 //                  then let lang=localStorage("lang") be as current set language as such : i18n.changeLanguage(lang);
@@ -77,28 +79,65 @@ export const LinkText = (props) => {
 //      4. If no language is available, you can return a default language code.
 //}
 
-
-function extractLanguage() {
-    const languages = ['en', 'de', 'sl', 'fr', 'it'];
-    const randomIndex = Math.floor(Math.random() * languages.length);
-    console.log("randomIndex",randomIndex) ; // 2. second clg executed -> page entry with no localStorage (gives a value)
-    return languages[randomIndex];
-}
-// 3. third clg executed (inside Start.js) -> will give "curLocalLanguage : X " , X being whatever language was created by extractLanguage()
-export function setLanguage() {
-  const storedLanguage = localStorage.getItem('lang');
-  console.log("storedLanguage",storedLanguage)  // 1. first clg executed -> page entry with no localStorage gives value = null
-
-  if (storedLanguage) {
-    if (i18n.resolvedLanguage !== storedLanguage) {
-      i18n.changeLanguage(storedLanguage);
+const extractLanguage = async () => {
+    let tld = getTopLevelDomain(); //uncomment for production;
+    tld = tld == 'ST' && "AT";   // localhost gives a value of 'ST' so make default 'AT'
+    // console.log("TLD :", tld);  
+    try {
+        const response = await axios.get('/language', {
+        params: {
+            tld: tld,
+        },
+        });
+        const language = response.data.language;
+        console.log("Extracted language from server:", language);
+        return language || 'en'; // Return the language received from the backend or fallback to a default language code
+    } catch (error) {
+        if (error.response) {
+            // Req was made but server returned an error (status code ?)
+            console.error('Server error, retrieving extracted lang:', error.response.data);
+        } else if (error.request) {
+            // no response was received / but req was made
+            console.error('Error retrieving extracted lang: No response received');
+        } else {
+            // Error in setting up the request 
+            console.error('Request error retrieving extracted lang:', error.message);
+        }    
+        return 'en'; // Return a default language code in case of error
     }
-  } else {
-    const lang = extractLanguage();
-    i18n.changeLanguage(lang);
-    localStorage.setItem('lang', lang);
-  }
+};
+
+  
+  export async function setLanguage() {
+    const storedLanguage = localStorage.getItem('lang');
+    console.log("Utils: storedLanguage", storedLanguage);
+  
+    let newResolved = i18n.services.languageUtils.formatLanguageCode(i18n.resolvedLanguage);
+    console.log("Utils: newResolved", newResolved);
+  
+    if (storedLanguage) {
+      if (newResolved !== storedLanguage) {
+        i18n.changeLanguage(storedLanguage);
+      }
+    } else {
+        try {
+            const extractedLang = await extractLanguage();
+            console.log("Utils: extractedLang:", extractedLang);
+    
+            const formattedLang = i18n.services.languageUtils.formatLanguageCode(extractedLang);
+            console.log("Utils: formattedLang:", formattedLang);
+    
+            i18n.changeLanguage(formattedLang);
+            localStorage.setItem('lang', formattedLang);
+    
+            // Set the formatted language as the value in the SelectInput component
+            // setLanguageValue(formattedLang);
+        } catch (error) {
+            // Handle the error and set a fallback language?
+            console.error('Error retrieving extracted lang:', error);
+        }
+    }
 }
-
-
-export default setLanguage;
+  
+//https://github.com/i18next/i18next/issues/1927
+//https://github.com/i18next/i18next-browser-languageDetector#detector-options 
