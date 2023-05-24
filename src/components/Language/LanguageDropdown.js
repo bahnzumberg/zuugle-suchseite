@@ -18,16 +18,16 @@ export default function LanguageDropdown() {
 
   const {i18n} = useTranslation();
 
+  const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(i18n.language);
 
-  // const handleChange = (e) => {
-  //   i18n.changeLanguage(e.target.value);
-  // };
   const handleChange = (e) => {
     const selectedLanguage = e.target.value;
     i18n.changeLanguage(selectedLanguage);
     localStorage.setItem('lang', selectedLanguage);
   };
-  
+    // Check if the formatted language is a valid option, otherwise fallback to an empty string
+  const selectedValue = Object.keys(lngs).includes(i18LangFormatted) ? i18LangFormatted : 'de';
+
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
@@ -35,7 +35,7 @@ export default function LanguageDropdown() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={i18n.language}
+          value={selectedValue}
           label="language"
           onChange={handleChange}
           type="submit"
