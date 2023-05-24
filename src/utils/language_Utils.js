@@ -80,9 +80,9 @@ export const LinkText = (props) => {
 //}
 
 const extractLanguage = async () => {
-    let tld = getTopLevelDomain(); //uncomment for production;
-    tld = tld == 'ST' && "AT";   // localhost gives a value of 'ST' so make default 'AT'
-    // console.log("TLD :", tld);  
+    let tld = getTopLevelDomain(); 
+    tld = tld == 'ST' ? "AT" : tld;   // localhost gives a value of 'ST' so make default 'AT'
+    console.log("TLD :", tld);  
     try {
         const response = await axios.get('/language', {
         params: {
