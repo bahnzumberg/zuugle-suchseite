@@ -10,6 +10,7 @@
     "@mui/icons-material": "^5.4.2",
     "@mui/lab": "^5.0.0-alpha.71",
     "@mui/material": "^5.4.3",
+    "@mui/x-date-pickers": "^5.0.20",
     "@react-leaflet/core": "^2.1.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^14.0.0",

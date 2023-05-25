@@ -71,7 +71,8 @@ export default (state = initialState, action = {}) => {
 		case LOAD_TOUR:
 			return  {
 				...state,
-				//loading: true
+				//loading: true,
+				tour: null
 			};
 
 		case LOAD_TOUR_DONE:

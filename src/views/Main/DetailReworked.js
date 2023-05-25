@@ -26,6 +26,7 @@ import {loadAllCities, loadCities} from "../../actions/cityActions";
 import { useTranslation } from 'react-i18next';
 import { getDetailsLabels } from '../../translations/translation.labels';
 import { translateDiff } from '../../utils/language_Utils';
+import Itinerary from "../../components/Itinerary/Itinerary";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -41,6 +42,7 @@ const setGpxTrack = (url, loadGPX, _function) => {
 }
 
 const DetailReworked = (props) => {
+
     console.log(props);
     const {
         loadTour,
@@ -82,7 +84,7 @@ const DetailReworked = (props) => {
         const tourId = searchParams.get("id");
         const city = searchParams.get("city");
 
-        if (tourId && !tour) {
+        if (tourId) {
             loadTour(tourId, city);
         }
         if (tourId && city && !connections) {
@@ -171,13 +173,16 @@ const DetailReworked = (props) => {
         return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
     }
 
-
+const woop = (di) => {
+    console.log('DATE INDEX UPDATED', di);
+};
     return <Box sx={{"backgroundColor": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
             {(!!allCities && allCities.length > 0) &&
                 <SearchContainer goto={"/suche"}/>
             }
         </Box>
+        <Itinerary connectionData={connections} dateIndex={0} onDateIndexUpdate = {(di) => woop(di)}></Itinerary>
         <Box>
             <Box sx={{padding: 3, "textAlign": "left"}}>
                 <Box className="mt-3">
