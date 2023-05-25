@@ -80,7 +80,8 @@ const DetailReworked = (props) => {
     const navigate = useNavigate();
     const goToStartPage = () => {
         console.log('going home')
-        navigate(`/`);
+        let city = searchParams.get('city');
+        navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
 
 
@@ -104,9 +105,13 @@ const DetailReworked = (props) => {
 
     useEffect(() => {
         if (tour) {
-            setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
-            setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
-            setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+            if (!tour.cities_object[searchParams.get("city")]) {
+                goToStartPage();
+            } else {
+                setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+                setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
+                setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+            }
         }
     }, [!!tour]);
 
@@ -207,7 +212,8 @@ const DetailReworked = (props) => {
                 <SearchContainer goto={"/suche"}/>
             }
         </Box>
-        <Itinerary connectionData={connections} dateIndex={dateIndex} onDateIndexUpdate = {(di) => updateActiveConnectionIndex(di)}></Itinerary>
+        <Itinerary connectionData={connections} dateIndex={dateIndex}
+                   onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
         <Box>
             <Box sx={{padding: 3, "textAlign": "left"}}>
                 <Box className="mt-3">
@@ -236,7 +242,8 @@ const DetailReworked = (props) => {
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
                     <div className="tour-detail-provider-container" onClick={() => {
-                        window.location.href = tour?.url;
+                        window.open(tour?.url)
+                        // window.location.href = tour?.url;
                     }}>
                         <div className="tour-detail-provider-icon">
                             <ProviderLogo provider={tour?.provider}/>
