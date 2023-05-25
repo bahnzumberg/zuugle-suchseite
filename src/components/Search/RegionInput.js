@@ -2,8 +2,8 @@ import * as React from "react"
 import { styled } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
 import InputAdornment from "@mui/material/InputAdornment"
-import Search from "../icons/Search"
-import CloseFilled from "../icons/CloseFilled"
+import SearchIcon from "../../icons/SearchIcon"
+import CloseFilled from "../../icons/CloseFilled"
 import { useTranslation } from "react-i18next"
 
 const CssTextField = styled(TextField)({
@@ -80,7 +80,7 @@ export default function RegionInput({
             InputProps={{
                 startAdornment: (
                     <InputAdornment position="start">
-                        <Search
+                        <SearchIcon
                             style={{
                                 strokeWidth: 0.5,
                                 stroke: "#101010",
