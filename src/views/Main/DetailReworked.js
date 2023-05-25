@@ -23,10 +23,9 @@ import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
 import {loadAllCities, loadCities} from "../../actions/cityActions";
-import { useTranslation } from 'react-i18next';
-import { getDetailsLabels } from '../../translations/translation.labels';
-import { translateDiff } from '../../utils/language_Utils';
+import {useTranslation} from 'react-i18next';
 import Itinerary from "../../components/Itinerary/Itinerary";
+import {useNavigate} from "react-router";
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -46,37 +45,44 @@ const DetailReworked = (props) => {
     console.log(props);
     const {
         loadTour,
-            loadTours,
-            loadTourConnectionsExtended,
-            loadGPX,
-            loadTourGpx,
-            isGpxLoading,
-            loadTourPdf,
-            isPdfLoading,
-            allCities,
-            tour,
-            loadCities,
-            loadAllCities
+        loadTours,
+        loadTourConnectionsExtended,
+        loadGPX,
+        loadTourGpx,
+        isGpxLoading,
+        loadTourPdf,
+        isPdfLoading,
+        allCities,
+        tour,
+        loadCities,
+        loadAllCities
     } = props;
-    // const [tour, setTour] = useState(null);
+
     const [connections, setConnections] = useState(null);
     const [activeConnection, setActiveConnection] = useState(null);
     const [activeReturnConnection, setActiveReturnConnection] = useState(null);
+    const [dateIndex, setDateIndex] = useState(0);
     const [searchParams, setSearchParams] = useSearchParams();
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
 
-    const date = moment().format("YYYY-MM-DD");
     // Translation-related
     const {t} = useTranslation();
-    const translateDiff = (diff) =>{
-        if(diff === "Leicht"){
+    const translateDiff = (diff) => {
+        if (diff === "Leicht") {
             return t('start.leicht');
-        }else if(diff === "Schwer") {
+        } else if (diff === "Schwer") {
             return t('start.schwer');
-        }else return t('start.mittel');
+        } else return t('start.mittel');
     };
+
+    const navigate = useNavigate();
+    const goToStartPage = () => {
+        console.log('going home')
+        navigate(`/`);
+    }
+
 
     useEffect(() => {
         loadAllCities();
@@ -91,7 +97,7 @@ const DetailReworked = (props) => {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (res && res.data) {
                     setConnections(res.data.result);
-                    setActiveConnection(res.data.result[0].connections[0]); // TODO
+                    setActiveConnection(res.data.result[0]); // TODO
                     setActiveReturnConnection(res.data.result[0].returns[0]); // TODO
                 }
             })
@@ -106,14 +112,30 @@ const DetailReworked = (props) => {
         }
     }, [!!tour]);
 
+    useEffect(() => {
+        if (connections) {
+            let date = moment(searchParams.get("date"));
+            if (date.isValid()) {
+                if (moment(date).isBetween(moment(connections[0].date), moment(connections[6].date), 'days', '[]')) {
+                    const index = connections.findIndex(connection => moment(connection.date).format('DD.MM.YYYY') === date.format('DD.MM.YYYY'));
+                    console.log('date index is: : ', index);
+                    setDateIndex(index);
+                } else {
+                    goToStartPage();
+                }
+            }
+        }
+    }, [!!connections]);
+
     async function onDownload() {
+        const connectionDate = activeConnection?.date;
         try {
             const response = await loadTourPdf({
                 id: tour?.id,
-                connection_id: !!activeConnection ? activeConnection.id : undefined,
+                connection_id: !!activeConnection?.connections[0] ? activeConnection?.connections[0].id : undefined,
                 connection_return_id: !!activeReturnConnection ? activeReturnConnection.id : undefined,
-                connection_return_ids: (!!connections[0].returns ? connections[0].returns.map(e => e.id) : []),
-                date
+                connection_return_ids: (!!activeConnection.returns ? activeConnection.returns.map(e => e.id) : []),
+                connectionDate
             }) // TODO change to currently selected index
             // handle response here
             if (response) {
@@ -143,10 +165,10 @@ const DetailReworked = (props) => {
 
 
     const onDownloadGpx = () => {
-        if (!!activeReturnConnection && activeReturnConnection.fromtour_track_key && !!activeConnection && !!activeConnection.totour_track_key) {
+        if (!!activeReturnConnection && activeReturnConnection.fromtour_track_key && !!activeConnection && !!activeConnection?.connections[0]?.totour_track_key) {
             loadTourGpx({
                 id: tour.id,
-                key_anreise: activeConnection.totour_track_key,
+                key_anreise: activeConnection.connections[0].totour_track_key,
                 key_abreise: activeReturnConnection.fromtour_track_key,
                 type: "all"
             }).then((res) => {
@@ -170,19 +192,21 @@ const DetailReworked = (props) => {
     }
 
     const downloadButtonsDisabled = () => {
-        return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
+        return !!!tour || !!!tour.gpx_file || !!!activeConnection || !!!activeConnection?.connections[0]?.totour_track_key || !!!activeReturnConnection || !!!activeReturnConnection.fromtour_track_key;
     }
 
-const woop = (di) => {
-    console.log('DATE INDEX UPDATED', di);
-};
+    const updateActiveConnectionIndex = (index) => {
+        setDateIndex(index);
+        console.log('DATE INDEX UPDATED', index);
+    };
+
     return <Box sx={{"backgroundColor": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
             {(!!allCities && allCities.length > 0) &&
                 <SearchContainer goto={"/suche"}/>
             }
         </Box>
-        <Itinerary connectionData={connections} dateIndex={0} onDateIndexUpdate = {(di) => woop(di)}></Itinerary>
+        <Itinerary connectionData={connections} dateIndex={dateIndex} onDateIndexUpdate = {(di) => updateActiveConnectionIndex(di)}></Itinerary>
         <Box>
             <Box sx={{padding: 3, "textAlign": "left"}}>
                 <Box className="mt-3">
@@ -203,8 +227,10 @@ const woop = (di) => {
                         <div className="tour-detail-difficulties">
                             {/* <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span> */}
                             {/* <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span> */}
-                            <span className="tour-detail-difficulty">{tour && translateDiff(tour.difficulty_orig)}</span>
-                            <span className="tour-detail-tag tour-detail-tag-gray">{tour && translateDiff(tour.difficulty)}</span>
+                            <span
+                                className="tour-detail-difficulty">{tour && translateDiff(tour.difficulty_orig)}</span>
+                            <span
+                                className="tour-detail-tag tour-detail-tag-gray">{tour && translateDiff(tour.difficulty)}</span>
                         </div>
                         <Typography variant="textSmall">{tour?.description}</Typography>
                     </Box>
@@ -231,14 +257,14 @@ const woop = (di) => {
             <div>
 
             </div>
-            {/*<Box>*/}
-            {/*    /!*Calender*!/*/}
-            {/*    <pre>All connections: {JSON.stringify(connections?.length)}</pre>*/}
-            {/*    <pre>Active connection: {JSON.stringify(activeConnection?.id)}</pre>*/}
-            {/*    <pre>Active return connection: {JSON.stringify(activeReturnConnection?.id)}</pre>*/}
-            {/*</Box>*/}
             <Divider variant="middle"/>
-            <Box sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", margin: "1rem 0"}}>
+            <Box sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                margin: "1rem 0"
+            }}>
                 <Button sx={{
                     borderRadius: "12px",
                     border: "1.5px solid #101010",

@@ -45,7 +45,7 @@ const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
     console.log(connectionData, dateIndex, onDateIndexUpdate);
 
     const {t, i18n} = useTranslation();
-    const [selectedDay, setSelectedDay] = useState(dateIndex);
+    let selectedDay = dateIndex;
     let days = [];
 
     // const options = {
@@ -53,14 +53,15 @@ const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
     //     month: "long",
     //     day: "numeric"
     // };
-    useEffect(() => {
-        onDateIndexUpdate(selectedDay)
-    },[selectedDay]);
 
     if (!connectionData || (!dateIndex && dateIndex !== 0)) {
         return <></>;
     } else {
         days = _.map(connectionData, (con) => moment(con.date));
+    }
+
+    const setSelectedDay = (index) => {
+        onDateIndexUpdate(index);
     }
 
     return <div className="tour-detail-itinerary-calendar">
