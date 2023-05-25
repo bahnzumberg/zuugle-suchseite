@@ -44,23 +44,24 @@ const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
     // const [value, setValue] = React.useState<Dayjs | null>(dayjs('2022-04-07'));
     console.log(connectionData, dateIndex, onDateIndexUpdate);
 
-    if (!connectionData || (!dateIndex && dateIndex !== 0)) {
-        return <></>;
-    }
-
-    const now = moment(connectionData[0].date);
-    const days = _.map(connectionData, (con) => moment(con.date));
+    const {t, i18n} = useTranslation();
     const [selectedDay, setSelectedDay] = useState(dateIndex);
-    const {i18n} = useTranslation();
+    let days = [];
 
-    const options = {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-    };
+    // const options = {
+    //     weekday: "long",
+    //     month: "long",
+    //     day: "numeric"
+    // };
     // useEffect((updatedSelectedDay) => {
     //     onDateIndexUpdate(updatedSelectedDay)
     // },[selectedDay]);
+
+    if (!connectionData || (!dateIndex && dateIndex !== 0)) {
+        return <></>;
+    } else {
+        days = _.map(connectionData, (con) => moment(con.date));
+    }
 
     return <div className="tour-detail-itinerary-calendar">
         <div className="tour-detail-itinerary-calendar-selected-day">
