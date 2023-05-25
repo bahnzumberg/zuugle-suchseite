@@ -31,8 +31,8 @@ const dayOfWeek = (date, locale) => {
 }
 
 const isWe = (date) => {
-    const d = date.weekday();
-    return d === 5 || d === 6;
+    const d = date.isoWeekday();
+    return d === 6 || d === 7;
 }
 
 const isSelectedDay = (date, selectedDay) => {
@@ -53,9 +53,9 @@ const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
     //     month: "long",
     //     day: "numeric"
     // };
-    // useEffect((updatedSelectedDay) => {
-    //     onDateIndexUpdate(updatedSelectedDay)
-    // },[selectedDay]);
+    useEffect(() => {
+        onDateIndexUpdate(selectedDay)
+    },[selectedDay]);
 
     if (!connectionData || (!dateIndex && dateIndex !== 0)) {
         return <></>;
@@ -69,7 +69,7 @@ const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
         </div>
         <div className="tour-detail-itinerary-calendar-grid">
             {days.map((dd) => <div key={'1'+dd.date()} className={`${isWe(dd) ? 'tour-detail-itinerary-calendar-week-end' : 'tour-detail-itinerary-calendar-week-day'}`}>{dayOfWeek(dd, i18n.language)}</div>)}
-            {days.map((dd) => <div key={'2'+dd.date()} className={`${isSelectedDay(dd, moment(connectionData[selectedDay].date)) ? 'tour-detail-itinerary-calendar-grid-selected' : 'tour-detail-itinerary-calendar-date'}`} onClick={() => setSelectedDay(dd) }>{dd.date()}</div>)}
+            {days.map((dd, index) => <div key={'2'+dd.date()} className={`${isSelectedDay(dd, moment(connectionData[selectedDay].date)) ? 'tour-detail-itinerary-calendar-grid-selected' : 'tour-detail-itinerary-calendar-date'}`} onClick={() => setSelectedDay(index) }>{dd.date()}</div>)}
         </div>
     </div>;
 };
