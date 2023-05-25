@@ -40,21 +40,23 @@ const setGpxTrack = (url, loadGPX, _function) => {
     })
 }
 
-const DetailReworked = ({
-                            loadTour,
-                            loadTours,
-                            loadTourConnectionsExtended,
-                            loadGPX,
-                            loadTourGpx,
-                            isGpxLoading,
-                            loadTourPdf,
-                            isPdfLoading,
-                            allCities,
-                            loadCities,
-                            loadAllCities
-                        }) => {
-
-    const [tour, setTour] = useState(null);
+const DetailReworked = (props) => {
+    console.log(props);
+    const {
+        loadTour,
+            loadTours,
+            loadTourConnectionsExtended,
+            loadGPX,
+            loadTourGpx,
+            isGpxLoading,
+            loadTourPdf,
+            isPdfLoading,
+            allCities,
+            tour,
+            loadCities,
+            loadAllCities
+    } = props;
+    // const [tour, setTour] = useState(null);
     const [connections, setConnections] = useState(null);
     const [activeConnection, setActiveConnection] = useState(null);
     const [activeReturnConnection, setActiveReturnConnection] = useState(null);
@@ -81,12 +83,8 @@ const DetailReworked = ({
         const city = searchParams.get("city");
 
         if (tourId && !tour) {
-            loadTour(tourId, city)
-                .then(res => {
-                    setTour(res?.data?.tour);
-                });
+            loadTour(tourId, city);
         }
-
         if (tourId && city && !connections) {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (res && res.data) {
@@ -293,6 +291,7 @@ function mapStateToProps(state) {
         isGpxLoading: state.tours.isGpxLoading,
         cities: state.cities.cities,
         allCities: state.cities.all_cities,
+        tour: state.tours.tour
     }
 }
 
