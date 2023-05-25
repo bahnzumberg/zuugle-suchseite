@@ -97,8 +97,6 @@ const DetailReworked = (props) => {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (res && res.data) {
                     setConnections(res.data.result);
-                    setActiveConnection(res.data.result[0]); // TODO
-                    setActiveReturnConnection(res.data.result[0].returns[0]); // TODO
                 }
             })
         }
@@ -113,17 +111,19 @@ const DetailReworked = (props) => {
     }, [!!tour]);
 
     useEffect(() => {
+        let index = dateIndex;
         if (connections) {
-            let date = moment(searchParams.get("date"));
+            let date = moment(searchParams.get("datum"));
             if (date.isValid()) {
                 if (moment(date).isBetween(moment(connections[0].date), moment(connections[6].date), 'days', '[]')) {
-                    const index = connections.findIndex(connection => moment(connection.date).format('DD.MM.YYYY') === date.format('DD.MM.YYYY'));
-                    console.log('date index is: : ', index);
+                    index = connections.findIndex(connection => moment(connection.date).format('DD.MM.YYYY') === date.format('DD.MM.YYYY'));
                     setDateIndex(index);
                 } else {
                     goToStartPage();
                 }
             }
+            setActiveConnection(connections[index]);
+            setActiveReturnConnection(connections[index].returns[0]);
         }
     }, [!!connections]);
 
@@ -197,7 +197,8 @@ const DetailReworked = (props) => {
 
     const updateActiveConnectionIndex = (index) => {
         setDateIndex(index);
-        console.log('DATE INDEX UPDATED', index);
+        setActiveConnection(connections[index]);
+        setActiveReturnConnection(connections[index].returns[0]);
     };
 
     return <Box sx={{"backgroundColor": "#FFFFFF"}}>
