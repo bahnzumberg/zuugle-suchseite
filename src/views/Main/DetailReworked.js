@@ -207,16 +207,40 @@ const DetailReworked = (props) => {
         setActiveReturnConnection(connections[index].returns[0]);
     };
 
+    const actionButtonPart = <Box className="tour-detail-action-btns-container">
+        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+            onDownloadGpx();
+        }}>
+            <DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
+            {!!isGpxLoading ?
+                <CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
+                : <span style={{color: "#8B8B8B"}}>Track für GPS-Gerät herunterladen</span>
+            }
+        </Button>
+        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
+                onClick={onDownload}>
+            <PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
+            {!!isPdfLoading ?
+                <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
+                : <span style={{color: "#8B8B8B"}}>Download für Druck / Mailversand</span>
+            }
+        </Button>
+
+        {!!downloadButtonsDisabled() &&
+            <div style={{marginTop: "10px"}}>
+                <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>
+            </div>
+        }
+    </Box>;
+
     return <Box sx={{"backgroundColor": "#FFFFFF"}}>
         <Box sx={{background: "#4992FF"}}>
             {(!!allCities && allCities.length > 0) &&
                 <SearchContainer goto={"/suche"}/>
             }
         </Box>
-        <Itinerary connectionData={connections} dateIndex={dateIndex}
-                   onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
         <Box>
-            <Box sx={{padding: 3, "textAlign": "left"}}>
+            <Box className="tour-detail-header">
                 <Box className="mt-3">
                     <Typography variant="h4">{tour?.title}</Typography>
                 </Box>
@@ -230,32 +254,55 @@ const DetailReworked = (props) => {
                                     abreiseGpxPositions={abreiseGpxPositions} scrollWheelZoom={false}/>
                 </Box>
                 <div className="tour-detail-data-container">
-                    <TourDetailProperties tour={tour}></TourDetailProperties>
-                    <Box sx={{"textAlign": "left"}}>
-                        <div className="tour-detail-difficulties">
-                            {/* <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span> */}
-                            {/* <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span> */}
-                            <span
-                                className="tour-detail-difficulty">{tour && translateDiff(tour.difficulty_orig)}</span>
-                            <span
-                                className="tour-detail-tag tour-detail-tag-gray">{tour && translateDiff(tour.difficulty)}</span>
+                    <Box>
+                        <TourDetailProperties tour={tour}></TourDetailProperties>
+                        <Box sx={{"textAlign": "left"}}>
+                            <div className="tour-detail-difficulties">
+                                {/* <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span> */}
+                                {/* <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span> */}
+                                <span
+                                    className="tour-detail-difficulty">{tour && translateDiff(tour.difficulty_orig)}</span>
+                                <span
+                                    className="tour-detail-tag tour-detail-tag-gray">{tour && translateDiff(tour.difficulty)}</span>
+                            </div>
+                            <Typography variant="textSmall">{tour?.description}</Typography>
+                        </Box>
+                        <div className="tour-detail-provider-container" onClick={() => {
+                            window.open(tour?.url)
+                            // window.location.href = tour?.url;
+                        }}>
+                            <div className="tour-detail-provider-icon">
+                                <ProviderLogo provider={tour?.provider}/>
+                            </div>
+                            <div className="tour-detail-provider-name-link">
+                                <span className="tour-detail-provider-name">{tour?.provider_name}</span>
+                                <span className="tour-detail-provider-link">{tour?.url}</span>
+                            </div>
                         </div>
-                        <Typography variant="textSmall">{tour?.description}</Typography>
+                        { renderImage &&
+                            <Box className="tour-detail-conditional-desktop">
+                                <Divider variant="middle"/>
+                                <div className="tour-detail-img-container">
+                                    <img
+                                        src={tour.image_url}
+                                        alt="image"
+                                        onError={() => {
+                                            setRenderImage(false);
+                                        }}
+                                    />
+                                </div>
+                            </Box>
+                        }
+                        <Box className="tour-detail-conditional-desktop">
+                            {actionButtonPart}
+                        </Box>
                     </Box>
-                    <div className="tour-detail-provider-container" onClick={() => {
-                        window.open(tour?.url)
-                        // window.location.href = tour?.url;
-                    }}>
-                        <div className="tour-detail-provider-icon">
-                            <ProviderLogo provider={tour?.provider}/>
-                        </div>
-                        <div className="tour-detail-provider-name-link">
-                            <span className="tour-detail-provider-name">{tour?.provider_name}</span>
-                            <span className="tour-detail-provider-link">{tour?.url}</span>
-                        </div>
-                    </div>
+                    <Box className="tour-detail-itinerary-container">
+                        <Itinerary connectionData={connections} dateIndex={dateIndex}
+                                   onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
+                    </Box>
                     { renderImage &&
-                        <Box>
+                        <Box className="tour-detail-conditional-mobile">
                             <Divider variant="middle"/>
                             <div className="tour-detail-img-container">
                                 <img
@@ -268,54 +315,17 @@ const DetailReworked = (props) => {
                             </div>
                         </Box>
                     }
+                    {
+                        <Box className="tour-detail-conditional-mobile">
+                            {actionButtonPart}
+                        </Box>
+                    }
                 </div>
             </div>
             <div>
-
             </div>
             <Divider variant="middle"/>
-            <Box sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                margin: "1rem 0"
-            }}>
-                <Button sx={{
-                    borderRadius: "12px",
-                    border: "1.5px solid #101010",
-                    width: "330px",
-                    height: "56px",
-                    margin: "1rem 0"
-                }} disabled={downloadButtonsDisabled()} onClick={() => {
-                    onDownloadGpx();
-                }}>
-                    <DownloadIcon/><span style={{padding: '0 .5rem', color: "#101010", width: "43px"}}>GPX</span>
-                    {!!isGpxLoading ?
-                        <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                        : <span style={{color: "#8B8B8B"}}>Track für GPS-Gerät herunterladen</span>
-                    }
-                </Button>
-                <Button sx={{
-                    borderRadius: "12px",
-                    border: "1.5px solid #101010",
-                    width: "330px",
-                    height: "56px"
-                }} disabled={downloadButtonsDisabled()}
-                        onClick={onDownload}>
-                    <PdfIcon/><span style={{padding: '0 .5rem', color: "#101010", width: "43px"}}>PDF</span>
-                    {!!isPdfLoading ?
-                        <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                        : <span style={{color: "#8B8B8B"}}>Download für Druck / Mailversand</span>
-                    }
-                </Button>
 
-                {!!downloadButtonsDisabled() &&
-                    <div style={{marginTop: "10px"}}>
-                        <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>
-                    </div>
-                }
-            </Box>
         </Box>
         <Footer></Footer>
     </Box>;
