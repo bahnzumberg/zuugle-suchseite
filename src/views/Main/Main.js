@@ -25,12 +25,8 @@ import {loadGPX} from "../../actions/fileActions";
 import {Typography} from "@mui/material";
 import { checkIfSeoPageCity, checkIfSeoPageRange, getPageHeader} from "../../utils/seoPageHelper";
 import {loadRanges} from "../../actions/rangeActions";
-import DetailReworked from "./DetailReworked";
-import moment from "moment/moment";
-import tourDetails from "./TourDetails";
 
 const Search = lazy(() => import('../../components/Search/Search'));
-const Detail = lazy(() => import('./Detail'));
 const ResultBar = lazy(() => import('../../components/ResultBar'));
 const TourCardContainer = lazy(() => import('../../components/TourCardContainer'));
 
@@ -233,10 +229,6 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }
 
     const onSelectTour = (tour) => {
-        // //clg:
-        // // console.log("Main L 205, onSelectTour , tour value: " + tour);
-        // setTour(tour)
-        // toggleDetailOpen();
         let currentSearchParams = new URLSearchParams(searchParams.toString());
         const city = currentSearchParams.get("city");
         const updatedSearchParams = new URLSearchParams();
@@ -249,21 +241,9 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }
 
     //description:
-    //This is a callback function that loads and selects a tour with a specific id and city specified in the URL search parameters.
-    // It calls the loadTour function which makes an API call to fetch the tour data using the id and city as parameters -loadTour is a function in tourActions.js and uses the function loadOne inside of crudActions.js- , If the response contains valid tour data, the setTour function is called to update the state with the newly loaded tour, and toggleDetailOpen function is called to open the tour detail view.
-    // If there is an error or the response does not contain valid tour data, nothing happens and the user remains on the same page.
-    const onLoadAndSelectTour = (id) => {
-        // clg
-        // console.log(id);
-        // console.log(searchParams.get('city'));
-        loadTour(id, searchParams.get('city')).then(res => {
-            if(!!res && !!res.data && !!res.data.tour){
-                //clg
-                // console.log("Main : tour data 220",res.data.tour)
-                setTour(res.data.tour);
-                toggleDetailOpen();
-            }
-        })
+    //This is a callback function that selects a tour with a specific id
+    const onSelectTourById = (id) => {
+        onSelectTour({id: id})
     }
     
     // testing tourID to solve the error "MapContainer is already initialized"
@@ -288,11 +268,12 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     //   ,
     //   [tourID]
     // )
-    
-    const memoTourMapContainer = useMemo(()=> {
+
+    const memoTourMapContainer = useMemo(() => {
         // console.log("L 273 tourID : " + tourID)
-        return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading} setTourID={setTourID} tourID={tourID}/>)
-    },tourID);
+        return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onSelectTourById} loading={loading}
+                                  setTourID={setTourID} tourID={tourID}/>)
+    }, tourID);
 
     return <div>
         {/* description

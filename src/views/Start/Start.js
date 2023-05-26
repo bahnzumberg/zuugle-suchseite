@@ -92,8 +92,6 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 
     }, [])
 
-//description:
-// onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
     const onSelectTour = (tour) => {
         let currentSearchParams = new URLSearchParams(searchParams.toString());
         const city = currentSearchParams.get("city");
