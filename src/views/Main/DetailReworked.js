@@ -66,6 +66,7 @@ const DetailReworked = (props) => {
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
+    const [renderImage, setRenderImage] = useState(null);
 
     // Translation-related
     const {t} = useTranslation();
@@ -83,7 +84,6 @@ const DetailReworked = (props) => {
         let city = searchParams.get('city');
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
-
 
     useEffect(() => {
         loadAllCities();
@@ -111,6 +111,7 @@ const DetailReworked = (props) => {
                 setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
                 setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
                 setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+                setRenderImage(!!tour?.image_url);
             }
         }
     }, [!!tour]);
@@ -253,13 +254,20 @@ const DetailReworked = (props) => {
                             <span className="tour-detail-provider-link">{tour?.url}</span>
                         </div>
                     </div>
-                    <Divider variant="middle"/>
-                    <div className="tour-detail-img-container">
-                        <img
-                            src={tour?.image_url}
-                            alt="image"
-                        />
-                    </div>
+                    { renderImage &&
+                        <Box>
+                            <Divider variant="middle"/>
+                            <div className="tour-detail-img-container">
+                                <img
+                                    src={tour.image_url}
+                                    alt="image"
+                                    onError={() => {
+                                        setRenderImage(false);
+                                    }}
+                                />
+                            </div>
+                        </Box>
+                    }
                 </div>
             </div>
             <div>
