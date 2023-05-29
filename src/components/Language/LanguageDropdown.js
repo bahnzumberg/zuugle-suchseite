@@ -5,6 +5,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useTranslation } from 'react-i18next';
+import { langChange } from "../../utils/language_Utils";
 
 const lngs = {
     "en": {nativeName: 'English' },
@@ -22,10 +23,10 @@ export default function LanguageDropdown() {
 
   const handleChange = (e) => {
     const selectedLanguage = e.target.value;
-    i18n.changeLanguage(selectedLanguage);
+    langChange(selectedLanguage);
     localStorage.setItem('lang', selectedLanguage);
   };
-    // Check if the formatted language is a valid option, otherwise fallback to an agreed language
+  // Check if the formatted language is a valid option, otherwise fallback to an agreed language
   const selectedValue = Object.keys(lngs).includes(i18LangFormatted) ? i18LangFormatted : 'de';
 
   return (
