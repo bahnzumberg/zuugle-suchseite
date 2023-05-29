@@ -52,15 +52,21 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const navigate = useNavigate();
     //i18next
     let count = totalProvider;
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     // console.log("i18n.languages:", i18n.languages);
     // console.log("i18n.resolved:", i18n.resolvedLanguage);
-
+    
+    
     useEffect(() => {
         setLanguage();
-        let curLocalStorageLanguage = localStorage.getItem('lang') 
-        !!curLocalStorageLanguage && console.log("curLocalStorageLanguage :", curLocalStorageLanguage)
-    }, [])
+        //clgs
+        // let curLocalStorageLanguage = localStorage.getItem('lang') 
+        // !!curLocalStorageLanguage && console.log("curLocalStorageLanguage :", curLocalStorageLanguage)
+        // console.log("1) inside Start Language =", window.i18next.language)
+        // console.log("2) inside Start Language =", i18n.language)
+        // console.log("3) inside Start resolvedLanguage =", window.i18next.resolvedLanguage)
+        // console.log("4) inside Start resolvedLanguage =", i18n.resolvedLanguage)
+    }, [i18n.language])
     
 
     // Matomo
