@@ -79,10 +79,22 @@ export const LinkText = (props) => {
 //      4. If no language is available, you can return a default language code.
 //}
 
+
+export function langChange(language) {
+    i18n.changeLanguage(language, function() {
+      // Trigger the custom event to notify index.html about the language change
+      var event = new CustomEvent('languageChanged', { detail: { language: language } });
+      document.dispatchEvent(event);
+    });
+  }
+  
+
+
+
 const extractLanguage = async () => {
     let tld = getTopLevelDomain(); 
     tld = tld == 'ST' ? "AT" : tld;   // localhost gives a value of 'ST' so make default 'AT'
-    console.log("TLD :", tld);  
+    // console.log("TLD :", tld);  
     try {
         const response = await axios.get('/language', {
         params: {
@@ -90,7 +102,7 @@ const extractLanguage = async () => {
         },
         });
         const language = response.data.language;
-        console.log("Extracted language from server:", language);
+        // console.log("Extracted language from server:", language);
         return language || 'en'; // Return the language received from the backend or fallback to a default language code
     } catch (error) {
         if (error.response) {
@@ -107,18 +119,22 @@ const extractLanguage = async () => {
     }
 };
 
-  
-  export async function setLanguage() {
+
+export async function setLanguage() {
+
+    // setup for index.html file
+
     const storedLanguage = localStorage.getItem('lang');
-    console.log("Utils: storedLanguage", storedLanguage);
-  
+    // console.log("Utils: storedLanguage", storedLanguage);
+
     let newResolved = i18n.services.languageUtils.formatLanguageCode(i18n.resolvedLanguage);
-    console.log("Utils: newResolved", newResolved);
-  
+    // console.log("Utils: newResolved", newResolved);
+
     if (storedLanguage) {
-      if (newResolved !== storedLanguage) {
-        i18n.changeLanguage(storedLanguage);
-      }
+    if (newResolved !== storedLanguage) {
+        langChange(storedLanguage);
+        // i18n.changeLanguage(storedLanguage);
+    }
     } else {
         try {
             const extractedLang = await extractLanguage();
@@ -127,7 +143,8 @@ const extractLanguage = async () => {
             const formattedLang = i18n.services.languageUtils.formatLanguageCode(extractedLang);
             console.log("Utils: formattedLang:", formattedLang);
     
-            i18n.changeLanguage(formattedLang);
+            // i18n.changeLanguage(formattedLang);
+            langChange(formattedLang);
             localStorage.setItem('lang', formattedLang);
     
             // Set the formatted language as the value in the SelectInput component
