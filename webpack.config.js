@@ -16,6 +16,22 @@ module.exports = {
   
   devServer: {
     static: BUILD_DIR,
+    // directory: BUILD_DIR,
+    // staticOptions: {
+    //   setHeaders: (res, path) => {
+    //     if (path.endsWith('.json')) {
+    //       res.setHeader('Content-Type', 'application/javascript');
+    //     }
+    //   },
+    // },
+    // staticOptions: {
+    //   setHeaders: (res, path) => {
+    //     if (path.endsWith('.json')) {
+    //       res.setHeader('Content-Type', 'text/html');
+    //     }
+    //   },
+    // },
+    
 
     compress: true,
     open: true,
