@@ -242,7 +242,7 @@ const DetailReworked = (props) => {
         <Box>
             <Box className="tour-detail-header">
                 <Box className="mt-3">
-                    <Typography variant="h4">{tour?.title}</Typography>
+                    <Typography variant="title">{tour?.title}</Typography>
                 </Box>
                 <Box className="mt-3">
                     <span className="tour-detail-tag">{tour?.range}</span>

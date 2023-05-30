@@ -104,6 +104,10 @@ export const theme = createTheme({
             fontWeight: 600,
             color: "#101010"
         },
+        title: {
+            fontSize: 32,
+            fontWeight: 700
+        },
         h1: {
             fontSize: 54,
             fontWeight: 600,
