@@ -1,17 +1,13 @@
-import React, {useEffect, useState} from "react";
-import { CalendarPicker } from '@mui/x-date-pickers/CalendarPicker';
+import React from "react";
 import moment from "moment";
 import "moment/locale/de";
 import "moment/locale/fr";
 import "moment/locale/it";
 import "moment/locale/sl";
-import AdapterDayjs from "@mui/lab/AdapterDayjs";
-import {LocalizationProvider, StaticDatePicker} from "@mui/lab";
 import {useTranslation} from "react-i18next";
 import * as _ from 'lodash';
 
 const formatDate = (date, locale) => {
-    console.log(date, locale);
     const formats = {
         fr: 'dddd D MMMM YYYY',
         de: 'dddd, D. MMMM YYYY',
@@ -20,12 +16,10 @@ const formatDate = (date, locale) => {
         en: 'dddd, D MMMM YYYY',
     };
     moment.locale(locale);
-    // moment(date).add(1, "day")
     return date.format(formats[locale]);
 }
 
 const dayOfWeek = (date, locale) => {
-    console.log(locale);
     moment.locale(locale);
     return moment(date). format('dd');
 }
@@ -36,23 +30,13 @@ const isWe = (date) => {
 }
 
 const isSelectedDay = (date, selectedDay) => {
-    console.log(date.isSame(selectedDay, 'day'));
     return date.isSame(selectedDay, 'day');
 }
 
 const ItineraryCalendar = ({connectionData, dateIndex, onDateIndexUpdate}) => {
-    // const [value, setValue] = React.useState<Dayjs | null>(dayjs('2022-04-07'));
-    console.log(connectionData, dateIndex, onDateIndexUpdate);
-
     const {t, i18n} = useTranslation();
     let selectedDay = dateIndex;
     let days = [];
-
-    // const options = {
-    //     weekday: "long",
-    //     month: "long",
-    //     day: "numeric"
-    // };
 
     if (!connectionData || (!dateIndex && dateIndex !== 0)) {
         return <></>;

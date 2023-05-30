@@ -342,10 +342,6 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
 
         }
 
-        {/*{*/}
-        {/*    (detailOpen) && <><DetailReworked></DetailReworked></>*/}
-        {/*}*/}
-
         {/*<Drawer*/}
         {/*    anchor={"right"}*/}
         {/*    open={detailOpen}*/}

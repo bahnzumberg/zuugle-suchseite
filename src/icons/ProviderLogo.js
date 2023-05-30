@@ -5,7 +5,6 @@ import {ReactComponent as BergfexLogo} from './svg/provider/logo_bergfex.svg';
 import {ReactComponent as HoehenrauschLogo} from './svg/provider/logo_hoehenrausch.svg';
 import {ReactComponent as WandernSteiermarkLogo} from './svg/provider/logo_steiermark.svg';
 import {ReactComponent as FallbackLogo} from './svg/provider/logo_fallback.svg';
-import {styles} from "./defaults";
 
 const provider = {
     BAHN_ZUM_BERG: 'bahnzumberg',

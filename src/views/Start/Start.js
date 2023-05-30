@@ -101,7 +101,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
         if (city) {
             updatedSearchParams.set("city", city);
         }
-        const w = window.open('/tour?' + updatedSearchParams.toString());
+        window.open('/tour?' + updatedSearchParams.toString());
     }
 
 //description:

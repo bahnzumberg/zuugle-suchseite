@@ -41,8 +41,6 @@ const setGpxTrack = (url, loadGPX, _function) => {
 }
 
 const DetailReworked = (props) => {
-
-    console.log(props);
     const {
         loadTour,
         loadTours,
@@ -142,8 +140,7 @@ const DetailReworked = (props) => {
                 connection_return_id: !!activeReturnConnection ? activeReturnConnection.id : undefined,
                 connection_return_ids: (!!activeConnection.returns ? activeConnection.returns.map(e => e.id) : []),
                 connectionDate
-            }) // TODO change to currently selected index
-            // handle response here
+            })
             if (response) {
                 let pdf = undefined;
                 if (!!response.data) {

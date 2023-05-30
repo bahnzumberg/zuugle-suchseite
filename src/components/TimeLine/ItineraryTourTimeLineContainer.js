@@ -22,7 +22,6 @@ import {
 //The component then displays the departure information and the number of transfers. The departure information includes the departure text and the departure time, while the number of transfers is displayed as an icon with the number of transfers next to it.
 //Finally, the component displays the timeline of connections using the Timeline component from Material UI. It calls the createEntries function to create the individual entries for the timeline. At the bottom of the component, there is a button that, when clicked, opens a live timetable for the tour's connection using the get_live_timetable_link_there function.
 export default function ItineraryTourTimeLineContainer({connections, loading}){
-console.log("DATA", connections);
     const [entries, setEntries] = useState([]);
 
     useEffect(() => {
