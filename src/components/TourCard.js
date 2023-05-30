@@ -159,12 +159,12 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             });
         }
 
-        return <Typography display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
+        return <Box display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
             return <Box key={index} display="inline-block" sx={{marginRight: "10px"}}>
                 {entry.icon}
                 <Typography display={"inline"} variant={"subtitle2"} sx={{lineHeight: "24px", position: "relative", top: "-7px", left: "4px"}}>{entry.text}</Typography>
             </Box>
-        })}</Typography>;
+        })}</Box>;
     }
 
 

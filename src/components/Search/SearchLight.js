@@ -6,7 +6,7 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadCities} from "../../actions/cityActions";
 import {Fragment, useEffect, useState} from "react";
-import CityInput from "../CityInput";
+import CityInput from "./CityInput";
 import {loadRegions} from "../../actions/regionActions";
 import {useSearchParams} from "react-router-dom";
 import {hideModal, showModal} from "../../actions/modalActions";
