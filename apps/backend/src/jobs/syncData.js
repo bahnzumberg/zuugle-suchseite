@@ -7,7 +7,7 @@ import {
     syncCities,
     syncFahrplan,
     syncTours,
-    mergeToursWithGPX
+    generateTestdata
 } from "./sync";
 import moment from "moment";
 
@@ -33,7 +33,16 @@ syncTours().then(res => {
                         console.log('START FETCH PROVIDER: ', moment().format('HH:mm:ss'));
                         getProvider().then(res => {
                             console.log('FETCHED PROVIDER: ', moment().format('HH:mm:ss'));
-                            process.exit();
+                            if(process.env.NODE_ENV !== "production"){
+                                console.log('GENERATE TEST DATA: ', moment().format('HH:mm:ss'));
+                                generateTestdata().then(res => {
+                                    console.log('DONE GENERATING TEST DATA: ', moment().format('HH:mm:ss'));
+                                    process.exit();    
+                                })
+                            }
+                            else {
+                                process.exit();
+                            }
                         });
                     });
                 });
