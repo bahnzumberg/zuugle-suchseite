@@ -269,7 +269,6 @@ const DetailReworked = (props) => {
                         </Box>
                         <div className="tour-detail-provider-container" onClick={() => {
                             window.open(tour?.url)
-                            // window.location.href = tour?.url;
                         }}>
                             <div className="tour-detail-provider-icon">
                                 <ProviderLogo provider={tour?.provider}/>

@@ -992,7 +992,7 @@ ul.about-bullets {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: start;
 
     padding: 2rem 7rem;
   }
