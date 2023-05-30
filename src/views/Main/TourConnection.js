@@ -10,7 +10,7 @@ import {useSearchParams} from "react-router-dom";
 import moment from "moment";
 import TourReturnTimeLineContainer from "../../components/TimeLine/TourReturnTimeLineContainer";
 import {loadCities} from "../../actions/cityActions";
-import FullScreenCityInput from "../../components/FullScreenCityInput";
+import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
 import {hideModal, showModal} from "../../actions/modalActions";
 import SearchLight from "../../components/Search/SearchLight";
 

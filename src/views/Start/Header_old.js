@@ -1,6 +1,6 @@
 import * as React from "react"
 import Box from "@mui/material/Box"
-import { Typography, Grid } from "@mui/material"
+import { Typography } from "@mui/material"
 import SearchContainer from "./SearchContainer"
 import { useEffect, useState } from "react"
 import { getDomainText, isResponsive } from "../../utils/globals"
@@ -98,7 +98,7 @@ export default function Header({ totalTours, allCities }) {
                         >
                             {getDomainText()}
                         </Typography>
-                        <Typography
+                        <Box
                             style={{
                                 fontSize: "16px",
                                 color: "#FFF",
@@ -107,7 +107,7 @@ export default function Header({ totalTours, allCities }) {
                             }}
                         >
                             <LanguageDropdown />
-                        </Typography>
+                        </Box>
                     </Box>
                     <Typography variant={"h1"}>
                         <>
@@ -116,11 +116,9 @@ export default function Header({ totalTours, allCities }) {
                         </>
                     </Typography>
                 </Box>
-                <Box display={"flex"} justifyContent={"center"}>
-                    {!!allCities && allCities.length > 0 && (
-                        <SearchContainer goto={"/suche"} />
-                    )}
-                </Box>
+                {!!allCities && allCities.length > 0 && (
+                    <SearchContainer goto={"/suche"} />
+                )}
             </Box>
         )
     }

@@ -17,18 +17,15 @@ import {
     setOrRemoveSearchParam,
 } from "../../utils/globals"
 import { useNavigate } from "react-router"
+import ZuugleLogo from "../../icons/ZuugleLogo"
 import { hideModal, showModal } from "../../actions/modalActions"
 import { CityResultList } from "./CityResultList"
 import FullScreenCityInput from "./FullScreenCityInput"
 import { RegionResultList } from "./RegionResultList"
 import FullScreenRegionInput from "./FullScreenRegionInput"
 import { useTranslation } from "react-i18next"
-import FilterIcon from "../../icons/FilterIcon"
-import SearchIcon from "../../icons/SearchIcon"
-import IconButton from "@mui/material/IconButton"
-import GoIcon from "../../icons/GoIcon"
 
-export function Search({
+export function Search_old({
     loadCities,
     cities,
     loadRegions,
@@ -41,7 +38,6 @@ export function Search({
     showModal,
     hideModal,
     allCities,
-    isMapView,
 }) {
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("")
@@ -50,8 +46,6 @@ export function Search({
     const [openCitySearch, setOpenCitySearch] = useState(false)
     const [region, setRegion] = useState(null)
     const [openRegionSearch, setOpenRegionSearch] = useState(false)
-    const [activeFilter, setActiveFilter] = useState(false)
-    const initialIsMapView = isMapView || false
 
     const navigate = useNavigate()
     const { t } = useTranslation()
@@ -222,12 +216,6 @@ export function Search({
         }
     }
 
-    const toggleFilter = () => {
-        // code goes here for filter overlay
-        console.log("Search.js toggleFilter() called")
-        setActiveFilter(!activeFilter)
-    }
-
     const gotoHome = () => {
         let _city = searchParams.get("city")
         navigate(`/?${!!_city ? "city=" + _city : ""}`)
@@ -294,121 +282,166 @@ export function Search({
     return (
         <Fragment>
             <Box>
-                <Grid
-                    container
-                    display={"flex"}
-                    justifyContent={"center"}
-                    alignContent={"center"}
-                    alignItems={"center"}
-                >
-                    <Grid item onClick={showRegionInput}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
+                {!!isMain ? (
+                    <Grid container>
+                        <Grid
+                            item
+                            style={{
+                                maxWidth: "60px",
+                                flex: 1,
+                                alignSelf: "center",
+                                textAlign: "left",
+                            }}
+                            onClick={gotoHome}
+                            className={"cursor-link"}
                         >
-                            <SearchIcon
-                                style={{
-                                    strokeWidth: 0.5,
-                                    stroke: "#8B8B8B",
-                                    fill: "#8B8B8B",
-                                }}
-                            />
-                        </Box>
-                    </Grid>
-                    <Grid item xs onClick={showRegionInput}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <span
-                                className={`search-bar--region__${
-                                    regionInput ? "selection" : "default"
-                                }`}
+                            <ZuugleLogo />
+                        </Grid>
+                        <Grid item style={{ width: "100%", flex: 1 }}>
+                            <Grid
+                                container
+                                rowSpacing={0}
+                                columnSpacing={1}
+                                className={"search-button-container"}
                             >
-                                {regionInput
-                                    ? regionInput
-                                    : t("start.willkommen_suche")}
-                            </span>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box className={"search-bar--divider"} />
-                    </Grid>
-                    <Grid item xs onClick={showCityModal}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <span className={"search-bar--city"}>
-                                {cityInput.length > 0
-                                    ? cityInput
-                                    : t("start.heimatbahnhof")}
-                            </span>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        {!!initialIsMapView ? null : (
-                            <Box>
-                                {!!isMain ? (
-                                    <IconButton
-                                        onClick={toggleFilter}
-                                        sx={
-                                            activeFilter
-                                                ? {
-                                                      padding: "6px",
-                                                      border: "2px solid",
-                                                      borderColor: "#FF7663",
-                                                      background: "#FF7663",
-                                                      "&:hover": {
-                                                          background: "#FF9885",
-                                                      },
-                                                  }
-                                                : {
-                                                      padding: "6px",
-                                                      border: "2px solid",
-                                                      borderColor: "#DDDDDD",
-                                                      "&:hover": {
-                                                          background: "#EEEEEE",
-                                                      },
-                                                  }
+                                <Grid item xs={12} md={5}>
+                                    <CityInput
+                                        loadCities={loadCities}
+                                        city={cityInput}
+                                        setCity={setCityInput}
+                                        onFocus={
+                                            !!!isResponsive() && onFocusCity
                                         }
-                                    >
-                                        <FilterIcon
-                                            style={{
-                                                transform: "scale(0.675)",
-                                                stroke: activeFilter
-                                                    ? "white"
-                                                    : "#101010",
-                                                strokeWidth: 1.25,
-                                            }}
-                                        />
-                                    </IconButton>
-                                ) : (
-                                    <IconButton
+                                        isOpen={openCitySearch}
+                                        onClick={
+                                            !!isResponsive() && showCityModal
+                                        }
+                                        disabled={!!isResponsive()}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={5}>
+                                    <RegionInput
+                                        setOpenRegionSearch={
+                                            setOpenRegionSearch
+                                        }
+                                        onCustomSubmit={onCustomRegionSubmit}
+                                        loadRegions={loadRegions}
+                                        region={regionInput}
+                                        setRegion={(value) =>
+                                            changeTextMiddleware(
+                                                value,
+                                                setRegionInput,
+                                                setRegion
+                                            )
+                                        }
+                                        onFocus={
+                                            !!!isResponsive() && onFocusRegion
+                                        }
+                                        isOpen={openRegionSearch}
+                                        city={city}
+                                        onClick={
+                                            !!isResponsive() && showRegionInput
+                                        }
+                                        disabled={!!isResponsive()}
+                                        resetInput={resetRegionInput}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={2}>
+                                    <Button
+                                        variant="contained"
+                                        fullWidth
+                                        style={{ height: 55 }}
                                         onClick={() => search()}
-                                        sx={{
-                                            "&:hover": {
-                                                background: "#7aa8ff",
-                                                fill: "#7aa8ff",
-                                            },
-                                        }}
                                     >
-                                        <GoIcon
-                                            style={{
-                                                transform: "scale(1.55)",
-                                                strokeWidth: 0,
-                                            }}
-                                        />
-                                    </IconButton>
-                                )}
-                            </Box>
-                        )}
+                                        {t("start.ergebnisse_anzeigen")}
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Grid>
                     </Grid>
-                </Grid>
+                ) : (
+                    <Grid
+                        container
+                        rowSpacing={0}
+                        columnSpacing={1}
+                        className={"search-button-container"}
+                    >
+                        <Grid item xs={12} md={5}>
+                            <CityInput
+                                loadCities={loadCities}
+                                city={cityInput}
+                                setCity={setCityInputMiddleware}
+                                onFocus={!!!isResponsive() && onFocusCity}
+                                isOpen={openCitySearch}
+                                onClick={!!isResponsive() && showCityModal}
+                                disabled={!!isResponsive()}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={5}>
+                            <RegionInput
+                                setOpenRegionSearch={setOpenRegionSearch}
+                                onCustomSubmit={onCustomRegionSubmit}
+                                loadRegions={loadRegions}
+                                region={regionInput}
+                                setRegion={(value) =>
+                                    changeTextMiddleware(
+                                        value,
+                                        setRegionInput,
+                                        setRegion
+                                    )
+                                }
+                                onFocus={!!!isResponsive() && onFocusRegion}
+                                isOpen={openRegionSearch}
+                                city={city}
+                                onClick={!!isResponsive() && showRegionInput}
+                                disabled={!!isResponsive()}
+                                resetInput={resetRegionInput}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                style={{ height: 55 }}
+                                onClick={() => search()}
+                            >
+                                {t("start.ergebnisse_anzeigen")}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                )}
             </Box>
+
+            {!!openCitySearch && (
+                <Box className={"result-container"}>
+                    <CityResultList
+                        cities={cities}
+                        setCity={setCity}
+                        setCityInput={setCityInput}
+                        onFocusCity={onFocusCity}
+                        isCityLoading={isCityLoading}
+                        loadRegions={loadRegions}
+                        loadFavouriteTours={loadFavouriteTours}
+                        setOpenCitySearch={setOpenCitySearch}
+                        searchParams={searchParams}
+                        setSearchParams={setSearchParams}
+                    />
+                </Box>
+            )}
+
+            {!!openRegionSearch && (
+                <Box className={"result-container regions"}>
+                    <RegionResultList
+                        regions={regions}
+                        setRegion={setRegion}
+                        setRegionInput={setRegionInput}
+                        onFocusRegion={onFocusRegion}
+                        setOpenRegionSearch={setOpenRegionSearch}
+                        regionInput={regionInput}
+                        search={search}
+                    />
+                </Box>
+            )}
         </Fragment>
     )
 }
