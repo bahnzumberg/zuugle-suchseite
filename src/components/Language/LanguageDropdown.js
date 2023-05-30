@@ -1,10 +1,11 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
+// import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useTranslation } from 'react-i18next';
+import { langChange } from "../../utils/language_Utils";
 
 const lngs = {
     "en": {nativeName: 'English' },
@@ -18,10 +19,15 @@ export default function LanguageDropdown() {
 
   const {i18n} = useTranslation();
 
+  const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(i18n.language);
 
   const handleChange = (e) => {
-    i18n.changeLanguage(e.target.value);
+    const selectedLanguage = e.target.value;
+    langChange(selectedLanguage);
+    localStorage.setItem('lang', selectedLanguage);
   };
+  // Check if the formatted language is a valid option, otherwise fallback to an agreed language
+  const selectedValue = Object.keys(lngs).includes(i18LangFormatted) ? i18LangFormatted : 'de';
 
   return (
     <Box sx={{ minWidth: 150 }}>
@@ -30,7 +36,7 @@ export default function LanguageDropdown() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={i18n.language}
+          value={selectedValue}
           label="language"
           onChange={handleChange}
           type="submit"

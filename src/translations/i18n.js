@@ -3,37 +3,31 @@ import Backend from "i18next-http-backend";
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
-import translationEN from '../../public/i18n/en.json';
-import translationDE from '../../public/i18n/de.json';
-import translationIT from '../../public/i18n/it.json';
-import translationFR from '../../public/i18n/fr.json';
-import translationSL from '../../public/i18n/sl.json';
-
 const resources = {
     fr: {
-        translation: translationFR
+        translation: require("../../public/i18n/fr.json")
       },
     en: {
-      translation: translationEN
+      translation: require("../../public/i18n/en.json")
     },
     de: {
-      translation: translationDE
+      translation: require("../../public/i18n/de.json")
     },
     it: {
-      translation: translationIT
+      translation: require("../../public/i18n/it.json")
     },
     sl: {
-      translation: translationSL
+      translation: require("../../public/i18n/sl.json")
     }
-  };
+};
 
-  const supportedLanguages = ['en','de','sl','fr','it']
+const supportedLanguages = ['en','de','sl','fr','it'];
 
 i18n
-.use(Backend)
-.use(LanguageDetector)
-.use(initReactI18next)
-.init({
+  .use(Backend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
     // Backend:{
     //     loadpath: `/public/i18n/{lng}.json`,
     // },
@@ -42,16 +36,16 @@ i18n
     fallbackLng: "de",
     supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true, //note 3 below
-    debug : process.env.NODE_ENV === "development",
-    interpolation:{
-        spaceValue: false,
-        formatSeperator: ","
+    debug: process.env.NODE_ENV === "development",
+    interpolation: {
+      spaceValue: false,
+      formatSeperator: ",",
     },
     react: {
-        // wait : true,
-        useSuspense: true
-    }
-})
+      // wait : true,
+      useSuspense: true,
+    },
+  });
 
 export default i18n
 
