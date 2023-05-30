@@ -37,7 +37,7 @@ const TourDetailProperties = ({tour}) => {
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}> {t('main.maximale_hoehe')} </Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.max_ele) + ' m' || "-"}</Typography>
+                <Typography variant={"h5alt"}>{tour?.max_ele ? formatNumber(tour.max_ele) + ' m' : "-"}</Typography>
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}>{t('main.aufstieg')}</Typography>
