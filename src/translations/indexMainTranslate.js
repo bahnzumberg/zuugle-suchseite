@@ -11,7 +11,7 @@ function updateHtmlLangAttribute(language) {
 
 
       // Set the global variable for environment
-      var isDevelopment = true; // Set it to true if you are in development mode, false otherwise
+      var isDevelopment = false; // Set it to true if you are in development mode, false otherwise
     
     // i18next Translation 
   //   const resources = {
