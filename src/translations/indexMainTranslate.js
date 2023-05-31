@@ -6,7 +6,7 @@
 function updateHtmlLangAttribute(language) {
   var htmlTag = document.getElementById("html-tag");
   htmlTag.setAttribute("lang", language);
-  console.log("inside updateHtmlLangAttribute :", language);
+  // console.log("inside updateHtmlLangAttribute :", language);
 }
 
 
@@ -100,16 +100,16 @@ function updateHtmlLangAttribute(language) {
 
 
             if(storedLanguage) {
-              console.log('initialised : storedLanguage :', storedLanguage);
+              // console.log('initialised : storedLanguage :', storedLanguage);
               currLanguage = storedLanguage ;
             }
             if(resolvedLanguage && !!storedLanguage){
               currLanguage = resolvedLanguage ;
-              console.log('initialised : resolvedLanguage:', resolvedLanguage);
+              // console.log('initialised : resolvedLanguage:', resolvedLanguage);
             }else{
               currLanguage = 'de';
             }
-            console.log('End of initialised : currLanguage:', currLanguage);
+            // console.log('End of initialised : currLanguage:', currLanguage);
 
             updateHtmlLangAttribute(currLanguage);
 
@@ -120,7 +120,7 @@ function updateHtmlLangAttribute(language) {
         
       function translateElements(lng) {
         if(localStorage.getItem('lang') != lng){
-          console.log("localStorgae != lng", localStorage.getItem('lang') + "-" + lng );
+          // console.log("localStorgae != lng", localStorage.getItem('lang') + "-" + lng );
 
           i18next.changeLanguage(lng, function (err, t) {
             if (err) return console.error("Error changing language:", err);
@@ -156,7 +156,7 @@ function updateHtmlLangAttribute(language) {
       // Event listener to update translations
       document.addEventListener("languageChanged", function (event) {
         var updatedLanguage = event.detail.language; // the passed new language selected from dropdown
-        console.log("updatedLanguage: " + updatedLanguage);
+        // console.log("updatedLanguage: " + updatedLanguage);
         updatedLanguage
           ? updateHtmlLangAttribute(updatedLanguage)
           : updateHtmlLangAttribute(updatedLanguage);
