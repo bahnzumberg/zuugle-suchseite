@@ -812,7 +812,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
 
 
     // !!query && console.log("L787 query still with us not returned yet")
-    console.log("L787 query still with us not returned yet")
+    // console.log("L787 query still with us not returned yet")
 
     let filter ;
     if(typeof(params.filter) === 'string') {
