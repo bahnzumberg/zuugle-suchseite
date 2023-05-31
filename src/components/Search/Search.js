@@ -329,7 +329,7 @@ export function Search({
                             >
                                 {regionInput
                                     ? regionInput
-                                    : t("start.willkommen_suche")}
+                                    : t("start.suche")}
                             </span>
                         </Box>
                     </Grid>
