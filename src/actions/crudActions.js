@@ -10,16 +10,14 @@ export async function loadFile(dispatch, getState, typeBefore, typeDone, stateNa
             page_size: state.pageSize,
             order_id: state.orderId,
             order_desc: state.orderDesc,
-            ...data
+            ...data     // includes currentLanguage 
         }
     }
 
     try{
         let res = await axios.get(route, {
-            data: {},
-            // data: data,
             responseType: responseType,
-            params: params,
+            params: params,             // now currLanguage value is contained in params
             timeout: 60000,
             headers: {
                 Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4"
