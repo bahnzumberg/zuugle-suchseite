@@ -67,7 +67,7 @@ const DetailReworked = (props) => {
     const [renderImage, setRenderImage] = useState(null);
 
     // Translation-related
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const translateDiff = (diff) => {
         if (diff === "Leicht") {
             return t('start.leicht');
@@ -132,9 +132,13 @@ const DetailReworked = (props) => {
     }, [!!connections]);
 
     async function onDownload() {
+        console.log("i18n.language , at onDownload :",i18n.resolvedLanguage);
+        const currLanguage = i18n.resolvedLanguage;
+
         const connectionDate = activeConnection?.date;
         try {
             const response = await loadTourPdf({
+                currLanguage: currLanguage, // current language
                 id: tour?.id,
                 connection_id: !!activeConnection?.connections[0] ? activeConnection?.connections[0].id : undefined,
                 connection_return_id: !!activeReturnConnection ? activeReturnConnection.id : undefined,
