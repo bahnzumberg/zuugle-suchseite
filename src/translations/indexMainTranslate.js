@@ -96,31 +96,28 @@ function updateHtmlLangAttribute(language) {
 
             var resolvedLanguage = i18next.language;
             const storedLanguage = localStorage.getItem('lang');
-            let currLanguage = "";
 
 
             if(storedLanguage) {
-              // console.log('initialised : storedLanguage :', storedLanguage);
-              currLanguage = storedLanguage ;
-            }
-            if(resolvedLanguage && !!storedLanguage){
-              currLanguage = resolvedLanguage ;
-              // console.log('initialised : resolvedLanguage:', resolvedLanguage);
+              translateIndexPage(storedLanguage);
+              console.log('initialised #1: storedLanguage :', storedLanguage);
+            }else if(resolvedLanguage){
+              translateIndexPage(resolvedLanguage);
+              console.log('initialised #2: resolvedLanguage:', resolvedLanguage);
             }else{
-              currLanguage = 'de';
+              console.log('initialised #3');
+              translateIndexPage('de');
             }
-            // console.log('End of initialised : currLanguage:', currLanguage);
-
-            updateHtmlLangAttribute(currLanguage);
-
-            translateElements(currLanguage);
           }
-        );
-      }
-        
+          );
+        }
+
+        function translateIndexPage(lng){
+          updateHtmlLangAttribute(lng);
+          translateElements(lng);
+        };
+
       function translateElements(lng) {
-        if(localStorage.getItem('lang') != lng){
-          // console.log("localStorgae != lng", localStorage.getItem('lang') + "-" + lng );
 
           i18next.changeLanguage(lng, function (err, t) {
             if (err) return console.error("Error changing language:", err);
@@ -148,7 +145,7 @@ function updateHtmlLangAttribute(language) {
               }
             });
           });
-        }
+        // }
         return;
       }
 
@@ -156,10 +153,8 @@ function updateHtmlLangAttribute(language) {
       // Event listener to update translations
       document.addEventListener("languageChanged", function (event) {
         var updatedLanguage = event.detail.language; // the passed new language selected from dropdown
-        // console.log("updatedLanguage: " + updatedLanguage);
-        updatedLanguage
-          ? updateHtmlLangAttribute(updatedLanguage)
-          : updateHtmlLangAttribute(updatedLanguage);
-        translateElements(updatedLanguage);
+        console.log("updatedLanguage: 162 : " + updatedLanguage);
+        updatedLanguage && updateHtmlLangAttribute(updatedLanguage)
+        updatedLanguage && translateElements(updatedLanguage);
       });
     
