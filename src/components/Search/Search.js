@@ -19,6 +19,7 @@ import {CityResultList} from "./CityResultList";
 import FullScreenCityInput from "../FullScreenCityInput";
 import {RegionResultList} from "./RegionResultList";
 import FullScreenRegionInput from "../FullScreenRegionInput";
+import {withLoggingOnMount} from "../../views/Start/Start";
 
 
 export function Search({loadCities, cities, loadRegions, regions, loadTours, isCityLoading, goto, isMain, loadFavouriteTours, showModal, hideModal, allCities}){
@@ -35,6 +36,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
 
 
     useEffect(() => {
+        console.log("use effect search.js")
         let city = searchParams.get('city');
         let range = searchParams.get('range');
         let state = searchParams.get('state');
@@ -62,7 +64,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
             searchParams.set("sort", "relevanz");
             setSearchParams(searchParams);
         }
-// console.log( "serachParams L: 65:", searchParams);
+
         if(!!range){
             setRegionInput(range);
             setRegion({value: range, label: range, type: "range"});
@@ -89,6 +91,7 @@ export function Search({loadCities, cities, loadRegions, regions, loadTours, isC
 
         //return if start page - no load
         if(!!!isMain){
+            console.log('is main')
             return;
         }
 
@@ -364,4 +367,4 @@ export default compose(
         mapStateToProps,
         mapDispatchToProps
     ),
-)(Search)
+)(withLoggingOnMount(Search, 'search'))

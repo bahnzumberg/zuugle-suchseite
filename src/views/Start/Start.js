@@ -18,6 +18,7 @@ import {useNavigate} from "react-router";
 // import {myTrackPageView} from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import {getPageHeader, listAllCityLinks, listAllRangeLinks} from "../../utils/seoPageHelper";
+import {useMatomo} from "../../hooks/matomoHook";
 
 const RangeCardContainer = lazy(() => import('../../components/RangeCardContainer'));
 const ScrollingTourCardContainer = lazy(() => import('../../components/ScrollingTourCardContainer'));
@@ -48,6 +49,23 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
 
+    // let siteId = 11;
+    // if (process.env.NODE_ENV !== "production") {
+    //     siteId = 9;
+    // }
+
+    console.log('in start body')
+/*
+    useMatomo({
+        enableLinkTracking: true,
+        enableAutoPageTrack: true,
+        hostConfig: {
+            siteId: 11,
+            url: "https://stats.bahnzumberg.at"
+        }
+    })*/
+
+
     // description
     // makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
     // useEffect(() => {
@@ -67,6 +85,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
 // Similarly, the loadTour function makes an API call to retrieve a single tour by calling the loadOne function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOUR_DONE and the payload data is dispatched to the store.
 // So the code within this useEffect handles the data flow in the application and keep the Redux store updated with the latest data retrieved from the API.
     useEffect(() => {
+        console.log('loading all cities')
         loadAllCities();
         loadTotalTours();
         loadRanges({ignore_limit: true, remove_duplicates: true});
@@ -79,6 +98,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
         if(!!city && !!!searchParamCity){
             searchParams.set('city', city);
 
+            console.log('setting city')
             setSearchParams(searchParams);
         }
 
@@ -159,7 +179,7 @@ function Start({loadFavouriteTours, favouriteTours, loadCities, loadTourConnecti
     // A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
     // A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
     // A Footer component. 
-    if (totalTours==0) {
+    if (totalTours === 0) {
         return <Box>
             <Header totalTours={totalTours} allCities={allCities}/>
             <Footer />
@@ -254,9 +274,23 @@ const mapStateToProps = (state) => {
 // The code exports a higher-order component (HOC) that is the result of composing the "Start" component with the "connect" function from the "react-redux" library. The "connect" function connects the "Start" component to the Redux store, allowing it to access the state stored in the store and dispatch actions to the store.
 // The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
 // The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
+export const withLoggingOnMount = (Component, name) => {
+    return (props) => {
+        // no more overriding onClick, just adding normal useEffect
+        useEffect(() => {
+            // TODO why is this called twice/why is component rendered twice
+            console.log('log on mount' + name);
+        }, []);
+
+        // just passing props intact
+        return <Component {...props} />;
+    };
+};
+
+
 export default compose(
     connect(                    //connects the component Start to the redux store
         mapStateToProps,
         mapDispatchToProps
-    ),
-)(Start)
+    )
+)(withLoggingOnMount(Start, 'start'))
