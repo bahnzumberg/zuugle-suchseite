@@ -109,14 +109,14 @@ function updateHtmlLangAttribute(language) {
               translateIndexPage('de');
             }
           }
-        );
-      }
-        
-      function translateIndexPage(lng){
-        updateHtmlLangAttribute(lng);
-        translateElements(lng);
-      };
-      
+          );
+        }
+
+        function translateIndexPage(lng){
+          updateHtmlLangAttribute(lng);
+          translateElements(lng);
+        };
+
       function translateElements(lng) {
 
           i18next.changeLanguage(lng, function (err, t) {
