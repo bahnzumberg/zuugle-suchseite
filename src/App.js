@@ -4,7 +4,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import {theme} from "./theme";
 import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
-import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
+import {BrowserRouter, Route, Routes, Navigate, useLocation} from "react-router-dom";
 // import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -38,7 +38,14 @@ function App() {
     //         setRequestMethod: 'POST'
     //     }
     // })
+    function usePageViews() {
+        let location = useLocation();
+        React.useEffect(() => {
+            console.log('location changed', location)
+        }, [location]);
+    }
 
+    usePageViews();
 
     return (
         // <MatomoProvider value={instance}>
@@ -46,7 +53,7 @@ function App() {
                 <div className="App">
                     <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
                         {/* <BrowserRouter history={history}> */}
-                        <BrowserRouter >
+
                             <Routes>
                                 <Route path="/" element={<Start/>}/>
                                 <Route path="/suche" element={<Main/>}/>
@@ -61,7 +68,6 @@ function App() {
                                     element={<Navigate to="/" replace />}
                                 />
                             </Routes>
-                        </BrowserRouter>
                     </Suspense>
                 </div>
                 <ModalRoot />

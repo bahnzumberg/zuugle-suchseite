@@ -3,18 +3,18 @@ import {createRoot} from 'react-dom/client';
 // import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { createStore, applyMiddleware, compose } from 'redux';
+import {createStore, applyMiddleware, compose} from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from "./rootReducer";
-import { Helmet } from 'react-helmet';
-import { Provider } from 'react-redux';
+import {Helmet} from 'react-helmet';
+import {Provider} from 'react-redux';
 import "./translations/i18n";
+import {BrowserRouter} from "react-router-dom";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)
 ));
-
 
 
 //description:
@@ -32,20 +32,22 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 const root = createRoot(document.getElementById('root'))
 
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <div>
-        <Helmet>
-          <link rel="canonical" href="https://www.zuugle.at" />
-          <link
-            id="favicon"
-            rel="icon"
-            href="/app_static/favicon.png"
-            type="image/x-icon"
-            />
-        </Helmet>
-      </div>
-      <App />
-    </Provider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <Provider store={store}>
+            <div>
+                <Helmet>
+                    <link rel="canonical" href="https://www.zuugle.at"/>
+                    <link
+                        id="favicon"
+                        rel="icon"
+                        href="/app_static/favicon.png"
+                        type="image/x-icon"
+                    />
+                </Helmet>
+            </div>
+            <BrowserRouter>
+                <App/>
+            </BrowserRouter>
+        </Provider>
+    </React.StrictMode>
 );
