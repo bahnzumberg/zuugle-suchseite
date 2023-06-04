@@ -41,26 +41,6 @@ app.use('/api/regions', cors(corsOptions), hostMiddleware, authenticate, regions
 app.use('/api/ranges', cors(corsOptions), hostMiddleware, authenticate, ranges);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
 
-/*
-Es soll der Linux Cronjob verwendet werden
-const rule = new schedule.RecurrenceRule();
-rule.hour = 1;
-rule.minute = 0;
-rule.tz = 'Europe/Vienna';
-
-schedule.scheduleJob(rule, async function(){
-    // Cron Job
-    const count_tours = await knex('kpi').select('value').where('name','=','total_tours');
-    count = count_tours[0]["value"];
-    
-    if (count>0) {
-        console.log('run import job: ', moment().format());
-        await syncDataApplicationSide();
-        await syncFilesApplicationSide();
-        console.log('run import job done: ', moment().format());
-    }
-});
-*/
 
 app.listen(port, () => console.log('Running on localhost:' + port));
 

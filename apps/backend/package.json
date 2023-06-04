@@ -17,7 +17,8 @@
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncDataFull.js",
     "import-files": "node build/jobs/syncFiles.js",
-    "sync-gpx-tours": "node build/jobs/syncGpxTours.js"
+    "sync-gpx-tours": "node build/jobs/syncGpxTours.js",
+    "generate-testdata": "node build/jobs/generateTestdata.js"
   },
   "keywords": [],
   "author": "",

@@ -255,7 +255,6 @@ const listWrapper = async (req, res) => {
     //describe:
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
     try {
-        // Jetzt loggen wir diese query noch schnell für später
         let searchparam = '';
         if (search !== undefined) { 
             searchparam = search.replace("'",'"'); 
