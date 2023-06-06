@@ -1,12 +1,6 @@
-# this is the branch 'falsal-update-versions-languages' merged with 'basis-new-uix-tour-detail'
+# this is a branch from 'basis-new-uix-tour-detail'
 # what is new here:
-This version includes updated packages , main changes:
-node to v19.8.1 (npm v9.5.1)
-react and react-dom both to v18.2.0
-react-redux to 8.0.5
-react-leaflet: 4.2.1,
-react-leaflet-cluster: 2.1.0,
-react-leaflet-fullscreen: 2.0.2,
+ working on issue #18: log menu_lang and country_code
 
 # zuugle.at Suchseite
 ## Erstinstallation
