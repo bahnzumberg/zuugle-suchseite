@@ -130,28 +130,29 @@ export async function setLanguage() {
     // console.log("Utils: newResolved", newResolved);
 
     if (storedLanguage) {
-    if (newResolved !== storedLanguage) {
+      if (newResolved !== storedLanguage) {
         langChange(storedLanguage);
         // i18n.changeLanguage(storedLanguage);
-    }
+      }
     } else {
-        try {
-            const extractedLang = await extractLanguage();
-            console.log("Utils: extractedLang:", extractedLang);
-    
-            const formattedLang = i18n.services.languageUtils.formatLanguageCode(extractedLang);
-            console.log("Utils: formattedLang:", formattedLang);
-    
-            // i18n.changeLanguage(formattedLang);
-            langChange(formattedLang);
-            localStorage.setItem('lang', formattedLang);
-    
-            // Set the formatted language as the value in the SelectInput component
-            // setLanguageValue(formattedLang);
-        } catch (error) {
-            // Handle the error and set a fallback language?
-            console.error('Error retrieving extracted lang:', error);
-        }
+      try {
+        const extractedLang = await extractLanguage();
+        console.log("Utils: extractedLang:", extractedLang);
+
+        const formattedLang =
+          i18n.services.languageUtils.formatLanguageCode(extractedLang);
+        console.log("Utils: formattedLang:", formattedLang);
+
+        // i18n.changeLanguage(formattedLang);
+        langChange(formattedLang);
+        localStorage.setItem("lang", formattedLang);
+
+        // Set the formatted language as the value in the SelectInput component
+        // setLanguageValue(formattedLang);
+      } catch (error) {
+        // Handle the error and set a fallback language?
+        console.error("Error retrieving extracted lang:", error);
+      }
     }
 }
   
