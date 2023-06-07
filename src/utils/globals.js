@@ -148,7 +148,8 @@ export const getTopLevelDomain = () => {
     // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
-    return host.substring(host.length-2).toUpperCase();
+    let returnedHost = process.env.NODE_ENV === "development" ? "AT" : host.substring(host.length-2).toUpperCase();
+    return returnedHost;
 }
 
 export const myTrackPageView = (pageTitle, trackPageView, city) => {
