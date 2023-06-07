@@ -93,8 +93,7 @@ export function langChange(language) {
 
 const extractLanguage = async () => {
     let tld = getTopLevelDomain(); 
-    tld = tld == 'ST' ? "AT" : tld;   // localhost gives a value of 'ST' so make default 'AT'
-    // console.log("TLD :", tld);  
+    console.log("tld :", tld);  
     try {
         const response = await axios.get('/language', {
         params: {
