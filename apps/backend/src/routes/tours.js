@@ -56,10 +56,15 @@ const getWrapper = async (req, res) => {
 // The function then sets up a database query using the knex object, based on the various parameters passed in through the req object. It also sets up a count query to determine the total number of results. The where variable is used to build the query filter, based on the city, range, state, country, and type parameters. The whereRaw variable is used to specify a raw SQL query string that can be used to filter results based on more complex criteria.
 // Finally, the function generates an orderBy clause for the query based on the sort parameter. This allows the user to specify the order in which the results are returned based on a variety of criteria. The listWrapper function then executes the query and returns the results in the res object.
 const listWrapper = async (req, res) => {
-    // console.log("tours L55: req.query at listWrapper  :" + JSON.stringify(req.query))
+    console.log("req.query is : " + JSON.stringify(req.query));
+    // set current language 
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en';
+
+    console.log("tours L59: req.query.currLanguage at listWrapper  :" + currLanguage); 
     // describe
     //extracting various query parameters from the request object using req.query method
     const search = req.query.search;
+    console.log("req.query.search",req.query.search)
     const showRanges = !!req.query.ranges;
     const city = req.query.city;
     const range = req.query.range;
@@ -73,15 +78,8 @@ const listWrapper = async (req, res) => {
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
-    // let useOrderBy = !!!map;
-    // let useLimit = !!!map;
     let useLimit = !!!map;
-    if(!!!map) {
-        useLimit = true;
-    }else{
-        useLimit = false;
-    }
-    // console.log("useLimit: tours /listWrapper :" + useLimit);
+
     let addDetails = !!!map;
 
     //describe:
@@ -101,6 +99,7 @@ const listWrapper = async (req, res) => {
     //checking query parameters: city, range, state, country, type, and provider so we can add any necessary where conditions to the select statement.
     // where will be filled with the values of the following : range, state, country, type, and provider (all coming from the defined constants above) 
     let where = getWhereFromDomain(domain);
+    // console.log("where value: " + JSON.stringify(where));
 
     //describe:
     //use a new variable whereRaw to define the where statments
@@ -241,9 +240,9 @@ const listWrapper = async (req, res) => {
 
     // console.log('query: ', query.toQuery());
 
-    /** set limit to query */
-    //describe :
-    // a limit and offset are applied to the query if the useLimit flag is set to true. The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
+    // /** set limit to query */
+    // //describe :
+    // // a limit and offset are applied to the query if the useLimit flag is set to true. The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
     if(!!useLimit){
         // page? console.log("page at useLimit L233:",page) : console.log("page is falsy");
         query = query.limit(9).offset(9 * (page - 1));
@@ -252,16 +251,31 @@ const listWrapper = async (req, res) => {
     let result = await query;
     let count = await countQuery.first();
 
+
     //describe:
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
     try {
         // Jetzt loggen wir diese query noch schnell für später
-        let searchparam = '';
-        if (search !== undefined) { 
-            searchparam = search.replace("'",'"'); 
-            const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', 'de', '${get_domain_country(domain)}');`;
+
+        let searchparam = '';  
+        console.log("search : ", search) // currently always undefined
+
+        // search = phrase in the DB, value must be collected from the client before we reach this step
+        // if (search !== undefined) {  // also if previous search item is different than this one ?
+        
+            if (search == undefined) searchparam = "LOCAL TEST-0" // this assignment is for testing purposes
+            console.log("domain :" + get_domain_country(domain))
+            console.log("searchparam :" + (searchparam))
+            console.log("req.query.city :" + (req.query.city))
+            console.log("count['count'] :" + (count['count']))
+
+            // searchparam = search.replace("'",'"')  // step is a must when we receive the value of search
+            const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
+
+            console.log(" sql :" + sql
+            )
             await knex.raw(sql);
-        };
+        // };
     } catch(e){
         console.error('error inserting into logsearchphrase: ', e);
     }
