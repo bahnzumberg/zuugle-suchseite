@@ -41,10 +41,20 @@ export async function loadFile(dispatch, getState, typeBefore, typeDone, stateNa
     }
 }
 
+// receive the param : language inside loadList
+export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true, language) {
 
-export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true) {
     //clg
-    // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}`)
+    console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
+
+    language && console.log("language: " + language)
+    console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
+    console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
+    //initialize language param
+    const langPassed = language && (typeBefore == 'LOAD_TOURS' || typeBefore == 'LOAD_TOUR_CONNECTIONS') ? language : null;
+
+    langPassed && console.log("passed language : " + langPassed)
+
     if(!!useState){
         dispatch({...data, type: typeBefore});
     }
@@ -60,7 +70,8 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
         }
         params = {
             ...pagination,
-            ...data
+            ...data,
+            currLanguage:langPassed
         }
     }
 

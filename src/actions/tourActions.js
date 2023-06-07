@@ -21,19 +21,32 @@ import {
     SET_SELECTED_DATE
 } from './types';
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
+import i18next from 'i18next';
 
+
+//TODO:
+// import i18next from "i18next"
+// Extract currLanguage from i18next (resolvedLanguage)
+// pass as parameter the variable currLanguage to loadList
+// next step: is inside crudActions folder / where the currLanguage is passed to the fucntion loadList
 export function loadTours(data = {}) {
+    const language = i18next.resolvedLanguage;
+    console.log("from loadTours/ tourActions : language :",language)
+
     // console.log("tourActions, LoadTours L26 :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false);
+        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
 
 export function loadFilter(data = {}) {
     // console.log("tourActions, LoadFilter L34 :",data)
+    const language = i18next.resolvedLanguage;
+    console.log("from loadFilter/ tourActions : language :",language)
+
     return (dispatch, getState) => {
-        return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false);
+        return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false, undefined, language);
     };
 }
 
@@ -53,25 +66,32 @@ export function loadTotalTours() {
 
 export function loadTourConnections(data) {
     // console.log("tourActions, loadTourConnections L55 :", data)
+    const language = i18next.resolvedLanguage;
+
+    console.log("from loadTourConnections/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false);
+        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
     };
 }
 
 export function loadTourConnectionsExtended(data) {
     // console.log("tourActions, loadTourConnectionsExtended L63 :", data)
+    const language = i18next.resolvedLanguage;
+    console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS_EXTENDED, LOAD_TOUR_CONNECTIONS_EXTENDED_DONE, "tours", data, "tours/" + data.id + "/connections-extended", "connections", false);
+        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);;
     };
 }
 
 export function loadFavouriteTours(data = {}) {
     // console.log("tourActions, loadFavouriteTours L71 :", data)
+    const language = i18next.resolvedLanguage;
+    console.log("from loadFavouriteTours/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false);
+        return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false, undefined, language);
     };
 }
 
