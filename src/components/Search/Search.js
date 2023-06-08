@@ -1,55 +1,57 @@
 import * as React from "react"
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid"
-import Button from "@mui/material/Button"
+// import Button from "@mui/material/Button"
 import { loadFavouriteTours, loadTours } from "../../actions/tourActions"
 import { compose } from "redux"
 import { connect } from "react-redux"
 import { loadCities } from "../../actions/cityActions"
 import { Fragment, useEffect, useState } from "react"
-import CityInput from "./CityInput"
+// import CityInput from "./CityInput"
 import { loadRegions } from "../../actions/regionActions"
-import RegionInput from "./RegionInput"
+// import RegionInput from "./RegionInput"
 import { useSearchParams } from "react-router-dom"
 import {
-    isResponsive,
+    // isResponsive,
     parseIfNeccessary,
     setOrRemoveSearchParam,
 } from "../../utils/globals"
 import { useNavigate } from "react-router"
 import { hideModal, showModal } from "../../actions/modalActions"
-import { CityResultList } from "./CityResultList"
+// import { CityResultList } from "./CityResultList"
 import FullScreenCityInput from "./FullScreenCityInput"
-import { RegionResultList } from "./RegionResultList"
+// import { RegionResultList } from "./RegionResultList"
 import FullScreenRegionInput from "./FullScreenRegionInput"
 import { useTranslation } from "react-i18next"
 import FilterIcon from "../../icons/FilterIcon"
 import SearchIcon from "../../icons/SearchIcon"
 import IconButton from "@mui/material/IconButton"
 import GoIcon from "../../icons/GoIcon"
+import TextInput from "../TextInput"
 
 export function Search({
-    loadCities,
-    cities,
     loadRegions,
-    regions,
     loadTours,
-    isCityLoading,
     goto,
     isMain,
-    loadFavouriteTours,
     showModal,
     hideModal,
     allCities,
     isMapView,
+    // additional arguments
+    // loadCities,
+    // cities,
+    // regions,
+    // isCityLoading,
+    // loadFavouriteTours,
 }) {
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("")
     const [regionInput, setRegionInput] = useState("")
     const [city, setCity] = useState(null)
-    const [openCitySearch, setOpenCitySearch] = useState(false)
+    // const [openCitySearch, setOpenCitySearch] = useState(false)
     const [region, setRegion] = useState(null)
-    const [openRegionSearch, setOpenRegionSearch] = useState(false)
+    // const [openRegionSearch, setOpenRegionSearch] = useState(false)
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
 
@@ -152,26 +154,26 @@ export function Search({
         localStorage.setItem("city", city)
     }
 
-    const changeTextMiddleware = (value, _function, _resetFunction) => {
-        _function(value)
-        _resetFunction(null)
-    }
+    // const changeTextMiddleware = (value, _function, _resetFunction) => {
+    //     _function(value)
+    //     _resetFunction(null)
+    // }
 
-    const setCityInputMiddleware = (value) => {
-        setCityInput(value)
-        if (!!!value) {
-            searchParams.delete("city")
-            setSearchParams(searchParams)
-            loadFavouriteTours({ sort: "relevanz", limit: 10, ranges: true })
-        }
-    }
+    // const setCityInputMiddleware = (value) => {
+    //     setCityInput(value)
+    //     if (!!!value) {
+    //         searchParams.delete("city")
+    //         setSearchParams(searchParams)
+    //         loadFavouriteTours({ sort: "relevanz", limit: 10, ranges: true })
+    //     }
+    // }
 
-    const onFocusCity = (value) => {
-        setOpenCitySearch(!!value)
-    }
-    const onFocusRegion = (value) => {
-        setOpenRegionSearch(!!value)
-    }
+    // const onFocusCity = (value) => {
+    //     setOpenCitySearch(!!value)
+    // }
+    // const onFocusRegion = (value) => {
+    //     setOpenRegionSearch(!!value)
+    // }
 
     const search = (tempRegion = null) => {
         let values = {}
@@ -228,10 +230,10 @@ export function Search({
         setActiveFilter(!activeFilter)
     }
 
-    const gotoHome = () => {
-        let _city = searchParams.get("city")
-        navigate(`/?${!!_city ? "city=" + _city : ""}`)
-    }
+    // const gotoHome = () => {
+    //     let _city = searchParams.get("city")
+    //     navigate(`/?${!!_city ? "city=" + _city : ""}`)
+    // }
 
     const showCityModal = () => {
         showModal("MODAL_COMPONENT", {
@@ -276,20 +278,20 @@ export function Search({
         })
     }
 
-    const onCustomRegionSubmit = () => {
-        setOpenRegionSearch(false)
-        search()
-    }
+    // const onCustomRegionSubmit = () => {
+    //     setOpenRegionSearch(false)
+    //     search()
+    // }
 
-    const resetRegionInput = () => {
-        setRegionInput("")
-        setRegion(null)
-        setOpenRegionSearch(false)
-        searchParams.delete("search")
-        searchParams.delete("range")
-        searchParams.delete("type")
-        setSearchParams(searchParams)
-    }
+    // const resetRegionInput = () => {
+    //     setRegionInput("")
+    //     setRegion(null)
+    //     setOpenRegionSearch(false)
+    //     searchParams.delete("search")
+    //     searchParams.delete("range")
+    //     searchParams.delete("type")
+    //     setSearchParams(searchParams)
+    // }
 
     return (
         <Fragment>
