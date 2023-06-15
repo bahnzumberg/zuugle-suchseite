@@ -41,19 +41,19 @@ export async function loadFile(dispatch, getState, typeBefore, typeDone, stateNa
     }
 }
 
-// receive the param : language inside loadList
 export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true, language) {
 
     //clg
-    console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
+    // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
 
-    language && console.log("language: " + language)
-    console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
-    console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
+    // language && console.log("language: " + language)
+    // language && console.log("data: " + JSON.stringify(data));
+    // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
+    // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
     //initialize language param
     const langPassed = language && (typeBefore == 'LOAD_TOURS' || typeBefore == 'LOAD_TOUR_CONNECTIONS') ? language : null;
 
-    langPassed && console.log("passed language : " + langPassed)
+    // langPassed && console.log("passed language : " + langPassed)
 
     if(!!useState){
         dispatch({...data, type: typeBefore});
@@ -68,6 +68,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
             pagination.order_id = state.orderId;
             pagination.order_desc = state.orderDesc;
         }
+        // console.log("data: inside if(state) : " + JSON.stringify(data));
         params = {
             ...pagination,
             ...data,
@@ -75,9 +76,13 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
         }
     }
 
+    // console.log("crudActions : route", route)
+    // console.log("crudActions : params", params)
     return axios.get(route, { params: params }).then(res => {
         const entities = res.data[entityName];
+        // console.log("entities :",entities)
         const total = res.data.total;
+        // console.log("total : ", total)
         const filter = !!res.data.filter ? res.data.filter : null;
 
         if(!!useState){
@@ -90,6 +95,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
                 ranges: res.data.ranges
             });
         }
+        //console.log("crudActions : response ", res); // issue #9 API
 
         return res;
     }).catch(err => {
