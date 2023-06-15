@@ -23,17 +23,13 @@ import {
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
 import i18next from 'i18next';
 
-// do we REDO the import of language vars and pass it to loadList ?/ consider that loadList is used not only when using search bar but also in other list buildings.
-//TODO: #18
-// import i18next from "i18next"
-// Extract currLanguage from i18next (resolvedLanguage)
-// pass as parameter the variable currLanguage to loadList
-// next step: is inside crudActions folder / where the currLanguage is passed to the fucntion loadList
+
+
 export function loadTours(data = {}) {
     const language = i18next.resolvedLanguage;
     // console.log("from loadTours/ tourActions : language :",language)
 
-    console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
+    // console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         //clgs
