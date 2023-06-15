@@ -28,17 +28,17 @@ const CssTextField = styled(TextField)({
 })
 
 export default function RegionInput({
-    loadRegions,
-    region,
-    setRegion,
+    loadRegions,// passed
+    region,     // passed
+    setRegion,  // passed
     onFocus,
     isOpen,
-    city,
+    city,       // passed
     onClick,
     disabled,
     onCustomSubmit,
-    setOpenRegionSearch,
-    resetInput,
+    setOpenRegionSearch, // passed
+    resetInput,  // passed
 }) {
     const { t } = useTranslation()
 
@@ -52,7 +52,6 @@ export default function RegionInput({
             disabled={disabled}
             value={region}
             disableautofocus="true"
-            // disableAutoFocus={true}
             key={"region-input"}
             autoComplete={"off"}
             onChange={(event) => {
@@ -69,7 +68,7 @@ export default function RegionInput({
             onBlur={() => !!onFocus && onFocus(false)}
             onClick={() => !!onClick && onClick()}
             onKeyDown={(e) => {
-                if (e.keyCode === 13) {
+                if (e.key === 13) {
                     e.preventDefault()
                     e.stopPropagation()
                     if (!!onCustomSubmit) {
