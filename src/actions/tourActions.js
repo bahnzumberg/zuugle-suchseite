@@ -23,19 +23,23 @@ import {
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
 import i18next from 'i18next';
 
-
-//TODO:
+// do we REDO the import of language vars and pass it to loadList ?/ consider that loadList is used not only when using search bar but also in other list buildings.
+//TODO: #18
 // import i18next from "i18next"
 // Extract currLanguage from i18next (resolvedLanguage)
 // pass as parameter the variable currLanguage to loadList
 // next step: is inside crudActions folder / where the currLanguage is passed to the fucntion loadList
 export function loadTours(data = {}) {
     const language = i18next.resolvedLanguage;
-    console.log("from loadTours/ tourActions : language :",language)
+    // console.log("from loadTours/ tourActions : language :",language)
 
-    // console.log("tourActions, LoadTours L26 :", data)
+    console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
+        //clgs
+        // console.log("loadTours -> LOAD_TOURS :", LOAD_TOURS);
+        // console.log("loadTours -> data :", data);
+        // console.log("loadTours -> language :", language);
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
@@ -68,7 +72,7 @@ export function loadTourConnections(data) {
     // console.log("tourActions, loadTourConnections L55 :", data)
     const language = i18next.resolvedLanguage;
 
-    console.log("from loadTourConnections/ tourActions : language :",language)
+    // console.log("from loadTourConnections/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
@@ -78,7 +82,7 @@ export function loadTourConnections(data) {
 export function loadTourConnectionsExtended(data) {
     // console.log("tourActions, loadTourConnectionsExtended L63 :", data)
     const language = i18next.resolvedLanguage;
-    console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
+    // console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);;
@@ -88,7 +92,7 @@ export function loadTourConnectionsExtended(data) {
 export function loadFavouriteTours(data = {}) {
     // console.log("tourActions, loadFavouriteTours L71 :", data)
     const language = i18next.resolvedLanguage;
-    console.log("from loadFavouriteTours/ tourActions : language :",language)
+    // console.log("from loadFavouriteTours/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
         return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false, undefined, language);
