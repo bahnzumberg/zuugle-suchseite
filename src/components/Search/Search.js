@@ -1,15 +1,12 @@
 import * as React from "react"
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid"
-// import Button from "@mui/material/Button"
 import { loadFavouriteTours, loadTours } from "../../actions/tourActions"
 import { compose } from "redux"
 import { connect } from "react-redux"
 import { loadCities } from "../../actions/cityActions"
 import { Fragment, useEffect, useState } from "react"
-// import CityInput from "./CityInput"
 import { loadRegions } from "../../actions/regionActions"
-// import RegionInput from "./RegionInput"
 import { useSearchParams } from "react-router-dom"
 import {
     // isResponsive,
@@ -18,16 +15,15 @@ import {
 } from "../../utils/globals"
 import { useNavigate } from "react-router"
 import { hideModal, showModal } from "../../actions/modalActions"
-// import { CityResultList } from "./CityResultList"
 import FullScreenCityInput from "./FullScreenCityInput"
-// import { RegionResultList } from "./RegionResultList"
-import FullScreenRegionInput from "./FullScreenRegionInput"
-import { useTranslation } from "react-i18next"
+import { useTranslation} from "react-i18next";
+import i18next from 'i18next';
 import FilterIcon from "../../icons/FilterIcon"
 import SearchIcon from "../../icons/SearchIcon"
 import IconButton from "@mui/material/IconButton"
 import GoIcon from "../../icons/GoIcon"
-import TextInput from "../TextInput"
+
+
 
 export function Search({
     loadRegions,
@@ -45,20 +41,49 @@ export function Search({
     // isCityLoading,
     // loadFavouriteTours,
 }) {
+    // Translation 
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    // let [language,setLanguage]= useState(i18next.resolvedLanguage);
+    let language = i18next.resolvedLanguage
+    
+    //initialise
+    const [placeholder, setPlaceholder]= useState(t("start.suche"));
+    useEffect(() => {
+        setPlaceholder(t("start.suche"));
+    }, [language]);
+    
+
+    // console.log("Search arguments received: "); // output 
+    // console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
+    // console.log("Search arguments : loadTours", loadTours); //(...args) => dispatch(actionCreator(...args));
+    // console.log("Search arguments , goto value :", goto); //     '/suche'
+    // console.log("Search arguments : isMain", isMain);  //undefined
+    // console.log("Search arguments : showModal", showModal);//(...args) => dispatch(actionCreator(...args));
+    // console.log("Search arguments : hideModal ", hideModal);//(...args) => dispatch(actionCreator(...args));
+    // console.log("Search arguments : allCities ", allCities[0]); //{value: 'amstetten', label: 'Amstetten'}
+    // console.log("Search arguments : isMapView ", isMapView); // undefined
     const [searchParams, setSearchParams] = useSearchParams()
-    const [cityInput, setCityInput] = useState("")
-    const [regionInput, setRegionInput] = useState("")
+    const [cityInput, setCityInput] = useState("");
+    const [regionInput, setRegionInput] = useState('');
     const [city, setCity] = useState(null)
-    // const [openCitySearch, setOpenCitySearch] = useState(false)
     const [region, setRegion] = useState(null)
-    // const [openRegionSearch, setOpenRegionSearch] = useState(false)
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
 
-    const navigate = useNavigate()
-    const { t } = useTranslation()
+    const handleFocus = () => {
+        setRegionInput('');
+        setPlaceholder('');
+    };
+    
+    const handleBlur = () => {
+        setRegionInput('');
+        setPlaceholder(t("start.suche"));
+    };
+
 
     useEffect(() => {
+        // pull out values from URL params 
         let city = searchParams.get("city")
         let range = searchParams.get("range")
         let state = searchParams.get("state")
@@ -69,15 +94,27 @@ export function Search({
         let orderId = searchParams.get("sort")
         let provider = searchParams.get("p")
 
-        if (!!city && !!allCities) {
-            const cityEntry = allCities.find((e) => e.value == city)
-            if (!!cityEntry) {
-                setCityInput(cityEntry.label)
-                setCity(cityEntry)
-                writeCityToLocalStorage(city)
+        // clgs : 
+        // only the following have actually changed , not necessarily in same instant : "city", "range", "orderId", "filter", rest remained null
+        //console.log("searchParams ", JSON.stringify(searchParams)); //output:  searchParams  {};
+        // console.log("city", city);
+        // console.log("range", range);
+        // console.log("state", state);
+        // console.log("country", country);
+        // console.log("type", type);
+        // console.log("search", search);
+        // console.log("filter", filter);
+        // console.log("orderId", orderId);
+        // console.log("provider", provider);
+        if (!!city && !!allCities) {  // if a city was passed in url params AND list of all cities is available as argument to Search then :
+            const cityEntry = allCities.find((e) => e.value == city) ; // find the city object with the specified city name from the array "allCities"
+            if (!!cityEntry) {   // if you found the object of city e.g. {value: 'amstetten', label: 'Amstetten'}              
+                setCityInput(cityEntry.label);  // set the state "cityInput" to this city LABEL only
+                setCity(cityEntry) ;     // set the state "city" to this city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
+                writeCityToLocalStorage(city) ;  // store the city NAME in local storage
 
                 /** load regions initially */
-                loadRegions({ city: city })
+                loadRegions({ city: city });
             }
         }
 
@@ -85,10 +122,15 @@ export function Search({
             searchParams.set("sort", "relevanz")
             setSearchParams(searchParams)
         }
-        // console.log( "serachParams L: 65:", searchParams);
+
         if (!!range) {
+            console.log("Search : region in useEffect : " + range)
             setRegionInput(range)
             setRegion({ value: range, label: range, type: "range" })
+        }
+
+        if (!!search) {
+            setRegionInput(search)
         }
 
         if (!!state) {
@@ -106,9 +148,8 @@ export function Search({
             setRegion({ value: type, label: type, type: "type" })
         }
 
-        if (!!search) {
-            setRegionInput(search)
-        }
+        // console.log("Search...Region inside useEffect :", region);
+        // console.log("Search...search inside useEffect :", search);
 
         //return if start page - no load
         if (!!!isMain) {
@@ -126,6 +167,20 @@ export function Search({
                 ignore_filter: true,
             }
         }
+        //clgs
+        // console.log("city", city);
+        // console.log("range", range);
+        // console.log("state", state);
+        // console.log("country", country);
+        // console.log("type", type);
+        // console.log("search", search);
+        // console.log("filter", filter);
+        // console.log("orderId", orderId);
+        // console.log("provider", provider);
+        for (const entry of searchParams.entries()) {
+            console.log("searchParams entries : ",entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+        }
+
         loadTours({
             city: city,
             range: range,
@@ -137,18 +192,20 @@ export function Search({
             sort: orderId,
             provider: provider,
             map: searchParams.get("map"),
-        })
-    }, [
+        });
+
+    }, [ // useEffect dependencies
         searchParams && searchParams.get("city"),
         searchParams && searchParams.get("filter"),
         searchParams && searchParams.get("sort"),
         searchParams && searchParams.get("search"),
-        searchParams && searchParams.get("type"),
+        searchParams && searchParams.get("type"), 
         searchParams && searchParams.get("sort"),
         searchParams && searchParams.get("range"),
         searchParams && searchParams.get("map"),
         searchParams && searchParams.get("p"),
     ])
+    // end useEffect
 
     const writeCityToLocalStorage = (city) => {
         localStorage.setItem("city", city)
@@ -202,27 +259,31 @@ export function Search({
         values.provider = searchParams.get("p")
 
         searchParams.delete("filter")
-
+        // console.log("PART I / searchParams.get('search')", searchParams.get("search"))
         setOrRemoveSearchParam(searchParams, "city", values.city)
         setOrRemoveSearchParam(searchParams, "range", values.range)
+        setOrRemoveSearchParam(searchParams, "search", values.search)
         setOrRemoveSearchParam(searchParams, "state", values.state)
         setOrRemoveSearchParam(searchParams, "country", values.country)
         setOrRemoveSearchParam(searchParams, "type", values.type)
-        setOrRemoveSearchParam(searchParams, "search", values.search)
-
+        
         setSearchParams(searchParams)
-        for (const entry of searchParams.entries()) {
-            // console.log(entry);
-        }
-        // console.log("You are here, 195")
+        // console.log("PART II / searchParams.get('search')", searchParams.get("search"))
+        //clg
+        // for (const entry of searchParams.entries()) {
+        //     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+        // }
         if (!!goto) {
+            // clg
+            // console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
             navigate(goto + "?" + searchParams)
         } else {
+            console.log("values passed to loadTours :", values)
             loadTours(values).then((res) => {
                 window.scrollTo({ top: 0 })
             })
         }
-    }
+    }  // end search()
 
     const toggleFilter = () => {
         // code goes here for filter overlay
@@ -256,27 +317,27 @@ export function Search({
         })
     }
 
-    const showRegionInput = () => {
-        showModal("MODAL_COMPONENT", {
-            CustomComponent: FullScreenRegionInput,
-            searchParams,
-            initialRegion: regionInput,
-            onSelect: (region) => {
-                hideModal()
-                if (!!region) {
-                    setRegionInput(region.value)
-                    setRegion(region)
-                    search(region)
-                }
-            },
-            setSearchParams,
-            title: "",
-            modalSize: "lg",
-            onBack: () => {
-                hideModal()
-            },
-        })
-    }
+    // const showRegionInput = () => {
+    //     showModal("MODAL_COMPONENT", {
+    //         CustomComponent: FullScreenRegionInput,
+    //         searchParams,
+    //         initialRegion: regionInput,
+    //         onSelect: (region) => {
+    //             hideModal()
+    //             if (!!region) {
+    //                 setRegionInput(region.value)
+    //                 setRegion(region)
+    //                 search(region)
+    //             }
+    //         },
+    //         setSearchParams,
+    //         title: "",
+    //         modalSize: "lg",
+    //         onBack: () => {
+    //             hideModal()
+    //         },
+    //     })
+    // }
 
     // const onCustomRegionSubmit = () => {
     //     setOpenRegionSearch(false)
@@ -294,125 +355,146 @@ export function Search({
     // }
 
     return (
-        <Fragment>
-            <Box>
-                <Grid
-                    container
-                    display={"flex"}
-                    justifyContent={"center"}
-                    alignContent={"center"}
-                    alignItems={"center"}
+      <Fragment>
+        <Box>
+          <Grid
+            container
+            display="flex"
+            justifyContent="center"
+            alignContent="center"
+            alignItems="center"
+          >
+            <Grid item>
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <SearchIcon
+                  style={{
+                    strokeWidth: 0.5,
+                    stroke: "#8B8B8B",
+                    fill: "#8B8B8B",
+                  }}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs>
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <span
+                  className={`search-bar--region__${
+                    regionInput ? "selection" : "default"
+                  }`}
                 >
-                    <Grid item onClick={showRegionInput}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <SearchIcon
-                                style={{
-                                    strokeWidth: 0.5,
-                                    stroke: "#8B8B8B",
-                                    fill: "#8B8B8B",
-                                }}
-                            />
-                        </Box>
-                    </Grid>
-                    <Grid item xs onClick={showRegionInput}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <span
-                                className={`search-bar--region__${
-                                    regionInput ? "selection" : "default"
-                                }`}
-                            >
-                                {regionInput
-                                    ? regionInput
-                                    : t("start.suche")}
-                            </span>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box className={"search-bar--divider"} />
-                    </Grid>
-                    <Grid item xs onClick={showCityModal}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <span className={"search-bar--city"}>
-                                {cityInput.length > 0
-                                    ? cityInput
-                                    : t("start.heimatbahnhof")}
-                            </span>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        {!!initialIsMapView ? null : (
-                            <Box>
-                                {!!isMain ? (
-                                    <IconButton
-                                        onClick={toggleFilter}
-                                        sx={
-                                            activeFilter
-                                                ? {
-                                                      padding: "6px",
-                                                      border: "2px solid",
-                                                      borderColor: "#FF7663",
-                                                      background: "#FF7663",
-                                                      "&:hover": {
-                                                          background: "#FF9885",
-                                                      },
-                                                  }
-                                                : {
-                                                      padding: "6px",
-                                                      border: "2px solid",
-                                                      borderColor: "#DDDDDD",
-                                                      "&:hover": {
-                                                          background: "#EEEEEE",
-                                                      },
-                                                  }
-                                        }
-                                    >
-                                        <FilterIcon
-                                            style={{
-                                                transform: "scale(0.675)",
-                                                stroke: activeFilter
-                                                    ? "white"
-                                                    : "#101010",
-                                                strokeWidth: 1.25,
-                                            }}
-                                        />
-                                    </IconButton>
-                                ) : (
-                                    <IconButton
-                                        onClick={() => search()}
-                                        sx={{
-                                            "&:hover": {
-                                                background: "#7aa8ff",
-                                                fill: "#7aa8ff",
-                                            },
-                                        }}
-                                    >
-                                        <GoIcon
-                                            style={{
-                                                transform: "scale(1.55)",
-                                                strokeWidth: 0,
-                                            }}
-                                        />
-                                    </IconButton>
-                                )}
-                            </Box>
-                        )}
-                    </Grid>
-                </Grid>
-            </Box>
-        </Fragment>
-    )
+                </span>
+              </Box>
+              <Box>
+                <input
+                    value={regionInput}
+                    onChange={(e) => setRegionInput(e.target.value)}
+                    onFocus={(e) => handleFocus(e)} // Clear the input value when focused
+                    onBlur={(e) => handleBlur(e)}
+                    // onBlur={handleBlur}
+                    placeholder= {placeholder}
+                    style={{
+                        border: 'none',
+                        width: '243.5px',
+                        height: '23px',
+                        fontFamily: 'Open Sans',
+                        fontStyle: 'normal',
+                        fontWeight: '1000',
+                        fontSize: '16px',
+                        lineHeight: '23px',
+                        outline: 'none',
+                        /* identical to box height, or 142% */
+
+                        textAlign: 'center',
+                        letterSpacing: '-0.01em',
+
+                        color: '#000000',
+                    }}
+                    // style={{
+                    //     backgroundColor: 'transparent',
+                    //     border: 'none',
+                    //     color: '#8b8b8b',
+                    //     fontSize: '14px',
+                    //     flex: 1,
+                    //     outline: 'none'
+                    // }}
+                />
+             </Box>  
+            </Grid>
+
+            <Grid item>
+              <Box className="search-bar--divider" />
+            </Grid>
+
+
+
+
+            <Grid item xs onClick={showCityModal}>
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <span className="search-bar--city">
+                  {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
+                </span>
+              </Box>
+            </Grid>
+            <Grid item>
+              {!!initialIsMapView ? null : (
+                <Box>
+                  {!!isMain ? (
+                    <IconButton
+                      onClick={toggleFilter}
+                      sx={
+                        activeFilter
+                          ? {
+                              padding: "6px",
+                              border: "2px solid",
+                              borderColor: "#FF7663",
+                              background: "#FF7663",
+                              "&:hover": {
+                                background: "#FF9885",
+                              },
+                            }
+                          : {
+                              padding: "6px",
+                              border: "2px solid",
+                              borderColor: "#DDDDDD",
+                              "&:hover": {
+                                background: "#EEEEEE",
+                              },
+                            }
+                      }
+                    >
+                      <FilterIcon
+                        style={{
+                          transform: "scale(0.675)",
+                          stroke: activeFilter ? "white" : "#101010",
+                          strokeWidth: 1.25,
+                        }}
+                      />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      onClick={() => search()}
+                      sx={{
+                        "&:hover": {
+                          background: "#7aa8ff",
+                          fill: "#7aa8ff",
+                        },
+                      }}
+                    >
+                      <GoIcon
+                        style={{
+                          transform: "scale(1.55)",
+                          strokeWidth: 0,
+                        }}
+                      />
+                    </IconButton>
+                  )}
+                </Box>
+              )}
+            </Grid>
+          </Grid>
+        </Box>
+      </Fragment>
+    );
 }
 
 const mapDispatchToProps = {
