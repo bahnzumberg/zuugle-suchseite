@@ -47,6 +47,8 @@ function FullScreenRegionInput({
     return (
         <Box>
             <Box sx={{ padding: "20px" }}>
+                {console.log("FSRI / regionInput :", regionInput) }
+                {console.log("FSRI / city :", city) }
                 <RegionInput
                     region={regionInput}
                     setRegion={(value) =>
@@ -56,9 +58,10 @@ function FullScreenRegionInput({
                     city={city}
                     setOpenRegionSearch={setOpenRegionSearch}
                     resetInput={resetRegionInput}
+                    searchParams={searchParams}
                 />
             </Box>
-            <Box className={"result-container"}>
+            {/* <Box className={"result-container"}>
                 <RegionResultList
                     regions={regions}
                     setRegion={setRegion}
@@ -69,7 +72,7 @@ function FullScreenRegionInput({
                     searchParams={searchParams}
                     setSearchParams={setSearchParams}
                 />
-            </Box>
+            </Box> */}
         </Box>
     )
 }
