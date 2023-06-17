@@ -9,6 +9,7 @@ import rootReducer from "./rootReducer";
 import { Helmet } from 'react-helmet';
 import { Provider } from 'react-redux';
 import "./translations/i18n";
+import {BrowserRouter} from "react-router-dom";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(
@@ -45,7 +46,9 @@ root.render(
             />
         </Helmet>
       </div>
-      <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </Provider>
   </React.StrictMode>
 );
