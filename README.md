@@ -1,6 +1,6 @@
-# this is a branch from 'basis-new-uix-tour-detail'
+# This is the updated 'basis-new-uix-tour-detail'
 # what is new here:
- working on issue #18: log menu_lang and country_code
+ 
 
 # zuugle.at Suchseite
 ## Erstinstallation
