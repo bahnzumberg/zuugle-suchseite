@@ -77,7 +77,6 @@ export function Search({
     };
     
     const handleBlur = () => {
-        setRegionInput('');
         setPlaceholder(t("start.suche"));
     };
 
@@ -181,6 +180,7 @@ export function Search({
             console.log("searchParams entries : ",entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
         }
 
+        // let result = loadTours({
         loadTours({
             city: city,
             range: range,
@@ -193,6 +193,9 @@ export function Search({
             provider: provider,
             map: searchParams.get("map"),
         });
+        // result.then((resolvedValue) => {
+        //     console.log("result of load Tours", resolvedValue);
+        // });
 
     }, [ // useEffect dependencies
         searchParams && searchParams.get("city"),
