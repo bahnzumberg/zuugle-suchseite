@@ -274,13 +274,6 @@ const listWrapper = async (req, res) => {
     //describe: logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
     try {
-<<<<<<< HEAD
-        let searchparam = '';
-        if (search !== undefined) { 
-            searchparam = search.replace("'",'"'); 
-            const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', 'de', '${get_domain_country(domain)}');`;
-            await knex.raw(sql);
-=======
         // Jetzt loggen wir diese query noch schnell für später
 
         let searchparam = '';  
@@ -302,7 +295,6 @@ const listWrapper = async (req, res) => {
                 //console.log(" sql :" + sql)
                 await knex.raw(sql);
             }
->>>>>>> basis-new-issue-#18
         };
     } catch(e){
         console.error('error inserting into logsearchphrase: ', e);
