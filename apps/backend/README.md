@@ -1,5 +1,7 @@
 # zuugle.at API
-
+# this is a branch from 'basis-new-uix-tour-detail'
+# what is new here:
+ working on issue #18: log menu_lang and country_code
 
 ## Erstinstallation
 Im Projekt-Verzeichnis 

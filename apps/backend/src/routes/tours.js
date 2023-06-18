@@ -32,7 +32,7 @@ const totalWrapper = async (req, res) => {
 }
 
 //description
-//The getWrapper function in tours.js is responsible for handling GET requests to retrieve information about a specific tour. It receives the request object and response object as parameters, extracts the city, id, and domain query parameters from the request, and uses the id parameter to query the tour table in the database using Knex. If the id exists, it then calls the prepareTourEntry function to prepare the tour entry with additional information (such as pricing and availability) and sends the entry as a JSON response. If the id doesn't exist, it sends a 404 error response.
+//The getWrapper function in tours.js is responsible for handling GET requests to retrieve information about a specific tour. It receives the request object and response object as parameters, extracts the city, id, and domain query parameters from the request, and uses the id parameter to query the tour table in the database using Knex. If the id exists, it then calls the prepareTourEntry function to prepare the tour entry with additional information and sends the entry as a JSON response. If the id doesn't exist, it sends a 404 error response.
 const getWrapper = async (req, res) => {
     // req && console.log("Request / getWrapper L35 :");
     // req && console.log("req.body/ getWrapper L36 :", req.body);
@@ -50,16 +50,21 @@ const getWrapper = async (req, res) => {
     }
 }
 //Brief Summery :
-// listWrapper takes two parameters, req and res. Based on the properties of the req object, the function generates a query to a database (using the Knex.js library) and returns the results in the res object.
+// listWrapper takes req and res. Based on the properties of the req object, the function generates a query to a database (using the Knex.js library) and returns the results in the res object.
 //Detailed summery:
 //The function retrieves various parameters from the req object, including search, ranges, city, range, state, country, type, sort, page, domain, and provider. It also sets various variables based on these parameters, such as showRanges, map, useOrderBy, useLimit, and addDetails.
 // The function then sets up a database query using the knex object, based on the various parameters passed in through the req object. It also sets up a count query to determine the total number of results. The where variable is used to build the query filter, based on the city, range, state, country, and type parameters. The whereRaw variable is used to specify a raw SQL query string that can be used to filter results based on more complex criteria.
 // Finally, the function generates an orderBy clause for the query based on the sort parameter. This allows the user to specify the order in which the results are returned based on a variety of criteria. The listWrapper function then executes the query and returns the results in the res object.
 const listWrapper = async (req, res) => {
-    // console.log("tours L55: req.query at listWrapper  :" + JSON.stringify(req.query))
+    // console.log("req.query is : " + JSON.stringify(req.query));
+    // set current language 
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en';
+
+    // console.log("tours L59: req.query.currLanguage at listWrapper  :" + currLanguage); 
     // describe
     //extracting various query parameters from the request object using req.query method
     const search = req.query.search;
+    // console.log("req.query.search",req.query.search)
     const showRanges = !!req.query.ranges;
     const city = req.query.city;
     const range = req.query.range;
@@ -73,18 +78,11 @@ const listWrapper = async (req, res) => {
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
-    // let useOrderBy = !!!map;
-    // let useLimit = !!!map;
     let useLimit = !!!map;
-    if(!!!map) {
-        useLimit = true;
-    }else{
-        useLimit = false;
-    }
-    // console.log("useLimit: tours /listWrapper :" + useLimit);
+
     let addDetails = !!!map;
 
-    //describe:
+    //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
     let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
@@ -101,20 +99,20 @@ const listWrapper = async (req, res) => {
     //checking query parameters: city, range, state, country, type, and provider so we can add any necessary where conditions to the select statement.
     // where will be filled with the values of the following : range, state, country, type, and provider (all coming from the defined constants above) 
     let where = getWhereFromDomain(domain);
+    console.log("domain : " + domain);
+    // console.log("where value: " + JSON.stringify(where));
 
     //describe:
     //use a new variable whereRaw to define the where statments
     let whereRaw = null;
     
     /** city search */
-    //describe: 
     //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
     if(!!city && city.length > 0){
         whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
     }
 
     /** region search */
-    //describe: 
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
     if(!!range && range.length > 0){
         where.range = range;
@@ -127,7 +125,6 @@ const listWrapper = async (req, res) => {
     }
 
     /** type search */
-    //describe
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!type && type.length > 0){
         where.type = type;
@@ -138,33 +135,40 @@ const listWrapper = async (req, res) => {
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
-    }
-    // describe:
+    } 
+    /** fulltext search */
     // The next block of code builds an SQL query based on the user input and uses the where and whereRaw methods to add conditions to the query based on the user input. The query searches through the search_column for user input using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
     let order_by_rank = "";
-    //describe:
+    //describe: search
     //If the user has entered a value for search, the code sets the '_search' variable to a sanitized and formatted version of the user input.
+
     try {
-        /** fulltext search */
+        
+        //description
         // what is fulltext search ?: Full Text Searching (or just text search) provides the capability to identify natural-language documents that satisfy a query, and optionally to sort them by relevance to the query. The most common type of search is to find all documents containing given query terms and return them in order of their similarity to the query. source: https://www.postgresql.org/docs/current/textsearch-intro.html
         if(!!search && search.length > 0){
+            console.log(" L150/ search :", search)
             let _search = search.trim().toLowerCase();
             //describe: 
             //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
             //else, '_search' contains NO spaces: the same is repeated but with additional modifiers
             if(_search.indexOf(' ') > 0){
-                order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`
-                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`
+                order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
+                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
+                console.log("whereRaw / L161 :", whereRaw)
             }
             else {
                 order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
                 whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
+                console.log("whereRaw / L166 :", whereRaw)
             }
         }
     } catch(e){
         console.error('error creating fulltext search: ', e);
     }
-    //describe:
+
+
+    //describe: build "where" object
     //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
     // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
     // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
@@ -183,6 +187,7 @@ const listWrapper = async (req, res) => {
     //The buildWhereFromFilter function takes the query parameters and creates a where clause for the query. The true flag passed as the third parameter indicates that the function should create an exact match on the field names, rather than a partial match. The resulting where clause is then added to both the main query and the countQuery.
     query = buildWhereFromFilter(req.query, query, true);
     countQuery = buildWhereFromFilter(req.query, countQuery);
+    // console.log(" query value  L191: " + query);
     //describe:
     //if-else block checks for a specific orderId parameter, which is used to determine the order in which the results should be sorted. Depending on the value of orderId, the query is sorted using different fields and ordering directions. 
     // There are some special cases where additional ordering is done based on the city parameter, as well as conditions where the query is sorted based on a combination of different fields. Finally, a default sorting order is set if no orderId parameter is provided. 
@@ -203,7 +208,8 @@ const listWrapper = async (req, res) => {
         if(!!req.query.city){
             query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${req.query.city}'->>'total_tour_duration')::float ASC`).orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
         } else {
-            query = query.orderBy("number_of_days", 'asc').query.orderBy("duration", 'asc');
+            query = query.orderBy("number_of_days", 'asc').orderBy("duration", 'asc');
+            // query = query.orderBy("number_of_days", 'asc').query.orderBy("duration", 'asc');
         }
 
     } else if(!!orderId && orderId == "anfahrtszeit"){
@@ -239,36 +245,75 @@ const listWrapper = async (req, res) => {
     // After the sorting order is applied, the query is further ordered by ID % date_part('day', NOW() )::INTEGER ASC. This orders the results by the remainder of the ID when divided by the number of days since the epoch, effectively shuffling the results.
     query = query.orderByRaw(`ID % date_part('day', NOW() )::INTEGER ASC`);
 
-    // console.log('query: ', query.toQuery());
+    
 
     /** set limit to query */
-    //describe :
     // a limit and offset are applied to the query if the useLimit flag is set to true. The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
     if(!!useLimit){
-        // page? console.log("page at useLimit L233:",page) : console.log("page is falsy");
+        //clg
+        // page? console.log("page at useLimit L252:",page) : console.log("page is falsy");
         query = query.limit(9).offset(9 * (page - 1));
     }
+
+    //clg: query
+    console.log('    ');
+    console.log('L 259/ query: ', query.toQuery());
+    console.log('    ');
 
     let result = await query;
     let count = await countQuery.first();
 
-    //describe:
+    // clg: tour ids
+    console.log("Result tour.ids: ")
+    result.map((tour) => {
+        // console.log("id : " + tour.id);
+    })
+    console.log()
+
+
+    //describe: logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
     try {
+<<<<<<< HEAD
         let searchparam = '';
         if (search !== undefined) { 
             searchparam = search.replace("'",'"'); 
             const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', 'de', '${get_domain_country(domain)}');`;
             await knex.raw(sql);
+=======
+        // Jetzt loggen wir diese query noch schnell für später
+
+        let searchparam = '';  
+        console.log("283: search : ", search) // 
+
+        // search = phrase in the DB, value must be collected from the client before we reach this step
+        if (search !== undefined) {  // also if previous search item is different than this one ?
+            searchparam = search;
+
+            //if (search == undefined) searchparam = "LOCAL TEST-120623" // this assignment is for testing purposes
+            // console.log("domain :" + get_domain_country(domain))
+            // console.log("searchparam :" + (searchparam))
+            // console.log("req.query.city :" + (req.query.city))
+            // console.log("count['count'] :" + (count['count']))
+
+            // searchparam = search.replace("'",'"')  // step is a must when we receive the value of search
+            if(!!count['count'] && count['count'] > 0){
+                const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
+                //console.log(" sql :" + sql)
+                await knex.raw(sql);
+            }
+>>>>>>> basis-new-issue-#18
         };
     } catch(e){
         console.error('error inserting into logsearchphrase: ', e);
     }
-    //describe: 
-    //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by prepareTourEntry to resolve before returning the final result array.
+    
+    //describe: preparing tour entries 
+    //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
     await Promise.all(result.map(entry => new Promise(async resolve => {
         entry = await prepareTourEntry(entry, city, domain, addDetails);
         entry.is_map_entry = !!map;
+        console.log("309: entry.id :",entry.id);
         resolve(entry);
     })));
 
@@ -400,10 +445,6 @@ const filterWrapper = async (req, res) => {
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
 
-
-// const getNextConnectionFromTour = async (tour, city, datum) => {
-//    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city});
-// }
 
 const connectionsWrapper = async (req, res) => {
     const id = req.params.id;
@@ -797,7 +838,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
         // console.log("L774 params.children :", params.filter.children);     
         // console.log("L774 params.traverse :", params.filter.traverse);     
     }
-    // console.log("L775 query :", query);     
+    // console.log("L835 query :", query);     
     
     if(!!!params.filter ) return query;
     
@@ -805,13 +846,12 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // check if params.filter contains ONLY a key/value pair {ignore_filter : 'true'}
     let filterIgnored = Object.keys(params.filter).length === 1 && params.filter['ignore_filter'] === 'true'
     //clg:
-        // console.log("L786: filterIgnored :", filterIgnored)
+    // console.log("L786: filterIgnored :", filterIgnored)
 
     if(filterIgnored ) return query;
 
 
-    // !!query && console.log("L787 query still with us not returned yet")
-    // console.log("L787 query still with us not returned yet")
+    // !!query && console.log("L848 query still with us not returned yet")
 
     let filter ;
     if(typeof(params.filter) === 'string') {
@@ -932,7 +972,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
 
       const nullEntry = newRanges.find((r) => r == "Keine Angabe");
-    //   console.log("nullEntry:", nullEntry)
+      //console.log("nullEntry:", nullEntry)
       let _ranges = newRanges.map((r) => "'" + r + "'");
       if (!!nullEntry) {
         query = query.whereRaw(
@@ -966,10 +1006,10 @@ const buildWhereFromFilter = (params, query, print = false) => {
   } catch (error) {
     console.log("error :", error.message);
   }
-//   console.log("returned query values:", query);
-//         console.log(query.toSQL().sql)
-        // const { sql, bindings } = query.toSQL();
-        // console.log(sql, bindings);
+    console.log("returned query values:", query);
+    console.log(query.toSQL().sql)
+    const { sql, bindings } = query.toSQL();
+    console.log(sql, bindings);
 
   return query;
 };

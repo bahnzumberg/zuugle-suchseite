@@ -10,11 +10,11 @@ const path = require('path');
 import pLimit from 'p-limit';
 
 export async function fixTours(){
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE 'text_lang'='de';`);
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE 'text_lang'='en';`);
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE 'text_lang'='it';`);
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE 'text_lang'='sl';`);
-    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE 'text_lang'='fr';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
+    await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
     // Is there an advantage in setting the full_text to ''? I do not know. Trying it.
     // await knex.raw(`UPDATE tour SET full_text = '';`);
