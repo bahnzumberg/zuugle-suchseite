@@ -1,7 +1,9 @@
 # zuugle.at API
-# this is a branch from 'basis-new-uix-tour-detail'
+    this is a branch from 'dev-drop-slovenia'
 # what is new here:
- working on issue #18: log menu_lang and country_code
+    working on issue #10: Multi language search backend
+    see file tours.js top remarks
+
 
 ## Erstinstallation
 Im Projekt-Verzeichnis 
