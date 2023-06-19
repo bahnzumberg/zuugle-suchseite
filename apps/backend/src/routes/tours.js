@@ -1,3 +1,10 @@
+// related to issue#10 : 
+// changes in the search queries as follows:
+//   Initialize the rank_xy with 1
+//   Set the TLD assotiated rank_xy with 10
+//   Set the menu_lang rank_xy with 100
+// the query model to build from is post line 1186 below
+
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
@@ -5,7 +12,7 @@ import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country} from "../utils/utils";
+import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, initializeLanguageRanks, getAllLanguages} from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 const fs = require('fs');
 const path = require('path');
@@ -142,12 +149,74 @@ const listWrapper = async (req, res) => {
     //describe: search
     //If the user has entered a value for search, the code sets the '_search' variable to a sanitized and formatted version of the user input.
 
+    // try {
+        
+    //     //description
+    //     // what is fulltext search ?: Full Text Searching (or just text search) provides the capability to identify natural-language documents that satisfy a query, and optionally to sort them by relevance to the query. The most common type of search is to find all documents containing given query terms and return them in order of their similarity to the query. source: https://www.postgresql.org/docs/current/textsearch-intro.html
+    //     if(!!search && search.length > 0){
+    //         console.log(" L157/ search :", search)
+    //         console.log("domain : ", domain) //
+    //         console.log("Languages of domain ", get_country_lanuage_from_domain(domain))
+
+    //         let _search = search.trim().toLowerCase();
+    //         //describe: 
+    //         //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
+    //         //else, '_search' contains NO spaces: the same is repeated but with additional modifiers
+    //         if(_search.indexOf(' ') > 0){
+    //             order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
+    //             whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
+    //             console.log("whereRaw / L161 :", whereRaw)
+    //         }
+    //         else {
+    //             order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
+    //             whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
+    //             console.log("whereRaw / L166 :", whereRaw)
+    //         }
+    //     }
+    // } catch(e){
+    //     console.error('error creating fulltext search: ', e);
+    // }
+
     try {
         
         //description
         // what is fulltext search ?: Full Text Searching (or just text search) provides the capability to identify natural-language documents that satisfy a query, and optionally to sort them by relevance to the query. The most common type of search is to find all documents containing given query terms and return them in order of their similarity to the query. source: https://www.postgresql.org/docs/current/textsearch-intro.html
         if(!!search && search.length > 0){
-            console.log(" L150/ search :", search)
+            console.log(" L157/ search :", search)
+            // get language of TLD, returned is an aray of strings
+            // const tldLangArray = get_country_lanuage_from_domain(domain);
+            const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.it/");
+            console.log("tldLangArray : ", tldLangArray);
+            console.log("currLnaguage : ", currLanguage);
+
+            // get array of ALL languages
+            const allLangs = getAllLanguages();
+            // initialize the language Ranks 
+            let initialLangRanks = initializeLanguageRanks();
+            // desired effect : menuLang = "en" and .AT then newRanks = [{ "de": 10}, { "en": 100}, { "it": 1}, { "fr": 1}, {"sl": 1}]
+            let newRanks = initialLangRanks;// newRanks :  [ { en: 1 }, { de: 1 }, { fr: 1 }, { it: 1 }, { sl: 1 } ] 
+            allLangs.map((lang) =>{
+                let rank = 1;
+                console.log("lang :", lang);
+                console.log("newRanks, first take : ", newRanks);
+                if (tldLangArray.includes(lang)) rank = 10; // if this is the TLD language pass a 10
+                console.log("Rank step 1 : ", rank);
+                if (lang === currLanguage) rank = 100; // if it is even a menu language then pass 100
+                console.log("Rank step 2 : ", rank);
+                // map over the new ranks and find each 
+                newRanks = newRanks.map(obj => {
+                    console.log("lang inside map object : ", lang);
+                    console.log("obj inside map object : ", obj);
+                    if (obj.hasOwnProperty(lang)) {
+                        return { [lang]: rank };
+                    }
+                    return obj;
+                });
+                console.log("L 209 , newRanks final : ", newRanks);
+               
+            });
+            // newRanks :  [ { en: 1 }, { de: 1 }, { fr: 1 }, { it: 1 }, { sl: 1 }, de: 10 ]
+            // newRanks[sl] :, undefined
             let _search = search.trim().toLowerCase();
             //describe: 
             //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
@@ -264,7 +333,7 @@ const listWrapper = async (req, res) => {
     let count = await countQuery.first();
 
     // clg: tour ids
-    console.log("Result tour.ids: ")
+    // console.log("Result tour.ids: ")
     result.map((tour) => {
         // console.log("id : " + tour.id);
     })
@@ -279,7 +348,6 @@ const listWrapper = async (req, res) => {
         let searchparam = '';  
         console.log("283: search : ", search) // 
 
-        // search = phrase in the DB, value must be collected from the client before we reach this step
         if (search !== undefined) {  // also if previous search item is different than this one ?
             searchparam = search;
 
@@ -1181,3 +1249,98 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 }
 
 export default router;
+
+
+//SELECT
+// o."id",
+// o."url",
+// o."provider",
+// o."hashed_url",
+// o."description",
+// o."image_url",
+// o."ascent",
+// o."descent",
+// o."difficulty",
+// o."difficulty_orig",
+// o."duration",
+// o."distance",
+// o."title",
+// o."type",
+// o."children",
+// o."number_of_days",
+// o."traverse",
+// o."country",
+// o."state",
+// o."range_slug",
+// o."range",
+// o."season",
+// o."month_order",
+// o."country_at",
+// o."country_de",
+// o."country_it",
+// o."country_ch",
+// o."country_si",
+// o."country_fr",
+// o."publishing_date",
+// o."quality_rating",
+// o."user_rating_avg",
+// o."cities",
+// o."cities_object",
+// o."max_ele"
+// FROM (
+
+// SELECT
+// i1.,
+// ts_rank(i1.search_column, websearch_to_tsquery('english', '"schneeberg" schneeberg:') ) * {rank_en} as result_rank
+// FROM tour AS i1
+// WHERE i1.text_lang='en'
+// AND i1."country_at" = true and i1.cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND i1.search_column @@ websearch_to_tsquery('english', '"schneeberg" schneeberg:*')
+
+// UNION
+
+// SELECT
+// i2.,
+// ts_rank(i2.search_column, websearch_to_tsquery('german', '"schneeberg" schneeberg:') ) * {rank_de} as result_rank
+// FROM tour AS i2
+// WHERE i2.text_lang='de'
+// AND i2."country_at" = true and i2.cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND i2.search_column @@ websearch_to_tsquery('german', '"schneeberg" schneeberg:*')
+
+// UNION
+
+// SELECT
+// i3.,
+// ts_rank(i3.search_column, websearch_to_tsquery('french', '"schneeberg" schneeberg:') ) * {rank_fr} as result_rank
+// FROM tour AS i3
+// WHERE i3.text_lang='fr'
+// AND i3."country_at" = true and i3.cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND i3.search_column @@ websearch_to_tsquery('french', '"schneeberg" schneeberg:*')
+
+// UNION
+
+// SELECT
+// i4.,
+// ts_rank(i4.search_column, websearch_to_tsquery('italian', '"schneeberg" schneeberg:') ) * {rank_it} as result_rank
+// FROM tour AS i4
+// WHERE i4.text_lang='it'
+// AND i4."country_at" = true and i4.cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND i4.search_column @@ websearch_to_tsquery('italian', '"schneeberg" schneeberg:*')
+
+// UNION
+
+// SELECT
+// i5.,
+// ts_rank(i5.search_column, websearch_to_tsquery('simple', '"schneeberg" schneeberg:') ) * {rank_sl} as result_rank
+// FROM tour AS i5
+// WHERE i5.text_lang='sl'
+// AND i5."country_at" = true and i5.cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND i5.search_column @@ websearch_to_tsquery('simple', '"schneeberg" schneeberg:*')
+
+// UNION
+
+// ) AS o
+
+// order by o."month_order" asc, o.result_rank DESC, o.traverse DESC, FLOOR((o.cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, o.ID % date_part('day', NOW() )::INTEGER ASC
+
+// limit 9 offset 9
