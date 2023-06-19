@@ -39,6 +39,21 @@ export function get_domain_country(domain) {
     }
 }
 
+export function get_country_lanuage_from_domain(domain) {
+
+    if (domain.indexOf("zuugle.ch") >= 0){
+        return ["de","fr","it"];
+    } else if(domain.indexOf("zuugle.it") >= 0){
+        return ["it"]; 
+    } else if(domain.indexOf("zuugle.si") >= 0){
+        return ["sl"];
+    } else if(domain.indexOf("zuugle.fr") >= 0){
+        return ["fr"];
+    } else {
+        return ["de"];   // for both TLDs .at and .de 
+    }
+}
+
 export function formatTime(date){
     return !!date ? moment(date).format("HH:mm") : undefined;
 }
@@ -118,4 +133,18 @@ export const replaceFilePath = (filePath) => {
         return filePath;
     }
     return (""+filePath).split("\\").join("/");
+}
+
+export const initializeLanguageRanks = () => {
+    return [
+        {'en' : 1},
+        {'de' : 1},
+        {'fr' : 1},
+        {'it' : 1},
+        {'sl' : 1}
+    ]
+}
+
+export const getAllLanguages = () => {
+    return ["en", "de", "it", "fr", "sl"]
 }
