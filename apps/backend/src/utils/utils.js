@@ -111,17 +111,17 @@ export const getWhereFromDomain = (domain) => {
 }
 
 export const getTldFromDomain = (domain) => {
-    if(domain.indexOf('zuugle.at') >= 0){
+    if(!!domain && domain.indexOf('zuugle.at') >= 0){
         return "AT";
-    } else if(domain.indexOf('zuugle.de') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.de') >= 0){
         return "DE";
-    } else if(domain.indexOf('zuugle.ch') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.ch') >= 0){
         return "CH";
-    } else if(domain.indexOf('zuugle.it') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.it') >= 0){
         return "IT";
-    } else if(domain.indexOf('zuugle.si') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
         return "SI";
-    } else if(domain.indexOf('zuugle.fr') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
         return "FR";
     } else {
         return "AT";
