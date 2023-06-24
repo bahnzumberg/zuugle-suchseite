@@ -12,7 +12,7 @@ import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, initializeLanguageRanks, getAllLanguages} from "../utils/utils";
+import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, initializeLanguageRanks, getAllLanguages, getSearchSelects} from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 const fs = require('fs');
 const path = require('path');
@@ -63,24 +63,23 @@ const getWrapper = async (req, res) => {
 // The function then sets up a database query using the knex object, based on the various parameters passed in through the req object. It also sets up a count query to determine the total number of results. The where variable is used to build the query filter, based on the city, range, state, country, and type parameters. The whereRaw variable is used to specify a raw SQL query string that can be used to filter results based on more complex criteria.
 // Finally, the function generates an orderBy clause for the query based on the sort parameter. This allows the user to specify the order in which the results are returned based on a variety of criteria. The listWrapper function then executes the query and returns the results in the res object.
 const listWrapper = async (req, res) => {
-    // console.log("req.query is : " + JSON.stringify(req.query));
-    // set current language 
-    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en';
+    console.log("req.query is : " + JSON.stringify(req.query)); //req.query is : {"city":"baden","search":"schnee","filter":{"ignore_filter":"true"},"sort":"relevanz","domain":"localhost:3000","currLanguage":"en"}
 
-    // console.log("tours L59: req.query.currLanguage at listWrapper  :" + currLanguage); 
+    // set current language 
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en'; // e.g. in params: "currLanguage":"en"
+
     // describe
     //extracting various query parameters from the request object using req.query method
-    const search = req.query.search;
-    // console.log("req.query.search",req.query.search)
-    const showRanges = !!req.query.ranges;
-    const city = req.query.city;
-    const range = req.query.range;
+    const search = req.query.search; // "search":"schnee"
+    const showRanges = !!req.query.ranges; // when rendering start page : "ranges":"true"
+    const city = req.query.city;    // "city":"baden"
+    const range = req.query.range;  
     const state = req.query.state;
     const country = req.query.country;
     const type = req.query.type;
-    const orderId = req.query.sort;
+    const orderId = req.query.sort; //"sort":"relevanz"
     const page = req.query.page || 2;
-    const domain = req.query.domain;
+    const domain = req.query.domain; // "domain":"localhost:3000"
     const provider = req.query.provider;
     //describe
     // variables initialized depending on availability of 'map' in the request
@@ -89,227 +88,383 @@ const listWrapper = async (req, res) => {
 
     let addDetails = !!!map;
 
+    const searchIncluded = !!search && !!search.length > 0;
+    console.log("searchIncluded :", searchIncluded)
+
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
     let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
+    // Alternative method 
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  children ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  country_at ,  country_de ,  country_it ,  country_ch ,  country_si ,  country_fr ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+   
+
+    let sql_from = "" ;
+    let sql_where = ""; 
+    
+    let sql_order = "";
+
+    // Alternative method : IF NO SEARCH TERM GIVEN
+    if(!searchIncluded) { 
+        // sql_select += ', 1 as result_rank ';
+        sql_select = sql_select.replace('SELECT', 'SELECT 1 as result_rank, ');
+    }
+
     if(!!map){
         selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
+        //Alternative method
+        sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
     }
+    //********************************************************************++*/
+    //********************************************************************++*/
+    //********************************************************************++*/
+
     //describe:
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
     let query = knex('tour').select(selects);
     let countQuery = knex('tour').count('id');
 
+    // Alternative method
+    if(searchIncluded){
+        sql_from += " FROM ( ";
+        // let modifiedQuery = query.toString().replace('from "tour"', 'FROM (');
+        // query = knex.raw(modifiedQuery);
+    }else {
+        sql_from += " FROM tour ";
+    }
+
+    sql_select += sql_from;
+
+    console.log("L131 sql_select :" + sql_select);//SELECT 'id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'
+    console.log("L132 sql_from  " +   sql_from ); // FROM ( 
+    // console.log("L132 query : " + query);
+    //select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" from "tour"
+
     //describe:
     // where variable at this line receives one of the 4 types of object values : {country_at: true}  variations: _de, _ch, _it
     //checking query parameters: city, range, state, country, type, and provider so we can add any necessary where conditions to the select statement.
     // where will be filled with the values of the following : range, state, country, type, and provider (all coming from the defined constants above) 
-    let where = getWhereFromDomain(domain);
-    console.log("domain : " + domain);
-    // console.log("where value: " + JSON.stringify(where));
+    let where = getWhereFromDomain(domain) ;
+    //console.log(" L143 domain : " + domain);// localhost:3000
+    console.log("L127 where value / domain: " + JSON.stringify(where)); //{"country_at":true}
+    sql_where += `AND country_at = true `;
 
+    
     //describe:
-    //use a new variable whereRaw to define the where statments
+    //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
     
     /** city search */
     //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
     if(!!city && city.length > 0){
         whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-    }
 
+        sql_where += `AND cities @> '[{"city_slug": "${city}"}]'::jsonb ` ;
+    }
+    console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
+    console.log("L159 sql_where :", sql_where); //
     /** region search */
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
     if(!!range && range.length > 0){
         where.range = range;
+        sql_where += `AND range = ${range} `
     }
     if(!!state && state.length > 0){
         where.state = state;
+        sql_where += `AND state = ${state} `
     }
     if(!!country && country.length > 0){
         where.country = country;
+        sql_where += `AND country = ${country} `
     }
-
+    
     /** type search */
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!type && type.length > 0){
         where.type = type;
+        sql_where += `AND type = ${type} `
+
     }
+    console.log("L182 where value/ type: " + JSON.stringify(where)); //{"country_at":true}
+    console.log("L183 sql_where value/ type: " + sql_where); // 
 
     /** provider search */
     //describe
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
+        sql_where += `AND provider = ${provider} `
     } 
-    /** fulltext search */
-    // The next block of code builds an SQL query based on the user input and uses the where and whereRaw methods to add conditions to the query based on the user input. The query searches through the search_column for user input using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
-    let order_by_rank = "";
+    console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
+    console.log("L193 where value / provider: " + sql_where); // 
+
+    
+    // ****************************************************************
+        // fulltext search
+    // ****************************************************************
     //describe: search
-    //If the user has entered a value for search, the code sets the '_search' variable to a sanitized and formatted version of the user input.
+    // The next block of code builds an SQL query based on the user input and uses the where and whereRaw methods to add conditions to the query based on the user input in variable "search". The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
+    let order_by_rank = "";
 
-    // try {
+    if(searchIncluded){
+        // order_by_rank = " result_rank DESC, "; // shouldn't we be passing this at the end when we do the order by ?
+
+        const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an aray of strings
+
+        //example domain / menu_lang (currLanguage)
+        // const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.fr/");
+        // result of above clg when menu_lang = 'it' : L 217, newRanks final :  [ { en: 1 }, { de: 1 }, { fr: 10 }, { it: 100 }, { sl: 1 } ]
+        console.log("L198 tldLangArray : ", tldLangArray);
+        console.log("L199 currLnaguage : ", currLanguage);
+        console.log(" L185/ search :", search);
+
+        // get array of ALL languages
+        const allLangs = getAllLanguages(); // ["en", "de", "it", "fr", "sl"]
+
+        const currRanks = () => {
+          let newRanks = [];
+          console.log("L189/ allLangs :", allLangs);
         
-    //     //description
-    //     // what is fulltext search ?: Full Text Searching (or just text search) provides the capability to identify natural-language documents that satisfy a query, and optionally to sort them by relevance to the query. The most common type of search is to find all documents containing given query terms and return them in order of their similarity to the query. source: https://www.postgresql.org/docs/current/textsearch-intro.html
-    //     if(!!search && search.length > 0){
-    //         console.log(" L157/ search :", search)
-    //         console.log("domain : ", domain) //
-    //         console.log("Languages of domain ", get_country_lanuage_from_domain(domain))
+          let tempLangs = [...allLangs];
 
-    //         let _search = search.trim().toLowerCase();
-    //         //describe: 
-    //         //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
-    //         //else, '_search' contains NO spaces: the same is repeated but with additional modifiers
-    //         if(_search.indexOf(' ') > 0){
-    //             order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
-    //             whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
-    //             console.log("whereRaw / L161 :", whereRaw)
-    //         }
-    //         else {
-    //             order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
-    //             whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
-    //             console.log("whereRaw / L166 :", whereRaw)
-    //         }
-    //     }
-    // } catch(e){
-    //     console.error('error creating fulltext search: ', e);
-    // }
-
-    try {
+          allLangs.forEach((lang) => {
+            // console.log("tempLangs :", tempLangs);
         
-        //description
-        // what is fulltext search ?: Full Text Searching (or just text search) provides the capability to identify natural-language documents that satisfy a query, and optionally to sort them by relevance to the query. The most common type of search is to find all documents containing given query terms and return them in order of their similarity to the query. source: https://www.postgresql.org/docs/current/textsearch-intro.html
-        if(!!search && search.length > 0){
-            console.log(" L157/ search :", search)
-            // get language of TLD, returned is an aray of strings
-            // const tldLangArray = get_country_lanuage_from_domain(domain);
-            const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.it/");
-            console.log("tldLangArray : ", tldLangArray);
-            console.log("currLnaguage : ", currLanguage);
+            if (tldLangArray.includes(lang) && tempLangs.includes(lang)) {
+              newRanks = [...newRanks, { [lang]: 10 }]; // if this is the TLD language pass a 10
+              tempLangs = tempLangs.filter(item => item !== lang);
+            } else if (lang === currLanguage && tempLangs.includes(lang)) {
+              newRanks = [...newRanks, { [lang]: 100 }]; // if it is a menu language then pass 100
+              tempLangs = tempLangs.filter(item => item !== lang);
+            } else {
+            //   console.log("lang/inside currRanks :", lang);
+              newRanks = [...newRanks, { [lang]: 1 }];
+            }
+          });
+        
+          return newRanks;
+        };
+        
+        
+        
+        let _search = search.trim().toLowerCase();
+        //describe: 
+        //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
+        //else, '_search' contains NO spaces: the same is repeated but with additional modifier
+        // if(_search.indexOf(' ') > 0){
+        //     order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
+        //     whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
+        //     console.log("whereRaw / L228 :", whereRaw)
+        // }
+        // else {
+        //     order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
+        //     whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
+        //     console.log("whereRaw / L233 :", whereRaw)
+        //     // whereRaw / L233 : cities @> '[{"city_slug": "wien"}]'::jsonb AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
+        // }
+        // ****************************************************************
+        // NEW CODE HERE
+        // ****************************************************************
+    
+        const langRanks = currRanks(); // internal to search section
+        console.log(" ");
+        console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
+        console.log(" ");
+        const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
-            // get array of ALL languages
-            const allLangs = getAllLanguages();
-            // initialize the language Ranks 
-            let initialLangRanks = initializeLanguageRanks();
-            // desired effect : menuLang = "en" and .AT then newRanks = [{ "de": 10}, { "en": 100}, { "it": 1}, { "fr": 1}, {"sl": 1}]
-            let newRanks = initialLangRanks;// newRanks :  [ { en: 1 }, { de: 1 }, { fr: 1 }, { it: 1 }, { sl: 1 } ] 
-            allLangs.map((lang) =>{
-                let rank = 1;
-                console.log("lang :", lang);
-                console.log("newRanks, first take : ", newRanks);
-                if (tldLangArray.includes(lang)) rank = 10; // if this is the TLD language pass a 10
-                console.log("Rank step 1 : ", rank);
-                if (lang === currLanguage) rank = 100; // if it is even a menu language then pass 100
-                console.log("Rank step 2 : ", rank);
-                // map over the new ranks and find each 
-                newRanks = newRanks.map(obj => {
-                    console.log("lang inside map object : ", lang);
-                    console.log("obj inside map object : ", obj);
-                    if (obj.hasOwnProperty(lang)) {
-                        return { [lang]: rank };
-                    }
-                    return obj;
-                });
-                console.log("L 209 , newRanks final : ", newRanks);
-               
-            });
-            // newRanks :  [ { en: 1 }, { de: 1 }, { fr: 1 }, { it: 1 }, { sl: 1 }, de: 10 ]
-            // newRanks[sl] :, undefined
-            let _search = search.trim().toLowerCase();
-            //describe: 
-            //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
-            //else, '_search' contains NO spaces: the same is repeated but with additional modifiers
+        console.log("sql_select inside 'searchIncluded' : ", sql_select)
+        console.log("sql_where inside 'searchIncluded' : ", sql_where)
+        for (let i = 0; i < allLangs.length; i++) {
+            // console.log(" i :", i)
+            // console.log(`encodeLang[${i}] :  ${encodeLang[i][allLangs[i]]}}`);
+            const lang = allLangs[i];
+            const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
             if(_search.indexOf(' ') > 0){
-                order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
-                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
-                console.log("whereRaw / L161 :", whereRaw)
-            }
-            else {
-                order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
-                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
-                console.log("whereRaw / L166 :", whereRaw)
-            }
-        }
-    } catch(e){
-        console.error('error creating fulltext search: ', e);
-    }
+                // question : do we add DESC (at ${search}')) ? to match original version?
+                sql_select += `
+                    SELECT
+                    i${i + 1}.*,
+                    ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
+                    encodeLang[i][lang]
+                    }', ' ${_search}')) * ${langRank} as result_rank     
+                    FROM tour AS i${i + 1}
+                    WHERE
+                    i${i + 1}.text_lang = '${lang}'
+                    
+                    AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}')
+                `;
+                sql_select += sql_where;
 
+            }else {
+                sql_select += `
+                    SELECT
+                    i${i + 1}.*,
+                    ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
+                    encodeLang[i][lang]
+                    }', ' "${_search}" ${_search}:*')) * ${langRank} as result_rank 
+                    FROM tour AS i${i + 1}
+                    WHERE
+                    i${i + 1}.text_lang = '${lang}'
+                    AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}" ${_search}:*')
+                `;
+                sql_select += sql_where;
+
+            }
+            if (i !== allLangs.length - 1) {        // as long as end of array not reached
+            sql_select += "\nUNION ";               // create a union with a line break
+        }
+    }
+    sql_select += ") as o "; // end of FROM section 
+    // sql_select += "\n";         
+        
+        // console.log("query end of search section: " + query);
+    }else{
+        sql_select += "WHERE 1 = 1 " + sql_where;
+    }
+    order_by_rank = "";
+
+   
+    console.log("L319 sql_select : " + sql_select);
+
+
+// L 259/ query:  WITH SEARCH  /Original solution
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
+// from "tour" 
+// where "country_at" = true 
+// and cities @> '[{"city_slug": "wien"}]'::jsonb 
+// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
+// order by "month_order" asc, 
+// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
+// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
+
+// L 259/ query:  WITHOUT SEARCH /Original solution
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
+// from "tour" 
+// where "country_at" = true 
+// and cities @> '[{"city_slug": "wien"}]'::jsonb 
+// order by "month_order" asc, 
+// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
+    
+!!where &&  console.log("L 340 where : " + JSON.stringify(where))
 
     //describe: build "where" object
     //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
     // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
     // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
-    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and andWhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input. 
+    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input. 
     if(!!where && Object.keys(where).length > 0){
         query = query.where(where);
         countQuery = countQuery.where(where);
+          //clg: query
+        console.log('    ');
+        // console.log('L 360/ query: ', query.toQuery());
+        console.log('    ');
+        // console.log('L 360/ countQuery: ', countQuery.toQuery());
+        console.log('    ');
     }
     if(!!whereRaw && whereRaw.length > 0){
         query = query.andWhereRaw(whereRaw);
         countQuery = countQuery.andWhereRaw(whereRaw);
+        console.log('    ');
+        // console.log('L 360/ query: ', query.toQuery());
+        console.log('    ');
+        // console.log('L 360/ countQuery: ', countQuery.toQuery());
+        console.log('    ');
     }
+
 
     /** filter search */
     //describe:
     //The buildWhereFromFilter function takes the query parameters and creates a where clause for the query. The true flag passed as the third parameter indicates that the function should create an exact match on the field names, rather than a partial match. The resulting where clause is then added to both the main query and the countQuery.
     query = buildWhereFromFilter(req.query, query, true);
     countQuery = buildWhereFromFilter(req.query, countQuery);
-    // console.log(" query value  L191: " + query);
-    //describe:
+    console.log(" query value  L307: " + query);
+
+    sql_order += `ORDER BY `
+    //describe: **** ORDERING ****
     //if-else block checks for a specific orderId parameter, which is used to determine the order in which the results should be sorted. Depending on the value of orderId, the query is sorted using different fields and ordering directions. 
     // There are some special cases where additional ordering is done based on the city parameter, as well as conditions where the query is sorted based on a combination of different fields. Finally, a default sorting order is set if no orderId parameter is provided. 
     if(!!orderId && orderId == "bewertung"){
         query = query.orderBy("user_rating_avg", 'desc');
+        
+        sql_order += "user_rating_avg DESC ";
 
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} '${search}') ) DESC, traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        if(!!city){
+            query = query.orderByRaw(` ${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+
+            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
         }
 
     } else if(!!orderId && orderId == "tourdistanz"){
         query = query.orderBy("distance", 'asc');
 
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        sql_order += "distance ASC ";
+
+        if(!!city){
+            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `
         }
     } else if(!!orderId && orderId == "tourdauer"){
-        if(!!req.query.city){
-            query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${req.query.city}'->>'total_tour_duration')::float ASC`).orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        if(!!city){
+            query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${city}'->>'total_tour_duration')::float ASC`).orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+
+            sql_order += `number_of_days ASC, (cities_object->>'${city}'->>'total_tour_duration')::float ASC, traverse DESC, FLOOR((cities_object->>'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
+
+
         } else {
             query = query.orderBy("number_of_days", 'asc').orderBy("duration", 'asc');
-            // query = query.orderBy("number_of_days", 'asc').query.orderBy("duration", 'asc');
+            sql_order += `number_of_days ASC, duration ASC `;
         }
 
     } else if(!!orderId && orderId == "anfahrtszeit"){
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} (cities_object->'${req.query.city}'->>'best_connection_duration')::int ASC`)
+        if(!!city){
+            query = query.orderByRaw(`${order_by_rank} (cities_object->'${city}'->>'best_connection_duration')::int ASC`);
+            sql_order += `(cities_object->'${city}'->>'best_connection_duration')::int ASC `; 
         } else {
             query = query.orderBy("best_connection_duration", 'desc');
+            sql_order += `best_connection_duration DESC `; // 2)
         }
 
     } else if(!!orderId && orderId == "relevanz"){
         query = query.orderBy("month_order", 'asc');
-
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        sql_order += `month_order ASC `; //3)
+        
+        if(!!city){
+            // sql_order += `,`,
+            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; //4)
         }
 
     } else if(!!orderId){
         query = query.orderBy(orderId, 'desc');
-
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        sql_order += `${orderId} DESC `; //5)
+        if(!!city){
+            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 6)
         }
 
     } else {
         query = query.orderBy("user_rating_avg", 'asc');
-
-        if(!!req.query.city){
-            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${req.query.city}'->>'best_connection_duration')::int/30)*30 ASC`);
+        sql_order += `user_rating_avg ASC `;
+        if(!!city){
+            query = query.orderByRaw(`${order_by_rank} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 7)
         }
     }
 
+    sql_select += sql_order;
+    console.log(" --------------------------------")
+    console.log(" --------------------------------")
+    console.log("L457 query after 1st order : " + query);
+    console.log(" --------------------------------")
+    console.log("L459 sql_order after 1st order : " + sql_order);
+    console.log(" --------------------------------")
+    console.log("L461 sql_select after 1st order : " + sql_select);
+    console.log(" --------------------------------")
+    console.log(" --------------------------------")
+
+    // order by "month_order" asc,  traverse DESC, FLOOR((cities_object->'bad-ischl'->>'best_connection_duration')::int/30)*30 ASC
+    //                              traverse DESC, FLOOR((cities_object->'bad-ischl'->>'best_connection_duration')::int/30)*30 ASC 
     //describe:
     // After the sorting order is applied, the query is further ordered by ID % date_part('day', NOW() )::INTEGER ASC. This orders the results by the remainder of the ID when divided by the number of days since the epoch, effectively shuffling the results.
     query = query.orderByRaw(`ID % date_part('day', NOW() )::INTEGER ASC`);
@@ -317,26 +472,28 @@ const listWrapper = async (req, res) => {
     
 
     /** set limit to query */
-    // a limit and offset are applied to the query if the useLimit flag is set to true. The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
+    // a limit and offset are applied to the query if the useLimit flag is set to true/ in case (i.e.  map != true ). The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
     if(!!useLimit){
         //clg
-        // page? console.log("page at useLimit L252:",page) : console.log("page is falsy");
+        // page? console.log("page at useLimit L395:",page) : console.log("page is falsy");
         query = query.limit(9).offset(9 * (page - 1));
     }
 
     //clg: query
-    console.log('    ');
-    console.log('L 259/ query: ', query.toQuery());
-    console.log('    ');
+    // console.log('    ');
+    // console.log('L 259/ query: ', query.toQuery());
+    // console.log('    ');
 
     let result = await query;
     let count = await countQuery.first();
-
+    //********************************************************************++*/
+    //********************************************************************++*/
+    //********************************************************************++*/
     // clg: tour ids
     // console.log("Result tour.ids: ")
-    result.map((tour) => {
+    // result.map((tour) => {
         // console.log("id : " + tour.id);
-    })
+    // })
     console.log()
 
 
@@ -350,17 +507,16 @@ const listWrapper = async (req, res) => {
 
         if (search !== undefined) {  // also if previous search item is different than this one ?
             searchparam = search;
-
-            //if (search == undefined) searchparam = "LOCAL TEST-120623" // this assignment is for testing purposes
+            //clgs
             // console.log("domain :" + get_domain_country(domain))
             // console.log("searchparam :" + (searchparam))
             // console.log("req.query.city :" + (req.query.city))
             // console.log("count['count'] :" + (count['count']))
 
-            // searchparam = search.replace("'",'"')  // step is a must when we receive the value of search
+            searchparam = search.replace("'",'"')  // step is a must when we receive the value of search
             if(!!count['count'] && count['count'] > 0){
                 const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
-                //console.log(" sql :" + sql)
+            //console.log(" sql :" + sql)
                 await knex.raw(sql);
             }
         };
@@ -373,7 +529,7 @@ const listWrapper = async (req, res) => {
     await Promise.all(result.map(entry => new Promise(async resolve => {
         entry = await prepareTourEntry(entry, city, domain, addDetails);
         entry.is_map_entry = !!map;
-        console.log("309: entry.id :",entry.id);
+        console.log("386: entry.id :",entry.id);
         resolve(entry);
     })));
 
@@ -428,6 +584,8 @@ const listWrapper = async (req, res) => {
             }
         }
     }
+    
+    
     //describe:
     // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
     res.status(200).json({success: true, tours: result, total: count['count'], page: page, ranges: ranges});
@@ -906,7 +1064,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // check if params.filter contains ONLY a key/value pair {ignore_filter : 'true'}
     let filterIgnored = Object.keys(params.filter).length === 1 && params.filter['ignore_filter'] === 'true'
     //clg:
-    // console.log("L786: filterIgnored :", filterIgnored)
+    // console.log("L911: filterIgnored :", filterIgnored)
 
     if(filterIgnored ) return query;
 
@@ -1066,10 +1224,10 @@ const buildWhereFromFilter = (params, query, print = false) => {
   } catch (error) {
     console.log("error :", error.message);
   }
-    console.log("returned query values:", query);
+    console.log("returned query values:")
     console.log(query.toSQL().sql)
-    const { sql, bindings } = query.toSQL();
-    console.log(sql, bindings);
+    // const { sql, bindings } = query.toSQL();
+    // console.log(sql, bindings);
 
   return query;
 };
@@ -1250,6 +1408,15 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
 export default router;
 
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
+//from "tour" 
+//where "country_at" = true and cities @> '[{"city_slug": "wien"}]'::jsonb 
+//AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
+
+//order by "month_order" asc, ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC, traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
+
+// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,
+
 
 //SELECT
 // o."id",
@@ -1289,7 +1456,7 @@ export default router;
 // o."max_ele"
 // FROM (
 
-// SELECT
+// SELECT       (1)
 // i1.,
 // ts_rank(i1.search_column, websearch_to_tsquery('english', '"schneeberg" schneeberg:') ) * {rank_en} as result_rank
 // FROM tour AS i1
@@ -1299,7 +1466,7 @@ export default router;
 
 // UNION
 
-// SELECT
+// SELECT       (2)
 // i2.,
 // ts_rank(i2.search_column, websearch_to_tsquery('german', '"schneeberg" schneeberg:') ) * {rank_de} as result_rank
 // FROM tour AS i2
@@ -1309,7 +1476,7 @@ export default router;
 
 // UNION
 
-// SELECT
+// SELECT       (3)
 // i3.,
 // ts_rank(i3.search_column, websearch_to_tsquery('french', '"schneeberg" schneeberg:') ) * {rank_fr} as result_rank
 // FROM tour AS i3
@@ -1319,7 +1486,7 @@ export default router;
 
 // UNION
 
-// SELECT
+// SELECT       (4)
 // i4.,
 // ts_rank(i4.search_column, websearch_to_tsquery('italian', '"schneeberg" schneeberg:') ) * {rank_it} as result_rank
 // FROM tour AS i4
@@ -1329,7 +1496,7 @@ export default router;
 
 // UNION
 
-// SELECT
+// SELECT       (5)
 // i5.,
 // ts_rank(i5.search_column, websearch_to_tsquery('simple', '"schneeberg" schneeberg:') ) * {rank_sl} as result_rank
 // FROM tour AS i5
