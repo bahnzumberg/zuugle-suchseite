@@ -20,6 +20,7 @@ import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
+import ClearIcon from "@mui/icons-material/Clear";
 import {
 	getPageHeader,
 	listAllCityLinks,
@@ -80,6 +81,7 @@ function Start({
 	const { trackPageView } = useMatomo();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
@@ -225,7 +227,108 @@ function Start({
 			</Box>
 		);
 	} else {
-		return (
+		return showMobileMenu ? (
+			<div className="mobileMenu">
+				<div className="rowing">
+					<div />
+					<div className="rowing">
+						<span className="boldTxt">Abbrechen</span>
+						<span className="pointy" onClick={() => setShowMobileMenu(false)}>
+							<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
+						</span>
+					</div>
+				</div>
+				<div className="firstMobileMenu">
+					<div className="rowing" style={{ marginBottom: 5 }}>
+						<span className="boldTxt">Suche</span>
+						<span />
+					</div>
+					<div
+						className="rowing searchField"
+						style={{ width: 275, marginRight: 5 }}
+					>
+						<div className="rowingLeft">
+							<SearchIcon />
+							<input
+								className="searchInput"
+								onChange={(e) => setFSearchQuery(e.target.value)}
+								value={fSearchQuery}
+								style={{ width: 195 }}
+							/>
+						</div>
+						<span
+							className="closeIcon"
+							// style={{ marginRight: 10 }}
+							onClick={() => setFSearchQuery("")}
+						>
+							<CloseIcon
+								sx={{
+									color: "#8B8B8B",
+									width: 18,
+									height: 18,
+								}}
+							/>
+						</span>
+					</div>
+					{fSearchQuery &&
+						firstMenuOptions
+							.filter((item) => item.startsWith(fSearchQuery))
+							.map((item) => (
+								<span key={item} className="searchSuggestions">
+									{item}
+								</span>
+							))}
+				</div>
+				<div
+					className="firstMobileMenu"
+					style={{ marginTop: 40, marginBottom: 50 }}
+				>
+					<div className="rowing" style={{ marginBottom: 5 }}>
+						<span className="boldTxt">Dein Heimatbahnhof</span>
+						<span />
+					</div>
+					<div
+						className="rowing searchField"
+						style={{ width: 275, marginRight: 5 }}
+					>
+						<div className="rowingLeft">
+							<SearchIcon />
+							<input
+								className="searchInput"
+								onChange={(e) => setSecondSearchQuery(e.target.value)}
+								value={secondSearchQuery}
+								style={{ width: 195 }}
+							/>
+						</div>
+						<span
+							className="closeIcon"
+							// style={{ marginRight: 10 }}
+							onClick={() => setSecondSearchQuery("")}
+						>
+							<CloseIcon
+								sx={{
+									color: "#8B8B8B",
+									width: 18,
+									height: 18,
+								}}
+							/>
+						</span>
+					</div>
+					{secondSearchQuery &&
+						secondMenuOptions
+							.filter((item) => item.startsWith(secondSearchQuery))
+							.map((item) => (
+								<span key={item} className="searchSuggestions">
+									{item}
+								</span>
+							))}
+				</div>
+				<div className="rowing">
+					<span className="firstBtn">Dein Heimatbahnhof</span>
+					<span className="secondBtn">Suchen</span>
+				</div>
+			</div>
+		) : (
 			<Box>
 				{getPageHeader(null)}
 				<Header totalTours={totalTours} allCities={allCities} />
@@ -251,7 +354,6 @@ function Start({
 								setShowFirstMenu(true);
 							}}
 						>
-							{" "}
 							Öffi-Touren im Alpenraum
 						</span>
 						<span className="verticalBar" />
@@ -261,6 +363,34 @@ function Start({
 						>
 							Heimatbahnhof wählen
 						</span>
+						<span className="goBtn">GO!</span>
+					</div>
+					<div className="mobileSearchField">
+						<div className="rowing">
+							<img
+								src={`/app_static/img/searchIcon.png`}
+								height={"25px"}
+								width={"25px"}
+								alt="search-icon"
+							/>
+							<div
+								style={{
+									alignItems: "center",
+									justifyContent: "left",
+									display: "flex",
+									flexDirection: "column",
+									paddingLeft: 10,
+								}}
+								onClick={() => setShowMobileMenu(true)}
+							>
+								<span className="searchFirstText" style={{ width: "100%" }}>
+									Öffi-Touren im Alpenraum
+								</span>
+								<span className="searchSecondText" style={{ width: "100%" }}>
+									Heimatbahnhof wählen
+								</span>
+							</div>
+						</div>
 						<span className="goBtn">GO!</span>
 					</div>
 					{showFirstMenu && (
@@ -293,6 +423,7 @@ function Start({
 											<span
 												className="closeIcon"
 												// style={{ marginRight: 10 }}
+												onClick={() => setFSearchQuery("")}
 											>
 												<CloseIcon
 													sx={{
@@ -366,6 +497,7 @@ function Start({
 											<span
 												className="closeIcon"
 												// style={{ marginRight: 10 }}
+												onClick={() => setSecondSearchQuery("")}
 											>
 												<CloseIcon
 													sx={{
