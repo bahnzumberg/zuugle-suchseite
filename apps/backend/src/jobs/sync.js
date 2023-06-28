@@ -295,12 +295,8 @@ export async function syncFahrplan(mode='delta'){
             leftover: counter,
             chunksizer: chunksizer
         });
-        if (counter % 500000 == 0) {
-            console.log('Info: ', counter, ' rows of ', count_tours, ' done.');
-        }
         counter++;
     }
-    console.log('Info: ', count_tours, ' rows fplan data done.');
 
     // console.log('Starting add Inserts');
 
