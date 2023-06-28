@@ -264,11 +264,11 @@ export async function syncFahrplan(mode='delta'){
     let orwhere = {delta_type: 'noc'};
     const _limit = pLimit(2);
     let bundles = [];
-    let trigger_id_min = 0;
-    let trigger_id_max = 0;
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
     let chunksizer = 0;
+    let count_tours = 0;
+    let count_tours_counter = 0;
 
     if(mode=='delta'){
         orwhere = {delta_type: 'xxx'};
@@ -288,17 +288,22 @@ export async function syncFahrplan(mode='delta'){
     }
 
     const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
-    chunksizer = round( query_count[0]["anzahl"] / limit, 0 );
+    count_tours = query_count[0]["anzahl"];
+    chunksizer = round( count_tours / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }
 
-    console.log('Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
+    console.log('Info: Handling ', count_tours, ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
             chunksizer: chunksizer
         });
+        if (counter % 500000 > count_tours_counter) {
+            console.log('Info: ', count_tours_counter*500000, ' rows of ', count_tours, ' done.');
+            count_tours_counter++;
+        }
         counter++;
     }
 

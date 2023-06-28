@@ -64,11 +64,7 @@ export const createImagesFromMap = async (ids) => {
             "/public/headless-leaflet/index.html?gpx=/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
-
-            // "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
-            // :         process.env.NODE_ENV === "uat" ? 
-            // "https://www2.zuugle.at/public/headless-leaflet/index.html?gpx=https://www2.zuugle.at/public/gpx/" 
-            
+        
 
 
             const chunkSize = 10;
