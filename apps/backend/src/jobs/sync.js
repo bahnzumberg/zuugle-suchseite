@@ -11,6 +11,10 @@ import pLimit from 'p-limit';
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text );`);
+
+    // Is there an advantage in setting the full_text to ''? I do not know. Trying it.
+    // await knex.raw(`UPDATE tour SET full_text = '';`);
+
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 }
 
@@ -65,6 +69,35 @@ export async function getProvider(){
         }
     }
 }
+
+
+export async function generateTestdata(){
+    try {
+        await knex.raw(`DELETE FROM logsearchphrase WHERE phrase LIKE 'TEST%';`);
+    
+        /* Testdata into logsearchphrase */
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Troppberg', 4,'wien', 'it', 'IT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Schneeberg', 0,'linz', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Tragöß', 3,'muenchen', 'de', 'DE');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST langbathsee', 5,'wien', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST langbathseen', 6,'salzburg', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST lainz', 1,'bozen', 'it', 'IT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST linz', 2,'ljubljana', 'sl', 'SI');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST klettersteig', 34,'wien', 'fr', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hase', 0,'wien', 'it', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Dachstein', 3,'linz', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Edelweisshütte', 5,'muenchen', 'de', 'DE');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST hihi', 3,'wien', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 2,'salzburg', 'de', 'AT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 4,'bozen', 'it', 'IT');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hütte', 5,'ljubljana', 'sl', 'SI');`);
+        await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Klettern', 1,'wien', 'fr', 'AT');`);
+    } catch(err){
+        console.log('error: ', err);
+        return false;
+    }
+}
+
 
 
 async function _syncConnectionGPX(key, fileName, title){
@@ -225,13 +258,12 @@ export async function syncFahrplan(mode='delta'){
     let counter = 0;
     let where = {delta_type: 'add'};
     let orwhere = {delta_type: 'noc'};
-    const _limit = pLimit(2);
+    const _limit = pLimit(3);
     let bundles = [];
-    let trigger_id_min = 0;
-    let trigger_id_max = 0;
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
     let chunksizer = 0;
+    let count_tours = 0;
 
     if(mode=='delta'){
         orwhere = {delta_type: 'xxx'};
@@ -251,19 +283,24 @@ export async function syncFahrplan(mode='delta'){
     }
 
     const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
-    chunksizer = round( query_count[0]["anzahl"] / limit, 0 );
+    count_tours = query_count[0]["anzahl"];
+    chunksizer = round( count_tours / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }
 
-    console.log('Info: Handling ', query_count[0]["anzahl"], ' rows fplan data.');
+    console.log('Info: Handling ', count_tours, ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
             chunksizer: chunksizer
         });
+        if (counter % 500000 == 0) {
+            console.log('Info: ', counter, ' rows of ', count_tours, ' done.');
+        }
         counter++;
     }
+    console.log('Info: ', count_tours, ' rows fplan data done.');
 
     // console.log('Starting add Inserts');
 
@@ -360,7 +397,24 @@ const syncFahrplan_del = async () => {
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
-        const result_query = knexTourenDb('interface_fplan_to_search_delta').select().whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const result_query = knexTourenDb('interface_fplan_to_search_delta').select('tour_provider', 'tour_id',
+                                            'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
+                                            'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
+                                            'connection_rank', 'connection_departure_datetime', 'connection_duration', 
+                                            'connection_no_of_transfers', 'connection_description', 'connection_description_detail',
+                                            'connection_departure_stop', 'connection_departure_stop_lon', 'connection_departure_stop_lat',
+                                            'connection_arrival_stop', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat',
+                                            'connection_arrival_datetime', 'connection_returns_departure_stop', 'connection_returns_trips_back',
+                                            'connection_returns_min_waiting_duration', 'connection_returns_max_waiting_duration',
+                                            'connection_returns_warning_level', 'connection_returns_warning', 
+                                            'return_row', 'return_waiting_duration', 'return_departure_datetime',
+                                            'return_duration', 'return_no_of_transfers', 'return_description',
+                                            'return_description_detail', 'return_departure_stop_lon',
+                                            'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
+                                            'return_arrival_stop_lat', 'return_arrival_datetime',
+                                            'totour_track_key', 'totour_track_duration', 
+                                            'fromtour_track_key', 'fromtour_track_duration',
+                                            'connection_url', 'return_url').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
@@ -467,7 +521,7 @@ const insertFahrplanMultiple_del = async (entries) => {
 
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
-    await knex.raw('UPDATE kpi SET VALUE=0 WHERE name=\'total_tours\';');
+    await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
@@ -483,10 +537,53 @@ export async function syncTours(){
     }
 
     while((counter *  limit) <= count){
-        const query = knexTourenDb.raw(`select s.*, g1.lat as lat_start, g1.lon as lon_start, g2.lat as lat_end, g2.lon as lon_end from interface_touren_to_search s
-                                                LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
-                                                LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
-                                                limit ${limit} offset ${offset};`);
+        const query = knexTourenDb.raw(`SELECT 
+                                        s.url,
+                                        s.provider,
+                                        s.hashed_url,
+                                        s.description,
+                                        s.country,
+                                        s.state,
+                                        s.range_slug,
+                                        s.range_name,
+                                        s.image_url,
+                                        s.ascent,
+                                        s.descent,
+                                        s.difficulty,
+                                        s.duration,
+                                        s.distance,
+                                        s.title,
+                                        s.typ,
+                                        s.children,
+                                        s.number_of_days,
+                                        s.traverse,
+                                        s.season,
+                                        CASE WHEN s.jan=0 THEN 'false' ELSE 'true' END jan,
+                                        CASE WHEN s.feb=0 THEN 'false' ELSE 'true' END feb,
+                                        CASE WHEN s.mar=0 THEN 'false' ELSE 'true' END mar,
+                                        CASE WHEN s.apr=0 THEN 'false' ELSE 'true' END apr,
+                                        CASE WHEN s.may=0 THEN 'false' ELSE 'true' END may,
+                                        CASE WHEN s.jun=0 THEN 'false' ELSE 'true' END jun,
+                                        CASE WHEN s.jul=0 THEN 'false' ELSE 'true' END jul,
+                                        CASE WHEN s.aug=0 THEN 'false' ELSE 'true' END aug,
+                                        CASE WHEN s.sep=0 THEN 'false' ELSE 'true' END sep,
+                                        CASE WHEN s.oct=0 THEN 'false' ELSE 'true' END oct,
+                                        CASE WHEN s.nov=0 THEN 'false' ELSE 'true' END nov,
+                                        CASE WHEN s.dec=0 THEN 'false' ELSE 'true' END 'dec',
+                                        s.full_text,
+                                        s.publishing_date,
+                                        s.quality_rating,
+                                        s.user_rating_avg,
+                                        s.difficulty_orig,
+                                        g1.lat as lat_start, 
+                                        g1.lon as lon_start, 
+                                        g2.lat as lat_end, 
+                                        g2.lon as lon_end 
+                                        from interface_touren_to_search s
+                                        LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
+                                        LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
+                                        LEFT JOIN Interface_GPX_to_search g3 ON s.provider = g3.provider AND s.hashed_url = g3.hashed_url AND g3.typ = "top"
+                                        limit ${limit} offset ${offset};`);
 
         /*
         if(process.env.NODE_ENV != "production"){
@@ -680,6 +777,7 @@ const bulk_insert_tours = async (entries) => {
             });
         }
         entry.gpx_data = JSON.stringify(gpxData);
+
         queries.push({
             url: entry.url,
             provider: entry.provider,
@@ -723,6 +821,8 @@ const bulk_insert_tours = async (entries) => {
         });
     }
 
+    // let query = knex('tour').insert(queries).toString();
+    // console.log('SQL hier: ', query);
     try {
         await knex('tour').insert(queries);
         return true;
