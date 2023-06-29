@@ -1,6 +1,6 @@
 import axios from "../axios";
 
-export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "arraybuffer") {
+export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
     const state = getState()[stateName];
     let params = {};
@@ -14,24 +14,47 @@ export function loadFile(dispatch, getState, typeBefore, typeDone, stateName, da
         }
     }
 
-    return axios.get(route, {
-        data: {},
-        responseType: responseType,
-        params: params,
-        timeout: 2000000,
-    }).then(res => {
-        // console.log("crudActions , L23", params)
-        // console.log("crudActions:responseType , L23", responseType)
+    try{
+        let res = await axios.get(route, {
+            data: {},
+            // data: data,
+            responseType: responseType,
+            params: params,
+            timeout: 60000,
+            headers: {
+                Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4"
+            },
+        });
+
         dispatch({
             type: typeDone,
-        });
-        return res;
-    })
+        })
+
+        //clgs
+        // console.log("L34 crudActions /getFileFromServer res :", res)
+        // console.log("L39 crudActions /getFileFromServer res.request.responseURL :", res.request.responseURL) 
+        return res
+        
+    } catch (error) {
+        console.log(" error :, L39", error.message)
+        throw error
+    }
 }
 
-export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true) {
+export function loadList(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, usePagination = true, useState = true, language) {
+
     //clg
-    // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}`)
+    // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
+
+    // language && console.log("language: " + language)
+    // language && console.log("data: " + JSON.stringify(data));
+    // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
+    // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
+    //initialize language param
+    const langPassed = language && (typeBefore == 'LOAD_TOURS' || typeBefore == 'LOAD_TOUR_CONNECTIONS') ? language : null;
+
+    // langPassed && console.log("passed language : " + langPassed)
+
     if(!!useState){
         dispatch({...data, type: typeBefore});
     }
@@ -45,15 +68,21 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
             pagination.order_id = state.orderId;
             pagination.order_desc = state.orderDesc;
         }
+        // console.log("data: inside if(state) : " + JSON.stringify(data));
         params = {
             ...pagination,
-            ...data
+            ...data,
+            currLanguage:langPassed
         }
     }
 
+    // console.log("crudActions : route", route)
+    // console.log("crudActions : params", params)
     return axios.get(route, { params: params }).then(res => {
         const entities = res.data[entityName];
+        // console.log("entities :",entities)
         const total = res.data.total;
+        // console.log("total : ", total)
         const filter = !!res.data.filter ? res.data.filter : null;
 
         if(!!useState){
@@ -66,6 +95,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
                 ranges: res.data.ranges
             });
         }
+        //console.log("crudActions : response ", res); // issue #9 API
 
         return res;
     }).catch(err => {

@@ -14,39 +14,102 @@ export function CityResultList({cities, setCity, setCityInput, onFocusCity, isCi
 
     const renderLinksBasedOnHost = () => {
         let host = location.hostname;
-        if(host.indexOf('zuugle.at') >= 0){
+        if(host.indexOf('www.zuugle.at') >= 0){
             return <Fragment>
                 {generateLinkEntry("https://www.zuugle.de", "zuugle.de", "Bahnhöfe in Deutschland")}
                 {generateLinkEntry("https://www.zuugle.ch", "zuugle.ch", "Bahnhöfe in der Schweiz")}
                 {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www.zuugle.si", "zuugle.si", "Bahnhöfe in Slowenien")}
+                {generateLinkEntry("https://www.zuugle.fr", "zuugle.fr", "Bahnhöfe in Frankreich")}
             </Fragment>
-        } else if(host.indexOf('zuugle.de') >= 0){
+        } else if(host.indexOf('www.zuugle.de') >= 0){
             return <Fragment>
                 {generateLinkEntry("https://www.zuugle.at", "zuugle.at", "Bahnhöfe in Österreich")}
                 {generateLinkEntry("https://www.zuugle.ch", "zuugle.ch", "Bahnhöfe in der Schweiz")}
                 {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www.zuugle.fr", "zuugle.fr", "Bahnhöfe in Frankreich")}
+                {generateLinkEntry("https://www.zuugle.si", "zuugle.si", "Bahnhöfe in Slowenien")}
             </Fragment>
-        } else if(host.indexOf('zuugle.ch') >= 0){
+        } else if(host.indexOf('www.zuugle.ch') >= 0){
             return <Fragment>
                 {generateLinkEntry("https://www.zuugle.at", "zuugle.at", "Bahnhöfe in Österreich")}
                 {generateLinkEntry("https://www.zuugle.de", "zuugle.de", "Bahnhöfe in Deutschland")}
                 {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www.zuugle.it", "zuugle.fr", "Bahnhöfe in Frankreich")}
+                {generateLinkEntry("https://www.zuugle.it", "zuugle.si", "Bahnhöfe in Slowenien")}
             </Fragment>
-
-        } else if(host.indexOf('zuugle.it') >= 0){
+        } else if(host.indexOf('www.zuugle.it') >= 0){
             return <Fragment>
                 {generateLinkEntry("https://www.zuugle.at", "zuugle.at", "Bahnhöfe in Österreich")}
                 {generateLinkEntry("https://www.zuugle.de", "zuugle.de", "Bahnhöfe in Deutschland")}
                 {generateLinkEntry("https://www.zuugle.de", "zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Slowenien")}
+                {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
             </Fragment>
-        }  else {
+        }  else if(host.indexOf('www.zuugle.fr') >= 0){
             return <Fragment>
                 {generateLinkEntry("https://www.zuugle.at", "zuugle.at", "Bahnhöfe in Österreich")}
                 {generateLinkEntry("https://www.zuugle.de", "zuugle.de", "Bahnhöfe in Deutschland")}
                 {generateLinkEntry("https://www.zuugle.ch", "zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www.zuugle.si", "zuugle.it", "Bahnhöfe in Slowenien")}
                 {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
-
             </Fragment>
+        } else if(host.indexOf('www.zuugle.si') >= 0){
+                return <Fragment>
+                    {generateLinkEntry("https://www.zuugle.at", "zuugle.at", "Bahnhöfe in Österreich")}
+                    {generateLinkEntry("https://www.zuugle.de", "zuugle.de", "Bahnhöfe in Deutschland")}
+                    {generateLinkEntry("https://www.zuugle.ch", "zuugle.ch", "Bahnhöfe in der Schweiz")}
+                    {generateLinkEntry("https://www.zuugle.fr", "zuugle.fr", "Bahnhöfe in Frankreich")}
+                    {generateLinkEntry("https://www.zuugle.it", "zuugle.it", "Bahnhöfe in Italien")}
+                </Fragment>
+        } else if(host.indexOf('www2.zuugle.at') >= 0){
+            return <Fragment>
+                {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.de", "Bahnhöfe in Deutschland")}
+                {generateLinkEntry("https://www2.zuugle.ch", "UAT zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www2.zuugle.si", "UAT zuugle.si", "Bahnhöfe in Slowenien")}
+                {generateLinkEntry("https://www2.zuugle.fr", "UAT zuugle.fr", "Bahnhöfe in Frankreich")}
+            </Fragment>
+        } else if(host.indexOf('www2.zuugle.de') >= 0){
+            return <Fragment>
+                {generateLinkEntry("https://www2.zuugle.at", "UAT zuugle.at", "Bahnhöfe in Österreich")}
+                {generateLinkEntry("https://www2.zuugle.ch", "UAT zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www2.zuugle.fr", "UAT zuugle.fr", "Bahnhöfe in Frankreich")}
+                {generateLinkEntry("https://www2.zuugle.si", "UAT zuugle.si", "Bahnhöfe in Slowenien")}
+            </Fragment>
+        } else if(host.indexOf('www2.zuugle.ch') >= 0){
+            return <Fragment>
+                {generateLinkEntry("https://www2.zuugle.at", "UAT zuugle.at", "Bahnhöfe in Österreich")}
+                {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.de", "Bahnhöfe in Deutschland")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.fr", "Bahnhöfe in Frankreich")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.si", "Bahnhöfe in Slowenien")}
+            </Fragment>
+        } else if(host.indexOf('www2.zuugle.it') >= 0){
+            return <Fragment>
+                {generateLinkEntry("https://www2.zuugle.at", "UAT zuugle.at", "Bahnhöfe in Österreich")}
+                {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.de", "Bahnhöfe in Deutschland")}
+                {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Slowenien")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+            </Fragment>
+        }  else if(host.indexOf('www2.zuugle.fr') >= 0){
+            return <Fragment>
+                {generateLinkEntry("https://www2.zuugle.at", "UAT zuugle.at", "Bahnhöfe in Österreich")}
+                {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.de", "Bahnhöfe in Deutschland")}
+                {generateLinkEntry("https://www2.zuugle.ch", "UAT zuugle.ch", "Bahnhöfe in der Schweiz")}
+                {generateLinkEntry("https://www2.zuugle.si", "UAT zuugle.it", "Bahnhöfe in Slowenien")}
+                {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+            </Fragment>
+        } else if(host.indexOf('www2.zuugle.si') >= 0){
+                return <Fragment>
+                    {generateLinkEntry("https://www2.zuugle.at", "UAT zuugle.at", "Bahnhöfe in Österreich")}
+                    {generateLinkEntry("https://www2.zuugle.de", "UAT zuugle.de", "Bahnhöfe in Deutschland")}
+                    {generateLinkEntry("https://www2.zuugle.ch", "UAT zuugle.ch", "Bahnhöfe in der Schweiz")}
+                    {generateLinkEntry("https://www2.zuugle.fr", "UAT zuugle.fr", "Bahnhöfe in Frankreich")}
+                    {generateLinkEntry("https://www2.zuugle.it", "UAT zuugle.it", "Bahnhöfe in Italien")}
+                </Fragment>
         }
     }
 

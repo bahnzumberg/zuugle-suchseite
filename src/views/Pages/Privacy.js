@@ -2,41 +2,48 @@ import * as React from 'react';
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import {Typography} from "@mui/material";
+import { getPrivacyLabels } from '../../translations/translation.labels';
+
 
 function Privacy({}){
 
+    
+    //translation related
+    const PrivacyLabels = getPrivacyLabels();
+    const matomo_link  = <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>
+
     return <Box className={"about-container"}>
-        <Header title={"Datenschutzerklärung"} subTitle={"aktualisiert: April 2022"}/>
+        <Header title={PrivacyLabels.datenschutzerklaerung} subTitle={"aktualisiert: April 2022"}/>
 
         <Box className={'start-body-container static-container'}>
             <Box style={{textAlign: "left"}}>
-                <Typography>Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.</Typography>
+                <Typography>{PrivacyLabels.datenschutz_ist_uns_wichtig}</Typography>
 
 
-                <Typography variant={"h5"} sx={{marginTop: "20px"}}>Welche personenbezogenen Daten wir sammeln und warum wir sie sammeln</Typography>
-                <Typography>Wir sammeln keine personenbezogenen Daten.</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "20px"}}>{PrivacyLabels.welche_personenbezogenen_daten }</Typography>
+                <Typography>{PrivacyLabels.keine_personenbezogenen_daten }</Typography>
 
 
-                <Typography variant={"h5"} sx={{marginTop: "20px"}}>Analysedienst</Typography>
-                <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>Welcher Dienst wird eingesetzt</Typography>
-                <Typography>Wir setzen die Open Source Software <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a> in der selbst-gehosteten Variante ein. Die Daten befinden sich daher auf einem Server in Deutschland in der EU.</Typography>
-                <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>Welche Daten werden gesammelt</Typography>
-                <Typography>Abgespeichert werden der Name der aufgerufenen Webseite, die Uhrzeit und die ersten zwei Stellen der IP-Adresse. Ein Rückschluss auf eine Person ist durch diese Daten nicht möglich.</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "20px"}}>{PrivacyLabels.analysedienst }</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>{PrivacyLabels.welcher_dienst }</Typography>
+                <Typography>{PrivacyLabels.matomo_1} {matomo_link} {PrivacyLabels.matomo_2} </Typography>
+                <Typography variant={"h5"} sx={{marginTop: "10px", fontSize: "13px"}}>{PrivacyLabels.welche_daten }</Typography>
+                <Typography>{PrivacyLabels.abgespeichert_werden }</Typography>
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>Cookies</Typography>
-                <Typography>Auf Zuugle wird ein Cookies gesetzt, damit der Besucher den Ausgangsorts nicht jedes Mal neu eingeben muss.</Typography>
-                <Typography>Durch die Nutzung der Seite wird die Zustimmung zur Verwendung von Cookies gegeben, da die Funktion aus technischen Gründen nur mittels Einsatz eines Cookies zur Verfügung gestellt werden kann.</Typography>
+                <Typography> {PrivacyLabels.cookies_erklaerung1 }</Typography>
+                <Typography> {PrivacyLabels.cookies_erklaerung2 }</Typography>
 
 
-                <Typography variant={"h5"} sx={{marginTop: "20px"}}>Mit wem wir deine Daten teilen</Typography>
-                <Typography>Mit niemandem.</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "20px"}}> {PrivacyLabels.mit_wem_daten_teilen } </Typography>
+                <Typography>{PrivacyLabels.mit_niemandem }</Typography>
 
-                <Typography variant={"h5"} sx={{marginTop: "20px"}}>Wie lange wir deine Daten speichern</Typography>
-                <Typography>Nach 3 Monaten verfällt das Cookie auf deinem Computer.</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "20px"}}> {PrivacyLabels.wie_lange_daten_speichern }</Typography>
+                <Typography>{PrivacyLabels.cookie_verfall_drei_monate }</Typography>
 
 
-                <Typography variant={"h5"} sx={{marginTop: "20px"}}>Welche Rechte du an deinen Daten hast</Typography>
-                <Typography>Da wir von dir nichts abspeichern, können wir für dich auch nichts exportieren oder löschen.</Typography>
+                <Typography variant={"h5"} sx={{marginTop: "20px"}}>{PrivacyLabels.welche_rechte }</Typography>
+                <Typography>{PrivacyLabels.nichts_von_dir_abspeichern }</Typography>
 
             </Box>
         </Box>

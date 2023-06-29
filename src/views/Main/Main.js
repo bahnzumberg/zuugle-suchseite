@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {lazy, useEffect, useState} from "react";
+import {lazy, useEffect, useState, useMemo, useCallback} from "react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import {compose } from "redux";
@@ -14,10 +14,10 @@ import {
 import {hideModal, showModal} from "../../actions/modalActions";
 import {loadAllCities} from "../../actions/cityActions";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/globals";
 import {useLocation} from 'react-router-dom';
+import {getFilterFromParams, getFilterProp, myTrackPageView} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useMatomo} from "@datapunt/matomo-tracker-react";
+// import {useMatomo} from "@datapunt/matomo-tracker-react";
 // import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
@@ -27,7 +27,6 @@ import { checkIfSeoPageCity, checkIfSeoPageRange, getPageHeader} from "../../uti
 import {loadRanges} from "../../actions/rangeActions";
 
 const Search = lazy(() => import('../../components/Search/Search'));
-const Detail = lazy(() => import('./Detail'));
 const ResultBar = lazy(() => import('../../components/ResultBar'));
 const TourCardContainer = lazy(() => import('../../components/TourCardContainer'));
 
@@ -51,10 +50,26 @@ Fragment.propTypes = {children: PropTypes.node};
 // renders various child components, such as the search bar, tour cards, and tour map.
 
 export function Main({loadTours, loadAllCities, tours, showModal, hideModal, totalTours, loadTourConnections, filter, loadTourConnectionsExtended, pageTours, loading, allCities, loadFilter, isLoadingFilter, loadGPX, loadTour, clearTours, allRanges, loadRanges}){
+    
+    //if filter is a string then convert to object
+    if(typeof(filter) === 'string') {
+        filter = JSON.parse(filter) ;
+        // console.log('Filter is string : ')
+    }else if(typeof(filter) === 'object'){
+        filter = filter;
+        // console.log('Filter is object : ')
+    }else{
+        filter={};
+    }
+    //clgs
+    // console.log("L55: Main , totalTours upon entry:",totalTours)
+    // console.log("L56: Main , tours.length upon entry:",tours.length)
+    // console.log("L57: Main , filter upon entry:",filter)
+
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { trackPageView, trackEvent } = useMatomo()
+    // const { trackPageView, trackEvent } = useMatomo()
 
     const [detailOpen, setDetailOpen] = useState(false);
     const [tour, setTour] = useState(null);
@@ -62,16 +77,25 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const [filterActive, setFilterActive] = React.useState(0);
     const [mapView, setMapView] = React.useState(false);
     const [directLink, setDirectLink] = React.useState(null);
+    // tourID is not working to eliminate the error "MapContainer is already initialized" so may be unnecessary
+    const [tourID, setTourID] = useState(null);
 
+    // alternative code for useBacklistener
+    // useBackListener(() => {
+    //     navigate("/");
+    //   });
+    // useBackListener(navigate, () => {
+    //     navigate("/");
+    // });
     // useBackListener(({ location }) => {
     //     navigate('/');
     // });
 
     //Matomo related
-    useEffect(() => {
-        const city = searchParams.get('city');
-        myTrackPageView("Main", trackPageView, city);
-    }, [])
+    // useEffect(() => {
+    //     const city = searchParams.get('city');
+    //     myTrackPageView("Main", trackPageView, city);
+    // }, [])
 
     //describe:
     // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -85,7 +109,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         loadAllCities();
         loadRanges({ignore_limit: true, remove_duplicates: true});
         let searchParamCity = searchParams.get('city');
-        const city = localStorage.getItem('city');
+        const city = localStorage.getItem('city')  ;
         if(!!city && !!!searchParamCity){
             searchParams.set('city', city);
             setSearchParams(searchParams);
@@ -153,10 +177,13 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         // It initializes a variable called count to 0, which will keep track of the number of active filters.
         // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
         // Finally, the function returns the value of count.
-        const _filter = getFilterFromParams(searchParams);
+
         let count = 0;
-        let filterType = typeof filter === 'object'
-        if(!!_filter && !!filter && !!filterType){
+        // console.log("L172: Main filter:",filter);
+
+        const _filter = getFilterFromParams(searchParams);
+
+        if(!!_filter && !!filter){
             if(!(!!_filter.singleDayTour && !!_filter.multipleDayTour)){
                 count++;
             }
@@ -202,29 +229,51 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     }
 
     const onSelectTour = (tour) => {
-        //clg:
-        // console.log("Main L 205, onSelectTour , tour value: " + tour);
-        setTour(tour)
-        toggleDetailOpen();
+        let currentSearchParams = new URLSearchParams(searchParams.toString());
+        const city = currentSearchParams.get("city");
+        const updatedSearchParams = new URLSearchParams();
+        updatedSearchParams.set("id", tour.id);
+
+        if (city) {
+            updatedSearchParams.set("city", city);
+        }
+        window.open('/tour?' + updatedSearchParams.toString());
     }
 
     //description:
-    //This is a callback function that loads and selects a tour with a specific id and city specified in the URL search parameters.
-    // It calls the loadTour function which makes an API call to fetch the tour data using the id and city as parameters -loadTour is a function in tourActions.js and uses the function loadOne inside of crudActions.js- , If the response contains valid tour data, the setTour function is called to update the state with the newly loaded tour, and toggleDetailOpen function is called to open the tour detail view.
-    // If there is an error or the response does not contain valid tour data, nothing happens and the user remains on the same page.
-    const onLoadAndSelectTour = (id) => {
-        // clg
-        // console.log(id);
-        // console.log(searchParams.get('city'));
-        loadTour(id, searchParams.get('city')).then(res => {
-            if(!!res && !!res.data && !!res.data.tour){
-                //clg
-                // console.log("Main : tour data 220",res.data.tour)
-                setTour(res.data.tour);
-                toggleDetailOpen();
-            }
-        })
+    //This is a callback function that selects a tour with a specific id
+    const onSelectTourById = (id) => {
+        onSelectTour({id: id})
     }
+    
+    // testing tourID to solve the error "MapContainer is already initialized"
+    //NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
+    // const onLoadAndSelectTour = useCallback(
+    //     ()=>{
+
+    //         (tourID) => {
+    //             !!tourID && loadTour(tourID, searchParams.get('city')).then(res => {
+
+    //                 if(!!res && !!res.data && !!res.data.tour){
+    //                     //clg
+    //                     // console.log("L258 Main : tour data ",res.data.tour)
+    //                     console.log("L259 Main : res.data.tour.id ",res.data.tour.id)
+    //                     console.log("L260 Main : tourID state ",tourID)
+    //                     setTour(res.data.tour);
+    //                     toggleDetailOpen();
+    //                 }
+    //             })
+    //         }
+    //     }
+    //   ,
+    //   [tourID]
+    // )
+
+    const memoTourMapContainer = useMemo(() => {
+        // console.log("L 273 tourID : " + tourID)
+        return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onSelectTourById} loading={loading}
+                                  setTourID={setTourID} tourID={tourID}/>)
+    }, tourID);
 
     return <div>
         {/* description
@@ -232,7 +281,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         {/* clg */}
         {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
         {getPageHeader(directLink)}
-        
+
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
             {
                 // description:
@@ -253,7 +302,9 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             }
             {/* description:
             ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
-            <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+            {
+                (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+            }
         </Box>
 
         {(!!loading && !!!mapView) &&
@@ -274,11 +325,12 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
                         {/* {console.log("loadGPX : L269",loadGPX)} */}
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                         {/* {console.log("loading : L272",loading)} */}
-                        <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>
-                        {/* clg */}
-                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour(tours[0].id)} loading={loading}/> */}
+                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
+                        {memoTourMapContainer}
                     </Box>)
                     : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
+                        {/* {console.log('total passed to TourCardContainer',totalTours)}
+                        {console.log('tours.length passed to TourCardContainer',tours.length)} */}
                         <TourCardContainer onSelectTour={onSelectTour}
                                            tours={tours}
                                            loadTourConnections={loadTourConnections} city={searchParams.get("city")}
@@ -290,24 +342,24 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
 
         }
 
-        <Drawer
-            anchor={"right"}
-            open={detailOpen}
-            onClose={toggleDetailOpen}
-            PaperProps={{
-                sx: {
-                    backgroundColor: "info.main",
-                    width: {
-                        xs: "100%",
-                        sm: "500px"
-                    }
-                }
-            }}
-        >
-            {/* description:
-            Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. */}
-            <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>
-        </Drawer>
+        {/*<Drawer*/}
+        {/*    anchor={"right"}*/}
+        {/*    open={detailOpen}*/}
+        {/*    onClose={toggleDetailOpen}*/}
+        {/*    PaperProps={{*/}
+        {/*        sx: {*/}
+        {/*            backgroundColor: "info.main",*/}
+        {/*            width: {*/}
+        {/*                xs: "100%",*/}
+        {/*                sm: "500px"*/}
+        {/*            }*/}
+        {/*        }*/}
+        {/*    }}*/}
+        {/*>*/}
+        {/*    /!* description:*/}
+        {/*    Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. *!/*/}
+        {/*    <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>*/}
+        {/*</Drawer>*/}
     </div>
 }
 
@@ -330,7 +382,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => {
     //clg
-    // console.log("Main L328 list of ALL tours : state.tours.tours :", state.tours.tours)
+    // console.log("Main L333 list of ALL tours : state.tours.tours :", state.tours.tours)
+    // console.log("Main L334 : Store state mapping, state.tours.total :", state.tours.total)
     return {
         loading: state.tours.loading,
         tours: state.tours.tours,

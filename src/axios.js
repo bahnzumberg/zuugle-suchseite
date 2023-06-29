@@ -8,7 +8,7 @@ let axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(function (config) {
-	config.headers.Authorization = "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4";//crypt("FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4", `${moment().unix()}`);
+	config.headers.Authorization = "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4";
 	return config;
 });
 

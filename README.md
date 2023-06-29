@@ -1,8 +1,12 @@
+# This is the updated 'basis-new-uix-tour-detail'
+# what is new here:
+ 
+
 # zuugle.at Suchseite
 ## Erstinstallation
 Bei der Erstinstallation muss zuerst der Befehl 
 
-    npm install
+npm install
     
 ausgeführt werden. Danach sind alle Dependencies installiert und die Suchseite kann lokal ausgeführt werden. 
 

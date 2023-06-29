@@ -21,19 +21,32 @@ import {
     SET_SELECTED_DATE
 } from './types';
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
+import i18next from 'i18next';
+
+
 
 export function loadTours(data = {}) {
-    // console.log("tourActions, LoadTours L26 :", data)
+    const language = i18next.resolvedLanguage;
+    // console.log("from loadTours/ tourActions : language :",language)
+
+    // console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false);
+        //clgs
+        // console.log("loadTours -> LOAD_TOURS :", LOAD_TOURS);
+        // console.log("loadTours -> data :", data);
+        // console.log("loadTours -> language :", language);
+        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
 
 export function loadFilter(data = {}) {
     // console.log("tourActions, LoadFilter L34 :",data)
+    const language = i18next.resolvedLanguage;
+    console.log("from loadFilter/ tourActions : language :",language)
+
     return (dispatch, getState) => {
-        return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false);
+        return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false, undefined, language);
     };
 }
 
@@ -53,25 +66,32 @@ export function loadTotalTours() {
 
 export function loadTourConnections(data) {
     // console.log("tourActions, loadTourConnections L55 :", data)
+    const language = i18next.resolvedLanguage;
+
+    // console.log("from loadTourConnections/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false);
+        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
     };
 }
 
 export function loadTourConnectionsExtended(data) {
     // console.log("tourActions, loadTourConnectionsExtended L63 :", data)
+    const language = i18next.resolvedLanguage;
+    // console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS_EXTENDED, LOAD_TOUR_CONNECTIONS_EXTENDED_DONE, "tours", data, "tours/" + data.id + "/connections-extended", "connections", false);
+        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);;
     };
 }
 
 export function loadFavouriteTours(data = {}) {
     // console.log("tourActions, loadFavouriteTours L71 :", data)
+    const language = i18next.resolvedLanguage;
+    // console.log("from loadFavouriteTours/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false);
+        return loadList(dispatch, getState, LOAD_FAVOURITE_TOURS, LOAD_FAVOURITE_TOURS_DONE, "tours", data, "tours/", "tours", false, undefined, language);
     };
 }
 
@@ -81,17 +101,25 @@ export function setSelectedDate(date) {
     };
 }
 
-export function loadTourPdf(data) {
-    return (dispatch, getState) => {
-        // console.log("tourActions, L: 86 -> LOAD_TOUR_PDF_DONE :", LOAD_TOUR_PDF_DONE)
-        return loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
-    }
+export const loadTourPdf =  (data) => async (dispatch, getState) => {
+
+    try {
+        let response = await loadFile(dispatch, getState, LOAD_TOUR_PDF, LOAD_TOUR_PDF_DONE, "tours", data, "tours/" + data.id + "/pdf", "pdf", "buffer");
+        
+        // console.log("L91 tourActions / loadTourPdf response :", response)
+         // e.g. Promise {<fulfilled>: undefined}[[Prototype]] :  Promise [[PromiseState]] :  "fulfilled" [[PromiseResult]] : undefined
+        return response
+    } catch (error) {
+        console.log("L94, tourActions Error: " + error.message);
+        throw error
+    } 
 }
+
 
 export function loadTourGpx(data) {
     // console.log("tourActions, loadFTourGpx L92 :", data)
     return (dispatch, getState) => {
-        return loadFile(dispatch, getState, LOAD_TOUR_GPX, LOAD_TOUR_GPX_DONE, "tours", data, "tours/" + data.id + "/gpx", "gpx", "buffer");
+        return loadFile(dispatch, getState, LOAD_TOUR_GPX, LOAD_TOUR_GPX_DONE, "tours", data, "tours/" + data.id + "/gpx", "gpx", "arraybuffer");
     }
 }
 

@@ -12,9 +12,10 @@ import ArrowLeft from "../../icons/ArrowLeft";
 import Grid from "@mui/material/Grid";
 import {Button} from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight} from "@mui/icons-material";
+import { useTranslation } from 'react-i18next';
 
 //description:
-// The TabPanel function is a helper function that returns a React component that displays the content of a single tab panel within the Detail component. It takes in a set of props, including children, value, and index, and returns a div element that shows the content only if the value of the TabPanel matches the current selected tab value (value === index).
+// The TabPanel function is a helper function that returns a React component that displays the content of a single tab panel within the Detail component (currently: 'TOURDETAILS' & 'AN- & ABREISE'). It takes in a set of props, including children, value, and index, and returns a div element that shows the content only if the value of the TabPanel matches the current selected tab value (value === index).
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -45,6 +46,12 @@ function a11yProps(index) {
 }
 
 export default function Detail({tour, loadTourConnectionsExtended, onClose}){
+
+    const{t} = useTranslation();
+    const tabLabelTourDetails = t('main.tourdetails');
+    const tabLabelArrivalDeparture = t('main.an_und_abreise');
+
+    const departureLabel = t('main.anreisetag')
     // console.log("tour value: ",tour)
     const [value, setValue] = React.useState(0);
     const [connectionEntity, setConnectionEntity] = useState(null);
@@ -192,7 +199,7 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
                         }
                     </Grid>
                     <Grid item xs={6} sx={{textAlign: 'center'}}>
-                        <Typography xs={{fontSize: '14px', fontWeight: 600}} style={{fontWeight: 600}}>Anreisetag</Typography>
+                        <Typography xs={{fontSize: '14px', fontWeight: 600}} style={{fontWeight: 600}}>{departureLabel}</Typography>
                         <Typography xs={{fontSize: '14px'}}>{getDateFromEntry(getEntryFromIndex())}</Typography>
                     </Grid>
                     <Grid item xs={3} sx={{textAlign: 'right'}}>
@@ -217,8 +224,9 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
             the aria-selected and tabIndex attributes are not set explicitly in the code. The Tabs component from @mui/material library handles setting these attributes automatically based on the value and onChange props that are passed to it.
             So, in summary, the a11yProps function in the code sets the id and aria-controls attributes of each Tab component, while the Tabs component handles setting the aria-selected and tabIndex attributes based on the value and onChange props that are passed to it. */}
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" style={{marginLeft: "10px"}}>
-                <Tab label="Tourdetails" {...a11yProps(0)} style={{paddingLeft: "25px", paddingRight: "25px", color: "#101010", minHeight: 0, height: "35px", alignSelf: "center", ...addStyleValues(0)}}/>
-                <Tab label="An- & Abreise" {...a11yProps(1)} style={{paddingLeft: "25px", paddingRight: "25px", color: "#101010",minHeight: 0, height: "35px", alignSelf: "center", ...addStyleValues(1)}}/>
+                <Tab label={tabLabelTourDetails} {...a11yProps(0)} style={{paddingLeft: "25px", paddingRight: "25px", color: "#101010", minHeight: 0, height: "35px", alignSelf: "center", ...addStyleValues(0)}}/>
+                {/* <Tab label="Tourdetails" {...a11yProps(0)} style={{paddingLeft: "25px", paddingRight: "25px", color: "#101010", minHeight: 0, height: "35px", alignSelf: "center", ...addStyleValues(0)}}/> */}
+                <Tab label={tabLabelArrivalDeparture} {...a11yProps(1)} style={{paddingLeft: "25px", paddingRight: "25px", color: "#101010",minHeight: 0, height: "35px", alignSelf: "center", ...addStyleValues(1)}}/>
             </Tabs>
         </Box>
         {/* Row 3: TourDetails or TourConnection components*/}

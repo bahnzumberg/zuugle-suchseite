@@ -13,6 +13,7 @@ import { loadRanges } from "../../actions/rangeActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
+
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
 import { useMatomo } from "@datapunt/matomo-tracker-react";
@@ -45,6 +46,7 @@ const SponsoringContainer = lazy(() =>
 	import("../../components/SponsoringContainer")
 );
 
+
 // General Description of Start.js:
 // Code's main function is displaying information about tours.
 // libraries used  :
@@ -61,6 +63,7 @@ const SponsoringContainer = lazy(() =>
 // Start has two functions onSelectTour and onSelectRange which navigate to the search page with specified parameters (tour name or range) when a tour or a range is selected.
 // The component also makes use of the Matomo Tracker React Hook useMatomo to track page views. The function myTrackPageView is used to track the current page view.
 // Finally, the component makes use of several lazy-loaded components including RangeCardContainer, ScrollingTourCardContainer, KPIContainer, AboutZuugleContainer, UserRecommendationContainer, Header, and SponsoringContainer.
+
 function Start({
 	loadFavouriteTours,
 	favouriteTours,
@@ -119,6 +122,7 @@ function Start({
 		loadTotalTours();
 		loadRanges({ ignore_limit: true, remove_duplicates: true });
 		// searchParams.forEach(item=> console.log(item)) // testing params
+
 
 		let searchParamCity = searchParams.get("city");
 		const city = localStorage.getItem("city");
@@ -192,6 +196,7 @@ function Start({
 			return "Die schönsten Wanderdestinationen";
 		}
 	};
+
 
 	// description
 	// The getFavouriteToursText is a constant function that returns a string. The function checks the value of the _city variable which is obtained from the searchParams.get('city') method. If the value of _city exists and its length is greater than 0, it returns the string "Beliebte Bergtouren in deiner Nähe" (which means "Popular mountain tours in your area"). Otherwise, it returns the string "Beliebte Bergtouren" (which means "Popular mountain tours").
@@ -661,6 +666,7 @@ const mapStateToProps = (state) => {
 // The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
 // The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
 export default compose(
+
 	connect(
 		//connects the component Start to the redux store
 		mapStateToProps,
