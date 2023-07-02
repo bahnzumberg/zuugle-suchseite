@@ -15,7 +15,7 @@ import {
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
-import FullScreenCityInput from "./FullScreenCityInput";
+import FullScreenCityInput from "../Search/FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 // import FilterIcon from "../../icons/FilterIcon";
@@ -25,7 +25,7 @@ import i18next from "i18next";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
-export function Search({
+export function SearchFilter({
 	loadRegions,
 	loadTours,
 	goto,
@@ -199,18 +199,18 @@ export function Search({
 		}
 
 		// let result = loadTours({
-		loadTours({
-			city: city,
-			range: range,
-			state: state,
-			country: country,
-			type: type,
-			search: search,
-			filter: filter,
-			sort: orderId,
-			provider: provider,
-			map: searchParams.get("map"),
-		});
+		// loadTours({
+		// 	city: city,
+		// 	range: range,
+		// 	state: state,
+		// 	country: country,
+		// 	type: type,
+		// 	search: search,
+		// 	filter: filter,
+		// 	sort: orderId,
+		// 	provider: provider,
+		// 	map: searchParams.get("map"),
+		// });
 		// result.then((resolvedValue) => {
 		//     console.log("result of load Tours", resolvedValue);
 		// });
@@ -503,48 +503,59 @@ export function Search({
 						>
 							Heimatbahnhof wählen
 						</span>
-						<span className="goBtn">GO!</span>
+						<img
+							src={`/app_static/img/filter.png`}
+							className="filterStyling"
+							onClick={() => search()}
+						/>
 					</div>
-					<div className="mobileSearchField">
-						<div className="rowing">
-							<img
-								src={`/app_static/img/searchIcon.png`}
-								height={"25px"}
-								width={"25px"}
-								alt="search-icon"
-							/>
-							<div
-								style={{
-									alignItems: "center",
-									justifyContent: "left",
-									display: "flex",
-									flexDirection: "column",
-									paddingLeft: 10,
-								}}
-								onClick={() => setShowMobileMenu(true)}
-							>
-								<span
-									className="searchFirstText"
-									style={{ width: "100%", textAlign: "left", fontSize: 14 }}
-								>
-									Öffi-Touren im Alpenraum
-								</span>
-								<span
-									className="searchSecondText"
+					<div style={{}}>
+						<div className="mobileSearchField">
+							<div className="rowing">
+								<img
+									src={`/app_static/img/searchIcon.png`}
+									height={"25px"}
+									width={"25px"}
+									alt="search-icon"
+								/>
+								<div
 									style={{
-										width: "100%",
-										textAlign: "left",
+										// alignItems: "center",
+										justifyContent: "left",
+										display: "flex",
+										flexDirection: "column",
 										paddingLeft: 10,
-										fontSize: 14,
 									}}
+									onClick={() => setShowMobileMenu(true)}
 								>
-									Heimatbahnhof wählen
-								</span>
+									<span
+										className="searchFirstText"
+										style={{ width: "100%", textAlign: "left", fontSize: 14 }}
+									>
+										Öffi-Touren im Alpenraum
+									</span>
+									<span
+										className="searchSecondText"
+										style={{
+											width: "100%",
+											textAlign: "left",
+											paddingLeft: 15,
+											fontSize: 14,
+										}}
+									>
+										Heimatbahnhof wählen
+									</span>
+								</div>
 							</div>
-						</div>
-						<span className="goBtn" onClick={() => search()}>
+							<img
+								src={`/app_static/img/filter.png`}
+								className="filterStyling"
+								onClick={() => search()}
+							/>
+							{/* <span className="goBtn" onClick={() => search()}>
 							GO!
-						</span>
+						</span> */}
+						</div>
 					</div>
 					{showFirstMenu && (
 						<div className="centerMe">
@@ -727,4 +738,6 @@ const mapStateToProps = (state) => {
 	};
 };
 
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
+export default compose(connect(mapStateToProps, mapDispatchToProps))(
+	SearchFilter
+);

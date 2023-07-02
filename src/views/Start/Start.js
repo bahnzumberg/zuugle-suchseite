@@ -1,6 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import { Dialog, Modal, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { lazy, useEffect } from "react";
 import {
 	loadFavouriteTours,
@@ -13,21 +13,17 @@ import { loadRanges } from "../../actions/rangeActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
-
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-import { useMatomo } from "@datapunt/matomo-tracker-react";
+import { useMatomo } from "@jonkoops/matomo-tracker-react";
 import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
-import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import ClearIcon from "@mui/icons-material/Clear";
+
 import {
 	getPageHeader,
 	listAllCityLinks,
 	listAllRangeLinks,
 } from "../../utils/seoPageHelper";
-import SearchIcon from "@mui/icons-material/Search";
 const RangeCardContainer = lazy(() =>
 	import("../../components/RangeCardContainer")
 );
@@ -45,7 +41,6 @@ const Header = lazy(() => import("./Header"));
 const SponsoringContainer = lazy(() =>
 	import("../../components/SponsoringContainer")
 );
-
 
 // General Description of Start.js:
 // Code's main function is displaying information about tours.
@@ -84,21 +79,7 @@ function Start({
 	const { trackPageView } = useMatomo();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
-	const [fSearchQuery, setFSearchQuery] = React.useState("");
-	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
-	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
-	]);
-	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
-	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
-	]);
+
 	// description
 	// makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
 	useEffect(() => {
@@ -122,7 +103,6 @@ function Start({
 		loadTotalTours();
 		loadRanges({ ignore_limit: true, remove_duplicates: true });
 		// searchParams.forEach(item=> console.log(item)) // testing params
-
 
 		let searchParamCity = searchParams.get("city");
 		const city = localStorage.getItem("city");
@@ -197,7 +177,6 @@ function Start({
 		}
 	};
 
-
 	// description
 	// The getFavouriteToursText is a constant function that returns a string. The function checks the value of the _city variable which is obtained from the searchParams.get('city') method. If the value of _city exists and its length is greater than 0, it returns the string "Beliebte Bergtouren in deiner Nähe" (which means "Popular mountain tours in your area"). Otherwise, it returns the string "Beliebte Bergtouren" (which means "Popular mountain tours").
 	const getFavouriteToursText = () => {
@@ -232,329 +211,18 @@ function Start({
 			</Box>
 		);
 	} else {
-		return showMobileMenu ? (
-			<div className="mobileMenu">
-				<div className="rowing">
-					<div />
-					<div className="rowing">
-						<span className="boldTxt">Abbrechen</span>
-						<span className="pointy" onClick={() => setShowMobileMenu(false)}>
-							<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
-						</span>
-					</div>
-				</div>
-				<div className="firstMobileMenu">
-					<div className="rowing" style={{ marginBottom: 5 }}>
-						<span className="boldTxt">Suche</span>
-						<span />
-					</div>
-					<div
-						className="rowing searchField"
-						style={{ width: 275, marginRight: 5 }}
-					>
-						<div className="rowingLeft">
-							<SearchIcon />
-							<input
-								className="searchInput"
-								onChange={(e) => setFSearchQuery(e.target.value)}
-								value={fSearchQuery}
-								style={{ width: 195 }}
-							/>
-						</div>
-						<span
-							className="closeIcon"
-							// style={{ marginRight: 10 }}
-							onClick={() => setFSearchQuery("")}
-						>
-							<CloseIcon
-								sx={{
-									color: "#8B8B8B",
-									width: 18,
-									height: 18,
-								}}
-							/>
-						</span>
-					</div>
-					{fSearchQuery &&
-						firstMenuOptions
-							.filter((item) => item.startsWith(fSearchQuery))
-							.map((item) => (
-								<span key={item} className="searchSuggestions">
-									{item}
-								</span>
-							))}
-				</div>
-				<div
-					className="firstMobileMenu"
-					style={{ marginTop: 40, marginBottom: 50 }}
-				>
-					<div className="rowing" style={{ marginBottom: 5 }}>
-						<span className="boldTxt">Dein Heimatbahnhof</span>
-						<span />
-					</div>
-					<div
-						className="rowing searchField"
-						style={{ width: 275, marginRight: 5 }}
-					>
-						<div className="rowingLeft">
-							<SearchIcon />
-							<input
-								className="searchInput"
-								onChange={(e) => setSecondSearchQuery(e.target.value)}
-								value={secondSearchQuery}
-								style={{ width: 195 }}
-							/>
-						</div>
-						<span
-							className="closeIcon"
-							// style={{ marginRight: 10 }}
-							onClick={() => setSecondSearchQuery("")}
-						>
-							<CloseIcon
-								sx={{
-									color: "#8B8B8B",
-									width: 18,
-									height: 18,
-								}}
-							/>
-						</span>
-					</div>
-					{secondSearchQuery &&
-						secondMenuOptions
-							.filter((item) => item.startsWith(secondSearchQuery))
-							.map((item) => (
-								<span key={item} className="searchSuggestions">
-									{item}
-								</span>
-							))}
-				</div>
-				<div className="rowing">
-					<span className="firstBtn">Dein Heimatbahnhof</span>
-					<span className="secondBtn">Suchen</span>
-				</div>
-			</div>
-		) : (
+		return (
 			<Box>
 				{getPageHeader(null)}
 				<Header totalTours={totalTours} allCities={allCities} />
 				<Box elevation={0} className={"header-line"}>
 					<Box sx={{ padding: "20px" }}>
-						<Typography color={"#FFFFFF"} sx={{ textAlign: "left" }}>
+						<Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
 							Zuugle sucht für dich in {totalProvider} Tourenportalen nach
 							Öffi-Bergtouren
 						</Typography>
 					</Box>
 				</Box>
-				<Box component={"div"} className="colCenter">
-					<div className="centerInputField">
-						<img
-							src={`/app_static/img/searchIcon.png`}
-							height={"25px"}
-							width={"25px"}
-							alt="search-icon"
-						/>
-						<span
-							className="searchFirstText"
-							onClick={() => {
-								setShowFirstMenu(true);
-							}}
-						>
-							Öffi-Touren im Alpenraum
-						</span>
-						<span className="verticalBar" />
-						<span
-							className="searchSecondText"
-							onClick={() => setShowSecondMenu(true)}
-						>
-							Heimatbahnhof wählen
-						</span>
-						<span className="goBtn">GO!</span>
-					</div>
-					<div className="mobileSearchField">
-						<div className="rowing">
-							<img
-								src={`/app_static/img/searchIcon.png`}
-								height={"25px"}
-								width={"25px"}
-								alt="search-icon"
-							/>
-							<div
-								style={{
-									alignItems: "center",
-									justifyContent: "left",
-									display: "flex",
-									flexDirection: "column",
-									paddingLeft: 10,
-								}}
-								onClick={() => setShowMobileMenu(true)}
-							>
-								<span className="searchFirstText" style={{ width: "100%" }}>
-									Öffi-Touren im Alpenraum
-								</span>
-								<span className="searchSecondText" style={{ width: "100%" }}>
-									Heimatbahnhof wählen
-								</span>
-							</div>
-						</div>
-						<span className="goBtn">GO!</span>
-					</div>
-					{showFirstMenu && (
-						<div className="centerMe">
-							<Modal
-								onClose={() => setShowFirstMenu(false)}
-								open={showFirstMenu}
-								style={
-									{
-										// paddingTop: 340,
-									}
-								}
-								className="centerMe"
-							>
-								<div className="firstMenu" style={{ marginLeft: 10 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Suche</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
-									</div>
-									<div className="rowing">
-										<div className="rowing searchField">
-											<div className="rowingLeft">
-												<SearchIcon />
-												<input
-													className="searchInput"
-													onChange={(e) => setFSearchQuery(e.target.value)}
-													value={fSearchQuery}
-												/>
-											</div>
-											<span
-												className="closeIcon"
-												// style={{ marginRight: 10 }}
-												onClick={() => setFSearchQuery("")}
-											>
-												<CloseIcon
-													sx={{
-														color: "#8B8B8B",
-														width: 18,
-														height: 18,
-													}}
-												/>
-											</span>
-										</div>
-										<div className="incircledArrow centerMe">
-											<ArrowForwardOutlinedIcon
-												style={{ fontSize: 30, color: "#4992FF" }}
-											/>
-										</div>
-									</div>
-									{showFirstMenu && (
-										<div
-											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10 }}
-										>
-											{fSearchQuery &&
-												firstMenuOptions
-													.filter((item) => item.startsWith(fSearchQuery))
-													.map((item) => (
-														<span key={item} className="searchSuggestions">
-															{item}
-														</span>
-													))}
-											{fSearchQuery.trim() &&
-												firstMenuOptions.filter((item) =>
-													item.startsWith(fSearchQuery)
-												).length === 0 && (
-													<span className="searchSuggestions">
-														No results found
-													</span>
-												)}
-										</div>
-									)}
-								</div>
-							</Modal>
-						</div>
-					)}
-					{showSecondMenu && (
-						<div className="centerMe">
-							<Modal
-								onClose={() => setShowSecondMenu(false)}
-								open={showSecondMenu}
-								style={
-									{
-										// paddingTop: 340,
-									}
-								}
-								className="centerMe"
-							>
-								<div className="firstMenu" style={{ marginLeft: 10 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
-									</div>
-									<div className="rowing">
-										<div className="rowing searchField">
-											<div className="rowingLeft">
-												<SearchIcon />
-												<input
-													className="searchInput"
-													onChange={(e) => setSecondSearchQuery(e.target.value)}
-													value={secondSearchQuery}
-												/>
-											</div>
-											<span
-												className="closeIcon"
-												// style={{ marginRight: 10 }}
-												onClick={() => setSecondSearchQuery("")}
-											>
-												<CloseIcon
-													sx={{
-														color: "#8B8B8B",
-														width: 18,
-														height: 18,
-													}}
-												/>
-											</span>
-										</div>
-										<div className="incircledArrow centerMe">
-											<ArrowForwardOutlinedIcon
-												style={{ fontSize: 30, color: "#4992FF" }}
-											/>
-										</div>
-									</div>
-									{showSecondMenu && (
-										<div
-											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10 }}
-										>
-											{secondSearchQuery &&
-												secondMenuOptions
-													.filter((item) => item.startsWith(secondSearchQuery))
-													.map((item) => (
-														<span
-															key={item}
-															className="searchSuggestions rowingStart"
-														>
-															<img
-																src={`/app_static/img/grpSymbol.png`}
-																className="ssiggestionQry"
-															/>
-															{item}
-														</span>
-													))}
-											{secondSearchQuery.trim() &&
-												secondMenuOptions.filter((item) =>
-													item.startsWith(secondSearchQuery)
-												).length === 0 && (
-													<span className="searchSuggestions">
-														No results found
-													</span>
-												)}
-										</div>
-									)}
-								</div>
-							</Modal>
-						</div>
-					)}
-				</Box>
-
 				<Box className={"start-body-container"}>
 					<Box>
 						<Typography
@@ -666,7 +334,6 @@ const mapStateToProps = (state) => {
 // The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
 // The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
 export default compose(
-
 	connect(
 		//connects the component Start to the redux store
 		mapStateToProps,

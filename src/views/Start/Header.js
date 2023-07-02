@@ -1,13 +1,13 @@
-
 import * as React from "react";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
+import { Typography, Modal, Dialog } from "@mui/material";
 import SearchContainer from "./SearchContainer";
 import { useEffect, useState } from "react";
 import { getDomainText, isResponsive } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+
 // const LINEAR_GRADIENT = "linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), ";
 const LINEAR_GRADIENT =
 	"linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
@@ -21,7 +21,21 @@ export default function Header({ totalTours, allCities }) {
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
 	const [activeDomain, setActiveDomain] = React.useState(getDomainText());
 	const [activeLanguage, setActiveLanguage] = React.useState("Deutsch");
-
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+	const [fSearchQuery, setFSearchQuery] = React.useState("");
+	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
+	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
+		"GroBer Patel",
+		"GroBer Priel",
+		"GroBer Pythrgas",
+	]);
+	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
+	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
+	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
+		"GroBer Patel",
+		"GroBer Priel",
+		"GroBer Pythrgas",
+	]);
 	const [backgroundImage, setBackgroundImage] = useState(
 		`${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny.jpeg)`
 	);
@@ -143,8 +157,8 @@ export default function Header({ totalTours, allCities }) {
 										<div
 											className="rowing"
 											key={item.id}
-											style={{ paddingTop: 23, paddingBottom: 23 }}
-											onClick={() => {}}
+											style={{ paddingTop: 12, paddingBottom: 12 }}
+											onClick={() => setShowDomainMenu(false)}
 										>
 											<img
 												src={`/app_static/img/logo30.png`}
@@ -154,7 +168,7 @@ export default function Header({ totalTours, allCities }) {
 											<span className="domainItem">{item.name}</span>
 											<span
 												className="closeIcon"
-												onClick={() => setShowDomainMenu(false)}
+												// onClick={() => setShowDomainMenu(false)}
 											>
 												<KeyboardArrowUpIcon
 													sx={{ color: "#8B8B8B", width: 20, height: 20 }}
@@ -165,7 +179,8 @@ export default function Header({ totalTours, allCities }) {
 										<span
 											className="domainItem"
 											key={item.id}
-											style={{ paddingTop: 23, paddingBottom: 23 }}
+											style={{ paddingTop: 12, paddingBottom: 12 }}
+											onClick={() => setShowDomainMenu(false)}
 										>
 											{item.name}
 										</span>
@@ -175,7 +190,10 @@ export default function Header({ totalTours, allCities }) {
 								{secondMenu.map((item) => (
 									<span
 										className="domainItem"
-										style={{ paddingTop: 23, paddingBottom: 23 }}
+										style={{
+											paddingTop: item.id === 0 ? 0 : 12,
+											paddingBottom: 12,
+										}}
 									>
 										{item.name}
 									</span>
@@ -203,7 +221,7 @@ export default function Header({ totalTours, allCities }) {
 										<div
 											className="rowing"
 											key={item}
-											style={{ width: 150, marginBottom: 12 }}
+											style={{ width: 140, marginBottom: 5 }}
 										>
 											<span
 												className="languageItem"
@@ -230,7 +248,7 @@ export default function Header({ totalTours, allCities }) {
 											className="languageItem"
 											onClick={() => setLanguage(item)}
 											key={item}
-											style={{ marginBottom: 12 }}
+											style={{ marginBottom: 5 }}
 										>
 											{item}
 										</span>
@@ -272,3 +290,4 @@ export default function Header({ totalTours, allCities }) {
 			</Box>
 		);
 	}
+}

@@ -711,12 +711,12 @@ cursor: pointer;
   flex-direction: column;
 }
 .languageMenu{
-  width: 173px;
+  /* width: 173px; */
 /* height: 236px; */
 padding-top: 19px;
 padding-left: 30px;
  padding-right: 15px; 
-padding-bottom: 25px;
+padding-bottom: 10px;
 background: #FFFFFF;
 border-radius: 20px;
 display: flex;
@@ -725,7 +725,7 @@ justify-content: space-between;
 flex-direction: row; 
 position: absolute;
 right: 105px;
-top:85px;
+top:30px;
 }
 .firstMenu{
   background: #FFFFFF;
@@ -793,9 +793,10 @@ box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
 position: absolute;
 left: 105px;
-top:85px;
+top:35px;
 padding-left: 13px;
 padding-right: 13px;
+padding-top: 10px;
 /* padding-bottom: 18px; */
 /* padding-top: 13px; */
 }
@@ -841,21 +842,24 @@ justify-content: space-between;
 align-items: center;
 padding: 12px 24px;
 width: 600px;
-height: 64px;
+/* height: 64px; */
 background: #FFFFFF;
 border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
-margin-top: -23px;
+/* margin-top: -180px; */
+margin-bottom: -175px;
 }
 .mobileSearchField{
   display: none;
 flex-direction: row;
 justify-content: space-between;
 align-items: center;
-padding: 12px 24px;
-width: 320px;
-/* height: 64px; */
+/* padding: 12px 24px; */
+padding-left: 12px;
+padding-right: 12px;
+width: 325px;
+height: 64px;
 background: #FFFFFF;
 border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
@@ -999,7 +1003,13 @@ display: flex;
   border-radius: 12px;
   color: #fff;
 }
-@media only screen and (max-width: 400px) {
+.filterStyling{
+  width: 40px;
+height: 40px;
+border-radius: 50%;
+cursor: pointer;
+}
+@media only screen and (max-width: 650px) {
   .countryDiv{
     padding-left: 5px;
     padding-right: 5px;
