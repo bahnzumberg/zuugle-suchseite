@@ -216,7 +216,7 @@ function Start({
 				{getPageHeader(null)}
 				<Header totalTours={totalTours} allCities={allCities} />
 				<Box elevation={0} className={"header-line"}>
-					<Box sx={{ padding: "55px" }}>
+					<Box sx={{ paddingTop: "50px", paddingBottom: "20px" }}>
 						<Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
 							Zuugle sucht für dich in {totalProvider} Tourenportalen nach
 							Öffi-Bergtouren

@@ -724,8 +724,8 @@ align-items: flex-start;
 justify-content: space-between;
 flex-direction: row; 
 position: absolute;
-right: 105px;
-top:30px;
+right: 125px;
+top:25px;
 }
 .firstMenu{
   background: #FFFFFF;
@@ -792,8 +792,8 @@ background: #FFFFFF;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
 position: absolute;
-left: 105px;
-top:35px;
+left: 125px;
+top:25px;
 padding-left: 13px;
 padding-right: 13px;
 padding-top: 10px;
@@ -867,7 +867,7 @@ top:485px;
   /* margin-top: -180px; */
   /* margin-bottom: -175px; */
   position:absolute;
-  top:131px;
+  top:100px;
 }
 .mobileSearchField{
   display: none;
@@ -884,7 +884,7 @@ border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
 position:absolute;
-top:485px;
+top:415px;
 
 }
 .mobileSearchFieldFilter{
@@ -909,10 +909,15 @@ margin-bottom: -30px;
 .mobileMenu{
   display: flex;
   flex-direction: column;
-  padding: 12px 24px;
-  background: #FFFFFF;
+  padding: 12px;
+  background: #C5C5C5;
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-  
+  height: 100%;
+
+  position: absolute;
+  top:0;
+  right: 0;
+  left: 0;
 }
 .searchFirstText{
   font-family: 'Open Sans';
@@ -988,7 +993,7 @@ width: 100%;
 
 .searchInput{
   background:transparent;
-  width:325px;
+  width:380px;
   outline: none;
   border: none;
   font-family:'Open Sans';
@@ -1054,7 +1059,7 @@ cursor: pointer;
 
 }
 .blueDiv{
-  padding: 75px 105px 40px 105px;
+  padding: 45px 105px 40px 105px;
 }
 @media only screen and (max-width: 650px) {
   .countryDiv{
@@ -1063,7 +1068,7 @@ cursor: pointer;
    
   }
   .blueDiv{
-    padding: 70px 15px 65px 15px;
+    padding: 50px 15px 45px 15px;
 
   }
   .languageMenu{

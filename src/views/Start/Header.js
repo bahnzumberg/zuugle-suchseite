@@ -9,6 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
+import LanguageDropdown from "../../components/Language/LanguageDropdown";
 
 // const LINEAR_GRADIENT = "linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), ";
 const LINEAR_GRADIENT =

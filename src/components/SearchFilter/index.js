@@ -505,7 +505,7 @@ export function SearchFilter({
 						<img
 							src={`/app_static/img/filter.png`}
 							className="filterStyling"
-							onClick={() => search()}
+							// onClick={() => search()}
 						/>
 					</div>
 					<div style={{}}>
@@ -549,7 +549,7 @@ export function SearchFilter({
 							<img
 								src={`/app_static/img/filter.png`}
 								className="filterStyling"
-								onClick={() => search()}
+								// onClick={() => search()}
 							/>
 							{/* <span className="goBtn" onClick={() => search()}>
 							GO!

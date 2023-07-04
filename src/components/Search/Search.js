@@ -298,6 +298,7 @@ export function Search({
 		// for (const entry of searchParams.entries()) {
 		//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
 		// }
+
 		if (!!goto) {
 			// clg
 			// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
@@ -381,15 +382,14 @@ export function Search({
 
 	return (
 		<Fragment>
-			{" "}
 			{showMobileMenu ? (
 				<div className="mobileMenu">
-					<div className="rowing">
+					<div className="rowing" style={{ marginBottom: 15 }}>
 						<div />
 						<div className="rowing">
 							<span className="boldTxt">Abbrechen</span>
 							<span className="pointy" onClick={() => setShowMobileMenu(false)}>
-								<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
+								<ClearIcon style={{ fontSize: 60, marginLeft: 8 }} />
 							</span>
 						</div>
 					</div>
@@ -508,7 +508,9 @@ export function Search({
 							>
 								Heimatbahnhof wählen
 							</span>
-							<span className="goBtn">GO!</span>
+							<span className="goBtn" onClick={search}>
+								GO!
+							</span>
 						</div>
 					)}
 					{!showFirstMenu && !showSecondMenu && (
@@ -566,10 +568,15 @@ export function Search({
 								}
 								className="centerMe"
 							>
-								<div className="firstMenu" style={{ marginLeft: 10 }}>
+								<div className="firstMenu" style={{ marginTop: 75 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
 										<span className="boldTxt">Suche</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
+										<span
+											className="boldTxt underline pointy"
+											onClick={() => setShowFirstMenu(false)}
+										>
+											Abbrechen
+										</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -640,10 +647,15 @@ export function Search({
 								}
 								className="centerMe"
 							>
-								<div className="firstMenu" style={{ marginLeft: 10 }}>
+								<div className="firstMenu" style={{ marginTop: 75 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
 										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
+										<span
+											className="boldTxt underline pointy"
+											onClick={() => setShowSecondMenu(false)}
+										>
+											Abbrechen
+										</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -653,6 +665,7 @@ export function Search({
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
+													style={{ width: 400 }}
 												/>
 											</div>
 											<span
