@@ -13,6 +13,7 @@ import {
 	parseIfNeccessary,
 	setOrRemoveSearchParam,
 } from "../../utils/globals";
+import { Modal } from "@mui/material";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
 import FullScreenCityInput from "./FullScreenCityInput";
@@ -22,6 +23,9 @@ import i18next from "i18next";
 // import SearchIcon from "../../icons/SearchIcon";
 // import IconButton from "@mui/material/IconButton";
 // import GoIcon from "../../icons/GoIcon";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
@@ -481,71 +485,75 @@ export function Search({
 				</div>
 			) : (
 				<Box component={"div"} className="colCenter">
-					<div className="centerInputField">
-						<img
-							src={`/app_static/img/searchIcon.png`}
-							height={"25px"}
-							width={"25px"}
-							alt="search-icon"
-						/>
-						<span
-							className="searchFirstText"
-							onClick={() => {
-								setShowFirstMenu(true);
-							}}
-						>
-							Öffi-Touren im Alpenraum
-						</span>
-						<span className="verticalBar" />
-						<span
-							className="searchSecondText"
-							onClick={() => setShowSecondMenu(true)}
-						>
-							Heimatbahnhof wählen
-						</span>
-						<span className="goBtn">GO!</span>
-					</div>
-					<div className="mobileSearchField">
-						<div className="rowing">
+					{!showFirstMenu && !showSecondMenu && (
+						<div className="centerInputField">
 							<img
 								src={`/app_static/img/searchIcon.png`}
 								height={"25px"}
 								width={"25px"}
 								alt="search-icon"
 							/>
-							<div
-								style={{
-									alignItems: "center",
-									justifyContent: "left",
-									display: "flex",
-									flexDirection: "column",
-									paddingLeft: 10,
+							<span
+								className="searchFirstText"
+								onClick={() => {
+									setShowFirstMenu(true);
 								}}
-								onClick={() => setShowMobileMenu(true)}
 							>
-								<span
-									className="searchFirstText"
-									style={{ width: "100%", textAlign: "left", fontSize: 14 }}
-								>
-									Öffi-Touren im Alpenraum
-								</span>
-								<span
-									className="searchSecondText"
-									style={{
-										width: "100%",
-										textAlign: "left",
-										paddingLeft: 10,
-										fontSize: 14,
-									}}
-								>
-									Heimatbahnhof wählen
-								</span>
-							</div>
+								Öffi-Touren im Alpenraum
+							</span>
+							<span className="verticalBar" />
+							<span
+								className="searchSecondText"
+								onClick={() => setShowSecondMenu(true)}
+							>
+								Heimatbahnhof wählen
+							</span>
+							<span className="goBtn">GO!</span>
 						</div>
-						<span className="goBtn" onClick={() => search()}>
-							GO!
-						</span>
-					</div>
+					)}
+					{!showFirstMenu && !showSecondMenu && (
+						<div className="mobileSearchField">
+							<div className="rowing">
+								<img
+									src={`/app_static/img/searchIcon.png`}
+									height={"25px"}
+									width={"25px"}
+									alt="search-icon"
+								/>
+								<div
+									style={{
+										alignItems: "center",
+										justifyContent: "left",
+										display: "flex",
+										flexDirection: "column",
+										paddingLeft: 10,
+									}}
+									onClick={() => setShowMobileMenu(true)}
+								>
+									<span
+										className="searchFirstText"
+										style={{ width: "100%", textAlign: "left", fontSize: 14 }}
+									>
+										Öffi-Touren im Alpenraum
+									</span>
+									<span
+										className="searchSecondText"
+										style={{
+											width: "100%",
+											textAlign: "left",
+											paddingLeft: 10,
+											fontSize: 14,
+										}}
+									>
+										Heimatbahnhof wählen
+									</span>
+								</div>
+							</div>
+							<span className="goBtn" onClick={() => search()}>
+								GO!
+							</span>
+						</div>
+					)}
 					{showFirstMenu && (
 						<div className="centerMe">
 							<Modal
@@ -553,7 +561,7 @@ export function Search({
 								open={showFirstMenu}
 								style={
 									{
-										// paddingTop: 340,
+										// marginTop: 30,
 									}
 								}
 								className="centerMe"

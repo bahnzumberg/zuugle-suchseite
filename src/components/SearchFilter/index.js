@@ -377,7 +377,6 @@ export function SearchFilter({
 
 	return (
 		<Fragment>
-			{" "}
 			{showMobileMenu ? (
 				<div className="mobileMenu">
 					<div className="rowing">
@@ -481,7 +480,7 @@ export function SearchFilter({
 				</div>
 			) : (
 				<Box component={"div"} className="colCenter">
-					<div className="centerInputField">
+					<div className="centerInputFieldFilter">
 						<img
 							src={`/app_static/img/searchIcon.png`}
 							height={"25px"}
@@ -510,7 +509,7 @@ export function SearchFilter({
 						/>
 					</div>
 					<div style={{}}>
-						<div className="mobileSearchField">
+						<div className="mobileSearchFieldFilter">
 							<div className="rowing">
 								<img
 									src={`/app_static/img/searchIcon.png`}

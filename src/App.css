@@ -848,7 +848,26 @@ border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
 /* margin-top: -180px; */
-margin-bottom: -175px;
+/* margin-bottom: -175px; */
+position:absolute;
+top:485px;
+}
+.centerInputFieldFilter{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  width: 600px;
+  /* height: 64px; */
+  background: #FFFFFF;
+  border: 2.06691px solid #DDDDDD;
+  box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  /* margin-top: -180px; */
+  /* margin-bottom: -175px; */
+  position:absolute;
+  top:131px;
 }
 .mobileSearchField{
   display: none;
@@ -864,7 +883,27 @@ background: #FFFFFF;
 border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
-margin-top: -24px;
+position:absolute;
+top:485px;
+
+}
+.mobileSearchFieldFilter{
+  display: none;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+/* padding: 12px 24px; */
+padding-left: 12px;
+padding-right: 12px;
+width: 325px;
+height: 64px;
+background: #FFFFFF;
+border: 2.06691px solid #DDDDDD;
+box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
+border-radius: 20px;
+/* position:absolute; 
+top:250px; */
+margin-bottom: -30px;
 
 }
 .mobileMenu{
@@ -1009,11 +1048,23 @@ height: 40px;
 border-radius: 50%;
 cursor: pointer;
 }
+.newHeader{
+  background-color:  #4992FF;
+
+
+}
+.blueDiv{
+  padding: 75px 105px 40px 105px;
+}
 @media only screen and (max-width: 650px) {
   .countryDiv{
     padding-left: 5px;
     padding-right: 5px;
    
+  }
+  .blueDiv{
+    padding: 70px 15px 65px 15px;
+
   }
   .languageMenu{
     right:10px;
@@ -1022,12 +1073,15 @@ cursor: pointer;
     left:10px;
   }
   .centerInputField{
-    width: 320px;
-  }
-  .centerInputField{
     display: none;
   }
   .mobileSearchField{
+    display: flex;
+  }
+  .centerInputFieldFilter{
+    display: none;
+  }
+  .mobileSearchFieldFilter{
     display: flex;
   }
   .searchSecondText{

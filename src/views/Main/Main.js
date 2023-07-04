@@ -35,6 +35,8 @@ import {
 } from "../../utils/seoPageHelper";
 import { loadRanges } from "../../actions/rangeActions";
 import { SearchFilter } from "../../components/SearchFilter";
+import DomainMenu from "../../components/DomainMenu";
+import LanguageMenu from "../../components/LanguageMenu";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const ResultBar = lazy(() => import("../../components/ResultBar"));
@@ -360,18 +362,30 @@ export function Main({
 						</Box>
 					)
 				}
-				{/* description:
-            Search component: This is the search bar component that is used to filter tours based on user input. It is only rendered if there are cities available in the allCities array. */}
-				{!!allCities && allCities.length > 0 && (
-					<Box sx={{ backgroundColor: "#FFF" }}>
-						<Box className={"main-search-bar"}>
+				{/* new top header */}
+				<Box className="newHeader">
+					<Box comoponent={"div"} className="rowing blueDiv">
+						<DomainMenu />
+						<LanguageMenu />
+					</Box>
+					{!!allCities && allCities.length > 0 && (
+						<Box alignItems={"center"} justifyContent={"center"} display="flex">
 							<SearchFilter isMain={true} />
 						</Box>
+					)}
+				</Box>
+				{/* description:
+            Search component: This is the search bar component that is used to filter tours based on user input. It is only rendered if there are cities available in the allCities array. */}
+				{/* {!!allCities && allCities.length > 0 && (
+					<Box
+						sx={{ backgroundColor: "#FFF", position: "absolute", top: "200px" }}
+					>
+						<SearchFilter isMain={true} />
 					</Box>
-				)}
+				)} */}
 				{/* description:
             ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
-				{!detailOpen && (
+				{/* {!detailOpen && (
 					<ResultBar
 						showModal={showModal}
 						hideModal={hideModal}
@@ -381,7 +395,7 @@ export function Main({
 						everythingDisabled={totalTours == 0}
 						clearTours={clearTours}
 					/>
-				)}
+				)} */}
 			</Box>
 			{!!loading && !!!mapView && (
 				<Box sx={{ textAlign: "center", padding: "30px" }}>

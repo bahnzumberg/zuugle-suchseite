@@ -203,7 +203,7 @@ function Start({
 	// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
 	// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
 	// A Footer component.
-	if (totalTours == 0) {
+	if (totalTours === 0) {
 		return (
 			<Box>
 				<Header totalTours={totalTours} allCities={allCities} />
@@ -216,7 +216,7 @@ function Start({
 				{getPageHeader(null)}
 				<Header totalTours={totalTours} allCities={allCities} />
 				<Box elevation={0} className={"header-line"}>
-					<Box sx={{ padding: "20px" }}>
+					<Box sx={{ padding: "55px" }}>
 						<Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
 							Zuugle sucht für dich in {totalProvider} Tourenportalen nach
 							Öffi-Bergtouren
