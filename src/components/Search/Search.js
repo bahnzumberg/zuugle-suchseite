@@ -557,15 +557,14 @@ export function Search({
 						</div>
 					)}
 					{showFirstMenu && (
-						<div className="centerMe">
+						<div
+							className="centerMe"
+							// style={{ position: "absolute", top: 485 }}
+						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
 								open={showFirstMenu}
-								style={
-									{
-										// marginTop: 30,
-									}
-								}
+								style={{ position: "absolute", top: 225 }}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginTop: 75 }}>
@@ -640,11 +639,7 @@ export function Search({
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={
-									{
-										// paddingTop: 340,
-									}
-								}
+								style={{ position: "absolute", top: 225 }}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginTop: 75 }}>

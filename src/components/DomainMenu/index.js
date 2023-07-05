@@ -8,26 +8,32 @@ const listOfDomains = [
 	{
 		id: 0,
 		name: "Zuugle.at",
+		url: "https://zuugle.at",
 	},
 	{
 		id: 1,
 		name: "Zuugle.de",
+		url: "https://zuugle.de",
 	},
 	{
 		id: 2,
 		name: "Zuugle.ch",
+		url: "https://zuugle.ch",
 	},
 	{
 		id: 3,
 		name: "Zuugle.it",
+		url: "https://zuugle.it",
 	},
 	{
 		id: 4,
 		name: "Zuugle.fr",
+		url: "https://zuugle.fr",
 	},
 	{
 		id: 5,
 		name: "Zuugle.si",
+		url: "https://zuugle.si",
 	},
 ];
 
@@ -77,7 +83,10 @@ function DomainMenu() {
 									className="rowing"
 									key={item.id}
 									style={{ paddingTop: 12, paddingBottom: 12 }}
-									onClick={() => setShowDomainMenu(false)}
+									onClick={() => {
+										setShowDomainMenu(false);
+										window.location.replace(item.url);
+									}}
 								>
 									<img
 										src={`/app_static/img/logo30.png`}
@@ -99,7 +108,10 @@ function DomainMenu() {
 									className="domainItem"
 									key={item.id}
 									style={{ paddingTop: 12, paddingBottom: 12 }}
-									onClick={() => setShowDomainMenu(false)}
+									onClick={() => {
+										setShowDomainMenu(false);
+										window.location.replace(item.url);
+									}}
 								>
 									{item.name}
 								</span>
