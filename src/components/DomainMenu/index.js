@@ -32,13 +32,13 @@ const listOfDomains = [
 ];
 
 const secondMenu = [
-	{ id: 0, name: "Über Zuugle" },
-	{ id: 1, name: "Impressum" },
-	{ id: 2, name: "Datenschutz" },
+	{ id: 0, name: "Über Zuugle", url: "https://www.bahnzumberg.at/" },
+	{ id: 1, name: "Impressum", url: "https://www.zuugle.at/imprint" },
+	{ id: 2, name: "Datenschutz", url: "https://www.zuugle.at/privacy" },
 ];
 function DomainMenu() {
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
-	const [activeDomain, setActiveDomain] = React.useState("");
+	// const [activeDomain, setActiveDomain] = React.useState("");
 
 	return (
 		<Box comoponent={"div"} className="colLeft">
@@ -108,12 +108,16 @@ function DomainMenu() {
 						<span className="horizontalBar" />
 						{secondMenu.map((item) => (
 							<span
+								key={item.id}
 								className="domainItem"
 								style={{
 									paddingTop: item.id === 0 ? 0 : 12,
 									paddingBottom: 12,
 								}}
-								onClick={() => setShowDomainMenu(false)}
+								onClick={() => {
+									setShowDomainMenu(false);
+									window.open(item.url);
+								}}
 							>
 								{item.name}
 							</span>

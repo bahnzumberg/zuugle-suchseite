@@ -665,7 +665,7 @@ export function Search({
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
-													style={{ width: 400 }}
+													style={{ width: 440 }}
 												/>
 											</div>
 											<span
