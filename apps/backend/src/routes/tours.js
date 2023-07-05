@@ -3,7 +3,6 @@
 //   Initialize the rank_xy with 1
 //   Set the TLD assotiated rank_xy with 10
 //   Set the menu_lang rank_xy with 100
-// the query model to build from is post line 1186 below
 
 import express from 'express';
 let router = express.Router();
@@ -12,7 +11,7 @@ import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, initializeLanguageRanks, getAllLanguages, getSearchSelects} from "../utils/utils";
+import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 const fs = require('fs');
 const path = require('path');
@@ -50,7 +49,7 @@ const getWrapper = async (req, res) => {
     if(!!!id){
         res.status(404).json({success: false});
     } else {
-        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
         let entry = await knex('tour').select(selects).where({id: id}).first();
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({success: true, tour: entry});
@@ -63,9 +62,10 @@ const getWrapper = async (req, res) => {
 // The function then sets up a database query using the knex object, based on the various parameters passed in through the req object. It also sets up a count query to determine the total number of results. The where variable is used to build the query filter, based on the city, range, state, country, and type parameters. The whereRaw variable is used to specify a raw SQL query string that can be used to filter results based on more complex criteria.
 // Finally, the function generates an orderBy clause for the query based on the sort parameter. This allows the user to specify the order in which the results are returned based on a variety of criteria. The listWrapper function then executes the query and returns the results in the res object.
 const listWrapper = async (req, res) => {
-    console.log("req.query is : " + JSON.stringify(req.query)); //req.query is : {"city":"baden","search":"schnee","filter":{"ignore_filter":"true"},"sort":"relevanz","domain":"localhost:3000","currLanguage":"en"}
+    //clgs
+    //console.log("req.query is : " + JSON.stringify(req.query)); //req.query is : {"city":"baden","search":"schnee","filter":{"ignore_filter":"true"},"sort":"relevanz","domain":"localhost:3000","currLanguage":"en"}
 
-    // set current language 
+    // set current language from query
     const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en'; // e.g. in params: "currLanguage":"en"
 
     // describe
@@ -78,74 +78,55 @@ const listWrapper = async (req, res) => {
     const country = req.query.country;
     const type = req.query.type;
     const orderId = req.query.sort; //"sort":"relevanz"
-    const page = req.query.page || 2;
+    const page = req.query.page || 1;
     const domain = req.query.domain; // "domain":"localhost:3000"
     const provider = req.query.provider;
+
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
-    let useLimit = !!!map;
-
-    let addDetails = !!!map;
+    let useLimit = !!!map;  // initialise with true 
+    let addDetails = !!!map; // initialise with true
 
     const searchIncluded = !!search && !!search.length > 0;
-    console.log("searchIncluded :", searchIncluded)
+    //clgs
+    console.log("________________________________________________________________")
+    console.log("L92 searchIncluded :", searchIncluded) // ##tbdel
+    console.log("L94 page value :", page) // ##tbdel
+    console.log("________________________________________________________________")
 
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
-    // Alternative method 
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  children ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  country_at ,  country_de ,  country_it ,  country_ch ,  country_si ,  country_fr ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    // CASE OF SEARCH
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  country_at ,  country_de ,  country_it ,  country_ch ,  country_si ,  country_fr ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
    
 
-    let sql_from = "" ;
-    let sql_where = ""; 
-    
-    let sql_order = "";
-
-    // Alternative method : IF NO SEARCH TERM GIVEN
-    if(!searchIncluded) { 
-        sql_select = sql_select.replace('SELECT', 'SELECT 1 as result_rank, ');
-    }
-    else{
-        sql_select = sql_select.replace("SELECT id ,","SELECT id , result_rank, ");
-    }
-
+    let where = {};
+    // This map check is not needed when we move to the new detail page design, map shows only in detail then
     if(!!map){
         selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
-        //Alternative method
         sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
     }
     //********************************************************************++*/
-    //********************************************************************++*/
+    // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
 
     //describe:
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
     let query = knex('tour').select(selects);
     let countQuery = knex('tour').count('id');
-
-    // Alternative method
-    if(searchIncluded){
-        sql_from += " FROM ( ";
-    }else {
-        sql_from += " FROM tour ";
-    }
-
-    sql_select += sql_from;
-
-    
-    //describe:
-    // where variable at this line receives one of the 4 types of object values : {country_at: true}  variations: _de, _ch, _it
-    //checking query parameters: city, range, state, country, type, and provider so we can add any necessary where conditions to the select statement.
-    // where will be filled with the values of the following : range, state, country, type, and provider (all coming from the defined constants above) 
-    let where = getWhereFromDomain(domain) ;
-    //console.log(" L143 domain : " + domain);// localhost:3000
-    // console.log("L127 where value / domain: " + JSON.stringify(where)); //{"country_at":true}
-    sql_where += `AND country_at = true `;
-
-    
+    //clgs
+    // console.log("=============================================================");
+    // console.log("L130 countQuery:")
+    // console.log(countQuery.toSQL().sql); //select count("id") from "tour"
+    // console.log("=============================================================");
+    // let res_count = await countQuery;
+    // console.log(res_count); // ex. [ { count: '710' } ]
+    // console.log("=============================================================");
+ 
+   
     //describe:
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
@@ -154,98 +135,166 @@ const listWrapper = async (req, res) => {
     //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
     if(!!city && city.length > 0){
         whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-
-        sql_where += `AND cities @> '[{"city_slug": "${city}"}]'::jsonb ` ;
     }
-    console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
-    console.log("L159 sql_where :", sql_where); //AND country_at = true AND cities @> '[{"city_slug": "bad-ischl"}]'::jsonb
+    //clg
+    // console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
+    // console.log("L159 sql_where :", sql_where); //AND country_at = true AND cities @> '[{"city_slug": "bad-ischl"}]'::jsonb
+    
     /** region search */
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
     if(!!range && range.length > 0){
         where.range = range;
-        sql_where += `AND range = ${range} `
     }
     if(!!state && state.length > 0){
         where.state = state;
-        sql_where += `AND state = ${state} `
     }
     if(!!country && country.length > 0){
         where.country = country;
-        sql_where += `AND country = ${country} `
     }
     
     /** type search */
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!type && type.length > 0){
         where.type = type;
-        sql_where += `AND type = ${type} `
-
     }
-    // console.log("L182 where value/ type: " + JSON.stringify(where)); //{"country_at":true}
-    // console.log("L183 sql_where value/ type: " + sql_where); // 
+    //clgs
+    // console.log("L198 where value/ type: " + JSON.stringify(where)); //{"country_at":true}
 
     /** provider search */
     //describe
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
-        sql_where += `AND provider = ${provider} `
     } 
-    console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
-    console.log("L193 where value / provider: " + sql_where); // 
+    //clgs
+    // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
+    // console.log("L193 where value / provider: " + sql_where); // 
+ 
+   
+   
 
+// L 259/ query:  WITH SEARCH  /Original solution
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
+// from "tour" 
+// where "country_at" = true 
+// and cities @> '[{"city_slug": "wien"}]'::jsonb 
+// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
+// order by "month_order" asc, 
+// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
+// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
+
+// L 259/ query:  WITHOUT SEARCH /Original solution
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
+// from "tour" 
+// where "country_at" = true 
+// and cities @> '[{"city_slug": "wien"}]'::jsonb 
+// order by "month_order" asc, 
+// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
     
+// clg
+// !!where &&  console.log("L 340 where : " + JSON.stringify(where))
+
+// *******************************************************************
+// MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
+// *******************************************************************
+    //describe: build "where" object
+    //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
+    // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
+    // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
+    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input. 
+    if(!!where && Object.keys(where).length > 0){
+        query = query.where(where);
+        countQuery = countQuery.where(where);
+    }
+    if(!!whereRaw && whereRaw.length > 0){
+        query = query.andWhereRaw(whereRaw);
+        countQuery = countQuery.andWhereRaw(whereRaw);
+    }
+
+    // clg
+    // console.log("________________________________________________________________")
+    // !searchIncluded && console.log("L363: countQuery value before Filter   " + countQuery);//select count("id") from "tour" where "country_at" = true and cities @> '[{"city_slug": "wien"}]'::json
+    // console.log("________________________________________________________________")
+    // !searchIncluded && console.log("L365: query value before Filter   " + query);
+    // console.log("________________________________________________________________")
+    // searchIncluded && console.log("L367: sql_select value before Filter " + sql_select);
+    // console.log("________________________________________________________________")
+
+      
     // ****************************************************************
-        // fulltext search
+    // FILTER  / (BOTH)
+    // ****************************************************************
+    query = buildWhereFromFilter(req.query, query, true);
+    countQuery = buildWhereFromFilter(req.query, countQuery);
+
+    //DO THIS FOR SEARCH TERM ONLY
+    let sql_where_filter = "";
+    let sql_and_filter =""
+
+    if (searchIncluded) {
+        sql_where_filter = query.toQuery(); // get the normal returned query from buildWhereFilterand as string
+        try {
+            sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";// cut off from string "sql_where_filter" everything before "where", this way we have only where values including filter conditions from original query and in a string format
+            sql_and_filter = sql_where_filter.replace("where", "AND");
+            
+            //clg
+            // console.log("________________________________________________________________")
+            // console.log("L268: sql_select value after Filter " + sql_select);
+            // console.log("________________________________________________________________")
+            // console.log("L272: sql_where_filter val // after Filter :  " +  sql_where_filter);
+            // console.log("________________________________________________________________")
+            // console.log("L272: sql_and_filter val // after Filter :  " +  sql_and_filter);
+            // console.log("L405: query // after Filter :  " + query);
+            // console.log("________________________________________________________________")
+            
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+     
+    // ****************************************************************
+    // FULL TEXT SEARCH   / SEARCH
     // ****************************************************************
     //describe: search
-    // The next block of code builds an SQL query based on the user input and uses the where and whereRaw methods to add conditions to the query based on the user input in variable "search". The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
-    let order_by_rank = "";
-    let order_by_rank_query = "";
+    // The next block of code builds on the sql_select to create a series of inner queries. The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
+    let order_by_rank = ""; //case of search/ initialize the order by rank to be used for "order by" var 
 
     if(searchIncluded){
         order_by_rank = " result_rank DESC, ";  
-        // sql_select = sql_select.replace("SELECT id ,","SELECT id , result_rank, ");
 
         const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an aray of strings
 
+        //clgs
         //example domain / menu_lang (currLanguage)
         // const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.fr/");
         // result of above clg when menu_lang = 'it' : L 217, newRanks final :  [ { en: 1 }, { de: 1 }, { fr: 10 }, { it: 100 }, { sl: 1 } ]
-        console.log("L198 tldLangArray : ", tldLangArray);
-        console.log("L199 currLnaguage : ", currLanguage);
-        console.log(" L185/ search :", search);
+        // console.log("L198 tldLangArray : ", tldLangArray);
+        // console.log("L199 currLnaguage : ", currLanguage);
+        // console.log(" L185/ search :", search);
 
         // get array of ALL languages
         const allLangs = getAllLanguages(); // ["en", "de", "it", "fr", "sl"]
-
+        // create ranks array 
         const currRanks = () => {
-          let newRanks = [];
-          console.log("L189/ allLangs :", allLangs);
-        
+          let newRanks = [];        
           let tempLangs = [...allLangs];
-
-          allLangs.forEach((lang) => {
-            // console.log("tempLangs :", tempLangs);
         
-            if (tldLangArray.includes(lang) && tempLangs.includes(lang)) {
-              newRanks = [...newRanks, { [lang]: 10 }]; // if this is the TLD language pass a 10
-              tempLangs = tempLangs.filter(item => item !== lang);
-            } else if (lang === currLanguage && tempLangs.includes(lang)) {
-              newRanks = [...newRanks, { [lang]: 100 }]; // if it is a menu language then pass 100
-              tempLangs = tempLangs.filter(item => item !== lang);
-            } else {
-            //   console.log("lang/inside currRanks :", lang);
-              newRanks = [...newRanks, { [lang]: 1 }];
-            }
-          });
-        
+            allLangs.forEach((lang) => {
+                if (tempLangs.includes(lang)) {
+                    if ( (tldLangArray.includes(lang) && lang === currLanguage) || (lang === currLanguage) ) {
+                        newRanks = [...newRanks, { [lang]: 100 }]; 
+                    }else if(tldLangArray.includes(lang)) { 
+                        newRanks = [...newRanks, { [lang]: 10 }];
+                    }else {
+                        newRanks = [...newRanks, { [lang]: 1 }];
+                    }
+                }
+                tempLangs = tempLangs.filter(item => item !== lang);
+            });
           return newRanks;
         };
         
-        
-        
-        let _search = search.trim().toLowerCase();
         //describe: 
         //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
         //else, '_search' contains NO spaces: the same is repeated but with additional modifier
@@ -261,23 +310,29 @@ const listWrapper = async (req, res) => {
         //     // whereRaw / L233 : cities @> '[{"city_slug": "wien"}]'::jsonb AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
         // }
         // ****************************************************************
-        // NEW CODE HERE
+        // CREATING INNER QUERIES 
         // ****************************************************************
-    
+        let _search = search.trim().toLowerCase();
+
+        //from is added here to be used in the search module ONLY
+        sql_select += " FROM ( ";
+
         const langRanks = currRanks(); // internal to search section
-        console.log(" ");
-        console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
-        console.log(" ");
+        //clgs
+        // console.log(" ");
+        // console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
+        // console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
-        console.log("sql_select inside 'searchIncluded' : ", sql_select)
-        console.log("sql_where inside 'searchIncluded' : ", sql_where)
+        //clgs
+        // console.log("L290 sql_select inside 'searchIncluded' : ", sql_select);
+   
         for (let i = 0; i < allLangs.length; i++) {
             // console.log(" i :", i)
             const lang = allLangs[i];
             const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
             if(_search.indexOf(' ') > 0){
-                // question : do we add DESC (at ${search}')) ? to match original version?
+
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -289,8 +344,8 @@ const listWrapper = async (req, res) => {
                     i${i + 1}.text_lang = '${lang}'
                     
                     AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}')
+                    ${sql_and_filter}
                 `;
-                sql_select += sql_where;
 
             }else {
                 sql_select += `
@@ -302,78 +357,56 @@ const listWrapper = async (req, res) => {
                     FROM tour AS i${i + 1}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
-                    AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}" ${_search}:*')
+                    AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', ' "${_search}" ${_search}:*')
+                    ${sql_and_filter}
                 `;
-                sql_select += sql_where;
-
             }
             if (i !== allLangs.length - 1) {        // as long as end of array not reached
             sql_select += "\nUNION ";               // create a union with a line break
         }
     }
-    sql_select += ") as o "; // end of FROM section 
-    // sql_select += "\n";         
+    sql_select += ") as o ";                        // provide ending for 'FROM' part          
         
-    }else{
-        sql_select += "WHERE 1 = 1 " + sql_where;
-    }
-   
-    console.log("L319 sql_select : " + sql_select);
-
-
-// L 259/ query:  WITH SEARCH  /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
-// order by "month_order" asc, 
-// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-
-// L 259/ query:  WITHOUT SEARCH /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// order by "month_order" asc, 
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-    
-!!where &&  console.log("L 340 where : " + JSON.stringify(where))
-
-    //describe: build "where" object
-    //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
-    // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
-    // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
-    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input. 
-    if(!!where && Object.keys(where).length > 0){
-        query = query.where(where);
-        countQuery = countQuery.where(where);
-        console.log('L 359/ countQuery: ', countQuery.toQuery()); console.log('    ');
-        console.log('L 361/ query: ', query.toQuery()); console.log('    ');
-    }
-    if(!!whereRaw && whereRaw.length > 0){
-        query = query.andWhereRaw(whereRaw);
-        countQuery = countQuery.andWhereRaw(whereRaw);
-        console.log('    ');
-        // console.log('L 360/ query: ', query.toQuery());
-        console.log('    ');
-        // console.log('L 360/ countQuery: ', countQuery.toQuery());
-        console.log('    ');
     }
 
+    //clg
+    // console.log("________________________________________________________________")
+    // console.log("L408: sql_select value after SEARCH and filter " + sql_select);
+    // console.log("________________________________________________________________")
 
-    /** filter search */
+    // ****************************************************************
+    // GET THE COUNT WHEN SEARCH TERM IS INCLUDED
+    // ****************************************************************
+    let sql_count = null;
+
+    if (searchIncluded) {
+      try {
+        // let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery ${sql_where_filter}`); // includes all internal queries
+        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
+        let sql_count_call = await count_query;
+        sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
+        //clgs
+        // console.log();
+        // console.log(`L430 SELECT COUNT(*) FROM tour AS row_count ${sql_where_filter} AS subquery`)
+        // console.log("L445 ________________________________________________________________")
+        // console.log("L431 Total Count/ sql_qount:", sql_count);
+        // console.log("________________________________________________________________")
+        // console.log("L432 count_query.toString :", count_query.toString()); // Convert Knex query to SQL string
+        // console.log();
+      } catch (error) {
+        console.log("Error retrieving count:", error);
+      }
+    }
+
+    // ****************************************************************
+    // ORDER BY
+    // ****************************************************************
+
     //describe:
-    //The buildWhereFromFilter function takes the query parameters and creates a where clause for the query. The true flag passed as the third parameter indicates that the function should create an exact match on the field names, rather than a partial match. The resulting where clause is then added to both the main query and the countQuery.
-    query = buildWhereFromFilter(req.query, query, true);
-    countQuery = buildWhereFromFilter(req.query, countQuery);
-    console.log(" query value  L307: " + query);
-
-    //describe: **** ORDERING ****
     //if-else block checks for a specific orderId parameter, which is used to determine the order in which the results should be sorted. Depending on the value of orderId, the query is sorted using different fields and ordering directions. 
     // There are some special cases where additional ordering is done based on the city parameter, as well as conditions where the query is sorted based on a combination of different fields. Finally, a default sorting order is set if no orderId parameter is provided. 
 
+    let sql_order = "";
     sql_order += `ORDER BY `;
 
     if(!!orderId && orderId == "bewertung"){
@@ -382,7 +415,7 @@ const listWrapper = async (req, res) => {
         sql_order += "user_rating_avg DESC ";
 
         if(!!city){
-            query = query.orderByRaw(` ${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderByRaw(`  traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
 
             sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
         }
@@ -393,12 +426,12 @@ const listWrapper = async (req, res) => {
         sql_order += "distance ASC ";
 
         if(!!city){
-            query = query.orderByRaw(`${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
             sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `
         }
     } else if(!!orderId && orderId == "tourdauer"){
         if(!!city){
-            query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${city}'->>'total_tour_duration')::float ASC`).orderByRaw(`${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${city}'->>'total_tour_duration')::float ASC`).orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
 
             sql_order += `number_of_days ASC, (cities_object->>'${city}'->>'total_tour_duration')::float ASC, traverse DESC, FLOOR((cities_object->>'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
 
@@ -410,7 +443,7 @@ const listWrapper = async (req, res) => {
 
     } else if(!!orderId && orderId == "anfahrtszeit"){
         if(!!city){
-            query = query.orderByRaw(`${order_by_rank_query} (cities_object->'${city}'->>'best_connection_duration')::int ASC`);
+            query = query.orderByRaw(` (cities_object->'${city}'->>'best_connection_duration')::int ASC`);
             sql_order += `(cities_object->'${city}'->>'best_connection_duration')::int ASC `; 
         } else {
             query = query.orderBy("best_connection_duration", 'desc');
@@ -423,7 +456,7 @@ const listWrapper = async (req, res) => {
         
         if(!!city){
             // sql_order += `,`,
-            query = query.orderByRaw(`${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
             sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; //4)
         }
 
@@ -431,7 +464,7 @@ const listWrapper = async (req, res) => {
         query = query.orderBy(orderId, 'desc');
         sql_order += `${orderId} DESC `; //5)
         if(!!city){
-            query = query.orderByRaw(`${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
             sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 6)
         }
 
@@ -439,7 +472,7 @@ const listWrapper = async (req, res) => {
         query = query.orderBy("user_rating_avg", 'asc');
         sql_order += `user_rating_avg ASC `;
         if(!!city){
-            query = query.orderByRaw(`${order_by_rank_query} traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
+            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
             sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 7)
         }
     }
@@ -448,29 +481,31 @@ const listWrapper = async (req, res) => {
     // After the sorting order is applied, the query is further ordered by ID % date_part('day', NOW() )::INTEGER ASC. This orders the results by the remainder of the ID when divided by the number of days since the epoch, effectively shuffling the results.
     query = query.orderByRaw(`ID % date_part('day', NOW() )::INTEGER ASC`);
     sql_order += `, ID % date_part('day', NOW() )::INTEGER ASC ` ;
-    sql_select += sql_order; // Add order string to select string
 
-    // GET THE COUNT FOR WHEN SEARCH INCLUDED
-    // ****************************************************************
-    // ****************************************************************
-    if(searchIncluded){
-        let sql_count_call = await knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`);
-        let sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
-        console.log();
-        console.log("L464 Total Count:", sql_count);
-        console.log();
-    }
-    // ****************************************************************
-    // ****************************************************************
+    // clgs
+    //sql_select += sql_order; // Add order string to select string
+    // console.log("________________________________________________________________")
+    // console.log("L504 : sql_order after adding order values ", sql_order)
+    // console.log("________________________________________________________________")
+    // console.log("L505 : sql_select after passing through ordering ", sql_select)
 
+    // ****************************************************************
+    // LIMIT
+    // ****************************************************************
    /** set limit to query */
     // a limit and offset are applied to the query if the useLimit flag is set to true/ in case (i.e.  map != true ). The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
+    let sql_limit = ""; 
     if(!!useLimit){
-        query = query.limit(9).offset(9 * (page - 1));
-        sql_select += `LIMIT 9 OFFSET ${9 * (page - 1)}`; // Add limit to string query
+        if(searchIncluded){
+            sql_limit += `LIMIT 9 OFFSET ${9 * (page - 1)}`; // Add limit to string query
+        }else{
+            query = query.limit(9).offset(9 * (page - 1));
+        }
     }
 
     // clgs
+    // console.log("L552 sql_limit : " + sql_limit)
+    // console.log("L553 sql_order : " + sql_order)
     // console.log(" --------------------------------")
     // console.log(" --------------------------------")
     // console.log("L460 query  order : " + query);
@@ -481,37 +516,52 @@ const listWrapper = async (req, res) => {
     // console.log(" --------------------------------")
     // console.log(" --------------------------------")
     
-    // clg: query
-    console.log('    ');
-    // console.log('L 479/ query: ', query.toQuery());
-    // console.log("L480: countQuery : " + countQuery.toQuery())
-    console.log('    ');
+   
+    let outer_where = "WHERE 1=1 ";
+
+    //clgs
+    if(searchIncluded){
+        console.log('    ');
+        console.log("L571 sql_select before firing call: ")
+        console.log(sql_select + outer_where  +sql_order + sql_limit);
+        console.log('    ');
+    }
+
     // ****************************************************************
     // CALLING DATABASE
     // ****************************************************************
     let result = '';
     let count = '';
     
-    if(searchIncluded){
+    if(searchIncluded){ 
         try {
-            result = await knex.raw(sql_select);
-            // console.log('L499: result', result.rows);
-        
+            result = await knex.raw(sql_select + outer_where +sql_order + sql_limit );// fire the DB call here (when search is included)
+            //clg
+            // console.log('L553: result', result.rows);
             if (result && result.rows) {
-              result.rows.forEach((item) => {
+                result = result.rows;
+            //clg
+              result.forEach((item) => {
                 console.log(`Title: ${item.title}`);
               });
-            result = result.rows;
             } else {
               console.log('Result or result.rows is null or undefined.');
             }
           } catch (error) {
-            console.log("L510: error retrieving results:", error);
+            console.log("error retrieving results:", error);
           }
           
     }else{
         result = await query;
         count = await countQuery.first();
+            // clgs
+            console.log("________________________________________________________");
+            console.log("L586 query.toQuery() :",query.toQuery()); // ex.  ]
+            console.log("________________________________________________________");
+            // console.log("countQuery.toQuery() :",countQuery.toQuery()); // ex. [ { count: '710' } ]
+            console.log("________________________________________________________");
+            console.log("count['count'] :",count['count']); // ex. [ { count: '710' } ]
+            console.log("________________________________________________________");
     }
 
    
@@ -522,7 +572,7 @@ const listWrapper = async (req, res) => {
         // Jetzt loggen wir diese query noch schnell für später
 
         let searchparam = '';  
-        console.log("283: search : ", search) // 
+        // console.log("283: search : ", search) // 
 
         if (search !== undefined) {  // also if previous search item is different than this one ?
             searchparam = search;
@@ -532,7 +582,7 @@ const listWrapper = async (req, res) => {
             // console.log("req.query.city :" + (req.query.city))
             // console.log("count['count'] :" + (count['count']))
 
-            searchparam = search.replace("'",'"')  // step is a must when we receive the value of search
+            searchparam = search.replace("'",'"') ;
             if(!!count['count'] && count['count'] > 0){
                 const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
             //console.log(" sql :" + sql)
@@ -548,7 +598,6 @@ const listWrapper = async (req, res) => {
     await Promise.all(result.map(entry => new Promise(async resolve => {
         entry = await prepareTourEntry(entry, city, domain, addDetails);
         entry.is_map_entry = !!map;
-        console.log("386: entry.id :",entry.id);
         resolve(entry);
     })));
 
@@ -604,14 +653,14 @@ const listWrapper = async (req, res) => {
         }
     }
     // clgs
-    // console.log("L623 : count['count']  :", count['count']);
+    // !searchIncluded && console.log("L659 : count['count']  :", count['count']);
     // console.log("L624 : ranges :", ranges);
-    // console.log("L625 : result :", result);
+    // console.log("L625 : result :", result.title);
     //describe:
     // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
 
-    count_final = searchIncluded ? sql_count : count['count'];
- 
+    let count_final = searchIncluded ? sql_count : count['count'];
+
     res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges}); 
 }
 
@@ -625,7 +674,7 @@ const filterWrapper = async (req, res) => {
     const country = req.query.country;
     const provider = req.query.provider;
 
-    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele']);
+    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele']);
 
     let where = getWhereFromDomain(domain);
     let whereRaw = null;
@@ -950,7 +999,7 @@ const buildFilterResult = (result, city, params) => {
     let minDescent = 10000;
     let maxDistance = 0;
     let minDistance = 10000;
-    let isChildrenPossible = false;
+    // let isChildrenPossible = false;
     let isTraversePossible = false;
     let minTransportDuration = 10000;
     let maxTransportDuration = 0;
@@ -1006,9 +1055,9 @@ const buildFilterResult = (result, city, params) => {
             minDistance = parseFloat(tour.distance);
         }
 
-        if(!!!isChildrenPossible && (tour.children == 1) ){
-            isChildrenPossible = true;
-        }
+        // if(!!!isChildrenPossible && (tour.children == 1) ){
+        //     isChildrenPossible = true;
+        // }
         if(!!!isTraversePossible && (tour.traverse == 1) ){
             isTraversePossible = true;
         }
@@ -1060,7 +1109,7 @@ const buildFilterResult = (result, city, params) => {
         minDescent,
         maxDistance,
         minDistance,
-        isChildrenPossible,
+        // isChildrenPossible,
         isTraversePossible,
         minTransportDuration: round((minTransportDuration / 60), 2),
         maxTransportDuration: round((maxTransportDuration / 60), 2)
@@ -1070,17 +1119,20 @@ const buildFilterResult = (result, city, params) => {
 const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
-    // clg
-    // console.log('params : ')
+    //clg: params
+    // console.log('L1078 , params : ')
     // console.log(params)
-    if(params.filter){
-        //clg
+
+    //clg: params.filter
+    // if(params.filter){
         // console.log("L774 params.singleDayTour :", params.filter.singleDayTour);     
         // console.log("L774 params.multipleDayTour :", params.filter.multipleDayTour);     
         // console.log("L774 params.children :", params.filter.children);     
         // console.log("L774 params.traverse :", params.filter.traverse);     
-    }
-    // console.log("L835 query :", query);     
+    // }
+    //clg: query
+    // console.log("L1137 query at entry to buildWhereFromFilter :");     
+    // console.log(query.toSQL().sql)
     
     if(!!!params.filter ) return query;
     
@@ -1092,16 +1144,18 @@ const buildWhereFromFilter = (params, query, print = false) => {
 
     if(filterIgnored ) return query;
 
-
+    // ****************************************************************
     // !!query && console.log("L848 query still with us not returned yet")
 
     let filter ;
     if(typeof(params.filter) === 'string') {
         filter = JSON.parse(params.filter) ;
+        //clg
         // console.log('Filter is string : ')
         // console.log(filter)
     }else if(typeof(params.filter) === 'object'){
         filter = params.filter;
+        //clg
         // console.log('Filter is object : ')
         // console.log(filter)
     }else{
@@ -1114,7 +1168,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
       multipleDayTour,
       summerSeason,
       winterSeason,
-      children,
+    //   children,
       traverse,
       difficulty,
       minAscent,
@@ -1129,40 +1183,62 @@ const buildWhereFromFilter = (params, query, print = false) => {
       types,
     } = filter;
 
+    //clg
+    // summerSeason && console.log("summerSeason :",summerSeason);
+    // winterSeason && console.log("winterSeason :",winterSeason);
+    // summerSeason && console.log("!!summerSeason :",!!summerSeason);
+    // winterSeason && console.log("!!winterSeason :",!!winterSeason);
+
     /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
-    if(!!parseTrueFalseQueryParam(summerSeason) && !!parseTrueFalseQueryParam(winterSeason)){
-        //query = query.whereIn('season', ['g', 's', 'w']);
-    } else if(!!parseTrueFalseQueryParam(summerSeason)){
+    if(summerSeason === 'true' && winterSeason === 'true'){
+        query = query.whereIn('season', ['g', 's', 'w']);
+    } else if(summerSeason === 'true'){
         query = query.whereIn('season', ['g', 's']);
-    } else if(!!parseTrueFalseQueryParam(winterSeason)){
+    } else if(winterSeason === 'true'){
         query = query.whereIn('season', ['g', 'w']);
-    } else if(summerSeason === false && winterSeason === false){
+    } else if(summerSeason === 'false' && winterSeason === 'false'){
         query = query.whereIn('season', ['x']);
     }
+    //clg
+    // console.log("................................................................")
+    // console.log("L1222 query / after season:");     
+    // console.log(query.toSQL().sql)
+    
 
     /** Eintagestouren bzw. Mehrtagestouren */
-    if(!!parseTrueFalseQueryParam(singleDayTour) && !!parseTrueFalseQueryParam(multipleDayTour)){
+    if(singleDayTour === 'true' && multipleDayTour === 'true'){
 
-    } else if(!!parseTrueFalseQueryParam(singleDayTour)){
-        query = query.where({number_of_days: 1})
-    } else if(!!parseTrueFalseQueryParam(multipleDayTour)){
-        query = query.whereRaw('number_of_days > 1')
-    } else if(singleDayTour === false && multipleDayTour === false){
-        query = query.whereRaw('number_of_days = -1')
+    } else if(singleDayTour === 'true'){
+        query = query.where({number_of_days: 1});
+    } else if(multipleDayTour === 'true'){
+        query = query.whereRaw('number_of_days > 1 ')
+    } else if(singleDayTour === 'false' && multipleDayTour === 'false'){
+        query = query.whereRaw('number_of_days = -1 ')
     }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1239 query / after number_of_days:");     
+    // console.log(query.toSQL().sql)
 
     /** Kinderfreundlich */
-    if(!!parseTrueFalseQueryParam(children)){
-        query = query.where({children: 1})
-    }
+    // if(!!(children)){
+    //     query = query.where({children: 1});
+    // }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1247 query / after children:");     
+    // console.log(query.toSQL().sql)
 
     /** Überschreitung */
-    if (!!parseTrueFalseQueryParam(traverse)) {
+    if (!!(traverse)) {
         let val=0;
         val = traverse == true ? 1 : 0 ;
-        // console.log('Traverse/ val ', traverse, val)
-      query = query.where({ traverse: val });
+        query = query.where({ traverse: val });
     }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1258 query / after traverse:");     
+    // console.log(query.toSQL().sql);
 
     /** Aufstieg, Abstieg */
     if(!!minAscent){
@@ -1175,18 +1251,27 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
         query = query.whereRaw('ascent <= ' + _ascent);
     }
+    // clg
+    // console.log("................................................................")
+    // console.log("L1275 query / after min/max Ascent:");     
+    // console.log(query.toSQL().sql)
 
     if(!!minDescent){
         query = query.whereRaw('descent >= ' + minDescent);
     }
     if(!!maxDescent){
-        let _ascent = maxDescent;
-        if(_ascent == 3000){
-            _ascent = 100000;
+        let _descent = maxDescent;
+        if(_descent == 3000){
+            _descent = 100000;
         }
-        query = query.whereRaw('descent <= ' + _ascent);
+        query = query.whereRaw('descent <= ' + _descent);
     }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1290 query / after min/max Descent :");     
+    // console.log(query.toSQL().sql)
 
+    
     /** distanz */
     if(!!minDistance){
         query = query.whereRaw('distance >= ' + minDistance);
@@ -1198,20 +1283,29 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
         query = query.whereRaw('distance <= ' + _distance);
     }
-
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1307 query / after min/max Distance:");     
+    // console.log(query.toSQL().sql)
+    
     /** schwierigkeit */
     if (!!difficulty) {
-      query = query.whereRaw("difficulty <= " + difficulty);
+        query = query.whereRaw("difficulty <= " + difficulty);
     }
+    //clgs
+    // console.log("................................................................")
+    // console.log("L1315 query / after Difficulty:");     
+    // console.log(query.toSQL().sql)
+    
 
     if (!!ranges) {
         let newRanges;
         if(typeof(ranges) == "object" && !Array.isArray(ranges))  { 
             newRanges = Object.values(ranges)
-            // console.log("ranges L913:", newRanges)
         }else{
             newRanges = ranges;
         }
+        // console.log("ranges L913:", newRanges)
 
       const nullEntry = newRanges.find((r) => r == "Keine Angabe");
       //console.log("nullEntry:", nullEntry)
@@ -1220,10 +1314,15 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereRaw(
           `(range in (${_ranges}) OR range IS NULL OR range = '')`
         );
-      } else {
+        
+    } else {
         query = query.whereRaw(`(range in (${_ranges}))`);
       }
     }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1342 query / after Ranges:");     
+    // console.log(query.toSQL().sql);
 
     if(!!types){
         const nullEntry = types.find(r => r == "Keine Angabe");
@@ -1234,25 +1333,39 @@ const buildWhereFromFilter = (params, query, print = false) => {
             query = query.whereRaw(`(type in (${_types}))`);
         }
     }
+    // clgs
+    // console.log("................................................................")
+    // console.log("L1356 query / after Types:");     
+    // console.log(query.toSQL().sql);
 
     /** Anfahrtszeit */
     if(!!minTransportDuration && !!params.city){
         let transportDurationMin = minTransportDuration * 60;
-        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int >= ${transportDurationMin}`)
+        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int >= ${transportDurationMin}`);
     }
-
+    
     if(!!maxTransportDuration && !!params.city){
         let transportDurationMin = maxTransportDuration * 60;
-        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int <= ${transportDurationMin}`)
+        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int <= ${transportDurationMin}`);
     }
   } catch (error) {
     console.log("error :", error.message);
   }
-    console.log("returned query values:")
-    console.log(query.toSQL().sql)
-    // const { sql, bindings } = query.toSQL();
-    // console.log(sql, bindings);
+//   clgs
+//   console.log("................................................................")
+//   console.log("L1375 query / min/max Transport Duration:");     
+//   console.log(query.toSQL().sql);
 
+//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+//   console.log("1385, returned query buildWhereFromFilter  :")
+//   console.log(query.toSQL().sql)
+//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+  
+//   let ret_value = {query: query, sql_query: sql_query }
+//   console.log("L1390 ret_value.sql_query :");
+//   console.log(ret_value.sql_query);
+//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+ 
   return query;
 };
 
@@ -1431,107 +1544,4 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 }
 
 export default router;
-
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "children", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-//from "tour" 
-//where "country_at" = true and cities @> '[{"city_slug": "wien"}]'::jsonb 
-//AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
-
-//order by "month_order" asc, ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC, traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-
-// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,
-
-
-//SELECT
-// o."id",
-// o."url",
-// o."provider",
-// o."hashed_url",
-// o."description",
-// o."image_url",
-// o."ascent",
-// o."descent",
-// o."difficulty",
-// o."difficulty_orig",
-// o."duration",
-// o."distance",
-// o."title",
-// o."type",
-// o."children",
-// o."number_of_days",
-// o."traverse",
-// o."country",
-// o."state",
-// o."range_slug",
-// o."range",
-// o."season",
-// o."month_order",
-// o."country_at",
-// o."country_de",
-// o."country_it",
-// o."country_ch",
-// o."country_si",
-// o."country_fr",
-// o."publishing_date",
-// o."quality_rating",
-// o."user_rating_avg",
-// o."cities",
-// o."cities_object",
-// o."max_ele"
-// FROM (
-
-// SELECT       (1)
-// i1.,
-// ts_rank(i1.search_column, websearch_to_tsquery('english', '"schneeberg" schneeberg:') ) * {rank_en} as result_rank
-// FROM tour AS i1
-// WHERE i1.text_lang='en'
-// AND i1."country_at" = true and i1.cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND i1.search_column @@ websearch_to_tsquery('english', '"schneeberg" schneeberg:*')
-
-// UNION
-
-// SELECT       (2)
-// i2.,
-// ts_rank(i2.search_column, websearch_to_tsquery('german', '"schneeberg" schneeberg:') ) * {rank_de} as result_rank
-// FROM tour AS i2
-// WHERE i2.text_lang='de'
-// AND i2."country_at" = true and i2.cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND i2.search_column @@ websearch_to_tsquery('german', '"schneeberg" schneeberg:*')
-
-// UNION
-
-// SELECT       (3)
-// i3.,
-// ts_rank(i3.search_column, websearch_to_tsquery('french', '"schneeberg" schneeberg:') ) * {rank_fr} as result_rank
-// FROM tour AS i3
-// WHERE i3.text_lang='fr'
-// AND i3."country_at" = true and i3.cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND i3.search_column @@ websearch_to_tsquery('french', '"schneeberg" schneeberg:*')
-
-// UNION
-
-// SELECT       (4)
-// i4.,
-// ts_rank(i4.search_column, websearch_to_tsquery('italian', '"schneeberg" schneeberg:') ) * {rank_it} as result_rank
-// FROM tour AS i4
-// WHERE i4.text_lang='it'
-// AND i4."country_at" = true and i4.cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND i4.search_column @@ websearch_to_tsquery('italian', '"schneeberg" schneeberg:*')
-
-// UNION
-
-// SELECT       (5)
-// i5.,
-// ts_rank(i5.search_column, websearch_to_tsquery('simple', '"schneeberg" schneeberg:') ) * {rank_sl} as result_rank
-// FROM tour AS i5
-// WHERE i5.text_lang='sl'
-// AND i5."country_at" = true and i5.cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND i5.search_column @@ websearch_to_tsquery('simple', '"schneeberg" schneeberg:*')
-
-// UNION
-
-// ) AS o
-
-// order by o."month_order" asc, o.result_rank DESC, o.traverse DESC, FLOOR((o.cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, o.ID % date_part('day', NOW() )::INTEGER ASC
-
-// limit 9 offset 9
+ 
