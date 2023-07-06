@@ -83,20 +83,29 @@ function DomainMenu() {
 									className="rowing"
 									key={item.id}
 									style={{ paddingTop: 12, paddingBottom: 12 }}
-									onClick={() => {
-										setShowDomainMenu(false);
-										window.location.replace(item.url);
-									}}
 								>
 									<img
+										className="pointy"
 										src={`/app_static/img/logo30.png`}
 										height={"19px"}
 										width={"34px"}
+										onClick={() => {
+											setShowDomainMenu(false);
+											window.location.replace(item.url);
+										}}
 									/>
-									<span className="domainItem">{item.name}</span>
 									<span
-										className="closeIcon"
-										// onClick={() => setShowDomainMenu(false)}
+										className="domainItem pointy"
+										onClick={() => {
+											setShowDomainMenu(false);
+											window.location.replace(item.url);
+										}}
+									>
+										{item.name}
+									</span>
+									<span
+										className="closeIcon pointy"
+										onClick={() => setShowDomainMenu(false)}
 									>
 										<KeyboardArrowUpIcon
 											sx={{ color: "#8B8B8B", width: 20, height: 20 }}
