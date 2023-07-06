@@ -99,6 +99,7 @@ export default function Header({ totalTours, allCities }) {
 				<Box comoponent={"div"} className="rowing countryDiv">
 					<DomainMenu />
 					<LanguageMenu />
+					{/* <LanguageDropdown /> */}
 				</Box>
 				<Box className={"header-text"}>
 					{/* <Box

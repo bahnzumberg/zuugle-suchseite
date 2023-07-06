@@ -82,7 +82,8 @@ export function langChange(language) {
 			detail: { language: language },
 		});
 		document.dispatchEvent(event);
-		// console.log("dispatched");
+		setLanguage();
+		console.log("dispatched");
 	});
 }
 

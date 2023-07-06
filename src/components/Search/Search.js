@@ -41,12 +41,12 @@ export function Search({
 	// additional arguments
 	// loadCities,
 	// cities,
-	// regions,
+	regions,
 	// isCityLoading,
 	// loadFavouriteTours,
 }) {
+	console.log("regions", regions);
 	//--------menus-----------------
-
 	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
@@ -57,11 +57,7 @@ export function Search({
 	]);
 	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
 	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
-	]);
+	const [secondMenuOptions, setSecondMenuOptions] = React.useState(allCities);
 
 	// Translation
 	const navigate = useNavigate();
@@ -425,14 +421,22 @@ export function Search({
 								/>
 							</span>
 						</div>
-						{fSearchQuery &&
-							firstMenuOptions
-								.filter((item) => item.startsWith(fSearchQuery))
-								.map((item) => (
-									<span key={item} className="searchSuggestions">
-										{item}
-									</span>
-								))}
+						<div
+							className="colLeft"
+							style={{
+								height: 150,
+								overflow: "auto",
+							}}
+						>
+							{fSearchQuery &&
+								firstMenuOptions
+									.filter((item) => item.startsWith(fSearchQuery))
+									.map((item) => (
+										<span key={item} className="searchSuggestions">
+											{item}
+										</span>
+									))}
+						</div>
 					</div>
 					<div
 						className="firstMobileMenu"
@@ -469,14 +473,37 @@ export function Search({
 								/>
 							</span>
 						</div>
-						{secondSearchQuery &&
-							secondMenuOptions
-								.filter((item) => item.startsWith(secondSearchQuery))
-								.map((item) => (
-									<span key={item} className="searchSuggestions">
-										{item}
-									</span>
-								))}
+						<div
+							className="colLeft"
+							style={{
+								height: 150,
+								overflow: "auto",
+							}}
+						>
+							{secondSearchQuery &&
+								secondMenuOptions
+									.filter(
+										(item) =>
+											item.value
+												.toLowerCase()
+												.includes(secondSearchQuery.toLowerCase()) ||
+											item.label
+												.toLowerCase()
+												.includes(secondSearchQuery.toLowerCase())
+									)
+									.map((item) => (
+										<span
+											key={item}
+											className="searchSuggestions pointy"
+											onClick={() => {
+												setCity(item);
+												setShowMobileMenu(false);
+											}}
+										>
+											{item.value}
+										</span>
+									))}
+						</div>
 					</div>
 					<div className="rowing">
 						<span className="firstBtn">Dein Heimatbahnhof</span>
@@ -635,11 +662,11 @@ export function Search({
 						</div>
 					)}
 					{showSecondMenu && (
-						<div className="centerMe">
+						<div className="centerMe" style={{ height: 400 }}>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={{ position: "absolute", top: 225 }}
+								style={{ position: "absolute", top: 453 }}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginTop: 75 }}>
@@ -686,26 +713,49 @@ export function Search({
 									{showSecondMenu && (
 										<div
 											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10 }}
+											style={{
+												marginLeft: 0,
+												marginTop: 10,
+												height: 150,
+												overflow: "auto",
+											}}
 										>
 											{secondSearchQuery &&
 												secondMenuOptions
-													.filter((item) => item.startsWith(secondSearchQuery))
+													.filter(
+														(item) =>
+															item.value
+																.toLowerCase()
+																.includes(secondSearchQuery.toLowerCase()) ||
+															item.label
+																.toLowerCase()
+																.includes(secondSearchQuery.toLowerCase())
+													)
 													.map((item) => (
 														<span
-															key={item}
-															className="searchSuggestions rowingStart"
+															key={item.value}
+															className="searchSuggestions rowingStart pointy"
+															onClick={() => {
+																setCity(item);
+																setShowSecondMenu(false);
+															}}
 														>
 															<img
 																src={`/app_static/img/grpSymbol.png`}
 																className="ssiggestionQry"
 															/>
-															{item}
+															{item.value}
 														</span>
 													))}
 											{secondSearchQuery.trim() &&
-												secondMenuOptions.filter((item) =>
-													item.startsWith(secondSearchQuery)
+												secondMenuOptions.filter(
+													(item) =>
+														item.value
+															.toLowerCase()
+															.includes(secondSearchQuery.toLowerCase()) ||
+														item.label
+															.toLowerCase()
+															.includes(secondSearchQuery.toLowerCase())
 												).length === 0 && (
 													<span className="searchSuggestions">
 														No results found

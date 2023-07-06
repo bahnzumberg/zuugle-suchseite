@@ -918,6 +918,7 @@ margin-bottom: -30px;
   top:0;
   right: 0;
   left: 0;
+  z-index: 99;
 }
 .searchFirstText{
   font-family: 'Open Sans';
@@ -967,7 +968,12 @@ background-color:#4992FF;
 border-radius: 50%;
 cursor: pointer;
 }
-
+.colLeft{
+  display: flex;
+  /* align-items: ; */
+  flex-direction: column;
+  justify-content: left;
+}
 .boldTxt{
   
   font-family: 'Open Sans';
@@ -1035,6 +1041,7 @@ display: flex;
   display: flex;
   text-decoration: underline;  
   font-family:'Open Sans';
+  z-index: 99;
 }
 .secondBtn{
   width: 149px;
@@ -1045,7 +1052,7 @@ display: flex;
   font-family:'Open Sans';
   background-color: #4992FF;
   border-radius: 12px;
-  color: #fff;
+  color: #fff;z-index: 99;
 }
 .filterStyling{
   width: 40px;

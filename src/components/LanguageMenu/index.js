@@ -31,7 +31,10 @@ function LanguageMenu() {
 	)
 		? i18LangFormatted
 		: "de";
-	React.useEffect(() => {}, [selectedValue]);
+
+	React.useEffect(() => {
+		// console.log("selected value" + selectedValue + "----" + i18LangFormatted);
+	}, [selectedValue]);
 	return (
 		<div>
 			<span
