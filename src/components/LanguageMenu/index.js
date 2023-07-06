@@ -54,7 +54,34 @@ function LanguageMenu() {
 					open={showLanguageMenu}
 					onClose={() => setShowLanguageMenu(false)}
 				>
-					<div className="languageMenu">
+					<div
+						className="languageMenu"
+						style={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							flexDirection: "column",
+						}}
+					>
+						<div
+							className="rowing"
+							style={{ width: "100%", marginBottom: -15 }}
+						>
+							<div />{" "}
+							<span
+								className="closeIcon pointy"
+								onClick={() => setShowLanguageMenu(false)}
+								style={{ marginRight: 5 }}
+							>
+								<CloseIcon
+									sx={{
+										color: "#8B8B8B",
+										width: 18,
+										height: 18,
+									}}
+								/>
+							</span>
+						</div>
 						<div className="languageOptions">
 							{Languages.map((item) =>
 								item.key === selectedValue ? (
@@ -70,19 +97,7 @@ function LanguageMenu() {
 										>
 											{item.nativeName}
 										</span>
-										<span
-											className="closeIcon"
-											// style={{ marginRight: 10 }}
-											onClick={() => setShowLanguageMenu(false)}
-										>
-											<CloseIcon
-												sx={{
-													color: "#8B8B8B",
-													width: 18,
-													height: 18,
-												}}
-											/>
-										</span>
+										<span />
 									</div>
 								) : (
 									<span
