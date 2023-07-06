@@ -1,4 +1,4 @@
-import {fixTours, mergeToursWithFahrplan, mergeToursWithGPX, syncCities, syncFahrplan, syncTours} from "./sync";
+import {fixTours, mergeToursWithFahrplan, syncCities, syncFahrplan, syncTours} from "./sync";
 import moment from "moment";
 
 
@@ -22,6 +22,9 @@ export const syncDataApplicationSide = async () => {
     console.log('DONE CALCULATING KPIs: ', moment().format('HH:mm:ss'));
     await getProvider();
     console.log('DONE FETCHING PROVIDERS: ', moment().format('HH:mm:ss'));
+    console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
+    await syncGPXdata();
+    console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
 }
 
 

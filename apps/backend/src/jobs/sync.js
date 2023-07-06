@@ -1,9 +1,9 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import {createImagesFromMap} from "../utils/gpx/gpxUtils";
+import {round} from "../utils/utils";
 import moment from "moment";
 import {hashString, minutesFromMoment} from "../utils/helper";
-import {round} from "../utils/utils";
 const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
@@ -45,7 +45,7 @@ export async function getProvider(){
     await knex.raw(`TRUNCATE provider;`);
     var query_result;
     try {
-        query_result = await knexTourenDb('lookup_provider').select().where({active: 'y'});
+        query_result = await knexTourenDb('vw_provider_to_search').select();
     }
     catch(err){
         console.log('error: ', err)
@@ -117,7 +117,7 @@ async function _syncConnectionGPX(key, fileName, title){
             deleteFileModulo30(fileName, filePath);
 
             if (!!!fs.existsSync(filePath)) {
-                const trackPoints = await knexTourenDb('interface_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                const trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
@@ -196,7 +196,7 @@ async function _syncGPX(prov, h_url, title){
             deleteFileModulo30(h_url, filePath);
 
             if (!!!fs.existsSync(filePath)) {
-                const waypoints = await knexTourenDb('Interface_GPX_to_search').select().where({hashed_url: h_url, provider: prov}).orderBy('waypoint');
+                const waypoints = await knex('gpx').select().where({hashed_url: h_url, provider: prov}).orderBy('waypoint');
                 if(!!waypoints && waypoints.length > 0 && !!filePath){
                     await createFileFromGpx(waypoints, filePath, title);
                 }
@@ -233,8 +233,38 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
     }
 }
 
-export async function syncFahrplan(mode='delta'){
+export async function syncGPXdata(){
+    try {
+        await knex.raw(`TRUNCATE gpx;`);
+    } catch(err){
+        console.log('error: ', err)
+    }
 
+    let limit = 5000;
+    const query_count = await knexTourenDb('vw_gpx_to_search').count('* as anzahl'); 
+    let count_gpx = query_count[0]["anzahl"];
+    let count_chunks = round(count_gpx / limit, 0);
+    let counter = 0;
+
+    console.log('GPX data count_chunks:', count_chunks)
+    console.log('Info: Handling ', count_gpx.toLocaleString("de-de"), ' rows with gpx datapoints.');
+
+    /* The following loop has to be parallised */
+    while(counter < count_chunks){
+        const result_query = knexTourenDb('vw_gpx_to_search').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
+        const result = await result_query;
+            
+        try {
+            await knex('gpx').insert([...result]);
+        } catch(err){
+            console.log('error: ', err)
+        }
+        counter++;
+    }
+}
+
+
+export async function syncFahrplan(mode='delta'){
     if(mode=='delta'){
         // delta mode
         await syncFahrplan_del();
@@ -263,20 +293,21 @@ export async function syncFahrplan(mode='delta'){
     let where = {delta_type: 'add'};
     let orwhere = {delta_type: 'noc'};
     const _limit = pLimit(2);
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
     let bundles = [];
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
     let chunksizer = 0;
     let count_tours = 0;
-    let count_tours_counter = 0;
 
     if(mode=='delta'){
         orwhere = {delta_type: 'xxx'};
     }
 
     try {
-        const query_add_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
-        const query_add_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const query_add_min = knexTourenDb('vw_fplan_to_search').min('trigger_id').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const query_add_max = knexTourenDb('vw_fplan_to_search').max('trigger_id').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
         // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
         trigger_id_min_array = await query_add_min;
@@ -287,23 +318,19 @@ export async function syncFahrplan(mode='delta'){
         console.log('error: ', err);
     }
 
-    const query_count = await knexTourenDb('interface_fplan_to_search_delta').count('* as anzahl').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
+    const query_count = await knexTourenDb('vw_fplan_to_search').count('* as anzahl').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
     count_tours = query_count[0]["anzahl"];
     chunksizer = round( count_tours / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }
 
-    console.log('Info: Handling ', count_tours, ' rows fplan data.');
+    console.log('Info: Handling ', count_tours.toLocaleString("de-de"), ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
             chunksizer: chunksizer
         });
-        if (counter % 500000 > count_tours_counter) {
-            console.log('Info: ', count_tours_counter*500000, ' rows of ', count_tours, ' done.');
-            count_tours_counter++;
-        }
         counter++;
     }
 
@@ -317,12 +344,12 @@ export async function syncFahrplan(mode='delta'){
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_duration_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_idx;`);
-        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_tour_provider_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_provider_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_internal_status_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_duration_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_key_idx;`);
-        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_tour_provider_hashed_url_city_slug_idx;`);
-        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_tour_provider_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_hashed_url_city_slug_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_weekday_type_idx;`);
     } catch(err){
         console.log('error: ', err);
@@ -336,10 +363,10 @@ export async function syncFahrplan(mode='delta'){
 
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (provider);`);
         await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (provider, hashed_url, city_slug);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
@@ -372,8 +399,8 @@ const syncFahrplan_del = async () => {
     }
 
     try {
-        const query_del_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').where(where);
-        const query_del_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').where(where);
+        const query_del_min = knexTourenDb('vw_fplan_to_search').min('trigger_id').where(where);
+        const query_del_max = knexTourenDb('vw_fplan_to_search').max('trigger_id').where(where);
         // console.log('syncFahrplan query del min: ', query_del_min.toQuery());
         // console.log('syncFahrplan query del max: ', query_del_max.toQuery());
         trigger_id_min_array = await query_del_min;
@@ -402,7 +429,7 @@ const syncFahrplan_del = async () => {
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
-        const result_query = knexTourenDb('interface_fplan_to_search_delta').select('tour_provider', 'tour_id',
+        const result_query = knexTourenDb('vw_fplan_to_search').select('provider', 'hashed_url',
                                             'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
                                             'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
                                             'connection_rank', 'connection_departure_datetime', 'connection_duration', 
@@ -418,8 +445,7 @@ const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
                                             'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
                                             'return_arrival_stop_lat', 'return_arrival_datetime',
                                             'totour_track_key', 'totour_track_duration', 
-                                            'fromtour_track_key', 'fromtour_track_duration',
-                                            'connection_url', 'return_url').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+                                            'fromtour_track_key', 'fromtour_track_duration').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
@@ -434,7 +460,7 @@ const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
 
 const readAndInsertFahrplan_del = (bundle, where = {}) => {
     return new Promise(async resolve => {
-        const result = await knexTourenDb('interface_fplan_to_search_delta').select('trigger_id').where(where).andWhere('trigger_id', '>=', bundle.from).andWhere('trigger_id', '<', bundle.to);
+        const result = await knexTourenDb('vw_fplan_to_search').select('trigger_id').where(where).andWhere('trigger_id', '>=', bundle.from).andWhere('trigger_id', '<', bundle.to);
         if(!!result && result.length > 0){
             await insertFahrplanMultiple_del(result);
         }
@@ -458,11 +484,6 @@ const insertFahrplanMultiple = async (entries) => {
             delete entry[attr];
         });
 
-        if(!!entry.tour_id){
-            entry.hashed_url = ""+entry.tour_id;
-            delete entry.tour_id;
-        }
-
         if(!!entry.trigger_id){
             entry.id = ""+entry.trigger_id;
             delete entry.trigger_id;
@@ -477,29 +498,6 @@ const insertFahrplanMultiple = async (entries) => {
     } catch(err){
         console.log('error: ', err)
         return false;
-    }
-}
-
-/** nur temporär für update -> kann nach dem 14.9. gelöscht werden */
-export async function mergeToursWithGPX(){
-    const tours = await knex('tour').select(['hashed_url', 'provider']);
-    if(!!tours) {
-        for (let i = 0; i < tours.length; i++) {
-            let entry = tours[i];
-            let gpxData = await knexTourenDb('Interface_GPX_to_search').select(["provider", "hashed_url", "lat", "lon", "ele", "typ"]).where({provider: entry.provider, hashed_url: entry.hashed_url}).whereIn("typ", ["first", "last"]);
-            gpxData = gpxData.map(entry => {return {
-                lat: entry.lat,
-                lon: entry.lon,
-                ele: entry.ele,
-                typ: entry.typ,
-            }});
-            await knex('tour').update({
-                gpx_data: JSON.stringify(gpxData),
-            }).where({
-                hashed_url: entry.hashed_url,
-                provider: entry.provider
-            });
-        }
     }
 }
 
@@ -534,7 +532,7 @@ export async function syncTours(){
     let limit = 500;
     let offset = 0;
     let counter = 0;
-    const countResult = await knexTourenDb('interface_touren_to_search').count('* as anzahl');
+    const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
 
     let count = 0;
     if(!!countResult && countResult.length == 1 && countResult[0]["anzahl"]){
@@ -542,55 +540,7 @@ export async function syncTours(){
     }
 
     while((counter *  limit) <= count){
-        const query = knexTourenDb.raw(`SELECT 
-                                        s.url,
-                                        s.provider,
-                                        s.hashed_url,
-                                        s.description,
-                                        s.country,
-                                        s.state,
-                                        s.range_slug,
-                                        s.range_name,
-                                        s.image_url,
-                                        s.ascent,
-                                        s.descent,
-                                        s.difficulty,
-                                        s.duration,
-                                        s.distance,
-                                        s.title,
-                                        s.typ,
-                                        s.children,
-                                        s.number_of_days,
-                                        s.traverse,
-                                        s.season,
-                                        CASE WHEN s.jan=0 THEN 'false' ELSE 'true' END jan,
-                                        CASE WHEN s.feb=0 THEN 'false' ELSE 'true' END feb,
-                                        CASE WHEN s.mar=0 THEN 'false' ELSE 'true' END mar,
-                                        CASE WHEN s.apr=0 THEN 'false' ELSE 'true' END apr,
-                                        CASE WHEN s.may=0 THEN 'false' ELSE 'true' END may,
-                                        CASE WHEN s.jun=0 THEN 'false' ELSE 'true' END jun,
-                                        CASE WHEN s.jul=0 THEN 'false' ELSE 'true' END jul,
-                                        CASE WHEN s.aug=0 THEN 'false' ELSE 'true' END aug,
-                                        CASE WHEN s.sep=0 THEN 'false' ELSE 'true' END sep,
-                                        CASE WHEN s.oct=0 THEN 'false' ELSE 'true' END oct,
-                                        CASE WHEN s.nov=0 THEN 'false' ELSE 'true' END nov,
-                                        CASE WHEN s.dec=0 THEN 'false' ELSE 'true' END 'dec',
-                                        s.full_text,
-                                        s.publishing_date,
-                                        s.quality_rating,
-                                        s.user_rating_avg,
-                                        s.difficulty_orig,
-                                        s.text_lang, 
-                                        g1.lat as lat_start, 
-                                        g1.lon as lon_start, 
-                                        g2.lat as lat_end, 
-                                        g2.lon as lon_end, 
-                                        FLOOR(g3.ele) as maxele 
-                                        from interface_touren_to_search s
-                                        LEFT JOIN Interface_GPX_to_search g1 ON s.provider = g1.provider AND s.hashed_url = g1.hashed_url AND g1.typ = "first"
-                                        LEFT JOIN Interface_GPX_to_search g2 ON s.provider = g2.provider AND s.hashed_url = g2.hashed_url AND g2.typ = "last"
-                                        LEFT JOIN Interface_GPX_to_search g3 ON s.provider = g3.provider AND s.hashed_url = g3.hashed_url AND g3.typ = "top"
-                                        limit ${limit} offset ${offset};`);
+        const query = knexTourenDb.raw(`SELECT * from vw_touren_to_search limit ${limit} offset ${offset};`);
 
         /*
         if(process.env.NODE_ENV != "production"){
@@ -615,12 +565,12 @@ export async function mergeToursWithFahrplan(){
         for(let i=0;i<tours.length;i++){
 
             let entry = tours[i];
-            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, tour_provider: entry.provider}).groupBy('city_slug');
+            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, provider: entry.provider}).groupBy('city_slug');
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
@@ -631,15 +581,15 @@ export async function mergeToursWithFahrplan(){
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
                         .min('best_connection_duration as min_best_connection_duration')
-                        .where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug})
+                        .where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
                         .andWhereNot('fromtour_track_duration', null)
                         .andWhereNot('totour_track_duration', null)
                         .andWhereNot('best_connection_duration', null)
                         .first();
 
-                    //let fromTourTrackDuration = await knex('fahrplan').avg('fromtour_track_duration').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).andWhereNot('fromtour_track_duration', null).first();
-                    //let bestConnectionDuration = await knex('fahrplan').min(['best_connection_duration']).where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("best_connection_duration", null).first();
+                    //let fromTourTrackDuration = await knex('fahrplan').avg('fromtour_track_duration').where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).andWhereNot('fromtour_track_duration', null).first();
+                    //let bestConnectionDuration = await knex('fahrplan').min(['best_connection_duration']).where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("best_connection_duration", null).first();
 
                     fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
                     fp.durations = durations;
@@ -724,7 +674,7 @@ const roundTo10 = (value) => {
 }
 
 export async function syncCities(){
-    const query = knexTourenDb('interface_cities_to_search').select();
+    const query = knexTourenDb('vw_cities_to_search').select();
     const result = await query;
     if(!!result && result.length > 0){
         for(let i=0; i<result.length; i++){
@@ -866,11 +816,6 @@ const insertFahrplan = async (entry) => {
     attrToRemove.forEach(attr => {
         delete entry[attr];
     });
-
-    if(!!entry.tour_id){
-        entry.hashed_url = ""+entry.tour_id;
-        delete entry.tour_id;
-    }
 
     try {
         await knex('fahrplan').insert({
