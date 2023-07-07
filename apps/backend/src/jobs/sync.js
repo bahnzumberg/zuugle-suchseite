@@ -246,8 +246,7 @@ export async function syncGPXdata(){
     let count_chunks = round(count_gpx / limit, 0);
     let counter = 0;
 
-    console.log('GPX data count_chunks:', count_chunks)
-    console.log('Info: Handling ', count_gpx.toLocaleString("de-de"), ' rows with gpx datapoints.');
+    console.log('Info: Handling ', count_gpx.toLocaleString("de-de"), ' rows with gpx datapoints via ', count_chunks, ' chunks.');
 
     /* The following loop has to be parallised */
     while(counter < count_chunks){
@@ -557,6 +556,9 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
+    /* This deactivates the function practically */
+    return true;
+
     const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'provider', 'duration']);
     
