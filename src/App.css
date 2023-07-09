@@ -883,9 +883,13 @@ background: #FFFFFF;
 border: 2.06691px solid #DDDDDD;
 box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
 border-radius: 20px;
-position:absolute;
-top:415px;
-
+/* position:absolute;
+top:415px; */
+margin-top: 60px;
+margin-bottom: -58px;
+}
+.fixedHeight{
+  height:162px;
 }
 .mobileSearchFieldFilter{
   display: none;

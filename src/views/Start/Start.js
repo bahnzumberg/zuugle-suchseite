@@ -18,7 +18,7 @@ import { useNavigate } from "react-router";
 import { useMatomo } from "@jonkoops/matomo-tracker-react";
 import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
-
+import { useTranslation } from "react-i18next";
 import {
 	getPageHeader,
 	listAllCityLinks,
@@ -79,7 +79,8 @@ function Start({
 	const { trackPageView } = useMatomo();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
-
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+	const { t, i18n } = useTranslation();
 	// description
 	// makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
 	useEffect(() => {
@@ -214,74 +215,91 @@ function Start({
 		return (
 			<Box>
 				{getPageHeader(null)}
-				<Header totalTours={totalTours} allCities={allCities} />
-				<Box elevation={0} className={"header-line"}>
-					<Box sx={{ paddingTop: "50px", paddingBottom: "20px" }}>
-						<Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-							Zuugle sucht für dich in {totalProvider} Tourenportalen nach
-							Öffi-Bergtouren
-						</Typography>
+				<Header
+					totalTours={totalTours}
+					allCities={allCities}
+					showMobileMenu={showMobileMenu}
+					setShowMobileMenu={setShowMobileMenu}
+				/>
+				{!showMobileMenu && (
+					<Box elevation={0} className={"header-line"}>
+						<Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
+							<Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+								{t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+								{t("start.zuugle_sucht_fuer_dich_2")}
+							</Typography>
+						</Box>
 					</Box>
-				</Box>
-				<Box className={"start-body-container"}>
-					<Box>
-						<Typography
-							variant={"h4"}
-							sx={{ textAlign: "left", paddingBottom: "15px" }}
-						>
-							{getRangeText()}
-						</Typography>
-						<RangeCardContainer
-							ranges={favouriteRanges}
-							onSelectTour={onSelectRange}
-						/>
-					</Box>
+				)}
+				{!showMobileMenu && (
+					<Box className={"start-body-container"}>
+						<Box>
+							<Typography
+								variant={"h4"}
+								sx={{
+									textAlign: "left",
+									paddingBottom: "15px",
+									paddingTop: "15px",
+								}}
+							>
+								{getRangeText()}
+							</Typography>
+							<RangeCardContainer
+								ranges={favouriteRanges}
+								onSelectTour={onSelectRange}
+							/>
+						</Box>
 
-					<Box sx={{ marginTop: "20px" }}>
-						<Typography
-							variant={"h4"}
-							sx={{
-								textAlign: "left",
-								paddingTop: "20px",
-								paddingBottom: "15px",
-							}}
-						>
-							{getFavouriteToursText()}
-						</Typography>
-						<ScrollingTourCardContainer
-							tours={favouriteTours}
-							onSelectTour={onSelectTour}
-							loadTourConnections={loadTourConnections}
-							city={searchParams.get("city")}
-						/>
-					</Box>
+						<Box sx={{ marginTop: "20px" }}>
+							<Typography
+								variant={"h4"}
+								sx={{
+									textAlign: "left",
+									paddingTop: "20px",
+									paddingBottom: "15px",
+								}}
+							>
+								{getFavouriteToursText()}
+							</Typography>
+							<ScrollingTourCardContainer
+								tours={favouriteTours}
+								onSelectTour={onSelectTour}
+								loadTourConnections={loadTourConnections}
+								city={searchParams.get("city")}
+							/>
+						</Box>
 
-					<Box sx={{ marginTop: "20px" }}>
-						<AboutZuugleContainer />
-					</Box>
+						<Box sx={{ marginTop: "20px" }}>
+							<AboutZuugleContainer />
+						</Box>
 
-					<Box sx={{ marginTop: "20px" }}>
-						<UserRecommendationContainer />
-					</Box>
+						<Box sx={{ marginTop: "20px" }}>
+							<UserRecommendationContainer />
+						</Box>
 
-					<Box sx={{ marginTop: "20px" }}>
-						<SponsoringContainer />
-					</Box>
+						<Box sx={{ marginTop: "20px" }}>
+							<SponsoringContainer />
+						</Box>
 
-					<Box sx={{ marginTop: "20px" }}>
-						<KPIContainer
-							totalTours={totalTours}
-							totalConnections={totalConnections}
-							totalRanges={totalRanges}
-							totalCities={totalCities}
-							city={searchParams.get("city")}
-							totalProvider={totalProvider}
-						/>
+						<Box sx={{ marginTop: "20px" }}>
+							<KPIContainer
+								totalTours={totalTours}
+								totalConnections={totalConnections}
+								totalRanges={totalRanges}
+								totalCities={totalCities}
+								city={searchParams.get("city")}
+								totalProvider={totalProvider}
+							/>
+						</Box>
 					</Box>
-				</Box>
-				<FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-				<FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-				<Footer />
+				)}
+				{!showMobileMenu && (
+					<FooterLinks links={listAllCityLinks(allCities, searchParams)} />
+				)}
+				{!showMobileMenu && (
+					<FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
+				)}
+				{!showMobileMenu && <Footer />}
 			</Box>
 		);
 	}

@@ -44,10 +44,11 @@ export function Search({
 	regions,
 	// isCityLoading,
 	// loadFavouriteTours,
+	showMobileMenu,
+	setShowMobileMenu,
 }) {
 	console.log("regions", regions);
 	//--------menus-----------------
-	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
