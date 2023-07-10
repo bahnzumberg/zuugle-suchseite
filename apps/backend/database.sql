@@ -209,3 +209,15 @@ ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
 
 ALTER TABLE tour ADD COLUMN max_ele INT default 0;
 ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';
+
+CREATE TABLE disposible (
+provider varchar(30) NOT NULL,
+hashed_url varchar(100) NOT NULL,
+link varchar(100) NOT NULL,
+calendar_date timestamp NOT NULL,
+city_slug varchar(100) NOT NULL
+);
+
+CREATE INDEX ON disposible (provider);
+CREATE INDEX ON disposible (hashed_url);
+CREATE INDEX ON disposible (link);
