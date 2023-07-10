@@ -313,6 +313,9 @@ const listWrapper = async (req, res) => {
         // CREATING INNER QUERIES 
         // ****************************************************************
         let _search = search.trim().toLowerCase();
+        _search = search.replace(/'/g, "''");
+
+        console.log("L318 _search :", _search)
 
         //from is added here to be used in the search module ONLY
         sql_select += " FROM ( ";
@@ -332,7 +335,7 @@ const listWrapper = async (req, res) => {
             const lang = allLangs[i];
             const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
             if(_search.indexOf(' ') > 0){
-
+                console.log("L335 / space separated here !")
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -348,6 +351,8 @@ const listWrapper = async (req, res) => {
                 `;
 
             }else {
+                console.log("L335 / NO space separated here !")
+
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -568,31 +573,68 @@ const listWrapper = async (req, res) => {
 
     //describe: logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
+    // try {
+    //     // Jetzt loggen wir diese query noch schnell für später
+
+    //     let searchparam = '';  
+    //     // console.log("283: search : ", search) // 
+
+    //     if (search !== undefined) {  // also if previous search item is different than this one ?
+    //         searchparam = search;
+    //         //clgs
+    //         // console.log("domain :" + get_domain_country(domain))
+    //         // console.log("searchparam :" + (searchparam))
+    //         // console.log("req.query.city :" + (req.query.city))
+    //         // console.log("count['count'] :" + (count['count']))
+
+    //         // searchparam = search.replace("'",'"') ;
+    //         searchparam = search.replace(/'/g,'"') ;
+    //         console.log("L587 /searchparam :" + (searchparam))
+    //         console.log("L588 /count['count'] :" + (count['count']));
+    //         console.log("L589 /sql_count :" + (sql_count));
+            
+    //         let _count = searchIncluded ? sql_count : count['count'];
+    //         console.log("L592 /_count :" + (_count));
+
+    //         if( !!_count && _count > 0){
+    //             const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
+    //         //console.log(" sql :" + sql)
+    //             await knex.raw(sql);
+    //         }
+    //     };
+    // } catch(e){
+    //     console.error('error inserting into logsearchphrase: ', e);
+    // }
     try {
-        // Jetzt loggen wir diese query noch schnell für später
-
-        let searchparam = '';  
-        // console.log("283: search : ", search) // 
-
-        if (search !== undefined) {  // also if previous search item is different than this one ?
+        let searchparam = '';
+    
+        if (search !== undefined) {
             searchparam = search;
-            //clgs
-            // console.log("domain :" + get_domain_country(domain))
-            // console.log("searchparam :" + (searchparam))
-            // console.log("req.query.city :" + (req.query.city))
-            // console.log("count['count'] :" + (count['count']))
+            // searchparam = search.replace("'",'"') ;
+            searchparam = search.replace(/'/g, "''");
 
-            searchparam = search.replace("'",'"') ;
-            if(!!count['count'] && count['count'] > 0){
-                const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${count['count']}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
-            //console.log(" sql :" + sql)
-                await knex.raw(sql);
+            console.log("L611 searchparam :", searchparam)
+
+            let _count = searchIncluded ? sql_count : count['count'];
+            console.log("_count", _count)
+            if (!!_count && _count > 0) {
+                const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES(:searchparam, :count, :city, :language, :country);`;
+    
+                await knex.raw(sql, {
+                    searchparam,
+                    count: _count,
+                    city: req.query.city,
+                    language: currLanguage,
+                    country: get_domain_country(domain)
+                });
+          
             }
-        };
-    } catch(e){
-        console.error('error inserting into logsearchphrase: ', e);
+        }
+    } catch (e) {
+        console.error('error inserting into logsearchphrase: ', e); 
     }
     
+      
     //describe: preparing tour entries 
     //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
     await Promise.all(result.map(entry => new Promise(async resolve => {
