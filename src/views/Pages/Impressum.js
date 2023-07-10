@@ -3,11 +3,8 @@ import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
 import { getImpressumLabels } from "../../translations/translation.labels";
-import { useTranslation } from "react-i18next";
 
 function Impressum({}) {
-	const { t, i18n } = useTranslation();
-
 	//Translation related
 	const ImpressumLabels = getImpressumLabels();
 

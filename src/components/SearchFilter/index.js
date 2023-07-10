@@ -8,6 +8,9 @@ import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams } from "react-router-dom";
+import { Modal } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
 import {
 	// isResponsive,
 	parseIfNeccessary,
@@ -557,15 +560,20 @@ export function SearchFilter({
 						</div>
 					</div>
 					{showFirstMenu && (
-						<div className="centerMe">
+						<div
+							className="centerMe"
+							style={{
+								position: "absolute",
+								top: 200,
+							}}
+						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
 								open={showFirstMenu}
-								style={
-									{
-										// paddingTop: 340,
-									}
-								}
+								style={{
+									position: "absolute",
+									top: 50,
+								}}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>
@@ -631,15 +639,16 @@ export function SearchFilter({
 						</div>
 					)}
 					{showSecondMenu && (
-						<div className="centerMe">
+						<div
+							className="centerMe"
+							style={{
+								position: "fixed",
+								top: 200,
+							}}
+						>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={
-									{
-										// paddingTop: 340,
-									}
-								}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>

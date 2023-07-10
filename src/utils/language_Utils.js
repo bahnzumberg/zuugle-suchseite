@@ -82,8 +82,6 @@ export function langChange(language) {
 			detail: { language: language },
 		});
 		document.dispatchEvent(event);
-		setLanguage();
-		console.log("dispatched");
 	});
 }
 

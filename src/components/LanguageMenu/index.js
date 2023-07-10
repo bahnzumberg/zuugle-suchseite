@@ -2,23 +2,34 @@ import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
-
+import { useTranslation } from "react-i18next";
 const Languages = [
 	{ key: "en", nativeName: "English" },
-
 	{ key: "fr", nativeName: "Français" },
 	{ key: "de", nativeName: "Deutsch" },
 	{ key: "it", nativeName: "Italiano" },
 	{ key: "sl", nativeName: "Slovenščina" },
 ];
 function LanguageMenu() {
+	const { i18n } = useTranslation();
+	const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
+		i18n.language
+	);
 	const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
-
-	const setLanguage = (item) => {
-		localStorage.setItem("lang", item);
-		langChange(item);
+	const setLanguage = (lng) => {
+		console.log("lang inside setLanguage :", lng);
+		localStorage.setItem("lang", lng);
+		langChange(lng);
 		setShowLanguageMenu(false);
 	};
+	// let selectedValue = '';
+	// Languages.forEach((item) =>{
+	// if(item.key == i18LangFormatted){
+	// selectedValue = item.key;
+	// return
+	// }
+	// }
+	// );
 
 	return (
 		<div>
@@ -52,52 +63,36 @@ function LanguageMenu() {
 							className="rowing"
 							style={{ width: "100%", marginBottom: -15 }}
 						>
-							<div />
-							<div
+							<div />{" "}
+							<span
 								className="closeIcon pointy"
 								onClick={() => setShowLanguageMenu(false)}
-								style={{
-									marginLeft: 0,
-								}}
+								style={{ marginRight: 5 }}
 							>
 								<CloseIcon
 									sx={{
 										color: "#8B8B8B",
 										width: 18,
 										height: 18,
-										cursor: "pointer",
 									}}
 								/>
-							</div>
+							</span>
 						</div>
 						<div className="languageOptions">
-							{Languages.map((item) =>
-								item.key === selectedValue ? (
-									<div
-										className="rowing"
-										key={item.key}
-										style={{ width: 140, marginBottom: 5 }}
-									>
-										<span
-											className="languageItem"
-											onClick={() => setLanguage(item.key)}
-											style={{ color: "#4992FF" }}
-										>
-											{item.nativeName}
-										</span>
-										<span />
-									</div>
-								) : (
-									<span
-										className="languageItem"
-										onClick={() => setLanguage(item.key)}
-										key={item.key}
-										style={{ marginBottom: 5 }}
-									>
-										{item.nativeName}
-									</span>
-								)
-							)}
+							{Languages.map((item) => (
+								<span
+									className="languageItem"
+									onClick={() => setLanguage(item.key)}
+									key={item.key}
+									style={{
+										width: 140,
+										marginBottom: 5,
+										color: i18LangFormatted == item.key && "#4992FF",
+									}}
+								>
+									{item.nativeName}
+								</span>
+							))}
 						</div>
 					</div>
 				</Modal>
@@ -105,5 +100,4 @@ function LanguageMenu() {
 		</div>
 	);
 }
-
 export default LanguageMenu;

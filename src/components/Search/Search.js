@@ -592,7 +592,7 @@ export function Search({
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
 								open={showFirstMenu}
-								style={{ position: "absolute", top: 40 }}
+								style={{ position: "absolute", top: 440 }}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginTop: 75 }}>
@@ -638,7 +638,7 @@ export function Search({
 									{showFirstMenu && (
 										<div
 											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10 }}
+											style={{ marginLeft: 0, marginTop: 10, height: 200 }}
 										>
 											{fSearchQuery &&
 												firstMenuOptions
@@ -667,7 +667,7 @@ export function Search({
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={{ position: "absolute", top: 170 }}
+								style={{ position: "absolute", top: 400, marginRight: -6 }}
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginTop: 75 }}>

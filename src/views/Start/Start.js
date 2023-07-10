@@ -172,9 +172,9 @@ function Start({
 	const getRangeText = () => {
 		let _city = searchParams.get("city");
 		if (!!_city && _city.length > 0) {
-			return "Die schönsten Wanderdestinationen in deiner Nähe";
+			return t("start.schoene_wanderungen_nahe");
 		} else {
-			return "Die schönsten Wanderdestinationen";
+			return t("start.schoene_wanderungen");
 		}
 	};
 
@@ -183,9 +183,9 @@ function Start({
 	const getFavouriteToursText = () => {
 		let _city = searchParams.get("city");
 		if (!!_city && _city.length > 0) {
-			return "Beliebte Bergtouren in deiner Nähe";
+			return t("start.beliebte_bergtouren_nahe");
 		} else {
-			return "Beliebte Bergtouren";
+			return t("start.beliebte_bergtouren");
 		}
 	};
 
