@@ -374,8 +374,9 @@ const filterWrapper = async (req, res) => {
     const domain = req.query.domain;
     const country = req.query.country;
     const provider = req.query.provider;
+    const language = req.query.language;
 
-    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele']);
+    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele', 'text_lang']);
 
     let where = getWhereFromDomain(domain);
     let whereRaw = null;
@@ -399,6 +400,9 @@ const filterWrapper = async (req, res) => {
     /** type search */
     if(!!type && type.length > 0){
         where.type = type;
+    }
+    if(!!language && language.length > 0){
+        where.language = language;
     }
 
     /** provider search */
@@ -690,6 +694,7 @@ const buildFilterResult = (result, city, params) => {
 
     let types = [];
     let ranges = [];
+    let languages = [];
     let isSingleDayTourPossible = false;
     let isMultipleDayTourPossible = false;
     let isSummerTourPossible = false;
@@ -713,11 +718,17 @@ const buildFilterResult = (result, city, params) => {
         if(!!!tour.range){
             tour.range = "Keine Angabe"
         }
+        if(!!!tour.text_lang){
+            tour.text_lang = "Keine Angabe"
+        }
         if(!!tour.type && !!!types.find(t => tour.type === t)){
             types.push(tour.type);
         }
         if(!!tour.range && !!!ranges.find(t => tour.range === t)){
             ranges.push(tour.range);
+        }
+        if(!!tour.text_lang && !!!languages.find(t => tour.text_lang === t)){
+            languages.push(tour.text_lang);
         }
         if(!!!isSingleDayTourPossible && tour.number_of_days == 1){
             isSingleDayTourPossible = true;
@@ -796,6 +807,9 @@ const buildFilterResult = (result, city, params) => {
     if(!!ranges){
         ranges.sort();
     }
+    if(!!languages){
+        languages.sort();
+    }
 
     return {
         types,
@@ -813,7 +827,8 @@ const buildFilterResult = (result, city, params) => {
         isChildrenPossible,
         isTraversePossible,
         minTransportDuration: round((minTransportDuration / 60), 2),
-        maxTransportDuration: round((maxTransportDuration / 60), 2)
+        maxTransportDuration: round((maxTransportDuration / 60), 2),
+        languages,
     };
 }
 
