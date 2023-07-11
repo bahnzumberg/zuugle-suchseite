@@ -211,7 +211,10 @@ const DetailReworked = (props) => {
             <DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
             {!!isGpxLoading ?
                 <CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}>Track für GPS-Gerät herunterladen</span>
+                : <span style={{color: "#8B8B8B"}}>
+                    Track für GPS-Gerät herunterladen
+                {/* {t("details.track_gps_geraet")} */}
+                </span>
             }
         </Button>
         <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}

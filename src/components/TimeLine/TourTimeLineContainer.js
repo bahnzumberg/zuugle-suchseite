@@ -12,6 +12,8 @@ import {
     getDepartureText,
     getNumberOfTransfers
 } from "./utils";
+import { useTranslation} from 'react-i18next';
+
 
 //description
 //TourTimeLineContainer is a React component that displays a timeline of connections for a tour, along with information about the departure point and the number of transfers.
@@ -20,6 +22,8 @@ import {
 //The component then displays the departure information and the number of transfers. The departure information includes the departure text and the departure time, while the number of transfers is displayed as an icon with the number of transfers next to it.
 //Finally, the component displays the timeline of connections using the Timeline component from Material UI. It calls the createEntries function to create the individual entries for the timeline. At the bottom of the component, there is a button that, when clicked, opens a live timetable for the tour's connection using the get_live_timetable_link_there function.
 export default function TourTimeLineContainer({connections, loading}){
+    
+    const{t} = useTranslation();
 
     const [entries, setEntries] = useState([]);
 
@@ -35,7 +39,10 @@ export default function TourTimeLineContainer({connections, loading}){
 
     if(!!!getSingleConnection()){
         return <Box sx={{ bgcolor: '#FFFFFF', borderRadius: '16px', padding: '20px', position: 'relative', textAlign: "center" }}>
-            <Typography sx={{lineHeight: "16px", fontWeight: 600}}>Für diesen Tag wurden keine Verbindungen gefunden.</Typography>
+            <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
+                Für diesen Tag wurden keine Verbindungen gefunden.
+                {/* {t("details.keine_verbindungen")} */}
+            </Typography>
         </Box>
     }
 
@@ -46,8 +53,10 @@ export default function TourTimeLineContainer({connections, loading}){
         }
         if(connection.connection_duration_minutes == 0){
             return 'Start beim Ausgangsort';
+            // return t("details.start_ausgangort");
         } else {
             return 'Beste Anreise';
+            // return t("details.beste_anreise");
         }
     }
 
@@ -84,7 +93,10 @@ export default function TourTimeLineContainer({connections, loading}){
 
                 <Box sx={{borderTop: "1px solid #EAEAEA", padding: '20px', marginLeft: '-20px', marginRight: '-20px'}}>
                     
-                    <Button variant={"contained"} fullWidth onClick={() => { window.open(get_live_timetable_link_there()); }}>Liveabfrage für diese Anreise prüfen</Button>
+                    <Button variant={"contained"} fullWidth onClick={() => { window.open(get_live_timetable_link_there()); }}>
+                        Liveabfrage für diese Anreise prüfen
+                        {/* {t("details.liveabfrage_anreise")} */}
+                    </Button>
                 </Box>
             </Fragment>
         }
