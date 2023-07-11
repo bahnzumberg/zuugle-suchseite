@@ -65,6 +65,7 @@ export function Search({
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("");
     const [searchPhrase, setSearchPhrase] = useState('');
+    const [searchSuggestion, setSearchSuggestion] = useState('');
     const [city, setCity] = useState(null)
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
@@ -244,11 +245,11 @@ export function Search({
         if (!!tempRegion) {
             _region = tempRegion
         }
-
         if (!!_region && !!_region.value) {
             values[_region.type] = _region.value
         } else if (!!searchPhrase) {
-            values.search = searchPhrase
+            //values.search = searchPhrase
+            values.search = searchSuggestion ? searchSuggestion : searchPhrase;
         }
 
         if (!!searchParams.get("sort")) {
@@ -356,6 +357,11 @@ export function Search({
     //     setSearchParams(searchParams)
     // }
 
+    const getSearchSuggestion = (searchPhrase) => {
+        console.log("SearchPhrase: :", searchPhrase,":");
+        setSearchSuggestion(searchPhrase);
+    };
+
     return (
         <Fragment>
             <Box>
@@ -422,7 +428,8 @@ export function Search({
                                 // }}
                             />
                             <br/>
-                            <AutosuggestSearchTour></AutosuggestSearchTour>
+                            <AutosuggestSearchTour onSearchSuggestion={getSearchSuggestion}/>
+
                         </Box>
                     </Grid>
 
