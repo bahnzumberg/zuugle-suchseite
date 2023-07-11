@@ -63,7 +63,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
         { "weitwandern" : t('filter.weitwandern')},
-    ]    
+    ]
+
+    let languageArray = [
+        {"de" : "Deutsch"},
+        {"en" : "Englisch"},
+        {"fr" : "Französisch"},
+        {"sl" : "Slowenisch"},
+        {"it" : "Italienisch"}
+    ]
     
 
     useEffect(() => {
@@ -74,6 +82,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let type = searchParams.get('type');
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
+        let language = searchParams.get('language');
 
         loadFilter({
             city: city,
@@ -83,6 +92,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             type: type,
             search: search,
             provider: provider,
+            language: language
         });
     }, [])
 
@@ -113,6 +123,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
             if(!!filter.types){
                 setTypeValues(filter.types.map(e => {
+                    return {
+                        value: e,
+                        checked: true
+                    }
+                }));
+            }
+            if(!!filter.languages){
+                setLanguageValues(filter.languages.map(e => {
                     return {
                         value: e,
                         checked: true
@@ -154,6 +172,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         if(!!filter && !!filter.types && !!parsed.types){
                             setTypeValues(filter.types.map(entry => {
                                 const found = parsed.types.find(e => e == entry);
+                                return {
+                                    value: entry,
+                                    checked: !!found ? true : false
+                                }
+                            }))
+                        }
+                        if(!!filter && !!filter.languages && !!parsed.languages){
+                            setLanguageValues(filter.languages.map(entry => {
+                                const found = parsed.languages.find(e => e == entry);
                                 return {
                                     value: entry,
                                     checked: !!found ? true : false
@@ -204,6 +231,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
+        if(languageValues.filter(lv => !!!lv.checked).length > 0){
+            count++;
+        }
         //clg
         // console.log("Filter.js count is : " + count)
 
@@ -239,9 +269,11 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [rangeValues, setRangeValues] = useState([]);
     const [typeValues, setTypeValues] = useState([]);
+    const [languageValues, setLanguageValues] = useState([]);
 
     const [rangeValuesState, setRangeValuesState] = useState(true);
     const [typeValuesState, setTypeValuesState] = useState(true);
+    const [languageValuesState, setLanguageValuesState] = useState(true);
 
     const submit = () => {
         const filterValues = {
@@ -262,6 +294,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
+            languages: languageValues.filter(e => !!e.checked).map(e => e.value),
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
@@ -276,6 +309,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             if(entry.value == key){
                 toPush.checked = value;
             }
+            console.log(toPush);
             return toPush;
         }));
     }
@@ -309,6 +343,28 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             });
     }
 
+    const getLanguages = () => {
+        let languages = [];
+        if (!!filter && !!filter.languages) {
+            languages = filter.languages.map((entry) => {
+                const foundType = languageArray.find(typeObj => Object.keys(typeObj)[0] === entry);
+                const translatedValue = foundType ? Object.values(foundType)[0] : '';
+                return {
+                    value: translatedValue,
+                    label: translatedValue
+                }
+            })
+        }
+
+        return languages.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type.value, target.checked, setLanguageValues)}}/>} label={type.label} />
+                </Box>
+            </Grid>
+        });
+    }
+
     const getRanges = () => {
         let ranges = [];
         if(!!filter && !!filter.ranges){
@@ -337,6 +393,11 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const updateAllTypeValues = () => {
         setTypeValues(typeValues.map(rv => { return {...rv, checked: !!!typeValuesState} }));
         setTypeValuesState(!!!typeValuesState);
+    }
+
+    const updateAllLanguageValues = () => {
+        setLanguageValues(languageValues.map(rv => { return {...rv, checked: !!!languageValuesState} }));
+        setLanguageValuesState(!!!languageValuesState);
     }
 
     return <Box style={{height: "100%"}}>
@@ -602,6 +663,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         <Typography variant={"subtitle1"}>{sportart_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllTypeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{paddingTop: "16px"}}>
                             {getTypes()}
+                        </Grid>
+                    </Box>
+                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
+                        <Typography variant={"subtitle1"}>{sportart_label}Language <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Grid container sx={{paddingTop: "16px"}}>
+                            {getLanguages()}
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
