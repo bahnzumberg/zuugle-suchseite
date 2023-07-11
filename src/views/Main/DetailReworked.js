@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {lazy, useEffect, useState} from 'react';
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
@@ -84,6 +84,14 @@ const DetailReworked = (props) => {
     }
 
     useEffect(() => {
+        const search = searchParams.get("share") ?? null;
+        if (search !== null) {
+            const redirectSearchParams = new URLSearchParams();
+            redirectSearchParams.set("id", 423);
+            redirectSearchParams.set("city", 'wr-neustadt');
+            redirectSearchParams.set("datum", '2023-07-08');
+            lazy(navigate('/tour?' + redirectSearchParams.toString()));
+        }
         loadAllCities();
         loadCities({limit: 5});
         const tourId = searchParams.get("id");
@@ -99,7 +107,7 @@ const DetailReworked = (props) => {
                 }
             })
         }
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         if (tour) {
