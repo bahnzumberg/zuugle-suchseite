@@ -75,6 +75,7 @@ const listWrapper = async (req, res) => {
     const page = req.query.page || 2;
     const domain = req.query.domain;
     const provider = req.query.provider;
+    const language = req.query.language;
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
@@ -128,6 +129,9 @@ const listWrapper = async (req, res) => {
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!type && type.length > 0){
         where.type = type;
+    }
+    if(!!language && language.length > 0){
+        where.language = language;
     }
 
     /** provider search */
@@ -892,6 +896,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
       maxDistance,
       ranges,
       types,
+        languages,
     } = filter;
 
     /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
@@ -999,6 +1004,15 @@ const buildWhereFromFilter = (params, query, print = false) => {
             query = query.whereRaw(`(type in (${_types}))`);
         }
     }
+      if(!!languages){
+          const nullEntry = languages.find(r => r == "Keine Angabe");
+          let _languages = languages.map(r => '\'' + r + '\'');
+          if(!!nullEntry){
+              query = query.whereRaw(`(text_lang in (${_languages}) OR text_lang IS NULL OR text_lang = '')`);
+          } else {
+              query = query.whereRaw(`(text_lang in (${_languages}))`);
+          }
+      }
 
     /** Anfahrtszeit */
     if(!!minTransportDuration && !!params.city){
