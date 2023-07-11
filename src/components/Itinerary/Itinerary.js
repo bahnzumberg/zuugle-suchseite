@@ -1,13 +1,18 @@
 import React from "react";
 import ItineraryCalendar from "./ItineraryCalendar";
-import {Accordion, AccordionDetails, AccordionSummary, Typography} from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import TourTimeLineContainer from "../TimeLine/TourTimeLineContainer";
-import Box from "@mui/material/Box";
-import TourReturnTimeLineContainer from "../TimeLine/TourReturnTimeLineContainer";
+// import {Accordion, AccordionDetails, AccordionSummary, Typography} from "@mui/material";
+// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+// import TourTimeLineContainer from "../TimeLine/TourTimeLineContainer";
+// import Box from "@mui/material/Box";
+// import TourReturnTimeLineContainer from "../TimeLine/TourReturnTimeLineContainer";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
+import {useTranslation} from 'react-i18next';
+
 const Itinerary = ({connectionData, dateIndex, onDateIndexUpdate}) => {
     const [expanded, setExpanded] = React.useState(false);
+
+
+    const {t} = useTranslation();
 
     const handleChange =
         (panel) => (event, isExpanded) => {
@@ -15,7 +20,7 @@ const Itinerary = ({connectionData, dateIndex, onDateIndexUpdate}) => {
         };
     return <div className='tour-detail-itinerary-container'>
         <div className='tour-detail-itinerary'>
-            <span className='tour-detail-itinerary-header'>Öffi-Fahrplan</span>
+            <span className='tour-detail-itinerary-header'>{t("oeffi_fahrplan")}</span>
             <ItineraryCalendar connectionData={connectionData} dateIndex={dateIndex} onDateIndexUpdate={onDateIndexUpdate}></ItineraryCalendar>
             {/*<Accordion>*/}
             {/*    <AccordionSummary*/}

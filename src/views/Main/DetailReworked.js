@@ -211,7 +211,10 @@ const DetailReworked = (props) => {
             <DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
             {!!isGpxLoading ?
                 <CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}>Track für GPS-Gerät herunterladen</span>
+                : <span style={{color: "#8B8B8B"}}>
+                    Track für GPS-Gerät herunterladen
+                {/* {t("details.track_gps_geraet")} */}
+                </span>
             }
         </Button>
         <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
@@ -219,13 +222,13 @@ const DetailReworked = (props) => {
             <PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
             {!!isPdfLoading ?
                 <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}>Download für Druck / Mailversand</span>
+                : <span style={{color: "#8B8B8B"}}> {t("pdf_loading_notice")} </span>
             }
         </Button>
 
         {!!downloadButtonsDisabled() &&
             <div style={{marginTop: "10px"}}>
-                <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.</span>
+                <span style={{fontSize: "12px", color: "#101010", lineHeight: "12px"}}>t{"gpx_loading_notice"}</span>
             </div>
         }
     </Box>;

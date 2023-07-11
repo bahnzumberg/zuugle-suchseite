@@ -10,6 +10,8 @@ import {
     createReturnEntries
 } from "./utils";
 import Rueckreise from "../../icons/Rueckreise";
+import {useTranslation} from 'react-i18next';
+
 
 //description:
 //This is a React component that displays a timeline of return connections for a given tour. It uses the Material-UI Timeline component to display the connections in chronological order.
@@ -26,6 +28,8 @@ import Rueckreise from "../../icons/Rueckreise";
 //The component renders a header section with the date and a list of return connections. Each connection is displayed as a clickable box with information about the departure and arrival times, duration, and number of transfers. When a connection is clicked, the setSelectedIndex function is called to update the selected connection.
 //Below the header section, the component renders the timeline of return connections using the createReturnEntries function. This function generates an array of TimelineItem components, each representing a single connection, and includes information about the departure and arrival times, the duration, and the stops along the way.
 export default function TourReturnTimeLineContainer({connections, loading, date, selectedIndex, setSelectedIndex}){
+
+    const {t} = useTranslation();
 
     const [internalLoading, setInternalLoading] = useState(false);
     const [entries, setEntries] = useState([]);
@@ -84,7 +88,7 @@ export default function TourReturnTimeLineContainer({connections, loading, date,
         if(connection.return_duration_minutes == 0){
             return 'Ankunft beim Endpunkt';
         } else {
-            return 'Rückreise';
+            return t('rückreise');
         }
     }
 

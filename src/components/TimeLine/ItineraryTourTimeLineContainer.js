@@ -47,8 +47,10 @@ export default function ItineraryTourTimeLineContainer({connections, loading}){
         }
         if(connection.connection_duration_minutes == 0){
             return 'Start beim Ausgangsort';
+            // return t("details.start_ausgangort");
         } else {
             return 'Beste Anreise';
+            // return t("details.beste_anreise");
         }
     }
 
