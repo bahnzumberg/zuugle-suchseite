@@ -527,14 +527,14 @@ export function Search({
 									setShowFirstMenu(true);
 								}}
 							>
-								Öffi-Touren im Alpenraum
+								{t("start.suche")}
 							</span>
 							<span className="verticalBar" />
 							<span
 								className="searchSecondText"
 								onClick={() => setShowSecondMenu(true)}
 							>
-								Heimatbahnhof wählen
+								{t("start.heimatbahnhof")}
 							</span>
 							<span className="goBtn" onClick={search}>
 								GO!
