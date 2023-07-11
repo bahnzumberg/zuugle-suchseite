@@ -97,7 +97,7 @@ const AutosuggestSearchTour = ({onSearchSuggestion}) => {
             }}
             loadOptions={loadOptions}
             defaultOptions={options}
-            placeholder={isFocused ? '' : 'Suche...'}
+            placeholder={isFocused ? '' : 'Beliebte Suchen'}
             styles={styles}
             onFocus={handleFocus}
             onChange={handleSelect}
