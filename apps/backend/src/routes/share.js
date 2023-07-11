@@ -52,23 +52,47 @@ const newShareWrapper = async (req, res) => {
 
 const getCorrespondingLinkWrapper = async (req, res) => {
     const shareId = req.params.uuid;
+    let citySlugOfCookie = req.body && req.body.city ? req.body.city : null;
+    let noConnectionForCookieCity = false;
+
 
     try {
         const dataOfFriend = await knex('disposible')
-            .select('calendar_date', 'city_slug')
+            .select('calendar_date', 'city_slug', 'hashed_url', 'provider')
             .where('link', shareId);
 
-
-        if (typeof dataOfFriend[0].calendar_date === 'undefined' || typeof dataOfFriend[0].city_slug === 'undefined') {
+        if (typeof dataOfFriend[0].calendar_date === 'undefined' || typeof dataOfFriend[0].city_slug === 'undefined'
+            || typeof dataOfFriend[0].hashed_url === 'undefined' || typeof dataOfFriend[0].provider === 'undefined') {
             res.status(500).json({ success: false, error: 'Failed to find corresponding link.' });
             return;
         }
-        console.log(dataOfFriend);
 
-        res.status(200).json({success: true, date: dataOfFriend[0].calendar_date, city: dataOfFriend[0].city_slug});
+        const id = await knex('tour')
+            .select('id')
+            .whereRaw('LOWER(provider) = LOWER(?)', dataOfFriend[0].provider)
+            .whereRaw('LOWER(hashed_url) = LOWER(?)', dataOfFriend[0].hashed_url);
+        console.log(id[0].id);
+        const date = new Date(dataOfFriend[0].calendar_date).toISOString().split('T')[0];
+        if (citySlugOfCookie !== null) {
+
+            const tourExisting = await knex('fahrplan')
+                .count()
+                .whereRaw('LOWER(tour_provider) = LOWER(?)', dataOfFriend[0].provider)
+                .whereRaw('LOWER(hashed_url) = LOWER(?)', dataOfFriend[0].hashed_url)
+                .whereRaw('LOWER(city_slug) = LOWER(?)', citySlugOfCookie)
+                .whereRaw('DATE(calendar_date) = ?', date);
+
+            if (tourExisting[0].count < 1) {
+                citySlugOfCookie = dataOfFriend[0].city_slug;
+                noConnectionForCookieCity = true;
+            }
+        }
+
+
+        res.status(200).json({success: true, date: dataOfFriend[0].calendar_date, city: citySlugOfCookie, tourId: id[0].id, usedCityOfCookie: noConnectionForCookieCity});
 
     } catch (error) {
-        res.status(500).json({ success: false, error: 'Failed to find corresponding link.' });
+        res.status(500).json({ success: false, error: 'Failed to find corresponding link. Either this share link is wrong, has expired or this tour does not exist anymore.' });
     }
 }
 
