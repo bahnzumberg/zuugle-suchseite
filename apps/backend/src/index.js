@@ -13,6 +13,7 @@ import {BrowserService} from "./utils/pdf/BrowserService";
 import moment from "moment";
 const schedule = require('node-schedule');
 import {getZuugleCors, hostMiddleware} from "./utils/zuugleCors";
+import searchPhrases from "./routes/searchPhrases";
 
 process.env.TZ = 'Europe/Berlin';
 
@@ -40,6 +41,7 @@ app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
 app.use('/api/regions', cors(corsOptions), hostMiddleware, authenticate, regions);
 app.use('/api/ranges', cors(corsOptions), hostMiddleware, authenticate, ranges);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
+app.use('/api/searchPhrases', cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
 
 
 app.listen(port, () => console.log('Running on localhost:' + port));
