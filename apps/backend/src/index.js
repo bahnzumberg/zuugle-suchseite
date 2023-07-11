@@ -7,6 +7,7 @@ import regions from './routes/regions';
 import ranges from './routes/ranges';
 import language from './routes/language';
 import authenticate from "./middlewares/authenticate";
+import share from "./routes/share";
 import {BrowserService} from "./utils/pdf/BrowserService";
 // import {syncDataApplicationSide} from "./jobs/syncDataApplicationSide";
 // import {syncFilesApplicationSide} from "./jobs/syncFilesApplicationSide";
@@ -40,6 +41,7 @@ app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
 app.use('/api/regions', cors(corsOptions), hostMiddleware, authenticate, regions);
 app.use('/api/ranges', cors(corsOptions), hostMiddleware, authenticate, ranges);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
+app.use('/api/shares', cors(corsOptions), hostMiddleware, authenticate, share);
 
 
 app.listen(port, () => console.log('Running on localhost:' + port));
