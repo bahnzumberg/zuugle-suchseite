@@ -1,4 +1,5 @@
 import axios from "../axios";
+import {LOAD_TOUR, LOAD_TOUR_DONE} from "./types";
 
 export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
@@ -133,6 +134,14 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
         });
         return res;
     });
+}
+
+
+export function loadSuggestions(searchPhrase, city, language) {
+    // console.log("tourActions, LoadTour L41 :",id)
+    return axios.get("url").then(res =>{
+        return res;
+    }).catch(err => console.log(err));
 }
 
 // Code description:
