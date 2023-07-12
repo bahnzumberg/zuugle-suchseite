@@ -72,7 +72,7 @@ const listWrapper = async (req, res) => {
     const country = req.query.country;
     const type = req.query.type;
     const orderId = req.query.sort;
-    const page = req.query.page || 2;
+    const page = req.query.page || 1;
     const domain = req.query.domain;
     const provider = req.query.provider;
     const language = req.query.language;
