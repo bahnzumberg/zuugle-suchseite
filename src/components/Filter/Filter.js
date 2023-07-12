@@ -277,7 +277,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const submit = () => {
         const filterValues = {
-            /*
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -292,7 +291,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             minTransportDuration: minTransportDuration,
             maxTransportDuration: maxTransportDuration,
             minDistance: minDistance,
-            maxDistance: maxDistance,*/
+            maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
             languages: languageValues.filter(e => !!e.checked).map(e => e.value),
