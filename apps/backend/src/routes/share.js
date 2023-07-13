@@ -2,7 +2,7 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 
-router.get('/', (req, res) => newShareWrapper(req, res));
+router.post('/', (req, res) => newShareWrapper(req, res));
 router.get('/:uuid', (req, res) => getCorrespondingLinkWrapper(req, res));
 
 
@@ -20,7 +20,6 @@ router.get('/:uuid', (req, res) => getCorrespondingLinkWrapper(req, res));
 //
 const newShareWrapper = async (req, res) => {
     const uuid = crypto.randomUUID();
-    console.log(uuid);
     try {
         //Use this code as well, if you don't want to generate a new link if one already exists
         /*const doesExist = await knex('disposible')
@@ -52,8 +51,8 @@ const newShareWrapper = async (req, res) => {
 
 const getCorrespondingLinkWrapper = async (req, res) => {
     const shareId = req.params.uuid;
-    let citySlugOfCookie = req.body && req.body.city ? req.body.city : null;
-    let noConnectionForCookieCity = false;
+    let citySlugOfCookie = req.query && req.query.city ? req.query.city : null;
+    let usedCityOfCookie = true;
 
 
     try {
@@ -84,12 +83,15 @@ const getCorrespondingLinkWrapper = async (req, res) => {
 
             if (tourExisting[0].count < 1) {
                 citySlugOfCookie = dataOfFriend[0].city_slug;
-                noConnectionForCookieCity = true;
+                usedCityOfCookie = false;
             }
+        } else {
+            citySlugOfCookie = dataOfFriend[0].city_slug;
+            usedCityOfCookie = false;
         }
 
 
-        res.status(200).json({success: true, date: dataOfFriend[0].calendar_date, city: citySlugOfCookie, tourId: id[0].id, usedCityOfCookie: noConnectionForCookieCity});
+        res.status(200).json({success: true, date: dataOfFriend[0].calendar_date, city: citySlugOfCookie, tourId: id[0].id, usedCityOfCookie: usedCityOfCookie});
 
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed to find corresponding link. Either this share link is wrong, has expired or this tour does not exist anymore.' });
