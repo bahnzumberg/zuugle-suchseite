@@ -26,7 +26,22 @@ import {loadAllCities, loadCities} from "../../actions/cityActions";
 import {useTranslation} from 'react-i18next';
 import Itinerary from "../../components/Itinerary/Itinerary";
 import {useNavigate} from "react-router";
-
+import {loadGeneratingLink, loadShareParams} from "../../actions/crudActions";
+import {
+    EmailShareButton,
+    EmailIcon,
+    FacebookShareButton,
+    FacebookIcon,
+    RedditShareButton,
+    RedditIcon,
+    TelegramShareButton,
+    TelegramIcon,
+    TwitterShareButton,
+    TwitterIcon,
+    WhatsappShareButton,
+    WhatsappIcon
+} from "react-share";
+import ShareIcon from "../../icons/ShareIcon";
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
         if (!!res && !!res.data) {
@@ -65,6 +80,9 @@ const DetailReworked = (props) => {
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
     const [renderImage, setRenderImage] = useState(null);
+    const [isShareGenerating, setIsShareGenerating] = useState(false);
+    const [shareLink, setShareLink] = useState(null);
+    const [dropdownToggle, setDropdownToggle] = useState(false);
 
     // Translation-related
     const {t} = useTranslation();
@@ -83,14 +101,47 @@ const DetailReworked = (props) => {
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
 
+
+    useEffect(() => {
+        console.log("supa");
+        if (isShareGenerating === true) {
+            loadGeneratingLink(tour.provider, tour.hashed_url, searchParams.get("datum"), searchParams.get("city"))
+                .then(res => {
+                    if (res.success === true){
+                        setShareLink(res.shareId);
+                    } else {
+                        console.log("Share link didn't generate as expected.");
+                        //TODO: Implement what happens when generating went wrong
+                    }
+                });
+            setIsShareGenerating(false);
+        }
+
+
+    }, [isShareGenerating]);
+
     useEffect(() => {
         const search = searchParams.get("share") ?? null;
         if (search !== null) {
-            const redirectSearchParams = new URLSearchParams();
-            redirectSearchParams.set("id", 423);
-            redirectSearchParams.set("city", 'wr-neustadt');
-            redirectSearchParams.set("datum", '2023-07-08');
-            lazy(navigate('/tour?' + redirectSearchParams.toString()));
+            const city = localStorage.getItem('city');
+            loadShareParams(search, city).then(res => {
+                if (res.success === true) {
+                console.log("testest", res);
+                if (res.usedCityOfCookie === false) {
+                    //TODO: show that city of friend has been used.
+                }
+                const redirectSearchParams = new URLSearchParams();
+                const date = new Date(res.date).toISOString().split('T')[0];
+                redirectSearchParams.set("id", res.tourId);
+                redirectSearchParams.set("city", res.city);
+                redirectSearchParams.set("datum", date);
+                lazy(navigate('/tour?' + redirectSearchParams.toString()));
+                } else {
+                    goToStartPage();
+                }
+            }).catch(err => {
+                goToStartPage();
+            });
         }
         loadAllCities();
         loadCities({limit: 5});
@@ -230,6 +281,33 @@ const DetailReworked = (props) => {
                 : <span style={{color: "#8B8B8B"}}>Download für Druck / Mailversand</span>
             }
         </Button>
+
+        <Button className="tour-detail-action-btns" disabled={false}
+                onClick={() => {
+                    setIsShareGenerating(true);
+                    setDropdownToggle((current) => { return !current});
+                }}>
+            <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>Share</span>
+            <span style={{color: "#8B8B8B"}}>Link zur Öffi-Tour teilen</span>
+        </Button>
+        {dropdownToggle && <div>
+            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={(window.location.host + "/tour?share=" + shareLink)} title={("Look at this tour I found on Zuugle!")}>
+                <TwitterIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
+            </TwitterShareButton>
+            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={(window.location.host + "/tour?share=" + shareLink)} subject={"Zuugle Tour"} body={"Look at this tour I found on Zuugle:"}>
+                <EmailIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
+            </EmailShareButton>
+            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={(window.location.host + "/tour?share=" + shareLink)}>
+                <FacebookIcon size={40} round={true} />
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
+            </FacebookShareButton>
+            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={(window.location.host + "/tour?share=" + shareLink)}>
+                <WhatsappIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
+            </WhatsappShareButton>
+        </div>}
 
         {!!downloadButtonsDisabled() &&
             <div style={{marginTop: "10px"}}>
