@@ -83,6 +83,7 @@ const DetailReworked = (props) => {
     const [isShareGenerating, setIsShareGenerating] = useState(false);
     const [shareLink, setShareLink] = useState(null);
     const [dropdownToggle, setDropdownToggle] = useState(false);
+    const [shareText, setShareText] = useState("This is the text that will pop up, here link:");
 
     // Translation-related
     const {t} = useTranslation();
@@ -290,20 +291,21 @@ const DetailReworked = (props) => {
             <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>Share</span>
             <span style={{color: "#8B8B8B"}}>Link zur Öffi-Tour teilen</span>
         </Button>
-        {dropdownToggle && <div>
-            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={(window.location.host + "/tour?share=" + shareLink)} title={("Look at this tour I found on Zuugle!")}>
+        {(dropdownToggle && !isShareGenerating && shareLink !== null)&& <div>
+            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={( "http://" + window.location.host + "/tour?share=" + shareLink)} title={shareText}>
                 <TwitterIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
             </TwitterShareButton>
-            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={(window.location.host + "/tour?share=" + shareLink)} subject={"Zuugle Tour"} body={"Look at this tour I found on Zuugle:"}>
+            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={("http://" + window.location.host + "/tour?share=" + shareLink)} subject={"Zuugle Tour"} body={shareText}>
                 <EmailIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
             </EmailShareButton>
-            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={(window.location.host + "/tour?share=" + shareLink)}>
+            {/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
+            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={("http://" + "zuugle.at" + "/tour?share=" + shareLink)} quote={shareText} hashtag={"Zuugle"}>
                 <FacebookIcon size={40} round={true} />
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
             </FacebookShareButton>
-            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={(window.location.host + "/tour?share=" + shareLink)}>
+            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={("http://" + window.location.host + "/tour?share=" + shareLink)} title={shareText}>
                 <WhatsappIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
             </WhatsappShareButton>
