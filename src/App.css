@@ -958,10 +958,7 @@ ul.about-bullets {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-}
-
-.tour-detail-action-btns:not(:first-of-type) {
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 @media only screen and (max-width: 1024px) {
