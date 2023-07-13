@@ -135,6 +135,35 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
     });
 }
 
+export function loadShareParams(shareId, city) {
+    console.log(shareId);
+    return axios.get('shares/' + shareId, {
+        params: {
+            city: city
+        }
+    })
+        .then(res => {
+            console.log(res);
+            return res.data;
+        });
+}
+
+
+export function loadGeneratingLink(provider, hashedUrl, date, city) {
+    console.log(provider, hashedUrl, date, city);
+    return axios.post('shares/', {
+        "provider": provider,
+        "hashedUrl": hashedUrl,
+        "date": date,
+        "city": city
+    }).then(res => {
+        console.log(res)
+        return res.data;
+    }).catch(err => {
+        return err.response.data;
+    });
+}
+
 // Code description:
 // This code file exports several functions that interact with an API using the axios library.
 
