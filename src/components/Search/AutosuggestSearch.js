@@ -3,30 +3,50 @@ import Async from 'react-select/async';
 import {components} from 'react-select';
 import ChevronDown from '../../icons/ChevronDown';
 import Search from '../../icons/SearchIcon';
+import {loadSuggestions} from "../../actions/crudActions";
 
-const AutosuggestSearchTour = ({onSearchSuggestion}) => {
+const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder}) => {
     const [isFocused, setIsFocused] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
+    let options = [];
+    let searchPhrase;
 
     const handleFocus = () => {
         setIsFocused(true);
     };
 
+    const handleBlur = () =>{
+        onSearchPhrase(searchPhrase)
+        setIsFocused(false)
+    }
     const handleSelect = (selectedOption) => {
         setSelectedOption(selectedOption);
         const value = selectedOption ? selectedOption.label : '';
+        console.log("Value of Search Suggestion")
         onSearchSuggestion(value);
     };
 
     const handleInputChange = (inputValue) => {
-        //TODO: Set the search ohrase with the value of input value without breaking the autosuggest field
-        //onSearchSuggestion(inputValue);
+        if (city !== null) {
+            //console.log("input:", inputValue, "City:", city.value, "Language:", language);
+            //if(inputValue !== '') --> 2nd method
+            //    onSearchPhrase(inputValue);
+            searchPhrase = inputValue;
+            loadSuggestions(inputValue, city.value, language)
+                .then((suggestions) => {
+                    const newOptions = suggestions.item.map((suggestion) => ({
+                        label: suggestion.suggestion,
+                        value: suggestion.suggestion,
+                    }));
+                    options = newOptions;
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        } else {
+            console.log("Error due to not selecting a Heimatbahnhof");
+        }
     };
-
-    const options = [
-        {label: 'Option 1', value: 'd'},
-        {label: 'Alpen', value: 'alpen'},
-    ];
 
     const filterOptions = (inputValue) => {
         return options.filter((i) =>
@@ -65,16 +85,6 @@ const AutosuggestSearchTour = ({onSearchSuggestion}) => {
         }),
     };
 
-    const DropdownIndicator = (props) => {
-        return (
-            components.DropdownIndicator && (
-                <components.DropdownIndicator {...props}>
-                    <ChevronDown style={{strokeWidth: 1, color: '#fff'}}/>
-                </components.DropdownIndicator>
-            )
-        );
-    };
-
     const SearchIconContainer = ({children, ...props}) => {
         return (
             components.ValueContainer && (
@@ -92,18 +102,20 @@ const AutosuggestSearchTour = ({onSearchSuggestion}) => {
     return (
         <Async
             components={{
-                DropdownIndicator,
+                DropdownIndicator:() => null,
+                IndicatorSeparator:() => null,
                 ValueContainer: SearchIconContainer,
             }}
             loadOptions={loadOptions}
             defaultOptions={options}
-            placeholder={isFocused ? '' : 'Beliebte Suchen'}
+            placeholder={isFocused ? '' : placeholder ? placeholder : "Öffi-Touren im Alpenraum"}
             styles={styles}
             onFocus={handleFocus}
+            onBlur={handleBlur}
             onChange={handleSelect}
             onInputChange={handleInputChange}
             value={selectedOption}
-            isClearable={true}
+            isClearable={false}
         />
     );
 };

@@ -139,8 +139,9 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
 
 export function loadSuggestions(searchPhrase, city, language) {
     // console.log("tourActions, LoadTour L41 :",id)
-    return axios.get("url").then(res =>{
-        return res;
+    return axios.get(`searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`)
+        .then(res =>{
+        return res.data?.phrases;
     }).catch(err => console.log(err));
 }
 

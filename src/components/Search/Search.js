@@ -65,7 +65,8 @@ export function Search({
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("");
     const [searchPhrase, setSearchPhrase] = useState('');
-    const [searchSuggestion, setSearchSuggestion] = useState('');
+    let suggestion;
+    let autoSearchPhrase;
     const [city, setCity] = useState(null)
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
@@ -235,7 +236,7 @@ export function Search({
     //     setOpenRegionSearch(!!value)
     // }
 
-    const search = (tempRegion = null) => {
+     const search = (tempRegion = null) => {
         let values = {}
         if (!!city && !!city.value) {
             values.city = city.value
@@ -247,10 +248,12 @@ export function Search({
         }
         if (!!_region && !!_region.value) {
             values[_region.type] = _region.value
-        } else if (!!searchPhrase) {
+        }/* else if (!!searchPhrase) {
             //values.search = searchPhrase
-            values.search = searchSuggestion ? searchSuggestion : searchPhrase;
-        }
+            console.log("in if")
+        }*/
+        values.search = suggestion ? suggestion : autoSearchPhrase ? autoSearchPhrase : '';
+
 
         if (!!searchParams.get("sort")) {
             values.sort = searchParams.get("sort")
@@ -357,9 +360,13 @@ export function Search({
     //     setSearchParams(searchParams)
     // }
 
-    const getSearchSuggestion = (searchPhrase) => {
-        console.log("SearchPhrase: :", searchPhrase,":");
-        setSearchSuggestion(searchPhrase);
+    const getSearchSuggestion = (autoSuggestion) => {
+        suggestion = autoSuggestion
+        search()
+    };
+
+    const getSearchPhrase = (searchPhrase) => {
+        autoSearchPhrase = searchPhrase;
     };
 
     return (
@@ -395,41 +402,12 @@ export function Search({
                 </span>
                         </Box>
                         <Box>
-
-                            <input
-                                value={searchPhrase}
-                                onChange={(e) => setSearchPhrase(e.target.value)}
-                                onFocus={() => handleFocus()} // Clear the input value when focused
-                                //onBlur={(e) => handleBlur(e)}
-                                onBlur={handleBlur}
-                                placeholder={placeholder}
-                                style={{
-                                    border: 'none',
-                                    width: '243.5px',
-                                    height: '23px',
-                                    fontFamily: 'Open Sans',
-                                    fontStyle: 'normal',
-                                    fontWeight: '1000',
-                                    fontSize: '16px',
-                                    lineHeight: '23px',
-                                    outline: 'none',
-                                    textAlign: 'center',
-                                    letterSpacing: '-0.01em',
-
-                                    color: '#000000',
-                                }}
-                                // style={{
-                                //     backgroundColor: 'transparent',
-                                //     border: 'none',
-                                //     color: '#8b8b8b',
-                                //     fontSize: '14px',
-                                //     flex: 1,
-                                //     outline: 'none'
-                                // }}
-                            />
-                            <br/>
-                            <AutosuggestSearchTour onSearchSuggestion={getSearchSuggestion}/>
-
+                            <AutosuggestSearchTour
+                                onSearchSuggestion={getSearchSuggestion}
+                                onSearchPhrase={getSearchPhrase}
+                                city={city}
+                                language={language}
+                                placeholder={searchPhrase}/>
                         </Box>
                     </Grid>
 
