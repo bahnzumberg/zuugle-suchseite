@@ -8,28 +8,27 @@ import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams } from "react-router-dom";
+import { Modal } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
 import {
 	// isResponsive,
 	parseIfNeccessary,
 	setOrRemoveSearchParam,
 } from "../../utils/globals";
-import { Modal } from "@mui/material";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
-import FullScreenCityInput from "./FullScreenCityInput";
+import FullScreenCityInput from "../Search/FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 // import FilterIcon from "../../icons/FilterIcon";
 // import SearchIcon from "../../icons/SearchIcon";
 // import IconButton from "@mui/material/IconButton";
 // import GoIcon from "../../icons/GoIcon";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
-export function Search({
+export function SearchFilter({
 	loadRegions,
 	loadTours,
 	goto,
@@ -41,14 +40,13 @@ export function Search({
 	// additional arguments
 	// loadCities,
 	// cities,
-	regions,
+	// regions,
 	// isCityLoading,
 	// loadFavouriteTours,
-	showMobileMenu,
-	setShowMobileMenu,
 }) {
-	console.log("regions", regions);
 	//--------menus-----------------
+
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
@@ -58,7 +56,11 @@ export function Search({
 	]);
 	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
 	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-	const [secondMenuOptions, setSecondMenuOptions] = React.useState(allCities);
+	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
+		"GroBer Patel",
+		"GroBer Priel",
+		"GroBer Pythrgas",
+	]);
 
 	// Translation
 	const navigate = useNavigate();
@@ -200,18 +202,18 @@ export function Search({
 		}
 
 		// let result = loadTours({
-		loadTours({
-			city: city,
-			range: range,
-			state: state,
-			country: country,
-			type: type,
-			search: search,
-			filter: filter,
-			sort: orderId,
-			provider: provider,
-			map: searchParams.get("map"),
-		});
+		// loadTours({
+		// 	city: city,
+		// 	range: range,
+		// 	state: state,
+		// 	country: country,
+		// 	type: type,
+		// 	search: search,
+		// 	filter: filter,
+		// 	sort: orderId,
+		// 	provider: provider,
+		// 	map: searchParams.get("map"),
+		// });
 		// result.then((resolvedValue) => {
 		//     console.log("result of load Tours", resolvedValue);
 		// });
@@ -295,7 +297,6 @@ export function Search({
 		// for (const entry of searchParams.entries()) {
 		//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
 		// }
-
 		if (!!goto) {
 			// clg
 			// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
@@ -381,12 +382,12 @@ export function Search({
 		<Fragment>
 			{showMobileMenu ? (
 				<div className="mobileMenu">
-					<div className="rowing" style={{ marginBottom: 15 }}>
+					<div className="rowing">
 						<div />
 						<div className="rowing">
 							<span className="boldTxt">Abbrechen</span>
 							<span className="pointy" onClick={() => setShowMobileMenu(false)}>
-								<ClearIcon style={{ fontSize: 60, marginLeft: 8 }} />
+								<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
 							</span>
 						</div>
 					</div>
@@ -422,22 +423,14 @@ export function Search({
 								/>
 							</span>
 						</div>
-						<div
-							className="colLeft"
-							style={{
-								height: 150,
-								overflow: "auto",
-							}}
-						>
-							{fSearchQuery &&
-								firstMenuOptions
-									.filter((item) => item.startsWith(fSearchQuery))
-									.map((item) => (
-										<span key={item} className="searchSuggestions">
-											{item}
-										</span>
-									))}
-						</div>
+						{fSearchQuery &&
+							firstMenuOptions
+								.filter((item) => item.startsWith(fSearchQuery))
+								.map((item) => (
+									<span key={item} className="searchSuggestions">
+										{item}
+									</span>
+								))}
 					</div>
 					<div
 						className="firstMobileMenu"
@@ -474,37 +467,14 @@ export function Search({
 								/>
 							</span>
 						</div>
-						<div
-							className="colLeft"
-							style={{
-								height: 150,
-								overflow: "auto",
-							}}
-						>
-							{secondSearchQuery &&
-								secondMenuOptions
-									.filter(
-										(item) =>
-											item.value
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase()) ||
-											item.label
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase())
-									)
-									.map((item) => (
-										<span
-											key={item}
-											className="searchSuggestions pointy"
-											onClick={() => {
-												setCity(item);
-												setShowMobileMenu(false);
-											}}
-										>
-											{item.value}
-										</span>
-									))}
-						</div>
+						{secondSearchQuery &&
+							secondMenuOptions
+								.filter((item) => item.startsWith(secondSearchQuery))
+								.map((item) => (
+									<span key={item} className="searchSuggestions">
+										{item}
+									</span>
+								))}
 					</div>
 					<div className="rowing">
 						<span className="firstBtn">Dein Heimatbahnhof</span>
@@ -513,36 +483,36 @@ export function Search({
 				</div>
 			) : (
 				<Box component={"div"} className="colCenter">
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="centerInputField">
-							<img
-								src={`/app_static/img/searchIcon.png`}
-								height={"25px"}
-								width={"25px"}
-								alt="search-icon"
-							/>
-							<span
-								className="searchFirstText"
-								onClick={() => {
-									setShowFirstMenu(true);
-								}}
-							>
-								{t("start.suche")}
-							</span>
-							<span className="verticalBar" />
-							<span
-								className="searchSecondText"
-								onClick={() => setShowSecondMenu(true)}
-							>
-								{t("start.heimatbahnhof")}
-							</span>
-							<span className="goBtn" onClick={search}>
-								GO!
-							</span>
-						</div>
-					)}
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="mobileSearchField">
+					<div className="centerInputFieldFilter">
+						<img
+							src={`/app_static/img/searchIcon.png`}
+							height={"25px"}
+							width={"25px"}
+							alt="search-icon"
+						/>
+						<span
+							className="searchFirstText"
+							onClick={() => {
+								setShowFirstMenu(true);
+							}}
+						>
+							Öffi-Touren im Alpenraum
+						</span>
+						<span className="verticalBar" />
+						<span
+							className="searchSecondText"
+							onClick={() => setShowSecondMenu(true)}
+						>
+							Heimatbahnhof wählen
+						</span>
+						<img
+							src={`/app_static/img/filter.png`}
+							className="filterStyling"
+							// onClick={() => search()}
+						/>
+					</div>
+					<div style={{}}>
+						<div className="mobileSearchFieldFilter">
 							<div className="rowing">
 								<img
 									src={`/app_static/img/searchIcon.png`}
@@ -552,7 +522,7 @@ export function Search({
 								/>
 								<div
 									style={{
-										alignItems: "center",
+										// alignItems: "center",
 										justifyContent: "left",
 										display: "flex",
 										flexDirection: "column",
@@ -571,7 +541,7 @@ export function Search({
 										style={{
 											width: "100%",
 											textAlign: "left",
-											paddingLeft: 10,
+											paddingLeft: 15,
 											fontSize: 14,
 										}}
 									>
@@ -579,31 +549,37 @@ export function Search({
 									</span>
 								</div>
 							</div>
-							<span className="goBtn" onClick={() => search()}>
-								GO!
-							</span>
+							<img
+								src={`/app_static/img/filter.png`}
+								className="filterStyling"
+								// onClick={() => search()}
+							/>
+							{/* <span className="goBtn" onClick={() => search()}>
+							GO!
+						</span> */}
 						</div>
-					)}
+					</div>
 					{showFirstMenu && (
 						<div
 							className="centerMe"
-							// style={{ position: "absolute", top: 485 }}
+							style={{
+								position: "absolute",
+								top: 200,
+							}}
 						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
 								open={showFirstMenu}
-								style={{ position: "absolute", top: 440 }}
+								style={{
+									position: "absolute",
+									top: 50,
+								}}
 								className="centerMe"
 							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
+								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
 										<span className="boldTxt">Suche</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowFirstMenu(false)}
-										>
-											Abbrechen
-										</span>
+										<span className="boldTxt underline pointy">Abbrechen</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -638,7 +614,7 @@ export function Search({
 									{showFirstMenu && (
 										<div
 											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10, height: 200 }}
+											style={{ marginLeft: 0, marginTop: 10 }}
 										>
 											{fSearchQuery &&
 												firstMenuOptions
@@ -663,22 +639,22 @@ export function Search({
 						</div>
 					)}
 					{showSecondMenu && (
-						<div className="centerMe" style={{ height: 400 }}>
+						<div
+							className="centerMe"
+							style={{
+								position: "fixed",
+								top: 200,
+							}}
+						>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={{ position: "absolute", top: 400, marginRight: -6 }}
 								className="centerMe"
 							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
+								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
 										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowSecondMenu(false)}
-										>
-											Abbrechen
-										</span>
+										<span className="boldTxt underline pointy">Abbrechen</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -688,7 +664,6 @@ export function Search({
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
-													style={{ width: 440 }}
 												/>
 											</div>
 											<span
@@ -714,49 +689,26 @@ export function Search({
 									{showSecondMenu && (
 										<div
 											className="colLeft"
-											style={{
-												marginLeft: 0,
-												marginTop: 10,
-												height: 150,
-												overflow: "auto",
-											}}
+											style={{ marginLeft: 0, marginTop: 10 }}
 										>
 											{secondSearchQuery &&
 												secondMenuOptions
-													.filter(
-														(item) =>
-															item.value
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase()) ||
-															item.label
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase())
-													)
+													.filter((item) => item.startsWith(secondSearchQuery))
 													.map((item) => (
 														<span
-															key={item.value}
-															className="searchSuggestions rowingStart pointy"
-															onClick={() => {
-																setCity(item);
-																setShowSecondMenu(false);
-															}}
+															key={item}
+															className="searchSuggestions rowingStart"
 														>
 															<img
 																src={`/app_static/img/grpSymbol.png`}
 																className="ssiggestionQry"
 															/>
-															{item.value}
+															{item}
 														</span>
 													))}
 											{secondSearchQuery.trim() &&
-												secondMenuOptions.filter(
-													(item) =>
-														item.value
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase()) ||
-														item.label
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase())
+												secondMenuOptions.filter((item) =>
+													item.startsWith(secondSearchQuery)
 												).length === 0 && (
 													<span className="searchSuggestions">
 														No results found
@@ -794,4 +746,6 @@ const mapStateToProps = (state) => {
 	};
 };
 
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
+export default compose(connect(mapStateToProps, mapDispatchToProps))(
+	SearchFilter
+);

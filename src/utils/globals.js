@@ -109,19 +109,29 @@ export const getDomainText = () => {
     const host = location.hostname;
     if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
-    } else if(host.indexOf('zuugle.de') >= 0){
+    } else if(host.indexOf('www.zuugle.de') >= 0){
         return "Zuugle.de"
-    } else if(host.indexOf('zuugle.ch') >= 0){
+    } else if(host.indexOf('www.zuugle.ch') >= 0){
         return "Zuugle.ch"
-    } else if(host.indexOf('zuugle.it') >= 0){
+    } else if(host.indexOf('www.zuugle.it') >= 0){
         return "Zuugle.it"
-    } else if(host.indexOf('zuugle.fr') >= 0){
+    } else if(host.indexOf('www.zuugle.fr') >= 0){
         return "Zuugle.fr"
-    } else if(host.indexOf('zuugle.si') >= 0){
+    } else if(host.indexOf('www.zuugle.si') >= 0){
         return "Zuugle.si"
     } else if(host.indexOf('www2.zuugle.at') >= 0){
     return "UAT Zuugle.at"
-}else {
+    } else if(host.indexOf('www2.zuugle.de') >= 0){
+        return "UAT Zuugle.de"
+    } else if(host.indexOf('www2.zuugle.ch') >= 0){
+        return "UAT Zuugle.ch"
+    } else if(host.indexOf('www2.zuugle.fr') >= 0){
+        return "UAT Zuugle.fr"
+    } else if(host.indexOf('www2.zuugle.it') >= 0){
+        return "UAT Zuugle.it"
+    } else if(host.indexOf('www2.zuugle.si') >= 0){
+        return "UAT Zuugle.si"
+    } else {
         return "Localhost"
     }
 }
