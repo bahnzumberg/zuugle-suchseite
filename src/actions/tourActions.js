@@ -81,7 +81,7 @@ export function loadTourConnectionsExtended(data) {
     // console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);;
+        return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS_EXTENDED, LOAD_TOUR_CONNECTIONS_EXTENDED_DONE, "tours", data, "tours/" + data.id + "/connections-extended", "connections", false);
     };
 }
 

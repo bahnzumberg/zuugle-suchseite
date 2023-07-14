@@ -32,10 +32,6 @@ import {
     EmailIcon,
     FacebookShareButton,
     FacebookIcon,
-    RedditShareButton,
-    RedditIcon,
-    TelegramShareButton,
-    TelegramIcon,
     TwitterShareButton,
     TwitterIcon,
     WhatsappShareButton,
@@ -106,13 +102,13 @@ const DetailReworked = (props) => {
     useEffect(() => {
         console.log("supa");
         if (isShareGenerating === true) {
-            loadGeneratingLink(tour.provider, tour.hashed_url, searchParams.get("datum"), searchParams.get("city"))
+            loadGeneratingLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
                 .then(res => {
                     if (res.success === true){
                         setShareLink(res.shareId);
                     } else {
                         console.log("Share link didn't generate as expected.");
-                        //TODO: Implement what happens when generating went wrong
+                        //TODO: Implement what happens when generating went wrong, already done: sharing options won't be shown
                     }
                 });
             setIsShareGenerating(false);
@@ -132,10 +128,10 @@ const DetailReworked = (props) => {
                     //TODO: show that city of friend has been used.
                 }
                 const redirectSearchParams = new URLSearchParams();
-                const date = new Date(res.date).toISOString().split('T')[0];
+                const date = moment(res.date);
                 redirectSearchParams.set("id", res.tourId);
                 redirectSearchParams.set("city", res.city);
-                redirectSearchParams.set("datum", date);
+                redirectSearchParams.set("datum", moment(date).format('YYYY-MM-DD'));
                 lazy(navigate('/tour?' + redirectSearchParams.toString()));
                 } else {
                     goToStartPage();
