@@ -190,48 +190,56 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
 
-    return  <Card className="tour-card cursor-link" onClick={() => {
-        onSelectTour(tour)}}>
+    return (
+      <Card
+        className="tour-card cursor-link"
+        onClick={() => {
+          onSelectTour(tour);
+        }}
+      >
         <CardMedia
-            component="img"
-            height="140"
-            image={image}
-            style={{opacity: imageOpacity}}
+          component="img"
+          height="140"
+          image={image}
+          style={{ opacity: imageOpacity }}
         />
         <CardContent>
-            <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg}/>
-            <div className="mt-3">
-                <Typography variant="h5">{tour.range}</Typography>
-            </div>
-            <div className="mt-3">
-                <Typography variant="h4" style={{whiteSpace: "break-spaces"}}>{tour.title}</Typography>
-                <Typography variant="h5" style={{whiteSpace: "break-spaces"}}>{shortened_url()}</Typography>
-            </div>
-            <div className="mt-3" style={{whiteSpace: "break-space"}}>
-                {renderProps()}
-            </div>
-
-
-
+          <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
+          <div className="mt-3">
+            <Typography variant="h5">{tour.range}</Typography>
+          </div>
+          <div className="mt-3">
+            <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
+              {tour.title}
+            </Typography>
+            <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
+              {shortened_url()}
+            </Typography>
+          </div>
+          <div className="mt-3" style={{ whiteSpace: "break-space" }}>
+            {renderProps()}
+          </div>
         </CardContent>
-        {(!!connections && connections.length > 0) && <Fragment>
+        
+        {!!connections && connections.length > 0 && (
+          <Fragment>
             <div className="bottom-container">
-                <CardContent>
-                    {!!connectionLoading 
-                    ? 
-                    <Box sx={{padding: "20px"}}>
-                        <LinearProgress />
-                    </Box> 
-                    : 
-                    <Fragment>
-                        {getAnreise()}
-                        {getAbreise()}
-                    </Fragment>
-                    }
-                </CardContent>
+              <CardContent>
+                {!!connectionLoading ? (
+                  <Box sx={{ padding: "20px" }}>
+                    <LinearProgress />
+                  </Box>
+                ) : (
+                  <Fragment>
+                    {getAnreise()}
+                    {getAbreise()}
+                  </Fragment>
+                )}
+              </CardContent>
             </div>
-        </Fragment>
-        }
-
-    </Card>
+          </Fragment>
+        )}
+        
+      </Card>
+    );
 }
