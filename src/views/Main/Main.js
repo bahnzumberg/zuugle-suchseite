@@ -34,10 +34,11 @@ import {
 	getPageHeader,
 } from "../../utils/seoPageHelper";
 import { loadRanges } from "../../actions/rangeActions";
-import { SearchFilter } from "../../components/SearchFilter";
+// import SearchFilter  from "../../components/SearchFilter/SearchFilter";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 
+const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
 const Search = lazy(() => import("../../components/Search/Search"));
 const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
@@ -299,28 +300,6 @@ export function Main({
 		onSelectTour({ id: id });
 	};
 
-	// testing tourID to solve the error "MapContainer is already initialized"
-	//NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
-	// const onLoadAndSelectTour = useCallback(
-	//     ()=>{
-
-	//         (tourID) => {
-	//             !!tourID && loadTour(tourID, searchParams.get('city')).then(res => {
-
-	//                 if(!!res && !!res.data && !!res.data.tour){
-	//                     //clg
-	//                     // console.log("L258 Main : tour data ",res.data.tour)
-	//                     console.log("L259 Main : res.data.tour.id ",res.data.tour.id)
-	//                     console.log("L260 Main : tourID state ",tourID)
-	//                     setTour(res.data.tour);
-	//                     toggleDetailOpen();
-	//                 }
-	//             })
-	//         }
-	//     }
-	//   ,
-	//   [tourID]
-	// )
 
 	const memoTourMapContainer = useMemo(() => {
 		// console.log("L 273 tourID : " + tourID)
@@ -405,19 +384,7 @@ export function Main({
 			{!!tours && tours.length > 0 && (
 				<>
 					{
-						//description:
-						//either display 100% size map or display the TourCardContainer
-						!!mapView ? (
-							<Box className={"map-container"}>
-								{/* clg */}
-								{/* {console.log("tours[0].id : L271",tours[0].id)} */}
-								{/* {console.log("loadGPX : L269",loadGPX)} */}
-								{/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
-								{/* {console.log("loading : L272",loading)} */}
-								{/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
-								{memoTourMapContainer}
-							</Box>
-						) : (
+						 (
 							<Box
 								className={
 									"cards-container" +
