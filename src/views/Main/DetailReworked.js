@@ -34,7 +34,7 @@ import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
-import { SearchFilter } from "../../components/SearchFilter";
+import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 
 const setGpxTrack = (url, loadGPX, _function) => {
 	loadGPX(url).then((res) => {
