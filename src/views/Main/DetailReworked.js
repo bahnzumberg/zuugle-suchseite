@@ -81,8 +81,7 @@ const DetailReworked = (props) => {
     const [isShareGenerating, setIsShareGenerating] = useState(false);
     const [shareLink, setShareLink] = useState(null);
     const [dropdownToggle, setDropdownToggle] = useState(false);
-    const [shareText, setShareText] = useState("This is the text that will pop up, here link:");
-    const [stationUsedWarning, setStationUsedWarning] = useState(true);
+    const [stationUsedWarning, setStationUsedWarning] = useState(false);
 
 
     // Translation-related
@@ -291,31 +290,31 @@ const DetailReworked = (props) => {
                     setIsShareGenerating(true);
                     setDropdownToggle((current) => { return !current});
                 }}>
-            <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>Share</span>
-            <span style={{color: "#8B8B8B"}}>Link zur Öffi-Tour teilen</span>
+            <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.teilen')}</span>
+            <span style={{color: "#8B8B8B"}}>{t('details.teilen_description')}</span>
         </Button>
         {(dropdownToggle && !isShareGenerating && shareLink !== null)&& <div>
-            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={shareText}>
+            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={t('details.teilen_text')}>
                 <TwitterIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
             </TwitterShareButton>
-            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={shareText}>
+            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={t('details.teilen_text')}>
                 <EmailIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
             </EmailShareButton>
             {/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
-            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={shareText} hashtag={"Zuugle"}>
+            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={t('details.teilen_text')} hashtag={"Zuugle"}>
                 <FacebookIcon size={40} round={true} />
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
             </FacebookShareButton>
-            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={shareText}>
+            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={t('details.teilen_text')}>
                 <WhatsappIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
             </WhatsappShareButton>
             <Button className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#d8d3cd", border: "none"}} onClick={() => {
                 navigator.clipboard.writeText(shareLink);}}>
                 <ContentPasteIcon color="white"></ContentPasteIcon>
-                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Copy</span>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.kopieren')}</span>
             </Button>
         </div>}
 
@@ -391,7 +390,7 @@ const DetailReworked = (props) => {
                     </Box>
                     <Box className="tour-detail-itinerary-container">
                         <div className="tour-detail-itinerary-container">
-                        {stationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setStationUsedWarning(false)}}>Es wird die Route von dem, der dir den Link geteilt hat, angezeigt.</Alert>}
+                        {stationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setStationUsedWarning(false)}}>{t('details.warnung_andere_station')}</Alert>}
                         </div>
                         <Itinerary connectionData={connections} dateIndex={dateIndex}
                                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
