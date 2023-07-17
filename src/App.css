@@ -554,6 +554,256 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 }
 
+.tour-detail-header {
+  padding: 2rem 1rem;
+  text-align: left;
+}
+
+.tour-detail-tag {
+  padding: 2px 5px;
+  color: #c5c5c5;
+  background: rgba(16, 16, 16, 0.8);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.tour-detail-tag-gray {
+  color: #8B8B8B;
+  background: #DDDDDD;
+}
+
+.tour-detail-difficulties {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  margin-top: 2rem;
+
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.tour-detail-difficulty {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 26px;
+  margin-right: .5rem;
+}
+
+.tour-detail-data-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 1rem;
+}
+
+.tour-detail-map-container {
+  width: 100%;
+  height: 250px;
+}
+
+.tour-detail-provider-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background: #4992FF;
+  border: 1px solid #DDDDDD;
+  border-radius: 18px;
+  max-width: 400px;
+  min-height: 70px;
+
+  margin: 2rem 0;
+  cursor: pointer;
+}
+
+.tour-detail-provider-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  /*background: #FFFFFF;*/
+  /*border: 2px solid #DDDDDD;*/
+  margin: 0 10px;
+}
+
+.tour-detail-provider-name-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.tour-detail-provider-name {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /*max-width: 320px;*/
+  max-width: 225px;
+}
+
+.tour-detail-provider-link {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /*max-width: 320px;*/
+  max-width: 225px;
+}
+
+  
+.tour-detail-conditional-desktop {
+  display: none;
+}
+
+.tour-detail-img-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  margin: 2rem 0;
+}
+
+.tour-detail-img-container img {
+  height: 300px;
+  width: 400px;
+  border-radius: 18px;
+}
+
+.tour-detail-itinerary-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 24px;
+  padding: 0;
+}
+
+.tour-detail-conditional-mobile {
+  display: block;
+}
+
+@media only screen and (min-width: 1025px) {
+
+  .tour-detail-header {
+    padding: 2rem 7rem;
+    text-align: left;
+  }
+
+  .tour-detail-itinerary {
+    width: 390px;
+    padding: 25px 0;
+  }
+
+  .tour-detail-img-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin: 2rem 0;
+  }
+
+  .tour-detail-conditional-mobile {
+    display: none;
+  }
+
+  .tour-detail-conditional-desktop {
+    display: block;
+  }
+
+  .tour-detail-data-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding: 2rem 7rem;
+  }
+
+  .tour-detail-action-btns-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    /*padding: 2rem 7rem;*/
+    max-width: 400px;
+  }
+
+  .tour-detail-action-btns-container .tour-detail-action-btns {
+    max-width: 400px;
+    width: 400px;
+  }
+
+  .tour-detail-properties-el {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .tour-detail-properties-el:nth-child(3n-2) {
+    padding: 1rem 0;
+  }
+
+  .tour-detail-properties {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .tour-detail-properties-el:nth-child(3n)::before,
+  .tour-detail-properties-el:nth-child(3n-1)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 19px;
+    height: 41px;
+    width: 1px;
+    background: #DDDDDD;
+  }
+
+
+  .tour-detail-map-container {
+    width: 100%;
+    height: 450px;
+  }
+
+  .tour-detail-provider-link {
+    max-width: 320px;
+  }
+
+  .tour-detail-itinerary-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    align-self: stretch;
+
+    padding: 0 0 0 3rem;
+    height: 100%;
+  }
+
+}
+
 .static-container {
   max-width: 1000px;
   margin-left: auto;
