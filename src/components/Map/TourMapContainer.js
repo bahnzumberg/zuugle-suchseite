@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect,useLayoutEffect, useRef, useState, useMemo, useCallback} from "react";
-import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
+import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap} from "react-leaflet";
 // import { useMap } from 'react-leaflet/hooks';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
@@ -12,15 +12,16 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const DEFAULT_ZOOM_LEVEL = 13;
 
-export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX, setTourID, scrollWheelZoom=false}) {
+
+export default function TourMapContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total, loadGPX, setTourID, scrollWheelZoom=true}) {
     //clg
     // loading ? console.log("loading :",loading) : console.log(" not loading",loading);
     // (tours && tours.length) ? console.log("tours inside TMC :",tours.length) : console.log("tours type :",typeof(tours))
-   
+
     let StartIcon = L.icon({
-        iconUrl: 'app_static/img/pin-icon-start.png',
-        shadowUrl: 'app_static/img/pin-shadow.png',
-        iconSize: [30, 41],
+        iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
+        shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
+        iconSize: [30, 41],                             //size of the icon
         iconAnchor: [15, 41],
     });
 
@@ -28,21 +29,21 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     const mapRef = useRef();
     const clusterRef = useRef();
     const polyRef = useRef();
-
     const [gpxTrack, setGpxTrack] = useState([]);
     const [mapLoading, setMapLoading] = useState(false);
+    let visibleTours = []; //Markers which are currently visible on the map
 
     // useEffect(() => {
     //     const map = mapRef.current?.leafletElement;
-    
+
     //     function handleClick() {
     //       console.log('Map clicked!');
     //     }
-    
+
     //     if (map) {
     //       map.on('click', handleClick);
     //     }
-    
+
     //     return () => {
     //       if (map) {
     //         map.off('click', handleClick);
@@ -72,20 +73,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 //   }, []);
 
     useEffect(() => {
-        const initializeMap = () => {
-            if(!!mapRef && !!mapRef.current) {
-              if(!!mapRef.current._leaflet_id && mapRef.current._leaflet_id != null && mapRef.current._leaflet_id != undefined) {
-                console.log(" initializeMap : inside if , _leaflet_id :", mapRef.current._leaflet_id)
-                // mapRef.current._leaflet_id = null;
-              }
-              console.log(" initializeMap ,outside if, _leaflet_id : ", mapRef.current._leaflet_id)
-            }
-        }
-    
-        initializeMap();
-        
-        // mapRef.current ? console.log("L87 TourMap , mapRef.current._leaflet_id is :", mapRef.current._leaflet_id) : console.log("L87 mapRef.current is falsy");
-        
         return () => {
             //clg
             // mapRef.current ? console.log("L90 TourMAp , mapRef.current is", mapRef.current) : console.log("L90 : mapRef.current is falsy");
@@ -93,48 +80,43 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             let map = mapRef.current;
             !!map && map.remove();
         }
-
-
     }, [])
-    
-    useEffect(() => {
+
+    useEffect(() => { //Sets the position to the point where all markers are visible
         updateBounds();
     }, [tours]);
 
     const updateBounds = () => {
-        // let check = !!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current;
-        // console.log('check value :', check);
-        // let check_1 = !!mapRef.current 
-        // console.log('check mapRef.current only  :', check_1);
-        // let check_2 =  !!tours 
-        // console.log('check tours value only:', check_2);
-        // let check_3 =  !!clusterRef.current ;
-        // console.log('check clusterRef.current value only :', check_3);
-        // console.log("tours length :", tours.length);
-        // console.log("clusterRef.current  :", clusterRef.current);
-        if(!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current){
-            if(clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()){
+        console.log("Amount of Tours from Main " , tours.length)
+        if (!!mapRef.current && !!tours && !!clusterRef.current) {
+            if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
             }
         }
-    }
+    };
+    //TODO: When the position or zoom of the map changes do the same
+    //TODO: Then same the entries in the store
+    //DEV Version --> 2 mal geladen --> tours verdoppelt sich --> key kommt damit zweimal vor
+    //PROBLEM: desto öfter man den toggle Button klickt, desto höher wird die ANZ an touren???
+    //Anz Touren bricht sobald man die Seite refreshed oder den Toggle button verwendet
+    //Backendcall wenn man in main kommt --> tours die in map übergeben werden sind dann es dopppelte
 
-
-    const markerComponents = useMemo(() => {
+    const markerComponents = useMemo(() => {//function to create all the markers on the map
+        console.log("inside component")
          return (!!tours ? tours : []).map((tour, index) => {
             let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ == "first") : null;
             // data && console.log("Data L53, TourMapContainer: " + JSON.stringify(data));
             if(!!data){
                 return <Marker
-                    key={index}
-                    position={[data.lat, data.lon]}
-                    title={tour.title}
-                    icon={StartIcon}
+                    key={tour.id}                   //We need the tour id to be the key cause we want to get the tours and save the ids into the store
+                    position={[data.lat, data.lon]} //Where the markers will be pointing to --> laitude and longitude
+                    title={tour.title}              //When you hover the marker you get the name of the tour
+                    icon={StartIcon}                //how the marker should look like
                     eventHandlers={{
-                        click: (e) => {
+                        click: () => {
                             setTourID(tour.id)  // additional state passed from the parent Main.js
                             setCurrentGpxTrack(tour.gpx_file);
-                            onSelectTour(tour.id);
+                            onSelectTour(tour.id);  //new window with the specific tour
                         },
                     }}
                 ></Marker>
@@ -166,11 +148,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         }
     }
 
-    const getEndMarker = () => {
-        // if(!!gpxTrack && gpxTrack.length > 0){
-        //     return <Marker position={gpxTrack[gpxTrack.length - 1]} icon={EndIcon}></Marker>;
-        // }
-    }
 
     const createClusterCustomIcon = function (cluster) {
         return L.divIcon({
@@ -179,24 +156,11 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             iconSize: L.point(33, 33, true),
         })
     }
-
-    function MyComponent() {
-        // const mapUse = useMap()
-        // console.log("L118 : map.getCenter() :", mapUse.getCenter());
-        const map = useMapEvents({
-
-            click: (e) => {
-                setGpxTrack([]);
-            }
-        });
-        return null;
-    }
-
     // const  MyComponent = useCallback(
     //   () => {
     //     () => {
     //         const map = useMapEvents({
-    
+
     //             click: (e) => {
     //                 setGpxTrack([]);
     //             }
@@ -206,9 +170,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     //   },
     //   [gpxTrack]
     // )
-    
-
-    const getClusterRadius = (zoom) => (zoom > 13 ? 100 : 100);
 
     // const memoizedMapContainer = useMemo( () => {
     //     return (
@@ -218,16 +179,16 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     //         maxZoom={15}
     //         center={[47.800499,13.044410]}
     //         zoom={DEFAULT_ZOOM_LEVEL}
-    //         // whenCreated={(mapInstance) => { 
-    //         //     mapRef.current = mapInstance; 
+    //         // whenCreated={(mapInstance) => {
+    //         //     mapRef.current = mapInstance;
     //         //     console.log("L139 type of mapInstance:", typeof(mapInstance))
     //         //     console.log("L141 mapRef.current :", mapRef.current)
-    //         //     updateBounds(); 
+    //         //     updateBounds();
     //         //     setMapLoading(true)}
     //         // }
     //         // key={new Date().getTime()}
     //         bounds={() => {
-    //             updateBounds(); 
+    //             updateBounds();
     //             setMapLoading(true)
     //         }}
     //         style={{ height: "100%", width: "100%" }}
@@ -240,7 +201,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     //             pathOptions={{ fillColor: 'red', color: 'red' }}
     //             positions={gpxTrack}
     //             ref={polyRef}
-    //         />]} 
+    //         />]}
 
     //         {
     //             getStartMarker()
@@ -259,11 +220,33 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     //             iconCreateFunction={createClusterCustomIcon}
     //         >
     //             {markerComponents}
-    //         </MarkerClusterGroup> 
+    //         </MarkerClusterGroup>
     //         <MyComponent />
     //     </MapContainer>
     //     )
     // },[markerComponents,tours,gpxTrack])
+    const MyComponent = () => {
+        const map = useMapEvents({
+            moveend: () =>   {
+                console.log("Moved:");
+                let amountOfMarkers = 0;
+                visibleTours = [];
+                markerComponents.map(marker =>{ //Print the Id and their title to check if all tours are correct
+                    //console.log("Id:",  marker.key, ", Title:", marker.props.title);
+                    const position = marker.props.position ? marker.props.position : null;
+                    if(map.getBounds().contains(position)){
+                        //console.log("in view")
+                        visibleTours.push(marker.key);
+                        amountOfMarkers++;
+                    }
+                })
+                console.log("Number of MarkerComponents:", markerComponents.length + ' markers: ', amountOfMarkers);
+                console.log(visibleTours);
+            }
+        })
+        return null
+    }
+
 
     return <Box
         style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
@@ -276,23 +259,23 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 
         <MapContainer
             ref={mapRef}
-            scrollWheelZoom={scrollWheelZoom}
-            maxZoom={15}
-            center={[47.800499,13.044410]}
-            zoom={DEFAULT_ZOOM_LEVEL}
-            // whenCreated={(mapInstance) => { 
-            //     mapRef.current = mapInstance; 
+            scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
+            maxZoom={15}                    //how many times you can zoom
+            center={[47.800499,13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+            zoom={DEFAULT_ZOOM_LEVEL}       //zoom level --> how much it is zoomed out
+            // whenCreated={(mapInstance) => {
+            //     mapRef.current = mapInstance;
             //     console.log("L139 type of mapInstance:", typeof(mapInstance))
             //     console.log("L141 mapRef.current :", mapRef.current)
-            //     updateBounds(); 
+            //     updateBounds();
             //     setMapLoading(true)}
             // }
             // key={new Date().getTime()}
             bounds={() => {
-                updateBounds(); 
+                updateBounds();
                 setMapLoading(true)
             }}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: "100%", width: "100%" }} //Size of the map
         >
             <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
@@ -301,28 +284,19 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
                 pathOptions={{ fillColor: 'red', color: 'red' }}
                 positions={gpxTrack}
-            />]} 
-
-            {
-                getStartMarker()
-            }
-            {
-                getEndMarker()
-            }
+            />]}
 
             <MarkerClusterGroup
                 key={new Date().getTime()}
                 ref={clusterRef}
-                maxClusterRadius={getClusterRadius}
-                spiderfyOnMaxZoom={true}
-                chunkedLoading={true}
-                zoomToBoundsOnClick={true}
+                maxClusterRadius={100}
+                chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
                 showCoverageOnHover={false}
-                iconCreateFunction={createClusterCustomIcon}
+                iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
             >
                 {markerComponents}
-            </MarkerClusterGroup> 
-            <MyComponent />
+            </MarkerClusterGroup>
+            <MyComponent></MyComponent>
         </MapContainer>
     </Box>
 }
