@@ -19,6 +19,8 @@ import fileDownload from "js-file-download";
 import {parseFileName} from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import {Alert} from "@mui/lab";
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
@@ -80,6 +82,8 @@ const DetailReworked = (props) => {
     const [shareLink, setShareLink] = useState(null);
     const [dropdownToggle, setDropdownToggle] = useState(false);
     const [shareText, setShareText] = useState("This is the text that will pop up, here link:");
+    const [stationUsedWarning, setStationUsedWarning] = useState(true);
+
 
     // Translation-related
     const {t} = useTranslation();
@@ -105,10 +109,9 @@ const DetailReworked = (props) => {
             loadGeneratingLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
                 .then(res => {
                     if (res.success === true){
-                        setShareLink(res.shareId);
+                        setShareLink(window.location.origin + "/tour?share=" + res.shareId);
                     } else {
                         console.log("Share link didn't generate as expected.");
-                        //TODO: Implement what happens when generating went wrong, already done: sharing options won't be shown
                     }
                 });
             setIsShareGenerating(false);
@@ -118,14 +121,18 @@ const DetailReworked = (props) => {
     }, [isShareGenerating]);
 
     useEffect(() => {
+        setShareLink(null);
+    }, [dateIndex])
+
+    useEffect(() => {
         const search = searchParams.get("share") ?? null;
         if (search !== null) {
             const city = localStorage.getItem('city');
             loadShareParams(search, city).then(res => {
                 if (res.success === true) {
                 console.log("testest", res);
-                if (res.usedCityOfCookie === false) {
-                    //TODO: show that city of friend has been used.
+                if (res.usedCityOfCookie === false && !!!city) {
+                    setStationUsedWarning(true);
                 }
                 const redirectSearchParams = new URLSearchParams();
                 const date = moment(res.date);
@@ -288,23 +295,28 @@ const DetailReworked = (props) => {
             <span style={{color: "#8B8B8B"}}>Link zur Öffi-Tour teilen</span>
         </Button>
         {(dropdownToggle && !isShareGenerating && shareLink !== null)&& <div>
-            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={( "http://" + window.location.host + "/tour?share=" + shareLink)} title={shareText}>
+            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={shareText}>
                 <TwitterIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
             </TwitterShareButton>
-            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={("http://" + window.location.host + "/tour?share=" + shareLink)} subject={"Zuugle Tour"} body={shareText}>
+            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={shareText}>
                 <EmailIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
             </EmailShareButton>
             {/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
-            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={("http://" + "zuugle.at" + "/tour?share=" + shareLink)} quote={shareText} hashtag={"Zuugle"}>
+            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={shareText} hashtag={"Zuugle"}>
                 <FacebookIcon size={40} round={true} />
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
             </FacebookShareButton>
-            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={("http://" + window.location.host + "/tour?share=" + shareLink)} title={shareText}>
+            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={shareText}>
                 <WhatsappIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
             </WhatsappShareButton>
+            <Button className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#d8d3cd", border: "none"}} onClick={() => {
+                navigator.clipboard.writeText(shareLink);}}>
+                <ContentPasteIcon color="white"></ContentPasteIcon>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Copy</span>
+            </Button>
         </div>}
 
         {!!downloadButtonsDisabled() &&
@@ -364,7 +376,7 @@ const DetailReworked = (props) => {
                                 <Divider variant="middle"/>
                                 <div className="tour-detail-img-container">
                                     <img
-                                        src={tour.image_url}
+                                        src={tour?.image_url}
                                         alt="image"
                                         onError={() => {
                                             setRenderImage(false);
@@ -378,6 +390,9 @@ const DetailReworked = (props) => {
                         </Box>
                     </Box>
                     <Box className="tour-detail-itinerary-container">
+                        <div className="tour-detail-itinerary-container">
+                        {stationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setStationUsedWarning(false)}}>Es wird die Route von dem, der dir den Link geteilt hat, angezeigt.</Alert>}
+                        </div>
                         <Itinerary connectionData={connections} dateIndex={dateIndex}
                                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
                     </Box>
@@ -386,7 +401,7 @@ const DetailReworked = (props) => {
                             <Divider variant="middle"/>
                             <div className="tour-detail-img-container">
                                 <img
-                                    src={tour.image_url}
+                                    src={tour?.image_url}
                                     alt="image"
                                     onError={() => {
                                         setRenderImage(false);
