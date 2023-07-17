@@ -4,15 +4,10 @@ import { Typography, Modal, Dialog } from "@mui/material";
 import SearchContainer from "./SearchContainer";
 import { useEffect, useState } from "react";
 import { getDomainText, isResponsive } from "../../utils/globals";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
-import LanguageDropdown from "../../components/Language/LanguageDropdown";
 import { useTranslation } from "react-i18next";
 
-// const LINEAR_GRADIENT = "linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), ";
 const LINEAR_GRADIENT =
 	"linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
 
@@ -106,26 +101,6 @@ export default function Header({
 					{/* <LanguageDropdown /> */}
 				</Box>
 				<Box className={"header-text"}>
-					{/* <Box
-						sx={{ display: "flex", alignItems: "center", marginBottom: "16px" }}
-					>
-						<img
-							src={`/app_static/img/logo-white.png`}
-							height={"16px"}
-							width={"29px"}
-						/>
-						<Typography
-							style={{
-								fontSize: "16px",
-								color: "#FFF",
-								lineHeight: "16px",
-								marginLeft: "5px",
-							}}
-						>
-							{getDomainText()}
-						</Typography>
-					</Box> */}
-
 					<Typography variant={"h1"} height={"162px"}>
 						{totalTours.toLocaleString()} {t("start.tourenanzahl_untertitel")}
 					</Typography>

@@ -7,6 +7,7 @@ export default function SearchContainer({
 	showMobileMenu,
 	setShowMobileMenu,
 }) {
+	// console.log("SearchContainer / goto : ", goto);
 	return (
 		<Box>
 			<Search

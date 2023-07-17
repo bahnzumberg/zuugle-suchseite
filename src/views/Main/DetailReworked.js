@@ -102,7 +102,7 @@ const DetailReworked = (props) => {
 			loadTour(tourId, city);
 		}
 		if (tourId && city && !connections) {
-			loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
+			loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {  // WHY NOT "loadTourConnections" ?
 				if (res && res.data) {
 					setConnections(res.data.result);
 				}
@@ -315,7 +315,7 @@ const DetailReworked = (props) => {
 				</Box>
 				{!!allCities && allCities.length > 0 && (
 					<Box alignItems={"center"} justifyContent={"center"} display="flex">
-						<SearchFilter isMain={true} />
+						<SearchFilter isMain={false} />
 					</Box>
 				)}
 			</Box>
@@ -359,7 +359,7 @@ const DetailReworked = (props) => {
 							<div
 								className="tour-detail-provider-container"
 								onClick={() => {
-									window.open(tour?.url);
+									window.open(tour?.url);  // WHAT URL IS THIS?
 								}}
 							>
 								<div className="tour-detail-provider-icon">

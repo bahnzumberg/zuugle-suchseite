@@ -39,8 +39,8 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 
 const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
-const Search = lazy(() => import("../../components/Search/Search"));
-const ResultBar = lazy(() => import("../../components/ResultBar"));
+// const Search = lazy(() => import("../../components/Search/Search"));
+// const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
 	import("../../components/TourCardContainer")
 );
@@ -278,9 +278,9 @@ export function Main({
 		return count;
 	};
 
-	const toggleDetailOpen = () => {
-		setDetailOpen(!detailOpen);
-	};
+	// const toggleDetailOpen = () => {
+	// 	setDetailOpen(!detailOpen);
+	// };
 
 	const onSelectTour = (tour) => {
 		let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -296,24 +296,12 @@ export function Main({
 
 	//description:
 	//This is a callback function that selects a tour with a specific id
-	const onSelectTourById = (id) => {
-		onSelectTour({ id: id });
-	};
+	// const onSelectTourById = (id) => {
+	// 	onSelectTour({ id: id });
+	// };
 
 
-	const memoTourMapContainer = useMemo(() => {
-		// console.log("L 273 tourID : " + tourID)
-		return (
-			<TourMapContainer
-				tours={tours}
-				loadGPX={loadGPX}
-				onSelectTour={onSelectTourById}
-				loading={loading}
-				setTourID={setTourID}
-				tourID={tourID}
-			/>
-		);
-	}, tourID);
+
 
 	return (
 		<div>
@@ -353,28 +341,6 @@ export function Main({
 						</Box>
 					)}
 				</Box>
-				{/* description:
-            Search component: This is the search bar component that is used to filter tours based on user input. It is only rendered if there are cities available in the allCities array. */}
-				{/* {!!allCities && allCities.length > 0 && (
-					<Box
-						sx={{ backgroundColor: "#FFF", position: "absolute", top: "200px" }}
-					>
-						<SearchFilter isMain={true} />
-					</Box>
-				)} */}
-				{/* description:
-            ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
-				{/* {!detailOpen && (
-					<ResultBar
-						showModal={showModal}
-						hideModal={hideModal}
-						total={totalTours}
-						filter={filter}
-						filterActive={filterActive}
-						everythingDisabled={totalTours == 0}
-						clearTours={clearTours}
-					/>
-				)} */}
 			</Box>
 			{!!loading && !!!mapView && (
 				<Box sx={{ textAlign: "center", padding: "30px" }}>
@@ -391,8 +357,8 @@ export function Main({
 									(!!directLink && !!directLink.header ? " seo-page" : "")
 								}
 							>
-								{/* {console.log('total passed to TourCardContainer',totalTours)}
-                        {console.log('tours.length passed to TourCardContainer',tours.length)} */}
+								{/* {console.log('L360 total passed to TourCardContainer',totalTours)}
+                        {console.log('L361 tours.length passed to TourCardContainer',tours.length)} */}
 								<TourCardContainer
 									onSelectTour={onSelectTour}
 									tours={tours}

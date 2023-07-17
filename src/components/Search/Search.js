@@ -47,7 +47,7 @@ export function Search({
 	showMobileMenu,
 	setShowMobileMenu,
 }) {
-	console.log("regions", regions);
+	// console.log("regions", regions);
 	//--------menus-----------------
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
@@ -72,6 +72,7 @@ export function Search({
 		setPlaceholder(t("start.suche"));
 	}, [language]);
 
+	// clgs
 	// console.log("Search arguments received: "); // output
 	// console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
 	// console.log("Search arguments : loadTours", loadTours); //(...args) => dispatch(actionCreator(...args));
