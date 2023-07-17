@@ -73,6 +73,22 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 //   }, []);
 
     useEffect(() => {
+        console.log("Initial Position:", localStorage.getItem('MapPositionLatNE'));
+        console.log("Initial Position:", localStorage.getItem('MapPositionLngNE'));
+        console.log("Initial Zoom:", localStorage.getItem('MapZoom'));
+
+        if (!localStorage.getItem('MapPositionLatNE')) {
+            localStorage.setItem('MapPositionLatNE', 0);
+            localStorage.setItem('MapPositionLngNE', 0);
+            //localStorage.setItem('MapPositionLatSW', 0);
+            //localStorage.setItem('MapPositionLngSW', 0);
+            //updateBounds();
+        }
+
+        if (!localStorage.getItem('MapZoom')) {
+            localStorage.setItem('MapZoom', 13);
+        }
+
         return () => {
             //clg
             // mapRef.current ? console.log("L90 TourMAp , mapRef.current is", mapRef.current) : console.log("L90 : mapRef.current is falsy");
@@ -82,9 +98,9 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         }
     }, [])
 
-    useEffect(() => { //Sets the position to the point where all markers are visible
+    /*useEffect(() => { //Sets the position to the point where all markers are visible
         updateBounds();
-    }, [tours]);
+    }, [tours]);*/
 
     const updateBounds = () => {
         console.log("Amount of Tours from Main " , tours.length)
@@ -233,10 +249,10 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                 visibleTours = [];
                 markerComponents.map(marker =>{ //Print the Id and their title to check if all tours are correct
                     //console.log("Id:",  marker.key, ", Title:", marker.props.title);
-                    const position = marker.props.position ? marker.props.position : null;
+                    const position = marker?.props?.position ? marker.props.position : [0, 0];
                     if(map.getBounds().contains(position)){
                         //console.log("in view")
-                        visibleTours.push(marker.key);
+                        visibleTours.push(marker?.key);
                         amountOfMarkers++;
                     }
                 })
@@ -261,8 +277,8 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             ref={mapRef}
             scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
             maxZoom={15}                    //how many times you can zoom
-            center={[47.800499,13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
-            zoom={DEFAULT_ZOOM_LEVEL}       //zoom level --> how much it is zoomed out
+            center={[localStorage.getItem('MapPositionLatNE'),localStorage.getItem('MapPositionLngNE')]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+            zoom={localStorage.getItem('MapZoom')}       //zoom level --> how much it is zoomed out
             // whenCreated={(mapInstance) => {
             //     mapRef.current = mapInstance;
             //     console.log("L139 type of mapInstance:", typeof(mapInstance))
@@ -271,10 +287,10 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             //     setMapLoading(true)}
             // }
             // key={new Date().getTime()}
-            bounds={() => {
+            /*bounds={() => {
                 updateBounds();
                 setMapLoading(true)
-            }}
+            }}*/
             style={{ height: "100%", width: "100%" }} //Size of the map
         >
             <TileLayer
@@ -297,6 +313,43 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
                 {markerComponents}
             </MarkerClusterGroup>
             <MyComponent></MyComponent>
+            <MyPositionComponent></MyPositionComponent>
         </MapContainer>
     </Box>
+
+    function MyPositionComponent() {
+        const [position, setPosition] = useState([0,0]);
+        const [zoom, setZoom] = useState(13);
+
+        /*localStorage.removeItem('MapPositionLatNE');
+        localStorage.removeItem('MapPositionLngNE');
+        localStorage.removeItem('MapPositionLatSW');
+        localStorage.removeItem('MapPositionLngSW');*/
+
+        const mapEvents = useMapEvents({
+            mouseup: () => {
+                console.log("move");
+                setPosition(mapEvents.getBounds());
+                console.log("Position: ", position);
+
+                localStorage.setItem('MapPositionLatNE', position._northEast?.lat || 0);
+                localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 0);
+                /*localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 0);
+                localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 0);*/
+
+                console.log(position._northEast?.lat);
+                console.log(position._northEast?.lng);
+            },
+
+            zoom: () => {
+                console.log("zoom");
+                setZoom(mapEvents.getZoom());
+                console.log("Zoom: ", zoom);
+
+                localStorage.setItem('MapZoom', zoom || 13);
+            }
+        })
+
+        //updateBounds();
+    }
 }
