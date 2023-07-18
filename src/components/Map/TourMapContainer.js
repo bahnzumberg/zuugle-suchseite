@@ -73,43 +73,81 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 //   }, []);
 
     useEffect(() => {
-        console.log("Initial Position:", localStorage.getItem('MapPositionLatNE'));
-        console.log("Initial Position:", localStorage.getItem('MapPositionLngNE'));
-        console.log("Initial Zoom:", localStorage.getItem('MapZoom'));
+        //             //&& !!localStorage.getItem('MapZoom')
+        //localStorage.removeItem('MapPositionLatNE');
 
-        if (!localStorage.getItem('MapPositionLatNE')) {
-            localStorage.setItem('MapPositionLatNE', 0);
-            localStorage.setItem('MapPositionLngNE', 0);
-            //localStorage.setItem('MapPositionLatSW', 0);
-            //localStorage.setItem('MapPositionLngSW', 0);
-            //updateBounds();
-        }
+        //If the Bounds-Variable sin the Storage are undefined --> it must be the first Load
+        // So updateBounds() is called instead
+        if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
+                         && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+            var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
+            var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
+            //creating a latLngBounds-Object for the fitBounds()-Method
+            var bounds = L.latLngBounds(corner1, corner2);
+            console.log("UseBounds:", bounds);
 
-        if (!localStorage.getItem('MapZoom')) {
-            localStorage.setItem('MapZoom', 13);
+            //the map's current position is set to the last position where the user has been
+            if (!!bounds && !!mapRef && !!mapRef.current) {
+                mapRef.current?.fitBounds(bounds);
+                console.log("fit!!!");
+            }
+        }else{
+            //the map is aligned to the marker/cluster
+            updateBounds();
         }
 
         return () => {
             //clg
             // mapRef.current ? console.log("L90 TourMAp , mapRef.current is", mapRef.current) : console.log("L90 : mapRef.current is falsy");
             // remove the map when the component is unmounted
-            let map = mapRef.current;
-            !!map && map.remove();
+            //let map = mapRef.current;
+            //!!map && map.remove();
         }
-    }, [])
+    }, [tours])
 
-    /*useEffect(() => { //Sets the position to the point where all markers are visible
-        updateBounds();
-    }, [tours]);*/
+    //after moving the map, a position is set and saved
+    function MyPositionComponent() {
+        /*localStorage.removeItem('MapPositionLatNE');
+        localStorage.removeItem('MapPositionLngNE');
+        localStorage.removeItem('MapPositionLatSW');
+        localStorage.removeItem('MapPositionLngSW');*/
+
+        const mapEvents = useMapEvents({
+            mouseup: () => {
+                console.log("move");
+                const position = mapEvents.getBounds();
+                setMapPosition(position);
+            },
+
+            zoom: () => {
+                console.log("zoom");
+                const position = mapEvents.getBounds();
+                setMapPosition(position);
+            }
+        })
+    }
+
+    //saves the bounds on localStorage
+    const setMapPosition = (position) => {
+        localStorage.setItem('MapPositionLatNE', position._northEast?.lat || 47.97659313367704);
+        localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 13.491897583007814);
+        localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 47.609403608607785);
+        localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 12.715988159179688);
+
+        console.log(position._northEast?.lat);
+        console.log(position._northEast?.lng);
+        console.log(position._southWest?.lat);
+        console.log(position._southWest?.lng);
+    }
 
     const updateBounds = () => {
-        console.log("Amount of Tours from Main " , tours.length)
-        if (!!mapRef.current && !!tours && !!clusterRef.current) {
-            if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
+        if(!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current){
+            if(clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()){
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
             }
         }
-    };
+    }
+
     //TODO: When the position or zoom of the map changes do the same
     //TODO: Then same the entries in the store
     //DEV Version --> 2 mal geladen --> tours verdoppelt sich --> key kommt damit zweimal vor
@@ -119,12 +157,13 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 
     const markerComponents = useMemo(() => {//function to create all the markers on the map
         console.log("inside component")
-         return (!!tours ? tours : []).map((tour, index) => {
+        return (!!tours ? tours : []).map((tour, index) => {
             let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ == "first") : null;
             // data && console.log("Data L53, TourMapContainer: " + JSON.stringify(data));
             if(!!data){
                 return <Marker
-                    key={tour.id}                   //We need the tour id to be the key cause we want to get the tours and save the ids into the store
+                    //key={tour.id}
+                    key={index}                   //We need the tour id to be the key cause we want to get the tours and save the ids into the store
                     position={[data.lat, data.lon]} //Where the markers will be pointing to --> laitude and longitude
                     title={tour.title}              //When you hover the marker you get the name of the tour
                     icon={StartIcon}                //how the marker should look like
@@ -155,7 +194,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         }).catch(error => {
             console.error('Error loading GPX:', error);
             setGpxTrack([]);
-          });
+        });
     }
 
     const getStartMarker = () => {
@@ -266,19 +305,19 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
 
     return <Box
         style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
-            {/* {loading ? console.log('loading', loading) : console.log("loading var is falsy")}
+        {/* {loading ? console.log('loading', loading) : console.log("loading var is falsy")}
             {loading ? console.log('mapLoading', mapLoading) : console.log("mapLoading is falsy")} */}
         {(!!loading || !!mapLoading) && <Box className={"map-spinner"}>
             <CircularProgress />
         </Box>}
-            {/* {memoizedMapContainer} */}
+        {/* {memoizedMapContainer} */}
 
         <MapContainer
             ref={mapRef}
             scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
             maxZoom={15}                    //how many times you can zoom
-            center={[localStorage.getItem('MapPositionLatNE'),localStorage.getItem('MapPositionLngNE')]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
-            zoom={localStorage.getItem('MapZoom')}       //zoom level --> how much it is zoomed out
+            center={[47.800499,13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+            zoom={13}       //zoom level --> how much it is zoomed out
             // whenCreated={(mapInstance) => {
             //     mapRef.current = mapInstance;
             //     console.log("L139 type of mapInstance:", typeof(mapInstance))
@@ -287,10 +326,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             //     setMapLoading(true)}
             // }
             // key={new Date().getTime()}
-            /*bounds={() => {
-                updateBounds();
-                setMapLoading(true)
-            }}*/
+            //bounds={[localStorage.getItem('MapPositionLatNE'),localStorage.getItem('MapPositionLngNE')]}
             style={{ height: "100%", width: "100%" }} //Size of the map
         >
             <TileLayer
@@ -316,40 +352,4 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             <MyPositionComponent></MyPositionComponent>
         </MapContainer>
     </Box>
-
-    function MyPositionComponent() {
-        const [position, setPosition] = useState([0,0]);
-        const [zoom, setZoom] = useState(13);
-
-        /*localStorage.removeItem('MapPositionLatNE');
-        localStorage.removeItem('MapPositionLngNE');
-        localStorage.removeItem('MapPositionLatSW');
-        localStorage.removeItem('MapPositionLngSW');*/
-
-        const mapEvents = useMapEvents({
-            mouseup: () => {
-                console.log("move");
-                setPosition(mapEvents.getBounds());
-                console.log("Position: ", position);
-
-                localStorage.setItem('MapPositionLatNE', position._northEast?.lat || 0);
-                localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 0);
-                /*localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 0);
-                localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 0);*/
-
-                console.log(position._northEast?.lat);
-                console.log(position._northEast?.lng);
-            },
-
-            zoom: () => {
-                console.log("zoom");
-                setZoom(mapEvents.getZoom());
-                console.log("Zoom: ", zoom);
-
-                localStorage.setItem('MapZoom', zoom || 13);
-            }
-        })
-
-        //updateBounds();
-    }
 }
