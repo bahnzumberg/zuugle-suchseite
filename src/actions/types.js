@@ -42,3 +42,5 @@ export const LOAD_RANGES_DONE = 'LOAD_RANGES_DONE';
 
 export const LOAD_TOUR_GPX = 'LOAD_TOUR_GPX';
 export const LOAD_TOUR_GPX_DONE = 'LOAD_TOUR_GPX_DONE';
+
+export const LOAD_MAP_FILTERS = 'LOAD_MAP_FILTER';
