@@ -132,7 +132,7 @@ const listWrapper = async (req, res) => {
     }
 
     /** language search */
-    // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
+    // The code sets the 'where' object to filter results by the 'language' value if it is present in the user input.
     if(!!language && language.length > 0){
         where.language = language;
     }
@@ -837,7 +837,7 @@ const buildFilterResult = (result, city, params) => {
         isTraversePossible,
         minTransportDuration: round((minTransportDuration / 60), 2),
         maxTransportDuration: round((maxTransportDuration / 60), 2),
-        languages,
+        languages
     };
 }
 
@@ -884,24 +884,25 @@ const buildWhereFromFilter = (params, query, print = false) => {
 
 
     const {
-      singleDayTour,
-      multipleDayTour,
-      summerSeason,
-      winterSeason,
-      children,
-      traverse,
-      difficulty,
-      minAscent,
-      maxAscent,
-      minDescent,
-      maxDescent,
-      minTransportDuration,
-      maxTransportDuration,
-      minDistance,
-      maxDistance,
-      ranges,
-      types,
-        languages, // includes languages in the filter
+        singleDayTour,
+        multipleDayTour,
+        summerSeason,
+        winterSeason,
+        children,
+        traverse,
+        difficulty,
+        minAscent,
+        maxAscent,
+        minDescent,
+        maxDescent,
+        minTransportDuration,
+        maxTransportDuration,
+        minDistance,
+        maxDistance,
+        ranges,
+        types,
+        languages
+        // includes languages in the filter
     } = filter;
 
     /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
