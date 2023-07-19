@@ -43,6 +43,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const gehdistanz_label = t('filter.gehdistanz');
     const sportart_label = t('main.sportart');
     const alle_an_abwaehlen_label = t('filter.alle_an_abwaehlen');
+    const sprachen_label = t('filter.sprache');
 
     const schwierigkeit_label = t('filter.schwierigkeit');
     const schwierigkeitswert_label = t('filter.schwierigkeitswert');
@@ -65,15 +66,17 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "weitwandern" : t('filter.weitwandern')},
     ]
 
+    //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
     let languageArray = [
-        {"de" : "Deutsch"},
-        {"en" : "Englisch"},
-        {"fr" : "Französisch"},
-        {"sl" : "Slowenisch"},
-        {"it" : "Italienisch"}
-    ]
+        {"de" : t('filter.deutsch')},
+        {"en" : t('filter.englisch')},
+        {"fr" : t('filter.franzoesisch')},
+        {"sl" : t('filter.slowenisch')},
+        {"it" : t('filter.italienisch')}
+    ];
     
 
+    //loads the filter, including the languages for a specific city
     useEffect(() => {
         let city = searchParams.get('city');
         let range = searchParams.get('range');
@@ -129,6 +132,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     }
                 }));
             }
+            //sets the languageValues according to the filter
             if(!!filter.languages){
                 setLanguageValues(filter.languages.map(e => {
                     return {
@@ -178,6 +182,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 }
                             }))
                         }
+                        // does the same as types and ranges
                         if(!!filter && !!filter.languages && !!parsed.languages){
                             setLanguageValues(filter.languages.map(entry => {
                                 const found = parsed.languages.find(e => e == entry);
@@ -231,6 +236,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
+        //includes the languages in the filter count
         if(languageValues.filter(lv => !!!lv.checked).length > 0){
             count++;
         }
@@ -294,7 +300,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
-            languages: languageValues.filter(e => !!e.checked).map(e => e.value),
+            languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
@@ -343,6 +349,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             });
     }
 
+    // loads all the language checkboxes
     const getLanguages = () => {
         let languages = [];
         if (!!filter && !!filter.languages) {
@@ -395,6 +402,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         setTypeValuesState(!!!typeValuesState);
     }
 
+    //function to set all checkboxes on either true or false
     const updateAllLanguageValues = () => {
         setLanguageValues(languageValues.map(rv => { return {...rv, checked: !!!languageValuesState} }));
         setLanguageValuesState(!!!languageValuesState);
@@ -666,7 +674,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>{sportart_label}Language <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Typography variant={"subtitle1"}>{sprachen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{paddingTop: "16px"}}>
                             {getLanguages()}
                         </Grid>
