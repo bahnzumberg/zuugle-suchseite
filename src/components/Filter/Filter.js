@@ -185,10 +185,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         // does the same as types and ranges
                         if(!!filter && !!filter.languages && !!parsed.languages){
                             setLanguageValues(filter.languages.map(entry => {
-                                const found = parsed.languages.find(e => e == entry);
+                                const found = parsed.languages.find(e => e === entry);
                                 return {
                                     value: entry,
-                                    checked: !!found ? true : false
+                                    checked: !!found
                                 }
                             }))
                         }
@@ -315,7 +315,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             if(entry.value == key){
                 toPush.checked = value;
             }
-            console.log(toPush);
             return toPush;
         }));
     }
@@ -356,17 +355,23 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             languages = filter.languages.map((entry) => {
                 const foundType = languageArray.find(typeObj => Object.keys(typeObj)[0] === entry);
                 const translatedValue = foundType ? Object.values(foundType)[0] : '';
-                return {
-                    value: entry,
-                    label: translatedValue
+                if(translatedValue !== ''){
+                    return {
+                        value: entry,
+                        label: translatedValue
+                    }
+                }
+                else{
+                    return;
                 }
             })
         }
+        languages = languages.filter(l => (!!l?.value && !!l?.label));
 
         return languages.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
-                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type.value, target.checked, setLanguageValues)}}/>} label={type.label} />
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type?.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type?.value, target.checked, setLanguageValues)}}/>} label={type?.label} />
                 </Box>
             </Grid>
         });

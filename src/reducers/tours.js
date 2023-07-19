@@ -139,7 +139,6 @@ export default (state = initialState, action = {}) => {
 				isLoadingFilter: true
 			}
 		case LOAD_TOUR_FILTER_DONE:
-			console.log("test:", action)
 			return {
 				...state,
 				filter: action.filter,
