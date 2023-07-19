@@ -77,7 +77,6 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
     const [filterActive, setFilterActive] = React.useState(0);
     const [mapView, setMapView] = React.useState(false);
     const [directLink, setDirectLink] = React.useState(null);
-    // tourID is not working to eliminate the error "MapContainer is already initialized" so may be unnecessary
     const [tourID, setTourID] = useState(null);
 
     // alternative code for useBacklistener
