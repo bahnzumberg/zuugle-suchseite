@@ -33,94 +33,60 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     const [mapLoading, setMapLoading] = useState(false);
     let visibleTours = []; //Markers which are currently visible on the map
 
-    // useEffect(() => {
-    //     const map = mapRef.current?.leafletElement;
-
-    //     function handleClick() {
-    //       console.log('Map clicked!');
-    //     }
-
-    //     if (map) {
-    //       map.on('click', handleClick);
-    //     }
-
-    //     return () => {
-    //       if (map) {
-    //         map.off('click', handleClick);
-    //       }
-    //     };
-    //   }, []);
-
-//     useEffect(() => {
-//     console.log("L 57: inside first useEffect ")
-//     const map = mapRef.current;
-
-//     // remove previous layers and markers
-//     !!map && map.eachLayer(layer => {
-//       if (!layer._url) { // ignore tile layers
-//         map.removeLayer(layer);
-//       }
-//     });
-
-//     if (!!polyRef.current){
-//       map.fitBounds(polyRef.current.getBounds());
-//     }
-
-//     return () => {
-//       // remove the map when the component is unmounted
-//       !!map && map.remove();
-//     }
-//   }, []);
+    //checks if page is reloaded
+    const pageAccessedByReload = (
+        (window.performance.navigation && window.performance.navigation.type === 1) ||
+        window.performance
+            .getEntriesByType('navigation')
+            .map((nav) => nav.type)
+            .includes('reload')
+    );
 
     useEffect(() => {
-        //             //&& !!localStorage.getItem('MapZoom')
-        //localStorage.removeItem('MapPositionLatNE');
-
-        //If the Bounds-Variable sin the Storage are undefined --> it must be the first Load
+        //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
-        if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
-                         && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
-            var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
-            var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
-            //creating a latLngBounds-Object for the fitBounds()-Method
-            var bounds = L.latLngBounds(corner1, corner2);
-            console.log("UseBounds:", bounds);
 
-            //the map's current position is set to the last position where the user has been
-            if (!!bounds && !!mapRef && !!mapRef.current) {
-                mapRef.current?.fitBounds(bounds);
-                console.log("fit!!!");
-            }
-        }else{
-            //the map is aligned to the marker/cluster
+        //states if the toggle buton is was clicked
+        var onToggle = localStorage.getItem('MapToggle');
+
+        //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
+        //all items are removed and updateBounds() is called in order to reset the map
+        if (pageAccessedByReload && onToggle != "true") {
+            localStorage.removeItem('MapPositionLatNE');
+            localStorage.removeItem('MapPositionLngNE');
+            localStorage.removeItem('MapPositionLatSW');
+            localStorage.removeItem('MapPositionLngSW');
             updateBounds();
-        }
+        }else {
+            if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
+                && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+                var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
+                var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
+                //creating a latLngBounds-Object for the fitBounds()-Method
+                var bounds = L.latLngBounds(corner1, corner2);
+                console.log("UseBounds:", bounds);
 
-        return () => {
-            //clg
-            // mapRef.current ? console.log("L90 TourMAp , mapRef.current is", mapRef.current) : console.log("L90 : mapRef.current is falsy");
-            // remove the map when the component is unmounted
-            //let map = mapRef.current;
-            //!!map && map.remove();
+                //the map's current position is set to the last position where the user has been
+                if (!!bounds && !!mapRef && !!mapRef.current) {
+                    mapRef.current?.fitBounds(bounds);
+                    console.log("fit!!!");
+                }
+            } else {
+                //the map is aligned to the marker/cluster
+                updateBounds();
+            }
         }
     }, [tours])
 
     //after moving the map, a position is set and saved
     function MyPositionComponent() {
-        /*localStorage.removeItem('MapPositionLatNE');
-        localStorage.removeItem('MapPositionLngNE');
-        localStorage.removeItem('MapPositionLatSW');
-        localStorage.removeItem('MapPositionLngSW');*/
-
         const mapEvents = useMapEvents({
             mouseup: () => {
-                console.log("move");
                 const position = mapEvents.getBounds();
                 setMapPosition(position);
             },
 
             zoom: () => {
-                console.log("zoom");
                 const position = mapEvents.getBounds();
                 setMapPosition(position);
             }
@@ -133,11 +99,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 13.491897583007814);
         localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 47.609403608607785);
         localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 12.715988159179688);
-
-        console.log(position._northEast?.lat);
-        console.log(position._northEast?.lng);
-        console.log(position._southWest?.lat);
-        console.log(position._southWest?.lng);
     }
 
     const updateBounds = () => {
@@ -211,75 +172,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             iconSize: L.point(33, 33, true),
         })
     }
-    // const  MyComponent = useCallback(
-    //   () => {
-    //     () => {
-    //         const map = useMapEvents({
-
-    //             click: (e) => {
-    //                 setGpxTrack([]);
-    //             }
-    //         });
-    //         return null;
-    //     }
-    //   },
-    //   [gpxTrack]
-    // )
-
-    // const memoizedMapContainer = useMemo( () => {
-    //     return (
-    //         <MapContainer
-    //         ref={mapRef}
-    //         scrollWheelZoom={true}
-    //         maxZoom={15}
-    //         center={[47.800499,13.044410]}
-    //         zoom={DEFAULT_ZOOM_LEVEL}
-    //         // whenCreated={(mapInstance) => {
-    //         //     mapRef.current = mapInstance;
-    //         //     console.log("L139 type of mapInstance:", typeof(mapInstance))
-    //         //     console.log("L141 mapRef.current :", mapRef.current)
-    //         //     updateBounds();
-    //         //     setMapLoading(true)}
-    //         // }
-    //         // key={new Date().getTime()}
-    //         bounds={() => {
-    //             updateBounds();
-    //             setMapLoading(true)
-    //         }}
-    //         style={{ height: "100%", width: "100%" }}
-    //     >
-    //         <TileLayer
-    //             url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
-    //         />
-
-    //         {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
-    //             pathOptions={{ fillColor: 'red', color: 'red' }}
-    //             positions={gpxTrack}
-    //             ref={polyRef}
-    //         />]}
-
-    //         {
-    //             getStartMarker()
-    //         }
-    //         {
-    //             getEndMarker()
-    //         }
-
-    //         <MarkerClusterGroup
-    //             ref={clusterRef}
-    //             maxClusterRadius={getClusterRadius}
-    //             spiderfyOnMaxZoom={true}
-    //             chunkedLoading={true}
-    //             zoomToBoundsOnClick={true}
-    //             showCoverageOnHover={false}
-    //             iconCreateFunction={createClusterCustomIcon}
-    //         >
-    //             {markerComponents}
-    //         </MarkerClusterGroup>
-    //         <MyComponent />
-    //     </MapContainer>
-    //     )
-    // },[markerComponents,tours,gpxTrack])
     const MyComponent = () => {
         const map = useMapEvents({
             moveend: () =>   {
@@ -310,7 +202,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
         {(!!loading || !!mapLoading) && <Box className={"map-spinner"}>
             <CircularProgress />
         </Box>}
-        {/* {memoizedMapContainer} */}
 
         <MapContainer
             ref={mapRef}
@@ -318,15 +209,6 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
             maxZoom={15}                    //how many times you can zoom
             center={[47.800499,13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
-            // whenCreated={(mapInstance) => {
-            //     mapRef.current = mapInstance;
-            //     console.log("L139 type of mapInstance:", typeof(mapInstance))
-            //     console.log("L141 mapRef.current :", mapRef.current)
-            //     updateBounds();
-            //     setMapLoading(true)}
-            // }
-            // key={new Date().getTime()}
-            //bounds={[localStorage.getItem('MapPositionLatNE'),localStorage.getItem('MapPositionLngNE')]}
             style={{ height: "100%", width: "100%" }} //Size of the map
         >
             <TileLayer
