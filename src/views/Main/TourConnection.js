@@ -3,7 +3,8 @@ import Box from '@mui/material/Box';
 import TourTimeLineContainer from "../../components/TimeLine/TourTimeLineContainer";
 import {Typography} from "@mui/material";
 import {Fragment, useEffect, useState} from "react";
-import {loadTourConnectionsExtended} from "../../actions/tourActions";
+// loadTourConnectionsExtended not being used 
+import {loadTourConnectionsExtended} from "../../actions/tourActions"; 
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {useSearchParams} from "react-router-dom";
