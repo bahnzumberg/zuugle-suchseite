@@ -75,7 +75,7 @@ const listWrapper = async (req, res) => {
     const page = req.query.page || 1;
     const domain = req.query.domain;
     const provider = req.query.provider;
-    const language = req.query.language;
+    const language = req.query.language; // takes the languages from the query
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
@@ -130,6 +130,9 @@ const listWrapper = async (req, res) => {
     if(!!type && type.length > 0){
         where.type = type;
     }
+
+    /** language search */
+    // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!language && language.length > 0){
         where.language = language;
     }
@@ -378,7 +381,7 @@ const filterWrapper = async (req, res) => {
     const domain = req.query.domain;
     const country = req.query.country;
     const provider = req.query.provider;
-    const language = req.query.language;
+    const language = req.query.language; // gets the languages from the query
 
     let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'children', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele', 'text_lang']);
 
@@ -405,6 +408,8 @@ const filterWrapper = async (req, res) => {
     if(!!type && type.length > 0){
         where.type = type;
     }
+
+    /** language search */
     if(!!language && language.length > 0){
         where.language = language;
     }
@@ -896,7 +901,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
       maxDistance,
       ranges,
       types,
-        languages,
+        languages, // includes languages in the filter
     } = filter;
 
     /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
@@ -1004,6 +1009,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
             query = query.whereRaw(`(type in (${_types}))`);
         }
     }
+    // includes a statement that asks for the specific languages in the where-clause
       if(!!languages){
           const nullEntry = languages.find(r => r == "Keine Angabe");
           let _languages = languages.map(r => '\'' + r + '\'');
