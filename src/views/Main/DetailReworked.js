@@ -78,11 +78,14 @@ const DetailReworked = (props) => {
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
     const [renderImage, setRenderImage] = useState(null);
+    //Triggers the generating of a new link
     const [isShareGenerating, setIsShareGenerating] = useState(false);
+    //Complete share link
     const [shareLink, setShareLink] = useState(null);
+    //Whether social media share buttons should be shown
     const [dropdownToggle, setDropdownToggle] = useState(false);
+    //Whether a warning that says that your local trainstation has not been used, should be shown
     const [stationUsedWarning, setStationUsedWarning] = useState(false);
-
 
     // Translation-related
     const {t} = useTranslation();
@@ -102,8 +105,8 @@ const DetailReworked = (props) => {
     }
 
 
+    //Creating a new share link
     useEffect(() => {
-        console.log("supa");
         if (isShareGenerating === true) {
             loadGeneratingLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
                 .then(res => {
@@ -119,12 +122,10 @@ const DetailReworked = (props) => {
 
     }, [isShareGenerating]);
 
-    useEffect(() => {
-        setShareLink(null);
-    }, [dateIndex])
 
     useEffect(() => {
         const search = searchParams.get("share") ?? null;
+        //Redirects to according page when it is a share link
         if (search !== null) {
             const city = localStorage.getItem('city');
             loadShareParams(search, city).then(res => {
@@ -285,6 +286,10 @@ const DetailReworked = (props) => {
             }
         </Button>
 
+        {/*
+        Share button
+        When clicked, a link will be generated and the social media options will be shown
+        */}
         <Button className="tour-detail-action-btns" disabled={false}
                 onClick={() => {
                     setIsShareGenerating(true);
@@ -293,6 +298,9 @@ const DetailReworked = (props) => {
             <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.teilen')}</span>
             <span style={{color: "#8B8B8B"}}>{t('details.teilen_description')}</span>
         </Button>
+        {/*
+        Specific social media buttons
+        */}
         {(dropdownToggle && !isShareGenerating && shareLink !== null)&& <div>
             <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={t('details.teilen_text')}>
                 <TwitterIcon size={40} round={true}/>
@@ -389,6 +397,9 @@ const DetailReworked = (props) => {
                         </Box>
                     </Box>
                     <Box className="tour-detail-itinerary-container">
+                        {/*
+                        Warning that tells you that your local trainstation has not been used
+                        */}
                         <div className="tour-detail-itinerary-container">
                         {stationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setStationUsedWarning(false)}}>{t('details.warnung_andere_station')}</Alert>}
                         </div>
