@@ -82,7 +82,6 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
         const entities = res.data[entityName];
         // console.log("entities :",entities)
         const total = res.data.total;
-        console.log("total : ", total)
         //console.log("total leght: ", total.length);
         const filter = !!res.data.filter ? res.data.filter : null;
         if(!!useState){

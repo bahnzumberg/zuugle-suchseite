@@ -42,6 +42,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
     }, [!!searchParams]);
 
     const openFilter = () => {
+        localStorage.setItem('MapToggle', true);
         showModal("MODAL_COMPONENT", {
             CustomComponent: Filter,
             title: "Filter",
