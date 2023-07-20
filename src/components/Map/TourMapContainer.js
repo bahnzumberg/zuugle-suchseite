@@ -81,7 +81,7 @@ export default function TourMapContainer({tours, onSelectTour, loadTourConnectio
     //after moving the map, a position is set and saved
     function MyPositionComponent() {
         const mapEvents = useMapEvents({
-            mouseup: () => {
+            moveend: () => {
                 const position = mapEvents.getBounds();
                 setMapPosition(position);
             },

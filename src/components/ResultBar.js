@@ -51,6 +51,8 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
             searchParams,
             setSearchParams
         });
+
+        localStorage.setItem('MapToggle', true);
     }
 
     const handleFilterSubmit = ({filterValues}) => {
