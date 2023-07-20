@@ -21,10 +21,8 @@ import { hideModal, showModal } from "../../actions/modalActions";
 // import FullScreenCityInput from "../Search/FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
-// import FilterIcon from "../../icons/FilterIcon";
-// import SearchIcon from "../../icons/SearchIcon";
-// import IconButton from "@mui/material/IconButton";
-// import GoIcon from "../../icons/GoIcon";
+// import FilterButton from "./FilterButton";
+import Filter from "../Filter/Filter";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
@@ -56,22 +54,23 @@ export function SearchFilter({
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
+		"Alpenvorland",
+		"Schneeberg",
+		"Schnee",
 	]);
 	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
 	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
 	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
+		"Wien",
+		"Graz",
+		"Salzburg",
+		"Graz",
+		"Villach"
 	]);
 
 	// Translation
 	const navigate = useNavigate();
 	const { t } = useTranslation();
-	// let [language,setLanguage]= useState(i18next.resolvedLanguage);
 	let language = i18next.resolvedLanguage;
 
 	//initialise
@@ -80,6 +79,7 @@ export function SearchFilter({
 		setPlaceholder(t("start.suche"));
 	}, [language]);
 
+	// clgs
 	// console.log("Search arguments received: "); // output
 	// console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
 	// console.log("Search arguments : loadTours", loadTours); //(...args) => dispatch(actionCreator(...args));
@@ -90,23 +90,26 @@ export function SearchFilter({
 	// console.log("Search arguments : allCities ", allCities[0]); //{value: 'amstetten', label: 'Amstetten'}
 	// console.log("Search arguments : isMapView ", isMapView); // undefined
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [cityInput, setCityInput] = useState("");
+	// const [activeFilter, setActiveFilter] = React.useState(false);
+	const [cityInput, setCityInput] =React. useState("");
 	const [regionInput, setRegionInput] = useState("");
 	const [city, setCity] = useState(null);
 	const [region, setRegion] = useState(null);
-	const [activeFilter, setActiveFilter] = useState(false);
 	const initialIsMapView = isMapView || false;
+	const [filterActive, setFilterActive] = React.useState(0);
 
-	const handleFocus = () => {
-		setRegionInput("");
-		setPlaceholder("");
-	};
 
-	const handleBlur = () => {
-		setPlaceholder(t("start.suche"));
-	};
+	// const handleFocus = () => {
+	// 	setRegionInput("");
+	// 	setPlaceholder("");
+	// };
 
+	// const handleBlur = () => {
+	// 	setPlaceholder(t("start.suche"));
+	// };
+	
 	useEffect(() => {
+
 		// pull out values from URL params
 		let city = searchParams.get("city");
 		let range = searchParams.get("range");
@@ -127,7 +130,7 @@ export function SearchFilter({
 		// console.log("country", country);
 		// console.log("type", type);
 		// console.log("search", search);
-		// console.log("filter", filter);
+		// console.log("filter", filter); //"ignore_filter: true" upon first render
 		// console.log("orderId", orderId);
 		// console.log("provider", provider);
 		if (!!city && !!allCities) {
@@ -197,7 +200,7 @@ export function SearchFilter({
 		// console.log("country", country);
 		// console.log("type", type);
 		// console.log("search", search);
-		// console.log("filter", filter);
+		//console.log("L201: filter", filter);
 		// console.log("orderId", orderId);
 		// console.log("provider", provider);
 		// for (const entry of searchParams.entries()) {
@@ -218,8 +221,8 @@ export function SearchFilter({
 			map: searchParams.get("map"),
 		});
 		result.then((resolvedValue) => {
-		    console.log("result of load Tours :");
-		    console.log(resolvedValue);
+		    // console.log("after loading tours / result of load Tours :");
+		    // console.log(resolvedValue);
 		});
 	}, [
 		// useEffect dependencies
@@ -239,85 +242,108 @@ export function SearchFilter({
 		localStorage.setItem("city", city);
 	};
 
-	// const changeTextMiddleware = (value, _function, _resetFunction) => {
-	//     _function(value)
-	//     _resetFunction(null)
-	// }
+	// Filter related starts here
+	const openFilter = () => {
+		console.log("inside openFilter L242")
+        showModal("MODAL_COMPONENT", {
+            CustomComponent: Filter,
+            title: "Filter",
+            modalSize: "lg",
+            doSubmit: handleFilterSubmit,
+            resetFilter: handleResetFilter,
+            searchParams,
+            setSearchParams
+        });
+    }
 
-	// const setCityInputMiddleware = (value) => {
-	//     setCityInput(value)
-	//     if (!!!value) {
-	//         searchParams.delete("city")
-	//         setSearchParams(searchParams)
-	//         loadFavouriteTours({ sort: "relevanz", limit: 10, ranges: true })
-	//     }
-	// }
+	const handleFilterSubmit = ({filterValues}) => {
+        hideModal();
+        handleFilterChange(filterValues);
+    }
 
-	// const onFocusCity = (value) => {
-	//     setOpenCitySearch(!!value)
-	// }
-	// const onFocusRegion = (value) => {
-	//     setOpenRegionSearch(!!value)
-	// }
+    const handleResetFilter = () => {
+        hideModal();
+        handleFilterChange(null);
+    }
 
-	const search = (tempRegion = null) => {
-		let values = {};
-		if (!!city && !!city.value) {
-			values.city = city.value;
-		}
-
-		let _region = region;
-		if (!!tempRegion) {
-			_region = tempRegion;
-		}
-
-		if (!!_region && !!_region.value) {
-			values[_region.type] = _region.value;
-		} else if (!!regionInput) {
-			values.search = regionInput;
-		}
-
-		if (!!searchParams.get("sort")) {
-			values.sort = searchParams.get("sort");
+	const handleFilterChange = (entry) => {
+        
+		if(entry == null){
+			searchParams.delete("filter");
 		} else {
-			values.sort = "relevanz";
+			searchParams.set("filter", JSON.stringify(entry));
 		}
-
-		values.map = searchParams.get("map");
-		values.provider = searchParams.get("p");
-
-		searchParams.delete("filter");
-		// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
-		setOrRemoveSearchParam(searchParams, "city", values.city);
-		setOrRemoveSearchParam(searchParams, "range", values.range);
-		setOrRemoveSearchParam(searchParams, "search", values.search);
-		setOrRemoveSearchParam(searchParams, "state", values.state);
-		setOrRemoveSearchParam(searchParams, "country", values.country);
-		setOrRemoveSearchParam(searchParams, "type", values.type);
-
 		setSearchParams(searchParams);
-		// console.log("PART II / searchParams.get('search')", searchParams.get("search"))
-		//clg
-		// for (const entry of searchParams.entries()) {
-		//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-		// }
-		if (!!goto) {
-			// clg
-			// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
-			navigate(goto + "?" + searchParams);
-		} else {
-			console.log("values passed to loadTours :", values);
-			loadTours(values).then((res) => {
-				window.scrollTo({ top: 0 });
-			});
-		}
-	}; // end search()
+    };
 
-	const toggleFilter = () => {
-		// code goes here for filter overlay
-		console.log("Search.js toggleFilter() called");
-		setActiveFilter(!activeFilter);
-	};
+	const handleSearchChange = (entry) => {
+        
+		if(entry == null){
+			searchParams.delete("search");
+		} else {
+			searchParams.set("search", JSON.stringify(entry));
+		}
+		setSearchParams(searchParams);
+    };
+	// const search = (tempRegion = null) => {
+	// 	let values = {};
+	// 	if (!!city && !!city.value) {
+	// 		values.city = city.value;
+	// 	}
+
+	// 	let _region = region;
+	// 	if (!!tempRegion) {
+	// 		_region = tempRegion;
+	// 	}
+
+	// 	if (!!_region && !!_region.value) {
+	// 		values[_region.type] = _region.value;
+	// 	} else if (!!regionInput) {
+	// 		values.search = regionInput;
+	// 	}
+
+	// 	if (!!searchParams.get("sort")) {
+	// 		values.sort = searchParams.get("sort");
+	// 	} else {
+	// 		values.sort = "relevanz";
+	// 	}
+
+	// 	values.map = searchParams.get("map");
+	// 	values.provider = searchParams.get("p");
+
+	// 	searchParams.delete("filter");
+	// 	// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
+	// 	setOrRemoveSearchParam(searchParams, "city", values.city);
+	// 	setOrRemoveSearchParam(searchParams, "range", values.range);
+	// 	setOrRemoveSearchParam(searchParams, "search", values.search);
+	// 	setOrRemoveSearchParam(searchParams, "state", values.state);
+	// 	setOrRemoveSearchParam(searchParams, "country", values.country);
+	// 	setOrRemoveSearchParam(searchParams, "type", values.type);
+
+	// 	setSearchParams(searchParams);
+	// 	// console.log("PART II / searchParams.get('search')", searchParams.get("search"))
+	// 	//clg
+	// 	// for (const entry of searchParams.entries()) {
+	// 	//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+	// 	// }
+	// 	if (!!goto) {
+	// 		// clg
+	// 		// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
+	// 		navigate(goto + "?" + searchParams);
+	// 	} else {
+	// 		console.log("values passed to loadTours :", values);
+	// 		loadTours(values).then((res) => {
+	// 			window.scrollTo({ top: 0 });
+	// 		});
+	// 	}
+	// }; // end search()
+
+	//filter related
+	// const toggleFilter = () => {
+	// 	// code goes here for filter overlay
+	// 	console.log("Search.js toggleFilter() called");
+	// 	setActiveFilter(!activeFilter);
+	// };
 
 	// const gotoHome = () => {
 	//     let _city = searchParams.get("city")
@@ -385,7 +411,9 @@ export function SearchFilter({
 	return (
 		<Fragment>
 			{showMobileMenu ? (
-				<div className="mobileMenu">
+				<div className="mobileMenu"
+				//Set top and left position
+				style={{ zIndex: 100, top: 100, left: 100 }}> 
 					<div className="rowing">
 						<div />
 						<div className="rowing">
@@ -512,7 +540,7 @@ export function SearchFilter({
 						<img
 							src={`/app_static/img/filter.png`}
 							className="filterStyling"
-							// onClick={() => search()}
+							onClick={()=>openFilter()}
 						/>
 					</div>
 					<div style={{}}>
@@ -554,22 +582,23 @@ export function SearchFilter({
 								</div>
 							</div>
 							<img
-								src={`/app_static/img/filter.png`}
+								// filter button is HERE
+								src={`/app_static/img/filter.png`}   
 								className="filterStyling"
-								// onClick={() => search()}
+								onClick={()=>openFilter()}
+
 							/>
-							{/* <span className="goBtn" onClick={() => search()}>
-							GO!
-						</span> */}
 						</div>
 					</div>
 					{showFirstMenu && (
 						<div
 							className="centerMe"
-							style={{
-								position: "absolute",
-								top: 200,
-							}}
+							// style={{
+							// 	position: "absolute",
+							// 	top: 200,
+							// }}
+							// Set top and centered horizontally
+							style={{ zIndex: 101, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
 						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
@@ -581,9 +610,12 @@ export function SearchFilter({
 								className="centerMe"
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
+									<div className="rowing" style={{ marginBottom: 5 }}
+									>
 										<span className="boldTxt">Suche</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
+										<span className="boldTxt underline pointy"
+										
+										>Abbrechen</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -591,7 +623,11 @@ export function SearchFilter({
 												<SearchIcon />
 												<input
 													className="searchInput"
-													onChange={(e) => setFSearchQuery(e.target.value)}
+													onChange={(e) => 
+														{setFSearchQuery(e.target.value);
+															console.log("e.target.value : " + e.target.value)
+														}
+													}
 													value={fSearchQuery}
 												/>
 											</div>
@@ -624,7 +660,9 @@ export function SearchFilter({
 												firstMenuOptions
 													.filter((item) => item.startsWith(fSearchQuery))
 													.map((item) => (
-														<span key={item} className="searchSuggestions">
+														<span key={item} className="searchSuggestions" 
+														onClick={() => setFSearchQuery(item)}
+														>
 															{item}
 														</span>
 													))}
@@ -645,10 +683,12 @@ export function SearchFilter({
 					{showSecondMenu && (
 						<div
 							className="centerMe"
-							style={{
-								position: "fixed",
-								top: 200,
-							}}
+							// style={{
+							// 	position: "fixed",
+							// 	top: 200,
+							// }}
+							// Set top and centered horizontally
+							style={{ zIndex: 102, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
 						>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
@@ -702,6 +742,7 @@ export function SearchFilter({
 														<span
 															key={item}
 															className="searchSuggestions rowingStart"
+															onClick={() => setFSearchQuery(item)}
 														>
 															<img
 																src={`/app_static/img/grpSymbol.png`}
@@ -753,3 +794,5 @@ const mapStateToProps = (state) => {
 export default compose(connect(mapStateToProps, mapDispatchToProps))(
 	SearchFilter
 );
+
+
