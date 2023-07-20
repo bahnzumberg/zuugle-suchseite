@@ -22,7 +22,7 @@ import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
 
-function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter}){
+function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
     // Translation-related
     const {t} = useTranslation();
@@ -35,7 +35,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const wintertour_label = t('filter.wintertour');
     const nur_ueberschreitungen_label = t('filter.nur_ueberschreitungen');
     const tourstart_ende_andere_stops_label = t('filter.tourstart_ende_andere_stops');
-    
+
     const anstieg_label = t('filter.anstieg');
     const abstieg_label = t('main.abstieg');
     const hoehenmeter_label = t('filter.hoehenmeter');
@@ -63,8 +63,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
         { "weitwandern" : t('filter.weitwandern')},
-    ]    
-    
+    ]
 
     useEffect(() => {
         let city = searchParams.get('city');
@@ -74,6 +73,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let type = searchParams.get('type');
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
+        let coordinatesSouthWest = searchParams.get('gpxSouthWest');
+        let coordinatesNorthEast = searchParams.get('gpxNorthEast');
+        console.log('coordinateS:', coordinatesSouthWest, coordinatesNorthEast);
 
         loadFilter({
             city: city,
@@ -82,7 +84,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             country: country,
             type: type,
             search: search,
-            provider: provider,
+            provider: provider
         });
     }, [])
 
@@ -90,7 +92,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!!filter){
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
-
+            console.log("STORE FILER: ", filter);
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -122,6 +124,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
 
             let _filter = searchParams.get('filter');
+            console.log("filter: ", _filter)
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
@@ -166,6 +169,11 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             }
 
+        }
+        console.log("Coordinates:", visibleToursGPXNorthEast, visibleToursGPXSouthWest);
+        if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
+            setCoordinatesNorthEast(visibleToursGPXNorthEast);
+            setCoordinatesSouthWest(visibleToursGPXSouthWest);
         }
     }, [filter]);
 
@@ -242,9 +250,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [rangeValuesState, setRangeValuesState] = useState(true);
     const [typeValuesState, setTypeValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
 
     const submit = () => {
         const filterValues = {
+            //coordinates: coordinates,  //Füg den Wert in die URL ein
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -262,6 +273,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
+            coordinatesSouthWest: coordinatesSouthWest,
+            coordinatesNorthEast: coordinatesNorthEast,
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
@@ -294,19 +307,19 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 const foundType = sportTypesArray.find(typeObj => Object.keys(typeObj)[0] === entry);
                 const translatedValue = foundType ? Object.values(foundType)[0] : '';
                 return {
-                value: translatedValue,
-                label: translatedValue
+                    value: translatedValue,
+                    label: translatedValue
                 }
             })
         }
 
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
-                        <Box>
-                            <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
-                        </Box>
-                    </Grid>
-            });
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
+                </Box>
+            </Grid>
+        });
     }
 
     const getRanges = () => {
@@ -653,6 +666,8 @@ const mapStateToProps = (state) => {
     return {
         filter: state.tours.filter,
         isLoadingFilter: state.tours.isLoadingFilter,
+        visibleToursGPXSouthWest: state.tours.visibleToursGPX._southWest,
+        visibleToursGPXNorthEast: state.tours.visibleToursGPX._northEast,
     }
 };
 

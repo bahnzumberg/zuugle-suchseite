@@ -36,7 +36,7 @@ const initialState = {
 	favouriteRanges: [],
 	isLoadingFilter: false,
 	total_provider: ' ',
-	visibleTours: []
+	visibleToursGPX: []
 }
 
 export default (state = initialState, action = {}) => {
@@ -154,7 +154,7 @@ export default (state = initialState, action = {}) => {
 		case LOAD_MAP_FILTERS:
 			return {
 				...state,
-				visibleTours: action.visibleTours
+				visibleToursGPX: action.visibleToursGPX
 			}
 		default: return state;
 	}
