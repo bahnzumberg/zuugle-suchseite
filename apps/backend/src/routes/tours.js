@@ -901,8 +901,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
         maxDistance,
         ranges,
         types,
-        languages
-        // includes languages in the filter
+        languages // includes languages in the filter
     } = filter;
 
     /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
