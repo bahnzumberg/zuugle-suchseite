@@ -30,6 +30,8 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         let _order = searchParams.get('sort');
         let _mapView = searchParams.get('map');
 
+        localStorage.setItem('MapToggle', false);
+
         if(!!_mapView){
             setMapView(_mapView == "true");
         }
@@ -77,6 +79,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         } else if(queryType == "view"){
             searchParams.set("map", entry.value);
             setSearchParams(searchParams);
+            localStorage.setItem('MapToggle', entry.value);
         }
 
     };
