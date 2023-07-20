@@ -211,10 +211,13 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
             if(_filter.minDistance != getFilterProp(filter, "minDistance") || _filter.maxDistance != getFilterProp(filter, "maxDistance")){
                 count++;
             }
-            if(_filter.ranges.length != filter.ranges.length){
+            if(_filter.ranges?.length != filter.ranges?.length){
                 count++;
             }
-            if(_filter.types.length != filter.types.length){
+            if(_filter.types?.length != filter.types?.length){
+                count++;
+            }
+            if(_filter.languages?.length != filter.languages?.length){
                 count++;
             }
         }

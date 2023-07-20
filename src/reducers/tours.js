@@ -47,7 +47,6 @@ export default (state = initialState, action = {}) => {
 			};
 		case LOAD_TOURS_DONE:
 			let tours = [...state.tours];
-			console.log("Tours:", action);
 			if(!!action.page && action.page > 1){
 				tours.push(...action.tours);
 			} else {

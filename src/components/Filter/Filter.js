@@ -182,7 +182,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 }
                             }))
                         }
-                        // does the same as types and ranges
+                        // sets the language values for the filter
                         if(!!filter && !!filter.languages && !!parsed.languages){
                             setLanguageValues(filter.languages.map(entry => {
                                 const found = parsed.languages.find(e => e === entry);
@@ -237,7 +237,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             count++;
         }
         //includes the languages in the filter count
-        if(languageValues.filter(lv => !!!lv.checked).length > 0){
+        if(languageValues.filter(lv => !lv.checked).length > 0){
             count++;
         }
         //clg
@@ -355,17 +355,13 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             languages = filter.languages.map((entry) => {
                 const foundType = languageArray.find(typeObj => Object.keys(typeObj)[0] === entry);
                 const translatedValue = foundType ? Object.values(foundType)[0] : '';
-                if(translatedValue !== ''){
-                    return {
-                        value: entry,
-                        label: translatedValue
-                    }
-                }
-                else{
-                    return;
+                return {
+                    value: entry,
+                    label: translatedValue
                 }
             })
         }
+
         languages = languages.filter(l => (!!l?.value && !!l?.label));
 
         return languages.map((type,index) => {
@@ -409,8 +405,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     //function to set all checkboxes on either true or false
     const updateAllLanguageValues = () => {
-        setLanguageValues(languageValues.map(rv => { return {...rv, checked: !!!languageValuesState} }));
-        setLanguageValuesState(!!!languageValuesState);
+        setLanguageValues(languageValues.map(lv => { return {...lv, checked: !languageValuesState} }));
+        setLanguageValuesState(!languageValuesState);
     }
 
     return <Box style={{height: "100%"}}>
