@@ -131,7 +131,7 @@ const DetailReworked = (props) => {
             loadShareParams(search, city).then(res => {
                 if (res.success === true) {
                 console.log("testest", res);
-                if (res.usedCityOfCookie === false && !!!city) {
+                if (res.usedCityOfCookie === false) {
                     setStationUsedWarning(true);
                 }
                 const redirectSearchParams = new URLSearchParams();
