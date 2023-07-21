@@ -1,20 +1,19 @@
 import React, {useState, useEffect} from 'react';
 import Async from 'react-select/async';
 import {components} from 'react-select';
-import ChevronDown from '../../icons/ChevronDown';
 import Search from '../../icons/SearchIcon';
 import {loadSuggestions} from "../../actions/crudActions";
 
 const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder}) => {
     const [isFocused, setIsFocused] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
-    let options = [];
-    let searchPhrase;
+    let options = []; //Stores the given suggestions
+    let searchPhrase; //Text you type into the field
 
     const handleFocus = () => {
         setIsFocused(true);
     };
-
+    //How the Component should behave when the focus is lost --> give the search Phrase to the parent
     const handleBlur = () =>{
         onSearchPhrase(searchPhrase)
         setIsFocused(false)
@@ -22,19 +21,16 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
     const handleSelect = (selectedOption) => {
         setSelectedOption(selectedOption);
         const value = selectedOption ? selectedOption.label : '';
-        console.log("Value of Search Suggestion")
         onSearchSuggestion(value);
     };
 
+    //What the component should do while i type in values
     const handleInputChange = (inputValue) => {
         if (city !== null) {
-            //console.log("input:", inputValue, "City:", city.value, "Language:", language);
-            //if(inputValue !== '') --> 2nd method
-            //    onSearchPhrase(inputValue);
             searchPhrase = inputValue;
-            loadSuggestions(inputValue, city.value, language)
+            loadSuggestions(inputValue, city.value, language) //Call the backend
                 .then((suggestions) => {
-                    const newOptions = suggestions.item.map((suggestion) => ({
+                    const newOptions = suggestions.item.map((suggestion) => ({ //Get the New suggestions and format them the correct way
                         label: suggestion.suggestion,
                         value: suggestion.suggestion,
                     }));

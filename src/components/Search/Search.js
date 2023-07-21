@@ -65,8 +65,8 @@ export function Search({
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("");
     const [searchPhrase, setSearchPhrase] = useState('');
-    let suggestion;
-    let autoSearchPhrase;
+    let suggestion; //variable that stores the text of the selected option
+    let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
     const [city, setCity] = useState(null)
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
@@ -360,11 +360,12 @@ export function Search({
     //     setSearchParams(searchParams)
     // }
 
+    //Function that gets value f the selected option and directly start the search for tours
     const getSearchSuggestion = (autoSuggestion) => {
         suggestion = autoSuggestion
         search()
     };
-
+    //Function that gives you the input text you need when no Suggestion was taken
     const getSearchPhrase = (searchPhrase) => {
         autoSearchPhrase = searchPhrase;
     };
