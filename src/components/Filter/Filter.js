@@ -73,9 +73,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let type = searchParams.get('type');
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
-        let coordinatesSouthWest = searchParams.get('gpxSouthWest');
-        let coordinatesNorthEast = searchParams.get('gpxNorthEast');
-        console.log('coordinateS:', coordinatesSouthWest, coordinatesNorthEast);
 
         loadFilter({
             city: city,
@@ -92,7 +89,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!!filter){
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
-            console.log("STORE FILER: ", filter);
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -124,7 +120,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
 
             let _filter = searchParams.get('filter');
-            console.log("filter: ", _filter)
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
@@ -170,7 +165,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
 
         }
-        console.log("Coordinates:", visibleToursGPXNorthEast, visibleToursGPXSouthWest);
         if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
             setCoordinatesNorthEast(visibleToursGPXNorthEast);
             setCoordinatesSouthWest(visibleToursGPXSouthWest);
@@ -212,8 +206,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
-        //clg
-        // console.log("Filter.js count is : " + count)
 
         return count;
     }
@@ -256,6 +248,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const submit = () => {
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
+            coordinatesSouthWest: coordinatesSouthWest,
+            coordinatesNorthEast: coordinatesNorthEast,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -273,8 +267,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
-            coordinatesSouthWest: coordinatesSouthWest,
-            coordinatesNorthEast: coordinatesNorthEast,
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }

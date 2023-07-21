@@ -1,19 +1,14 @@
 import * as React from 'react';
-import {useEffect, useLayoutEffect, useRef, useState, useMemo, useCallback} from "react";
-import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap} from "react-leaflet";
-// import { useMap } from 'react-leaflet/hooks';
+import {useEffect, useRef, useState, useMemo} from "react";
+import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-// import {useSearchParams} from "react-router-dom";
 import Box from "@mui/material/Box";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import gpxParser from "gpxparser";
-import CircularProgress from "@mui/material/CircularProgress";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
-
-const DEFAULT_ZOOM_LEVEL = 13;
-
+import {useSearchParams} from "react-router-dom";
 
 function TourMapContainer({
                               tours,
@@ -28,8 +23,9 @@ function TourMapContainer({
                               loadGPX,
                               setTourID,
                               scrollWheelZoom = true,
-                              visibleTours,
-                              filterVisibleToursGPX
+                              filter,
+                              filterVisibleToursGPX,
+                              doSubmit,
                           }) {
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
@@ -38,11 +34,11 @@ function TourMapContainer({
         iconAnchor: [15, 41],
     });
 
-
     const mapRef = useRef();
     const clusterRef = useRef();
     const [gpxTrack, setGpxTrack] = useState([]);
     const [mapLoading, setMapLoading] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     //checks if page is reloaded
     const pageAccessedByReload = (
@@ -108,11 +104,6 @@ function TourMapContainer({
         localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 13.491897583007814);
         localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 47.609403608607785);
         localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 12.715988159179688);
-        console.log(position._northEast?.lat)
-        console.log(position._northEast?.lng)
-        console.log(position._southWest?.lat)
-        console.log(position._southWest?.lng)
-
     }
 
     const updateBounds = () => {
@@ -122,13 +113,6 @@ function TourMapContainer({
             }
         }
     }
-
-    //TODO: When the position or zoom of the map changes do the same
-    //TODO: Then same the entries in the store
-    //DEV Version --> 2 mal geladen --> tours verdoppelt sich --> key kommt damit zweimal vor
-    //PROBLEM: desto öfter man den toggle Button klickt, desto höher wird die ANZ an touren???
-    //Anz Touren bricht sobald man die Seite refreshed oder den Toggle button verwendet
-    //Backendcall wenn man in main kommt --> tours die in map übergeben werden sind dann es dopppelte
 
     const markerComponents = useMemo(() => {//function to create all the markers on the map
         return (!!tours ? tours : []).map((tour, index) => {
@@ -169,13 +153,6 @@ function TourMapContainer({
         });
     }
 
-    const getStartMarker = () => {
-        if (!!gpxTrack && gpxTrack.length > 0) {
-            return <Marker position={gpxTrack[0]} icon={StartIcon}></Marker>;
-        }
-    }
-
-
     const createClusterCustomIcon = function (cluster) {
         return L.divIcon({
             html: `<span>${cluster.getChildCount()}</span>`,
@@ -185,7 +162,7 @@ function TourMapContainer({
     }
     const MyComponent = () => {
         const map = useMapEvents({
-            moveend: () => {
+            moveend: () => { //Throws an event whenever the bounds of the map change
                 /*let amountOfMarkers = 0;
                 visibleToursOnMap = [];
                 markerComponents.map(marker => { //Print the Id and their title to check if all tours are correct
@@ -212,21 +189,48 @@ function TourMapContainer({
                 //über load tours wird data befüllt --> functions die data objekt übernimmt
                 //überall wo load tours steht coordinaten mitgeben
                 //DATUM ans bakcend mitschicken --> optional
-                //TODO: Set Timeout, debounce and insert timestamp
-                filterVisibleToursGPX(map.getBounds());
-                console.log("Current Bounds: ", map.getBounds());
-                //TODO: include them in the filter request
+                //TODO: Set Timeout/Debounce and Optional: insert timestamp
+                initiateFilter(map.getBounds())
             }
         })
         return null
     }
 
+    //Method to load the parameters and the filter call:
+    const initiateFilter = (bounds) => {
+        console.log("Filter: ", filter.ignore_filter);
+        const filterValues = { //All Values in the URL
+            coordinatesSouthWest: bounds._southWest,
+            coordinatesNorthEast: bounds._northEast,
+            singleDayTour: filter.singleDayTour,
+            multipleDayTour: filter.multipleDayTour,
+            summerSeason: filter.summerSeason,
+            winterSeason: filter.winterSeason,
+            children: filter.children,
+            traverse: filter.traverse,
+            difficulty: filter.difficulty,
+            minAscent: filter.minAscent,
+            maxAscent: filter.maxAscent,
+            minDescent: filter.minDescent,
+            maxDescent: filter.maxDescent,
+            minTransportDuration: filter.minTransportDuration,
+            maxTransportDuration: filter.maxTransportDuration,
+            minDistance: filter.minDistance,
+            maxDistance: filter.maxDistance,
+            ranges: filter.ranges,
+            types: filter.types,
+        }
+        if (filterValues == null) {
+            searchParams.delete("filter");
+        } else {
+            searchParams.set("filter", JSON.stringify(filterValues));
+        }
+        localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
+        setSearchParams(searchParams); //set the search Params and start the call to the backend
+    }
 
     return <Box
         style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
-        {(!!loading || !!mapLoading) && <Box className={"map-spinner"}>
-            <CircularProgress/>
-        </Box>}
 
         <MapContainer
             ref={mapRef}
@@ -267,11 +271,10 @@ const mapDispatchToProps = (dispatch) => {
     }
 };
 
-
 const mapStateToProps = (state) => {
     return {
+        filter: state.tours.filter,
         visibleToursGPX: state.tours.visibleToursGPX,
     }
 };
-
 export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);

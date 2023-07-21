@@ -10,6 +10,7 @@ import {FormControlLabel, Typography} from "@mui/material";
 import Switch from "@mui/material/Switch";
 import {getFilterProp} from "../utils/globals";
 import { useTranslation } from 'react-i18next';
+import TourMapContainer from "./Map/TourMapContainer";
 
 export default function ResultBar({total, showModal, hideModal, filter, filterActive, everythingDisabled = false, clearTours}){
 
@@ -66,7 +67,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         handleChange("filter", null);
     }
 
-    const handleChange = (queryType, entry) => {
+     const handleChange = (queryType, entry) => {
         if(queryType == "order" && !!entry && !!entry.value){
             setOrder(entry.value);
             searchParams.set("sort", entry.value);
