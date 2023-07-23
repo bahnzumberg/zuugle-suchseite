@@ -238,7 +238,7 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
 }
 
 export const getIconFromText = (text) => {
-    let BASE = process.env.NODE_ENV === "production" ? `/public/icons/` 
+    let BASE = process.env.NODE_ENV === "production" ? `http://localhost/public/icons/` 
     :                                                  `http://localhost:8080/public/icons/`;
     if (!!text && (text.indexOf(' Zug ') >= 0 || text.indexOf(' U-Bahn ') >= 0)) {
         return BASE + "ic_transport_train.svg";

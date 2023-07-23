@@ -61,7 +61,7 @@ export const createImagesFromMap = async (ids) => {
             });
 
             let url = process.env.NODE_ENV === "production" ? 
-            "/public/headless-leaflet/index.html?gpx=/public/gpx/" 
+            "http://localhost/public/headless-leaflet/index.html?gpx=http://localhost/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
         
@@ -144,13 +144,13 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
     let browser = null;
     try {
 
-        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `/public/headless-leaflet/${template}` 
+        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `http://localhost/public/headless-leaflet/${template}` 
         :                                                               `http://localhost:8080/public/headless-leaflet/${template}`;
 
-        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "/public/gpx/" 
+        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "http://localhost/public/gpx/" 
         :                                                                "http://localhost:8080/public/gpx/";
 
-        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "/public/gpx-track/" 
+        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "http://localhost/public/gpx-track/" 
         :                                                                "http://localhost:8080/public/gpx-track/";
 
         let url = "";
