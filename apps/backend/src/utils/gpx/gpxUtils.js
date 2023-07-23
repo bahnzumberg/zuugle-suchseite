@@ -61,15 +61,9 @@ export const createImagesFromMap = async (ids) => {
             });
 
             let url = process.env.NODE_ENV === "production" ? 
-            "http://localhost/public/headless-leaflet/index.html?gpx=http://localhost/public/gpx/" 
+            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
-
-            // "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
-            // :         process.env.NODE_ENV === "uat" ? 
-            // "https://www2.zuugle.at/public/headless-leaflet/index.html?gpx=https://www2.zuugle.at/public/gpx/" 
-            
-
 
             const chunkSize = 10;
             let counter = 1;
@@ -123,7 +117,7 @@ export const createImagesFromMap = async (ids) => {
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
-            if(process.env.NODE_ENV == "production"){
+            if(process.env.NODE_ENV !== "production"){
                 console.log('createImageFromMap , L127 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
             }
             const page = await browser.newPage();
@@ -148,13 +142,13 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
     let browser = null;
     try {
 
-        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `http://localhost/public/headless-leaflet/${template}` 
+        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `https://www.zuugle.at/public/headless-leaflet/${template}` 
         :                                                               `http://localhost:8080/public/headless-leaflet/${template}`;
 
-        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "http://localhost/public/gpx/" 
+        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "https://www.zuugle.at/public/gpx/" 
         :                                                                "http://localhost:8080/public/gpx/";
 
-        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "http://localhost/public/gpx-track/" 
+        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "https://www.zuugle.at/public/gpx-track/" 
         :                                                                "http://localhost:8080/public/gpx-track/";
 
         let url = "";
