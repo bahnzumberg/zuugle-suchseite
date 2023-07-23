@@ -61,7 +61,7 @@ export const createImagesFromMap = async (ids) => {
             });
 
             let url = process.env.NODE_ENV === "production" ? 
-            "/public/headless-leaflet/index.html?gpx=/public/gpx/" 
+            "http://localhost/public/headless-leaflet/index.html?gpx=http://localhost/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
 
@@ -89,7 +89,6 @@ export const createImagesFromMap = async (ids) => {
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
                         await createImageFromMap(browser, filePath, url + ch + ".gpx", 90);
-                        console.log('Big generated successfully: ', filePath);
 
                         try {
                             await sharp(filePath).resize({
@@ -97,7 +96,6 @@ export const createImagesFromMap = async (ids) => {
                                 height: 400,
                                 fit: "inside"
                             }).jpeg({quality: 50}).toFile(filePathSmall);
-                            console.log('Small generated successfully: ', filePathSmall);
                         } catch(e){
                             if(process.env.NODE_ENV !== "production"){
                                 console.error("Line 96: gpxUtils error :",e);
@@ -125,7 +123,9 @@ export const createImagesFromMap = async (ids) => {
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
-            // console.log('createImageFromMap , L120 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
+            if(process.env.NODE_ENV == "production"){
+                console.log('createImageFromMap , L127 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
+            }
             const page = await browser.newPage();
             await page.emulateMediaType('print'); //console.log("reached.....122")
             await page.setCacheEnabled(false);// console.log("reached.....123")
@@ -139,7 +139,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
             //console.log('page close done');
         }
     } catch (err) {
-        console.log('createImageFromMap error: ', err.message);
+        console.log('createImageFromMap error with url=',url, ' error:', err.message);
     }
 }
 
@@ -148,13 +148,13 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
     let browser = null;
     try {
 
-        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `/public/headless-leaflet/${template}` 
+        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `http://localhost/public/headless-leaflet/${template}` 
         :                                                               `http://localhost:8080/public/headless-leaflet/${template}`;
 
-        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "/public/gpx/" 
+        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "http://localhost/public/gpx/" 
         :                                                                "http://localhost:8080/public/gpx/";
 
-        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "/public/gpx-track/" 
+        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "http://localhost/public/gpx-track/" 
         :                                                                "http://localhost:8080/public/gpx-track/";
 
         let url = "";
