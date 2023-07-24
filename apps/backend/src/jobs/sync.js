@@ -211,9 +211,11 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
+        /*
         if(process.env.NODE_ENV !== "production"){
             console.log(`create file [${filePath}]`);
         }
+        */
         
         const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
@@ -264,11 +266,12 @@ export async function syncFahrplan(mode='delta'){
     let orwhere = {delta_type: 'noc'};
     const _limit = pLimit(2);
     let bundles = [];
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
     let chunksizer = 0;
     let count_tours = 0;
-    let count_tours_counter = 0;
 
     if(mode=='delta'){
         orwhere = {delta_type: 'xxx'};
@@ -300,10 +303,6 @@ export async function syncFahrplan(mode='delta'){
             leftover: counter,
             chunksizer: chunksizer
         });
-        if (counter % 500000 > count_tours_counter) {
-            console.log('Info: ', count_tours_counter*500000, ' rows of ', count_tours, ' done.');
-            count_tours_counter++;
-        }
         counter++;
     }
 
@@ -475,7 +474,7 @@ const insertFahrplanMultiple = async (entries) => {
         await knex.raw(knex('fahrplan').insert([..._entries]).toString()+" ON CONFLICT(id) DO NOTHING");
         return true;
     } catch(err){
-        console.log('error: ', err)
+        console.log('error insertFahrplanMultiple: ', err)
         return false;
     }
 }
