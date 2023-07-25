@@ -136,7 +136,6 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
 }
 
 export function loadShareParams(shareId, city) {
-    console.log(shareId);
     return axios.get('shares/' + shareId, {
         params: {
             city: city
@@ -149,15 +148,13 @@ export function loadShareParams(shareId, city) {
 }
 
 
-export function loadGeneratingLink(provider, hashedUrl, date, city) {
-    console.log(provider, hashedUrl, date, city);
+export function generateShareLink(provider, hashedUrl, date, city) {
     return axios.post('shares/', {
         "provider": provider,
         "hashedUrl": hashedUrl,
         "date": date,
         "city": city
     }).then(res => {
-        console.log(res)
         return res.data;
     }).catch(err => {
         return err.response.data;

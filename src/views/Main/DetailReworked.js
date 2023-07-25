@@ -28,7 +28,7 @@ import {loadAllCities, loadCities} from "../../actions/cityActions";
 import {useTranslation} from 'react-i18next';
 import Itinerary from "../../components/Itinerary/Itinerary";
 import {useNavigate} from "react-router";
-import {loadGeneratingLink, loadShareParams} from "../../actions/crudActions";
+import {generateShareLink, loadShareParams} from "../../actions/crudActions";
 import {
     EmailShareButton,
     EmailIcon,
@@ -83,9 +83,9 @@ const DetailReworked = (props) => {
     //Complete share link
     const [shareLink, setShareLink] = useState(null);
     //Whether social media share buttons should be shown
-    const [dropdownToggle, setDropdownToggle] = useState(false);
+    const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] = useState(false);
     //Whether a warning that says that your local trainstation has not been used, should be shown
-    const [stationUsedWarning, setStationUsedWarning] = useState(false);
+    const [showDifferentStationUsedWarning , setShowDifferentStationUsedWarning] = useState(false);
 
     // Translation-related
     const {t} = useTranslation();
@@ -99,7 +99,6 @@ const DetailReworked = (props) => {
 
     const navigate = useNavigate();
     const goToStartPage = () => {
-        console.log('going home')
         let city = searchParams.get('city');
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
@@ -108,7 +107,7 @@ const DetailReworked = (props) => {
     //Creating a new share link
     useEffect(() => {
         if (isShareGenerating === true) {
-            loadGeneratingLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+            generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
                 .then(res => {
                     if (res.success === true){
                         setShareLink(window.location.origin + "/tour?share=" + res.shareId);
@@ -124,15 +123,14 @@ const DetailReworked = (props) => {
 
 
     useEffect(() => {
-        const search = searchParams.get("share") ?? null;
+        const shareId = searchParams.get("share") ?? null;
+        const city = localStorage.getItem('city');
         //Redirects to according page when it is a share link
-        if (search !== null) {
-            const city = localStorage.getItem('city');
-            loadShareParams(search, city).then(res => {
+        if (shareId !== null) {
+            loadShareParams(shareId, city).then(res => {
                 if (res.success === true) {
-                console.log("testest", res);
                 if (res.usedCityOfCookie === false) {
-                    setStationUsedWarning(true);
+                    setShowDifferentStationUsedWarning(true);
                 }
                 const redirectSearchParams = new URLSearchParams();
                 const date = moment(res.date);
@@ -141,16 +139,17 @@ const DetailReworked = (props) => {
                 redirectSearchParams.set("datum", moment(date).format('YYYY-MM-DD'));
                 lazy(navigate('/tour?' + redirectSearchParams.toString()));
                 } else {
+                    city && searchParams.set("city", city);
                     goToStartPage();
                 }
             }).catch(err => {
+                city && searchParams.set("city", city);
                 goToStartPage();
             });
         }
         loadAllCities();
         loadCities({limit: 5});
         const tourId = searchParams.get("id");
-        const city = searchParams.get("city");
 
         if (tourId) {
             loadTour(tourId, city);
@@ -293,7 +292,7 @@ const DetailReworked = (props) => {
         <Button className="tour-detail-action-btns" disabled={false}
                 onClick={() => {
                     setIsShareGenerating(true);
-                    setDropdownToggle((current) => { return !current});
+                    setSocialMediaDropDownToggle((current) => { return !current});
                 }}>
             <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.teilen')}</span>
             <span style={{color: "#8B8B8B"}}>{t('details.teilen_description')}</span>
@@ -301,21 +300,21 @@ const DetailReworked = (props) => {
         {/*
         Specific social media buttons
         */}
-        {(dropdownToggle && !isShareGenerating && shareLink !== null)&& <div>
-            <TwitterShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={t('details.teilen_text')}>
+        {(socialMediaDropDownToggle && !isShareGenerating && shareLink !== null)&& <div>
+            <TwitterShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={t('details.teilen_text')}>
                 <TwitterIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
             </TwitterShareButton>
-            <EmailShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={t('details.teilen_text')}>
+            <EmailShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={t('details.teilen_text')}>
                 <EmailIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
             </EmailShareButton>
             {/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
-            <FacebookShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={t('details.teilen_text')} hashtag={"Zuugle"}>
+            <FacebookShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={t('details.teilen_text')} hashtag={"Zuugle"}>
                 <FacebookIcon size={40} round={true} />
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
             </FacebookShareButton>
-            <WhatsappShareButton className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={t('details.teilen_text')}>
+            <WhatsappShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={t('details.teilen_text')}>
                 <WhatsappIcon size={40} round={true}/>
                 <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
             </WhatsappShareButton>
@@ -401,7 +400,7 @@ const DetailReworked = (props) => {
                         Warning that tells you that your local trainstation has not been used
                         */}
                         <div className="tour-detail-itinerary-container">
-                        {stationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setStationUsedWarning(false)}}>{t('details.warnung_andere_station')}</Alert>}
+                        {showDifferentStationUsedWarning && <Alert style={{"alignItems": "center", "borderRadius": "30px", "justifyContent": "flex-start", "width": "375px"}} severity="info" color="success" onClose={() => {setShowDifferentStationUsedWarning(false)}}>{t('details.warnung_andere_station')}</Alert>}
                         </div>
                         <Itinerary connectionData={connections} dateIndex={dateIndex}
                                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}></Itinerary>
