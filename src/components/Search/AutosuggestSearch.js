@@ -1,23 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import Async from 'react-select/async';
-import {components} from 'react-select';
+import Select, {components} from 'react-select';
 import Search from '../../icons/SearchIcon';
 import {loadSuggestions} from "../../actions/crudActions";
 
 const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder}) => {
-    const [isFocused, setIsFocused] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
+    const [input, setInput] = useState("")
     let options = []; //Stores the given suggestions
     let searchPhrase; //Text you type into the field
 
-    const handleFocus = () => {
-        setIsFocused(true);
-    };
-    //How the Component should behave when the focus is lost --> give the search Phrase to the parent
-    const handleBlur = () =>{
-        onSearchPhrase(searchPhrase)
-        setIsFocused(false)
-    }
     const handleSelect = (selectedOption) => {
         setSelectedOption(selectedOption);
         const value = selectedOption ? selectedOption.label : '';
@@ -30,7 +22,7 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
             searchPhrase = inputValue;
             loadSuggestions(inputValue, city.value, language) //Call the backend
                 .then((suggestions) => {
-                    const newOptions = suggestions.item.map((suggestion) => ({ //Get the New suggestions and format them the correct way
+                    const newOptions = suggestions.map((suggestion) => ({ //Get the New suggestions and format them the correct way
                         label: suggestion.suggestion,
                         value: suggestion.suggestion,
                     }));
@@ -43,7 +35,6 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
             console.log("Error due to not selecting a Heimatbahnhof");
         }
     };
-
     const filterOptions = (inputValue) => {
         return options.filter((i) =>
             i.label.toLowerCase().includes(inputValue.toLowerCase())
@@ -57,12 +48,6 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
     };
 
     const styles = {
-        valueContainer: (base) => ({
-            ...base,
-            paddingLeft: 40,
-            textAlign: 'left',
-            color: 'red',
-        }),
         control: (provided, state) => ({
             ...provided,
             background: '#fff',
@@ -81,39 +66,43 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
         }),
     };
 
-    const SearchIconContainer = ({children, ...props}) => {
+    const NoOptionsMessage = props => {
         return (
-            components.ValueContainer && (
-                <components.ValueContainer {...props}>
-                    {!!children && (
-                        <Search
-                            style={{position: 'absolute', left: 6, strokeWidth: 1, stroke: '#101010', fill: '#101010'}}
-                        />
-                    )}
-                    {children}
-                </components.ValueContainer>
-            )
+            <components.NoOptionsMessage {...props}>
+                <span className="custom-css-class">No Suggestions</span>
+            </components.NoOptionsMessage>
         );
+
     };
+
     return (
-        <Async
-            components={{
-                DropdownIndicator:() => null,
-                IndicatorSeparator:() => null,
-                ValueContainer: SearchIconContainer,
-            }}
-            loadOptions={loadOptions}
-            defaultOptions={options}
-            placeholder={isFocused ? '' : placeholder ? placeholder : "Öffi-Touren im Alpenraum"}
-            styles={styles}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onChange={handleSelect}
-            onInputChange={handleInputChange}
-            value={selectedOption}
-            isClearable={false}
-        />
+        <div style={{display: 'flex', alignItems: 'center'}}>
+            <Search
+                style={{strokeWidth: 1, stroke: '#101010', fill: '#101010'}}
+            />
+            <Async
+                components={{
+                    DropdownIndicator: () => null,
+                    IndicatorSeparator: () => null,
+                    NoOptionsMessage
+                }}
+                options={options}
+                inputValue={input}
+                placeholder={placeholder ? placeholder : 'Öffi-Touren im Alpenraum'}
+                styles={styles}
+                loadOptions={loadOptions}
+                value={selectedOption}
+                onChange={handleSelect}
+                isClearable={false}
+                onInputChange={(value, action) => {
+                    if (action.action === 'input-change') {
+                        setInput(value);
+                        handleInputChange(value);
+                    }
+                }}
+            />
+        </div>
     );
 };
-
+//TODO: Place the searchIconContainer aoutside of the component
 export default AutosuggestSearchTour;

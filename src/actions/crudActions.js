@@ -141,7 +141,7 @@ export function loadSuggestions(searchPhrase, city, language) {
     // console.log("tourActions, LoadTour L41 :",id)
     return axios.get(`searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`)
         .then(res =>{
-        return res.data?.phrases;
+        return res.data?.items;
     }).catch(err => console.log(err));
 }
 

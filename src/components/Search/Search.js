@@ -395,14 +395,6 @@ export function Search({
             </Grid>*/}
                     <Grid item xs>
                         <Box display="flex" alignItems="center" justifyContent="center">
-                <span
-                    className={`search-bar--region__${
-                        searchPhrase ? "selection" : "default"
-                    }`}
-                >
-                </span>
-                        </Box>
-                        <Box>
                             <AutosuggestSearchTour
                                 onSearchSuggestion={getSearchSuggestion}
                                 onSearchPhrase={getSearchPhrase}
