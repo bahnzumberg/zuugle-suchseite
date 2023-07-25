@@ -266,8 +266,7 @@ export async function syncFahrplan(mode='delta'){
     let orwhere = {delta_type: 'noc'};
     const _limit = pLimit(2);
     let bundles = [];
-    let trigger_id_min = 0;
-    let trigger_id_max = 0;
+    
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
     let chunksizer = 0;
@@ -277,6 +276,8 @@ export async function syncFahrplan(mode='delta'){
         orwhere = {delta_type: 'xxx'};
     }
 
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
     try {
         const query_add_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
         const query_add_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').whereRaw(`calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
@@ -359,8 +360,8 @@ const syncFahrplan_del = async () => {
     let where = {delta_type: 'del'};
     const _limit = pLimit(15);
     let bundles = [];
-    let trigger_id_min = 0;
-    let trigger_id_max = 0;
+    // let trigger_id_min = 4;
+    // let trigger_id_max = 0;
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
 
@@ -370,6 +371,8 @@ const syncFahrplan_del = async () => {
         console.log('error: ', err)
     }
 
+    let trigger_id_min = 0;
+    let trigger_id_max = 0;
     try {
         const query_del_min = knexTourenDb('interface_fplan_to_search_delta').min('trigger_id').where(where);
         const query_del_max = knexTourenDb('interface_fplan_to_search_delta').max('trigger_id').where(where);
