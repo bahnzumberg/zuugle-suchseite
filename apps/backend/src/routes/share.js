@@ -110,7 +110,6 @@ const getCorrespondingLinkWrapper = async (req, res) => {
             //Use the city of the link creator when there was no city query param
             citySlugOfCookie = shareLinkData[0].city_slug;
         }
-        console.log(id.id);
         res.status(200).json({success: true, date: shareLinkData[0].calendar_date, city: citySlugOfCookie, tourId: id.id, usedCityOfCookie: usedCityOfCookie});
 
     } catch (error) {
