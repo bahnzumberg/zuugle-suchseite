@@ -65,6 +65,9 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
             textAlign: 'left',
         }),
     };
+    useEffect(() =>{
+        onSearchPhrase(input)
+    }, [input])
 
     const NoOptionsMessage = props => {
         return (
@@ -104,5 +107,4 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
         </div>
     );
 };
-//TODO: Place the searchIconContainer aoutside of the component
 export default AutosuggestSearchTour;
