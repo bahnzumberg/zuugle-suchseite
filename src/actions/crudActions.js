@@ -138,11 +138,10 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
 
 //Calling the BE and getting suggestions out of the LogSearchPhrase table based on the language, city, and searchPhrase
 export function loadSuggestions(searchPhrase, city, language) {
-    // console.log("tourActions, LoadTour L41 :",id)
     return axios.get(`searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`)
         .then(res =>{
         return res.data?.items;
-    }).catch(err => console.log(err));
+    }).catch(err => console.error(err));
 }
 
 // Code description:

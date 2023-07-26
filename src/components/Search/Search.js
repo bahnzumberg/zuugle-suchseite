@@ -47,10 +47,6 @@ export function Search({
     let language = i18next.resolvedLanguage
 
     //initialise
-    const [placeholder, setPlaceholder] = useState(t("start.suche"));
-    useEffect(() => {
-        setPlaceholder(t("start.suche"));
-    }, [language]);
 
 
     // console.log("Search arguments received: "); // output 
@@ -71,16 +67,6 @@ export function Search({
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
-
-    const handleFocus = () => {
-        setSearchPhrase('');
-        setPlaceholder('');
-    };
-
-    const handleBlur = () => {
-        setPlaceholder(t("start.suche"));
-    };
-
 
     useEffect(() => {
         // pull out values from URL params 
@@ -248,10 +234,7 @@ export function Search({
         }
         if (!!_region && !!_region.value) {
             values[_region.type] = _region.value
-        }/* else if (!!searchPhrase) {
-            //values.search = searchPhrase
-            console.log("in if")
-        }*/
+        }
         values.search = suggestion ? suggestion : autoSearchPhrase ? autoSearchPhrase : '';
 
 

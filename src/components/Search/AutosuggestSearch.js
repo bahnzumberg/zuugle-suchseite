@@ -3,10 +3,12 @@ import Async from 'react-select/async';
 import Select, {components} from 'react-select';
 import Search from '../../icons/SearchIcon';
 import {loadSuggestions} from "../../actions/crudActions";
+import {useTranslation} from "react-i18next";
 
 const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder}) => {
     const [selectedOption, setSelectedOption] = useState(null);
-    const [input, setInput] = useState("")
+    const [input, setInput] = useState("");
+    const {t} = useTranslation();
     let options = []; //Stores the given suggestions
     let searchPhrase; //Text you type into the field
 
@@ -16,7 +18,7 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
         onSearchSuggestion(value);
     };
 
-    //What the component should do while i type in values
+    //What the component should do while I type in values
     const handleInputChange = (inputValue) => {
         if (city !== null) {
             searchPhrase = inputValue;
@@ -29,10 +31,8 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
                     options = newOptions;
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 });
-        } else {
-            console.log("Error due to not selecting a Heimatbahnhof");
         }
     };
     const filterOptions = (inputValue) => {
@@ -91,7 +91,7 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
                 }}
                 options={options}
                 inputValue={input}
-                placeholder={placeholder ? placeholder : 'Öffi-Touren im Alpenraum'}
+                placeholder={placeholder ? placeholder : t("start.suche")}
                 styles={styles}
                 loadOptions={loadOptions}
                 value={selectedOption}
