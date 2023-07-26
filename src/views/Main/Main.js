@@ -311,7 +311,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         }
 
         {
-            (!!tours && tours.length > 0) && <>
+            (!!tours && tours.length >= 0) && <>
             {
                 //description: 
                 //either display 100% size map or display the TourCardContainer 

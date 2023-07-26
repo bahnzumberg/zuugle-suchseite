@@ -115,28 +115,33 @@ function TourMapContainer({
         }
     }
 
-    const markerComponents = useMemo(() => {//function to create all the markers on the map
-        return (!!tours ? tours : []).map((tour, index) => {
-            let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ == "first") : null;
-            if (!!data) {
-                return <Marker
-                    //key={tour.id}
-                    key={index}                   //We need the tour id to be the key cause we want to get the tours and save the ids into the store
-                    position={[data.lat, data.lon]} //Where the markers will be pointing to --> laitude and longitude
-                    title={tour.title}              //When you hover the marker you get the name of the tour
-                    icon={StartIcon}                //how the marker should look like
-                    eventHandlers={{
-                        click: () => {
-                            setTourID(tour.id)  // additional state passed from the parent Main.js
-                            setCurrentGpxTrack(tour.gpx_file);
-                            onSelectTour(tour.id);  //new window with the specific tour
-                        },
-                    }}
-                ></Marker>
-            }
-
-        });
+    const markerComponents = useMemo(() => {
+        if (!!tours) {
+            return tours.map((tour, index) => {
+                let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
+                if (!!data) {
+                    return (
+                        <Marker
+                            key={index}
+                            position={[data.lat, data.lon]}
+                            title={tour.title}
+                            icon={StartIcon}
+                            eventHandlers={{
+                                click: () => {
+                                    setTourID(tour.id);
+                                    setCurrentGpxTrack(tour.gpx_file);
+                                    onSelectTour(tour.id);
+                                },
+                            }}
+                        ></Marker>
+                    );
+                }
+                return null;
+            });
+        }
+        return null;
     }, [tours]);
+
 
     const setCurrentGpxTrack = (url) => {
         loadGPX(url).then(res => {
@@ -209,7 +214,7 @@ function TourMapContainer({
         initiateFilter(bounds)
     }
 
-    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 1500);
+    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300);
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
         console.log("Filter: ", bounds);
@@ -234,6 +239,7 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
+        console.log("filter values:", filterValues);
         if (filterValues == null) {
             searchParams.delete("filter");
         } else {
