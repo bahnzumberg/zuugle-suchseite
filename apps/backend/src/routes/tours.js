@@ -81,6 +81,8 @@ const listWrapper = async (req, res) => {
     const page = req.query.page || 1;
     const domain = req.query.domain; // "domain":"localhost:3000"
     const provider = req.query.provider;
+    const coordinatesNorthEast = req.query.coordinatesNorthEast;
+    const coordinatesSouthWest = req.query.coordinatesSouthWest;
 
     //describe
     // variables initialized depending on availability of 'map' in the request
@@ -125,7 +127,6 @@ const listWrapper = async (req, res) => {
     // let res_count = await countQuery;
     // console.log(res_count); // ex. [ { count: '710' } ]
     // console.log("=============================================================");
- 
    
     //describe:
     //initialize a new variable 'whereRaw' and use it to define the where statments
@@ -165,7 +166,31 @@ const listWrapper = async (req, res) => {
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
-    } 
+    }
+
+    //filters the tours by coordinates
+    //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
+    if(!!coordinatesNorthEast && coordinatesNorthEast.length > 0 && !!coordinatesSouthWest && coordinatesSouthWest.length > 0){
+        const tokensNE = coordinatesNorthEast.toString()
+            .substring(1, coordinatesNorthEast.length-1)
+            .split(",");
+        const tokensSW = coordinatesSouthWest.toString()
+            .substring(1, coordinatesSouthWest.length-1)
+            .split(",");
+
+        console.log("latNe:",latNE);
+        console.log("latSW:",latSW);
+        console.log("lngNe:",lngNE);
+        console.log("lngSW:",lngSW);
+
+        whereRaw += whereRaw ? ' AND ' : '';
+        whereRaw += `id IN (SELECT id
+          FROM tour,
+          jsonb_array_elements(tour.gpx_data) as tour_data
+          WHERE (tour_data->>'typ') = 'first'
+          AND (tour_data->>'lat')::numeric BETWEEN (${latNE})::numeric AND (${latSW})::numeric
+          AND (tour_data->>'lon')::numeric BETWEEN (${lngNE})::numeric AND (${lngSW})::numeric)`;
+    }
     //clgs
     // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
     // console.log("L193 where value / provider: " + sql_where); // 
@@ -1231,7 +1256,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // summerSeason && console.log("!!summerSeason :",!!summerSeason);
     // winterSeason && console.log("!!winterSeason :",!!winterSeason);
 
-    /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
+              /** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
     if(summerSeason === 'true' && winterSeason === 'true'){
         query = query.whereIn('season', ['g', 's', 'w']);
     } else if(summerSeason === 'true'){
