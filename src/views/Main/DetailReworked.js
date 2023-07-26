@@ -121,6 +121,13 @@ const DetailReworked = (props) => {
 
     }, [isShareGenerating]);
 
+    useEffect(() => {
+        setIsShareGenerating(false);
+        setSocialMediaDropDownToggle(false);
+
+
+    }, [dateIndex]);
+
 
     useEffect(() => {
         const shareId = searchParams.get("share") ?? null;
