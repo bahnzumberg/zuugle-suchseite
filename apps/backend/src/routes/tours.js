@@ -178,10 +178,10 @@ const listWrapper = async (req, res) => {
             .substring(1, coordinatesSouthWest.length-1)
             .split(",");
 
-        console.log("latNe:",latNE);
-        console.log("latSW:",latSW);
-        console.log("lngNe:",lngNE);
-        console.log("lngSW:",lngSW);
+        const latNE = tokensNE[0];
+        const lngNE = tokensNE[1];
+        const latSW = tokensSW[0];
+        const lngSW = tokensSW[1];
 
         whereRaw += whereRaw ? ' AND ' : '';
         whereRaw += `id IN (SELECT id
