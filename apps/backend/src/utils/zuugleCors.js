@@ -18,7 +18,7 @@ export const hostMiddleware = (req, res, next) => {
     const hostWhitelist = ['localhost:8080', 'localhost:3000', 'localhost:4000', 'www.zuugle.at', 'www.zuugle.de', 'www.zuugle.ch', 'www.zuugle.it', 'www.zuugle.fr', 'www.zuugle.si', 'www2.zuugle.at', 'www2.zuugle.de', 'www2.zuugle.ch', 'www2.zuugle.it', 'www2.zuugle.fr', 'www2.zuugle.si'];
     try {
         const host = req.headers['host'];
-        if(hostWhitelist.indexOf(host) === -1 || !isPostman){
+        if(hostWhitelist.indexOf(host) === -1 || isPostman){
             res.status(500).json({});
             return;
         } else {
