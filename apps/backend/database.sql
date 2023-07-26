@@ -203,6 +203,17 @@ CREATE TABLE fahrplan_del (
      PRIMARY KEY (id)
 );
 
+CREATE TABLE disposible (
+                            provider varchar(30) NOT NULL,
+                            hashed_url varchar(100) NOT NULL,
+                            link varchar(100) NOT NULL,
+                            calendar_date timestamp NOT NULL,
+                            city_slug varchar(100) NOT NULL
+);
+
+CREATE INDEX ON disposible (provider);
+CREATE INDEX ON disposible (hashed_url);
+CREATE INDEX ON disposible (link);
 
 ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
 ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
