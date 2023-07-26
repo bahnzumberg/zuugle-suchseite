@@ -81,9 +81,10 @@ const listWrapper = async (req, res) => {
     const page = req.query.page || 1;
     const domain = req.query.domain; // "domain":"localhost:3000"
     const provider = req.query.provider;
-    const coordinatesNorthEast = req.query.coordinatesNorthEast;
-    const coordinatesSouthWest = req.query.coordinatesSouthWest;
+    const coordinatesNorthEast = req.query.filter && req.query.filter.coordinatesNorthEast ? req.query.filter.coordinatesNorthEast : null;
+    const coordinatesSouthWest = req.query.filter && req.query.filter.coordinatesSouthWest ? req.query.filter.coordinatesSouthWest : null;
 
+    console.log("Coordinates:", coordinatesNorthEast, coordinatesSouthWest);
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
@@ -170,26 +171,20 @@ const listWrapper = async (req, res) => {
 
     //filters the tours by coordinates
     //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
-    if(!!coordinatesNorthEast && coordinatesNorthEast.length > 0 && !!coordinatesSouthWest && coordinatesSouthWest.length > 0){
-        const tokensNE = coordinatesNorthEast.toString()
-            .substring(1, coordinatesNorthEast.length-1)
-            .split(",");
-        const tokensSW = coordinatesSouthWest.toString()
-            .substring(1, coordinatesSouthWest.length-1)
-            .split(",");
-
-        const latNE = tokensNE[0];
-        const lngNE = tokensNE[1];
-        const latSW = tokensSW[0];
-        const lngSW = tokensSW[1];
+    console.log("LENGTH:", city.length);
+    if(!!coordinatesNorthEast && !!coordinatesSouthWest){
+        const latNE = coordinatesNorthEast.lat.toString();
+        const lngNE = coordinatesNorthEast.lng.toString();
+        const latSW = coordinatesSouthWest.lat.toString();
+        const lngSW = coordinatesSouthWest.lng.toString();
 
         whereRaw += whereRaw ? ' AND ' : '';
         whereRaw += `id IN (SELECT id
           FROM tour,
           jsonb_array_elements(tour.gpx_data) as tour_data
           WHERE (tour_data->>'typ') = 'first'
-          AND (tour_data->>'lat')::numeric BETWEEN (${latNE})::numeric AND (${latSW})::numeric
-          AND (tour_data->>'lon')::numeric BETWEEN (${lngNE})::numeric AND (${lngSW})::numeric)`;
+          AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
+          AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric)`;
     }
     //clgs
     // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
