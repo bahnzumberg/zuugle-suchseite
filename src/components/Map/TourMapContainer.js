@@ -9,6 +9,7 @@ import gpxParser from "gpxparser";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
+import debounce from "lodash/debounce";
 
 function TourMapContainer({
                               tours,
@@ -176,8 +177,6 @@ function TourMapContainer({
                     }
                 })
                 filterVisibleToursGPX(visibleToursOnMap);*/
-
-
                 /* Aufbau von get Bounds:
                 LatLngBounds
                     _northEast: LatLng {lat: 49.55014950174062, lng: 13.521202303280619}
@@ -190,18 +189,33 @@ function TourMapContainer({
                 //überall wo load tours steht coordinaten mitgeben
                 //DATUM ans bakcend mitschicken --> optional
                 //TODO: Set Timeout/Debounce and Optional: insert timestamp
-                initiateFilter(map.getBounds())
+                //setBounds(map.getBounds());
+                debouncedStoppedMoving(map.getBounds());
             }
         })
         return null
     }
 
+    function makeDebounced(func, timeout) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => func(...args), timeout);
+        };
+    }
+
+    function stoppedMoving(bounds) {
+        console.log(`You've stopped moving on the map`, bounds);
+        initiateFilter(bounds)
+    }
+
+    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 1500);
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        console.log("Filter: ", filter.ignore_filter);
+        console.log("Filter: ", bounds);
         const filterValues = { //All Values in the URL
-            coordinatesSouthWest: bounds._southWest,
-            coordinatesNorthEast: bounds._northEast,
+            coordinatesSouthWest: bounds?._southWest,
+            coordinatesNorthEast: bounds?._northEast,
             singleDayTour: filter.singleDayTour,
             multipleDayTour: filter.multipleDayTour,
             summerSeason: filter.summerSeason,
@@ -226,8 +240,8 @@ function TourMapContainer({
             searchParams.set("filter", JSON.stringify(filterValues));
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
-        setSearchParams(searchParams); //set the search Params and start the call to the backend
-    }
+        setSearchParams(searchParams) //set the search Params and start the call to the backend
+    };
 
     return <Box
         style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
