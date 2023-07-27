@@ -1,6 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
 import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -8,28 +8,27 @@ import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams } from "react-router-dom";
+import { Modal } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
 import {
 	// isResponsive,
 	parseIfNeccessary,
 	setOrRemoveSearchParam,
 } from "../../utils/globals";
-import { Modal } from "@mui/material";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
-import FullScreenCityInput from "./FullScreenCityInput";
+// import FullScreenCityInput from "../Search/FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
-// import FilterIcon from "../../icons/FilterIcon";
-// import SearchIcon from "../../icons/SearchIcon";
-// import IconButton from "@mui/material/IconButton";
-// import GoIcon from "../../icons/GoIcon";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+// import FilterButton from "./FilterButton";
+import Filter from "../Filter/Filter";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
-export function Search({
+
+
+export function SearchFilter({
 	loadRegions,
 	loadTours,
 	goto,
@@ -41,29 +40,37 @@ export function Search({
 	// additional arguments
 	// loadCities,
 	// cities,
-	regions,
+	// regions,
 	// isCityLoading,
 	// loadFavouriteTours,
-	showMobileMenu,
-	setShowMobileMenu,
 }) {
-	// console.log("regions", regions);
+
+	console.log("goto : " + goto);
+	console.log("isMain : " + isMain);
+	console.log("loadTours : " + loadTours);
 	//--------menus-----------------
+
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
-		"GroBer Patel",
-		"GroBer Priel",
-		"GroBer Pythrgas",
+		"Alpenvorland",
+		"Schneeberg",
+		"Schnee",
 	]);
 	const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
 	const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-	const [secondMenuOptions, setSecondMenuOptions] = React.useState(allCities);
+	const [secondMenuOptions, setSecondMenuOptions] = React.useState([
+		"Wien",
+		"Graz",
+		"Salzburg",
+		"Graz",
+		"Villach"
+	]);
 
 	// Translation
 	const navigate = useNavigate();
 	const { t } = useTranslation();
-	// let [language,setLanguage]= useState(i18next.resolvedLanguage);
 	let language = i18next.resolvedLanguage;
 
 	//initialise
@@ -83,23 +90,26 @@ export function Search({
 	// console.log("Search arguments : allCities ", allCities[0]); //{value: 'amstetten', label: 'Amstetten'}
 	// console.log("Search arguments : isMapView ", isMapView); // undefined
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [cityInput, setCityInput] = useState("");
+	// const [activeFilter, setActiveFilter] = React.useState(false);
+	const [cityInput, setCityInput] =React. useState("");
 	const [regionInput, setRegionInput] = useState("");
 	const [city, setCity] = useState(null);
 	const [region, setRegion] = useState(null);
-	const [activeFilter, setActiveFilter] = useState(false);
 	const initialIsMapView = isMapView || false;
+	const [filterActive, setFilterActive] = React.useState(0);
 
-	const handleFocus = () => {
-		setRegionInput("");
-		setPlaceholder("");
-	};
 
-	const handleBlur = () => {
-		setPlaceholder(t("start.suche"));
-	};
+	// const handleFocus = () => {
+	// 	setRegionInput("");
+	// 	setPlaceholder("");
+	// };
 
+	// const handleBlur = () => {
+	// 	setPlaceholder(t("start.suche"));
+	// };
+	
 	useEffect(() => {
+
 		// pull out values from URL params
 		let city = searchParams.get("city");
 		let range = searchParams.get("range");
@@ -120,7 +130,7 @@ export function Search({
 		// console.log("country", country);
 		// console.log("type", type);
 		// console.log("search", search);
-		// console.log("filter", filter);
+		// console.log("filter", filter); //"ignore_filter: true" upon first render
 		// console.log("orderId", orderId);
 		// console.log("provider", provider);
 		if (!!city && !!allCities) {
@@ -167,9 +177,6 @@ export function Search({
 			setRegion({ value: type, label: type, type: "type" });
 		}
 
-		// console.log("Search...Region inside useEffect :", region);
-		// console.log("Search...search inside useEffect :", search);
-
 		//return if start page - no load
 		if (!!!isMain) {
 			return;
@@ -193,15 +200,15 @@ export function Search({
 		// console.log("country", country);
 		// console.log("type", type);
 		// console.log("search", search);
-		// console.log("filter", filter);
+		//console.log("L201: filter", filter);
 		// console.log("orderId", orderId);
 		// console.log("provider", provider);
-		for (const entry of searchParams.entries()) {
-			console.log("searchParams entries : ", entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-		}
+		// for (const entry of searchParams.entries()) {
+		// 	console.log("searchParams entries : ", entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+		// }
 
-		// let result = loadTours({
-		loadTours({
+		let result = loadTours({
+		// loadTours({
 			city: city,
 			range: range,
 			state: state,
@@ -213,9 +220,10 @@ export function Search({
 			provider: provider,
 			map: searchParams.get("map"),
 		});
-		// result.then((resolvedValue) => {
-		//     console.log("result of load Tours", resolvedValue);
-		// });
+		result.then((resolvedValue) => {
+		    // console.log("after loading tours / result of load Tours :");
+		    // console.log(resolvedValue);
+		});
 	}, [
 		// useEffect dependencies
 		searchParams && searchParams.get("city"),
@@ -234,112 +242,132 @@ export function Search({
 		localStorage.setItem("city", city);
 	};
 
-	// const changeTextMiddleware = (value, _function, _resetFunction) => {
-	//     _function(value)
-	//     _resetFunction(null)
-	// }
+	// Filter related starts here
+	const openFilter = () => {
+		// console.log("inside openFilter L242")
+        showModal("MODAL_COMPONENT", {
+            CustomComponent: Filter,
+            title: "Filter",
+            modalSize: "lg",
+            doSubmit: handleFilterSubmit,
+            resetFilter: handleResetFilter,
+			onBack: () => {
+				hideModal() 
+				console.log("onBack called L256")
+			},
+            searchParams,
+            setSearchParams
+        });
+    }
 
-	// const setCityInputMiddleware = (value) => {
-	//     setCityInput(value)
-	//     if (!!!value) {
-	//         searchParams.delete("city")
-	//         setSearchParams(searchParams)
-	//         loadFavouriteTours({ sort: "relevanz", limit: 10, ranges: true })
-	//     }
-	// }
+	const handleFilterSubmit = ({filterValues}) => {
+        hideModal();
+        handleFilterChange(filterValues);
+    }
 
-	// const onFocusCity = (value) => {
-	//     setOpenCitySearch(!!value)
-	// }
-	// const onFocusRegion = (value) => {
-	//     setOpenRegionSearch(!!value)
-	// }
+    const handleResetFilter = () => {
+        hideModal();
+        handleFilterChange(null);
+    }
 
-	const search = (tempRegion = null) => {
-		let values = {};
-		if (!!city && !!city.value) {
-			values.city = city.value;
-		}
-
-		let _region = region;
-		if (!!tempRegion) {
-			_region = tempRegion;
-		}
-
-		if (!!_region && !!_region.value) {
-			values[_region.type] = _region.value;
-		} else if (!!regionInput) {
-			values.search = regionInput;
-		}
-
-		if (!!searchParams.get("sort")) {
-			values.sort = searchParams.get("sort");
+	const handleFilterChange = (entry) => {
+        
+		if(entry == null){
+			searchParams.delete("filter");
 		} else {
-			values.sort = "relevanz";
+			searchParams.set("filter", JSON.stringify(entry));
 		}
-
-		values.map = searchParams.get("map");
-		values.provider = searchParams.get("p");
-
-		searchParams.delete("filter");
-		// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
-		setOrRemoveSearchParam(searchParams, "city", values.city);
-		setOrRemoveSearchParam(searchParams, "range", values.range);
-		setOrRemoveSearchParam(searchParams, "search", values.search);
-		setOrRemoveSearchParam(searchParams, "state", values.state);
-		setOrRemoveSearchParam(searchParams, "country", values.country);
-		setOrRemoveSearchParam(searchParams, "type", values.type);
-
 		setSearchParams(searchParams);
-		// console.log("PART II / searchParams.get('search')", searchParams.get("search"))
-		//clg
-		// for (const entry of searchParams.entries()) {
-		//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-		// }
+    };
 
-		if (!!goto) {
-			// clg
-			// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
-			navigate(goto + "?" + searchParams);
+	const handleSearchChange = (entry) => {
+        
+		if(entry == null){
+			searchParams.delete("search");
 		} else {
-			console.log("values passed to loadTours :", values);
-			loadTours(values).then((res) => {
-				window.scrollTo({ top: 0 });
-			});
+			searchParams.set("search", JSON.stringify(entry));
 		}
-	}; // end search()
+		setSearchParams(searchParams);
+    };
+	// const search = (tempRegion = null) => {
+	// 	let values = {};
+	// 	if (!!city && !!city.value) {
+	// 		values.city = city.value;
+	// 	}
 
-	const toggleFilter = () => {
-		// code goes here for filter overlay
-		console.log("Search.js toggleFilter() called");
-		setActiveFilter(!activeFilter);
-	};
+	// 	let _region = region;
+	// 	if (!!tempRegion) {
+	// 		_region = tempRegion;
+	// 	}
+
+	// 	if (!!_region && !!_region.value) {
+	// 		values[_region.type] = _region.value;
+	// 	} else if (!!regionInput) {
+	// 		values.search = regionInput;
+	// 	}
+
+	// 	if (!!searchParams.get("sort")) {
+	// 		values.sort = searchParams.get("sort");
+	// 	} else {
+	// 		values.sort = "relevanz";
+	// 	}
+
+	// 	values.map = searchParams.get("map");
+	// 	values.provider = searchParams.get("p");
+
+	// 	searchParams.delete("filter");
+	// 	// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
+	// 	setOrRemoveSearchParam(searchParams, "city", values.city);
+	// 	setOrRemoveSearchParam(searchParams, "range", values.range);
+	// 	setOrRemoveSearchParam(searchParams, "search", values.search);
+	// 	setOrRemoveSearchParam(searchParams, "state", values.state);
+	// 	setOrRemoveSearchParam(searchParams, "country", values.country);
+	// 	setOrRemoveSearchParam(searchParams, "type", values.type);
+
+	// 	setSearchParams(searchParams);
+	// 	// console.log("PART II / searchParams.get('search')", searchParams.get("search"))
+	// 	//clg
+	// 	// for (const entry of searchParams.entries()) {
+	// 	//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+	// 	// }
+	// 	if (!!goto) {
+	// 		// clg
+	// 		// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
+	// 		navigate(goto + "?" + searchParams);
+	// 	} else {
+	// 		console.log("values passed to loadTours :", values);
+	// 		loadTours(values).then((res) => {
+	// 			window.scrollTo({ top: 0 });
+	// 		});
+	// 	}
+	// }; // end search()
+
 
 	// const gotoHome = () => {
 	//     let _city = searchParams.get("city")
 	//     navigate(`/?${!!_city ? "city=" + _city : ""}`)
 	// }
 
-	const showCityModal = () => {
-		showModal("MODAL_COMPONENT", {
-			CustomComponent: FullScreenCityInput,
-			searchParams,
-			initialCity: cityInput,
-			onSelect: (city) => {
-				hideModal();
-				if (!!city) {
-					setCityInput(city.label);
-					setCity(city);
-				}
-			},
-			setSearchParams,
-			title: "",
-			modalSize: "lg",
-			onBack: () => {
-				hideModal();
-			},
-		});
-	};
+	// const showCityModal = () => {
+	// 	showModal("MODAL_COMPONENT", {
+	// 		CustomComponent: FullScreenCityInput,
+	// 		searchParams,
+	// 		initialCity: cityInput,
+	// 		onSelect: (city) => {
+	// 			hideModal();
+	// 			if (!!city) {
+	// 				setCityInput(city.label);
+	// 				setCity(city);
+	// 			}
+	// 		},
+	// 		setSearchParams,
+	// 		title: "",
+	// 		modalSize: "lg",
+	// 		onBack: () => {
+	// 			hideModal();
+	// 		},
+	// 	});
+	// };
 
 	// const showRegionInput = () => {
 	//     showModal("MODAL_COMPONENT", {
@@ -381,13 +409,15 @@ export function Search({
 	return (
 		<Fragment>
 			{showMobileMenu ? (
-				<div className="mobileMenu">
-					<div className="rowing" style={{ marginBottom: 15 }}>
+				<div className="mobileMenu"
+				//Set top and left position
+				style={{ zIndex: 100, top: 100, left: 100 }}> 
+					<div className="rowing">
 						<div />
 						<div className="rowing">
-							<span className="boldTxt">Abbrechen</span>
+							<span className="boldTxt">{t('search.abbrechen')}</span>
 							<span className="pointy" onClick={() => setShowMobileMenu(false)}>
-								<ClearIcon style={{ fontSize: 60, marginLeft: 8 }} />
+								<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
 							</span>
 						</div>
 					</div>
@@ -423,29 +453,21 @@ export function Search({
 								/>
 							</span>
 						</div>
-						<div
-							className="colLeft"
-							style={{
-								height: 150,
-								overflow: "auto",
-							}}
-						>
-							{fSearchQuery &&
-								firstMenuOptions
-									.filter((item) => item.startsWith(fSearchQuery))
-									.map((item) => (
-										<span key={item} className="searchSuggestions">
-											{item}
-										</span>
-									))}
-						</div>
+						{fSearchQuery &&
+							firstMenuOptions
+								.filter((item) => item.startsWith(fSearchQuery))
+								.map((item) => (
+									<span key={item} className="searchSuggestions">
+										{item}
+									</span>
+								))}
 					</div>
 					<div
 						className="firstMobileMenu"
 						style={{ marginTop: 40, marginBottom: 50 }}
 					>
 						<div className="rowing" style={{ marginBottom: 5 }}>
-							<span className="boldTxt">Dein Heimatbahnhof</span>
+							<span className="boldTxt">{t('search.dein_heimatbahnhof')}</span>
 							<span />
 						</div>
 						<div
@@ -475,75 +497,52 @@ export function Search({
 								/>
 							</span>
 						</div>
-						<div
-							className="colLeft"
-							style={{
-								height: 150,
-								overflow: "auto",
-							}}
-						>
-							{secondSearchQuery &&
-								secondMenuOptions
-									.filter(
-										(item) =>
-											item.value
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase()) ||
-											item.label
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase())
-									)
-									.map((item) => (
-										<span
-											key={item}
-											className="searchSuggestions pointy"
-											onClick={() => {
-												setCity(item);
-												setShowMobileMenu(false);
-											}}
-										>
-											{item.value}
-										</span>
-									))}
-						</div>
+						{secondSearchQuery &&
+							secondMenuOptions
+								.filter((item) => item.startsWith(secondSearchQuery))
+								.map((item) => (
+									<span key={item} className="searchSuggestions">
+										{item}
+									</span>
+								))}
 					</div>
 					<div className="rowing">
-						<span className="firstBtn">Dein Heimatbahnhof</span>
+						<span className="firstBtn">{t('search.dein_heimatbahnhof')}</span>
 						<span className="secondBtn">Suchen</span>
 					</div>
 				</div>
 			) : (
 				<Box component={"div"} className="colCenter">
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="centerInputField">
-							<img
-								src={`/app_static/img/searchIcon.png`}
-								height={"25px"}
-								width={"25px"}
-								alt="search-icon"
-							/>
-							<span
-								className="searchFirstText"
-								onClick={() => {
-									setShowFirstMenu(true);
-								}}
-							>
-								{t("start.suche")}
-							</span>
-							<span className="verticalBar" />
-							<span
-								className="searchSecondText"
-								onClick={() => setShowSecondMenu(true)}
-							>
-								{t("start.heimatbahnhof")}
-							</span>
-							<span className="goBtn" onClick={search}>
-								GO!
-							</span>
-						</div>
-					)}
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="mobileSearchField">
+					<div className="centerInputFieldFilter">
+						<img
+							src={`/app_static/img/searchIcon.png`}
+							height={"25px"}
+							width={"25px"}
+							alt="search-icon"
+						/>
+						<span
+							className="searchFirstText"
+							onClick={() => {
+								setShowFirstMenu(true);
+							}}
+						>
+							{t("start.suche")}
+						</span>
+						<span className="verticalBar" />
+						<span
+							className="searchSecondText"
+							onClick={() => setShowSecondMenu(true)}
+						>
+							{t('search.dein_heimatbahnhof')}
+						</span>
+						<img
+							src={`/app_static/img/filter.png`}
+							className="filterStyling"
+							onClick={()=>openFilter()}
+						/>
+					</div>
+					<div style={{}}>
+						<div className="mobileSearchFieldFilter">
 							<div className="rowing">
 								<img
 									src={`/app_static/img/searchIcon.png`}
@@ -553,7 +552,7 @@ export function Search({
 								/>
 								<div
 									style={{
-										alignItems: "center",
+										// alignItems: "center",
 										justifyContent: "left",
 										display: "flex",
 										flexDirection: "column",
@@ -565,46 +564,56 @@ export function Search({
 										className="searchFirstText"
 										style={{ width: "100%", textAlign: "left", fontSize: 14 }}
 									>
-										Öffi-Touren im Alpenraum
+										{t("start.suche")}
 									</span>
 									<span
 										className="searchSecondText"
 										style={{
 											width: "100%",
 											textAlign: "left",
-											paddingLeft: 10,
+											paddingLeft: 15,
 											fontSize: 14,
 										}}
 									>
-										Heimatbahnhof wählen
-									</span>
+									{t('search.heimatbahnhof_waehlen')}									</span>
 								</div>
 							</div>
-							<span className="goBtn" onClick={() => search()}>
-								GO!
-							</span>
+							<img
+								// filter button is HERE
+								src={`/app_static/img/filter.png`}   
+								className="filterStyling"
+								onClick={()=>openFilter()}
+
+							/>
 						</div>
-					)}
+					</div>
 					{showFirstMenu && (
 						<div
 							className="centerMe"
-							// style={{ position: "absolute", top: 485 }}
+							// style={{
+							// 	position: "absolute",
+							// 	top: 200,
+							// }}
+							// Set top and centered horizontally
+							style={{ zIndex: 101, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
 						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
 								open={showFirstMenu}
-								style={{ position: "absolute", top: 440 }}
+								style={{
+									position: "absolute",
+									top: 50,
+								}}
 								className="centerMe"
+								// onBack={onBack}
 							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
+								<div className="firstMenu" style={{ marginLeft: 10 }}>
+									<div className="rowing" style={{ marginBottom: 5 }}
+									>
 										<span className="boldTxt">Suche</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowFirstMenu(false)}
-										>
-											Abbrechen
-										</span>
+										<span className="boldTxt underline pointy"
+										onClick={() => setShowFirstMenu(false)}
+										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -612,7 +621,11 @@ export function Search({
 												<SearchIcon />
 												<input
 													className="searchInput"
-													onChange={(e) => setFSearchQuery(e.target.value)}
+													onChange={(e) => 
+														{setFSearchQuery(e.target.value);
+															console.log("e.target.value : " + e.target.value)
+														}
+													}
 													value={fSearchQuery}
 												/>
 											</div>
@@ -639,13 +652,15 @@ export function Search({
 									{showFirstMenu && (
 										<div
 											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10, height: 200 }}
+											style={{ marginLeft: 0, marginTop: 10 }}
 										>
 											{fSearchQuery &&
 												firstMenuOptions
 													.filter((item) => item.startsWith(fSearchQuery))
 													.map((item) => (
-														<span key={item} className="searchSuggestions">
+														<span key={item} className="searchSuggestions" 
+														onClick={() => setFSearchQuery(item)}
+														>
 															{item}
 														</span>
 													))}
@@ -664,22 +679,26 @@ export function Search({
 						</div>
 					)}
 					{showSecondMenu && (
-						<div className="centerMe" style={{ height: 400 }}>
+						<div
+							className="centerMe"
+							// style={{
+							// 	position: "fixed",
+							// 	top: 200,
+							// }}
+							// Set top and centered horizontally
+							style={{ zIndex: 102, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
+						>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
 								open={showSecondMenu}
-								style={{ position: "absolute", top: 400, marginRight: -6 }}
 								className="centerMe"
 							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
+								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowSecondMenu(false)}
-										>
-											Abbrechen
-										</span>
+										<span className="boldTxt">{t('search.dein_heimatbahnhof')}?</span>
+										<span className="boldTxt underline pointy"
+										onClick={() => setShowSecondMenu(false)}
+										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -689,7 +708,6 @@ export function Search({
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
-													style={{ width: 440 }}
 												/>
 											</div>
 											<span
@@ -715,49 +733,27 @@ export function Search({
 									{showSecondMenu && (
 										<div
 											className="colLeft"
-											style={{
-												marginLeft: 0,
-												marginTop: 10,
-												height: 150,
-												overflow: "auto",
-											}}
+											style={{ marginLeft: 0, marginTop: 10 }}
 										>
 											{secondSearchQuery &&
 												secondMenuOptions
-													.filter(
-														(item) =>
-															item.value
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase()) ||
-															item.label
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase())
-													)
+													.filter((item) => item.startsWith(secondSearchQuery))
 													.map((item) => (
 														<span
-															key={item.value}
-															className="searchSuggestions rowingStart pointy"
-															onClick={() => {
-																setCity(item);
-																setShowSecondMenu(false);
-															}}
+															key={item}
+															className="searchSuggestions rowingStart"
+															onClick={() => setFSearchQuery(item)}
 														>
 															<img
 																src={`/app_static/img/grpSymbol.png`}
 																className="ssiggestionQry"
 															/>
-															{item.value}
+															{item}
 														</span>
 													))}
 											{secondSearchQuery.trim() &&
-												secondMenuOptions.filter(
-													(item) =>
-														item.value
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase()) ||
-														item.label
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase())
+												secondMenuOptions.filter((item) =>
+													item.startsWith(secondSearchQuery)
 												).length === 0 && (
 													<span className="searchSuggestions">
 														No results found
@@ -795,4 +791,8 @@ const mapStateToProps = (state) => {
 	};
 };
 
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
+export default compose(connect(mapStateToProps, mapDispatchToProps))(
+	SearchFilter
+);
+
+
