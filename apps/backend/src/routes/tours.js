@@ -1,4 +1,4 @@
-// related to issue#10 : 
+// related to issue#10 :
 // changes in the search queries as follows:
 //   Initialize the rank_xy with 1
 //   Set the TLD assotiated rank_xy with 10
@@ -73,7 +73,7 @@ const listWrapper = async (req, res) => {
     const search = req.query.search; // "search":"schnee"
     const showRanges = !!req.query.ranges; // when rendering start page : "ranges":"true"
     const city = req.query.city;    // "city":"baden"
-    const range = req.query.range;  
+    const range = req.query.range;
     const state = req.query.state;
     const country = req.query.country;
     const type = req.query.type;
@@ -81,11 +81,12 @@ const listWrapper = async (req, res) => {
     const page = req.query.page || 1;
     const domain = req.query.domain; // "domain":"localhost:3000"
     const provider = req.query.provider;
+    const language = req.query.language; // takes the languages from the query
 
     //describe
     // variables initialized depending on availability of 'map' in the request
     const map = req.query.map == "true";
-    let useLimit = !!!map;  // initialise with true 
+    let useLimit = !!!map;  // initialise with true
     let addDetails = !!!map; // initialise with true
 
     const searchIncluded = !!search && !!search.length > 0;
@@ -101,7 +102,7 @@ const listWrapper = async (req, res) => {
 
     // CASE OF SEARCH
     let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  country_at ,  country_de ,  country_it ,  country_ch ,  country_si ,  country_fr ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
-   
+
 
     let where = {};
     // This map check is not needed when we move to the new detail page design, map shows only in detail then
@@ -125,8 +126,8 @@ const listWrapper = async (req, res) => {
     // let res_count = await countQuery;
     // console.log(res_count); // ex. [ { count: '710' } ]
     // console.log("=============================================================");
- 
-   
+
+
     //describe:
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
@@ -139,7 +140,7 @@ const listWrapper = async (req, res) => {
     //clg
     // console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
     // console.log("L159 sql_where :", sql_where); //AND country_at = true AND cities @> '[{"city_slug": "bad-ischl"}]'::jsonb
-    
+
     /** region search */
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
     if(!!range && range.length > 0){
@@ -151,7 +152,7 @@ const listWrapper = async (req, res) => {
     if(!!country && country.length > 0){
         where.country = country;
     }
-    
+
     /** type search */
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!type && type.length > 0){
@@ -159,6 +160,12 @@ const listWrapper = async (req, res) => {
     }
     //clgs
     // console.log("L198 where value/ type: " + JSON.stringify(where)); //{"country_at":true}
+
+    /** language search */
+    // The code sets the 'where' object to filter results by the 'language' value if it is present in the user input.
+    if(!!language && language.length > 0){
+        where.language = language;
+    }
 
     /** provider search */
     //describe
@@ -168,29 +175,29 @@ const listWrapper = async (req, res) => {
     } 
     //clgs
     // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
-    // console.log("L193 where value / provider: " + sql_where); // 
- 
-   
-   
+    // console.log("L193 where value / provider: " + sql_where); //
+
+
+
 
 // L 259/ query:  WITH SEARCH  /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
-// order by "month_order" asc, 
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele"
+// from "tour"
+// where "country_at" = true
+// and cities @> '[{"city_slug": "wien"}]'::jsonb
+// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
+// order by "month_order" asc,
 // ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
 // traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
 
 // L 259/ query:  WITHOUT SEARCH /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// order by "month_order" asc, 
+// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele"
+// from "tour"
+// where "country_at" = true
+// and cities @> '[{"city_slug": "wien"}]'::jsonb
+// order by "month_order" asc,
 // traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-    
+
 // clg
 // !!where &&  console.log("L 340 where : " + JSON.stringify(where))
 
@@ -201,7 +208,7 @@ const listWrapper = async (req, res) => {
     //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
     // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
     // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
-    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input. 
+    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input.
     if(!!where && Object.keys(where).length > 0){
         query = query.where(where);
         countQuery = countQuery.where(where);
@@ -220,7 +227,7 @@ const listWrapper = async (req, res) => {
     // searchIncluded && console.log("L367: sql_select value before Filter " + sql_select);
     // console.log("________________________________________________________________")
 
-      
+
     // ****************************************************************
     // FILTER  / (BOTH)
     // ****************************************************************
@@ -236,7 +243,7 @@ const listWrapper = async (req, res) => {
         try {
             sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";// cut off from string "sql_where_filter" everything before "where", this way we have only where values including filter conditions from original query and in a string format
             sql_and_filter = sql_where_filter.replace("where", "AND");
-            
+
             //clg
             // console.log("________________________________________________________________")
             // console.log("L268: sql_select value after Filter " + sql_select);
@@ -246,22 +253,22 @@ const listWrapper = async (req, res) => {
             // console.log("L272: sql_and_filter val // after Filter :  " +  sql_and_filter);
             // console.log("L405: query // after Filter :  " + query);
             // console.log("________________________________________________________________")
-            
+
         } catch (error) {
             console.log(error.message)
         }
     }
 
-     
+
     // ****************************************************************
     // FULL TEXT SEARCH   / SEARCH
     // ****************************************************************
     //describe: search
     // The next block of code builds on the sql_select to create a series of inner queries. The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
-    let order_by_rank = ""; //case of search/ initialize the order by rank to be used for "order by" var 
+    let order_by_rank = ""; //case of search/ initialize the order by rank to be used for "order by" var
 
     if(searchIncluded){
-        order_by_rank = " result_rank DESC, ";  
+        order_by_rank = " result_rank DESC, ";
 
         const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an aray of strings
 
@@ -275,16 +282,16 @@ const listWrapper = async (req, res) => {
 
         // get array of ALL languages
         const allLangs = getAllLanguages(); // ["en", "de", "it", "fr", "sl"]
-        // create ranks array 
+        // create ranks array
         const currRanks = () => {
-          let newRanks = [];        
+          let newRanks = [];
           let tempLangs = [...allLangs];
-        
+
             allLangs.forEach((lang) => {
                 if (tempLangs.includes(lang)) {
                     if ( (tldLangArray.includes(lang) && lang === currLanguage) || (lang === currLanguage) ) {
-                        newRanks = [...newRanks, { [lang]: 100 }]; 
-                    }else if(tldLangArray.includes(lang)) { 
+                        newRanks = [...newRanks, { [lang]: 100 }];
+                    }else if(tldLangArray.includes(lang)) {
                         newRanks = [...newRanks, { [lang]: 10 }];
                     }else {
                         newRanks = [...newRanks, { [lang]: 1 }];
@@ -294,8 +301,8 @@ const listWrapper = async (req, res) => {
             });
           return newRanks;
         };
-        
-        //describe: 
+
+        //describe:
         //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
         //else, '_search' contains NO spaces: the same is repeated but with additional modifier
         // if(_search.indexOf(' ') > 0){
@@ -310,7 +317,7 @@ const listWrapper = async (req, res) => {
         //     // whereRaw / L233 : cities @> '[{"city_slug": "wien"}]'::jsonb AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
         // }
         // ****************************************************************
-        // CREATING INNER QUERIES 
+        // CREATING INNER QUERIES
         // ****************************************************************
         let _search = search.trim().toLowerCase();
         _search = search.replace(/'/g, "''");
@@ -329,7 +336,7 @@ const listWrapper = async (req, res) => {
 
         //clgs
         // console.log("L290 sql_select inside 'searchIncluded' : ", sql_select);
-   
+
         for (let i = 0; i < allLangs.length; i++) {
             // console.log(" i :", i)
             const lang = allLangs[i];
@@ -370,8 +377,8 @@ const listWrapper = async (req, res) => {
             sql_select += "\nUNION ";               // create a union with a line break
         }
     }
-    sql_select += ") as o ";                        // provide ending for 'FROM' part          
-        
+    sql_select += ") as o ";                        // provide ending for 'FROM' part
+
     }
 
     //clg
@@ -416,7 +423,7 @@ const listWrapper = async (req, res) => {
 
     if(!!orderId && orderId == "bewertung"){
         query = query.orderBy("user_rating_avg", 'desc');
-        
+
         sql_order += "user_rating_avg DESC ";
 
         if(!!city){
@@ -449,7 +456,7 @@ const listWrapper = async (req, res) => {
     } else if(!!orderId && orderId == "anfahrtszeit"){
         if(!!city){
             query = query.orderByRaw(` (cities_object->'${city}'->>'best_connection_duration')::int ASC`);
-            sql_order += `(cities_object->'${city}'->>'best_connection_duration')::int ASC `; 
+            sql_order += `(cities_object->'${city}'->>'best_connection_duration')::int ASC `;
         } else {
             query = query.orderBy("best_connection_duration", 'desc');
             sql_order += `best_connection_duration DESC `; // 2)
@@ -458,7 +465,7 @@ const listWrapper = async (req, res) => {
     } else if(!!orderId && orderId == "relevanz"){
         query = query.orderBy("month_order", 'asc');
         sql_order += `${order_by_rank} month_order ASC `; //3)
-        
+
         if(!!city){
             // sql_order += `,`,
             query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
@@ -499,7 +506,7 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
    /** set limit to query */
     // a limit and offset are applied to the query if the useLimit flag is set to true/ in case (i.e.  map != true ). The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
-    let sql_limit = ""; 
+    let sql_limit = "";
     if(!!useLimit){
         if(searchIncluded){
             sql_limit += `LIMIT 9 OFFSET ${9 * (page - 1)}`; // Add limit to string query
@@ -520,8 +527,8 @@ const listWrapper = async (req, res) => {
     // console.log("L464 sql_select  order : " + sql_select);
     // console.log(" --------------------------------")
     // console.log(" --------------------------------")
-    
-   
+
+
     let outer_where = "WHERE 1=1 ";
 
     //clgs
@@ -537,8 +544,8 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let result = '';
     let count = '';
-    
-    if(searchIncluded){ 
+
+    if(searchIncluded){
         try {
             result = await knex.raw(sql_select + outer_where +sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
@@ -555,7 +562,7 @@ const listWrapper = async (req, res) => {
           } catch (error) {
             console.log("error retrieving results:", error);
           }
-          
+
     }else{
         result = await query;
         count = await countQuery.first();
@@ -569,15 +576,15 @@ const listWrapper = async (req, res) => {
             console.log("________________________________________________________");
     }
 
-   
+
 
     //describe: logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
     // try {
     //     // Jetzt loggen wir diese query noch schnell für später
 
-    //     let searchparam = '';  
-    //     // console.log("283: search : ", search) // 
+    //     let searchparam = '';
+    //     // console.log("283: search : ", search) //
 
     //     if (search !== undefined) {  // also if previous search item is different than this one ?
     //         searchparam = search;
@@ -592,7 +599,7 @@ const listWrapper = async (req, res) => {
     //         console.log("L587 /searchparam :" + (searchparam))
     //         console.log("L588 /count['count'] :" + (count['count']));
     //         console.log("L589 /sql_count :" + (sql_count));
-            
+
     //         let _count = searchIncluded ? sql_count : count['count'];
     //         console.log("L592 /_count :" + (_count));
 
@@ -607,7 +614,7 @@ const listWrapper = async (req, res) => {
     // }
     try {
         let searchparam = '';
-    
+
         if (search !== undefined) {
             searchparam = search;
             // searchparam = search.replace("'",'"') ;
@@ -619,7 +626,7 @@ const listWrapper = async (req, res) => {
             console.log("_count", _count)
             if (!!_count && _count > 0) {
                 const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES(:searchparam, :count, :city, :language, :country);`;
-    
+
                 await knex.raw(sql, {
                     searchparam,
                     count: _count,
@@ -627,15 +634,15 @@ const listWrapper = async (req, res) => {
                     language: currLanguage,
                     country: get_domain_country(domain)
                 });
-          
+
             }
         }
     } catch (e) {
-        console.error('error inserting into logsearchphrase: ', e); 
+        console.error('error inserting into logsearchphrase: ', e);
     }
     
-      
-    //describe: preparing tour entries 
+
+    //describe: preparing tour entries
     //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
     await Promise.all(result.map(entry => new Promise(async resolve => {
         entry = await prepareTourEntry(entry, city, domain, addDetails);
@@ -703,7 +710,7 @@ const listWrapper = async (req, res) => {
 
     let count_final = searchIncluded ? sql_count : count['count'];
 
-    res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges}); 
+    res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges});
 }
 
 const filterWrapper = async (req, res) => {
@@ -715,8 +722,9 @@ const filterWrapper = async (req, res) => {
     const domain = req.query.domain;
     const country = req.query.country;
     const provider = req.query.provider;
+    const language = req.query.language; // gets the languages from the query
 
-    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele']);
+    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele', 'text_lang']);
 
     let where = getWhereFromDomain(domain);
     let whereRaw = null;
@@ -740,6 +748,11 @@ const filterWrapper = async (req, res) => {
     /** type search */
     if(!!type && type.length > 0){
         where.type = type;
+    }
+
+    /** language search */
+    if(!!language && language.length > 0){
+        where.language = language;
     }
 
     /** provider search */
@@ -1031,6 +1044,7 @@ const buildFilterResult = (result, city, params) => {
 
     let types = [];
     let ranges = [];
+    let languages = [];
     let isSingleDayTourPossible = false;
     let isMultipleDayTourPossible = false;
     let isSummerTourPossible = false;
@@ -1054,11 +1068,17 @@ const buildFilterResult = (result, city, params) => {
         if(!!!tour.range){
             tour.range = "Keine Angabe"
         }
+        if(!!!tour.text_lang){
+            tour.text_lang = "Keine Angabe"
+        }
         if(!!tour.type && !!!types.find(t => tour.type === t)){
             types.push(tour.type);
         }
         if(!!tour.range && !!!ranges.find(t => tour.range === t)){
             ranges.push(tour.range);
+        }
+        if(!!tour.text_lang && !!!languages.find(t => tour.text_lang === t)){
+            languages.push(tour.text_lang);
         }
         if(!!!isSingleDayTourPossible && tour.number_of_days == 1){
             isSingleDayTourPossible = true;
@@ -1137,6 +1157,9 @@ const buildFilterResult = (result, city, params) => {
     if(!!ranges){
         ranges.sort();
     }
+    if(!!languages){
+        languages.sort();
+    }
 
     return {
         types,
@@ -1154,7 +1177,8 @@ const buildFilterResult = (result, city, params) => {
         // isChildrenPossible,
         isTraversePossible,
         minTransportDuration: round((minTransportDuration / 60), 2),
-        maxTransportDuration: round((maxTransportDuration / 60), 2)
+        maxTransportDuration: round((maxTransportDuration / 60), 2),
+        languages
     };
 }
 
@@ -1173,7 +1197,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
         // console.log("L774 params.traverse :", params.filter.traverse);     
     // }
     //clg: query
-    // console.log("L1137 query at entry to buildWhereFromFilter :");     
+    // console.log("L1137 query at entry to buildWhereFromFilter :");
     // console.log(query.toSQL().sql)
     
     if(!!!params.filter ) return query;
@@ -1205,25 +1229,26 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
 
 
-    const {
-      singleDayTour,
-      multipleDayTour,
-      summerSeason,
-      winterSeason,
-    //   children,
-      traverse,
-      difficulty,
-      minAscent,
-      maxAscent,
-      minDescent,
-      maxDescent,
-      minTransportDuration,
-      maxTransportDuration,
-      minDistance,
-      maxDistance,
-      ranges,
-      types,
-    } = filter;
+      const {
+          singleDayTour,
+          multipleDayTour,
+          summerSeason,
+          winterSeason,
+          // children,
+          traverse,
+          difficulty,
+          minAscent,
+          maxAscent,
+          minDescent,
+          maxDescent,
+          minTransportDuration,
+          maxTransportDuration,
+          minDistance,
+          maxDistance,
+          ranges,
+          types,
+          languages // includes languages in the filter
+      } = filter;
 
     //clg
     // summerSeason && console.log("summerSeason :",summerSeason);
@@ -1243,9 +1268,9 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     //clg
     // console.log("................................................................")
-    // console.log("L1222 query / after season:");     
+    // console.log("L1222 query / after season:");
     // console.log(query.toSQL().sql)
-    
+
 
     /** Eintagestouren bzw. Mehrtagestouren */
     if(singleDayTour === 'true' && multipleDayTour === 'true'){
@@ -1259,7 +1284,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1239 query / after number_of_days:");     
+    // console.log("L1239 query / after number_of_days:");
     // console.log(query.toSQL().sql)
 
     /** Kinderfreundlich */
@@ -1268,7 +1293,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // }
     // clgs
     // console.log("................................................................")
-    // console.log("L1247 query / after children:");     
+    // console.log("L1247 query / after children:");
     // console.log(query.toSQL().sql)
 
     /** Überschreitung */
@@ -1279,7 +1304,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1258 query / after traverse:");     
+    // console.log("L1258 query / after traverse:");
     // console.log(query.toSQL().sql);
 
     /** Aufstieg, Abstieg */
@@ -1295,7 +1320,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clg
     // console.log("................................................................")
-    // console.log("L1275 query / after min/max Ascent:");     
+    // console.log("L1275 query / after min/max Ascent:");
     // console.log(query.toSQL().sql)
 
     if(!!minDescent){
@@ -1310,10 +1335,10 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1290 query / after min/max Descent :");     
+    // console.log("L1290 query / after min/max Descent :");
     // console.log(query.toSQL().sql)
 
-    
+
     /** distanz */
     if(!!minDistance){
         query = query.whereRaw('distance >= ' + minDistance);
@@ -1327,18 +1352,18 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1307 query / after min/max Distance:");     
+    // console.log("L1307 query / after min/max Distance:");
     // console.log(query.toSQL().sql)
-    
+
     /** schwierigkeit */
     if (!!difficulty) {
         query = query.whereRaw("difficulty <= " + difficulty);
     }
     //clgs
     // console.log("................................................................")
-    // console.log("L1315 query / after Difficulty:");     
+    // console.log("L1315 query / after Difficulty:");
     // console.log(query.toSQL().sql)
-    
+
 
     if (!!ranges) {
         let newRanges;
@@ -1356,14 +1381,14 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereRaw(
           `(range in (${_ranges}) OR range IS NULL OR range = '')`
         );
-        
+
     } else {
         query = query.whereRaw(`(range in (${_ranges}))`);
       }
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1342 query / after Ranges:");     
+    // console.log("L1342 query / after Ranges:");
     // console.log(query.toSQL().sql);
 
     if(!!types){
@@ -1377,15 +1402,26 @@ const buildWhereFromFilter = (params, query, print = false) => {
     }
     // clgs
     // console.log("................................................................")
-    // console.log("L1356 query / after Types:");     
+    // console.log("L1356 query / after Types:");
     // console.log(query.toSQL().sql);
+
+    // includes a statement that asks for the specific languages in the where-clause
+      if(!!languages){
+          const nullEntry = languages.find(r => r == "Keine Angabe");
+          let _languages = languages.map(r => '\'' + r + '\'');
+          if(!!nullEntry){
+              query = query.whereRaw(`(text_lang in (${_languages}) OR text_lang IS NULL OR text_lang = '')`);
+          } else {
+              query = query.whereRaw(`(text_lang in (${_languages}))`);
+          }
+      }
 
     /** Anfahrtszeit */
     if(!!minTransportDuration && !!params.city){
         let transportDurationMin = minTransportDuration * 60;
         query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int >= ${transportDurationMin}`);
     }
-    
+
     if(!!maxTransportDuration && !!params.city){
         let transportDurationMin = maxTransportDuration * 60;
         query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int <= ${transportDurationMin}`);
@@ -1395,19 +1431,19 @@ const buildWhereFromFilter = (params, query, print = false) => {
   }
 //   clgs
 //   console.log("................................................................")
-//   console.log("L1375 query / min/max Transport Duration:");     
+//   console.log("L1375 query / min/max Transport Duration:");
 //   console.log(query.toSQL().sql);
 
 //   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 //   console.log("1385, returned query buildWhereFromFilter  :")
 //   console.log(query.toSQL().sql)
 //   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-  
+
 //   let ret_value = {query: query, sql_query: sql_query }
 //   console.log("L1390 ret_value.sql_query :");
 //   console.log(ret_value.sql_query);
 //   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
- 
+
   return query;
 };
 
@@ -1586,4 +1622,4 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 }
 
 export default router;
- 
+
