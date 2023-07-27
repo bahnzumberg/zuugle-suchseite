@@ -47,7 +47,7 @@ export function Search({
     let language = i18next.resolvedLanguage
 
     //initialise
-    const [placeholder, setPlaceholder]= useState(t("start.suche"));
+    const [placeholder, setPlaceholder] = useState(t("start.suche"));
     useEffect(() => {
         setPlaceholder(t("start.suche"));
     }, [language]);
@@ -235,7 +235,7 @@ export function Search({
     //     setOpenRegionSearch(!!value)
     // }
 
-     const search = (tempRegion = null) => {
+    const search = (tempRegion = null) => {
         let values = {}
         if (!!city && !!city.value) {
             values.city = city.value
@@ -389,20 +389,20 @@ export function Search({
                 />
               </Box>
             </Grid>*/}
-            <Grid item xs>
-                <Box display="flex" alignItems="center" justifyContent="center">
-                    <AutosuggestSearchTour
-                        onSearchSuggestion={getSearchSuggestion}
-                        onSearchPhrase={getSearchPhrase}
-                        city={city}
-                        language={language}
-                        placeholder={searchPhrase}/>
-                </Box>
-            </Grid>
+                    <Grid item xs>
+                        <Box display="flex" alignItems="center" justifyContent="center">
+                            <AutosuggestSearchTour
+                                onSearchSuggestion={getSearchSuggestion}
+                                onSearchPhrase={getSearchPhrase}
+                                city={city}
+                                language={language}
+                                placeholder={searchPhrase}/>
+                        </Box>
+                    </Grid>
 
-            <Grid item>
-                <Box className="search-bar--divider"/>
-            </Grid>
+                    <Grid item>
+                        <Box className="search-bar--divider"/>
+                    </Grid>
 
 
                     <Grid item xs onClick={showCityModal}>
