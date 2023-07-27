@@ -144,6 +144,34 @@ export function loadSuggestions(searchPhrase, city, language) {
     }).catch(err => console.error(err));
 }
 
+//loadShareParams will according to a specific shareId return the according tour, date and city where the connections are loaded from - usedCityOfCookie contains whether the original city was used or the current user's city (based on the cookie)
+export function loadShareParams(shareId, city) {
+    return axios.get('shares/' + shareId, {
+        params: {
+            city: city
+        }
+    })
+        .then(res => {
+            console.log(res);
+            return res.data;
+        });
+}
+
+
+//generateShareLink is used to generate a new sharing link to the according tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
+export function generateShareLink(provider, hashedUrl, date, city) {
+    return axios.post('shares/', {
+        "provider": provider,
+        "hashedUrl": hashedUrl,
+        "date": date,
+        "city": city
+    }).then(res => {
+        return res.data;
+    }).catch(err => {
+        return err.response.data;
+    });
+}
+
 // Code description:
 // This code file exports several functions that interact with an API using the axios library.
 
