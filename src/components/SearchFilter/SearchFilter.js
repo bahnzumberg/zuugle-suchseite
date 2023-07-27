@@ -244,13 +244,17 @@ export function SearchFilter({
 
 	// Filter related starts here
 	const openFilter = () => {
-		console.log("inside openFilter L242")
+		// console.log("inside openFilter L242")
         showModal("MODAL_COMPONENT", {
             CustomComponent: Filter,
             title: "Filter",
             modalSize: "lg",
             doSubmit: handleFilterSubmit,
             resetFilter: handleResetFilter,
+			onBack: () => {
+				hideModal() 
+				console.log("onBack called L256")
+			},
             searchParams,
             setSearchParams
         });
@@ -338,12 +342,6 @@ export function SearchFilter({
 	// 	}
 	// }; // end search()
 
-	//filter related
-	// const toggleFilter = () => {
-	// 	// code goes here for filter overlay
-	// 	console.log("Search.js toggleFilter() called");
-	// 	setActiveFilter(!activeFilter);
-	// };
 
 	// const gotoHome = () => {
 	//     let _city = searchParams.get("city")
@@ -417,7 +415,7 @@ export function SearchFilter({
 					<div className="rowing">
 						<div />
 						<div className="rowing">
-							<span className="boldTxt">Abbrechen</span>
+							<span className="boldTxt">{t('search.abbrechen')}</span>
 							<span className="pointy" onClick={() => setShowMobileMenu(false)}>
 								<ClearIcon style={{ fontSize: 40, marginLeft: 8 }} />
 							</span>
@@ -469,7 +467,7 @@ export function SearchFilter({
 						style={{ marginTop: 40, marginBottom: 50 }}
 					>
 						<div className="rowing" style={{ marginBottom: 5 }}>
-							<span className="boldTxt">Dein Heimatbahnhof</span>
+							<span className="boldTxt">{t('search.dein_heimatbahnhof')}</span>
 							<span />
 						</div>
 						<div
@@ -509,7 +507,7 @@ export function SearchFilter({
 								))}
 					</div>
 					<div className="rowing">
-						<span className="firstBtn">Dein Heimatbahnhof</span>
+						<span className="firstBtn">{t('search.dein_heimatbahnhof')}</span>
 						<span className="secondBtn">Suchen</span>
 					</div>
 				</div>
@@ -528,14 +526,14 @@ export function SearchFilter({
 								setShowFirstMenu(true);
 							}}
 						>
-							Öffi-Touren im Alpenraum
+							{t("start.suche")}
 						</span>
 						<span className="verticalBar" />
 						<span
 							className="searchSecondText"
 							onClick={() => setShowSecondMenu(true)}
 						>
-							Heimatbahnhof wählen
+							{t('search.dein_heimatbahnhof')}
 						</span>
 						<img
 							src={`/app_static/img/filter.png`}
@@ -566,7 +564,7 @@ export function SearchFilter({
 										className="searchFirstText"
 										style={{ width: "100%", textAlign: "left", fontSize: 14 }}
 									>
-										Öffi-Touren im Alpenraum
+										{t("start.suche")}
 									</span>
 									<span
 										className="searchSecondText"
@@ -577,8 +575,7 @@ export function SearchFilter({
 											fontSize: 14,
 										}}
 									>
-										Heimatbahnhof wählen
-									</span>
+									{t('search.heimatbahnhof_waehlen')}									</span>
 								</div>
 							</div>
 							<img
@@ -608,14 +605,15 @@ export function SearchFilter({
 									top: 50,
 								}}
 								className="centerMe"
+								// onBack={onBack}
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}
 									>
 										<span className="boldTxt">Suche</span>
 										<span className="boldTxt underline pointy"
-										
-										>Abbrechen</span>
+										onClick={() => setShowFirstMenu(false)}
+										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
@@ -697,8 +695,10 @@ export function SearchFilter({
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span className="boldTxt underline pointy">Abbrechen</span>
+										<span className="boldTxt">{t('search.dein_heimatbahnhof')}?</span>
+										<span className="boldTxt underline pointy"
+										onClick={() => setShowSecondMenu(false)}
+										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">
 										<div className="rowing searchField">
