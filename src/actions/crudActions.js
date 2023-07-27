@@ -1,4 +1,5 @@
 import axios from "../axios";
+import {LOAD_TOUR, LOAD_TOUR_DONE} from "./types";
 
 export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
@@ -133,6 +134,14 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
         });
         return res;
     });
+}
+
+//Calling the BE and getting suggestions out of the LogSearchPhrase table based on the language, city, and searchPhrase
+export function loadSuggestions(searchPhrase, city, language) {
+    return axios.get(`searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`)
+        .then(res =>{
+        return res.data?.items;
+    }).catch(err => console.error(err));
 }
 
 // Code description:

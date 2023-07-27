@@ -1,58 +1,53 @@
 import * as React from "react"
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid"
-import { loadFavouriteTours, loadTours } from "../../actions/tourActions"
-import { compose } from "redux"
-import { connect } from "react-redux"
-import { loadCities } from "../../actions/cityActions"
-import { Fragment, useEffect, useState } from "react"
-import { loadRegions } from "../../actions/regionActions"
-import { useSearchParams } from "react-router-dom"
+import {loadFavouriteTours, loadTours} from "../../actions/tourActions"
+import {compose} from "redux"
+import {connect} from "react-redux"
+import {loadCities} from "../../actions/cityActions"
+import {Fragment, useEffect, useState} from "react"
+import {loadRegions} from "../../actions/regionActions"
+import {useSearchParams} from "react-router-dom"
 import {
     // isResponsive,
     parseIfNeccessary,
     setOrRemoveSearchParam,
 } from "../../utils/globals"
-import { useNavigate } from "react-router"
-import { hideModal, showModal } from "../../actions/modalActions"
+import {useNavigate} from "react-router"
+import {hideModal, showModal} from "../../actions/modalActions"
 import FullScreenCityInput from "./FullScreenCityInput"
-import { useTranslation} from "react-i18next";
+import {useTranslation} from "react-i18next";
 import i18next from 'i18next';
 import FilterIcon from "../../icons/FilterIcon"
-import SearchIcon from "../../icons/SearchIcon"
 import IconButton from "@mui/material/IconButton"
 import GoIcon from "../../icons/GoIcon"
-
+import AutosuggestSearchTour from "./AutosuggestSearch";
 
 
 export function Search({
-    loadRegions,
-    loadTours,
-    goto,
-    isMain,
-    showModal,
-    hideModal,
-    allCities,
-    isMapView,
-    // additional arguments
-    // loadCities,
-    // cities,
-    // regions,
-    // isCityLoading,
-    // loadFavouriteTours,
-}) {
+                           loadRegions,
+                           loadTours,
+                           goto,
+                           isMain,
+                           showModal,
+                           hideModal,
+                           allCities,
+                           isMapView,
+                           // additional arguments
+                           // loadCities,
+                           // cities,
+                           // regions,
+                           // isCityLoading,
+                           // loadFavouriteTours,
+                       }) {
     // Translation 
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     // let [language,setLanguage]= useState(i18next.resolvedLanguage);
     let language = i18next.resolvedLanguage
-    
+
     //initialise
-    const [placeholder, setPlaceholder]= useState(t("start.suche"));
-    useEffect(() => {
-        setPlaceholder(t("start.suche"));
-    }, [language]);
-    
+
 
     // console.log("Search arguments received: "); // output 
     // console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
@@ -65,21 +60,13 @@ export function Search({
     // console.log("Search arguments : isMapView ", isMapView); // undefined
     const [searchParams, setSearchParams] = useSearchParams()
     const [cityInput, setCityInput] = useState("");
-    const [regionInput, setRegionInput] = useState('');
+    const [searchPhrase, setSearchPhrase] = useState('');
+    let suggestion; //variable that stores the text of the selected option
+    let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
     const [city, setCity] = useState(null)
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
-
-    const handleFocus = () => {
-        setRegionInput('');
-        setPlaceholder('');
-    };
-    
-    const handleBlur = () => {
-        setPlaceholder(t("start.suche"));
-    };
-
 
     useEffect(() => {
         // pull out values from URL params 
@@ -106,14 +93,14 @@ export function Search({
         // console.log("orderId", orderId);
         // console.log("provider", provider);
         if (!!city && !!allCities) {  // if a city was passed in url params AND list of all cities is available as argument to Search then :
-            const cityEntry = allCities.find((e) => e.value == city) ; // find the city object with the specified city name from the array "allCities"
+            const cityEntry = allCities.find((e) => e.value == city); // find the city object with the specified city name from the array "allCities"
             if (!!cityEntry) {   // if you found the object of city e.g. {value: 'amstetten', label: 'Amstetten'}              
                 setCityInput(cityEntry.label);  // set the state "cityInput" to this city LABEL only
-                setCity(cityEntry) ;     // set the state "city" to this city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-                writeCityToLocalStorage(city) ;  // store the city NAME in local storage
+                setCity(cityEntry);     // set the state "city" to this city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
+                writeCityToLocalStorage(city);  // store the city NAME in local storage
 
                 /** load regions initially */
-                loadRegions({ city: city });
+                loadRegions({city: city});
             }
         }
 
@@ -124,27 +111,27 @@ export function Search({
 
         if (!!range) {
             console.log("Search : region in useEffect : " + range)
-            setRegionInput(range)
-            setRegion({ value: range, label: range, type: "range" })
+            setSearchPhrase(range)
+            setRegion({value: range, label: range, type: "range"})
         }
 
         if (!!search) {
-            setRegionInput(search)
+            setSearchPhrase(search)
         }
 
         if (!!state) {
-            setRegionInput(state)
-            setRegion({ value: state, label: state, type: "state" })
+            setSearchPhrase(state)
+            setRegion({value: state, label: state, type: "state"})
         }
 
         if (!!country) {
-            setRegionInput(country)
-            setRegion({ value: country, label: country, type: "country" })
+            setSearchPhrase(country)
+            setRegion({value: country, label: country, type: "country"})
         }
 
         if (!!type) {
-            setRegionInput(type)
-            setRegion({ value: type, label: type, type: "type" })
+            setSearchPhrase(type)
+            setRegion({value: type, label: type, type: "type"})
         }
 
         // console.log("Search...Region inside useEffect :", region);
@@ -177,7 +164,7 @@ export function Search({
         // console.log("orderId", orderId);
         // console.log("provider", provider);
         for (const entry of searchParams.entries()) {
-            console.log("searchParams entries : ",entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+            console.log("searchParams entries : ", entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
         }
 
         // let result = loadTours({
@@ -202,7 +189,7 @@ export function Search({
         searchParams && searchParams.get("filter"),
         searchParams && searchParams.get("sort"),
         searchParams && searchParams.get("search"),
-        searchParams && searchParams.get("type"), 
+        searchParams && searchParams.get("type"),
         searchParams && searchParams.get("sort"),
         searchParams && searchParams.get("range"),
         searchParams && searchParams.get("map"),
@@ -235,7 +222,7 @@ export function Search({
     //     setOpenRegionSearch(!!value)
     // }
 
-    const search = (tempRegion = null) => {
+     const search = (tempRegion = null) => {
         let values = {}
         if (!!city && !!city.value) {
             values.city = city.value
@@ -245,12 +232,11 @@ export function Search({
         if (!!tempRegion) {
             _region = tempRegion
         }
-
         if (!!_region && !!_region.value) {
             values[_region.type] = _region.value
-        } else if (!!regionInput) {
-            values.search = regionInput
         }
+        values.search = suggestion ? suggestion : autoSearchPhrase ? autoSearchPhrase : '';
+
 
         if (!!searchParams.get("sort")) {
             values.sort = searchParams.get("sort")
@@ -269,7 +255,7 @@ export function Search({
         setOrRemoveSearchParam(searchParams, "state", values.state)
         setOrRemoveSearchParam(searchParams, "country", values.country)
         setOrRemoveSearchParam(searchParams, "type", values.type)
-        
+
         setSearchParams(searchParams)
         // console.log("PART II / searchParams.get('search')", searchParams.get("search"))
         //clg
@@ -283,7 +269,7 @@ export function Search({
         } else {
             console.log("values passed to loadTours :", values)
             loadTours(values).then((res) => {
-                window.scrollTo({ top: 0 })
+                window.scrollTo({top: 0})
             })
         }
     }  // end search()
@@ -357,18 +343,30 @@ export function Search({
     //     setSearchParams(searchParams)
     // }
 
+    //Function that gets value f the selected option and directly start the search for tours
+    const getSearchSuggestion = (autoSuggestion) => {
+        suggestion = autoSuggestion
+        search()
+    };
+    //Function that gives you the input text you need when no Suggestion was taken
+    const getSearchPhrase = (searchPhrase) => {
+        autoSearchPhrase = searchPhrase;
+    };
+
     return (
-      <Fragment>
-        <Box>
-          <Grid
-            container
-            display="flex"
-            justifyContent="center"
-            alignContent="center"
-            alignItems="center"
-          >
+        <Fragment>
+            <Box>
+                <Grid
+                    container
+                    display="flex"
+                    justifyContent="center"
+                    alignContent="center"
+                    alignItems="center"
+                >
+                    {/*
             <Grid item>
-              <Box display="flex" alignItems="center" justifyContent="center">
+
+                <Box display="flex" alignItems="center" justifyContent="center">
                 <SearchIcon
                   style={{
                     strokeWidth: 0.5,
@@ -377,126 +375,89 @@ export function Search({
                   }}
                 />
               </Box>
-            </Grid>
-            <Grid item xs>
-              <Box display="flex" alignItems="center" justifyContent="center">
-                <span
-                  className={`search-bar--region__${
-                    regionInput ? "selection" : "default"
-                  }`}
-                >
-                </span>
-              </Box>
-              <Box>
-                <input
-                    value={regionInput}
-                    onChange={(e) => setRegionInput(e.target.value)}
-                    onFocus={(e) => handleFocus(e)} // Clear the input value when focused
-                    onBlur={(e) => handleBlur(e)}
-                    // onBlur={handleBlur}
-                    placeholder= {placeholder}
-                    style={{
-                        border: 'none',
-                        width: '243.5px',
-                        height: '23px',
-                        fontFamily: 'Open Sans',
-                        fontStyle: 'normal',
-                        fontWeight: '1000',
-                        fontSize: '16px',
-                        lineHeight: '23px',
-                        outline: 'none',
-                        /* identical to box height, or 142% */
+            </Grid>*/}
+                    <Grid item xs>
+                        <Box display="flex" alignItems="center" justifyContent="center">
+                            <AutosuggestSearchTour
+                                onSearchSuggestion={getSearchSuggestion}
+                                onSearchPhrase={getSearchPhrase}
+                                city={city}
+                                language={language}
+                                placeholder={searchPhrase}/>
+                        </Box>
+                    </Grid>
 
-                        textAlign: 'center',
-                        letterSpacing: '-0.01em',
-
-                        color: '#000000',
-                    }}
-                    // style={{
-                    //     backgroundColor: 'transparent',
-                    //     border: 'none',
-                    //     color: '#8b8b8b',
-                    //     fontSize: '14px',
-                    //     flex: 1,
-                    //     outline: 'none'
-                    // }}
-                />
-             </Box>  
-            </Grid>
-
-            <Grid item>
-              <Box className="search-bar--divider" />
-            </Grid>
+                    <Grid item>
+                        <Box className="search-bar--divider"/>
+                    </Grid>
 
 
-
-
-            <Grid item xs onClick={showCityModal}>
-              <Box display="flex" alignItems="center" justifyContent="center">
+                    <Grid item xs onClick={showCityModal}>
+                        <Box display="flex" alignItems="center" justifyContent="center">
                 <span className="search-bar--city">
                   {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
                 </span>
-              </Box>
-            </Grid>
-            <Grid item>
-              {!!initialIsMapView ? null : (
-                <Box>
-                  {!!isMain ? (
-                    <IconButton
-                      onClick={toggleFilter}
-                      sx={
-                        activeFilter
-                          ? {
-                              padding: "6px",
-                              border: "2px solid",
-                              borderColor: "#FF7663",
-                              background: "#FF7663",
-                              "&:hover": {
-                                background: "#FF9885",
-                              },
-                            }
-                          : {
-                              padding: "6px",
-                              border: "2px solid",
-                              borderColor: "#DDDDDD",
-                              "&:hover": {
-                                background: "#EEEEEE",
-                              },
-                            }
-                      }
-                    >
-                      <FilterIcon
-                        style={{
-                          transform: "scale(0.675)",
-                          stroke: activeFilter ? "white" : "#101010",
-                          strokeWidth: 1.25,
-                        }}
-                      />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      onClick={() => search()}
-                      sx={{
-                        "&:hover": {
-                          background: "#7aa8ff",
-                          fill: "#7aa8ff",
-                        },
-                      }}
-                    >
-                      <GoIcon
-                        style={{
-                          transform: "scale(1.55)",
-                          strokeWidth: 0,
-                        }}
-                      />
-                    </IconButton>
-                  )}
-                </Box>
-              )}
-            </Grid>
-          </Grid>
-        </Box>
-      </Fragment>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        {!!initialIsMapView ? null : (
+                            <Box>
+                                {!!isMain ? (
+                                    <IconButton
+                                        onClick={toggleFilter}
+                                        sx={
+                                            activeFilter
+                                                ? {
+                                                    padding: "6px",
+                                                    border: "2px solid",
+                                                    borderColor: "#FF7663",
+                                                    background: "#FF7663",
+                                                    "&:hover": {
+                                                        background: "#FF9885",
+                                                    },
+                                                }
+                                                : {
+                                                    padding: "6px",
+                                                    border: "2px solid",
+                                                    borderColor: "#DDDDDD",
+                                                    "&:hover": {
+                                                        background: "#EEEEEE",
+                                                    },
+                                                }
+                                        }
+                                    >
+                                        <FilterIcon
+                                            style={{
+                                                transform: "scale(0.675)",
+                                                stroke: activeFilter ? "white" : "#101010",
+                                                strokeWidth: 1.25,
+                                            }}
+                                        />
+                                    </IconButton>
+                                ) : (
+                                    <IconButton
+                                        onClick={() => search()}
+                                        sx={{
+                                            "&:hover": {
+                                                background: "#7aa8ff",
+                                                fill: "#7aa8ff",
+                                            },
+                                        }}
+                                    >
+                                        <GoIcon
+                                            style={{
+                                                transform: "scale(1.55)",
+                                                strokeWidth: 0,
+                                            }}
+                                        />
+                                    </IconButton>
+                                )}
+                            </Box>
+                        )}
+                    </Grid>
+                </Grid>
+            </Box>
+        </Fragment>
     );
 }
 
