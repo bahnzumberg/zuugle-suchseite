@@ -51,7 +51,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
     // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
     // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
     //initialize language param
-    const langPassed = language && (typeBefore == 'LOAD_TOURS' || typeBefore == 'LOAD_TOUR_CONNECTIONS') ? language : null;
+    const langPassed = language && (typeBefore == 'LOAD_TOURS' || typeBefore == 'LOAD_TOUR_CONNECTIONS') ? language : "de";
 
     // langPassed && console.log("passed language : " + langPassed)
 
