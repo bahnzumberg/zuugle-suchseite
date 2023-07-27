@@ -268,7 +268,8 @@ const DetailReworked = (props) => {
 					/>
 				) : (
 					<span style={{ color: "#8B8B8B" }}>
-						Track für GPS-Gerät herunterladen
+
+						{t("details.track_gps_geraet")}
 					</span>
 				)}
 			</Button>
@@ -288,7 +289,7 @@ const DetailReworked = (props) => {
 					/>
 				) : (
 					<span style={{ color: "#8B8B8B" }}>
-						Download für Druck / Mailversand
+						{t("Details.pdf_loading_notice")}
 					</span>
 				)}
 			</Button>
@@ -298,8 +299,7 @@ const DetailReworked = (props) => {
 					<span
 						style={{ fontSize: "12px", color: "#101010", lineHeight: "12px" }}
 					>
-						Ein Download ist nur möglich wenn eine Verbindung gefunden wurde.
-						Versuchen Sie bitte einen anderen Tag zu wählen.
+						{t("Details.gpx_loading_notice")}
 					</span>
 				</div>
 			)}
