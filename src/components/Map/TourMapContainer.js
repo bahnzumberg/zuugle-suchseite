@@ -54,7 +54,7 @@ function TourMapContainer({
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
-        //states if the toggle buton is was clicked
+        //states if the toggle button is was clicked
         var onToggle = localStorage.getItem('MapToggle');
 
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
@@ -83,21 +83,6 @@ function TourMapContainer({
             }
         }
     }, [tours])
-
-    //after moving the map, a position is set and saved
-    function MyPositionComponent() {
-        const mapEvents = useMapEvents({
-            moveend: () => {
-                const position = mapEvents.getBounds();
-                setMapPosition(position);
-            },
-
-            zoom: () => {
-                const position = mapEvents.getBounds();
-                setMapPosition(position);
-            }
-        })
-    }
 
     //saves the bounds on localStorage
     const setMapPosition = (position) => {
@@ -142,7 +127,6 @@ function TourMapContainer({
         return null;
     }, [tours]);
 
-
     const setCurrentGpxTrack = (url) => {
         loadGPX(url).then(res => {
             if (!!res && !!res.data) {
@@ -169,52 +153,28 @@ function TourMapContainer({
     const MyComponent = () => {
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
-                /*let amountOfMarkers = 0;
-                visibleToursOnMap = [];
-                markerComponents.map(marker => { //Print the Id and their title to check if all tours are correct
-                    //console.log("Id:",  marker.key, ", Title:", marker.props.title);
-                    const position = marker?.props?.position ? marker.props.position : [0, 0];
-                    if (map.getBounds().contains(position)) {
-                        //console.log("in view")
-                        console.log(position)
-                        visibleToursOnMap.push({id : marker?.key, lat : position[0], lon: position[1]});
-                        amountOfMarkers++;
-                    }
-                })
-                filterVisibleToursGPX(visibleToursOnMap);*/
-                /* Aufbau von get Bounds:
-                LatLngBounds
-                    _northEast: LatLng {lat: 49.55014950174062, lng: 13.521202303280619}
-                    _southWest: LatLng {lat: 48.50385480315508, lng: 11.977623201718119}
-                 */
-                //Alle filter auch aus dem Store holen und dann call triggert--> Liste von ids
-                //DANACH zweiter call mit der liste von ids dann fürs anzeigen der details --> ist automatisch wenn karte geschlossen
-                //in search params coordinates reinschreiben und dann mit useEffect auf die Search Parameter chekcen
-                //über load tours wird data befüllt --> functions die data objekt übernimmt
-                //überall wo load tours steht coordinaten mitgeben
-                //DATUM ans bakcend mitschicken --> optional
-                //TODO: Set Timeout/Debounce and Optional: insert timestamp
-                //setBounds(map.getBounds());
+                const position = map.getBounds();  //after moving the map, a position is set and saved
+                setMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
         })
         return null
     }
 
-    function makeDebounced(func, timeout) {
+    function makeDebounced(func, timeout) { //Function for the actual debounce
         let timer;
         return (...args) => {
-            clearTimeout(timer);
+            clearTimeout(timer) //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
             timer = setTimeout(() => func(...args), timeout);
         };
     }
 
-    function stoppedMoving(bounds) {
-        console.log(`You've stopped moving on the map`, bounds);
+    function stoppedMoving(bounds) { //funciton used to call initiate Filter
         initiateFilter(bounds)
     }
 
-    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300);
+    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
+
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
         console.log("Filter: ", bounds);
@@ -280,21 +240,20 @@ function TourMapContainer({
                 {markerComponents}
             </MarkerClusterGroup>
             <MyComponent></MyComponent>
-            <MyPositionComponent></MyPositionComponent>
         </MapContainer>
     </Box>
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        filterVisibleToursGPX: (visibleToursGPX) => dispatch({type: LOAD_MAP_FILTERS, visibleToursGPX})
+        filterVisibleToursGPX: (visibleToursGPX) => dispatch({type: LOAD_MAP_FILTERS, visibleToursGPX}) //used to save the bounds of the map in the redux store
     }
 };
 
 const mapStateToProps = (state) => {
     return {
-        filter: state.tours.filter,
-        visibleToursGPX: state.tours.visibleToursGPX,
+        filter: state.tours.filter, //used to get the filter variables
+        visibleToursGPX: state.tours.visibleToursGPX, //used to get the current bounds of the map out of the store
     }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);
