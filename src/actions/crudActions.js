@@ -78,6 +78,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
 
     // console.log("crudActions : route", route)
     // console.log("crudActions : params", params)
+    console.log("wichtiiiig", route, { params: params });
     return axios.get(route, { params: params }).then(res => {
         const entities = res.data[entityName];
         // console.log("entities :",entities)
