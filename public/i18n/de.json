@@ -32,8 +32,8 @@
         "keine_personenbezogenen_daten": "Wir sammeln keine personenbezogenen Daten.",
         "analysedienst": "ANALYSEDIENST",
         "welcher_dienst": "WELCHER DIENST WIRD EINGESETZT",
-        "matomo_1": "Wir setzen die Open Source Software  ",
-        "matomo_2": " in der selbst-gehosteten Variante ein. Die Daten befinden sich daher auf einem Server in Deutschland in der EU.",
+        "matomo_1": "Wir setzen die Open Source Software",
+        "matomo_2": "in der selbst-gehosteten Variante ein. Die Daten befinden sich daher auf einem Server in Deutschland in der EU.",
         "welche_daten": "WELCHE DATEN WERDEN GESAMMELT",
         "abgespeichert_werden": "Abgespeichert werden der Name der aufgerufenen Webseite, die Uhrzeit und die ersten zwei Stellen der IP-Adresse. Ein Rückschluss auf eine Person ist durch diese Daten nicht möglich.",
         "cookies": "COOKIES",
@@ -51,10 +51,10 @@
         "tourenanzahl_untertitel": "Bergtouren im deutschsprachigen Alpenraum - erreichbar mit Bahn & Bus",
         "heimatbahnhof": "Heimatbahnhof",
         "suche": "Öffi-Touren im Alpenraum",
-        "placeholder_suche": "Berggipfel, Region,  ...",
+        "placeholder_suche": "Berggipfel, Region, ...",
         "ergebnisse_anzeigen": "Ergebnisse anzeigen",
-        "zuugle_sucht_fuer_dich_1": "Zuugle sucht für dich in ",
-        "zuugle_sucht_fuer_dich_2": " Tourenportalen nach Öffi-Bergtouren",
+        "zuugle_sucht_fuer_dich_1": "Zuugle sucht für dich in",
+        "zuugle_sucht_fuer_dich_2": "Tourenportalen nach Öffi-Bergtouren",
         "schoene_wanderungen": "Die schönsten Wanderdestinationen",
         "schoene_wanderungen_nahe": "Die schönsten Wanderdestinationen in deiner Nähe",
         "beliebte_bergtouren_nahe": "Beliebte Bergtouren in deiner Nähe",
@@ -130,7 +130,7 @@
         "ueberschreitung": "Überschreitung",
         "ja": "Ja",
         "nein": "Nein",
-        "keine_verbindung": "Keine Verbindung: ",
+        "keine_verbindung": "Keine Verbindung:",
         "direkt_bei_der_haltestelle": "Start direkt bei Haltestelle",
         "maximale_hoehe": "Max. Höhe"
     },
@@ -165,7 +165,13 @@
         "filter_anwenden": "Filter anwenden",
         "minimum": "Minimum",
         "maximum": "Maximum",
-        "tourstart_ende_andere_stops": "Tourstart und Tourende sind unterschiedliche Haltestellen"
+        "tourstart_ende_andere_stops": "Tourstart und Tourende sind unterschiedliche Haltestellen",
+        "sprache": "Sprache",
+        "deutsch": "Deutsch",
+        "franzoesisch": "Französisch",
+        "slowenisch": "Slowenisch",
+        "italienisch": "Italienisch",
+        "englisch": "Englisch"
     },
     "index": {
         "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
@@ -179,5 +185,20 @@
         "beste_anreise": "Beste Anreise",
         "rückreise": "Rückreise",
         "rückreise_moeglichkeiten": "3 weitere Rückreisemöglichkeiten anzeigen"
+    },
+    "details": {
+        "track_gps_geraet": "Track für GPS-Gerät herunterladen",
+        "start_ausgangort": "Start beim Ausgangsort",
+        "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
+        "liveabfrage_anreise": "Liveabfrage für diese Anreise prüfen",
+        "teilen_text": "Schau welche Tour ich auf Zuugle gefunden habe:",
+        "warnung_andere_station": "Es wurde der Bahnhof der Person, die den LInk erstellt hat genommen.",
+        "teilen": "Teilen",
+        "teilen_description": "Link zur Öffi-Tour teilen"
+    },
+    "search": {
+        "abbrechen": "Abbrechen",
+        "dein_heimatbahnhof": "Dein Heimatbahnhof",
+        "keine_ergebnisse": "Keine Ergebnisse gefunden"
     }
 }
