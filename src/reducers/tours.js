@@ -15,6 +15,7 @@ import {
 	LOAD_TOURS,
 	LOAD_TOURS_DONE,
 	SET_SELECTED_DATE,
+	LOAD_MAP_FILTERS
 } from '../actions/types';
 // import {useStateManager} from "react-select";
 
@@ -34,7 +35,8 @@ const initialState = {
 	total_tours: 3000,
 	favouriteRanges: [],
 	isLoadingFilter: false,
-	total_provider: ' '
+	total_provider: ' ',
+	visibleToursGPX: []
 }
 
 export default (state = initialState, action = {}) => {
@@ -148,6 +150,11 @@ export default (state = initialState, action = {}) => {
 				...state,
 				tours: [],
 				total: 0
+			}
+		case LOAD_MAP_FILTERS:
+			return {
+				...state,
+				visibleToursGPX: action.visibleToursGPX
 			}
 		default: return state;
 	}

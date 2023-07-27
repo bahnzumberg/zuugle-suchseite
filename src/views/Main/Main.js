@@ -182,47 +182,44 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         // console.log("L172: Main filter:",filter);
 
         const _filter = getFilterFromParams(searchParams);
-
         if(!!_filter && !!filter){
-            if(!(!!_filter.singleDayTour && !!_filter.multipleDayTour)){
+            if(!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)){
                 count++;
             }
-            if(!(!!_filter.summerSeason && !!_filter.winterSeason)){
+            if(!(!!_filter?.summerSeason && !!_filter?.winterSeason)){
                 count++;
             }
-            if(_filter.difficulty != 10){
+            if(_filter?.difficulty != 10){
                 count++;
             }
-            if(!!_filter.children){
+            if(!!_filter?.children){
                 count++;
             }
-            if(!!_filter.traverse){
+            if(!!_filter?.traverse){
                 count++;
             }
-            if(_filter.maxAscent != getFilterProp(filter, "maxAscent") || _filter.minAscent != getFilterProp(filter, "minAscent")){
+            if(_filter?.maxAscent != getFilterProp(filter, "maxAscent") || _filter?.minAscent != getFilterProp(filter, "minAscent")){
                 count++;
             }
-            if(_filter.maxDescent != getFilterProp(filter, "maxDescent") || _filter.minDescent != getFilterProp(filter, "minDescent")){
+            if(_filter?.maxDescent != getFilterProp(filter, "maxDescent") || _filter?.minDescent != getFilterProp(filter, "minDescent")){
                 count++;
             }
-            if(_filter.maxTransportDuration != getFilterProp(filter, "maxTransportDuration") || _filter.minTransportDuration != getFilterProp(filter, "minTransportDuration")){
+            if(_filter?.maxTransportDuration != getFilterProp(filter, "maxTransportDuration") || _filter?.minTransportDuration != getFilterProp(filter, "minTransportDuration")){
                 count++;
             }
-            if(_filter.minDistance != getFilterProp(filter, "minDistance") || _filter.maxDistance != getFilterProp(filter, "maxDistance")){
+            if(_filter?.minDistance != getFilterProp(filter, "minDistance") || _filter?.maxDistance != getFilterProp(filter, "maxDistance")){
                 count++;
             }
-            if(_filter.ranges?.length != filter.ranges?.length){
+            if(_filter?.ranges?.length != filter?.ranges?.length){
                 count++;
             }
-            if(_filter.types?.length != filter.types?.length){
+            if(_filter?.types?.length != filter?.types?.length){
                 count++;
             }
-            if(_filter.languages?.length != filter.languages?.length){
+            if(_filter?.languages?.length != filter?.languages?.length){
                 count++;
             }
         }
-        //clg
-        // console.log("Main.js count is : " + count)
         return count;
     }
 
@@ -317,7 +314,7 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         }
 
         {
-            (!!tours && tours.length > 0) && <>
+            (!!tours && tours.length >= 0) && <>
             {
                 //description: 
                 //either display 100% size map or display the TourCardContainer 

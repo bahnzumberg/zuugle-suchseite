@@ -47,6 +47,10 @@ export function Search({
     let language = i18next.resolvedLanguage
 
     //initialise
+    const [placeholder, setPlaceholder]= useState(t("start.suche"));
+    useEffect(() => {
+        setPlaceholder(t("start.suche"));
+    }, [language]);
 
 
     // console.log("Search arguments received: "); // output 
@@ -67,6 +71,16 @@ export function Search({
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
+
+    const handleFocus = () => {
+        setRegionInput('');
+        setPlaceholder('');
+    };
+
+    const handleBlur = () => {
+        setPlaceholder(t("start.suche"));
+    };
+
 
     useEffect(() => {
         // pull out values from URL params 
@@ -141,8 +155,7 @@ export function Search({
         if (!!!isMain) {
             return
         }
-
-        let _filter = !!filter ? parseIfNeccessary(filter) : null
+        let _filter = !!filter ? parseIfNeccessary(filter) : null //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
         if (!!_filter) {
             filter = {
                 ..._filter,
@@ -163,9 +176,9 @@ export function Search({
         // console.log("filter", filter);
         // console.log("orderId", orderId);
         // console.log("provider", provider);
-        for (const entry of searchParams.entries()) {
-            console.log("searchParams entries : ", entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-        }
+        //for (const entry of searchParams.entries()) {
+        //    console.log("searchParams entries : ",entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
+        //}
 
         // let result = loadTours({
         loadTours({
@@ -246,7 +259,7 @@ export function Search({
 
         values.map = searchParams.get("map")
         values.provider = searchParams.get("p")
-
+        console.log("HLO: ", searchParams)
         searchParams.delete("filter")
         // console.log("PART I / searchParams.get('search')", searchParams.get("search"))
         setOrRemoveSearchParam(searchParams, "city", values.city)
@@ -376,20 +389,20 @@ export function Search({
                 />
               </Box>
             </Grid>*/}
-                    <Grid item xs>
-                        <Box display="flex" alignItems="center" justifyContent="center">
-                            <AutosuggestSearchTour
-                                onSearchSuggestion={getSearchSuggestion}
-                                onSearchPhrase={getSearchPhrase}
-                                city={city}
-                                language={language}
-                                placeholder={searchPhrase}/>
-                        </Box>
-                    </Grid>
+            <Grid item xs>
+                <Box display="flex" alignItems="center" justifyContent="center">
+                    <AutosuggestSearchTour
+                        onSearchSuggestion={getSearchSuggestion}
+                        onSearchPhrase={getSearchPhrase}
+                        city={city}
+                        language={language}
+                        placeholder={searchPhrase}/>
+                </Box>
+            </Grid>
 
-                    <Grid item>
-                        <Box className="search-bar--divider"/>
-                    </Grid>
+            <Grid item>
+                <Box className="search-bar--divider"/>
+            </Grid>
 
 
                     <Grid item xs onClick={showCityModal}>

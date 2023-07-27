@@ -22,7 +22,7 @@ import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
 
-function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter}){
+function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
     // Translation-related
     const {t} = useTranslation();
@@ -35,7 +35,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const wintertour_label = t('filter.wintertour');
     const nur_ueberschreitungen_label = t('filter.nur_ueberschreitungen');
     const tourstart_ende_andere_stops_label = t('filter.tourstart_ende_andere_stops');
-    
+
     const anstieg_label = t('filter.anstieg');
     const abstieg_label = t('main.abstieg');
     const hoehenmeter_label = t('filter.hoehenmeter');
@@ -103,7 +103,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!!filter){
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
-
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -199,6 +198,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
 
         }
+        if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
+            setCoordinatesNorthEast(visibleToursGPXNorthEast);
+            setCoordinatesSouthWest(visibleToursGPXSouthWest);
+        }
     }, [filter]);
 
     const countFilterActive = () => {
@@ -240,8 +243,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(languageValues.filter(lv => !lv.checked).length > 0){
             count++;
         }
-        //clg
-        // console.log("Filter.js count is : " + count)
 
         return count;
     }
@@ -280,9 +281,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const [rangeValuesState, setRangeValuesState] = useState(true);
     const [typeValuesState, setTypeValuesState] = useState(true);
     const [languageValuesState, setLanguageValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
 
     const submit = () => {
         const filterValues = {
+            //coordinates: coordinates,  //Füg den Wert in die URL ein
+            coordinatesSouthWest: coordinatesSouthWest,
+            coordinatesNorthEast: coordinatesNorthEast,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -333,19 +339,19 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 const foundType = sportTypesArray.find(typeObj => Object.keys(typeObj)[0] === entry);
                 const translatedValue = foundType ? Object.values(foundType)[0] : '';
                 return {
-                value: entry,
-                label: translatedValue
+                    value: entry,
+                    label: translatedValue
                 }
             })
         }
 
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
-                        <Box>
-                            <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
-                        </Box>
-                    </Grid>
-            });
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
+                </Box>
+            </Grid>
+        });
     }
 
     // loads all the language checkboxes
@@ -729,6 +735,8 @@ const mapStateToProps = (state) => {
     return {
         filter: state.tours.filter,
         isLoadingFilter: state.tours.isLoadingFilter,
+        visibleToursGPXSouthWest: state.tours.visibleToursGPX._southWest,
+        visibleToursGPXNorthEast: state.tours.visibleToursGPX._northEast,
     }
 };
 
