@@ -4,6 +4,8 @@ const fs = require('fs-extra');
 let sharp = require('sharp');
 const convertXML = require('xml-js');
 const { create, builder } = require('xmlbuilder2');
+import moment from "moment";
+import {hashString, minutesFromMoment} from "../../utils/helper";
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -43,6 +45,7 @@ const minimal_args = [
     '--use-mock-keychain',
 ];
 
+
 export const createImagesFromMap = async (ids) => {
     if(!!ids){
         let browser;
@@ -51,7 +54,6 @@ export const createImagesFromMap = async (ids) => {
             let addParam = {};
                if(process.env.NODE_ENV == "production"){
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
-                // addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-901912/chrome-linux/chrome')
             }
 
             browser = await puppeteer.launch({
@@ -83,9 +85,26 @@ export const createImagesFromMap = async (ids) => {
                         filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+ch+"_gpx_small.jpg");
                     }
 
+                    const today = moment().format('D');
+                    const hash_day = hashString(ch) % 30 + 1;
+                    if (today == hash_day) {
+                        try {
+                            fs.unlinkSync(filePath);
+                        } catch(err) {
+                            // console.log("createImagesFromMap unlinkSync filePath: " + err.message);
+                        }
+                        try {
+                            fs.unlinkSync(filePathSmall);
+                        } catch(err) {
+                            // console.log("createImagesFromMap unlinkSync filePathSmall: " + err.message);
+                        }
+                    }
+                    
                     if (!!filePath && !!!fs.existsSync(filePath)) {
                         await createImageFromMap(browser, filePath, url + ch + ".gpx", 90);
-                        console.log('Big generated successfully: ', filePath);
+                        if(process.env.NODE_ENV !== "production"){
+                            // console.log('Big generated successfully: ', filePath);
+                        }
 
                         try {
                             await sharp(filePath).resize({
@@ -93,14 +112,16 @@ export const createImagesFromMap = async (ids) => {
                                 height: 400,
                                 fit: "inside"
                             }).jpeg({quality: 50}).toFile(filePathSmall);
-                            console.log('Small generated successfully: ', filePathSmall);
+                            if(process.env.NODE_ENV !== "production"){
+                                // console.log('Small generated successfully: ', filePathSmall);
+                            }
                         } catch(e){
                             if(process.env.NODE_ENV !== "production"){
                                 console.error("Line 96: gpxUtils error :",e);
                             }
                         }
                     }
-
+                    
                     counter++;
                     resolve();
                 })));

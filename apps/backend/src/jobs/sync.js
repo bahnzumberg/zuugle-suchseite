@@ -297,8 +297,8 @@ export async function syncFahrplan(mode='delta'){
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }
-
-    console.log('Info: Handling ', count_tours, ' rows fplan data.');
+    
+    console.log('Info: Handling ', count_tours.toLocaleString("de-DE"), ' rows fplan data.');
     while (counter < chunksizer) {
         bundles.push({
             leftover: counter,
