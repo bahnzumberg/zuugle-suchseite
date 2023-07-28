@@ -6,6 +6,7 @@ import {
     mergeToursWithFahrplan,
     syncCities,
     syncFahrplan,
+    syncGPXdata,
     syncTours,
     generateTestdata
 } from "./sync";
@@ -33,16 +34,21 @@ syncTours().then(res => {
                         console.log('START FETCH PROVIDER: ', moment().format('HH:mm:ss'));
                         getProvider().then(res => {
                             console.log('FETCHED PROVIDER: ', moment().format('HH:mm:ss'));
-                            if(process.env.NODE_ENV !== "production"){
-                                console.log('GENERATE TEST DATA: ', moment().format('HH:mm:ss'));
-                                generateTestdata().then(res => {
-                                    console.log('DONE GENERATING TEST DATA: ', moment().format('HH:mm:ss'));
-                                    process.exit();    
-                                })
-                            }
-                            else {
-                                process.exit();
-                            }
+                            console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
+                            syncGPXdata().then(res => {
+                                console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
+                            
+                                if(process.env.NODE_ENV !== "production"){
+                                    console.log('GENERATE TEST DATA: ', moment().format('HH:mm:ss'));
+                                    generateTestdata().then(res => {
+                                        console.log('DONE GENERATING TEST DATA: ', moment().format('HH:mm:ss'));
+                                        process.exit();    
+                                    })
+                                }
+                                else {
+                                        process.exit();
+                                }
+                            });
                         });
                     });
                 });

@@ -100,7 +100,7 @@ CREATE TABLE city_favourites (
 
 CREATE TABLE fahrplan (
      id SERIAL,
-     tour_provider varchar(30)  NOT NULL,
+     provider varchar(30)  NOT NULL,
      hashed_url varchar(100) NOT NULL,
      calendar_date timestamp NOT NULL,
      valid_thru timestamp NOT NULL,
@@ -152,14 +152,10 @@ CREATE TABLE fahrplan (
 );
 
 
-
-ALTER TABLE fahrplan ADD COLUMN connection_url VARCHAR(100);
-ALTER TABLE fahrplan ADD COLUMN return_url VARCHAR(100);
-
-CREATE INDEX ON fahrplan (hashed_url, tour_provider);
-CREATE INDEX ON fahrplan (tour_provider);
+CREATE INDEX ON fahrplan (hashed_url, provider);
+CREATE INDEX ON fahrplan (provider);
 CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);
+CREATE INDEX ON fahrplan (provider, hashed_url, city_slug);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
 CREATE INDEX ON fahrplan (connection_duration);
@@ -210,14 +206,35 @@ ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
 ALTER TABLE tour ADD COLUMN max_ele INT default 0;
 ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';
 
+
 CREATE TABLE disposible (
-provider varchar(30) NOT NULL,
-hashed_url varchar(100) NOT NULL,
-link varchar(100) NOT NULL,
-calendar_date timestamp NOT NULL,
-city_slug varchar(100) NOT NULL
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      link varchar(100) NOT NULL,
+      calendar_date timestamp NOT NULL,
+      city_slug varchar(100) NOT NULL
 );
 
 CREATE INDEX ON disposible (provider);
 CREATE INDEX ON disposible (hashed_url);
 CREATE INDEX ON disposible (link);
+CREATE INDEX ON disposible (city_slug);
+
+
+CREATE TABLE gpx (
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      typ varchar(10) NOT NULL,
+      waypoint int NOT NULL,
+      lat decimal(12,9) DEFAULT NULL,
+      lon decimal(12,9) DEFAULT NULL,
+      ele decimal(12,8) DEFAULT NULL,
+      PRIMARY KEY (provider, hashed_url, waypoint)
+);
+
+CREATE INDEX ON gpx (provider);
+CREATE INDEX ON gpx (hashed_url);
+CREATE INDEX ON gpx (typ);
+CREATE INDEX ON gpx (waypoint);
+CREATE INDEX ON gpx (lat);
+CREATE INDEX ON gpx (lon);
