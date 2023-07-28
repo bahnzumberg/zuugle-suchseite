@@ -27,10 +27,11 @@ export default function FilterButton({openFilter, filterActive = 0, disabled = f
             justifyContent: "flex-start",
             height: "40px"
         }}
-        disabled={disabled}
-        onClick={openFilter}
+        disabled={disabled}  // move this to SearchFilter in new version
+        onClick={openFilter} // move this to SearchFilter in new version 
     >
-        <span> {filterLabel} <span style={{color: "#4992FF" }}>({filterActive} {aktivLabel})</span></span>
+        {/* NO NEED to move this span to SearchFilter in new version */}
+        <span> {filterLabel} <span style={{color: "#4992FF" }}>({filterActive} {aktivLabel})</span></span> 
     </CssButton>
 
 }

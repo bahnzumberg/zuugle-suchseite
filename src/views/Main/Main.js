@@ -245,28 +245,6 @@ export function Main({loadTours, loadAllCities, tours, showModal, hideModal, tot
         onSelectTour({id: id})
     }
     
-    // testing tourID to solve the error "MapContainer is already initialized"
-    //NOTE : how do we get id in the dependency array ? can we replace it by a proxy of some sort? (see tourID state as an attempt)
-    // const onLoadAndSelectTour = useCallback(
-    //     ()=>{
-
-    //         (tourID) => {
-    //             !!tourID && loadTour(tourID, searchParams.get('city')).then(res => {
-
-    //                 if(!!res && !!res.data && !!res.data.tour){
-    //                     //clg
-    //                     // console.log("L258 Main : tour data ",res.data.tour)
-    //                     console.log("L259 Main : res.data.tour.id ",res.data.tour.id)
-    //                     console.log("L260 Main : tourID state ",tourID)
-    //                     setTour(res.data.tour);
-    //                     toggleDetailOpen();
-    //                 }
-    //             })
-    //         }
-    //     }
-    //   ,
-    //   [tourID]
-    // )
 
     const memoTourMapContainer = useMemo(() => {
         // console.log("L 273 tourID : " + tourID)
