@@ -59,12 +59,9 @@ export async function getProvider(){
                 const query = knex('provider').insert({
                     provider: entry.provider,
                     provider_name: entry.provider_name,
+                    allow_gpx_download: entry.allow_gpx_download,
                 });
-                /*
-                if(process.env.NODE_ENV != "production"){
-                    console.log('query: ', query.toQuery());
-                }
-                */
+
                 await query;
             } catch(err){
                 console.log('error: ', err)

@@ -238,3 +238,5 @@ CREATE INDEX ON gpx (typ);
 CREATE INDEX ON gpx (waypoint);
 CREATE INDEX ON gpx (lat);
 CREATE INDEX ON gpx (lon);
+
+ALTER TABLE provider ADD COLUMN allow_gpx_download varchar(1) default 'y';
