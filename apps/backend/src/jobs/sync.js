@@ -348,7 +348,7 @@ export async function syncFahrplan(mode='delta'){
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_duration_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_hashed_url_city_slug_idx;`);
-        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_idx;`);
+        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_tour_provider_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_weekday_type_idx;`);
     } catch(err){
         console.log('error: ', err);
@@ -362,10 +362,10 @@ export async function syncFahrplan(mode='delta'){
 
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider);`);
         await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
@@ -386,8 +386,6 @@ const syncFahrplan_del = async () => {
     let where = {delta_type: 'del'};
     const _limit = pLimit(15);
     let bundles = [];
-    // let trigger_id_min = 4;
-    // let trigger_id_max = 0;
     let trigger_id_min_array = [];
     let trigger_id_max_array = [];
 
@@ -480,6 +478,7 @@ const insertFahrplanMultiple = async (entries) => {
         "delta_type",
     ];
 
+
     let _entries = entries.map(entry => {
         attrToRemove.forEach(attr => {
             delete entry[attr];
@@ -488,6 +487,18 @@ const insertFahrplanMultiple = async (entries) => {
         if(!!entry.trigger_id){
             entry.id = ""+entry.trigger_id;
             delete entry.trigger_id;
+        }
+
+        if (!!entry.provider) {
+            entry = {
+                ...entry, 
+                tour_provider: entry.provider, 
+            };
+            delete entry.provider; // Delete the original "provider" property
+            // console.log("L502 sync.js / insertFahrplanMultiple : " )
+            // console.log("_________________________________ " )
+            // console.log(entry)
+            // console.log("_________________________________ " )
         }
 
         return entry;
@@ -559,7 +570,7 @@ export async function syncTours(){
 
 export async function mergeToursWithFahrplan(){
     /* This deactivates the function practically */
-    return true;
+    // return true;
 
     const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'provider', 'duration']);
@@ -569,12 +580,12 @@ export async function mergeToursWithFahrplan(){
         for(let i=0;i<tours.length;i++){
 
             let entry = tours[i];
-            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, provider: entry.provider}).groupBy('city_slug');
+            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, tour_provider: entry.provider}).groupBy('city_slug');
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
@@ -585,7 +596,7 @@ export async function mergeToursWithFahrplan(){
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
                         .min('best_connection_duration as min_best_connection_duration')
-                        .where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug})
+                        .where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
                         .andWhereNot('fromtour_track_duration', null)
                         .andWhereNot('totour_track_duration', null)

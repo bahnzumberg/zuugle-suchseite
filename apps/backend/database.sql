@@ -100,7 +100,7 @@ CREATE TABLE city_favourites (
 
 CREATE TABLE fahrplan (
      id SERIAL,
-     provider varchar(30)  NOT NULL,
+     tour_provider varchar(30)  NOT NULL,
      hashed_url varchar(100) NOT NULL,
      calendar_date timestamp NOT NULL,
      valid_thru timestamp NOT NULL,
@@ -152,10 +152,10 @@ CREATE TABLE fahrplan (
 );
 
 
-CREATE INDEX ON fahrplan (hashed_url, provider);
-CREATE INDEX ON fahrplan (provider);
+CREATE INDEX ON fahrplan (hashed_url, tour_provider);
+CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (provider, hashed_url, city_slug);
+CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
 CREATE INDEX ON fahrplan (connection_duration);
