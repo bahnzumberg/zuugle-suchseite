@@ -621,8 +621,7 @@ export async function mergeToursWithFahrplan(){
 
                 await knex('tour').update({
                     cities: JSON.stringify(fahrplan),
-                    cities_object: JSON.stringify(fahrplanObject),
-                    ...countryObject
+                    cities_object: JSON.stringify(fahrplanObject)
                 })
                 .where({hashed_url: entry.hashed_url, provider: entry.provider});
 
