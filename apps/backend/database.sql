@@ -34,11 +34,6 @@ CREATE TABLE tour (
       nov boolean DEFAULT false,
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
-      country_at boolean DEFAULT false,
-      country_de boolean DEFAULT false,
-      country_it boolean DEFAULT false,
-      country_ch boolean DEFAULT false,
-
       publishing_date date DEFAULT NULL,
       quality_rating varchar(20) DEFAULT NULL,
       user_rating_avg decimal(6,2) DEFAULT NULL,
@@ -50,24 +45,13 @@ CREATE TABLE tour (
 
 ALTER TABLE tour ADD COLUMN full_text TEXT;
 ALTER TABLE tour ADD COLUMN search_column tsvector;
-ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
-ALTER TABLE tour ADD COLUMN country_si boolean DEFAULT false;
-ALTER TABLE tour ADD COLUMN country_fr boolean DEFAULT false;
-
--- UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
 CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
-CREATE INDEX ON tour (country_at);
-CREATE INDEX ON tour (country_de);
-CREATE INDEX ON tour (country_it);
-CREATE INDEX ON tour (country_ch);
-CREATE INDEX ON tour (country_fr);
-CREATE INDEX ON tour (country_si);
 CREATE INDEX ON tour (cities);
 CREATE INDEX ON tour (cities_object);
 CREATE INDEX ON tour (month_order);
@@ -75,7 +59,6 @@ CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
 CREATE INDEX search_column_idx ON tour USING GIN (search_column);
-CREATE INDEX ON tour (separator);
 
 
 -- weekday types
