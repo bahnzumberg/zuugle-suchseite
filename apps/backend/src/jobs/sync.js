@@ -569,9 +569,6 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
-    /* This deactivates the function practically */
-    // return true;
-
     const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'provider', 'duration']);
     
@@ -603,9 +600,6 @@ export async function mergeToursWithFahrplan(){
                         .andWhereNot('best_connection_duration', null)
                         .first();
 
-                    //let fromTourTrackDuration = await knex('fahrplan').avg('fromtour_track_duration').where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).andWhereNot('fromtour_track_duration', null).first();
-                    //let bestConnectionDuration = await knex('fahrplan').min(['best_connection_duration']).where({hashed_url: entry.hashed_url, provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("best_connection_duration", null).first();
-
                     fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
                     fp.durations = durations;
 
@@ -616,14 +610,6 @@ export async function mergeToursWithFahrplan(){
                     resolve(fp);
                 })));
 
-                let countryObject = {
-                    country_at: false,
-                    country_de: false,
-                    country_ch: false,
-                    country_it: false,
-                    country_fr: false,
-                    country_si: false
-                };
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
                     fahrplanObject[fp.city_slug] = {
@@ -631,23 +617,6 @@ export async function mergeToursWithFahrplan(){
                         best_connection_duration: fp.best_connection_duration,
                         total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25
                     };
-
-                    const cityEntryFound = cities.find(c => c.city_slug === fp.city_slug);
-                    if(!!cityEntryFound){
-                        if(cityEntryFound.city_country === "AT" && countryObject['country_at'] === false){
-                            countryObject['country_at'] = true;
-                        } else if(cityEntryFound.city_country === "DE" && countryObject['country_de'] === false){
-                            countryObject['country_de'] = true;
-                        } else if(cityEntryFound.city_country === "CH" && countryObject['country_ch'] === false){
-                            countryObject['country_ch'] = true;
-                        } else if(cityEntryFound.city_country === "IT" && countryObject['country_it'] === false){
-                            countryObject['country_it'] = true;
-                        } else if(cityEntryFound.city_country === "SI" && countryObject['country_si'] === false){
-                            countryObject['country_si'] = true;
-                        } else if(cityEntryFound.city_country === "FR" && countryObject['country_fr'] === false){
-                            countryObject['country_fr'] = true;
-                        }
-                    }
                 })
 
                 await knex('tour').update({

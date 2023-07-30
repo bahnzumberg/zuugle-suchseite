@@ -89,26 +89,6 @@ export const decrypt = (salt, encoded) => {
         .join("");
 };
 
-export const getWhereFromDomain = (domain) => {
-    if(!!domain){
-        if(domain.indexOf('zuugle.at') >= 0){
-            return {country_at: true}
-        } else if(domain.indexOf('zuugle.de') >= 0){
-            return {country_de: true}
-        } else if(domain.indexOf('zuugle.ch') >= 0){
-            return {country_ch: true}
-        } else if(domain.indexOf('zuugle.it') >= 0){
-            return {country_it: true}
-        } else if(domain.indexOf('zuugle.si') >= 0){
-            return {country_si: true}
-        } else if(domain.indexOf('zuugle.fr') >= 0){
-            return {country_fr: true}
-        } else {
-            return {country_at: true}
-        }
-    }
-    return {country_at: true};
-}
 
 export const getTldFromDomain = (domain) => {
     if(!!domain && domain.indexOf('zuugle.at') >= 0){

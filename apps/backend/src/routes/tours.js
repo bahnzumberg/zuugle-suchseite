@@ -11,7 +11,7 @@ import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, getWhereFromDomain, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
+import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 const fs = require('fs');
 const path = require('path');
@@ -49,7 +49,7 @@ const getWrapper = async (req, res) => {
     if(!!!id){
         res.status(404).json({success: false});
     } else {
-        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
         let entry = await knex('tour').select(selects).where({id: id}).first();
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({success: true, tour: entry});
@@ -97,10 +97,10 @@ const listWrapper = async (req, res) => {
 
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'country_at', 'country_de', 'country_it', 'country_ch', 'country_si', 'country_fr', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
     // CASE OF SEARCH
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  country_at ,  country_de ,  country_it ,  country_ch ,  country_si ,  country_fr ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
    
 
     let where = {};
@@ -136,9 +136,6 @@ const listWrapper = async (req, res) => {
     if(!!city && city.length > 0){
         whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
     }
-    //clg
-    // console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
-    // console.log("L159 sql_where :", sql_where); //AND country_at = true AND cities @> '[{"city_slug": "bad-ischl"}]'::jsonb
     
     /** region search */
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
@@ -157,43 +154,15 @@ const listWrapper = async (req, res) => {
     if(!!type && type.length > 0){
         where.type = type;
     }
-    //clgs
-    // console.log("L198 where value/ type: " + JSON.stringify(where)); //{"country_at":true}
 
     /** provider search */
     //describe
     // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
-    } 
-    //clgs
-    // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
-    // console.log("L193 where value / provider: " + sql_where); // 
- 
+    }  
    
    
-
-// L 259/ query:  WITH SEARCH  /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*') 
-// order by "month_order" asc, 
-// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-
-// L 259/ query:  WITHOUT SEARCH /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele" 
-// from "tour" 
-// where "country_at" = true 
-// and cities @> '[{"city_slug": "wien"}]'::jsonb 
-// order by "month_order" asc, 
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-    
-// clg
-// !!where &&  console.log("L 340 where : " + JSON.stringify(where))
-
 // *******************************************************************
 // MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
 // *******************************************************************
@@ -210,16 +179,6 @@ const listWrapper = async (req, res) => {
         query = query.andWhereRaw(whereRaw);
         countQuery = countQuery.andWhereRaw(whereRaw);
     }
-
-    // clg
-    // console.log("________________________________________________________________")
-    // !searchIncluded && console.log("L363: countQuery value before Filter   " + countQuery);//select count("id") from "tour" where "country_at" = true and cities @> '[{"city_slug": "wien"}]'::json
-    // console.log("________________________________________________________________")
-    // !searchIncluded && console.log("L365: query value before Filter   " + query);
-    // console.log("________________________________________________________________")
-    // searchIncluded && console.log("L367: sql_select value before Filter " + sql_select);
-    // console.log("________________________________________________________________")
-
       
     // ****************************************************************
     // FILTER  / (BOTH)
@@ -651,7 +610,7 @@ const listWrapper = async (req, res) => {
     if(!!showRanges){
         //describe:
         //rangeQuery is a Knex.js QueryBuilder object, which is used to construct SQL queries programmatically.
-        let rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']).where(getWhereFromDomain(domain));
+        let rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
         //describe:
         //query 'rangeQuery' is modified to restrict the selection to a particular city.
         //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
@@ -718,7 +677,7 @@ const filterWrapper = async (req, res) => {
 
     let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele']);
 
-    let where = getWhereFromDomain(domain);
+    let where = {};
     let whereRaw = null;
 
     /** city search */
