@@ -222,61 +222,47 @@ export function Main({
 		let count = 0;
 		// console.log("L172: Main filter:",filter);
 
-		const _filter = getFilterFromParams(searchParams);
-
-		if (!!_filter && !!filter) {
-			if (!(!!_filter.singleDayTour && !!_filter.multipleDayTour)) {
-				count++;
-			}
-			if (!(!!_filter.summerSeason && !!_filter.winterSeason)) {
-				count++;
-			}
-			if (_filter.difficulty != 10) {
-				count++;
-			}
-			if (!!_filter.children) {
-				count++;
-			}
-			if (!!_filter.traverse) {
-				count++;
-			}
-			if (
-				_filter.maxAscent != getFilterProp(filter, "maxAscent") ||
-				_filter.minAscent != getFilterProp(filter, "minAscent")
-			) {
-				count++;
-			}
-			if (
-				_filter.maxDescent != getFilterProp(filter, "maxDescent") ||
-				_filter.minDescent != getFilterProp(filter, "minDescent")
-			) {
-				count++;
-			}
-			if (
-				_filter.maxTransportDuration !=
-					getFilterProp(filter, "maxTransportDuration") ||
-				_filter.minTransportDuration !=
-					getFilterProp(filter, "minTransportDuration")
-			) {
-				count++;
-			}
-			if (
-				_filter.minDistance != getFilterProp(filter, "minDistance") ||
-				_filter.maxDistance != getFilterProp(filter, "maxDistance")
-			) {
-				count++;
-			}
-			if (_filter.ranges.length != filter.ranges.length) {
-				count++;
-			}
-			if (_filter.types.length != filter.types.length) {
-				count++;
-			}
-		}
-		//clg
-		// console.log("Main.js count is : " + count)
-		return count;
-	};
+        const _filter = getFilterFromParams(searchParams);
+        if(!!_filter && !!filter){
+            if(!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)){
+                count++;
+            }
+            if(!(!!_filter?.summerSeason && !!_filter?.winterSeason)){
+                count++;
+            }
+            if(_filter?.difficulty != 10){
+                count++;
+            }
+            if(!!_filter?.children){
+                count++;
+            }
+            if(!!_filter?.traverse){
+                count++;
+            }
+            if(_filter?.maxAscent != getFilterProp(filter, "maxAscent") || _filter?.minAscent != getFilterProp(filter, "minAscent")){
+                count++;
+            }
+            if(_filter?.maxDescent != getFilterProp(filter, "maxDescent") || _filter?.minDescent != getFilterProp(filter, "minDescent")){
+                count++;
+            }
+            if(_filter?.maxTransportDuration != getFilterProp(filter, "maxTransportDuration") || _filter?.minTransportDuration != getFilterProp(filter, "minTransportDuration")){
+                count++;
+            }
+            if(_filter?.minDistance != getFilterProp(filter, "minDistance") || _filter?.maxDistance != getFilterProp(filter, "maxDistance")){
+                count++;
+            }
+            if(_filter?.ranges?.length != filter?.ranges?.length){
+                count++;
+            }
+            if(_filter?.types?.length != filter?.types?.length){
+                count++;
+            }
+            if(_filter?.languages?.length != filter?.languages?.length){
+                count++;
+            }
+        }
+        return count;
+    }
 
 	// const toggleDetailOpen = () => {
 	// 	setDetailOpen(!detailOpen);
@@ -307,94 +293,89 @@ export function Main({
 		<div>
 			{/* description
         getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
-			{/* clg */}
-			{/*{console.log("directLink L 230:",directLink) }*/}{" "}
-			{/*  seems to be always on null value */}
-			{getPageHeader(directLink)}
-			<Box sx={{ width: "100%" }} className={"search-result-header-container"}>
-				{
-					// description:
-					// Box component with seo-bar class: This element is conditionally rendered if there is a directLink prop passed to the component. It contains a page title and description that are used for SEO purposes.
-					!!directLink && (
-						<Box className={"seo-bar"}>
-							<Typography
-								variant={"h1"}
-								sx={{ color: "#000000", fontSize: "18px", marginBottom: "5px" }}
-							>
-								{directLink.header}
-							</Typography>
-							<Typography variant={"text"} sx={{ fontSize: "14px" }}>
-								{directLink.description}
-							</Typography>
-						</Box>
-					)
-				}
-				{/* new top header */}
-				<Box className="newHeader">
-					<Box comoponent={"div"} className="rowing blueDiv">
-						<DomainMenu />
-						<LanguageMenu />
-					</Box>
-					{!!allCities && allCities.length > 0 && (
-						<Box alignItems={"center"} justifyContent={"center"} display="flex">
-							<SearchFilter isMain={true} />
-						</Box>
-					)}
-				</Box>
-			</Box>
-			{!!loading && !!!mapView && (
-				<Box sx={{ textAlign: "center", padding: "30px" }}>
-					<CircularProgress />
-				</Box>
-			)}
-			{!!tours && tours.length > 0 && (
-				<>
-					{
-						 (
-							<Box
-								className={
-									"cards-container" +
-									(!!directLink && !!directLink.header ? " seo-page" : "")
-								}
-							>
-								{/* {console.log('L360 total passed to TourCardContainer',totalTours)}
-                        {console.log('L361 tours.length passed to TourCardContainer',tours.length)} */}
-								<TourCardContainer
-									onSelectTour={onSelectTour}
-									tours={tours}
-									loadTourConnections={loadTourConnections}
-									city={searchParams.get("city")}
-									loadTours={loadTours}
-									totalTours={totalTours}
-									pageTours={pageTours}
-									loading={loading}
-									total={totalTours}
-								/>
-							</Box>
-						)
-					}
-				</>
-			)}
-			{/*<Drawer*/}
-			{/*    anchor={"right"}*/}
-			{/*    open={detailOpen}*/}
-			{/*    onClose={toggleDetailOpen}*/}
-			{/*    PaperProps={{*/}
-			{/*        sx: {*/}
-			{/*            backgroundColor: "info.main",*/}
-			{/*            width: {*/}
-			{/*                xs: "100%",*/}
-			{/*                sm: "500px"*/}
-			{/*            }*/}
-			{/*        }*/}
-			{/*    }}*/}
-			{/*>*/}
-			{/*    /!* description:*/}
-			{/*    Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. *!/*/}
-			{/*    <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>*/}
-			{/*</Drawer>*/}
-		</div>
-	);
+        {/* clg */}
+        {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
+        {getPageHeader(directLink)}
+
+        <Box sx={{width: "100%"}} className={"search-result-header-container"}>
+            {
+                // description:
+                // Box component with seo-bar class: This element is conditionally rendered if there is a directLink prop passed to the component. It contains a page title and description that are used for SEO purposes.
+                !!directLink && <Box className={"seo-bar"}>
+                    <Typography variant={"h1"} sx={{color: "#000000", fontSize: "18px", marginBottom: "5px"}}>{directLink.header}</Typography>
+                    <Typography variant={"text"} sx={{fontSize: "14px"}}>{directLink.description}</Typography>
+                </Box>
+            }
+            {/* description:
+            Search component: This is the search bar component that is used to filter tours based on user input. It is only rendered if there are cities available in the allCities array. */}
+            {(!!allCities && allCities.length > 0) &&
+                <Box sx={{backgroundColor: "#FFF"}}>
+                    <Box className={"main-search-bar"}>
+                        <Search isMain={true}/>
+                    </Box>
+                </Box>
+            }
+            {/* description:
+            ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
+            {
+                (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+            }
+        </Box>
+
+        {(!!loading && !!!mapView) &&
+            <Box sx={{textAlign: "center", padding: "30px"}}>
+                <CircularProgress />
+            </Box>
+        }
+
+        {
+            (!!tours && tours.length > 0) && <>
+            {
+                //description: 
+                //either display 100% size map or display the TourCardContainer 
+                !!mapView ? (
+                    <Box className={"map-container"}>
+                        {/* clg */}
+                        {/* {console.log("tours[0].id : L271",tours[0].id)} */}
+                        {/* {console.log("loadGPX : L269",loadGPX)} */}
+                        {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
+                        {/* {console.log("loading : L272",loading)} */}
+                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
+                        {memoTourMapContainer}
+                    </Box>)
+                    : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
+                        {/* {console.log('total passed to TourCardContainer',totalTours)}
+                        {console.log('tours.length passed to TourCardContainer',tours.length)} */}
+                        <TourCardContainer onSelectTour={onSelectTour}
+                                           tours={tours}
+                                           loadTourConnections={loadTourConnections} city={searchParams.get("city")}
+                                           loadTours={loadTours} totalTours={totalTours} pageTours={pageTours}
+                                           loading={loading} total={totalTours}/>
+                    </Box>
+            }
+            </>
+
+        }
+
+        {/*<Drawer*/}
+        {/*    anchor={"right"}*/}
+        {/*    open={detailOpen}*/}
+        {/*    onClose={toggleDetailOpen}*/}
+        {/*    PaperProps={{*/}
+        {/*        sx: {*/}
+        {/*            backgroundColor: "info.main",*/}
+        {/*            width: {*/}
+        {/*                xs: "100%",*/}
+        {/*                sm: "500px"*/}
+        {/*            }*/}
+        {/*        }*/}
+        {/*    }}*/}
+        {/*>*/}
+        {/*    /!* description:*/}
+        {/*    Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. *!/*/}
+        {/*    <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>*/}
+        {/*</Drawer>*/}
+    </div>)
 }
 
 const mapDispatchToProps = {

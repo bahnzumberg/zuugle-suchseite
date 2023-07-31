@@ -22,7 +22,7 @@ import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
 
-function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter}){
+function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
     // Translation-related
     const {t} = useTranslation();
@@ -35,7 +35,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const wintertour_label = t('filter.wintertour');
     const nur_ueberschreitungen_label = t('filter.nur_ueberschreitungen');
     const tourstart_ende_andere_stops_label = t('filter.tourstart_ende_andere_stops');
-    
+
     const anstieg_label = t('filter.anstieg');
     const abstieg_label = t('main.abstieg');
     const hoehenmeter_label = t('filter.hoehenmeter');
@@ -43,6 +43,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const gehdistanz_label = t('filter.gehdistanz');
     const sportart_label = t('main.sportart');
     const alle_an_abwaehlen_label = t('filter.alle_an_abwaehlen');
+    const sprachen_label = t('filter.sprache');
 
     const schwierigkeit_label = t('filter.schwierigkeit');
     const schwierigkeitswert_label = t('filter.schwierigkeitswert');
@@ -63,9 +64,19 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
         { "weitwandern" : t('filter.weitwandern')},
-    ]    
+    ]
+
+    //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
+    let languageArray = [
+        {"de" : t('filter.deutsch')},
+        {"en" : t('filter.englisch')},
+        {"fr" : t('filter.franzoesisch')},
+        {"sl" : t('filter.slowenisch')},
+        {"it" : t('filter.italienisch')}
+    ];
     
 
+    //loads the filter, including the languages for a specific city
     useEffect(() => {
         let city = searchParams.get('city');
         let range = searchParams.get('range');
@@ -74,6 +85,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let type = searchParams.get('type');
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
+        let language = searchParams.get('language');
 
         loadFilter({
             city: city,
@@ -83,6 +95,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             type: type,
             search: search,
             provider: provider,
+            language: language
         });
     }, [])
 
@@ -90,7 +103,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!!filter){
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
-
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -113,6 +125,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
             if(!!filter.types){
                 setTypeValues(filter.types.map(e => {
+                    return {
+                        value: e,
+                        checked: true
+                    }
+                }));
+            }
+            //sets the languageValues according to the filter
+            if(!!filter.languages){
+                setLanguageValues(filter.languages.map(e => {
                     return {
                         value: e,
                         checked: true
@@ -160,12 +181,26 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 }
                             }))
                         }
+                        // sets the language values for the filter
+                        if(!!filter && !!filter.languages && !!parsed.languages){
+                            setLanguageValues(filter.languages.map(entry => {
+                                const found = parsed.languages.find(e => e === entry);
+                                return {
+                                    value: entry,
+                                    checked: !!found
+                                }
+                            }))
+                        }
                     }
                 } catch(e){
                     console.error(e);
                 }
             }
 
+        }
+        if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
+            setCoordinatesNorthEast(visibleToursGPXNorthEast);
+            setCoordinatesSouthWest(visibleToursGPXSouthWest);
         }
     }, [filter]);
 
@@ -204,8 +239,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
-        //clg
-        // console.log("Filter.js count is : " + count)
+        //includes the languages in the filter count
+        if(languageValues.filter(lv => !lv.checked).length > 0){
+            count++;
+        }
 
         return count;
     }
@@ -239,12 +276,19 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [rangeValues, setRangeValues] = useState([]);
     const [typeValues, setTypeValues] = useState([]);
+    const [languageValues, setLanguageValues] = useState([]);
 
     const [rangeValuesState, setRangeValuesState] = useState(true);
     const [typeValuesState, setTypeValuesState] = useState(true);
+    const [languageValuesState, setLanguageValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
 
     const submit = () => {
         const filterValues = {
+            //coordinates: coordinates,  //Füg den Wert in die URL ein
+            coordinatesSouthWest: coordinatesSouthWest,
+            coordinatesNorthEast: coordinatesNorthEast,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -262,6 +306,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
+            languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
@@ -294,19 +339,44 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 const foundType = sportTypesArray.find(typeObj => Object.keys(typeObj)[0] === entry);
                 const translatedValue = foundType ? Object.values(foundType)[0] : '';
                 return {
-                value: translatedValue,
-                label: translatedValue
+                    value: entry,
+                    label: translatedValue
                 }
             })
         }
 
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
-                        <Box>
-                            <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
-                        </Box>
-                    </Grid>
-            });
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
+                </Box>
+            </Grid>
+        });
+    }
+
+    // loads all the language checkboxes
+    const getLanguages = () => {
+        let languages = [];
+        if (!!filter && !!filter.languages) {
+            languages = filter.languages.map((entry) => {
+                const foundType = languageArray.find(typeObj => Object.keys(typeObj)[0] === entry);
+                const translatedValue = foundType ? Object.values(foundType)[0] : '';
+                return {
+                    value: entry,
+                    label: translatedValue
+                }
+            })
+        }
+
+        languages = languages.filter(l => (!!l?.value && !!l?.label));
+
+        return languages.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type?.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type?.value, target.checked, setLanguageValues)}}/>} label={type?.label} />
+                </Box>
+            </Grid>
+        });
     }
 
     const getRanges = () => {
@@ -337,6 +407,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const updateAllTypeValues = () => {
         setTypeValues(typeValues.map(rv => { return {...rv, checked: !!!typeValuesState} }));
         setTypeValuesState(!!!typeValuesState);
+    }
+
+    //function to set all checkboxes on either true or false
+    const updateAllLanguageValues = () => {
+        setLanguageValues(languageValues.map(lv => { return {...lv, checked: !languageValuesState} }));
+        setLanguageValuesState(!languageValuesState);
     }
 
     return <Box style={{height: "100%"}}>
@@ -605,6 +681,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         </Grid>
                     </Box>
                     <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
+                        <Typography variant={"subtitle1"}>{sprachen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Grid container sx={{paddingTop: "16px"}}>
+                            {getLanguages()}
+                        </Grid>
+                    </Box>
+                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
                         <Typography variant={"subtitle1"}>{regionen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllRangeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{paddingTop: "16px"}}>
                             {getRanges()}
@@ -653,6 +735,8 @@ const mapStateToProps = (state) => {
     return {
         filter: state.tours.filter,
         isLoadingFilter: state.tours.isLoadingFilter,
+        visibleToursGPXSouthWest: state.tours.visibleToursGPX._southWest,
+        visibleToursGPXNorthEast: state.tours.visibleToursGPX._northEast,
     }
 };
 

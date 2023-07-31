@@ -1,5 +1,5 @@
-import * as React from "react";
-import { useEffect, useState } from "react";
+import * as React from 'react';
+import {lazy, useEffect, useState} from 'react';
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
@@ -25,6 +25,8 @@ import fileDownload from "js-file-download";
 import { parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import {Alert} from "@mui/lab";
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
@@ -35,7 +37,18 @@ import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
-
+import {generateShareLink, loadShareParams} from "../../actions/crudActions";
+import {
+    EmailShareButton,
+    EmailIcon,
+    FacebookShareButton,
+    FacebookIcon,
+    TwitterShareButton,
+    TwitterIcon,
+    WhatsappShareButton,
+    WhatsappIcon
+} from "react-share";
+import ShareIcon from "../../icons/ShareIcon";
 const setGpxTrack = (url, loadGPX, _function) => {
 	loadGPX(url).then((res) => {
 		if (!!res && !!res.data) {
@@ -65,15 +78,23 @@ const DetailReworked = (props) => {
 		loadAllCities,
 	} = props;
 
-	const [connections, setConnections] = useState(null);
-	const [activeConnection, setActiveConnection] = useState(null);
-	const [activeReturnConnection, setActiveReturnConnection] = useState(null);
-	const [dateIndex, setDateIndex] = useState(0);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const [gpxPositions, setGpxPositions] = useState(null);
-	const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
-	const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
-	const [renderImage, setRenderImage] = useState(null);
+    const [connections, setConnections] = useState(null);
+    const [activeConnection, setActiveConnection] = useState(null);
+    const [activeReturnConnection, setActiveReturnConnection] = useState(null);
+    const [dateIndex, setDateIndex] = useState(0);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [gpxPositions, setGpxPositions] = useState(null);
+    const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
+    const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
+    const [renderImage, setRenderImage] = useState(null);
+    //Triggers the generating of a new link
+    const [isShareGenerating, setIsShareGenerating] = useState(false);
+    //Complete share link
+    const [shareLink, setShareLink] = useState(null);
+    //Whether social media share buttons should be shown
+    const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] = useState(false);
+    //Whether a warning that says that your local trainstation has not been used, should be shown
+    const [showDifferentStationUsedWarning , setShowDifferentStationUsedWarning] = useState(false);
 
 	// Translation-related
 	const { t } = useTranslation();
@@ -85,30 +106,78 @@ const DetailReworked = (props) => {
 		} else return t("start.mittel");
 	};
 
-	const navigate = useNavigate();
-	const goToStartPage = () => {
-		console.log("going home");
-		let city = searchParams.get("city");
-		navigate(`/?${!!city ? "city=" + city : ""}`);
-	};
+    const navigate = useNavigate();
+    const goToStartPage = () => {
+        let city = searchParams.get('city');
+        navigate(`/?${!!city ? 'city=' + city : ''}`)
+    }
 
-	useEffect(() => {
-		loadAllCities();
-		loadCities({ limit: 5 });
-		const tourId = searchParams.get("id");
-		const city = searchParams.get("city");
 
-		if (tourId) {
-			loadTour(tourId, city);
-		}
-		if (tourId && city && !connections) {
-			loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {  // WHY NOT "loadTourConnections" ?
-				if (res && res.data) {
-					setConnections(res.data.result);
-				}
-			});
-		}
-	}, []);
+    //Creating a new share link
+    useEffect(() => {
+        if (isShareGenerating === true) {
+            generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+                .then(res => {
+                    if (res.success === true){
+                        setShareLink(window.location.origin + "/tour?share=" + res.shareId);
+                    } else {
+                        console.log("Share link didn't generate as expected.");
+                    }
+                });
+            setIsShareGenerating(false);
+        }
+
+
+    }, [isShareGenerating]);
+
+    useEffect(() => {
+        setIsShareGenerating(false);
+        setSocialMediaDropDownToggle(false);
+
+
+    }, [dateIndex]);
+
+
+    useEffect(() => {
+        const shareId = searchParams.get("share") ?? null;
+        const city = localStorage.getItem('city');
+        //Redirects to according page when it is a share link
+        if (shareId !== null) {
+            loadShareParams(shareId, city).then(res => {
+                if (res.success === true) {
+                if (res.usedCityOfCookie === false) {
+                    setShowDifferentStationUsedWarning(true);
+                }
+                const redirectSearchParams = new URLSearchParams();
+                const date = moment(res.date);
+                redirectSearchParams.set("id", res.tourId);
+                redirectSearchParams.set("city", res.city);
+                redirectSearchParams.set("datum", moment(date).format('YYYY-MM-DD'));
+                lazy(navigate('/tour?' + redirectSearchParams.toString()));
+                } else {
+                    city && searchParams.set("city", city);
+                    goToStartPage();
+                }
+            }).catch(err => {
+                city && searchParams.set("city", city);
+                goToStartPage();
+            });
+        }
+        loadAllCities();
+        loadCities({limit: 5});
+        const tourId = searchParams.get("id");
+
+        if (tourId) {
+            loadTour(tourId, city);
+        }
+        if (tourId && city && !connections) {
+            loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
+                if (res && res.data) {
+                    setConnections(res.data.result);
+                }
+            })
+        }
+    }, [searchParams]);
 
 	useEffect(() => {
 		if (tour) {
@@ -293,6 +362,67 @@ const DetailReworked = (props) => {
 					</span>
 				)}
 			</Button>
+    const actionButtonPart = <Box className="tour-detail-action-btns-container">
+        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+            onDownloadGpx();
+        }}>
+            <DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
+            {!!isGpxLoading ?
+                <CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
+                : <span style={{color: "#8B8B8B"}}>
+                    Track für GPS-Gerät herunterladen
+                {/* {t("details.track_gps_geraet")} */}
+                </span>
+            }
+        </Button>
+        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
+                onClick={onDownload}>
+            <PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
+            {!!isPdfLoading ?
+                <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
+                : <span style={{color: "#8B8B8B"}}> {t("pdf_loading_notice")} </span>
+            }
+        </Button>
+
+        {/*
+        Share button
+        When clicked, a link will be generated and the social media options will be shown
+        */}
+        <Button className="tour-detail-action-btns" disabled={false}
+                onClick={() => {
+                    setIsShareGenerating(true);
+                    setSocialMediaDropDownToggle((current) => { return !current});
+                }}>
+            <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.teilen')}</span>
+            <span style={{color: "#8B8B8B"}}>{t('details.teilen_description')}</span>
+        </Button>
+        {/*
+        Specific social media buttons
+        */}
+        {(socialMediaDropDownToggle && !isShareGenerating && shareLink !== null)&& <div>
+            <TwitterShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#00aced"}} url={shareLink} title={t('details.teilen_text')}>
+                <TwitterIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Twitter</span>
+            </TwitterShareButton>
+            <EmailShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#7f7f7f"}} url={shareLink} subject={"Zuugle Tour"} body={t('details.teilen_text')}>
+                <EmailIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Email</span>
+            </EmailShareButton>
+            {/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
+            <FacebookShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#3b5998"}} url={shareLink} quote={t('details.teilen_text')} hashtag={"Zuugle"}>
+                <FacebookIcon size={40} round={true} />
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Facebook</span>
+            </FacebookShareButton>
+            <WhatsappShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#25d366"}} url={shareLink} title={t('details.teilen_text')}>
+                <WhatsappIcon size={40} round={true}/>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>Whatsapp</span>
+            </WhatsappShareButton>
+            <Button className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#d8d3cd", border: "none"}} onClick={() => {
+                navigator.clipboard.writeText(shareLink);}}>
+                <ContentPasteIcon color="white"></ContentPasteIcon>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.kopieren')}</span>
+            </Button>
+        </div>}
 
 			{!!downloadButtonsDisabled() && (
 				<div style={{ marginTop: "10px" }}>

@@ -1,4 +1,5 @@
 import axios from "../axios";
+import {LOAD_TOUR, LOAD_TOUR_DONE} from "./types";
 
 export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
@@ -78,13 +79,13 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
 
     // console.log("crudActions : route", route)
     // console.log("crudActions : params", params)
+    console.log("wichtiiiig", route, { params: params });
     return axios.get(route, { params: params }).then(res => {
         const entities = res.data[entityName];
         // console.log("entities :",entities)
         const total = res.data.total;
-        // console.log("total : ", total)
+        //console.log("total leght: ", total.length);
         const filter = !!res.data.filter ? res.data.filter : null;
-
         if(!!useState){
             dispatch({
                 type: typeDone,
@@ -132,6 +133,42 @@ export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, r
             ...!!res && !!res.data ? res.data : {}
         });
         return res;
+    });
+}
+
+//Calling the BE and getting suggestions out of the LogSearchPhrase table based on the language, city, and searchPhrase
+export function loadSuggestions(searchPhrase, city, language) {
+    return axios.get(`searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`)
+        .then(res =>{
+        return res.data?.items;
+    }).catch(err => console.error(err));
+}
+
+//loadShareParams will according to a specific shareId return the according tour, date and city where the connections are loaded from - usedCityOfCookie contains whether the original city was used or the current user's city (based on the cookie)
+export function loadShareParams(shareId, city) {
+    return axios.get('shares/' + shareId, {
+        params: {
+            city: city
+        }
+    })
+        .then(res => {
+            console.log(res);
+            return res.data;
+        });
+}
+
+
+//generateShareLink is used to generate a new sharing link to the according tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
+export function generateShareLink(provider, hashedUrl, date, city) {
+    return axios.post('shares/', {
+        "provider": provider,
+        "hashedUrl": hashedUrl,
+        "date": date,
+        "city": city
+    }).then(res => {
+        return res.data;
+    }).catch(err => {
+        return err.response.data;
     });
 }
 
