@@ -319,50 +319,51 @@ const DetailReworked = (props) => {
 		setActiveReturnConnection(connections[index].returns[0]);
 	};
 
-	const actionButtonPart = (
-		<Box className="tour-detail-action-btns-container">
-			<Button
-				className="tour-detail-action-btns"
-				disabled={downloadButtonsDisabled()}
-				onClick={() => {
-					onDownloadGpx();
-				}}
-			>
-				<DownloadIcon />
-				<span style={{ color: "#101010", width: "43px" }}>GPX</span>
-				{!!isGpxLoading ? (
-					<CircularProgress
-						sx={{ width: "20px", height: "20px", fontWeight: 600 }}
-						size={"small"}
-					/>
-				) : (
-					<span style={{ color: "#8B8B8B" }}>
+	// const actionButtonPart = (
+	// 	<Box className="tour-detail-action-btns-container">
+	// 		<Button
+	// 			className="tour-detail-action-btns"
+	// 			disabled={downloadButtonsDisabled()}
+	// 			onClick={() => {
+	// 				onDownloadGpx();
+	// 			}}
+	// 		>
+	// 			<DownloadIcon />
+	// 			<span style={{ color: "#101010", width: "43px" }}>GPX</span>
+	// 			{!!isGpxLoading ? (
+	// 				<CircularProgress
+	// 					sx={{ width: "20px", height: "20px", fontWeight: 600 }}
+	// 					size={"small"}
+	// 				/>
+	// 			) : (
+	// 				<span style={{ color: "#8B8B8B" }}>
 
-						{t("details.track_gps_geraet")}
-					</span>
-				)}
-			</Button>
-			<Button
-				className="tour-detail-action-btns"
-				disabled={downloadButtonsDisabled()}
-				onClick={onDownload}
-			>
-				<PdfIcon />
-				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
-					PDF
-				</span>
-				{!!isPdfLoading ? (
-					<CircularProgress
-						sx={{ width: "20px", height: "20px" }}
-						size={"small"}
-					/>
-				) : (
-					<span style={{ color: "#8B8B8B" }}>
-						{t("Details.pdf_loading_notice")}
-					</span>
-				)}
-			</Button>
-    const actionButtonPart = <Box className="tour-detail-action-btns-container">
+	// 					{t("details.track_gps_geraet")}
+	// 				</span>
+	// 			)}
+	// 		</Button>
+	// 		<Button
+	// 			className="tour-detail-action-btns"
+	// 			disabled={downloadButtonsDisabled()}
+	// 			onClick={onDownload}
+	// 		>
+	// 			<PdfIcon />
+	// 			<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
+	// 				PDF
+	// 			</span>
+	// 			{!!isPdfLoading ? (
+	// 				<CircularProgress
+	// 					sx={{ width: "20px", height: "20px" }}
+	// 					size={"small"}
+	// 				/>
+	// 			) : (
+	// 				<span style={{ color: "#8B8B8B" }}>
+	// 					{t("Details.pdf_loading_notice")}
+	// 				</span>
+	// 			)}
+	// 		</Button>
+	// 	</Box>)
+    const actionButtonPart = (<Box className="tour-detail-action-btns-container">
         <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
             onDownloadGpx();
         }}>
