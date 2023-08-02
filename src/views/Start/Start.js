@@ -153,8 +153,8 @@ function Start({
 	// };
 
 	const onSelectTour = (tour) => {
-		console.log("tour selected :")
-		console.log(tour ? tour : "undefined tour")
+		console.log("tour selected :");
+		console.log(tour ? tour : "undefined tour");
         let currentSearchParams = new URLSearchParams(searchParams.toString());
         const city = currentSearchParams.get("city");
         const updatedSearchParams = new URLSearchParams();
@@ -163,8 +163,9 @@ function Start({
         if (city) {
             updatedSearchParams.set("city", city);
         }
-		console.log("go to URL :")
-		console.log('/tour?' + updatedSearchParams.toString()) 
+		// clgs
+		// console.log("go to URL :")
+		// console.log('/tour?' + updatedSearchParams.toString()) 
 		// Start.js:176 go to URL :
 		// Start.js:177 /tour?id=68587&city=baden
         window.open('/tour?' + updatedSearchParams.toString());
@@ -185,10 +186,7 @@ function Start({
 			);
 		}
 	};
-	//description
-	// The getRangeText is a function that returns a string depending on the value of _city which is extracted from the searchParams object.
-	// The function first checks if _city is truthy (not null, undefined, or an empty string) and has a length greater than 0. If this condition is met, the function returns the string "Die schönsten Wanderdestinationen in deiner Nähe".
-	// Otherwise, if the condition is not met, the function returns the string "Die schönsten Wanderdestinationen".
+	
 	const getRangeText = () => {
 		let _city = searchParams.get("city");
 		if (!!_city && _city.length > 0) {
@@ -198,8 +196,6 @@ function Start({
 		}
 	};
 
-	// description
-	// The getFavouriteToursText is a constant function that returns a string. The function checks the value of the _city variable which is obtained from the searchParams.get('city') method. If the value of _city exists and its length is greater than 0, it returns the string "Beliebte Bergtouren in deiner Nähe" (which means "Popular mountain tours in your area"). Otherwise, it returns the string "Beliebte Bergtouren" (which means "Popular mountain tours").
 	const getFavouriteToursText = () => {
 		let _city = searchParams.get("city");
 		if (!!_city && _city.length > 0) {
@@ -209,25 +205,14 @@ function Start({
 		}
 	};
 
-	// description
-	// This code defines a React component that returns a conditional rendering based on the value of totalTours. If totalTours is equal to 0, the component returns a Box component with a Header and a Footer component.
-	// Otherwise, it returns a Box component with several other components:
-	// getPageHeader(null)
-	// Header with totalTours and allCities props
-	// A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
-	// A RangeCardContainer component with favouriteRanges and onSelectTour props.
-	// A ScrollingTourCardContainer component with favouriteTours, onSelectTour, loadTourConnections, and city props.
-	// An AboutZuugleContainer component.
-	// A UserRecommendationContainer component.
-	// A SponsoringContainer component.
-	// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
-	// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
-	// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
-	// A Footer component.
+	
 	if (totalTours === 0) {
 		return (
 			<Box>
 				<Header totalTours={totalTours} allCities={allCities} />
+				<Box>
+					<Typography>NO TOURS AVAILABLE</Typography>
+				</Box>
 				<Footer />
 			</Box>
 		);
@@ -340,18 +325,6 @@ const mapDispatchToProps = {
 
 // description:
 // This is a constant called mapStateToProps which is a function that takes in a state object as an argument. This function returns an object that contains properties derived from the state object, specifically properties that are related to tours, ranges, cities, and other data related to tours and their connections.
-// The properties that are being derived from the state object are:
-// * loading: the loading status of the tours
-// * favouriteTours: the favourite tours in the state
-// * favouriteRanges: the favourite ranges in the state
-// * allRanges: all the ranges in the state
-// * totalTours: the total number of tours in the state
-// * totalConnections: the total number of connections in the state
-// * totalRanges: the total number of ranges in the state
-// * totalCities: the total number of cities in the state
-// * allCities: all the cities in the state
-// * totalProvider: the total number of providers in the state
-// These properties are being used to keep track of the state of the tours, ranges, cities, and other data related to tours and their connections.
 const mapStateToProps = (state) => {
 	return {
 		loading: state.tours.loading,
@@ -378,3 +351,19 @@ export default compose(
 		mapDispatchToProps
 	)
 )(Start);
+
+// description
+	// This code defines a React component that returns a conditional rendering based on the value of totalTours. If totalTours is equal to 0, the component returns a Box component with a Header and a Footer component.
+	// Otherwise, it returns a Box component with several other components:
+	// getPageHeader(null)
+	// Header with totalTours and allCities props
+	// A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
+	// A RangeCardContainer component with favouriteRanges and onSelectTour props.
+	// A ScrollingTourCardContainer component with favouriteTours, onSelectTour, loadTourConnections, and city props.
+	// An AboutZuugleContainer component.
+	// A UserRecommendationContainer component.
+	// A SponsoringContainer component.
+	// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
+	// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
+	// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
+	// A Footer component.
