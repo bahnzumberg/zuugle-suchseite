@@ -1,6 +1,5 @@
 import * as React from "react";
 import { lazy, useEffect, useState, useMemo, useCallback } from "react";
-import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
 import { connect } from "react-redux";
