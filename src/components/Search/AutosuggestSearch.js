@@ -20,10 +20,12 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
 
     //What the component should do while I type in values
     const handleInputChange = (inputValue) => {
+        console.log("Input Value : " + inputValue);
         if (city !== null) {
             searchPhrase = inputValue;
             loadSuggestions(inputValue, city.value, language) //Call the backend
                 .then((suggestions) => {
+                    console.log("Suggestions from backend:", suggestions);
                     const newOptions = suggestions.map((suggestion) => ({ //Get the New suggestions and format them the correct way
                         label: suggestion.suggestion,
                         value: suggestion.suggestion,
