@@ -77,14 +77,12 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
         }
     }
 
-    // console.log("crudActions : route", route)
-    // console.log("crudActions : params", params)
-    console.log("wichtiiiig", route, { params: params });
+    // console.log("wichtiiiig", route, { params: params });
     return axios.get(route, { params: params }).then(res => {
         const entities = res.data[entityName];
         // console.log("entities :",entities)
         const total = res.data.total;
-        //console.log("total leght: ", total.length);
+        total && total.length && console.log("total length: ", total.length);
         const filter = !!res.data.filter ? res.data.filter : null;
         if(!!useState){
             dispatch({
@@ -158,7 +156,7 @@ export function loadShareParams(shareId, city) {
 }
 
 
-//generateShareLink is used to generate a new sharing link to the according tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
+//generateShareLink is used to generate a new sharing link to the corresponding tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
 export function generateShareLink(provider, hashedUrl, date, city) {
     return axios.post('shares/', {
         "provider": provider,
