@@ -98,7 +98,6 @@ export default function Header({
 				<Box comoponent={"div"} className="rowing countryDiv">
 					<DomainMenu />
 					<LanguageMenu />
-					{/* <LanguageDropdown /> */}
 				</Box>
 				<Box className={"header-text"}>
 					<Typography variant={"h1"} height={"162px"}>
