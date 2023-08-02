@@ -80,8 +80,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
                 // console.log("Line 75 TourCard:",res.data.returns)
                 // console.log("Line 75 TourCard:",res.data)
                 setConnectionLoading(false);
-                setConnections(res.data.connections);
-                setReturns(res.data.returns);
+                setConnections(res?.data?.connections);
+                setReturns(res?.data?.returns);
             })
         } else if(!!!city){
             setConnections([]);
