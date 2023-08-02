@@ -73,17 +73,17 @@ export function Main({
 	totalTours,
 	loadTourConnections,
 	filter,
-	loadTourConnectionsExtended,
 	pageTours,
 	loading,
 	allCities,
-	loadFilter,
-	isLoadingFilter,
-	loadGPX,
-	loadTour,
 	clearTours,
 	allRanges,
 	loadRanges,
+	// loadFilter,
+	// isLoadingFilter,
+	// loadGPX,
+	// loadTour,
+	// loadTourConnectionsExtended,
 }) {
 	//if filter is a string then convert to object
 	if (typeof filter === "string") {
@@ -96,9 +96,9 @@ export function Main({
 		filter = {};
 	}
 	//clgs
-	// console.log("L55: Main , totalTours upon entry:",totalTours)
-	// console.log("L56: Main , tours.length upon entry:",tours.length)
-	// console.log("L57: Main , filter upon entry:",filter)
+	console.log("L99: Main , totalTours upon entry:",totalTours)
+	console.log("L100: Main , tours.length upon entry:",tours.length)
+	console.log("L101: Main , filter upon entry:",filter)
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -111,8 +111,6 @@ export function Main({
 	const [filterActive, setFilterActive] = React.useState(0);
 	const [mapView, setMapView] = React.useState(false);
 	const [directLink, setDirectLink] = React.useState(null);
-	// tourID is not working to eliminate the error "MapContainer is already initialized" so may be unnecessary
-	const [tourID, setTourID] = useState(null);
 
 	// alternative code for useBacklistener
 	// useBackListener(() => {
@@ -291,7 +289,7 @@ export function Main({
 
 	return (
 		<div>
-			{/* description
+		{/* description
         getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
         {/* clg */}
         {/*{console.log("directLink L 230:",directLink) }*/} {/*  seems to be always on null value */}
@@ -311,14 +309,15 @@ export function Main({
             {(!!allCities && allCities.length > 0) &&
                 <Box sx={{backgroundColor: "#FFF"}}>
                     <Box className={"main-search-bar"}>
-                        <Search isMain={true}/>
+                        <SearchFilter/>
+                        {/* <Search isMain={true}/> */}
                     </Box>
                 </Box>
             }
             {/* description:
             ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
             {
-                (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
+                // (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
             }
         </Box>
 
@@ -330,51 +329,33 @@ export function Main({
 
         {
             (!!tours && tours.length > 0) && <>
-            {
-                //description: 
+            
+                {/* //description: 
                 //either display 100% size map or display the TourCardContainer 
-                !!mapView ? (
-                    <Box className={"map-container"}>
+                // !!mapView ? (
+                //     <Box className={"map-container"}>*/}
                         {/* clg */}
                         {/* {console.log("tours[0].id : L271",tours[0].id)} */}
                         {/* {console.log("loadGPX : L269",loadGPX)} */}
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
-                        {/* {console.log("loading : L272",loading)} */}
-                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
-                        {memoTourMapContainer}
-                    </Box>)
-                    : <Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
-                        {/* {console.log('total passed to TourCardContainer',totalTours)}
-                        {console.log('tours.length passed to TourCardContainer',tours.length)} */}
+                         {/* {console.log("loading : L272",loading)} */}
+                         {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
+                         {/* {memoTourMapContainer} */}
+                     {/* </Box>)
+                     :  */}
+					<Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
+                        {console.log('total passed to TourCardContainer',totalTours)}
+                        {console.log('tours.length passed to TourCardContainer',tours.length)}
                         <TourCardContainer onSelectTour={onSelectTour}
                                            tours={tours}
                                            loadTourConnections={loadTourConnections} city={searchParams.get("city")}
                                            loadTours={loadTours} totalTours={totalTours} pageTours={pageTours}
                                            loading={loading} total={totalTours}/>
                     </Box>
-            }
+            
             </>
-
+			
         }
-
-        {/*<Drawer*/}
-        {/*    anchor={"right"}*/}
-        {/*    open={detailOpen}*/}
-        {/*    onClose={toggleDetailOpen}*/}
-        {/*    PaperProps={{*/}
-        {/*        sx: {*/}
-        {/*            backgroundColor: "info.main",*/}
-        {/*            width: {*/}
-        {/*                xs: "100%",*/}
-        {/*                sm: "500px"*/}
-        {/*            }*/}
-        {/*        }*/}
-        {/*    }}*/}
-        {/*>*/}
-        {/*    /!* description:*/}
-        {/*    Detail component is rendered inside a Drawer component, which is a UI component that slides in from the edge of the screen and covers part of the page content. The Detail component receives the props from Main.js component, it is made up of the "tour" state, as well as the "loadTourConnectionsExtended" function and an "onClose" function to handle closing the Drawer. The Drawer component itself is controlled by the "detailOpen" state, which is toggled by the "toggleDetailOpen" function. *!/*/}
-        {/*    <Detail tour={tour} loadTourConnectionsExtended={loadTourConnectionsExtended} onClose={() => setDetailOpen(false)}/>*/}
-        {/*</Drawer>*/}
     </div>)
 }
 
