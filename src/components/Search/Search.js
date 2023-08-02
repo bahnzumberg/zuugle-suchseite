@@ -29,7 +29,7 @@ import i18next from 'i18next';
 import FilterIcon from "../../icons/FilterIcon"
 import IconButton from "@mui/material/IconButton"
 import GoIcon from "../../icons/GoIcon"
-import AutosuggestSearchTour from "./AutosuggestSearch";
+import AutosuggestSearchTour from "../Search/AutosuggestSearch";
 
 
 export function Search({
@@ -85,14 +85,14 @@ export function Search({
     const [activeFilter, setActiveFilter] = useState(false)
     const initialIsMapView = isMapView || false
 
-	const handleFocus = () => {
-		setRegionInput("");
-		setPlaceholder("");
-	};
+	// const handleFocus = () => {
+	// 	setRegionInput("");
+	// 	setPlaceholder("");
+	// };
 
-	const handleBlur = () => {
-		setPlaceholder(t("start.suche"));
-	};
+	// const handleBlur = () => {
+	// 	setPlaceholder(t("start.suche"));
+	// };
 
 	useEffect(() => {
 		// pull out values from URL params
@@ -260,16 +260,16 @@ export function Search({
 			values.city = city.value;
 		}
 
-		let _region = region;
-		if (!!tempRegion) {
-			_region = tempRegion;
-		}
+		// let _region = region;
+		// if (!!tempRegion) {
+		// 	_region = tempRegion;
+		// }
 
-		if (!!_region && !!_region.value) {
-			values[_region.type] = _region.value;
-		} else if (!!regionInput) {
-			values.search = regionInput;
-		}
+		// if (!!_region && !!_region.value) {
+		// 	values[_region.type] = _region.value;
+		// } else if (!!regionInput) {
+		// 	values.search = regionInput;
+		// }
 		values.search = suggestion ? suggestion : autoSearchPhrase ? autoSearchPhrase : '';
 
 		if (!!searchParams.get("sort")) {
@@ -280,6 +280,7 @@ export function Search({
 
 		values.map = searchParams.get("map");
 		values.provider = searchParams.get("p");
+        console.log("HLO: ", searchParams)
 
 		searchParams.delete("filter");
 		// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
@@ -320,26 +321,26 @@ export function Search({
 	//     navigate(`/?${!!_city ? "city=" + _city : ""}`)
 	// }
 
-	const showCityModal = () => {
-		showModal("MODAL_COMPONENT", {
-			CustomComponent: FullScreenCityInput,
-			searchParams,
-			initialCity: cityInput,
-			onSelect: (city) => {
-				hideModal();
-				if (!!city) {
-					setCityInput(city.label);
-					setCity(city);
-				}
-			},
-			setSearchParams,
-			title: "",
-			modalSize: "lg",
-			onBack: () => {
-				hideModal();
-			},
-		});
-	};
+	// const showCityModal = () => {
+	// 	showModal("MODAL_COMPONENT", {
+	// 		CustomComponent: FullScreenCityInput,
+	// 		searchParams,
+	// 		initialCity: cityInput,
+	// 		onSelect: (city) => {
+	// 			hideModal();
+	// 			if (!!city) {
+	// 				setCityInput(city.label);
+	// 				setCity(city);
+	// 			}
+	// 		},
+	// 		setSearchParams,
+	// 		title: "",
+	// 		modalSize: "lg",
+	// 		onBack: () => {
+	// 			hideModal();
+	// 		},
+	// 	});
+	// };
 
 	// const showRegionInput = () => {
 	//     showModal("MODAL_COMPONENT", {
@@ -378,6 +379,15 @@ export function Search({
 	//     setSearchParams(searchParams)
 	// }
 
+    //Function that gets value f the selected option and directly start the search for tours
+    const getSearchSuggestion = (autoSuggestion) => {
+        suggestion = autoSuggestion
+        search()
+    };
+    //Function that gives you the input text you need when no Suggestion was taken
+    const getSearchPhrase = (searchPhrase) => {
+        autoSearchPhrase = searchPhrase;
+    };
 	return (
 		<Fragment>
 			{showMobileMenu ? (
@@ -401,13 +411,19 @@ export function Search({
 							style={{ width: 275, marginRight: 5 }}
 						>
 							<div className="rowingLeft">
-								<SearchIcon />
+								{/* <SearchIcon />
 								<input
 									className="searchInput"
 									onChange={(e) => setFSearchQuery(e.target.value)}
 									value={fSearchQuery}
 									style={{ width: 195 }}
-								/>
+								/> */}
+								<AutosuggestSearchTour
+                                onSearchSuggestion={getSearchSuggestion}
+                                onSearchPhrase={getSearchPhrase}
+                                city={city}
+                                language={language}
+                                placeholder={searchPhrase}/>
 							</div>
 							<span
 								className="closeIcon"
@@ -453,13 +469,19 @@ export function Search({
 							style={{ width: 275, marginRight: 5 }}
 						>
 							<div className="rowingLeft">
-								<SearchIcon />
+								{/* <SearchIcon />
 								<input
 									className="searchInput"
 									onChange={(e) => setSecondSearchQuery(e.target.value)}
 									value={secondSearchQuery}
 									style={{ width: 195 }}
-								/>
+								/> */}
+								<AutosuggestSearchTour
+                                onSearchSuggestion={getSearchSuggestion}
+                                onSearchPhrase={getSearchPhrase}
+                                city={city}
+                                language={language}
+                                placeholder={searchPhrase}/>
 							</div>
 							<span
 								className="closeIcon"
@@ -609,12 +631,18 @@ export function Search({
 									<div className="rowing">
 										<div className="rowing searchField">
 											<div className="rowingLeft">
-												<SearchIcon />
+												{/* <SearchIcon />
 												<input
 													className="searchInput"
 													onChange={(e) => setFSearchQuery(e.target.value)}
 													value={fSearchQuery}
-												/>
+												/> */}
+												<AutosuggestSearchTour
+													onSearchSuggestion={getSearchSuggestion}
+													onSearchPhrase={getSearchPhrase}
+													city={city}
+													language={language}
+													placeholder={searchPhrase}/>
 											</div>
 											<span
 												className="closeIcon"
@@ -684,13 +712,19 @@ export function Search({
 									<div className="rowing">
 										<div className="rowing searchField">
 											<div className="rowingLeft">
-												<SearchIcon />
+												{/* <SearchIcon />
 												<input
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
 													style={{ width: 440 }}
-												/>
+												/> */}
+												<AutosuggestSearchTour
+													onSearchSuggestion={getSearchSuggestion}
+													onSearchPhrase={getSearchPhrase}
+													city={city}
+													language={language}
+													placeholder={searchPhrase}/>
 											</div>
 											<span
 												className="closeIcon"
@@ -773,112 +807,112 @@ export function Search({
 			)}
 		</Fragment>
 	);
-    return (
-        <Fragment>
-            <Box>
-                <Grid
-                    container
-                    display="flex"
-                    justifyContent="center"
-                    alignContent="center"
-                    alignItems="center"
-                >
-                    {/*
-            <Grid item>
+    // return (
+    //     <Fragment>
+    //         <Box>
+    //             <Grid
+    //                 container
+    //                 display="flex"
+    //                 justifyContent="center"
+    //                 alignContent="center"
+    //                 alignItems="center"
+    //             >
+    //                 {/*
+    //         <Grid item>
 
-                <Box display="flex" alignItems="center" justifyContent="center">
-                <SearchIcon
-                  style={{
-                    strokeWidth: 0.5,
-                    stroke: "#8B8B8B",
-                    fill: "#8B8B8B",
-                  }}
-                />
-              </Box>
-            </Grid>*/}
-                    <Grid item xs>
-                        <Box display="flex" alignItems="center" justifyContent="center">
-                            <AutosuggestSearchTour
-                                onSearchSuggestion={getSearchSuggestion}
-                                onSearchPhrase={getSearchPhrase}
-                                city={city}
-                                language={language}
-                                placeholder={searchPhrase}/>
-                        </Box>
-                    </Grid>
+    //             <Box display="flex" alignItems="center" justifyContent="center">
+    //             <SearchIcon
+    //               style={{
+    //                 strokeWidth: 0.5,
+    //                 stroke: "#8B8B8B",
+    //                 fill: "#8B8B8B",
+    //               }}
+    //             />
+    //           </Box>
+    //         </Grid>*/}
+    //                 <Grid item xs>
+    //                     <Box display="flex" alignItems="center" justifyContent="center">
+    //                         <AutosuggestSearchTour
+    //                             onSearchSuggestion={getSearchSuggestion}
+    //                             onSearchPhrase={getSearchPhrase}
+    //                             city={city}
+    //                             language={language}
+    //                             placeholder={searchPhrase}/>
+    //                     </Box>
+    //                 </Grid>
 
-                    <Grid item>
-                        <Box className="search-bar--divider"/>
-                    </Grid>
+    //                 <Grid item>
+    //                     <Box className="search-bar--divider"/>
+    //                 </Grid>
 
 
-                    <Grid item xs onClick={showCityModal}>
-                        <Box display="flex" alignItems="center" justifyContent="center">
-                <span className="search-bar--city">
-                  {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
-                </span>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        {!!initialIsMapView ? null : (
-                            <Box>
-                                {!!isMain ? (
-                                    <IconButton
-                                        onClick={toggleFilter}
-                                        sx={
-                                            activeFilter
-                                                ? {
-                                                    padding: "6px",
-                                                    border: "2px solid",
-                                                    borderColor: "#FF7663",
-                                                    background: "#FF7663",
-                                                    "&:hover": {
-                                                        background: "#FF9885",
-                                                    },
-                                                }
-                                                : {
-                                                    padding: "6px",
-                                                    border: "2px solid",
-                                                    borderColor: "#DDDDDD",
-                                                    "&:hover": {
-                                                        background: "#EEEEEE",
-                                                    },
-                                                }
-                                        }
-                                    >
-                                        <FilterIcon
-                                            style={{
-                                                transform: "scale(0.675)",
-                                                stroke: activeFilter ? "white" : "#101010",
-                                                strokeWidth: 1.25,
-                                            }}
-                                        />
-                                    </IconButton>
-                                ) : (
-                                    <IconButton
-                                        onClick={() => search()}
-                                        sx={{
-                                            "&:hover": {
-                                                background: "#7aa8ff",
-                                                fill: "#7aa8ff",
-                                            },
-                                        }}
-                                    >
-                                        <GoIcon
-                                            style={{
-                                                transform: "scale(1.55)",
-                                                strokeWidth: 0,
-                                            }}
-                                        />
-                                    </IconButton>
-                                )}
-                            </Box>
-                        )}
-                    </Grid>
-                </Grid>
-            </Box>
-        </Fragment>
-    );
+    //                 <Grid item xs onClick={showCityModal}>
+    //                     <Box display="flex" alignItems="center" justifyContent="center">
+    //             <span className="search-bar--city">
+    //               {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
+    //             </span>
+    //                     </Box>
+    //                 </Grid>
+    //                 <Grid item>
+    //                     {!!initialIsMapView ? null : (
+    //                         <Box>
+    //                             {!!isMain ? (
+    //                                 <IconButton
+    //                                     onClick={toggleFilter}
+    //                                     sx={
+    //                                         activeFilter
+    //                                             ? {
+    //                                                 padding: "6px",
+    //                                                 border: "2px solid",
+    //                                                 borderColor: "#FF7663",
+    //                                                 background: "#FF7663",
+    //                                                 "&:hover": {
+    //                                                     background: "#FF9885",
+    //                                                 },
+    //                                             }
+    //                                             : {
+    //                                                 padding: "6px",
+    //                                                 border: "2px solid",
+    //                                                 borderColor: "#DDDDDD",
+    //                                                 "&:hover": {
+    //                                                     background: "#EEEEEE",
+    //                                                 },
+    //                                             }
+    //                                     }
+    //                                 >
+    //                                     <FilterIcon
+    //                                         style={{
+    //                                             transform: "scale(0.675)",
+    //                                             stroke: activeFilter ? "white" : "#101010",
+    //                                             strokeWidth: 1.25,
+    //                                         }}
+    //                                     />
+    //                                 </IconButton>
+    //                             ) : (
+    //                                 <IconButton
+    //                                     onClick={() => search()}
+    //                                     sx={{
+    //                                         "&:hover": {
+    //                                             background: "#7aa8ff",
+    //                                             fill: "#7aa8ff",
+    //                                         },
+    //                                     }}
+    //                                 >
+    //                                     <GoIcon
+    //                                         style={{
+    //                                             transform: "scale(1.55)",
+    //                                             strokeWidth: 0,
+    //                                         }}
+    //                                     />
+    //                                 </IconButton>
+    //                             )}
+    //                         </Box>
+    //                     )}
+    //                 </Grid>
+    //             </Grid>
+    //         </Box>
+    //     </Fragment>
+    // );
 }
 
 const mapDispatchToProps = {
