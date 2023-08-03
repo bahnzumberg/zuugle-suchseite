@@ -33,12 +33,11 @@ import {
 	getPageHeader,
 } from "../../utils/seoPageHelper";
 import { loadRanges } from "../../actions/rangeActions";
-// import SearchFilter  from "../../components/SearchFilter/SearchFilter";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 
 const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
-// const Search = lazy(() => import("../../components/Search/Search"));
+const Search = lazy(() => import("../../components/Search/Search"));
 // const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
 	import("../../components/TourCardContainer")
@@ -303,18 +302,21 @@ export function Main({
                     <Typography variant={"text"} sx={{fontSize: "14px"}}>{directLink.description}</Typography>
                 </Box>
             }
+					{/* new top header */}
+					<Box className="newHeader">
+					<Box comoponent={"div"} className="rowing blueDiv">
+						<DomainMenu />
+						<LanguageMenu />
+					</Box>
+					{!!allCities && allCities.length > 0 && (
+						<Box alignItems={"center"} justifyContent={"center"} display="flex">
+							{/* <SearchFilter isMain={true} /> */}
+							<Search isMain={true}/> 
+						</Box>
+					)}
+				</Box>
             {/* description:
-            Search component: This is the search bar component that is used to filter tours based on user input. It is only rendered if there are cities available in the allCities array. */}
-            {(!!allCities && allCities.length > 0) &&
-                <Box sx={{backgroundColor: "#FFF"}}>
-                    <Box className={"main-search-bar"}>
-                        <SearchFilter/>
-                        {/* <Search isMain={true}/> */}
-                    </Box>
-                </Box>
-            }
-            {/* description:
-            ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results. */}
+            ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results.  */}
             {
                 // (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
             }
