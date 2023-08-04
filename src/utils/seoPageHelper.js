@@ -27,6 +27,8 @@ export const getPageHeader = (directLink) => {
 }
 
 export const checkIfSeoPageCity = (location, cities) => {
+    //console.log("seoPageHelper: location : " + location) // /suche
+    //console.log("seoPageHelper: cities.length : " + cities.length) // 37 (exists)
     if(!!location && !!location.pathname && location.pathname == "/suche"){
         return null;
     } else if(!!location && !!location.pathname && cities.length > 0){
