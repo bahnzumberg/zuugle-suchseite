@@ -97,6 +97,10 @@ export function Main({
 	console.log("L99: Main , totalTours upon entry:",totalTours)
 	console.log("L100: Main , tours.length upon entry:",tours.length)
 	console.log("L101: Main , filter upon entry:",filter)
+	// console.log("L102: Main , allCities:",allCities)
+	// console.log("L103: Main , allRanges:",allRanges)
+	console.log("L104: Main , totalTours :",totalTours)
+
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -136,8 +140,8 @@ export function Main({
 	// It gets the city value from local storage and the city search parameter from the URL query string, if it exists.
 	// If there is a city value in local storage and no city search parameter in the URL query string, it sets the city search parameter in the URL query string to the value in local storage using the setSearchParams state method.
 	useEffect(() => {
-		loadAllCities();
-		loadRanges({ ignore_limit: true, remove_duplicates: true });
+		loadAllCities();   											// working
+		loadRanges({ ignore_limit: true, remove_duplicates: true });// working
 		let searchParamCity = searchParams.get("city");
 		const city = localStorage.getItem("city");
 		if (!!city && !!!searchParamCity) {
@@ -150,6 +154,9 @@ export function Main({
 	// updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
 	//using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
 	useEffect(() => {
+		!!location && console.log("L158: Main , location :",location)
+		!!location.pathname && console.log("L159: Main , location.pathname :",location.pathname)
+	
 		if (
 			!!location &&
 			location.pathname &&
@@ -158,13 +165,14 @@ export function Main({
 			allRanges &&
 			allRanges.length > 0
 		) {
+			console.log("L169: Main, inside the if of useEffect")
 			// description
 			// calling the functions checkIfSeoPageCity and checkIfSeoPageRange with the current location and arrays allCities and allRanges as arguments to determine the current city and mountain range (if any) based on the pathname property of the location object.
 			const city = checkIfSeoPageCity(location, allCities);
 			const range = checkIfSeoPageRange(location, allRanges);
 			//clg
-			// console.log('city:', city);
-			// console.log('range:', range);
+console.log('Main/ city:', city);			// not working
+			!!range && console.log('Main/ range:', range);		// not working
 			if (!!city && city.value) {
 				searchParams.set("city", city.value);
 				setSearchParams(searchParams);
