@@ -300,7 +300,7 @@ export function Search({
 
 		if (!!goto) {
 			// clg
-			// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
+			console.log(`Search : navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
 			navigate(goto + "?" + searchParams);
 		} else {
 			console.log("values passed to loadTours :", values);
@@ -423,7 +423,9 @@ export function Search({
                                 onSearchPhrase={getSearchPhrase}
                                 city={city}
                                 language={language}
-                                placeholder={searchPhrase}/>
+								placeholder={searchPhrase}
+                                goto={goto}
+                                />
 							</div>
 							<span
 								className="closeIcon"

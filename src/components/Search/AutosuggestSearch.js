@@ -5,7 +5,7 @@ import Search from '../../icons/SearchIcon';
 import {loadSuggestions} from "../../actions/crudActions";
 import {useTranslation} from "react-i18next";
 
-const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder}) => {
+const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, language, placeholder, goto}) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [input, setInput] = useState("");
     const {t} = useTranslation();
