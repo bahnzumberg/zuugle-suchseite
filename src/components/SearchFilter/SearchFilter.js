@@ -45,9 +45,9 @@ export function SearchFilter({
 	// loadFavouriteTours,
 }) {
 
-	console.log("goto : " + goto);
-	console.log("isMain : " + isMain);
-	console.log("loadTours : " + loadTours);
+	// console.log("goto : " + goto);
+	// console.log("isMain : " + isMain);
+	// console.log("loadTours : " + loadTours);
 	//--------menus-----------------
 
 	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
