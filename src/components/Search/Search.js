@@ -33,24 +33,24 @@ import AutosuggestSearchTour from "../Search/AutosuggestSearch";
 
 
 export function Search({
-                           loadRegions,
-                           loadTours,
-                           goto,
-                           isMain,
-                           showModal,
-                           hideModal,
-                           allCities,
-                           isMapView,
-                           // additional arguments
-                           // loadCities,
-                           // cities,
-                           regions,
-                           // isCityLoading,
-                           // loadFavouriteTours,
-						   showMobileMenu,
-						   setShowMobileMenu,
-                       }) {
-						//--------menus-----------------
+    loadRegions,
+	loadTours,
+	goto,
+	isMain,
+	showModal,
+	hideModal,
+	allCities,
+	isMapView,
+	// additional arguments
+	// loadCities,
+	// cities,
+	regions,
+	// isCityLoading,
+	// loadFavouriteTours,
+	showMobileMenu,
+	setShowMobileMenu,
+	}) {
+	//--------menus-----------------
 	const [fSearchQuery, setFSearchQuery] = React.useState("");
 	const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	const [firstMenuOptions, setFirstMenuOptions] = React.useState([
