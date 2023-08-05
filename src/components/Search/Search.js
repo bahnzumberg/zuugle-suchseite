@@ -83,7 +83,9 @@ export function Search({
     const [city, setCity] = useState(null)
     const [region, setRegion] = useState(null)
     const [activeFilter, setActiveFilter] = useState(false)
-    const initialIsMapView = isMapView || false
+    // const initialIsMapView = isMapView || false
+	// const [filterButton, setFilterButton] = useState(false);
+	
 
 	// const handleFocus = () => {
 	// 	setRegionInput("");
@@ -140,18 +142,18 @@ export function Search({
 		if (!!range) {
 			console.log("Search : region in useEffect : " + range);
 			setSearchPhrase(range);
-			setRegionInput(range);
+			// setRegionInput(range);
 			setRegion({value: range, label: range, type: "range"});
 		}
 
 		if (!!search) {
 			setSearchPhrase(search);
-			setRegionInput(search);
+			// setRegionInput(search);
 		}
 
 		if (!!state) {
 			setSearchPhrase(state);
-			setRegionInput(state);
+			// setRegionInput(state);
 			setRegion({value: state, label: state, type: "state"});
 		}
 
@@ -171,9 +173,9 @@ export function Search({
 		// console.log("Search...search inside useEffect :", search);
 
         //return if start page - no load
-        if (!!!isMain) {
-            return
-        }
+        // if (!!!isMain) {
+        //     return
+        // }
         let _filter = !!filter ? parseIfNeccessary(filter) : null //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
         if (!!_filter) {
             filter = {
@@ -809,112 +811,6 @@ export function Search({
 			)}
 		</Fragment>
 	);
-    // return (
-    //     <Fragment>
-    //         <Box>
-    //             <Grid
-    //                 container
-    //                 display="flex"
-    //                 justifyContent="center"
-    //                 alignContent="center"
-    //                 alignItems="center"
-    //             >
-    //                 {/*
-    //         <Grid item>
-
-    //             <Box display="flex" alignItems="center" justifyContent="center">
-    //             <SearchIcon
-    //               style={{
-    //                 strokeWidth: 0.5,
-    //                 stroke: "#8B8B8B",
-    //                 fill: "#8B8B8B",
-    //               }}
-    //             />
-    //           </Box>
-    //         </Grid>*/}
-    //                 <Grid item xs>
-    //                     <Box display="flex" alignItems="center" justifyContent="center">
-    //                         <AutosuggestSearchTour
-    //                             onSearchSuggestion={getSearchSuggestion}
-    //                             onSearchPhrase={getSearchPhrase}
-    //                             city={city}
-    //                             language={language}
-    //                             placeholder={searchPhrase}/>
-    //                     </Box>
-    //                 </Grid>
-
-    //                 <Grid item>
-    //                     <Box className="search-bar--divider"/>
-    //                 </Grid>
-
-
-    //                 <Grid item xs onClick={showCityModal}>
-    //                     <Box display="flex" alignItems="center" justifyContent="center">
-    //             <span className="search-bar--city">
-    //               {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
-    //             </span>
-    //                     </Box>
-    //                 </Grid>
-    //                 <Grid item>
-    //                     {!!initialIsMapView ? null : (
-    //                         <Box>
-    //                             {!!isMain ? (
-    //                                 <IconButton
-    //                                     onClick={toggleFilter}
-    //                                     sx={
-    //                                         activeFilter
-    //                                             ? {
-    //                                                 padding: "6px",
-    //                                                 border: "2px solid",
-    //                                                 borderColor: "#FF7663",
-    //                                                 background: "#FF7663",
-    //                                                 "&:hover": {
-    //                                                     background: "#FF9885",
-    //                                                 },
-    //                                             }
-    //                                             : {
-    //                                                 padding: "6px",
-    //                                                 border: "2px solid",
-    //                                                 borderColor: "#DDDDDD",
-    //                                                 "&:hover": {
-    //                                                     background: "#EEEEEE",
-    //                                                 },
-    //                                             }
-    //                                     }
-    //                                 >
-    //                                     <FilterIcon
-    //                                         style={{
-    //                                             transform: "scale(0.675)",
-    //                                             stroke: activeFilter ? "white" : "#101010",
-    //                                             strokeWidth: 1.25,
-    //                                         }}
-    //                                     />
-    //                                 </IconButton>
-    //                             ) : (
-    //                                 <IconButton
-    //                                     onClick={() => search()}
-    //                                     sx={{
-    //                                         "&:hover": {
-    //                                             background: "#7aa8ff",
-    //                                             fill: "#7aa8ff",
-    //                                         },
-    //                                     }}
-    //                                 >
-    //                                     <GoIcon
-    //                                         style={{
-    //                                             transform: "scale(1.55)",
-    //                                             strokeWidth: 0,
-    //                                         }}
-    //                                     />
-    //                                 </IconButton>
-    //                             )}
-    //                         </Box>
-    //                     )}
-    //                 </Grid>
-    //             </Grid>
-    //         </Box>
-    //     </Fragment>
-    // );
 }
 
 const mapDispatchToProps = {
