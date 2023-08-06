@@ -1,23 +1,22 @@
-# This is the updated 'basis-new-uix-tour-detail'
-# what is new here:
- 
+# Zuugle Suchseite
 
-# zuugle.at Suchseite
-## Erstinstallation
-Bei der Erstinstallation muss zuerst der Befehl 
-
-npm install
-    
-ausgeführt werden. Danach sind alle Dependencies installiert und die Suchseite kann lokal ausgeführt werden. 
-
-## Start Lokal
-
-Um die Suchseite lokal zu starten muss vorab darauf geachtet werden das die richtige Node Version verwendet wird. Mit
+## First time installation
+### Install all modules
+Execute in the project directory:
 
     nvm use
-    
-wir das sichergestellt. Danach den Befehl 
 
-    npm run start
+    npm install
+
+and install all dependencies.
+
+
+## Run frontend
+### Prepare API
+Follow the steps described at https://github.com/bahnzumberg/zuugle-api#zuugleat-api
+
+### Execute frontend locally
     
-ausführen und im Browser http://localhost:3000 aufrufen.
+    npm run start
+
+This will run the frontend in a browser on http://localhost:3000

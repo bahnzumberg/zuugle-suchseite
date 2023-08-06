@@ -59,6 +59,8 @@ export default function CityInput({
             return "München, Rosenheim, ..."
         } else if (host.indexOf("zuugle.ch") >= 0) {
             return "Zürich, ..."
+        } else if (host.indexOf("zuugle.si") >= 0) {
+            return "Ljubljana, Maribor,..."
         } else if (host.indexOf("zuugle.it") >= 0) {
             return "Bozen, ..."
         } else {
