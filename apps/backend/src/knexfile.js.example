@@ -17,7 +17,7 @@ module.exports = {
     version: '13',
     connection: {
       host : 'localhost',
-      port : 5432,
+      port : 5433,
       user : 'postgres',
       password : '',
       database : 'zuugle_suchseite_dev'
