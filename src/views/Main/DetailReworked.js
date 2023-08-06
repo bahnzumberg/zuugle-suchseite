@@ -444,11 +444,11 @@ const DetailReworked = (props) => {
 					<DomainMenu />
 					<LanguageMenu />
 				</Box>
-				{!!allCities && allCities.length > 0 && (
+				{/* {!!allCities && allCities.length > 0 && (
 					<Box alignItems={"center"} justifyContent={"center"} display="flex">
 						<SearchFilter isMain={false} />
 					</Box>
-				)}
+				)} */}
 			</Box>
 			<Box>
 				<Box className="tour-detail-header">
@@ -508,7 +508,7 @@ const DetailReworked = (props) => {
 									<Divider variant="middle" />
 									<div className="tour-detail-img-container">
 										<img
-											src={tour.image_url}
+											src={tour?.image_url}
 											alt="image"
 											onError={() => {
 												setRenderImage(false);
@@ -533,7 +533,7 @@ const DetailReworked = (props) => {
 								<Divider variant="middle" />
 								<div className="tour-detail-img-container">
 									<img
-										src={tour.image_url}
+										src={tour?.image_url}
 										alt="image"
 										onError={() => {
 											setRenderImage(false);
