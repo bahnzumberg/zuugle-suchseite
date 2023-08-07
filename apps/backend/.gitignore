@@ -2,10 +2,10 @@ build
 .idea
 .deploy
 node_modules
-public/gpx
-public/gpx-image
-public/gpx-image-with-track
-public/gpx-track
+public/gpx/*.gpx
+public/gpx-image/*.jpg
+public/gpx-image-with-track/*.jpg
+public/gpx-track/*.gpx
 package-lock.json
 src/firebase.json
 src/knexfile.js
