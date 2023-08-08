@@ -323,26 +323,26 @@ export function Search({
 	//     navigate(`/?${!!_city ? "city=" + _city : ""}`)
 	// }
 
-	// const showCityModal = () => {
-	// 	showModal("MODAL_COMPONENT", {
-	// 		CustomComponent: FullScreenCityInput,
-	// 		searchParams,
-	// 		initialCity: cityInput,
-	// 		onSelect: (city) => {
-	// 			hideModal();
-	// 			if (!!city) {
-	// 				setCityInput(city.label);
-	// 				setCity(city);
-	// 			}
-	// 		},
-	// 		setSearchParams,
-	// 		title: "",
-	// 		modalSize: "lg",
-	// 		onBack: () => {
-	// 			hideModal();
-	// 		},
-	// 	});
-	// };
+	const showCityModal = () => {
+		showModal("MODAL_COMPONENT", {
+			CustomComponent: FullScreenCityInput,
+			searchParams,
+			initialCity: cityInput,
+			onSelect: (city) => {
+				hideModal();
+				if (!!city) {
+					setCityInput(city.label);
+					setCity(city);
+				}
+			},
+			setSearchParams,
+			title: "",
+			modalSize: "lg",
+			onBack: () => {
+				hideModal();
+			},
+		});
+	};
 
 	// const showRegionInput = () => {
 	//     showModal("MODAL_COMPONENT", {
@@ -391,59 +391,58 @@ export function Search({
         autoSearchPhrase = searchPhrase;
     };
 	return (
-		<Fragment>
-			{showMobileMenu ? (
-				<div className="mobileMenu">
-					<div className="rowing" style={{ marginBottom: 15 }}>
-						<div />
-						<div className="rowing">
-							<span className="boldTxt">Abbrechen</span>
-							<span className="pointy" onClick={() => setShowMobileMenu(false)}>
-								<ClearIcon style={{ fontSize: 60, marginLeft: 8 }} />
-							</span>
-						</div>
-					</div>
-					<div className="firstMobileMenu">
-						<div className="rowing" style={{ marginBottom: 5 }}>
-							<span className="boldTxt">Suche</span>
-							<span />
-						</div>
-						<div
-							className="rowing searchField"
-							style={{ width: 275, marginRight: 5 }}
-						>
-							<div className="rowingLeft">
-								{/* <SearchIcon />
+    <Fragment>
+      {showMobileMenu ? (
+        <div className="mobileMenu">
+          <div className="rowing" style={{ marginBottom: 15 }}>
+            <div />
+            <div className="rowing">
+              <span className="boldTxt">Abbrechen</span>
+              <span className="pointy" onClick={() => setShowMobileMenu(false)}>
+                <ClearIcon style={{ fontSize: 60, marginLeft: 8 }} />
+              </span>
+            </div>
+          </div>
+          <div className="firstMobileMenu">
+            <div className="rowing" style={{ marginBottom: 5 }}>
+              <span className="boldTxt">Suche</span>
+              <span />
+            </div>
+            <div
+              className="rowing searchField"
+              style={{ width: 275, marginRight: 5 }}
+            >
+              <div className="rowingLeft">
+                {/* <SearchIcon />
 								<input
 									className="searchInput"
 									onChange={(e) => setFSearchQuery(e.target.value)}
 									value={fSearchQuery}
 									style={{ width: 195 }}
 								/> */}
-								<AutosuggestSearchTour
-                                onSearchSuggestion={getSearchSuggestion}
-                                onSearchPhrase={getSearchPhrase}
-                                city={city}
-                                language={language}
-								placeholder={searchPhrase}
-                                goto={goto}
-                                />
-							</div>
-							<span
-								className="closeIcon"
-								// style={{ marginRight: 10 }}
-								onClick={() => setFSearchQuery("")}
-							>
-								<CloseIcon
-									sx={{
-										color: "#8B8B8B",
-										width: 18,
-										height: 18,
-									}}
-								/>
-							</span>
-						</div>
-						<div
+                <AutosuggestSearchTour
+                  onSearchSuggestion={getSearchSuggestion}
+                  onSearchPhrase={getSearchPhrase}
+                  city={city}
+                  language={language}
+                  placeholder={searchPhrase}
+                  goto={goto}
+                />
+              </div>
+			  <Grid item>
+              <Box className="search-bar--divider" />
+            </Grid>
+              <Grid item xs onClick={showCityModal}>
+                <Box display="flex" alignItems="center" justifyContent="center">
+                  <span className="search-bar--city">
+                    {cityInput.length > 0
+                      ? cityInput
+                      : t("start.heimatbahnhof")}
+                  </span>
+                </Box>
+              </Grid>
+            </div>
+            {/* <div
 							className="colLeft"
 							style={{
 								height: 150,
@@ -458,359 +457,380 @@ export function Search({
 											{item}
 										</span>
 									))}
-						</div>
-					</div>
-					<div
-						className="firstMobileMenu"
-						style={{ marginTop: 40, marginBottom: 50 }}
-					>
-						<div className="rowing" style={{ marginBottom: 5 }}>
-							<span className="boldTxt">Dein Heimatbahnhof</span>
-							<span />
-						</div>
-						<div
-							className="rowing searchField"
-							style={{ width: 275, marginRight: 5 }}
-						>
-							<div className="rowingLeft">
-								{/* <SearchIcon />
+						</div> */}
+          </div>
+          <div
+            className="firstMobileMenu"
+            style={{ marginTop: 40, marginBottom: 50 }}
+          >
+            <div className="rowing" style={{ marginBottom: 5 }}>
+              <span className="boldTxt">Dein Heimatbahnhof</span>
+              <span />
+            </div>
+            <div
+              className="rowing searchField"
+              style={{ width: 275, marginRight: 5 }}
+            >
+              <div className="rowingLeft">
+                {/* <SearchIcon />
 								<input
 									className="searchInput"
 									onChange={(e) => setSecondSearchQuery(e.target.value)}
 									value={secondSearchQuery}
 									style={{ width: 195 }}
 								/> */}
-								<AutosuggestSearchTour
-                                onSearchSuggestion={getSearchSuggestion}
-                                onSearchPhrase={getSearchPhrase}
-                                city={city}
-                                language={language}
-                                placeholder={searchPhrase}/>
-							</div>
-							<span
-								className="closeIcon"
-								// style={{ marginRight: 10 }}
-								onClick={() => setSecondSearchQuery("")}
-							>
-								<CloseIcon
-									sx={{
-										color: "#8B8B8B",
-										width: 18,
-										height: 18,
-									}}
-								/>
-							</span>
-						</div>
-						<div
-							className="colLeft"
-							style={{
-								height: 150,
-								overflow: "auto",
-							}}
-						>
-							{secondSearchQuery &&
-								secondMenuOptions
-									.filter(
-										(item) =>
-											item.value
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase()) ||
-											item.label
-												.toLowerCase()
-												.includes(secondSearchQuery.toLowerCase())
-									)
-									.map((item) => (
-										<span
-											key={item}
-											className="searchSuggestions pointy"
-											onClick={() => {
-												setCity(item);
-												setShowMobileMenu(false);
-											}}
-										>
-											{item.value}
-										</span>
-									))}
-						</div>
-					</div>
-					<div className="rowing">
-						<span className="firstBtn">Dein Heimatbahnhof</span>
-						<span className="secondBtn">Suchen</span>
-					</div>
-				</div>
-			) : (
-				<Box component={"div"} className="colCenter">
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="centerInputField">
-							<img
-								src={`/app_static/img/searchIcon.png`}
-								height={"25px"}
-								width={"25px"}
-								alt="search-icon"
-							/>
-							<span
-								className="searchFirstText"
-								onClick={() => {
-									setShowFirstMenu(true);
-								}}
-							>
-								{t("start.suche")}
-							</span>
-							<span className="verticalBar" />
-							<span
-								className="searchSecondText"
-								onClick={() => setShowSecondMenu(true)}
-							>
-								{t("start.heimatbahnhof")}
-							</span>
-							<span className="goBtn" onClick={search}>
-								GO!
-							</span>
-						</div>
-					)}
-					{!showFirstMenu && !showSecondMenu && (
-						<div className="mobileSearchField">
-							<div className="rowing">
-								<img
-									src={`/app_static/img/searchIcon.png`}
-									height={"25px"}
-									width={"25px"}
-									alt="search-icon"
-								/>
-								<div
-									style={{
-										alignItems: "center",
-										justifyContent: "left",
-										display: "flex",
-										flexDirection: "column",
-										paddingLeft: 10,
-									}}
-									onClick={() => setShowMobileMenu(true)}
-								>
-									<span
-										className="searchFirstText"
-										style={{ width: "100%", textAlign: "left", fontSize: 14 }}
-									>
-										Öffi-Touren im Alpenraum
-									</span>
-									<span
-										className="searchSecondText"
-										style={{
-											width: "100%",
-											textAlign: "left",
-											paddingLeft: 10,
-											fontSize: 14,
-										}}
-									>
-										Heimatbahnhof wählen
-									</span>
-								</div>
-							</div>
-							<span className="goBtn" onClick={() => search()}>
-								GO!
-							</span>
-						</div>
-					)}
-					{showFirstMenu && (
-						<div
-							className="centerMe"
-							// style={{ position: "absolute", top: 485 }}
-						>
-							<Modal
-								onClose={() => setShowFirstMenu(false)}
-								open={showFirstMenu}
-								style={{ position: "absolute", top: 440 }}
-								className="centerMe"
-							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Suche</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowFirstMenu(false)}
-										>
-											Abbrechen
-										</span>
-									</div>
-									<div className="rowing">
-										<div className="rowing searchField">
-											<div className="rowingLeft">
-												{/* <SearchIcon />
-												<input
-													className="searchInput"
-													onChange={(e) => setFSearchQuery(e.target.value)}
-													value={fSearchQuery}
-												/> */}
-												<AutosuggestSearchTour
-													onSearchSuggestion={getSearchSuggestion}
-													onSearchPhrase={getSearchPhrase}
-													city={city}
-													language={language}
-													placeholder={searchPhrase}/>
-											</div>
-											<span
-												className="closeIcon"
-												// style={{ marginRight: 10 }}
-												onClick={() => setFSearchQuery("")}
-											>
-												<CloseIcon
-													sx={{
-														color: "#8B8B8B",
-														width: 18,
-														height: 18,
-													}}
-												/>
-											</span>
-										</div>
-										<div className="incircledArrow centerMe">
-											<ArrowForwardOutlinedIcon
-												style={{ fontSize: 30, color: "#4992FF" }}
-											/>
-										</div>
-									</div>
-									{showFirstMenu && (
-										<div
-											className="colLeft"
-											style={{ marginLeft: 0, marginTop: 10, height: 200 }}
-										>
-											{fSearchQuery &&
-												firstMenuOptions
-													.filter((item) => item.startsWith(fSearchQuery))
-													.map((item) => (
-														<span key={item} className="searchSuggestions">
-															{item}
-														</span>
-													))}
-											{fSearchQuery.trim() &&
-												firstMenuOptions.filter((item) =>
-													item.startsWith(fSearchQuery)
-												).length === 0 && (
-													<span className="searchSuggestions">
-														No results found
-													</span>
-												)}
-										</div>
-									)}
-								</div>
-							</Modal>
-						</div>
-					)}
-					{showSecondMenu && (
-						<div className="centerMe" style={{ height: 400 }}>
-							<Modal
-								onClose={() => setShowSecondMenu(false)}
-								open={showSecondMenu}
-								style={{ position: "absolute", top: 400, marginRight: -6 }}
-								className="centerMe"
-							>
-								<div className="firstMenu" style={{ marginTop: 75 }}>
-									<div className="rowing" style={{ marginBottom: 5 }}>
-										<span className="boldTxt">Dein Heimatbahnhof?</span>
-										<span
-											className="boldTxt underline pointy"
-											onClick={() => setShowSecondMenu(false)}
-										>
-											Abbrechen
-										</span>
-									</div>
-									<div className="rowing">
-										<div className="rowing searchField">
-											<div className="rowingLeft">
-												{/* <SearchIcon />
+                <AutosuggestSearchTour
+                  onSearchSuggestion={getSearchSuggestion}
+                  onSearchPhrase={getSearchPhrase}
+                  city={city}
+                  language={language}
+                  placeholder={searchPhrase}
+                />
+              </div>
+              <Grid item xs onClick={showCityModal}>
+                <Box display="flex" alignItems="center" justifyContent="center">
+                  <span className="search-bar--city">
+                    {cityInput.length > 0
+                      ? cityInput
+                      : t("start.heimatbahnhof")}
+                  </span>
+                </Box>
+              </Grid>
+              <span
+                className="closeIcon"
+                // style={{ marginRight: 10 }}
+                onClick={() => setSecondSearchQuery("")}
+              >
+                <CloseIcon
+                  sx={{
+                    color: "#8B8B8B",
+                    width: 18,
+                    height: 18,
+                  }}
+                />
+              </span>
+            </div>
+            <div
+              className="colLeft"
+              style={{
+                height: 150,
+                overflow: "auto",
+              }}
+            >
+              {secondSearchQuery &&
+                secondMenuOptions
+                  .filter(
+                    (item) =>
+                      item.value
+                        .toLowerCase()
+                        .includes(secondSearchQuery.toLowerCase()) ||
+                      item.label
+                        .toLowerCase()
+                        .includes(secondSearchQuery.toLowerCase())
+                  )
+                  .map((item) => (
+                    <span
+                      key={item}
+                      className="searchSuggestions pointy"
+                      onClick={() => {
+                        setCity(item);
+                        setShowMobileMenu(false);
+                      }}
+                    >
+                      {item.value}
+                    </span>
+                  ))}
+            </div>
+          </div>
+          <div className="rowing">
+            <span className="firstBtn">Dein Heimatbahnhof</span>
+            <span className="secondBtn">Suchen</span>
+          </div>
+        </div>
+      ) : (
+        <Box component={"div"} className="colCenter">
+          {!showFirstMenu && !showSecondMenu && (
+            <div className="centerInputField">
+              <img
+                src={`/app_static/img/searchIcon.png`}
+                height={"25px"}
+                width={"25px"}
+                alt="search-icon"
+              />
+              <span
+                className="searchFirstText"
+                onClick={() => {
+                  setShowFirstMenu(true);
+                }}
+              >
+                {t("start.suche")}
+              </span>
+              <span className="verticalBar" />
+              <span
+                className="searchSecondText"
+                onClick={() => setShowSecondMenu(true)}
+              >
+                {t("start.heimatbahnhof")}
+              </span>
+              <span className="goBtn" onClick={search}>
+                GO!
+              </span>
+            </div>
+          )}
+          {!showFirstMenu && !showSecondMenu && (
+            <div className="mobileSearchField">
+              <div className="rowing">
+                <img
+                  src={`/app_static/img/searchIcon.png`}
+                  height={"25px"}
+                  width={"25px"}
+                  alt="search-icon"
+                />
+                <div
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "left",
+                    display: "flex",
+                    flexDirection: "column",
+                    paddingLeft: 10,
+                  }}
+                  onClick={() => setShowMobileMenu(true)}
+                >
+                  <span
+                    className="searchFirstText"
+                    style={{ width: "100%", textAlign: "left", fontSize: 14 }}
+                  >
+                    Öffi-Touren im Alpenraum
+                  </span>
+                  <span
+                    className="searchSecondText"
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      paddingLeft: 10,
+                      fontSize: 14,
+                    }}
+                  >
+                    {cityInput.length > 0
+                      ? cityInput
+                      : t("start.heimatbahnhof")}
+                  </span>
+                </div>
+              </div>
+              <span className="goBtn" onClick={() => search()}>
+                GO!
+              </span>
+            </div>
+          )}
+          {showFirstMenu && (
+            <div
+              className="centerMe"
+              // style={{ position: "absolute", top: 485 }}
+            >
+              <Modal
+                onClose={() => setShowFirstMenu(false)}
+                open={showFirstMenu}
+                style={{ position: "absolute", top: 440 }}
+                className="centerMe"
+              >
+                <div className="firstMenu" style={{ marginTop: 75 }}>
+                  <div className="rowing" style={{ marginBottom: 5 }}>
+                    <span className="boldTxt">Suche</span>
+                    <span
+                      className="boldTxt underline pointy"
+                      onClick={() => setShowFirstMenu(false)}
+                    >
+                      Abbrechen
+                    </span>
+                  </div>
+                  <div className="rowing">
+                    <div className="rowing searchField">
+                      <div className="rowingLeft">
+                        {/* <SearchIcon />
+						<input
+							className="searchInput"
+							onChange={(e) => setFSearchQuery(e.target.value)}
+							value={fSearchQuery}
+						/> */}
+                        <AutosuggestSearchTour
+                          onSearchSuggestion={getSearchSuggestion}
+                          onSearchPhrase={getSearchPhrase}
+                          city={city}
+                          language={language}
+                          placeholder={searchPhrase}
+                        />
+                      </div>
+                      <span
+                        className="closeIcon"
+                        // style={{ marginRight: 10 }}
+                        onClick={() => setFSearchQuery("")}
+                      >
+                        <CloseIcon
+                          sx={{
+                            color: "#8B8B8B",
+                            width: 18,
+                            height: 18,
+                          }}
+                        />
+                      </span>
+                    </div>
+                    <div className="incircledArrow centerMe">
+                      <ArrowForwardOutlinedIcon
+                        style={{ fontSize: 30, color: "#4992FF" }}
+                      />
+                    </div>
+                  </div>
+                  {showFirstMenu && (
+                    <div
+                      className="colLeft"
+                      style={{ marginLeft: 0, marginTop: 10, height: 200 }}
+                    >
+                      {fSearchQuery &&
+                        firstMenuOptions
+                          .filter((item) => item.startsWith(fSearchQuery))
+                          .map((item) => (
+                            <span key={item} className="searchSuggestions">
+                              {item}
+                            </span>
+                          ))}
+                      {fSearchQuery.trim() &&
+                        firstMenuOptions.filter((item) =>
+                          item.startsWith(fSearchQuery)
+                        ).length === 0 && (
+                          <span className="searchSuggestions">
+                            No results found
+                          </span>
+                        )}
+                    </div>
+                  )}
+                </div>
+              </Modal>
+            </div>
+          )}
+          {showSecondMenu && (
+            <div className="centerMe" style={{ height: 400 }}>
+              <Modal
+                onClose={() => setShowSecondMenu(false)}
+                open={showSecondMenu}
+                style={{ position: "absolute", top: 400, marginRight: -6 }}
+                className="centerMe"
+              >
+                <div className="firstMenu" style={{ marginTop: 75 }}>
+                  <div className="rowing" style={{ marginBottom: 5 }}>
+                    <span className="boldTxt">Dein Heimatbahnhof?</span>
+                    <span
+                      className="boldTxt underline pointy"
+                      onClick={() => setShowSecondMenu(false)}
+                    >
+                      Abbrechen
+                    </span>
+                  </div>
+                  <div className="rowing">
+                    <div className="rowing searchField">
+                      <div className="rowingLeft">
+                        {/* <SearchIcon />
 												<input
 													className="searchInput"
 													onChange={(e) => setSecondSearchQuery(e.target.value)}
 													value={secondSearchQuery}
 													style={{ width: 440 }}
 												/> */}
-												<AutosuggestSearchTour
-													onSearchSuggestion={getSearchSuggestion}
-													onSearchPhrase={getSearchPhrase}
-													city={city}
-													language={language}
-													placeholder={searchPhrase}/>
-											</div>
-											<span
-												className="closeIcon"
-												// style={{ marginRight: 10 }}
-												onClick={() => setSecondSearchQuery("")}
-											>
-												<CloseIcon
-													sx={{
-														color: "#8B8B8B",
-														width: 18,
-														height: 18,
-													}}
-												/>
-											</span>
-										</div>
-										<div className="incircledArrow centerMe">
-											<ArrowForwardOutlinedIcon
-												style={{ fontSize: 30, color: "#4992FF" }}
-											/>
-										</div>
-									</div>
-									{showSecondMenu && (
-										<div
-											className="colLeft"
-											style={{
-												marginLeft: 0,
-												marginTop: 10,
-												height: 150,
-												overflow: "auto",
-											}}
-										>
-											{secondSearchQuery &&
-												secondMenuOptions
-													.filter(
-														(item) =>
-															item.value
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase()) ||
-															item.label
-																.toLowerCase()
-																.includes(secondSearchQuery.toLowerCase())
-													)
-													.map((item) => (
-														<span
-															key={item.value}
-															className="searchSuggestions rowingStart pointy"
-															onClick={() => {
-																setCity(item);
-																setShowSecondMenu(false);
-															}}
-														>
-															<img
-																src={`/app_static/img/grpSymbol.png`}
-																className="ssiggestionQry"
-															/>
-															{item.value}
-														</span>
-													))}
-											{secondSearchQuery.trim() &&
-												secondMenuOptions.filter(
-													(item) =>
-														item.value
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase()) ||
-														item.label
-															.toLowerCase()
-															.includes(secondSearchQuery.toLowerCase())
-												).length === 0 && (
-													<span className="searchSuggestions">
-														No results found
-													</span>
-												)}
-										</div>
-									)}
-								</div>
-							</Modal>
-						</div>
-					)}
-				</Box>
-			)}
-		</Fragment>
-	);
+                        <Grid item xs onClick={()=>showCityModal}>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                          >
+                            <span className="search-bar--city">
+                              {cityInput.length > 0
+                                ? cityInput
+                                // : t("start.heimatbahnhof")}
+                                : "YO!"}
+                            </span>
+                          </Box>
+                        </Grid>
+                      </div>
+                      <span
+                        className="closeIcon"
+                        // style={{ marginRight: 10 }}
+                        // onClick={() => setSecondSearchQuery("")}
+                      >
+                        <CloseIcon
+                          sx={{
+                            color: "#8B8B8B",
+                            width: 18,
+                            height: 18,
+                          }}
+                        />
+                      </span>
+                    </div>
+                    <div className="incircledArrow centerMe">
+                      <ArrowForwardOutlinedIcon
+                        style={{ fontSize: 30, color: "#4992FF" }}
+                      />
+                    </div>
+                  </div>
+                  {showSecondMenu && (
+                    <div
+                      className="colLeft"
+                      style={{
+                        marginLeft: 0,
+                        marginTop: 10,
+                        height: 150,
+                        overflow: "auto",
+                      }}
+                    >
+                      {secondSearchQuery &&
+                        secondMenuOptions
+                          .filter(
+                            (item) =>
+                              item.value
+                                .toLowerCase()
+                                .includes(secondSearchQuery.toLowerCase()) ||
+                              item.label
+                                .toLowerCase()
+                                .includes(secondSearchQuery.toLowerCase())
+                          )
+                          .map((item) => (
+                            <span
+                              key={item.value}
+                              className="searchSuggestions rowingStart pointy"
+                              onClick={() => {
+                                setCity(item);
+                                setShowSecondMenu(false);
+                              }}
+                            >
+                              <img
+                                src={`/app_static/img/grpSymbol.png`}
+                                className="ssiggestionQry"
+                              />
+                              {item.value}
+                            </span>
+                          ))}
+                      {secondSearchQuery.trim() &&
+                        secondMenuOptions.filter(
+                          (item) =>
+                            item.value
+                              .toLowerCase()
+                              .includes(secondSearchQuery.toLowerCase()) ||
+                            item.label
+                              .toLowerCase()
+                              .includes(secondSearchQuery.toLowerCase())
+                        ).length === 0 && (
+                          <span className="searchSuggestions">
+                            No results found
+                          </span>
+                        )}
+                    </div>
+                  )}
+                </div>
+              </Modal>
+            </div>
+          )}
+        </Box>
+      )}
+    </Fragment>
+  );
 }
 
 const mapDispatchToProps = {
