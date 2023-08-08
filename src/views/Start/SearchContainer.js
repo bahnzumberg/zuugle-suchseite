@@ -1,6 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Search from "../../components/Search/Search";
+// import Search from "../../components/Search/Search";
+import Search from "../../components/Search/Search_temp";
 
 export default function SearchContainer({
 	goto,
@@ -11,6 +12,7 @@ export default function SearchContainer({
 	return (
 		<Box>
 			<Search
+				isMain={false}
 				goto={goto}
 				showMobileMenu={showMobileMenu}
 				setShowMobileMenu={setShowMobileMenu}
