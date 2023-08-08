@@ -20,7 +20,6 @@ export default function Header({
 	showMobileMenu,
 	setShowMobileMenu,
 }) {
-	// const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	// const [fSearchQuery, setFSearchQuery] = React.useState("");
 	// const [showFirstMenu, setShowFirstMenu] = React.useState(false);
 	// const [firstMenuOptions, setFirstMenuOptions] = React.useState([
@@ -105,11 +104,18 @@ export default function Header({
 					</Typography>
 				</Box>
 				{!!allCities && allCities.length > 0 && (
-					<SearchContainer
-						goto={"/suche"}
-						showMobileMenu={showMobileMenu}
-						setShowMobileMenu={setShowMobileMenu}
-					/>
+				<Box  sx={{ backgroundColor: "#FFF", marginTop: "120px", display: "inline-flex", borderRadius: "15px", padding: "7px 15px" }}>
+					<Box alignItems={"center"} justifyContent={"center"}>
+						<Box className={"colCenter"}>
+						<SearchContainer
+							goto={"/suche"}
+							showMobileMenu={showMobileMenu}
+							setShowMobileMenu={setShowMobileMenu}
+						/>
+						</Box>
+					</Box>
+				</Box>
+
 				)}
 			</Box>
 		);
