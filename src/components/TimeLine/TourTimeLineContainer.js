@@ -40,8 +40,7 @@ export default function TourTimeLineContainer({connections, loading}){
     if(!!!getSingleConnection()){
         return <Box sx={{ bgcolor: '#FFFFFF', borderRadius: '16px', padding: '20px', position: 'relative', textAlign: "center" }}>
             <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
-                Für diesen Tag wurden keine Verbindungen gefunden.
-                {/* {t("details.keine_verbindungen")} */}
+                {t("details.keine_verbindungen")}
             </Typography>
         </Box>
     }

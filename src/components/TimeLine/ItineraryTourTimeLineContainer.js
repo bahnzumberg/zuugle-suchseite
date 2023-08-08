@@ -14,6 +14,7 @@ import {
     getDepartureText,
     getNumberOfTransfers
 } from "./utils";
+import { useTranslation } from 'react-i18next';
 
 //description
 //TourTimeLineContainer is a React component that displays a timeline of connections for a tour, along with information about the departure point and the number of transfers.
@@ -24,6 +25,7 @@ import {
 export default function ItineraryTourTimeLineContainer({connections, loading}){
     const [entries, setEntries] = useState([]);
 
+    const {t} = useTranslation();
     useEffect(() => {
         setEntries(parseTourConnectionDescription(getSingleConnection()));
     }, [connections])
@@ -36,7 +38,7 @@ export default function ItineraryTourTimeLineContainer({connections, loading}){
 
     if(!!!getSingleConnection()){
         return <Box sx={{ bgcolor: '#FFFFFF', borderRadius: '16px', padding: '20px', position: 'relative', textAlign: "center" }}>
-            <Typography sx={{lineHeight: "16px", fontWeight: 600}}>Für diesen Tag wurden keine Verbindungen gefunden.</Typography>
+            <Typography sx={{lineHeight: "16px", fontWeight: 600}}> {t('details.keine_verbindungen')} </Typography>
         </Box>
     }
 
