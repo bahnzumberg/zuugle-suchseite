@@ -253,7 +253,13 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .header-line {
-  background: linear-gradient(91.15deg, #4992FF -6.78%, #FF9466 108.06%);
+  background:  #FFFF ;
+  /* background: linear-gradient(91.15deg, #4992FF -6.78%, #FF9466 108.06%); */
+  z-index: 0
+}
+
+.header-line-main {
+  background-color: #F7F7F7; 
   z-index: 0
 }
 
@@ -1503,4 +1509,26 @@ cursor: pointer;
     margin-left: -13px;
   }
 
+}
+
+/* App.css */
+
+.filter-icon-container {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgb(52, 134, 178);
+  border-radius: 50%;
+  color: green;
+  transition: color 0.3s;
+  padding: 8px;
+}
+
+.filter-icon-container:hover {
+  stroke: rgba(0, 128, 0, 0.5);
+  color: #3390b2; /* Change the color on hover */
+  background-color: #3390b2; /* Add a background color on hover */
+  border-color: #b29d33; /* Change the border color on hover */
 }
