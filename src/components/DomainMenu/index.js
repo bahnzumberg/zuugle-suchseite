@@ -8,32 +8,32 @@ const listOfDomains = [
 	{
 		id: 0,
 		name: "Zuugle.at",
-		url: "https://zuugle.at",
+		url: "https://www.zuugle.at",
 	},
 	{
 		id: 1,
 		name: "Zuugle.de",
-		url: "https://zuugle.de",
+		url: "https://www.zuugle.de",
 	},
 	{
 		id: 2,
 		name: "Zuugle.ch",
-		url: "https://zuugle.ch",
+		url: "https://www.zuugle.ch",
 	},
 	{
 		id: 3,
 		name: "Zuugle.it",
-		url: "https://zuugle.it",
+		url: "https://www.zuugle.it",
 	},
 	{
 		id: 4,
 		name: "Zuugle.fr",
-		url: "https://zuugle.fr",
+		url: "https://www.zuugle.fr",
 	},
 	{
 		id: 5,
 		name: "Zuugle.si",
-		url: "https://zuugle.si",
+		url: "https://www.zuugle.si",
 	},
 ];
 
