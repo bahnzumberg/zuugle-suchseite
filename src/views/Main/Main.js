@@ -18,7 +18,7 @@ import { useLocation } from "react-router-dom";
 import {
 	getFilterFromParams,
 	getFilterProp,
-	myTrackPageView,
+	// myTrackPageView,
 } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useMatomo} from "@datapunt/matomo-tracker-react";
@@ -35,10 +35,15 @@ import {
 import { loadRanges } from "../../actions/rangeActions";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
+import { useTranslation } from 'react-i18next';
+
+// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
+// import SearchContainer from "../../views/Start/SearchContainer";
 
 const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
-const Search = lazy(() => import("../../components/Search/Search"));
-// const ResultBar = lazy(() => import("../../components/ResultBar"));
+// const Search = lazy(() => import("../../components/Search/Search"));
+const Search = lazy(() => import("../../components/Search/Search_temp"));
+const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
 	import("../../components/TourCardContainer")
 );
@@ -94,16 +99,16 @@ export function Main({
 		filter = {};
 	}
 	//clgs
-	console.log("L99: Main , totalTours upon entry:",totalTours)
-	console.log("L100: Main , tours.length upon entry:",tours.length)
-	console.log("L101: Main , filter upon entry:",filter)
+	// console.log("L99: Main , totalTours upon entry:",totalTours)
+	// console.log("L100: Main , tours.length upon entry:",tours.length)
+	// console.log("L101: Main , filter upon entry:",filter)
 	// console.log("L102: Main , allCities:",allCities)
 	// console.log("L103: Main , allRanges:",allRanges)
-	console.log("L104: Main , totalTours :",totalTours)
 
 
 	const navigate = useNavigate();
 	const location = useLocation();
+	const{t} = useTranslation();
 
 	// const { trackPageView, trackEvent } = useMatomo()
 
@@ -113,6 +118,9 @@ export function Main({
 	const [filterActive, setFilterActive] = React.useState(0);
 	const [mapView, setMapView] = React.useState(false);
 	const [directLink, setDirectLink] = React.useState(null);
+	const [tourID, setTourID] = useState(null);
+
+	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
 	// alternative code for useBacklistener
 	// useBackListener(() => {
@@ -171,8 +179,8 @@ export function Main({
 			const city = checkIfSeoPageCity(location, allCities);
 			const range = checkIfSeoPageRange(location, allRanges);
 			//clg
-console.log('Main/ city:', city);			// not working
-			!!range && console.log('Main/ range:', range);		// not working
+console.log('Main/ city:', searchParams.get("city"));			// working
+			!!range && console.log('Main/ range:', searchParams.get("range"));	// not working, do we need it?
 			if (!!city && city.value) {
 				searchParams.set("city", city.value);
 				setSearchParams(searchParams);
@@ -268,10 +276,6 @@ console.log('Main/ city:', city);			// not working
         return count;
     }
 
-	// const toggleDetailOpen = () => {
-	// 	setDetailOpen(!detailOpen);
-	// };
-
 	const onSelectTour = (tour) => {
 		let currentSearchParams = new URLSearchParams(searchParams.toString());
 		const city = currentSearchParams.get("city");
@@ -286,12 +290,15 @@ console.log('Main/ city:', city);			// not working
 
 	//description:
 	//This is a callback function that selects a tour with a specific id
-	// const onSelectTourById = (id) => {
-	// 	onSelectTour({ id: id });
-	// };
+	const onSelectTourById = (id) => {
+		onSelectTour({ id: id });
+	};
 
-
-
+	const memoTourMapContainer = useMemo(() => {
+        // console.log("L 273 tourID : " + tourID)
+        return (<TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onSelectTourById} loading={loading}
+                                  setTourID={setTourID} tourID={tourID}/>)
+    }, tourID);
 
 	return (
 		<div>
@@ -303,31 +310,43 @@ console.log('Main/ city:', city);			// not working
 
         <Box sx={{width: "100%"}} className={"search-result-header-container"}>
             {
-                // description:
-                // Box component with seo-bar class: This element is conditionally rendered if there is a directLink prop passed to the component. It contains a page title and description that are used for SEO purposes.
                 !!directLink && <Box className={"seo-bar"}>
                     <Typography variant={"h1"} sx={{color: "#000000", fontSize: "18px", marginBottom: "5px"}}>{directLink.header}</Typography>
                     <Typography variant={"text"} sx={{fontSize: "14px"}}>{directLink.description}</Typography>
                 </Box>
             }
 					{/* new top header */}
-					<Box className="newHeader">
+			<Box className="newHeader"
+					sx={{
+					height: "150px", // Set the desired height for the newHeader
+					}}
+				>
 					<Box comoponent={"div"} className="rowing blueDiv">
 						<DomainMenu />
 						<LanguageMenu />
 					</Box>
-					{!!allCities && allCities.length > 0 && (
-						<Box alignItems={"center"} justifyContent={"center"} display="flex">
-							{/* <SearchFilter isMain={true} /> */}
-							<Search isMain={true}/> 
+					{(!!allCities && allCities.length > 0) &&
+					<>
+						<Box alignItems={"center"} justifyContent={"center"} display="inline-block" 
+							sx={{backgroundColor: "#FFF",marginTop: "-30px", borderRadius: "15px",padding:"5px 15px"}}
+							
+						>
+							<Box elevation={1} className={"colCenter"} >
+								<Search isMain={true}/>
+							</Box>
 						</Box>
-					)}
+
+						
+					</>
+					}
+			</Box>
+			<Box elevation={0} className={"header-line-main"}>
+				<Box sx={{ paddingTop: "30px", paddingBottom: "30px" }}>
+					<Typography color={"black"} sx={{ textAlign: "center" }}>
+						{totalTours == 1 ? 'Ergebnis ' :  `${t('main.ergebnisse')} ${totalTours}`}
+					</Typography>
 				</Box>
-            {/* description:
-            ResultBar component: This component displays the number of search results and the filter options. It also has a button to clear the search and filters. This component is always rendered, regardless of the search results.  */}
-            {
-                // (!detailOpen) && <ResultBar showModal={showModal} hideModal={hideModal} total={totalTours} filter={filter} filterActive={filterActive} everythingDisabled={totalTours==0} clearTours={clearTours}/>
-            }
+			</Box>
         </Box>
 
         {(!!loading && !!!mapView) &&
@@ -341,18 +360,22 @@ console.log('Main/ city:', city);			// not working
             
                 {/* //description: 
                 //either display 100% size map or display the TourCardContainer 
-                // !!mapView ? (
-                //     <Box className={"map-container"}>*/}
+				*/}
+                {!!mapView ? (
+                    <Box className={"map-container"}>
                         {/* clg */}
                         {/* {console.log("tours[0].id : L271",tours[0].id)} */}
                         {/* {console.log("loadGPX : L269",loadGPX)} */}
                         {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
                          {/* {console.log("loading : L272",loading)} */}
-                         {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/> */}
-                         {/* {memoTourMapContainer} */}
-                     {/* </Box>)
-                     :  */}
-					<Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}>
+                        {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>  */}
+                        {memoTourMapContainer}
+                    </Box>)
+                     :  
+					<Box className={"cards-container" + ((!!directLink && !!directLink.header) ? " seo-page" : "")}
+					sx={{marginTop: "250px"}}
+					>
+
                         {console.log('total passed to TourCardContainer',totalTours)}
                         {console.log('tours.length passed to TourCardContainer',tours.length)}
                         <TourCardContainer onSelectTour={onSelectTour}
@@ -361,10 +384,11 @@ console.log('Main/ city:', city);			// not working
                                            loadTours={loadTours} totalTours={totalTours} pageTours={pageTours}
                                            loading={loading} total={totalTours}/>
                     </Box>
-            
+				}
             </>
+		}	
 			
-        }
+        
     </div>)
 }
 
