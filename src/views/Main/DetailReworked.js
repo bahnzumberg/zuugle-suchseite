@@ -112,6 +112,15 @@ const DetailReworked = (props) => {
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
 
+	const maxLength = 40;
+
+	const shortenText = (text, atChar, maxLength) => {
+		let shortText = text;
+		if(text.length > maxLength){
+			shortText = text.slice(atChar, maxLength).concat('...');
+		}
+		return shortText;
+	};
 
     //Creating a new share link
     useEffect(() => {
@@ -336,7 +345,7 @@ const DetailReworked = (props) => {
             <PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
             {!!isPdfLoading ?
                 <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}> {t("Details.pdf_loading_notice")} </span>
+                : <span style={{color: "#8B8B8B"}}>  {shortenText(t('Details.pdf_loading_notice'),0,maxLength)} </span>
             }
         </Button>
 
@@ -350,7 +359,7 @@ const DetailReworked = (props) => {
                     setSocialMediaDropDownToggle((current) => { return !current});
                 }}>
             <ShareIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.teilen')}</span>
-            <span style={{color: "#8B8B8B", marginLeft:"20px"}}>{t('details.teilen_description')}</span>
+            <span style={{color: "#8B8B8B", marginLeft:"15px"}}>{shortenText(t('details.teilen_description'),0,maxLength)}</span>
         </Button>
         {/*
         Specific social media buttons
