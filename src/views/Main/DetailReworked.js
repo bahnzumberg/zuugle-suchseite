@@ -49,6 +49,8 @@ import {
     WhatsappIcon
 } from "react-share";
 import ShareIcon from "../../icons/ShareIcon";
+import {shortenText} from "../../utils/globals"
+
 const setGpxTrack = (url, loadGPX, _function) => {
 	loadGPX(url).then((res) => {
 		if (!!res && !!res.data) {
@@ -112,15 +114,8 @@ const DetailReworked = (props) => {
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
 
+	//max number of characters used per specific UI element (buttons) 
 	const maxLength = 40;
-
-	const shortenText = (text, atChar, maxLength) => {
-		let shortText = text;
-		if(text.length > maxLength){
-			shortText = text.slice(atChar, maxLength).concat('...');
-		}
-		return shortText;
-	};
 
     //Creating a new share link
     useEffect(() => {

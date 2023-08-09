@@ -208,4 +208,12 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
 export const titleCase = (string = '') =>{
     if(typeof string === 'string')
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  }
+}
+
+export 	const shortenText = (text, atChar, maxLength) => {
+    let shortText = text;
+    if(text.length > maxLength){
+        shortText = text.slice(atChar, maxLength).concat('...');
+    }
+    return shortText;
+};
