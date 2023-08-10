@@ -343,7 +343,7 @@ console.log('Main/ city:', searchParams.get("city"));			// working
 			<Box elevation={0} className={"header-line-main"}>
 				<Box sx={{ paddingTop: "30px", paddingBottom: "30px" }}>
 					<Typography color={"black"} sx={{ textAlign: "center" }}>
-						{totalTours == 1 ? 'Ergebnis ' :  `${t('main.ergebnisse')} ${totalTours}`}
+					{totalTours} {totalTours == 1 ? ' Ergebnis ' :  ` ${t('main.ergebnisse')}`}
 					</Typography>
 				</Box>
 			</Box>
