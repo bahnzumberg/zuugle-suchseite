@@ -42,7 +42,7 @@ import { useTranslation } from 'react-i18next';
 
 const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
 // const Search = lazy(() => import("../../components/Search/Search"));
-const Search = lazy(() => import("../../components/Search/Search_temp"));
+const Search = lazy(() => import("../../components/Search/Search"));
 const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
 	import("../../components/TourCardContainer")
