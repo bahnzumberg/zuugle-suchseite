@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Async from 'react-select/async';
 import Select, {components} from 'react-select';
-import Search from '../../icons/SearchIcon';
+import SearchIcon from '../../icons/SearchIcon';
 import {loadSuggestions} from "../../actions/crudActions";
 import {useTranslation} from "react-i18next";
 
@@ -82,7 +82,7 @@ const AutosuggestSearchTour = ({onSearchSuggestion, onSearchPhrase, city, langua
 
     return (
         <div style={{display: 'flex', alignItems: 'center'}}>
-            <Search
+            <SearchIcon
                 style={{strokeWidth: 1, stroke: '#101010', fill: '#101010'}}
             />
             <Async
