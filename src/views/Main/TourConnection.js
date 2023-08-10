@@ -109,8 +109,6 @@ export function TourConnection({tour, connectionEntity, currentIndex, setCurrent
 
     return <Box sx={{ width: '100%', padding: 0}}>
         {
-            // note:
-            // currently this conditional always get a false, there is always a city set when TourConection is called (from Detail component)
             !!isConnectionAndCityEmpty() ? <Fragment>
                 <Box sx={{padding: "20px"}}>
                     <Typography style={{marginBottom: "20px"}}>Bitte wähle jetzt den Ort aus, von dem du deine Tour starten willst. Meistens wird das deine Heimatstadt, oder der nächst-größere Ort sein. Erst dann können wir dir zeigen, welche Touren für dich erreichbar sind:</Typography>
