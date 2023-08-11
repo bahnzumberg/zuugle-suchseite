@@ -51,11 +51,9 @@ export default function TourTimeLineContainer({connections, loading}){
             return <Fragment></Fragment>;
         }
         if(connection.connection_duration_minutes == 0){
-            return 'Start beim Ausgangsort';
-            // return t("details.start_ausgangort");
+            return t("details.start_ausgangort");
         } else {
-            return 'Beste Anreise';
-            // return t("details.beste_anreise");
+            return t("Details.beste_anreise");
         }
     }
 
@@ -93,8 +91,7 @@ export default function TourTimeLineContainer({connections, loading}){
                 <Box sx={{borderTop: "1px solid #EAEAEA", padding: '20px', marginLeft: '-20px', marginRight: '-20px'}}>
                     
                     <Button variant={"contained"} fullWidth onClick={() => { window.open(get_live_timetable_link_there()); }}>
-                        Liveabfrage für diese Anreise prüfen
-                        {/* {t("details.liveabfrage_anreise")} */}
+                        {t("details.liveabfrage_anreise")}
                     </Button>
                 </Box>
             </Fragment>
