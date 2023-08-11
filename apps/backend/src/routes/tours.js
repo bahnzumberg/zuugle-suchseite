@@ -177,7 +177,7 @@ const listWrapper = async (req, res) => {
 
     //filters the tours by coordinates
     //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
-    console.log("LENGTH:", city.length);
+    city && city.length && console.log("LENGTH:", city.length);
     if(!!coordinatesNorthEast && !!coordinatesSouthWest){
         const latNE = coordinatesNorthEast.lat.toString();
         const lngNE = coordinatesNorthEast.lng.toString();
