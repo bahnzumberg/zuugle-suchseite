@@ -449,7 +449,7 @@ const DetailReworked = (props) => {
 							<div
 								className="tour-detail-provider-container"
 								onClick={() => {
-									window.open(tour?.url);  // WHAT URL IS THIS?
+									window.open(tour?.url);
 								}}
 							>
 								<div className="tour-detail-provider-icon">
