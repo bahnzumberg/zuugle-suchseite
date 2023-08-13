@@ -38,11 +38,30 @@ export const getDepartureText = (connection) => {
     </Typography>
 }
 
-export const getNumberOfTransfers = (connection) => {
+export const getReturnText = (connection) => {
+    // console.log("connection.return_duration_minutes : " + connection.return_duration_minutes)
+//     console.log("connection.return_departure_datetime : " + connection.return_departure_datetime)
+    // console.log("connection.return_arrival_datetime : " + connection.return_arrival_datetime)
+    if (!!!connection) {
+        return <Fragment></Fragment>;
+    }
+
+    if(connection.return_duration_minutes == 0){
+        return <Typography sx={{color: "#8B8B8B", fontWeight: 600, paddingTop: "3px"}}>
+            {moment(connection.return_departure_datetime).format("DD.MM HH:mm")}
+        </Typography>
+    }
+
+    return <Typography sx={{color: "#8B8B8B", fontWeight: 600, paddingTop: "3px"}}>
+        {moment(connection.return_departure_datetime).format("DD.MM HH:mm")} bis {moment(connection.return_arrival_datetime).format("HH:mm")} ({convertNumToTime(connection.return_duration_minutes / 60)})
+    </Typography>
+}
+
+export const getNumberOfTransfers = (connection, field="connection_no_of_transfers") => {
     if (!!!connection) {
         return "";
     }
-    return connection.connection_no_of_transfers;
+    return connection[field];
 }
 
 export const getIconFromText = (text) => {
