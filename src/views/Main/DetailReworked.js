@@ -25,7 +25,7 @@ import fileDownload from "js-file-download";
 import { parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import {Alert} from "@mui/lab";
+// import {Alert} from "@mui/lab";
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
@@ -36,7 +36,7 @@ import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
-import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
+// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 import {generateShareLink, loadShareParams} from "../../actions/crudActions";
 import {
     EmailShareButton,
@@ -97,6 +97,7 @@ const DetailReworked = (props) => {
     const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] = useState(false);
     //Whether a warning that says that your local trainstation has not been used, should be shown
     const [showDifferentStationUsedWarning , setShowDifferentStationUsedWarning] = useState(false);
+	let tourDuration = null;
 
 	// Translation-related
 	const { t } = useTranslation();
@@ -171,9 +172,17 @@ const DetailReworked = (props) => {
         loadCities({limit: 5});
         const tourId = searchParams.get("id");
 
-        if (tourId) {
-            loadTour(tourId, city);
-        }
+		if (tourId) {
+			loadTour(tourId, city)
+			  .then(tourExtracted => {
+				tourDuration = !!tourExtracted.data.tour.duration &&  tourExtracted.data.tour.duration;
+				// console.log("L176 :tourDuration :", tourDuration);
+			  })
+			  .catch(error => {
+				console.error("Error:", error);
+			  });
+		  }
+		  
         if (tourId && city && !connections) {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (res && res.data) {
@@ -395,7 +404,6 @@ const DetailReworked = (props) => {
 			)}
 		</Box>
 	);
-
 	return (
 		<Box sx={{ backgroundColor: "#FFFFFF" }}>
 			<Box className="newHeader">
@@ -485,6 +493,7 @@ const DetailReworked = (props) => {
 								connectionData={connections}
 								dateIndex={dateIndex}
 								onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
+								tour={tour}
 							></Itinerary>
 						</Box>
 						{renderImage && (
