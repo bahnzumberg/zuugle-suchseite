@@ -3,7 +3,10 @@ import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import {useTranslation} from 'react-i18next';
 
-const Itinerary = ({connectionData, dateIndex, onDateIndexUpdate}) => {
+const Itinerary = ({connectionData, dateIndex, onDateIndexUpdate, tour}) => {
+
+    const tourDuration = (!!tour && !!tour.duration) ? tour.duration : undefined;
+    // tourDuration ? console.log("duration : " + tourDuration) : console.log("duration is falsy");
 
     const {t} = useTranslation();
 
@@ -20,6 +23,7 @@ const Itinerary = ({connectionData, dateIndex, onDateIndexUpdate}) => {
                 <ItineraryTourTimeLineContainer 
                     connections={connectionData[dateIndex]} 
                     loading={false}
+                    duration={tourDuration}
                 />
             }
 
