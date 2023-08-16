@@ -170,7 +170,7 @@ const listWrapper = async (req, res) => {
 
     /** provider search */
     //describe
-    // The code sets the 'where' object to filter results by the 'type' value if it is present in the user input.
+    // The code sets the 'where' object to filter results by the 'provider' value if it is present in the user input.
     if(!!provider && provider.length > 0){
         where.provider = provider;
     }
@@ -258,7 +258,7 @@ const listWrapper = async (req, res) => {
     let sql_and_filter =""
 
     if (searchIncluded) {
-        sql_where_filter = query.toQuery(); // get the normal returned query from buildWhereFilterand as string
+        sql_where_filter = query.toQuery(); // transform the returned query from buildWhereFromFilter to a string
         try {
             sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";// cut off from string "sql_where_filter" everything before "where", this way we have only where values including filter conditions from original query and in a string format
             sql_and_filter = sql_where_filter.replace("where", "AND");
@@ -289,14 +289,14 @@ const listWrapper = async (req, res) => {
     if(searchIncluded){
         order_by_rank = " result_rank DESC, ";
 
-        const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an aray of strings
+        const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an array of strings
 
         //clgs
         //example domain / menu_lang (currLanguage)
         // const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.fr/");
         // result of above clg when menu_lang = 'it' : L 217, newRanks final :  [ { en: 1 }, { de: 1 }, { fr: 10 }, { it: 100 }, { sl: 1 } ]
-        // console.log("L198 tldLangArray : ", tldLangArray);
-        // console.log("L199 currLnaguage : ", currLanguage);
+        console.log("L298 tldLangArray : ", tldLangArray);
+        console.log("L299 currLnaguage : ", currLanguage);
         // console.log(" L185/ search :", search);
 
         // get array of ALL languages
@@ -304,19 +304,15 @@ const listWrapper = async (req, res) => {
         // create ranks array
         const currRanks = () => {
           let newRanks = [];
-          let tempLangs = [...allLangs];
 
             allLangs.forEach((lang) => {
-                if (tempLangs.includes(lang)) {
-                    if ( (tldLangArray.includes(lang) && lang === currLanguage) || (lang === currLanguage) ) {
+                    if (lang === currLanguage) {
                         newRanks = [...newRanks, { [lang]: 100 }];
                     }else if(tldLangArray.includes(lang)) {
                         newRanks = [...newRanks, { [lang]: 10 }];
                     }else {
                         newRanks = [...newRanks, { [lang]: 1 }];
                     }
-                }
-                tempLangs = tempLangs.filter(item => item !== lang);
             });
           return newRanks;
         };
@@ -348,9 +344,9 @@ const listWrapper = async (req, res) => {
 
         const langRanks = currRanks(); // internal to search section
         //clgs
-        // console.log(" ");
-        // console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
-        // console.log(" ");
+        console.log(" ");
+        console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
+        console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
         //clgs
