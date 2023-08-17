@@ -93,10 +93,10 @@ const listWrapper = async (req, res) => {
 
     const searchIncluded = !!search && !!search.length > 0;
     //clgs
-    console.log("________________________________________________________________")
-    console.log("L92 searchIncluded :", searchIncluded) // ##tbdel
-    console.log("L94 page value :", page) // ##tbdel
-    console.log("________________________________________________________________")
+    //console.log("________________________________________________________________")
+    //console.log("L92 searchIncluded :", searchIncluded) // ##tbdel
+    //console.log("L94 page value :", page) // ##tbdel
+    //console.log("________________________________________________________________")
 
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
@@ -177,7 +177,7 @@ const listWrapper = async (req, res) => {
 
     //filters the tours by coordinates
     //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
-    city && city.length && console.log("LENGTH:", city.length);
+    // city && city.length && console.log("LENGTH:", city.length);
     if(!!coordinatesNorthEast && !!coordinatesSouthWest){
         const latNE = coordinatesNorthEast.lat.toString();
         const lngNE = coordinatesNorthEast.lng.toString();
@@ -344,9 +344,9 @@ const listWrapper = async (req, res) => {
 
         const langRanks = currRanks(); // internal to search section
         //clgs
-        console.log(" ");
-        console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
-        console.log(" ");
+        //console.log(" ");
+        //console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
+        //console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
         //clgs
@@ -357,7 +357,7 @@ const listWrapper = async (req, res) => {
             const lang = allLangs[i];
             const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
             if(_search.indexOf(' ') > 0){
-                console.log("L335 / space separated here !")
+                // console.log("L335 / space separated here !")
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -373,7 +373,7 @@ const listWrapper = async (req, res) => {
                 `;
 
             }else {
-                console.log("L335 / NO space separated here !")
+                // console.log("L376 / NO space separated here !")
 
                 sql_select += `
                     SELECT
@@ -547,12 +547,12 @@ const listWrapper = async (req, res) => {
     let outer_where = "WHERE 1=1 ";
 
     //clgs
-    if(searchIncluded){
-        console.log('    ');
-        console.log("L571 sql_select before firing call: ")
-        console.log(sql_select + outer_where  +sql_order + sql_limit);
-        console.log('    ');
-    }
+    // if(searchIncluded){
+    //     console.log('    ');
+    //     console.log("L571 sql_select before firing call: ")
+    //     console.log(sql_select + outer_where  +sql_order + sql_limit);
+    //     console.log('    ');
+    // }
 
     // ****************************************************************
     // CALLING DATABASE
@@ -569,7 +569,7 @@ const listWrapper = async (req, res) => {
                 result = result.rows;
             //clg
               result.forEach((item) => {
-                console.log(`Title: ${item.title}`);
+                // console.log(`Title: ${item.title}`);
               });
             } else {
               console.log('Result or result.rows is null or undefined.');
@@ -582,13 +582,13 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
             // clgs
-            console.log("________________________________________________________");
-            console.log("L586 query.toQuery() :",query.toQuery()); // ex.  ]
-            console.log("________________________________________________________");
+            // console.log("________________________________________________________");
+            // console.log("L586 query.toQuery() :",query.toQuery()); // ex.  ]
+            // console.log("________________________________________________________");
             // console.log("countQuery.toQuery() :",countQuery.toQuery()); // ex. [ { count: '710' } ]
-            console.log("________________________________________________________");
-            console.log("count['count'] :",count['count']); // ex. [ { count: '710' } ]
-            console.log("________________________________________________________");
+            // console.log("________________________________________________________");
+            // console.log("count['count'] :",count['count']); // ex. [ { count: '710' } ]
+            // console.log("________________________________________________________");
     }
 
 
