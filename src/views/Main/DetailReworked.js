@@ -97,7 +97,7 @@ const DetailReworked = (props) => {
     const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] = useState(false);
     //Whether a warning that says that your local trainstation has not been used, should be shown
     const [showDifferentStationUsedWarning , setShowDifferentStationUsedWarning] = useState(false);
-	let tourDuration = null;
+	// let tourDuration = null;
 
 	// Translation-related
 	const { t } = useTranslation();
@@ -389,7 +389,7 @@ const DetailReworked = (props) => {
             <Button className="tour-detail-action-btns" style={{borderRadius: "12px", backgroundColor: "#d8d3cd", border: "none"}} onClick={() => {
                 navigator.clipboard.writeText(shareLink);}}>
                 <ContentPasteIcon color="white"></ContentPasteIcon>
-                <span style={{color: "#101010", width: "43px", fontWeight: 600}}>{t('details.kopieren')}</span>
+                <span style={{color: "#101010", width: "43px", fontWeight: 600, marginLeft: "5px"}}>{t('details.kopieren')}</span>
             </Button>
         </div>}
 
