@@ -659,11 +659,13 @@ const listWrapper = async (req, res) => {
 
     //describe: preparing tour entries
     //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
-    await Promise.all(result.map(entry => new Promise(async resolve => {
-        entry = await prepareTourEntry(entry, city, domain, addDetails);
-        entry.is_map_entry = !!map;
-        resolve(entry);
-    })));
+    if(result){
+        await Promise.all(result.map(entry => new Promise(async resolve => {
+            entry = await prepareTourEntry(entry, city, domain, addDetails);
+            entry.is_map_entry = !!map;
+            resolve(entry);
+        })));
+    }
 
     /** add ranges to result */
     //describe:
@@ -1601,6 +1603,9 @@ const getConnectionsByWeekday = (connections, weekday) => {
 }
 
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
+    if( !(!!entry && !!entry.provider) ) return entry ;    
+    // console.log("L1604: prepare tourentry: entry.provider:", entry.provider);
+    // entry.hashed_url ? console.log("L1604: prepare tourentry: entry.hashed_url:", entry.hashed_url) : console.log("entry.hashed_url is falsy")
     entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
     entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
     entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
