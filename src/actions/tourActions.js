@@ -131,3 +131,7 @@ export function clearTours(){
         dispatch({type: CLEAR_TOURS});
     };
 }
+
+export function checkProviderApproval(){
+    // related to issue #65 in the project, given a provider name this function will return from the backend with a value of "Y" or "N" (to be used inside the Details page)
+}
