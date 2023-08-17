@@ -180,10 +180,10 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                         </Box>
                         <Box sx={{paddingLeft: "20px", textAlign: "left"}}>
                             <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
-                            ca. {duration} Stunden Tour
+                            {t('details.circa')} {duration} {t('details.stunden_tour')}
                             </Typography>
                             <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
-                            (lt. Tourenbeschreibung)
+                            {t('details.lt_tourbeschreibung')}
                             </Typography>                
                         </Box>
                     </Box>
@@ -229,6 +229,12 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
             {/* more return connections rendered */}
             {getMore &&
             returnEntries.slice(2).map((retObj, index) => (
+                <Fragment>
+                {/* { console.log("L232: index = ", index)}
+                { console.log("L232: retObj : ")}
+                { console.log( retObj)}
+                { console.log("L236: twoReturns[index] : ")}
+                { console.log( twoReturns[index])} */}
                 <Accordion key={index}>
                 {/* ... AccordionSummary and AccordionDetails ... */}
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -239,7 +245,7 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                             </Box>
                         </Box>
                         <Box sx={{paddingLeft: "10px", textAlign: "left"}}>
-                            <Typography sx={{lineHeight: "16px", fontWeight: 600}}>{_getReturnText(index)}</Typography>
+                            <Typography sx={{lineHeight: "16px", fontWeight: 600}}>{_getReturnText(index+2)}</Typography>
                             {/* {console.log("retObj duration in minutes:",retObj.connection_duration_minutes)}
                             {console.log("retObj duration in minutes:",retObj.connection_departure_datetime)} */}
                             {/* {console.log("retObj return_no_of_transfers:",retObj.return_no_of_transfers)} */}
@@ -255,10 +261,11 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                 </AccordionSummary>
                 <AccordionDetails>
                     <Timeline>
-                    {createReturnEntries(twoReturns[index], retObj )}
+                    {createReturnEntries(remainingReturns[index+2], retObj )}
                     </Timeline>
                 </AccordionDetails>
                 </Accordion>
+                </Fragment>
             ))
             }
 
