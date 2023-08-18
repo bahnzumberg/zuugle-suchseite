@@ -295,8 +295,8 @@ const listWrapper = async (req, res) => {
         //example domain / menu_lang (currLanguage)
         // const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.fr/");
         // result of above clg when menu_lang = 'it' : L 217, newRanks final :  [ { en: 1 }, { de: 1 }, { fr: 10 }, { it: 100 }, { sl: 1 } ]
-        console.log("L298 tldLangArray : ", tldLangArray);
-        console.log("L299 currLnaguage : ", currLanguage);
+        // console.log("L298 tldLangArray : ", tldLangArray);
+        // console.log("L299 currLnaguage : ", currLanguage);
         // console.log(" L185/ search :", search);
 
         // get array of ALL languages
@@ -337,7 +337,7 @@ const listWrapper = async (req, res) => {
         let _search = search.trim().toLowerCase();
         _search = search.replace(/'/g, "''");
 
-        console.log("L318 _search :", _search)
+        // console.log("L318 _search :", _search)
 
         //from is added here to be used in the search module ONLY
         sql_select += " FROM ( ";
