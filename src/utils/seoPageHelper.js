@@ -88,6 +88,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 export const listAllRangeLinks = (ranges, searchParams = null) => {
     const {t} = useTranslation();
     const country = translatedCountry();
+    // country ? console.log("country", country) : console.log("no country")
 
     if(!!ranges){
         const entries = ranges.map((range,index) => {
@@ -120,6 +121,9 @@ const translatedCountry =()=>{
     const {t} = useTranslation();
     const country =  getCountryName(); 
     const countryKey = getCountryKey(country);
+    // const countryKey = getCountryKey("Frankreich");
+    // console.log("country: " + country);
+    // console.log("countryKey: " + countryKey);
     
     return t(`start.${countryKey}`);
 }
@@ -129,23 +133,29 @@ const translatedCountry =()=>{
 const getCountryKey = (name) => {
 
     switch (name) {
-        case name === "der Schweiz":
+        case "Schweiz":
             return "schweiz";
-        case name === "Österreich":
+        case "Österreich":
             return "oesterreich";
-        case name === "Deutschland":
+        case "Deutschland":
             return "deutschland";
-        case name === "Frankreich":
+        case "Frankreich":
             return "frankreich";
+        case "Slowenien":
+            return "slowenien";
+        case "Italien":
+            return "italien";
         default:
             return "oesterreich";
     }
 }
 
 const getCountryName = () => {
-    let host = location.hostname;
+    let host = window.location.host;
+    // let host = "www2.zuugle.fr";
+    
     if(host.indexOf('zuugle.ch') >= 0){
-        return "der Schweiz"
+        return "Schweiz"
     } else if(host.indexOf('zuugle.de') >= 0){
         return "Deutschland"
     } else if(host.indexOf('zuugle.it') >= 0){
