@@ -50,6 +50,9 @@ import {
 } from "react-share";
 import ShareIcon from "../../icons/ShareIcon";
 import {shortenText} from "../../utils/globals"
+import { Fragment } from 'react';
+import i18next from 'i18next';
+
 
 const setGpxTrack = (url, loadGPX, _function) => {
 	loadGPX(url).then((res) => {
@@ -109,6 +112,9 @@ const DetailReworked = (props) => {
 		} else return t("start.mittel");
 	};
 
+	// let menuLanguage = i18next.resolvedLanguage;
+	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; //gpx and pdf buttons show up only when menu language is German
+
     const navigate = useNavigate();
     const goToStartPage = () => {
         let city = searchParams.get('city');
@@ -117,6 +123,17 @@ const DetailReworked = (props) => {
 
 	//max number of characters used per specific UI element (buttons) 
 	const maxLength = 40;
+
+	
+	const [providerPermit, setProviderPermit] = useState(true);
+
+	useEffect(() => {
+
+	  if( !!tour && tour.provider && tour.provider == "mapzssi"){
+		setProviderPermit(false)
+	  }
+	}, [tour])
+	
 
     //Creating a new share link
     useEffect(() => {
@@ -333,25 +350,33 @@ const DetailReworked = (props) => {
 	};
 
     const actionButtonPart = (<Box className="tour-detail-action-btns-container">
-        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
-            onDownloadGpx();
-        }}>
-            <DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
-            {!!isGpxLoading ?
-                <CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}>
-                {t("details.track_gps_geraet")}
-                </span>
-            }
-        </Button>
-        <Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
-                onClick={onDownload}>
-            <PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
-            {!!isPdfLoading ?
-                <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
-                : <span style={{color: "#8B8B8B"}}>  {shortenText(t('Details.pdf_loading_notice'),0,maxLength)} </span>
-            }
-        </Button>
+        { providerPermit &&  (
+			<Fragment>
+				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+					onDownloadGpx();
+				}}>
+					<DownloadIcon/><span style={{color: "#101010", width: "43px"}}>GPX</span>
+					{!!isGpxLoading ?
+						<CircularProgress sx={{width: "20px", height: "20px", fontWeight: 600}} size={"small"}/>
+						: <span style={{color: "#8B8B8B"}}>
+						{t("details.track_gps_geraet")}
+						</span>
+					}
+				</Button>
+				{
+					pdfLanguagePermit && ( 
+						<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
+								onClick={onDownload}>
+							<PdfIcon/><span style={{color: "#101010", width: "43px", fontWeight: 600}}>PDF</span>
+							{!!isPdfLoading ?
+								<CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/>
+								: <span style={{color: "#8B8B8B"}}>  {shortenText(t('Details.pdf_loading_notice'),0,maxLength)} </span>
+							}
+						</Button>
+					)
+				}
+			</Fragment>)
+		}
 
         {/*
         Share button
