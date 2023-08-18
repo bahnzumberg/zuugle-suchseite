@@ -21,11 +21,13 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
     // Translation-related
     const {t} = useTranslation();
+	let slovenianMenu = i18next.resolvedLanguage === "sl" ; //use different JSX for button 
 
     const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
@@ -709,7 +711,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>
                     <Box sx={{float: "right", padding: "20px"}}>
                         <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
+                        { slovenianMenu ? (
+                            <Button variant={"contained"} onClick={submit}>Št. aktivnih filtrov: {countFilterActive()} </Button>
+                            )
+                            :
+                            (
+                            <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
+                            )
+                        }
                     </Box>
                 </Box>
             </Fragment>
