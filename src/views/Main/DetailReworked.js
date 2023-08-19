@@ -192,13 +192,22 @@ const DetailReworked = (props) => {
 		if (tourId) {
 			loadTour(tourId, city)
 			  .then(tourExtracted => {
+				if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+
 				tourDuration = !!tourExtracted.data.tour.duration &&  tourExtracted.data.tour.duration;
+				}
 				// console.log("L176 :tourDuration :", tourDuration);
 			  })
 			  .catch(error => {
-				console.error("Error:", error);
-			  });
-		  }
+				if (error.response && error.response.status === 404) {
+					console.error("DetailsReworked/ Tour not found:", error);
+					// Handle the 404 error scenario
+				} else {
+					console.error("Error:", error);
+					// Handle other errors
+				}
+			});
+		}
 		  
         if (tourId && city && !connections) {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {

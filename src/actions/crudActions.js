@@ -109,19 +109,62 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
     })
 }
 
-export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
-    dispatch({type: typeBefore});
-    // console.log("L83: route + id : ", route+id)
-    return axios.get(route+id, { params: {...params, domain: window.location.host } }).then(res => {
-        const entity = res.data[entityName];
+// export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
+//     dispatch({type: typeBefore});
+//     // console.log("L83: route + id : ", route+id)
+//     return axios.get(route+id, { params: {...params, domain: window.location.host } }).then(res => {
+//         const entity = res.data[entityName];
 
-        dispatch({
-            type: typeDone,
-            [entityName]: entity,
+//         dispatch({
+//             type: typeDone,
+//             [entityName]: entity,
+//         });
+//         return res;
+//     });
+// }
+
+export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
+    dispatch({ type: typeBefore });
+
+    return axios.get(route + id, { params: { ...params, domain: window.location.host } })
+        .then(res => {
+            const entity = res.data[entityName];
+
+            dispatch({
+                type: typeDone,
+                [entityName]: entity,
+            });
+            return res;
+        })
+        .catch(error => {
+            console.error("Error in loadOne:", error); // Log the full error object
+            if (error.response && error.response.status === 404) {
+                // Pass on the 404 error to the calling function
+                throw error; // Throwing the error here
+            } else {
+                // Handle other errors
+                dispatch({
+                    type: typeDone,
+                    error: "An error occurred",
+                });
+                throw error; // Throwing the error here as well
+            }
         });
-        return res;
-    });
+        // .catch(error => {
+        //     console.error("Error in loadOne:", error); // Log the full error object
+        //     if (error.response && error.response.status === 404) {
+        //         throw error; // Throwing the error here
+        //     } else {
+        //         dispatch({
+        //             type: typeDone,
+        //             error: "An error occurred",
+        //         });
+        //         throw error; // Throwing the error here as well
+        //     }
+        // });
+        
 }
+
 
 export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, route) {
     dispatch({type: typeBefore});

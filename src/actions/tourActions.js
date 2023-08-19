@@ -51,11 +51,32 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-    // console.log("tourActions, LoadTour L41 :",id)
     return (dispatch, getState) => {
-        return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", {city: city });
+        return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", { city: city })
+            .then(res => {
+                // Process the successful response here if needed
+                return res;
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 404) {
+                    // Handle the 404 error scenario
+                    console.error("loadTours/ Tour not found:", error);
+                } else {
+                    // Handle other errors
+                    console.error("Error:", error);
+                }
+                // Re-throw the error to be caught by the calling code
+                throw error;
+            });
     };
 }
+
+// export function loadTour(id, city) {
+//     // console.log("tourActions, LoadTour L41 :",id)
+//     return (dispatch, getState) => {
+//         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", {city: city });
+//     };
+// }
 
 export function loadTotalTours() {
     // console.log("tourActions, loadTotalTours L48 , no data here")
