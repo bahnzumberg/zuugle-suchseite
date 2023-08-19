@@ -711,14 +711,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>
                     <Box sx={{float: "right", padding: "20px"}}>
                         <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        { slovenianMenu ? (
+                        {/* { slovenianMenu ? (
                             <Button variant={"contained"} onClick={submit}>Št. aktivnih filtrov: {countFilterActive()} </Button>
                             )
                             :
-                            (
-                            <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
-                            )
-                        }
+                            ( */}
+                            <Button variant={"contained"} onClick={submit}> {filter_anwenden_label} ({countFilterActive()}) </Button>
+                            {/* )
+                        } */}
                     </Box>
                 </Box>
             </Fragment>
