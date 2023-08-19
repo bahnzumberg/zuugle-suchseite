@@ -17,9 +17,12 @@ const Privacy = lazy(() => import('./views/Pages/Privacy'));
 
 function App() {
 
-    let siteId = 11;
-    if (process.env.NODE_ENV === "production") {
-        siteId = 9;
+    // production matomo ID
+    let siteId = 9;
+
+    // UAT and local development should use matomo test instance
+    if (location.hostname.indexOf('localhost') !== -1 || location.hostname.indexOf('www2.') !== -1) {
+        siteId = 11;
     }
 
     useMatomo({
