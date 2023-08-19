@@ -15,8 +15,6 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-import { useMatomo } from "@jonkoops/matomo-tracker-react";
-import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
 import {
@@ -76,18 +74,10 @@ function Start({
 	loadRanges,
 	allRanges,
 }) {
-	const { trackPageView } = useMatomo();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const { t, i18n } = useTranslation();
-	// description
-	// makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
-	useEffect(() => {
-		const city = searchParams.get("city");
-		// console.log('city is ' + city);
-		myTrackPageView("Start", trackPageView, city);
-	}, []);
 
 	// description
 	// This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.

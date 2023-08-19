@@ -17,11 +17,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import {
 	getFilterFromParams,
-	getFilterProp,
-	// myTrackPageView,
+	getFilterProp
 } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
-// import {useMatomo} from "@datapunt/matomo-tracker-react";
 // import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
@@ -132,12 +130,6 @@ export function Main({
 	// useBackListener(({ location }) => {
 	//     navigate('/');
 	// });
-
-	//Matomo related
-	// useEffect(() => {
-	//     const city = searchParams.get('city');
-	//     myTrackPageView("Main", trackPageView, city);
-	// }, [])
 
 	//describe:
 	// this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)

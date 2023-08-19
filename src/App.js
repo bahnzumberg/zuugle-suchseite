@@ -5,7 +5,6 @@ import { theme } from "./theme";
 import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
 import {Route, Routes, Navigate} from "react-router-dom";
-// import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react';
 import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
@@ -35,33 +34,29 @@ function App() {
 
 
     return (
-        // <MatomoProvider value={instance}>
-            <ThemeProvider theme={theme}>
-                <div className="App">
-                    <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
-                        {/* <BrowserRouter history={history}> */}
+        <ThemeProvider theme={theme}>
+            <div className="App">
+                <Suspense fallback={<div style={{height: "100%", width: "100%", padding: "20px"}}><CircularProgress /></div>}>
+                        <Routes>
+                            <Route path="/" element={<Start/>}/>
+                            <Route path="/suche" element={<Main/>}/>
+                            <Route path="/about" element={<About/>}/>
+                            <Route path="/tour" element={<DetailReworked/>}/>
+                            <Route path="/imprint" element={<Impressum/>}/>
+                            <Route path="/privacy" element={<Privacy/>}/>
+                            <Route path="/:city" element={<Main/>}/>
+                            {/* <Route path="/cache" element={<TestComp/>}/> */}
 
-                            <Routes>
-                                <Route path="/" element={<Start/>}/>
-                                <Route path="/suche" element={<Main/>}/>
-                                <Route path="/about" element={<About/>}/>
-                                <Route path="/tour" element={<DetailReworked/>}/>
-                                <Route path="/imprint" element={<Impressum/>}/>
-                                <Route path="/privacy" element={<Privacy/>}/>
-                                <Route path="/:city" element={<Main/>}/>
-                                {/* <Route path="/cache" element={<TestComp/>}/> */}
+                            <Route
+                                path="*"
+                                element={<Navigate to="/" replace />}
+                            />
+                        </Routes>
 
-                                <Route
-                                    path="*"
-                                    element={<Navigate to="/" replace />}
-                                />
-                            </Routes>
-
-                    </Suspense>
-                </div>
-                <ModalRoot />
-            </ThemeProvider>
-        // </MatomoProvider>
+                </Suspense>
+            </div>
+            <ModalRoot />
+        </ThemeProvider>
     );
 }
 
