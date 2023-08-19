@@ -8,6 +8,10 @@ router.get('/', (req, res) => listWrapper(req, res));
 const listWrapper = async (req, res) => {
     const search = req.query.search;
 
+    if(!search || search.length == 0) {
+        return res.status(200).json({success: true, error: 'no search term'})
+    };
+
     if (search.length > 128) {
         return res.status(400).json({success: false, error: 'Bad Request - search term is too long (max. 128 characters)'});
     }
@@ -40,9 +44,7 @@ const createQuery = async (field, alias, city, search, language) => {
 
     query = query.andWhereRaw(`search_time > CURRENT_DATE - INTERVAL '12 MONTH'`);
 
-    if(!!search && search.length > 0){
-        query = query.andWhereRaw(`LOWER(${field}) LIKE '${search.toLowerCase()}%'`)
-    }
+    query = query.andWhereRaw(`LOWER(${field}) LIKE '${search.toLowerCase()}%'`)
 
     const queryResult = await query.groupBy(field)
         .orderBy(`CNT`, `desc`)
@@ -54,9 +56,11 @@ const createQuery = async (field, alias, city, search, language) => {
             suggestion: entry[field]
         }
     })
-
     return result;
 }
-
+    
+    // console.log( "Query result", queryResult);
+    // console.log(queryResult.toKnexQuery().toSQL())
+    //console.log("L54 query.toQuery() :",query.toQuery()); // ex.  ]
 
 export default router;
