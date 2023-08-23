@@ -5,7 +5,10 @@ import {ReactComponent as BergfexLogo} from './svg/provider/logo_bergfex.svg';
 import {ReactComponent as HoehenrauschLogo} from './svg/provider/logo_hoehenrausch.svg';
 import {ReactComponent as WandernSteiermarkLogo} from './svg/provider/logo_steiermark.svg';
 import {ReactComponent as FallbackLogo} from './svg/provider/logo_fallback.svg';
+<<<<<<< HEAD
 import {ReactComponent as MaPZSsiLogo} from './svg/provider/logo_mapzssi.svg';
+=======
+>>>>>>> dev-drop-slovenia-front2
 
 const provider = {
     BAHN_ZUM_BERG: 'bahnzumberg',
@@ -15,8 +18,12 @@ const provider = {
     BERGFEXCH: 'bergfexch',
     BERGFEXIT: 'bergfexit',
     HOEHENRAUSCH: 'hoehenrausch',
+<<<<<<< HEAD
     WANDERN_STEIERMARK: 'wandernsteiermarkat',
     MAPZSSI: 'mapzssi'
+=======
+    WANDERN_STEIERMARK: 'wandernsteiermarkat'
+>>>>>>> dev-drop-slovenia-front2
 }
 
 const providerStyles = {width: "48px" , height: "48px"};
@@ -36,8 +43,11 @@ export default function ProviderLogo(props) {
             return <HoehenrauschLogo style={{...providerStyles, ...props.style}}/>
         case provider.WANDERN_STEIERMARK:
             return <WandernSteiermarkLogo style={{...providerStyles, ...props.style}}/>
+<<<<<<< HEAD
         case provider.MAPZSSI:
                 return <MaPZSsiLogo style={{...providerStyles, ...props.style}}/>
+=======
+>>>>>>> dev-drop-slovenia-front2
         default:
             return <FallbackLogo style={{...providerStyles, ...props.style}}/>
     }

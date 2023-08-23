@@ -10,6 +10,7 @@
         "entwicklung_von_zuugle_4": "Now click on your desired tour. A tour description will appear on your screen, which you can also download as a PDF. For the Zuugle timetable suggestions for the next 7 days, click on the \"Arrival & Departure\" tab. Zuugle selects the best outward journey and shows you several return options.",
         "entwicklung_von_zuugle_5": "Please note that train cancellations or timetable changes at short notice may not be taken into account by our timetable suggestions. Therefore, please check your connection with the respective operators (bahn.de, oebb.at) before starting your journey. Click on the button of the tour portal to open a new window with the detailed tour description in the respective portal."
     },
+<<<<<<< HEAD
     "Details": {
         "gpx_loading_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
         "pdf_loading_notice": "Download to print / Send via mail",
@@ -59,6 +60,8 @@
         "italienisch": "Italian",
         "englisch": "English"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "impressum": {
         "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",
         "spendenkonto": "DONATIONS",
@@ -74,6 +77,7 @@
         "lizenzbedingungen": "LICENCES FOR TIMETABLE DATA",
         "anfuehrung_quellen": "The various sources and licence terms of timetable data used are listed here."
     },
+<<<<<<< HEAD
     "index": {
         "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
         "noscript": "It seems that you do not have Javascript enabled. This search engine for mountain tours reachable via public transport requires Javascript to work. Please enable Javascript in your browser."
@@ -114,6 +118,8 @@
         "direkt_bei_der_haltestelle": "Start directly from the public transport stop",
         "maximale_hoehe": "Max. elevation"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "privacy": {
         "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",
         "datenschutzerklaerung": "Privacy policy",
@@ -187,6 +193,97 @@
         "impressum": "Impressum – Statement of Ownership and Authorship",
         "helmet_title": "Zuugle - the search engine for mountain tours reachable via public transport"
     },
+<<<<<<< HEAD
+=======
+    "main": {
+        "ergebnisse": "Results",
+        "ergebnis": "Result",
+        "karte": "Map",
+        "filter": "Filter",
+        "aktiv": "active",
+        "relevanz": "Relevance",
+        "anfahrtszeit": "Travel time",
+        "tourdistanz": "Tour distance",
+        "tourdauer": "Tour duration",
+        "sortieren_nach": "Sort by",
+        "anreisetag": "Travel day",
+        "tourdetails": "TOUR DETAILS",
+        "an_und_abreise": "ARRIVAL & DEPARTURE",
+        "gpx_download": "GPX Download",
+        "pdf": "PDF",
+        "anreise_gefunden": "Public travel found with",
+        "keine_anreise_gefunden": "No public travel found",
+        "viele_rueckfahrten": "Public travel found with 99+ return possibilities",
+        "eine_rueckfahrt": "Public travel found with 1 return possibility",
+        "schwierigkeit_zuugle": "Difficulty Zuugle",
+        "schwierigkeit_original": "Difficulty source",
+        "sportart": "Sport",
+        "distanz": "Distance",
+        "dauer": "Duration",
+        "tage": "Days",
+        "aufstieg": "Ascent",
+        "abstieg": "Descent",
+        "kinderfreundlich": "Suitable for children",
+        "ueberschreitung": "Crossing",
+        "ja": "Yes",
+        "nein": "No",
+        "keine_verbindung": "No connection:",
+        "direkt_bei_der_haltestelle": "Start directly from the public transport stop",
+        "maximale_hoehe": "Max. elevation"
+    },
+    "filter": {
+        "tourlaenge": "Tour length",
+        "tagestour": "Day trip",
+        "mehrtagestour": "Multiday trip",
+        "jahreszeit": "Season",
+        "sommertour": "Summer trip",
+        "wintertour": "Winter trip",
+        "nur_ueberschreitungen": "Only crossing",
+        "ueberschreitungen": "Tour starts and ends at different public transport stops",
+        "sportart": "Sport",
+        "alle_an_abwaehlen": "Select/cancel all",
+        "bike_hike": "Bike & Hike",
+        "hochtour": "Tour of High Alps",
+        "klettern": "Climbing",
+        "klettersteig": "Via ferrata",
+        "langlaufen": "Cross-country skiing",
+        "rodeln": "Tobogganing",
+        "schneeschuh": "Snowshoe",
+        "skitour": "Skitour",
+        "wandern": "Hiking",
+        "weitwandern": "Long-distance hiking",
+        "regionen": "Regions",
+        "anstieg": "Ascent",
+        "hoehenmeter": "Altitude difference",
+        "gehdistanz": "Walking distance",
+        "schwierigkeit": "Difficulty",
+        "schwierigkeitswert": "The difficulty value has been consolidated according to the difficulty scales on the various tour portals and can be 'easy', 'medium' or 'hard'.",
+        "filter_loeschen": "Clear filter",
+        "filter_anwenden": "Apply filter",
+        "minimum": "Minimum",
+        "maximum": "Maximum",
+        "tourstart_ende_andere_stops": "Tour starts and ends at different public transport stops",
+        "sprache": "Language",
+        "deutsch": "German",
+        "franzoesisch": "French",
+        "slowenisch": "Slovenian",
+        "italienisch": "Italian",
+        "englisch": "English"
+    },
+    "index": {
+        "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
+        "noscript": "It seems that you do not have Javascript enabled. This search engine for mountain tours reachable via public transport requires Javascript to work. Please enable Javascript in your browser."
+    },
+    "Details": {
+        "gpx_loading_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
+        "pdf_loading_notice": "Download to print / Send via mail",
+        "disabled_download_button_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
+        "oeffi_fahrplan": "Public transport timetable",
+        "beste_anreise": "Best outward journey",
+        "rückreise": "Return journey",
+        "rückreise_moeglichkeiten": "Show 3 further return options"
+    },
+>>>>>>> dev-drop-slovenia-front2
     "details": {
         "track_gps_geraet": "Download track for GPS-device",
         "start_ausgangort": "Start from the starting location",
@@ -195,12 +292,16 @@
         "teilen_text": "Look what tour I found on Zuugle:",
         "warnung_andere_station": "It was taken from the station of the person who created the LInk.",
         "teilen": "Share",
+<<<<<<< HEAD
         "teilen_description": "Share link to public transport tour",
         "umstiege": "Trans.",
         "kopieren": "Copy",
         "circa": "approx.",
         "stunden_tour": "Hours Tour",
         "lt_tourbeschreibung": "according to tour description"
+=======
+        "teilen_description": "Share link to public transport tour"
+>>>>>>> dev-drop-slovenia-front2
     },
     "search": {
         "abbrechen": "Abort",

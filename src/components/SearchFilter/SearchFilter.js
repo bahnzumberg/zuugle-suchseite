@@ -91,7 +91,11 @@ export function SearchFilter({
 	// console.log("Search arguments : isMapView ", isMapView); // undefined
 	const [searchParams, setSearchParams] = useSearchParams();
 	// const [activeFilter, setActiveFilter] = React.useState(false);
+<<<<<<< HEAD
 	const [cityInput, setCityInput] =React. useState("");
+=======
+	const [cityInput, setCityInput] = React.useState("");
+>>>>>>> dev-drop-slovenia-front2
 	const [regionInput, setRegionInput] = useState("");
 	const [city, setCity] = useState(null);
 	const [region, setRegion] = useState(null);
@@ -107,7 +111,11 @@ export function SearchFilter({
 	// const handleBlur = () => {
 	// 	setPlaceholder(t("start.suche"));
 	// };
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> dev-drop-slovenia-front2
 	useEffect(() => {
 
 		// pull out values from URL params
@@ -208,7 +216,11 @@ export function SearchFilter({
 		// }
 
 		let result = loadTours({
+<<<<<<< HEAD
 		// loadTours({
+=======
+			// loadTours({
+>>>>>>> dev-drop-slovenia-front2
 			city: city,
 			range: range,
 			state: state,
@@ -221,8 +233,13 @@ export function SearchFilter({
 			map: searchParams.get("map"),
 		});
 		result.then((resolvedValue) => {
+<<<<<<< HEAD
 		    // console.log("after loading tours / result of load Tours :");
 		    // console.log(resolvedValue);
+=======
+			// console.log("after loading tours / result of load Tours :");
+			// console.log(resolvedValue);
+>>>>>>> dev-drop-slovenia-front2
 		});
 	}, [
 		// useEffect dependencies
@@ -245,6 +262,7 @@ export function SearchFilter({
 	// Filter related starts here
 	const openFilter = () => {
 		// console.log("inside openFilter L242")
+<<<<<<< HEAD
         showModal("MODAL_COMPONENT", {
             CustomComponent: Filter,
             title: "Filter",
@@ -273,22 +291,66 @@ export function SearchFilter({
 	const handleFilterChange = (entry) => {
         
 		if(entry == null){
+=======
+		showModal("MODAL_COMPONENT", {
+			CustomComponent: Filter,
+			title: "Filter",
+			modalSize: "lg",
+			doSubmit: handleFilterSubmit,
+			resetFilter: handleResetFilter,
+			onBack: () => {
+				hideModal()
+				console.log("onBack called L256")
+			},
+			searchParams,
+			setSearchParams
+		});
+	}
+
+	const handleFilterSubmit = ({ filterValues, filterCount }) => {
+		hideModal();
+		handleFilterChange(filterValues);
+		console.log(filterCount)
+	}
+
+	const handleResetFilter = () => {
+		hideModal();
+		handleFilterChange(null);
+		set
+	}
+
+	const handleFilterChange = (entry) => {
+
+		if (entry == null) {
+>>>>>>> dev-drop-slovenia-front2
 			searchParams.delete("filter");
 		} else {
 			searchParams.set("filter", JSON.stringify(entry));
 		}
 		setSearchParams(searchParams);
+<<<<<<< HEAD
     };
 
 	const handleSearchChange = (entry) => {
         
 		if(entry == null){
+=======
+	};
+
+	const handleSearchChange = (entry) => {
+
+		if (entry == null) {
+>>>>>>> dev-drop-slovenia-front2
 			searchParams.delete("search");
 		} else {
 			searchParams.set("search", JSON.stringify(entry));
 		}
 		setSearchParams(searchParams);
+<<<<<<< HEAD
     };
+=======
+	};
+>>>>>>> dev-drop-slovenia-front2
 	// const search = (tempRegion = null) => {
 	// 	let values = {};
 	// 	if (!!city && !!city.value) {
@@ -410,8 +472,13 @@ export function SearchFilter({
 		<Fragment>
 			{showMobileMenu ? (
 				<div className="mobileMenu"
+<<<<<<< HEAD
 				//Set top and left position
 				style={{ zIndex: 100, top: 100, left: 100 }}> 
+=======
+					//Set top and left position
+					style={{ zIndex: 100, top: 100, left: 100 }}>
+>>>>>>> dev-drop-slovenia-front2
 					<div className="rowing">
 						<div />
 						<div className="rowing">
@@ -538,7 +605,11 @@ export function SearchFilter({
 						<img
 							src={`/app_static/img/filter.png`}
 							className="filterStyling"
+<<<<<<< HEAD
 							onClick={()=>openFilter()}
+=======
+							onClick={() => openFilter()}
+>>>>>>> dev-drop-slovenia-front2
 						/>
 					</div>
 					<div style={{}}>
@@ -575,14 +646,24 @@ export function SearchFilter({
 											fontSize: 14,
 										}}
 									>
+<<<<<<< HEAD
 									{t('search.heimatbahnhof_waehlen')}									</span>
+=======
+										{t('search.heimatbahnhof_waehlen')}									</span>
+>>>>>>> dev-drop-slovenia-front2
 								</div>
 							</div>
 							<img
 								// filter button is HERE
+<<<<<<< HEAD
 								src={`/app_static/img/filter.png`}   
 								className="filterStyling"
 								onClick={()=>openFilter()}
+=======
+								src={`/app_static/img/filter.png`}
+								className="filterStyling"
+								onClick={() => openFilter()}
+>>>>>>> dev-drop-slovenia-front2
 
 							/>
 						</div>
@@ -595,7 +676,11 @@ export function SearchFilter({
 							// 	top: 200,
 							// }}
 							// Set top and centered horizontally
+<<<<<<< HEAD
 							style={{ zIndex: 101, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
+=======
+							style={{ zIndex: 101, top: 50, left: '50%', transform: 'translateX(-50%)' }}
+>>>>>>> dev-drop-slovenia-front2
 						>
 							<Modal
 								onClose={() => setShowFirstMenu(false)}
@@ -605,14 +690,22 @@ export function SearchFilter({
 									top: 50,
 								}}
 								className="centerMe"
+<<<<<<< HEAD
 								// onBack={onBack}
+=======
+							// onBack={onBack}
+>>>>>>> dev-drop-slovenia-front2
 							>
 								<div className="firstMenu" style={{ marginLeft: 10 }}>
 									<div className="rowing" style={{ marginBottom: 5 }}
 									>
 										<span className="boldTxt">Suche</span>
 										<span className="boldTxt underline pointy"
+<<<<<<< HEAD
 										onClick={() => setShowFirstMenu(false)}
+=======
+											onClick={() => setShowFirstMenu(false)}
+>>>>>>> dev-drop-slovenia-front2
 										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">
@@ -621,10 +714,17 @@ export function SearchFilter({
 												<SearchIcon />
 												<input
 													className="searchInput"
+<<<<<<< HEAD
 													onChange={(e) => 
 														{setFSearchQuery(e.target.value);
 															console.log("e.target.value : " + e.target.value)
 														}
+=======
+													onChange={(e) => {
+														setFSearchQuery(e.target.value);
+														console.log("e.target.value : " + e.target.value)
+													}
+>>>>>>> dev-drop-slovenia-front2
 													}
 													value={fSearchQuery}
 												/>
@@ -658,8 +758,13 @@ export function SearchFilter({
 												firstMenuOptions
 													.filter((item) => item.startsWith(fSearchQuery))
 													.map((item) => (
+<<<<<<< HEAD
 														<span key={item} className="searchSuggestions" 
 														onClick={() => setFSearchQuery(item)}
+=======
+														<span key={item} className="searchSuggestions"
+															onClick={() => setFSearchQuery(item)}
+>>>>>>> dev-drop-slovenia-front2
 														>
 															{item}
 														</span>
@@ -686,7 +791,11 @@ export function SearchFilter({
 							// 	top: 200,
 							// }}
 							// Set top and centered horizontally
+<<<<<<< HEAD
 							style={{ zIndex: 102, top: 50, left: '50%', transform: 'translateX(-50%)' }} 
+=======
+							style={{ zIndex: 102, top: 50, left: '50%', transform: 'translateX(-50%)' }}
+>>>>>>> dev-drop-slovenia-front2
 						>
 							<Modal
 								onClose={() => setShowSecondMenu(false)}
@@ -697,7 +806,11 @@ export function SearchFilter({
 									<div className="rowing" style={{ marginBottom: 5 }}>
 										<span className="boldTxt">{t('search.dein_heimatbahnhof')}?</span>
 										<span className="boldTxt underline pointy"
+<<<<<<< HEAD
 										onClick={() => setShowSecondMenu(false)}
+=======
+											onClick={() => setShowSecondMenu(false)}
+>>>>>>> dev-drop-slovenia-front2
 										>{t('search.abbrechen')}</span>
 									</div>
 									<div className="rowing">

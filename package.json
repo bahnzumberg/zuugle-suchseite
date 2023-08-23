@@ -6,7 +6,11 @@
     "@babel/polyfill": "^7.12.1",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
+<<<<<<< HEAD
     "@jonkoops/matomo-tracker": "^0.7.0",
+=======
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
+>>>>>>> dev-drop-slovenia-front2
     "@mui/icons-material": "^5.4.2",
     "@mui/lab": "^5.0.0-alpha.71",
     "@mui/material": "^5.4.3",

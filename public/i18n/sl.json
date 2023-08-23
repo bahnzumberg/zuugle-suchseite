@@ -10,6 +10,7 @@
         "entwicklung_von_zuugle_4": "Sedaj klikni na izbrano turo. Na zaslonu se prikaže profil ture, ki ga lahko preneseš kot PDF datoteko. Če si želiš ogledati vozne rede, ki ti jih Zuugle predlaga za naslednjih 7 dni, klikni na zavihek »Prihod in odhod«. Zuugle izbere optimalno pot in ti pokaže več možnosti za povratek.",
         "entwicklung_von_zuugle_5": "Upoštevaj, da predlagani vozni red morda ne upošteva kratkoročnih odpovedi vlakov ali sprememb voznega reda. Zato pred začetkom potovanja svojo povezavo preveri pri ustreznem izvajalcu (bahn.de, oebb.at). S klikom na gumb portala s pohodniškimi turami se odpre novo okno s podrobnim opisom pohoda v posameznem portalu."
     },
+<<<<<<< HEAD
     "Details": {
         "gpx_loading_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
         "pdf_loading_notice": "Prenos za tiskanje / pošiljanje po e-pošti.",
@@ -59,6 +60,8 @@
         "italienisch": "Italijanščina",
         "englisch": "Angleščina"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "impressum": {
         "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
         "spendenkonto": "BANČNI RAČUN ZA DONACIJE",
@@ -74,6 +77,7 @@
         "lizenzbedingungen": "LICENČNI POGOJI ZA PODATKE VOZNIH REDOV",
         "anfuehrung_quellen": "Tukaj so navedeni različni viri in licenčni pogoji za uporabljene podatke o voznih redih."
     },
+<<<<<<< HEAD
     "index": {
         "zuugle_description": "Zuugle ti prikaže preverjene povezave z vlakom in avtobusom do gorskih tur, pohodniških poti, turnega smučanja, krpljanja, itn. z izhodiščem iz tvojega kraja bivanja.",
         "noscript": "Izgleda, da JavaScript ni omogočen. Vendar ta iskalnik za gorske ture, dostopne z javnim prevozom, za svoje delovanje potrebuje JavaScript. V svojem brskalniku omogoči JavaScript."
@@ -114,6 +118,8 @@
         "direkt_bei_der_haltestelle": "Začetek neposredno na postajališču",
         "maximale_hoehe": "Maksimalna višina"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "privacy": {
         "datenschutz_ist_uns_wichtig": "Varstvo podatkov nam je pomembno. Zato smo se odrekli številnim možnostim, ki so sicer tehnično izvedljive, a bi posegle v zasebnost naših obiskovalcev.",
         "datenschutzerklaerung": "Izjava o varstvu podatkov",
@@ -187,6 +193,97 @@
         "impressum": "Kolofon",
         "helmet_title": "Zuugle – iskalnik za gorske ture, dostopne z javnim prevozom"
     },
+<<<<<<< HEAD
+=======
+    "main": {
+        "ergebnisse": "rezultatov",
+        "ergebnis": "Rezultat",
+        "karte": "Zemljevid",
+        "filter": "Filter",
+        "aktiv": "aktivno",
+        "relevanz": "Ustreznost",
+        "anfahrtszeit": "Trajanje vožnje",
+        "tourdistanz": "Dolžina ture",
+        "tourdauer": "Trajanje ture",
+        "sortieren_nach": "Razvrsti glede na",
+        "anreisetag": "Dan prihoda",
+        "tourdetails": "PODROBNOSTI O TURI",
+        "an_und_abreise": "PRIHOD IN ODHOD",
+        "gpx_download": "Prenos GPX",
+        "pdf": "PDF",
+        "anreise_gefunden": "Najdena možnost prihoda z javnim prevozom preko",
+        "keine_anreise_gefunden": "Javno potovanje ni bilo najdeno",
+        "viele_rueckfahrten": "Najden prihod z javnim prevozom in 99+ možnosti za povratno vožnjo.",
+        "eine_rueckfahrt": "Najden prihod z javnim prevozom in 1 možnost za povratno vožnjo.",
+        "schwierigkeit_zuugle": "Težavnost Zuugle",
+        "schwierigkeit_original": "Težavnost original",
+        "sportart": "Športna aktivnost",
+        "distanz": "Razdalja",
+        "dauer": "Trajanje",
+        "tage": "Dan",
+        "aufstieg": "Vzpon",
+        "abstieg": "Sestop",
+        "kinderfreundlich": "Primerno za otroke",
+        "ueberschreitung": "Prečenje",
+        "ja": "Da",
+        "nein": "Ne",
+        "keine_verbindung": "Ni povezave:",
+        "direkt_bei_der_haltestelle": "Začetek neposredno na postajališču",
+        "maximale_hoehe": "Maksimalna višina"
+    },
+    "filter": {
+        "tourlaenge": "Dolžina ture",
+        "tagestour": "Dnevna tura",
+        "mehrtagestour": "Večdnevna tura",
+        "jahreszeit": "Letni čas",
+        "sommertour": "Poletna tura",
+        "wintertour": "Zimska tura",
+        "nur_ueberschreitungen": "Samo prečenje",
+        "ueberschreitungen": "Začetek in konec ture na različnih postajališčih.",
+        "sportart": "Športna aktivnost",
+        "alle_an_abwaehlen": "Označi / odznači vse",
+        "bike_hike": "Kolo & pohod",
+        "hochtour": "Višinska tura",
+        "klettern": "Plezanje",
+        "klettersteig": "Zavarovana plezalna pot",
+        "langlaufen": "Tek na smučeh",
+        "rodeln": "Sankanje",
+        "schneeschuh": "Krpljanje",
+        "skitour": "Turno smučanje",
+        "wandern": "Planinarjenje",
+        "weitwandern": "Daljinske pohodniške poti",
+        "regionen": "Regije",
+        "anstieg": "Vzpon",
+        "hoehenmeter": "Višinska razlika",
+        "gehdistanz": "Prehojena razdalja",
+        "schwierigkeit": "Težavnost",
+        "schwierigkeitswert": "Stopnja težavnosti predstavlja skupek vrednosti težavnostnih stopenj na različnih portalih s pohodniškimi potmi in je lahko »enostavna«, »srednje zahtevna« in »zahtevna«.",
+        "filter_loeschen": "Počisti filter",
+        "filter_anwenden": "Uporabi filter",
+        "minimum": "Najmanj",
+        "maximum": "Največ",
+        "tourstart_ende_andere_stops": "Začetek in konec ture na različnih postajališčih.",
+        "sprache": "Jezik",
+        "deutsch": "Nemščina",
+        "franzoesisch": "Francoski",
+        "slowenisch": "Slovenščina",
+        "italienisch": "Italijanščina",
+        "englisch": "Angleščina"
+    },
+    "index": {
+        "zuugle_description": "Zuugle ti prikaže preverjene povezave z vlakom in avtobusom do gorskih tur, pohodniških poti, turnega smučanja, krpljanja, itn. z izhodiščem iz tvojega kraja bivanja.",
+        "noscript": "Izgleda, da JavaScript ni omogočen. Vendar ta iskalnik za gorske ture, dostopne z javnim prevozom, za svoje delovanje potrebuje JavaScript. V svojem brskalniku omogoči JavaScript."
+    },
+    "Details": {
+        "gpx_loading_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
+        "pdf_loading_notice": "Prenos za tiskanje / pošiljanje po e-pošti.",
+        "disabled_download_button_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
+        "oeffi_fahrplan": "Vozni red javnega prevoza",
+        "beste_anreise": "Najboljša možnost prihoda",
+        "rückreise": "Povratek",
+        "rückreise_moeglichkeiten": "Prikaži še 3 možnosti za povratek."
+    },
+>>>>>>> dev-drop-slovenia-front2
     "details": {
         "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
         "start_ausgangort": "Začetek pri izhodišču.",
@@ -195,12 +292,16 @@
         "teilen_text": "Poglej, kakšno turo sem našel na Zuuglu:",
         "warnung_andere_station": "To je bilo vzeto s postaje osebe, ki je ustvarila LInk.",
         "teilen": "Delite",
+<<<<<<< HEAD
         "teilen_description": "Delite povezavo do ogleda javnega prevoza",
         "umstiege": "Trans.",
         "kopieren": "Kopiraj",
         "circa": "okoli",
         "stunden_tour": "Ure ogleda",
         "lt_tourbeschreibung": "v skladu z opisom ture"
+=======
+        "teilen_description": "Delite povezavo do ogleda javnega prevoza"
+>>>>>>> dev-drop-slovenia-front2
     },
     "search": {
         "abbrechen": "Prekini",

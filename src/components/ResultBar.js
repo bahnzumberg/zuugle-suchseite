@@ -48,6 +48,10 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
             CustomComponent: Filter,
             title: "Filter",
             modalSize: "lg",
+<<<<<<< HEAD
+=======
+            page:"main",
+>>>>>>> dev-drop-slovenia-front2
             doSubmit: handleFilterSubmit,
             resetFilter: handleResetFilter,
             searchParams,
