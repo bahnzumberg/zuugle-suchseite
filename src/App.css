@@ -6,20 +6,12 @@
 
 body * {
   -webkit-font-smoothing: subpixel-antialiased !important;
-<<<<<<< HEAD
-  text-rendering:optimizeLegibility !important;
-=======
   text-rendering: optimizeLegibility !important;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .App {
   text-align: center;
-<<<<<<< HEAD
-  background-color: #F1F1F1;
-=======
   background-color: #f1f1f1;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .App-logo {
@@ -41,19 +33,11 @@ body ::-webkit-scrollbar {
 
 /* Track */
 body ::-webkit-scrollbar-track {
-<<<<<<< HEAD
-  background: #FFF;
-}
-
-body .start-body-container ::-webkit-scrollbar-thumb {
-  background: #DDDDDD;
-=======
   background: #fff;
 }
 
 body .start-body-container ::-webkit-scrollbar-thumb {
   background: #dddddd;
->>>>>>> dev-drop-slovenia-front2
 }
 
 /* Handle */
@@ -73,15 +57,10 @@ body ::-webkit-scrollbar-thumb:hover {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .my-modal {
-<<<<<<< HEAD
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-=======
   -ms-overflow-style: none;
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
->>>>>>> dev-drop-slovenia-front2
 }
 
 .App-header {
@@ -103,10 +82,6 @@ body ::-webkit-scrollbar-thumb:hover {
   from {
     transform: rotate(0deg);
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> dev-drop-slovenia-front2
   to {
     transform: rotate(360deg);
   }
@@ -114,16 +89,6 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .tour-card {
   text-align: left;
-<<<<<<< HEAD
-  height: 100%
-}
-
-.tour-card .bottom-container {
-  border-top: 1px solid #ECECEC;
-  width: 100%;
-  min-height: 40px;
-
-=======
   height: 100%;
 }
 
@@ -131,7 +96,6 @@ body ::-webkit-scrollbar-thumb:hover {
   border-top: 1px solid #ececec;
   width: 100%;
   min-height: 40px;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .tour-card .bottom-container .title {
@@ -140,11 +104,7 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-connection-card {
-<<<<<<< HEAD
-  background-color: #F7F7F7;
-=======
   background-color: #f7f7f7;
->>>>>>> dev-drop-slovenia-front2
   border-radius: 16px;
   padding: 16px;
   text-align: left;
@@ -163,17 +123,10 @@ body ::-webkit-scrollbar-thumb:hover {
 .rating-stars-container .number {
   align-self: self-start;
   margin-left: 5px;
-<<<<<<< HEAD
-  color: #FFCF23;
-}
-
-.result-bar > div {
-=======
   color: #ffcf23;
 }
 
 .result-bar>div {
->>>>>>> dev-drop-slovenia-front2
   padding-top: 15px;
   padding-bottom: 15px;
   padding-left: 60px;
@@ -192,13 +145,8 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .result-bar {
-<<<<<<< HEAD
-  background-color: #FFFFFF;
-  border-top: 1px solid #ECECEC;
-=======
   background-color: #ffffff;
   border-top: 1px solid #ececec;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .btn {
@@ -209,13 +157,8 @@ body ::-webkit-scrollbar-thumb:hover {
   padding: 12px 24px;
   position: relative;
   width: 600px;
-<<<<<<< HEAD
-  background: #FFF;
-  border: 2px solid #DDDDDD;
-=======
   background: #fff;
   border: 2px solid #dddddd;
->>>>>>> dev-drop-slovenia-front2
   /* zuugle-ui-drop-shadow */
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
@@ -238,13 +181,6 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .search-bar--city {
-<<<<<<< HEAD
-  color: #8B8B8B !important;
-}
-
-.search-bar--divider {
-  border: solid 1px #DDDDDD;
-=======
   color: #8b8b8b !important;
 }
 
@@ -254,26 +190,11 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .search-bar--divider {
   border: solid 1px #dddddd;
->>>>>>> dev-drop-slovenia-front2
   width: 0;
   height: 25px;
   margin: 5px;
 }
 
-<<<<<<< HEAD
-.start-search-bar .result-container, .main-search-bar .result-container {
-  width: 100%;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  background-color: #FFF;
-  position: absolute;
-  top:77px;
-  left: 0px;
-  z-index: 1000;
-  -webkit-box-shadow: -10px 9px 15px 5px rgba(0,0,0,0.11);
-  -moz-box-shadow: -10px 9px 15px 5px rgba(0,0,0,0.11);
-  box-shadow: -10px 9px 15px 5px rgba(0,0,0,0.11);
-=======
 .start-search-bar .result-container,
 .main-search-bar .result-container {
   width: 100%;
@@ -287,30 +208,21 @@ body ::-webkit-scrollbar-thumb:hover {
   -webkit-box-shadow: -10px 9px 15px 5px rgba(0, 0, 0, 0.11);
   -moz-box-shadow: -10px 9px 15px 5px rgba(0, 0, 0, 0.11);
   box-shadow: -10px 9px 15px 5px rgba(0, 0, 0, 0.11);
->>>>>>> dev-drop-slovenia-front2
 }
 
 .main-search-bar .result-container {
   top: 85px !important;
 }
 
-<<<<<<< HEAD
-.start-search-bar .result-container .not-found-entry,  .main-search-bar .result-container .not-found-entry{
-  background-color: #4992FF;
-  color: #FFF;
-=======
 .start-search-bar .result-container .not-found-entry,
 .main-search-bar .result-container .not-found-entry {
   background-color: #4992ff;
   color: #fff;
->>>>>>> dev-drop-slovenia-front2
   margin-bottom: -10px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
 
-<<<<<<< HEAD
-=======
 .main-search-bar>div>div>div>div>div>div>div {
   min-height: 0 !important;
 }
@@ -335,7 +247,6 @@ body ::-webkit-scrollbar-thumb:hover {
   letter-spacing: -0.16px !important;
 }
 
->>>>>>> dev-drop-slovenia-front2
 .filter-box {
   padding-left: 20px;
   padding-right: 20px;
@@ -344,11 +255,7 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .filter-box.border {
-<<<<<<< HEAD
-  border-bottom: 1px solid #EAEAEA;
-=======
   border-bottom: 1px solid #eaeaea;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .my-modal::-webkit-scrollbar {
@@ -377,16 +284,6 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .header-line {
-<<<<<<< HEAD
-  background:  #FFFF ;
-  /* background: linear-gradient(91.15deg, #4992FF -6.78%, #FF9466 108.06%); */
-  z-index: 0
-}
-
-.header-line-main {
-  background-color: #F7F7F7; 
-  z-index: 0
-=======
   background: #ffff;
   /* background: linear-gradient(91.15deg, #4992FF -6.78%, #FF9466 108.06%); */
   z-index: 0;
@@ -395,7 +292,6 @@ body ::-webkit-scrollbar-thumb:hover {
 .header-line-main {
   background-color: #f7f7f7;
   z-index: 0;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .header-container {
@@ -426,12 +322,8 @@ body ::-webkit-scrollbar-thumb:hover {
   margin-left: 10px;
 }
 
-<<<<<<< HEAD
-.filter-button-container, .order-container {
-=======
 .filter-button-container,
 .order-container {
->>>>>>> dev-drop-slovenia-front2
   min-width: 190px;
 }
 
@@ -460,20 +352,12 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .MuiTabs-flexContainer {
-<<<<<<< HEAD
-  background-color: #EAEAEA;
-=======
   background-color: #eaeaea;
->>>>>>> dev-drop-slovenia-front2
   border-radius: 16px;
 }
 
 .filter-box-container {
-<<<<<<< HEAD
-  max-height: calc(90vh - 160px);
-=======
   max-height: 600px;
->>>>>>> dev-drop-slovenia-front2
   overflow: auto;
 }
 
@@ -481,17 +365,10 @@ body ::-webkit-scrollbar-thumb:hover {
   text-align: left;
   padding-left: 20px;
   padding-right: 20px;
-<<<<<<< HEAD
-  border-bottom: 1px solid #ECECEC;
-  padding-bottom: 20px;
-  padding-top: 20px;
-  background-color: #FFF;
-=======
   border-bottom: 1px solid #ececec;
   padding-bottom: 20px;
   padding-top: 20px;
   background-color: #fff;
->>>>>>> dev-drop-slovenia-front2
 }
 
 @media only screen and (max-width: 600px) {
@@ -550,14 +427,6 @@ body ::-webkit-scrollbar-thumb:hover {
     margin-bottom: 15px;
   }
 
-<<<<<<< HEAD
-  .start-search-bar .result-container, .main-search-bar .result-container {
-    top:95px;
-  }
-
-  .start-search-bar .result-container.regions, .main-search-bar .result-container.regions {
-    top:165px;
-=======
   .start-search-bar .result-container,
   .main-search-bar .result-container {
     top: 95px;
@@ -566,7 +435,6 @@ body ::-webkit-scrollbar-thumb:hover {
   .start-search-bar .result-container.regions,
   .main-search-bar .result-container.regions {
     top: 165px;
->>>>>>> dev-drop-slovenia-front2
   }
 
   .scrolling-card-box {
@@ -581,14 +449,6 @@ body ::-webkit-scrollbar-thumb:hover {
     padding: 24px;
   }
 
-<<<<<<< HEAD
-  .main-search-bar {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
-
-  .result-bar > div {
-=======
   /* .main-search-bar {
     margin-left: 20px;
     margin-right: 20px;
@@ -599,7 +459,6 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 
   .result-bar>div {
->>>>>>> dev-drop-slovenia-front2
     padding-left: 20px;
     padding-right: 20px;
   }
@@ -619,12 +478,8 @@ body ::-webkit-scrollbar-thumb:hover {
     font-weight: 600 !important;
   }
 
-<<<<<<< HEAD
-  .filter-button-container, .order-container {
-=======
   .filter-button-container,
   .order-container {
->>>>>>> dev-drop-slovenia-front2
     min-width: unset;
   }
 
@@ -638,12 +493,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
   .my-modal {
     width: 100%;
-<<<<<<< HEAD
-    height: 100% !important;
-    border-radius: 0px !important;
-=======
     border-radius: 18px 18px 0 0px !important;
->>>>>>> dev-drop-slovenia-front2
   }
 
   .toggle-container-left {
@@ -665,21 +515,13 @@ body ::-webkit-scrollbar-thumb:hover {
 
   .city-input fieldset {
     color: unset;
-<<<<<<< HEAD
-    border-color: #ECECEC !important;
-=======
     border-color: #ececec !important;
->>>>>>> dev-drop-slovenia-front2
   }
 
   .city-input input {
     color: #101010 !important;
     -webkit-text-fill-color: #101010 !important;
-<<<<<<< HEAD
-    border-color: #ECECEC !important;
-=======
     border-color: #ececec !important;
->>>>>>> dev-drop-slovenia-front2
   }
 
   .social-icons {
@@ -714,15 +556,10 @@ body ::-webkit-scrollbar-thumb:hover {
   .about-container h1 {
     font-size: 28px;
   }
-<<<<<<< HEAD
-  .filter-box-container {
-    overflow-x: hidden;
-=======
 
   .filter-box-container {
     overflow-x: hidden;
     max-height: 400px;
->>>>>>> dev-drop-slovenia-front2
   }
 
   .filter-box.bottom {
@@ -730,30 +567,18 @@ body ::-webkit-scrollbar-thumb:hover {
     bottom: 0;
     width: 100%;
     margin-bottom: 0;
-<<<<<<< HEAD
-    background-color: #FFF;
-=======
     background-color: #fff;
->>>>>>> dev-drop-slovenia-front2
   }
 }
 
 @media only screen and (min-width: 910px) {
   .search-result-header-container {
     position: fixed;
-<<<<<<< HEAD
-    top:0;
-    z-index: 100;
-    box-shadow: 0px 5px 27px 0px rgba(0,0,0,0.16);
-    -webkit-box-shadow: 0px 5px 27px 0px rgba(0,0,0,0.16);
-    -moz-box-shadow: 0px 5px 27px 0px rgba(0,0,0,0.16);
-=======
     top: 0;
     z-index: 100;
     box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
     -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
     -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
->>>>>>> dev-drop-slovenia-front2
   }
 
   .seo-bar {
@@ -791,13 +616,8 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-tag-gray {
-<<<<<<< HEAD
-  color: #8B8B8B;
-  background: #DDDDDD;
-=======
   color: #8b8b8b;
   background: #dddddd;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .tour-detail-difficulties {
@@ -817,11 +637,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-weight: 600;
   font-size: 16px;
   line-height: 26px;
-<<<<<<< HEAD
-  margin-right: .5rem;
-=======
   margin-right: 0.5rem;
->>>>>>> dev-drop-slovenia-front2
 }
 
 .tour-detail-data-container {
@@ -843,13 +659,8 @@ body ::-webkit-scrollbar-thumb:hover {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-<<<<<<< HEAD
-  background: #4992FF;
-  border: 1px solid #DDDDDD;
-=======
   background: #4992ff;
   border: 1px solid #dddddd;
->>>>>>> dev-drop-slovenia-front2
   border-radius: 18px;
   max-width: 400px;
   min-height: 70px;
@@ -884,11 +695,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-weight: 600;
   font-size: 13px;
   line-height: 18px;
-<<<<<<< HEAD
-  color: #FFFFFF;
-=======
   color: #ffffff;
->>>>>>> dev-drop-slovenia-front2
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -900,11 +707,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-weight: 500;
   font-size: 12px;
   line-height: 18px;
-<<<<<<< HEAD
-  color: #FFFFFF;
-=======
   color: #ffffff;
->>>>>>> dev-drop-slovenia-front2
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -912,10 +715,6 @@ body ::-webkit-scrollbar-thumb:hover {
   max-width: 225px;
 }
 
-<<<<<<< HEAD
-  
-=======
->>>>>>> dev-drop-slovenia-front2
 .tour-detail-conditional-desktop {
   display: none;
 }
@@ -942,18 +741,12 @@ body ::-webkit-scrollbar-thumb:hover {
   align-items: center;
 
   gap: 24px;
-<<<<<<< HEAD
-  padding: 0;
-=======
->>>>>>> dev-drop-slovenia-front2
 }
 
 .tour-detail-conditional-mobile {
   display: block;
 }
 
-<<<<<<< HEAD
-=======
 .tour-detail-itinerary {
   border-radius: 30px;
   background: #ebebeb;
@@ -969,27 +762,18 @@ body ::-webkit-scrollbar-thumb:hover {
   margin-bottom: 0;
 }
 
->>>>>>> dev-drop-slovenia-front2
 .tour-detail-itinerary-header {
   font-weight: 700;
   font-size: 18px;
   line-height: 18px;
   text-align: center;
   color: #000000;
-<<<<<<< HEAD
-  padding-bottom: 25px;
-}
-
-.tour-detail-itinerary-calendar {
-  background: #FFFFFF;
-=======
   margin-bottom: 25px;
 }
 
 .tour-detail-itinerary-calendar {
   width: 100%;
   background: #ffffff;
->>>>>>> dev-drop-slovenia-front2
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
   border-radius: 18px;
   display: inline-flex;
@@ -1003,11 +787,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-size: 14px;
   line-height: 18px;
   text-align: center;
-<<<<<<< HEAD
-  color: #4992FF;
-=======
   color: #4992ff;
->>>>>>> dev-drop-slovenia-front2
   padding: 14px 0 0 0;
   width: 100%;
   height: 30px;
@@ -1025,11 +805,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-size: 13px;
   line-height: 18px;
   text-align: center;
-<<<<<<< HEAD
-  color: #8B8B8B;
-=======
   color: #8b8b8b;
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1054,11 +830,7 @@ body ::-webkit-scrollbar-thumb:hover {
   line-height: 18px;
   text-align: center;
   color: #101010;
-<<<<<<< HEAD
-  height:46px;
-=======
   height: 46px;
->>>>>>> dev-drop-slovenia-front2
   width: 46px;
 
   display: flex;
@@ -1074,13 +846,8 @@ body ::-webkit-scrollbar-thumb:hover {
   font-size: 13px;
   line-height: 18px;
   text-align: center;
-<<<<<<< HEAD
-  color: #FFFFFF;
-  height:46px;
-=======
   color: #ffffff;
   height: 46px;
->>>>>>> dev-drop-slovenia-front2
   width: 46px;
 
   display: flex;
@@ -1092,15 +859,6 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-itinerary-calendar-grid .tour-detail-itinerary-calendar-grid-selected::before {
-<<<<<<< HEAD
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  background: #4992FF;
-  border-radius: 50%;
-  height:41px;
-=======
   content: "";
   position: absolute;
   top: 2px;
@@ -1108,7 +866,6 @@ body ::-webkit-scrollbar-thumb:hover {
   background: #4992ff;
   border-radius: 50%;
   height: 41px;
->>>>>>> dev-drop-slovenia-front2
   width: 41px;
   z-index: -1;
 }
@@ -1141,10 +898,6 @@ body ::-webkit-scrollbar-thumb:hover {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> dev-drop-slovenia-front2
   .tour-detail-properties-el:nth-child(even):before {
     content: "";
     position: absolute;
@@ -1152,26 +905,16 @@ body ::-webkit-scrollbar-thumb:hover {
     top: 19px;
     height: 41px;
     width: 1px;
-<<<<<<< HEAD
-    background: #DDDDDD;
-  }
-=======
     background: #dddddd;
   }
 
->>>>>>> dev-drop-slovenia-front2
   .tour-detail-img-container img {
     width: 325px;
     height: auto;
   }
 }
-<<<<<<< HEAD
-@media only screen and (min-width: 1025px) {
-
-=======
 
 @media only screen and (min-width: 1025px) {
->>>>>>> dev-drop-slovenia-front2
   .tour-detail-header {
     padding: 2rem 7rem;
     text-align: left;
@@ -1179,10 +922,6 @@ body ::-webkit-scrollbar-thumb:hover {
 
   .tour-detail-itinerary {
     width: 390px;
-<<<<<<< HEAD
-    padding: 25px 0;
-=======
->>>>>>> dev-drop-slovenia-front2
   }
 
   .tour-detail-img-container {
@@ -1231,10 +970,6 @@ body ::-webkit-scrollbar-thumb:hover {
     justify-content: center;
     align-items: flex-start;
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> dev-drop-slovenia-front2
   .tour-detail-properties-el:nth-child(3n-2) {
     padding: 1rem 0;
   }
@@ -1252,16 +987,9 @@ body ::-webkit-scrollbar-thumb:hover {
     top: 19px;
     height: 41px;
     width: 1px;
-<<<<<<< HEAD
-    background: #DDDDDD;
-  }
-
-
-=======
     background: #dddddd;
   }
 
->>>>>>> dev-drop-slovenia-front2
   .tour-detail-map-container {
     width: 100%;
     height: 450px;
@@ -1281,10 +1009,6 @@ body ::-webkit-scrollbar-thumb:hover {
     padding: 0 0 0 3rem;
     height: 100%;
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> dev-drop-slovenia-front2
 }
 
 .static-container {
@@ -1300,11 +1024,7 @@ body ::-webkit-scrollbar-thumb:hover {
   color: #000000;
 }
 
-<<<<<<< HEAD
-.order-container > div {
-=======
 .order-container>div {
->>>>>>> dev-drop-slovenia-front2
   flex: 1;
 }
 
@@ -1314,11 +1034,7 @@ ul.about-bullets {
 
 .about-bullets li {
   background: transparent;
-<<<<<<< HEAD
-  color: #8B8B8B;
-=======
   color: #8b8b8b;
->>>>>>> dev-drop-slovenia-front2
   text-align: left;
   margin-top: 5px;
 }
@@ -1342,10 +1058,6 @@ ul.about-bullets {
   .react-horizontal-scrolling-arrow-container {
     display: none;
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> dev-drop-slovenia-front2
   .react-horizontal-scrolling-card {
     max-width: 100%;
   }
@@ -1360,20 +1072,6 @@ ul.about-bullets {
   border-radius: 50%;
   opacity: 0.5;
   background-color: #000;
-<<<<<<< HEAD
-  color: #FFF;
-}
-
-.leaflet-control { z-index: 0 !important}
-.leaflet-pane { z-index: 0 !important}
-.leaflet-top, .leaflet-bottom {z-index: 0 !important}
-
-.custom-marker-cluster{
-  background: #4992FF;
-  border: 10px solid #4992FF;
-  border-radius: 50%;
-  color: #FFF;
-=======
   color: #fff;
 }
 
@@ -1395,19 +1093,13 @@ ul.about-bullets {
   border: 10px solid #4992ff;
   border-radius: 50%;
   color: #fff;
->>>>>>> dev-drop-slovenia-front2
   height: 33px;
   line-height: 32px;
   text-align: center;
   width: 33px;
   font-weight: bold;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-<<<<<<< HEAD
-  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-=======
     0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
->>>>>>> dev-drop-slovenia-front2
   font-size: 15px;
 }
 
@@ -1415,11 +1107,7 @@ ul.about-bullets {
   position: absolute;
   width: 100%;
   height: 100%;
-<<<<<<< HEAD
-  background-color: rgba(255,255,255,0.5);
-=======
   background-color: rgba(255, 255, 255, 0.5);
->>>>>>> dev-drop-slovenia-front2
   z-index: 10;
 }
 
@@ -1429,24 +1117,6 @@ ul.about-bullets {
 
 .seo-city-link {
   line-height: 24px;
-<<<<<<< HEAD
-  color: #4992FF;
-}
-
-.alignStart{
-display: flex;
-align-items: flex-start;
-}
-.countrySwitch{
-padding: 13px;
-width: 173.02px;
-/* height: 50px; */
-background: rgba(37, 73, 128, 0.2);
-border-radius: 20px;
-cursor: pointer;
-}
-.countryDiv{
-=======
   color: #4992ff;
 }
 
@@ -1465,49 +1135,25 @@ cursor: pointer;
 }
 
 .countryDiv {
->>>>>>> dev-drop-slovenia-front2
   padding-bottom: 50px;
   padding-left: 105px;
   padding-right: 105px;
   padding-top: 20px;
 }
-<<<<<<< HEAD
-.rowing{
-=======
 
 .rowing {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 }
 
-<<<<<<< HEAD
-.rowingStart{
-=======
 .rowingStart {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: left;
 }
-<<<<<<< HEAD
-.languageIcon{
-  width: 49px;
-height: 49px;
-background: rgba(37, 73, 128, 0.2);
-border-radius: 35px;
-cursor: pointer;
-}
-.centerMe{
-  display: flex;
-  align-items: center;
-  justify-content: center; 
-}
-.colCenter{
-=======
 
 .languageIcon {
   width: 49px;
@@ -1524,88 +1170,18 @@ cursor: pointer;
 }
 
 .colCenter {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
 }
-<<<<<<< HEAD
-.colLeft{
-=======
 
 .colLeft {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   align-items: flex-start;
   justify-content: left;
   flex-direction: column;
 }
-<<<<<<< HEAD
-.languageMenu{
-  /* width: 173px; */
-/* height: 236px; */
-padding-top: 19px;
-padding-left: 30px;
- padding-right: 15px; 
-padding-bottom: 10px;
-background: #FFFFFF;
-border-radius: 20px;
-display: flex;
-align-items: flex-start;
-justify-content: space-between;
-flex-direction: row; 
-position: absolute;
-right: 125px;
-top:25px;
-}
-.firstMenu{
-  background: #FFFFFF;
-border-radius: 20px;
-flex-direction: column;
-display: flex;
-/* padding:20px; */
-/* box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15); */
-/* margin-top: -25px; */
-width: 600px;
-padding:20px;
-
-}
-.closeIcon{
-background: #EBEBEB;
-width: 28px;
-height: 28px;
-border-radius: 50%;
-align-items: center;
-justify-content: center;
-display: flex;
-cursor: pointer;
-margin-left: 7px;
-}
-.languageItem{
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 600;
-font-size: 14px;
-line-height: 34px;
-color:#8B8B8B;
-cursor: pointer;
-}
-
-.languageItem:hover{
-  color: #4992FF;
-
-}
-
-.incircledArrow{
-  width: 40px;
-  height:35px;
-  border-radius: 50%;  border:2px solid #ddd;
-  margin-left: 12px;
-
-}
-.languageOptions{
-=======
 
 .languageMenu {
   /* width: 173px; */
@@ -1672,60 +1248,19 @@ cursor: pointer;
 }
 
 .languageOptions {
->>>>>>> dev-drop-slovenia-front2
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
   display: flex;
-<<<<<<< HEAD
-  width:100%;
-  
-}
-.colLeft{
-=======
   width: 100%;
 }
 
 .colLeft {
->>>>>>> dev-drop-slovenia-front2
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
   display: flex;
 }
-<<<<<<< HEAD
-.domainMenu{
-  width: 179px;
-background: #FFFFFF;
-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-border-radius: 20px;
-position: absolute;
-left: 125px;
-top:25px;
-padding-left: 13px;
-padding-right: 13px;
-padding-top: 10px;
-/* padding-bottom: 18px; */
-/* padding-top: 13px; */
-}
-.domainItem{
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 600;
-font-size: 15.4457px;
-line-height: 21px;
-letter-spacing: -0.01em;
-color:#8B8B8B;
-margin-left: 9px;
-margin-right: 9px;
-}
-.domainItem:hover{
-  color: #4992FF;
-
-}
-
-.colCenteral{
-=======
 
 .domainMenu {
   width: 179px;
@@ -1759,50 +1294,18 @@ margin-right: 9px;
 }
 
 .colCenteral {
->>>>>>> dev-drop-slovenia-front2
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   display: flex;
 }
-<<<<<<< HEAD
-.rowingLeft{
-=======
 
 .rowingLeft {
->>>>>>> dev-drop-slovenia-front2
   flex-direction: row;
   align-items: center;
   justify-content: left;
   display: flex;
 }
-<<<<<<< HEAD
-.horizontalBar{
-background-color:  #DDDDDD;
-height: 1px;
-width: 100%;
-margin-top: 25px;
-margin-bottom: 25px;
-}
-.centerInputField{
-  display: flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-padding: 12px 24px;
-width: 600px;
-/* height: 64px; */
-background: #FFFFFF;
-border: 2.06691px solid #DDDDDD;
-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-border-radius: 20px;
-/* margin-top: -180px; */
-/* margin-bottom: -175px; */
-position:absolute;
-top:485px;
-}
-.centerInputFieldFilter{
-=======
 
 .horizontalBar {
   background-color: #dddddd;
@@ -1813,7 +1316,6 @@ top:485px;
 }
 
 .centerInputField {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -1821,68 +1323,12 @@ top:485px;
   padding: 12px 24px;
   width: 600px;
   /* height: 64px; */
-<<<<<<< HEAD
-  background: #FFFFFF;
-  border: 2.06691px solid #DDDDDD;
-=======
   background: #ffffff;
   border: 2.06691px solid #dddddd;
->>>>>>> dev-drop-slovenia-front2
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
   /* margin-top: -180px; */
   /* margin-bottom: -175px; */
-<<<<<<< HEAD
-  position:absolute;
-  top:100px;
-}
-.mobileSearchField{
-  display: none;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-/* padding: 12px 24px; */
-padding-left: 12px;
-padding-right: 12px;
-width: 325px;
-height: 64px;
-background: #FFFFFF;
-border: 2.06691px solid #DDDDDD;
-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-border-radius: 20px;
-/* position:absolute;
-top:415px; */
-margin-top: 60px;
-margin-bottom: -58px;
-}
-.fixedHeight{
-  height:162px;
-}
-.mobileSearchFieldFilter{
-  display: none;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-/* padding: 12px 24px; */
-padding-left: 12px;
-padding-right: 12px;
-width: 325px;
-height: 64px;
-background: #FFFFFF;
-border: 2.06691px solid #DDDDDD;
-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-border-radius: 20px;
-/* position:absolute; 
-top:250px; */
-margin-bottom: -30px;
-
-}
-.mobileMenu{
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  background: #C5C5C5;
-=======
   position: absolute;
   top: 485px;
 }
@@ -1953,71 +1399,15 @@ top:250px; */
   flex-direction: column;
   padding: 12px;
   background: #c5c5c5;
->>>>>>> dev-drop-slovenia-front2
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
   height: 100%;
 
   position: absolute;
-<<<<<<< HEAD
-  top:0;
-=======
   top: 0;
->>>>>>> dev-drop-slovenia-front2
   right: 0;
   left: 0;
   z-index: 99;
 }
-<<<<<<< HEAD
-.searchFirstText{
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 600;
-font-size: 16px;
-line-height: 23px;
-text-align: center;
-letter-spacing: -0.01em;
-color: #000000;
-width: 243px;
-outline: none;
-border: none;
-background-color: transparent;
-cursor: pointer;
-}
-.verticalBar{
-  background-color: #DDDDDD;
-  height: 25px;
-  width: 1px;
-}
-.searchSecondText{
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 600;
-font-size: 16px;
-line-height: 23px;
-text-align: center;
-color: #8B8B8B;cursor: pointer;
-
-}
-.goBtn{
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 700;
-font-size: 16px;
-line-height: 29px;
-display: flex;
-align-items: center;
-justify-content: center;
-text-align: center;
-letter-spacing: -0.02em;
-color: #FFFFFF;
-width: 40px;
-height: 40px;
-background-color:#4992FF;
-border-radius: 50%;
-cursor: pointer;
-}
-.colLeft{
-=======
 
 .searchFirstText {
   font-family: "Open Sans";
@@ -2072,60 +1462,11 @@ cursor: pointer;
 }
 
 .colLeft {
->>>>>>> dev-drop-slovenia-front2
   display: flex;
   /* align-items: ; */
   flex-direction: column;
   justify-content: left;
 }
-<<<<<<< HEAD
-.boldTxt{
-  
-  font-family: 'Open Sans';
-font-style: normal;
-font-weight: 600;
-font-size: 16px;
-line-height: 23px;
-}
-.underline{
-  text-decoration: underline;
-}
-.pointy{
-  cursor: pointer;
-}
-.searchField{
-  border:2px solid #ddd;
-  padding: 10px 5px 10px 20px;
-  border-radius: 20px;
-  /* width:500px */
-display: flex;
-width: 100%;
-}
-
-.searchInput{
-  background:transparent;
-  width:460px;
-  outline: none;
-  border: none;
-  font-family:'Open Sans';
-}
-.searchSuggestions{
-  font-family:'Open Sans';
-  border-radius: 12px;
-  text-align: left;
-  width:87%;
-display: flex;
-  padding:15px;
-}
-
-.searchSuggestions:hover{
-  background-color: #EBEBEB;
-}
-
-.ssiggestionQry{
-  width: 42px;
-  height:42px;
-=======
 
 .boldTxt {
   font-family: "Open Sans";
@@ -2176,110 +1517,36 @@ display: flex;
 .ssiggestionQry {
   width: 42px;
   height: 42px;
->>>>>>> dev-drop-slovenia-front2
   object-fit: contain;
   margin-right: 5px;
 }
 
-<<<<<<< HEAD
-
-.firstMobileMenu{
-  background: #FFFFFF;
-=======
 .firstMobileMenu {
   background: #ffffff;
->>>>>>> dev-drop-slovenia-front2
   border-radius: 20px;
   flex-direction: column;
   display: flex;
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
-<<<<<<< HEAD
-  padding:20px;
-}
-.firstBtn{
-=======
   padding: 20px;
 }
 
 .firstBtn {
->>>>>>> dev-drop-slovenia-front2
   width: 149px;
   height: 56px;
   align-items: center;
   justify-content: center;
   display: flex;
-<<<<<<< HEAD
-  text-decoration: underline;  
-  font-family:'Open Sans';
-  z-index: 99;
-}
-.secondBtn{
-=======
   text-decoration: underline;
   font-family: "Open Sans";
   z-index: 99;
 }
 
 .secondBtn {
->>>>>>> dev-drop-slovenia-front2
   width: 149px;
   height: 56px;
   align-items: center;
   justify-content: center;
   display: flex;
-<<<<<<< HEAD
-  font-family:'Open Sans';
-  background-color: #4992FF;
-  border-radius: 12px;
-  color: #fff;z-index: 99;
-}
-.filterStyling{
-  width: 40px;
-height: 40px;
-border-radius: 50%;
-cursor: pointer;
-}
-.newHeader{
-  background-color:  #4992FF;
-
-
-}
-.blueDiv{
-  padding: 45px 105px 40px 105px;
-}
-@media only screen and (max-width: 650px) {
-  .countryDiv{
-    padding-left: 5px;
-    padding-right: 5px;
-   
-  }
-  .blueDiv{
-    padding: 50px 15px 45px 15px;
-
-  }
-  .languageMenu{
-    right:10px;
-  }
-  .domainMenu{
-    left:10px;
-  }
-  .centerInputField{
-    display: none;
-  }
-  .mobileSearchField{
-    display: flex;
-  }
-  .centerInputFieldFilter{
-    display: none;
-  }
-  .mobileSearchFieldFilter{
-    display: flex;
-  }
-  .searchSecondText{
-    margin-left: -13px;
-  }
-
-=======
   font-family: "Open Sans";
   background-color: #4992ff;
   border-radius: 12px;
@@ -2339,7 +1606,6 @@ cursor: pointer;
   .searchSecondText {
     margin-left: -13px;
   }
->>>>>>> dev-drop-slovenia-front2
 }
 
 /* App.css */
@@ -2350,30 +1616,15 @@ cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< HEAD
-  border: 2px solid rgb(52, 134, 178);
-  border-radius: 50%;
-  color: green;
-=======
   border: 2px solid #ddd;
   border-radius: 50%;
->>>>>>> dev-drop-slovenia-front2
   transition: color 0.3s;
   padding: 8px;
 }
 
-<<<<<<< HEAD
-.filter-icon-container:hover {
-  stroke: rgba(0, 128, 0, 0.5);
-  color: #3390b2; /* Change the color on hover */
-  background-color: #3390b2; /* Add a background color on hover */
-  border-color: #b29d33; /* Change the border color on hover */
-}
-=======
 /* .filter-icon-container:hover {
   stroke: rgba(0, 128, 0, 0.5);
   color: #3390b2;
   background-color: #3390b2; 
   border-color: #b29d33; 
 } */
->>>>>>> dev-drop-slovenia-front2
