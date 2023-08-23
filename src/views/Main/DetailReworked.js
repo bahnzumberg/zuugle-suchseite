@@ -1,5 +1,9 @@
 import * as React from 'react';
+<<<<<<< HEAD
 import {lazy, useEffect, useState} from 'react';
+=======
+import { lazy, useEffect, useState } from 'react';
+>>>>>>> dev-drop-slovenia-front2
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
@@ -37,6 +41,7 @@ import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 // import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
+<<<<<<< HEAD
 import {generateShareLink, loadShareParams} from "../../actions/crudActions";
 import {
     EmailShareButton,
@@ -53,6 +58,24 @@ import {shortenText} from "../../utils/globals"
 import { Fragment } from 'react';
 import i18next from 'i18next';
 
+=======
+import { generateShareLink, loadShareParams } from "../../actions/crudActions";
+import {
+	EmailShareButton,
+	EmailIcon,
+	FacebookShareButton,
+	FacebookIcon,
+	TwitterShareButton,
+	TwitterIcon,
+	WhatsappShareButton,
+	WhatsappIcon
+} from "react-share";
+import ShareIcon from "../../icons/ShareIcon";
+import { shortenText } from "../../utils/globals"
+import { SearchFilter } from '../../components/SearchFilter/SearchFilter';
+import ArrowBefore from '../../icons/ArrowBefore';
+import { Close } from '@mui/icons-material';
+>>>>>>> dev-drop-slovenia-front2
 
 const setGpxTrack = (url, loadGPX, _function) => {
 	loadGPX(url).then((res) => {
@@ -81,6 +104,7 @@ const DetailReworked = (props) => {
 		tour,
 		loadCities,
 		loadAllCities,
+<<<<<<< HEAD
 	} = props;
 
     const [connections, setConnections] = useState(null);
@@ -101,6 +125,30 @@ const DetailReworked = (props) => {
     //Whether a warning that says that your local trainstation has not been used, should be shown
     const [showDifferentStationUsedWarning , setShowDifferentStationUsedWarning] = useState(false);
 	// let tourDuration = null;
+=======
+		showMobileMenu,
+		setShowMobileMenu,
+	} = props;
+
+	const [connections, setConnections] = useState(null);
+	const [activeConnection, setActiveConnection] = useState(null);
+	const [activeReturnConnection, setActiveReturnConnection] = useState(null);
+	const [dateIndex, setDateIndex] = useState(0);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [gpxPositions, setGpxPositions] = useState(null);
+	const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
+	const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
+	const [renderImage, setRenderImage] = useState(null);
+	//Triggers the generating of a new link
+	const [isShareGenerating, setIsShareGenerating] = useState(false);
+	//Complete share link
+	const [shareLink, setShareLink] = useState(null);
+	//Whether social media share buttons should be shown
+	const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] = useState(false);
+	//Whether a warning that says that your local trainstation has not been used, should be shown
+	const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] = useState(false);
+	let tourDuration = null;
+>>>>>>> dev-drop-slovenia-front2
 
 	// Translation-related
 	const { t } = useTranslation();
@@ -112,6 +160,7 @@ const DetailReworked = (props) => {
 		} else return t("start.mittel");
 	};
 
+<<<<<<< HEAD
 	//gpx and pdf buttons show up only when menu language is German
 	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; 
 
@@ -120,10 +169,18 @@ const DetailReworked = (props) => {
         let city = searchParams.get('city');
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
+=======
+	const navigate = useNavigate();
+	const goToStartPage = () => {
+		let city = searchParams.get('city');
+		navigate(`/?${!!city ? 'city=' + city : ''}`)
+	}
+>>>>>>> dev-drop-slovenia-front2
 
 	//max number of characters used per specific UI element (buttons) 
 	const maxLength = 40;
 
+<<<<<<< HEAD
 	
 	const [providerPermit, setProviderPermit] = useState(true);
 
@@ -217,11 +274,90 @@ const DetailReworked = (props) => {
             })
         }
     }, [searchParams]);
+=======
+	//Creating a new share link
+	useEffect(() => {
+		if (isShareGenerating === true) {
+			generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+				.then(res => {
+					if (res.success === true) {
+						setShareLink(window.location.origin + "/tour?share=" + res.shareId);
+					} else {
+						console.log("Share link didn't generate as expected.");
+					}
+				});
+			setIsShareGenerating(false);
+		}
+
+
+	}, [isShareGenerating]);
+
+	useEffect(() => {
+		setIsShareGenerating(false);
+		setSocialMediaDropDownToggle(false);
+
+
+	}, [dateIndex]);
+
+
+	useEffect(() => {
+		const shareId = searchParams.get("share") ?? null;
+		const city = localStorage.getItem('city');
+		//Redirects to according page when it is a share link
+		if (shareId !== null) {
+			loadShareParams(shareId, city).then(res => {
+				if (res.success === true) {
+					if (res.usedCityOfCookie === false) {
+						setShowDifferentStationUsedWarning(true);
+					}
+					const redirectSearchParams = new URLSearchParams();
+					const date = moment(res.date);
+					redirectSearchParams.set("id", res.tourId);
+					redirectSearchParams.set("city", res.city);
+					redirectSearchParams.set("datum", moment(date).format('YYYY-MM-DD'));
+					lazy(navigate('/tour?' + redirectSearchParams.toString()));
+				} else {
+					city && searchParams.set("city", city);
+					goToStartPage();
+				}
+			}).catch(err => {
+				city && searchParams.set("city", city);
+				goToStartPage();
+			});
+		}
+		loadAllCities();
+		loadCities({ limit: 5 });
+		const tourId = searchParams.get("id");
+
+		if (tourId) {
+			loadTour(tourId, city)
+				.then(tourExtracted => {
+					tourDuration = !!tourExtracted.data.tour.duration && tourExtracted.data.tour.duration;
+					// console.log("L176 :tourDuration :", tourDuration);
+				})
+				.catch(error => {
+					console.error("Error:", error);
+				});
+		}
+
+		if (tourId && city && !connections) {
+			loadTourConnectionsExtended({ id: tourId, city: city }).then(res => {
+				if (res && res.data) {
+					setConnections(res.data.result);
+				}
+			})
+		}
+	}, [searchParams]);
+>>>>>>> dev-drop-slovenia-front2
 
 	useEffect(() => {
 		if (tour) {
 			if (!tour.cities_object[searchParams.get("city")]) {
+<<<<<<< HEAD
 				goToStartPage();
+=======
+				// goToStartPage();
+>>>>>>> dev-drop-slovenia-front2
 			} else {
 				setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
 				setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
@@ -358,6 +494,7 @@ const DetailReworked = (props) => {
 		setActiveReturnConnection(connections[index].returns[0]);
 	};
 
+<<<<<<< HEAD
     const actionButtonPart = (<Box className="tour-detail-action-btns-container">
         { providerPermit &&  (
 			<Fragment>
@@ -452,6 +589,165 @@ const DetailReworked = (props) => {
 				)} */}
 			</Box>
 			<Box>
+=======
+	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
+		<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+			onDownloadGpx();
+		}}>
+			<DownloadIcon /><span style={{ color: "#101010", width: "43px" }}>GPX</span>
+			{!!isGpxLoading ?
+				<CircularProgress sx={{ width: "20px", height: "20px", fontWeight: 600 }} size={"small"} />
+				: <span style={{ color: "#8B8B8B" }}>
+					{t("details.track_gps_geraet")}
+				</span>
+			}
+		</Button>
+		<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
+			onClick={onDownload}>
+			<PdfIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>PDF</span>
+			{!!isPdfLoading ?
+				<CircularProgress sx={{ width: "20px", height: "20px" }} size={"small"} />
+				: <span style={{ color: "#8B8B8B" }}>  {shortenText(t('Details.pdf_loading_notice'), 0, maxLength)} </span>
+			}
+		</Button>
+
+		{/*
+        Share button
+        When clicked, a link will be generated and the social media options will be shown
+        */}
+		<Button className="tour-detail-action-btns" disabled={false}
+			onClick={() => {
+				setIsShareGenerating(true);
+				setSocialMediaDropDownToggle((current) => { return !current });
+			}}>
+			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
+			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
+		</Button>
+		{/*
+        Specific social media buttons
+        */}
+		{(socialMediaDropDownToggle && !isShareGenerating && shareLink !== null) && <div>
+			<TwitterShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#00aced" }} url={shareLink} title={t('details.teilen_text')}>
+				<TwitterIcon size={40} round={true} />
+				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>Twitter</span>
+			</TwitterShareButton>
+			<EmailShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#7f7f7f" }} url={shareLink} subject={"Zuugle Tour"} body={t('details.teilen_text')}>
+				<EmailIcon size={40} round={true} />
+				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>Email</span>
+			</EmailShareButton>
+			{/*Facebook has deprecated the quote feature, thus when sharing, only the link will be there - however the user can still write something on the post (but it needs to be done manually)*/}
+			<FacebookShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#3b5998" }} url={shareLink} quote={t('details.teilen_text')} hashtag={"Zuugle"}>
+				<FacebookIcon size={40} round={true} />
+				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>Facebook</span>
+			</FacebookShareButton>
+			<WhatsappShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#25d366" }} url={shareLink} title={t('details.teilen_text')}>
+				<WhatsappIcon size={40} round={true} />
+				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>Whatsapp</span>
+			</WhatsappShareButton>
+			<Button className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#d8d3cd", border: "none" }} onClick={() => {
+				navigator.clipboard.writeText(shareLink);
+			}}>
+				<ContentPasteIcon color="white"></ContentPasteIcon>
+				<span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.kopieren')}</span>
+			</Button>
+		</div>}
+
+		{!!downloadButtonsDisabled() && (
+			<div style={{ marginTop: "10px" }}>
+				<span
+					style={{ fontSize: "12px", color: "#101010", lineHeight: "12px" }}
+				>
+					{t("Details.gpx_loading_notice")}
+				</span>
+			</div>
+		)}
+	</Box>
+	);
+	return (
+		<Box sx={{ backgroundColor: "#fff" }}>
+			{/* ========================================== */}
+			<Box className="newHeader" sx={{ position: "relative" }}>
+				<Box comoponent={"div"} className="rowing blueDiv">
+					<Box sx={{ display: "flex", alignItems: "center" }}>
+						<Box sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }} onClick={() => navigate(-1)}>
+							<ArrowBefore style={{ stroke: "#fff", width: "34px", height: "34px" }} />
+						</Box>
+						<DomainMenu />
+					</Box>
+					<Box sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }} onClick={() => window.close()}>
+						<Close style={{ stroke: "#fff", fill: "#fff", width: "24px", height: "24px" }} />
+					</Box>
+					{!searchParams.get('city') && <Box sx={{
+						position: "fixed",
+						right: 0,
+						bottom: 0,
+						top: 0,
+						left: 0,
+						backgroundColor: "rgba(0, 0, 0, 0.5)",
+						zIndex: "1300"
+					}} />}
+
+				</Box>
+				{/* {!!allCities && allCities.length > 0 && ( */}
+				<Box
+					sx={{
+						backgroundColor: "#FFF",
+						position: "absolute",
+						bottom: "0",
+						transform: "translate(-50%, 50%)",
+						display: "inline-flex",
+						borderRadius: "20px",
+						padding: "12px 15px",
+						border: "2px solid #ddd",
+						width: "100%",
+						maxWidth: { xs: !searchParams.get('city') ? "360px" : "325px", md: !searchParams.get('city') ? "376px" : "600px" },
+						boxSizing: "border-box",
+						boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+						zIndex:"1300"
+					}}
+				>
+					<Box sx={{ width: "100%" }}>
+						<SearchContainer
+							pageKey="detail"
+							goto={"/suche"}
+						/>
+					</Box>
+				</Box>
+				{/* )} */}
+			</Box>
+			<Box>
+				{/* {!!allCities && allCities.length > 0 && (
+					<Box
+						alignItems={"center"}
+						justifyContent={"center"}
+						display="inline-block"
+						sx={{
+							position: "absolute",
+							bottom: "0",
+							left: "50%",
+							transform: "translate(-50%,50%)",
+							backgroundColor: "#FFF",
+							borderRadius: "15px",
+							padding: "12px 24px",
+							border: "2px solid #ddd",
+							boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+							width: {
+								xs: "75%",
+								md: "600px",
+								lg: "600px",
+							},
+							maxWidth: {
+								xs: "325px",
+								md: "600px",
+							},
+						}}
+					>
+						<Box elevation={1} className={"colCenter"}>
+							<Search isMain={true} />
+						</Box>
+					</Box>
+				)} */}
+>>>>>>> dev-drop-slovenia-front2
 				<Box className="tour-detail-header">
 					<Box className="mt-3">
 						<Typography variant="title">{tour?.title}</Typography>
@@ -555,7 +851,11 @@ const DetailReworked = (props) => {
 				<Divider variant="middle" />
 			</Box>
 			<Footer></Footer>
+<<<<<<< HEAD
 		</Box>
+=======
+		</Box >
+>>>>>>> dev-drop-slovenia-front2
 	);
 };
 

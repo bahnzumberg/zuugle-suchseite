@@ -10,6 +10,7 @@
         "entwicklung_von_zuugle_4": "Cliquez sur l'itinéraire de votre choix. Vous voyez apparaître sur l'écran une description de la randonnée que vous pouvez télécharger au format PDF. Zuugle vous propose des horaires pour les 7 prochains jours. Pour faire apparaître ces horaires, cliquez sur l'onglet \"Aller et retour\". Zuugle choisit le meilleur trajet aller, et vous donne plusieurs possibilités pour le retour.",
         "entwicklung_von_zuugle_5": "Attention : les annulations de train ou les changements d'horaires de dernière minute peuvent ne pas être pris en compte dans les horaires proposés. Nous vous conseillons donc de vérifier votre trajet sur les sites des opérateurs concernés (sncf.fr, bahn.de, oebb.at).avant de partir. En cliquant sur le lien du portail qui propose la randonnée, vous voyez apparaître une fenêtre avec la description détaillée de l'itinéraire."
     },
+<<<<<<< HEAD
     "Details": {
         "gpx_loading_notice": "Le téléchargement n'est possible que si une liaison a été trouvée. Essayez de choisir un autre jour.",
         "pdf_loading_notice": "Téléchargement pour impression / envoi d'un e-mail",
@@ -59,6 +60,8 @@
         "italienisch": "Italien",
         "englisch": "Anglais"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "impressum": {
         "verantwortlich_fuer_inhalt": "Responsable du contenu",
         "spendenkonto": "Coordonnées bancaires pour les dons",
@@ -74,6 +77,7 @@
         "lizenzbedingungen": "Conditions de licence pour les données des horaires",
         "anfuehrung_quellen": "Les différentes sources et les conditions de licence pour les données d'horaires utilisées sont indiquées ici."
     },
+<<<<<<< HEAD
     "index": {
         "zuugle_description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
         "noscript": "Vous n'avez probablement pas activé Javascript. Notre moteur de recherche a besoin de Javascript pour fonctionner. Vous devez donc activer Javacript sur votre navigateur."
@@ -114,6 +118,8 @@
         "direkt_bei_der_haltestelle": "Départ de la randonnée directement à l'arrêt de bus",
         "maximale_hoehe": "Altitude maximale"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "privacy": {
         "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",
         "datenschutzerklaerung": "Déclaration de confidentialité",
@@ -187,6 +193,97 @@
         "impressum": "Mentions légales",
         "helmet_title": "Zuugle - le moteur de recherche pour les sorties en montagne sans voiture"
     },
+<<<<<<< HEAD
+=======
+    "main": {
+        "ergebnisse": "Résultats",
+        "ergebnis": "Résultat",
+        "karte": "Carte",
+        "filter": "Filtres",
+        "aktiv": "actif",
+        "relevanz": "Pertinence",
+        "anfahrtszeit": "Durée du trajet d'accès",
+        "tourdistanz": "Longueur de la randonnée",
+        "tourdauer": "Durée de la randonnée",
+        "sortieren_nach": "Trier par",
+        "anreisetag": "Jour d'arrivée",
+        "tourdetails": "Détails de la randonnée",
+        "an_und_abreise": "Aller et retour",
+        "gpx_download": "Télécharger la trace GPX",
+        "pdf": "PDF",
+        "anreise_gefunden": "Accès en transports en commun trouvé avec",
+        "keine_anreise_gefunden": "Aucun accès en transports en commun trouvé",
+        "viele_rueckfahrten": "Accès en transports en commun trouvé avec 99+ retours",
+        "eine_rueckfahrt": "Accès en transports en commun trouvé avec 1 retour",
+        "schwierigkeit_zuugle": "Difficulté Zuugle",
+        "schwierigkeit_original": "Difficulté site d'origine",
+        "sportart": "Type d'activité",
+        "distanz": "Distance",
+        "dauer": "Durée",
+        "tage": "Jours",
+        "aufstieg": "Montée",
+        "abstieg": "Descente",
+        "kinderfreundlich": "Adaptée aux enfants",
+        "ueberschreitung": "Traversée",
+        "ja": "Oui",
+        "nein": "Non",
+        "keine_verbindung": "Pas de desserte :",
+        "direkt_bei_der_haltestelle": "Départ de la randonnée directement à l'arrêt de bus",
+        "maximale_hoehe": "Altitude maximale"
+    },
+    "filter": {
+        "tourlaenge": "Durée de la randonnée",
+        "tagestour": "Randonnée d'une journée",
+        "mehrtagestour": "Randonnée en itinérance",
+        "jahreszeit": "Saison",
+        "sommertour": "Itinéraire estival",
+        "wintertour": "Itinéraire hivernal",
+        "nur_ueberschreitungen": "Seulement les traversées",
+        "ueberschreitungen": "Le début et la fin de la randonnée sont situés à des arrêts différents.",
+        "sportart": "Type d'activité",
+        "alle_an_abwaehlen": "Tout (dé)sélectionner",
+        "bike_hike": "Randonnée VTT",
+        "hochtour": "Alpinisme",
+        "klettern": "Escalade",
+        "klettersteig": "Via ferrata",
+        "langlaufen": "Ski de fond",
+        "rodeln": "Luge",
+        "schneeschuh": "Raquettes",
+        "skitour": "Ski de randonnée",
+        "wandern": "Randonnée pédestre",
+        "weitwandern": "Itinérance pédestre",
+        "regionen": "Régions",
+        "anstieg": "Montée",
+        "hoehenmeter": "Dénivelé",
+        "gehdistanz": "Distance de marche",
+        "schwierigkeit": "Difficulté",
+        "schwierigkeitswert": "La valeur de la difficulté a été consolidée en tenant compte des échelles de difficulté proposées par les différents portails de randonnée. Les randonnées sont 'faciles', 'moyennes' ou 'difficiles'.",
+        "filter_loeschen": "Supprimer le filtre",
+        "filter_anwenden": "Appliquer le filtre",
+        "minimum": "Minimum",
+        "maximum": "Maximum",
+        "tourstart_ende_andere_stops": "Le début et la fin de la randonnée sont situés à des arrêts différents.",
+        "sprache": "Langue",
+        "deutsch": "Allemand",
+        "franzoesisch": "Français",
+        "slowenisch": "Slovène",
+        "italienisch": "Italien",
+        "englisch": "Anglais"
+    },
+    "index": {
+        "zuugle_description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
+        "noscript": "Vous n'avez probablement pas activé Javascript. Notre moteur de recherche a besoin de Javascript pour fonctionner. Vous devez donc activer Javacript sur votre navigateur."
+    },
+    "Details": {
+        "gpx_loading_notice": "Le téléchargement n'est possible que si une liaison a été trouvée. Essayez de choisir un autre jour.",
+        "pdf_loading_notice": "Téléchargement pour impression / envoi d'un e-mail",
+        "disabled_download_button_notice": "Le téléchargement n'est possible que si une liaison a été trouvée. Essayez de choisir un autre jour.",
+        "oeffi_fahrplan": "Horaires de train et de bus",
+        "beste_anreise": "Meilleur trajet aller",
+        "rückreise": "Retour",
+        "rückreise_moeglichkeiten": "Afficher 3 autres possibilités de retour"
+    },
+>>>>>>> dev-drop-slovenia-front2
     "details": {
         "track_gps_geraet": "Télécharger la trace GPX",
         "start_ausgangort": "Début au lieu de départ de la randonnée",
@@ -195,12 +292,16 @@
         "teilen_text": "Regarde quel tour j'ai trouvé sur Zuugle :",
         "warnung_andere_station": "C'est la gare de la personne qui a créé le lien qui a été prise.",
         "teilen": "Partager",
+<<<<<<< HEAD
         "teilen_description": "Partager le lien de la visite en transports publics",
         "umstiege": "Trans.",
         "kopieren": "Copier",
         "circa": "environ",
         "stunden_tour": "Heures Tour",
         "lt_tourbeschreibung": "selon la description du tour"
+=======
+        "teilen_description": "Partager le lien de la visite en transports publics"
+>>>>>>> dev-drop-slovenia-front2
     },
     "search": {
         "abbrechen": "Annuler",

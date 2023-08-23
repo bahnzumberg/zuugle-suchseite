@@ -161,6 +161,30 @@ export const getTopLevelDomain = () => {
     return host.substring(host.length-2).toUpperCase();
 }
 
+<<<<<<< HEAD
+=======
+export const myTrackPageView = (pageTitle, trackPageView, city) => {
+    let dimensions = [
+        {
+            id: 1,
+            value: getTopLevelDomain(),
+        }
+    ];
+
+    if(!!city){
+        dimensions.push({
+            id: 2,
+            value: city
+        })
+    }
+
+    trackPageView({
+        documentTitle: pageTitle,
+        customDimensions: dimensions
+    })
+}
+
+>>>>>>> dev-drop-slovenia-front2
 export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
     if(!!connection){
         return connection[field].split('\n');

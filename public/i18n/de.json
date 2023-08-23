@@ -10,6 +10,7 @@
         "entwicklung_von_zuugle_4": "Klicke nun auf deine Wunschtour. Auf deinem Bildschirm erscheint ein Tourensteckbrief, welchen du auch als PDF herunterladen kannst. Für die Zuugle Fahrplanvorschläge für die nächsten 7 Tage klicke auf den Reiter “An & Abreise”. Zuugle wählt die optimale Hinfahrt und zeigt dir mehrer Rückfahrmöglichkeiten an.",
         "entwicklung_von_zuugle_5": "Bitte beachte, dass kurzfristige Zugausfälle oder Fahrplanänderungen eventuell nicht von unseren Fahrplan Vorschlägen berücksichtigt werden können. Deshalb prüfe deine Verbindung vor Fahrtantritt über die jeweiligen Betreiber (bahn.de, oebb.at). Mit einem Klick auf den Button des Tourenportals öffnet sich ein neues Fenster mit der ausführlichen Tourenbeschreibung im jeweiligen Portal."
     },
+<<<<<<< HEAD
     "Details": {
         "gpx_loading_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
         "pdf_loading_notice": "Download für Druck / Mailversand",
@@ -59,6 +60,8 @@
         "italienisch": "Italienisch",
         "englisch": "Englisch"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "impressum": {
         "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
         "spendenkonto": "SPENDENKONTO",
@@ -74,6 +77,7 @@
         "lizenzbedingungen": "LIZENZBEDINGUNGEN FAHRPLANDATEN",
         "anfuehrung_quellen": "Die unterschiedlichen Quellen und Lizenzbedingungen der eingesetzten Fahrplandaten sind hier angeführt."
     },
+<<<<<<< HEAD
     "index": {
         "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
         "noscript": "Es scheint, dass du Javascript nicht aktiviert hast. Diese Suchmaschine für Öffi-Bergtouren benötigt aber Javascript um zu funktionieren. Bitte aktiviere Javacript in deinem Browser."
@@ -114,6 +118,8 @@
         "direkt_bei_der_haltestelle": "Start direkt bei Haltestelle",
         "maximale_hoehe": "Max. Höhe"
     },
+=======
+>>>>>>> dev-drop-slovenia-front2
     "privacy": {
         "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",
         "datenschutzerklaerung": "Datenschutzerklärung",
@@ -187,12 +193,104 @@
         "impressum": "Impressum",
         "helmet_title": "Zuugle - die Suchmaschine für Öffi-Bergtouren"
     },
+<<<<<<< HEAD
+=======
+    "main": {
+        "ergebnisse": "Ergebnisse",
+        "ergebnis": "Ergebnis",
+        "karte": "Karte",
+        "filter": "Filter",
+        "aktiv": "aktiv",
+        "relevanz": "Relevanz",
+        "anfahrtszeit": "Anfahrtszeit",
+        "tourdistanz": "Tourdistanz",
+        "tourdauer": "Tourdauer",
+        "sortieren_nach": "Sortieren nach",
+        "anreisetag": "Anreisetag",
+        "tourdetails": "TOURDETAILS",
+        "an_und_abreise": "AN- & ABREISE",
+        "gpx_download": "GPX Download",
+        "pdf": "PDF",
+        "anreise_gefunden": "Öffentliche Anreise gefunden mit",
+        "keine_anreise_gefunden": "Keine öffentliche Anreise gefunden",
+        "viele_rueckfahrten": "Öffentliche Anreise gefunden mit 99+ Rückfahrten",
+        "eine_rueckfahrt": "Öffentliche Anreise gefunden mit 1 Rückfahrt",
+        "schwierigkeit_zuugle": "Schwierigkeit Zuugle",
+        "schwierigkeit_original": "Schwierigkeit Original",
+        "sportart": "Sportart",
+        "distanz": "Distanz",
+        "dauer": "Dauer",
+        "tage": "Tage",
+        "aufstieg": "Aufstieg",
+        "abstieg": "Abstieg",
+        "kinderfreundlich": "Kinderfreundlich",
+        "ueberschreitung": "Überschreitung",
+        "ja": "Ja",
+        "nein": "Nein",
+        "keine_verbindung": "Keine Verbindung:",
+        "direkt_bei_der_haltestelle": "Start direkt bei Haltestelle",
+        "maximale_hoehe": "Max. Höhe"
+    },
+    "filter": {
+        "tourlaenge": "Tourlänge",
+        "tagestour": "Tagestour",
+        "mehrtagestour": "Mehrtagestour",
+        "jahreszeit": "Jahreszeit",
+        "sommertour": "Sommertour",
+        "wintertour": "Wintertour",
+        "nur_ueberschreitungen": "Nur Überschreitungen",
+        "ueberschreitungen": "Tourstart und Tourende sind unterschiedliche Haltestellen",
+        "sportart": "Sportart",
+        "alle_an_abwaehlen": "Alle ab-/anwählen",
+        "bike_hike": "Bike & Hike",
+        "hochtour": "Hochtour",
+        "klettern": "Klettern",
+        "klettersteig": "Klettersteig",
+        "langlaufen": "Langlaufen",
+        "rodeln": "Rodeln",
+        "schneeschuh": "Schneeschuh",
+        "skitour": "Skitour",
+        "wandern": "Wandern",
+        "weitwandern": "Weitwandern",
+        "regionen": "Regionen",
+        "anstieg": "Anstieg",
+        "hoehenmeter": "Höhenmeter",
+        "gehdistanz": "Gehdistanz",
+        "schwierigkeit": "Schwierigkeit",
+        "schwierigkeitswert": "Der Schwierigkeitswert wurde nach den Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann 'leicht', 'mittel' oder 'schwer' sein.",
+        "filter_loeschen": "Filter löschen",
+        "filter_anwenden": "Filter anwenden",
+        "minimum": "Minimum",
+        "maximum": "Maximum",
+        "tourstart_ende_andere_stops": "Tourstart und Tourende sind unterschiedliche Haltestellen",
+        "sprache": "Sprache",
+        "deutsch": "Deutsch",
+        "franzoesisch": "Französisch",
+        "slowenisch": "Slowenisch",
+        "italienisch": "Italienisch",
+        "englisch": "Englisch"
+    },
+    "index": {
+        "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
+        "noscript": "Es scheint, dass du Javascript nicht aktiviert hast. Diese Suchmaschine für Öffi-Bergtouren benötigt aber Javascript um zu funktionieren. Bitte aktiviere Javacript in deinem Browser."
+    },
+    "Details": {
+        "gpx_loading_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
+        "pdf_loading_notice": "Download für Druck / Mailversand",
+        "disabled_download_button_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
+        "oeffi_fahrplan": "Öffi-Fahrplan",
+        "beste_anreise": "Beste Anreise",
+        "rückreise": "Rückreise",
+        "rückreise_moeglichkeiten": "3 weitere Rückreisemöglichkeiten anzeigen"
+    },
+>>>>>>> dev-drop-slovenia-front2
     "details": {
         "track_gps_geraet": "Track für GPS-Gerät herunterladen",
         "start_ausgangort": "Start beim Ausgangsort",
         "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
         "liveabfrage_anreise": "Liveabfrage für diese Anreise prüfen",
         "teilen_text": "Schau welche Tour ich auf Zuugle gefunden habe:",
+<<<<<<< HEAD
         "warnung_andere_station": "Es wurde der Bahnhof der Person, die den Link erstellt hat genommen.",
         "teilen": "Teilen",
         "teilen_description": "Link zur Öffi-Tour teilen",
@@ -201,6 +299,11 @@
         "circa": "ca.",
         "stunden_tour": "Stunden Tour",
         "lt_tourbeschreibung": "laut Tourenbeschreibung"
+=======
+        "warnung_andere_station": "Es wurde der Bahnhof der Person, die den LInk erstellt hat genommen.",
+        "teilen": "Teilen",
+        "teilen_description": "Link zur Öffi-Tour teilen"
+>>>>>>> dev-drop-slovenia-front2
     },
     "search": {
         "abbrechen": "Abbrechen",

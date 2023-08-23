@@ -79,7 +79,11 @@ export default function TourTimeLineContainer({connections, loading}){
                         <Shuffle style={{strokeWidth: 0.3, stroke: "#4992FF", fill: "#4992FF", width: "18px", height: "18px"}}/>
                     </Box>
                     <Box sx={{position: "absolute", right: 41, top: 20}}>
+<<<<<<< HEAD
                         <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}>{getNumberOfTransfers(getSingleConnection())} {t('details.umstiege')}</Box>
+=======
+                        <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}>{getNumberOfTransfers(getSingleConnection())} Umst.</Box>
+>>>>>>> dev-drop-slovenia-front2
                     </Box>
                 </Box>
 
