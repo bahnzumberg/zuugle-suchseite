@@ -7,7 +7,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
-import {parseTourConnectionDescription} from "../../utils/globals";
+import {convertNumToTime, parseTourConnectionDescription} from "../../utils/globals";
 import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -131,11 +131,18 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
         setGetMore(true);
     };
    
+    const formatDuration = (duration) => { 
+        let _time = " ";
+        _time = !!duration && convertNumToTime(duration, true);
+        _time = _time.replace(/\s*h\s*$/, '');
+        console.log("trimed time ", _time); // Output: "07:00"
+        return _time;
+    }
+
     return <Box sx={{ bgcolor: '#FFFFFF', borderRadius: '16px', padding: '20px', position: 'relative', textAlign: "center" }}>
         
         {!loading ? (
         <Fragment>
-            {/* ... Existing JSX code ... */}
             <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Box sx={{ padding: '20px', marginLeft: '-20px', marginRight: '-20px', display: "flex", flexDirection: "row", position: "relative"}}>
@@ -152,7 +159,7 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                             <Shuffle style={{strokeWidth: 0.3, stroke: "#4992FF", fill: "#4992FF", width: "18px", height: "18px"}}/>
                         </Box>
                         <Box sx={{position: "absolute", right: 41, top: 20}}>
-                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}>{getNumberOfTransfers(getSingleConnection())} Umst.</Box>
+                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}>{getNumberOfTransfers(getSingleConnection())} {t('details.umstiege')}</Box>
                         </Box>
                     </Box>
                 </AccordionSummary>
@@ -180,7 +187,7 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                         </Box>
                         <Box sx={{paddingLeft: "20px", textAlign: "left"}}>
                             <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
-                            {t('details.circa')} {duration} {t('details.stunden_tour')}
+                            {t('details.circa')} {formatDuration(duration)} {t('details.stunden_tour')}
                             </Typography>
                             <Typography sx={{lineHeight: "16px", fontWeight: 600}}>
                             {t('details.lt_tourbeschreibung')}
@@ -212,13 +219,13 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                             <Shuffle style={{strokeWidth: 0.3, stroke: "#4992FF", fill: "#4992FF", width: "18px", height: "18px"}}/>
                         </Box>
                         <Box sx={{position: "absolute", right: 41, top: 20}}>
-                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}> {getNumberOfTransfers(retObj,"return_no_of_transfers")} Umst.</Box>
+                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}> {getNumberOfTransfers(retObj,"return_no_of_transfers")} {t('details.umstiege')}</Box>
                         </Box>
                     </Box>
                 </AccordionSummary>
                 <AccordionDetails>
-                        {console.log("return -> part 1 / twoReturns[index]",twoReturns[index])}
-                        {console.log("return -> part 2 / retObj:", retObj)} 
+                        {/* {console.log("return -> part 1 / twoReturns[index]",twoReturns[index])}
+                        {console.log("return -> part 2 / retObj:", retObj)}  */}
                     <Timeline>
                         {createReturnEntries(twoReturns[index], retObj )}
                     </Timeline>
@@ -255,7 +262,7 @@ export default function ItineraryTourTimeLineContainer({connections, loading, du
                             <Shuffle style={{strokeWidth: 0.3, stroke: "#4992FF", fill: "#4992FF", width: "18px", height: "18px"}}/>
                         </Box>
                         <Box sx={{position: "absolute", right: 41, top: 20}}>
-                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}> {getNumberOfTransfers(retObj,"return_no_of_transfers")} Umst.</Box>
+                            <Box sx={{color: "#4992FF", fontSize: "16px", fontWeight: 600, lineHeight: "16px"}}> {getNumberOfTransfers(retObj,"return_no_of_transfers")} {t('details.umstiege')}.</Box>
                         </Box>
                     </Box>
                 </AccordionSummary>
