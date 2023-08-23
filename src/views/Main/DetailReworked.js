@@ -112,8 +112,8 @@ const DetailReworked = (props) => {
 		} else return t("start.mittel");
 	};
 
-	// let menuLanguage = i18next.resolvedLanguage;
-	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; //gpx and pdf buttons show up only when menu language is German
+	//gpx and pdf buttons show up only when menu language is German
+	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; 
 
     const navigate = useNavigate();
     const goToStartPage = () => {
