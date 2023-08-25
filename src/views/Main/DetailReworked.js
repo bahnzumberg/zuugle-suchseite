@@ -233,7 +233,7 @@ const DetailReworked = (props) => {
 	useEffect(() => {
 		if (tour) {
 			if (!tour.cities_object[searchParams.get("city")]) {
-				goToStartPage();  // check if this is desirable (was commented out by external guy)
+				//goToStartPage();  // check if this is desirable (was commented out by external guy)
 			} else {
 				setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
 				setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
