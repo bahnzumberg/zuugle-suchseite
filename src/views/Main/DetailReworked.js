@@ -368,7 +368,7 @@ const DetailReworked = (props) => {
 
 	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
 		{
-			pdfLanguagePermit && (
+			pdfLanguagePermit && providerPermit && (
 			<>
 				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
 					onDownloadGpx();
@@ -446,7 +446,7 @@ const DetailReworked = (props) => {
 		)}
 	</Box>
 	);
-	
+
 	return (
 		<Box sx={{ backgroundColor: "#fff" }}>
 			<Box className="newHeader" sx={{ position: "relative" }}>
