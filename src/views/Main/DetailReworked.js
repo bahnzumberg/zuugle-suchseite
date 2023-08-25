@@ -95,6 +95,8 @@ const DetailReworked = (props) => {
 	const [gpxPositions, setGpxPositions] = useState(null);
 	const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
 	const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
+	const [tourDifficulty, setTourDifficulty] = useState(null);
+	const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
 	const [renderImage, setRenderImage] = useState(null);
 	//Triggers the generating of a new link
 	const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -105,16 +107,17 @@ const DetailReworked = (props) => {
 	//Whether a warning that says that your local trainstation has not been used, should be shown
 	const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] = useState(false);
 	let tourDuration = null;
-
+	
 	// Translation-related
 	const { t } = useTranslation();
 	const translateDiff = (diff) => {
-		if (diff === "Leicht") {
+		if (diff === "Leicht" || diff === "leicht") {
 			return t("start.leicht");
-		} else if (diff === "Schwer") {
+		} else if (diff === "Schwer" || diff === "schwer") {
 			return t("start.schwer");
 		} else return t("start.mittel");
 	};
+
 
 	//gpx and pdf buttons show up only when menu language is German
 	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; 
@@ -136,10 +139,9 @@ const DetailReworked = (props) => {
 	const [providerPermit, setProviderPermit] = useState(true);
 
 	useEffect(() => {
-
-	  if( !!tour && tour.provider && tour.provider == "mapzssi"){
-		setProviderPermit(false)
-	  }
+		if( !!tour && tour.provider && tour.provider == "mapzssi"){
+			setProviderPermit(false)
+		}
 	}, [tour])
 	
 
@@ -203,8 +205,10 @@ const DetailReworked = (props) => {
 				if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
 
 				tourDuration = !!tourExtracted.data.tour.duration &&  tourExtracted.data.tour.duration;
+				setTourDifficulty (!!tourExtracted.data.tour.difficulty &&  tourExtracted.data.tour.difficulty);
+				setTourDifficultyOrig(!!tourExtracted.data.tour.difficulty_orig &&  tourExtracted.data.tour.difficulty_orig);
+				
 				}
-				// console.log("L176 :tourDuration :", tourDuration);
 			  })
 			  .catch(error => {
 				if (error.response && error.response.status === 404) {
@@ -557,13 +561,16 @@ const DetailReworked = (props) => {
 							<TourDetailProperties tour={tour}></TourDetailProperties>
 							<Box sx={{ textAlign: "left" }}>
 								<div className="tour-detail-difficulties">
-									{/* <span className="tour-detail-difficulty">{tour?.difficulty_orig}</span> */}
-									{/* <span className="tour-detail-tag tour-detail-tag-gray">{tour?.difficulty}</span> */}
+									{ 
+												// console.log("tour :", tour.data.difficulty)
+												// console.log("tour.difficulty", tour.difficulty)
+											}
+									{/* { console.log("tour.difficulty_orig", tour.data.difficulty_orig)} */}
 									<span className="tour-detail-difficulty">
-										{tour && translateDiff(tour.difficulty_orig)}
+										{tour && translateDiff(tourDifficulty)}
 									</span>
 									<span className="tour-detail-tag tour-detail-tag-gray">
-										{tour && translateDiff(tour.difficulty)}
+										{tour && translateDiff(tourDifficultyOrig)}
 									</span>
 								</div>
 								<Typography variant="textSmall">{tour?.description}</Typography>
