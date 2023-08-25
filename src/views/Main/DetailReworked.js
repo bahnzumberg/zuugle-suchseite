@@ -35,7 +35,7 @@ import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
-import LanguageMenu from "../../components/LanguageMenu";
+// import LanguageMenu from "../../components/LanguageMenu";
 // import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 import {generateShareLink, loadShareParams} from "../../actions/crudActions";
 import {
@@ -367,25 +367,32 @@ const DetailReworked = (props) => {
 	};
 
 	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
-		<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
-			onDownloadGpx();
-		}}>
-			<DownloadIcon /><span style={{ color: "#101010", width: "43px" }}>GPX</span>
-			{!!isGpxLoading ?
-				<CircularProgress sx={{ width: "20px", height: "20px", fontWeight: 600 }} size={"small"} />
-				: <span style={{ color: "#8B8B8B" }}>
-					{t("details.track_gps_geraet")}
-				</span>
-			}
-		</Button>
-		<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
-			onClick={onDownload}>
-			<PdfIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>PDF</span>
-			{!!isPdfLoading ?
-				<CircularProgress sx={{ width: "20px", height: "20px" }} size={"small"} />
-				: <span style={{ color: "#8B8B8B" }}>  {shortenText(t('Details.pdf_loading_notice'), 0, maxLength)} </span>
-			}
-		</Button>
+		{
+			pdfLanguagePermit && (
+			<>
+				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+					onDownloadGpx();
+				}}>
+					<DownloadIcon /><span style={{ color: "#101010", width: "43px" }}>GPX</span>
+					{!!isGpxLoading ?
+						<CircularProgress sx={{ width: "20px", height: "20px", fontWeight: 600 }} size={"small"} />
+						: <span style={{ color: "#8B8B8B" }}>
+							{t("details.track_gps_geraet")}
+						</span>
+					}
+				</Button>
+				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
+					onClick={onDownload}>
+					<PdfIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>PDF</span>
+					{!!isPdfLoading ?
+						<CircularProgress sx={{ width: "20px", height: "20px" }} size={"small"} />
+						: <span style={{ color: "#8B8B8B" }}>  {shortenText(t('Details.pdf_loading_notice'), 0, maxLength)} </span>
+					}
+				</Button>
+			</>
+
+			)
+		}
 
 		{/*
         Share button
@@ -439,9 +446,9 @@ const DetailReworked = (props) => {
 		)}
 	</Box>
 	);
+	
 	return (
 		<Box sx={{ backgroundColor: "#fff" }}>
-			{/* ========================================== */}
 			<Box className="newHeader" sx={{ position: "relative" }}>
 				<Box comoponent={"div"} className="rowing blueDiv">
 					<Box sx={{ display: "flex", alignItems: "center" }}>
