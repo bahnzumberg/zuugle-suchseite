@@ -533,7 +533,8 @@ export default function ItineraryTourTimeLineContainer({
             ))}
 
           {/* Button for more connections */}
-          {!getMore && (
+          {!getMore && (returnEntries.length > 0) && 
+          (
             <Accordion
               sx={{ backgroundColor: "transparent", boxShadow: "none" }}
             >
@@ -557,6 +558,7 @@ export default function ItineraryTourTimeLineContainer({
                   lineHeight="22px"
                   sx={{ textDecoration: "underline" }}
                 >
+                  {returnEntries.length} {" "}
                   {t("Details.rückreise_moeglichkeiten")}
                 </Typography>
               </Box>
