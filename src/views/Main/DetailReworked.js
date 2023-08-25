@@ -119,6 +119,10 @@ const DetailReworked = (props) => {
 	//gpx and pdf buttons show up only when menu language is German
 	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; 
 
+	const handleCloseTab = () => {
+		window.close();
+	  }
+
     const navigate = useNavigate();
     const goToStartPage = () => {
         let city = searchParams.get('city');
@@ -441,7 +445,9 @@ const DetailReworked = (props) => {
 			<Box className="newHeader" sx={{ position: "relative" }}>
 				<Box comoponent={"div"} className="rowing blueDiv">
 					<Box sx={{ display: "flex", alignItems: "center" }}>
-						<Box sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }} onClick={() => navigate(-1)}>
+						<Box sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}  
+							onClick={handleCloseTab}
+						>
 							<ArrowBefore style={{ stroke: "#fff", width: "34px", height: "34px" }} />
 						</Box>
 						<DomainMenu />
