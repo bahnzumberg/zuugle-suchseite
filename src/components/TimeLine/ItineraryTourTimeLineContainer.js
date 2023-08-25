@@ -52,6 +52,7 @@ export default function ItineraryTourTimeLineContainer({
   const [returnEntries, setReturnEntries] = useState([]); //UNPARSED array[objects] with possibly a few return connections
 
   const [getMore, setGetMore] = useState(false);
+  const [formattedDuration, setformattedDuration] = useState("n/a");
 
   // the following two vars filled by fcn extractReturns
   const twoReturns = []; // DO WE NEED THESE NOW?
@@ -66,6 +67,23 @@ export default function ItineraryTourTimeLineContainer({
     setReturnEntries(connections.returns);
     extractReturns();
   }, [connections]);
+  
+  const formatDuration = (duration) => { 
+    !!duration ? console.log("Duration dude is : ", duration) : console.log("no duration !!!");
+    // if(!duration) return " ";
+    let _time = " ";
+    _time = !!duration && convertNumToTime(duration, true);
+    _time = _time.replace(/\s*h\s*$/, '');
+    console.log("trimed time ", _time); // Output: "07:00"
+    return _time;
+  }
+
+  useEffect(() => {
+    if(!!duration && typeof(duration) == "string"){
+      setformattedDuration(formatDuration(duration));
+    }
+  }, [duration]);
+  
 
   // entries ?  console.log("entries 1: " + JSON.stringify(entries)) : console.log("No entries found");
   // entries ?  console.log("entries 2: type is :" + typeof(entries)) : console.log("No entries found");
@@ -173,16 +191,7 @@ export default function ItineraryTourTimeLineContainer({
     setGetMore(true);
   };
 
-  const formatDuration = (duration) => { 
-    !!duration ? console.log("Duration dude is : ", duration) : console.log("no duration !!!");
-    if(!duration) return " "
-    let _time = " ";
-    _time = !!duration && convertNumToTime(duration, true);
-    _time = _time.replace(/\s*h\s*$/, '');
-    console.log("trimed time ", _time); // Output: "07:00"
-    return _time;
-}
-
+  
   return (
     <Box
       sx={{
@@ -326,7 +335,7 @@ export default function ItineraryTourTimeLineContainer({
                 </Box>
                 <Box sx={{ paddingLeft: "20px", textAlign: "left" }}>
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                  {t('details.circa')} {formatDuration(duration)} {t('details.stunden_tour')}
+                  {t('details.circa')} {formattedDuration} {t('details.stunden_tour')}
                   </Typography>
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                   {t('details.lt_tourbeschreibung')}
