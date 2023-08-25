@@ -429,11 +429,11 @@ export default function ItineraryTourTimeLineContainer({
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
-                {console.log(
+                {/* {console.log(
                   "return -> part 1 / twoReturns[index]",
                   twoReturns[index]
                 )}
-                {console.log("return -> part 2 / retObj:", retObj)}
+                {console.log("return -> part 2 / retObj:", retObj)} */}
                 <Timeline>
                   {createReturnEntries(twoReturns[index], retObj)}
                 </Timeline>
@@ -487,7 +487,7 @@ export default function ItineraryTourTimeLineContainer({
                     </Box>
                     <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
                       <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                        {_getReturnText(index)}
+                        {_getReturnText(index+2)}
                       </Typography>
                       {/* {console.log("retObj duration in minutes:",retObj.connection_duration_minutes)}
                             {console.log("retObj duration in minutes:",retObj.connection_departure_datetime)} */}
