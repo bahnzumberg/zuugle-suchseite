@@ -1,10 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-<<<<<<< HEAD
-import {Typography} from "@mui/material";
-=======
 import { Typography } from "@mui/material";
->>>>>>> dev-drop-slovenia-front2
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import DifficultySlider from "../DifficultySlider";
@@ -14,7 +10,6 @@ import Checkbox from "@mui/material/Checkbox";
 import Intensity from "../../icons/Intensity";
 import NumberInput from "../NumberInput";
 import Button from "@mui/material/Button";
-<<<<<<< HEAD
 import {Fragment, useEffect, useState} from "react";
 import TextWithIcon from "../TextWithIcon";
 import {convertNumToTime, getFilterProp} from "../../utils/globals";
@@ -33,24 +28,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     // Translation-related
     const {t} = useTranslation();
 	let slovenianMenu = i18next.resolvedLanguage === "sl" ; //use different JSX for button 
-=======
-import { Fragment, useEffect, useState } from "react";
-import TextWithIcon from "../TextWithIcon";
-import { convertNumToTime, getFilterProp } from "../../utils/globals";
-import CircularProgress from "@mui/material/CircularProgress";
-import { loadFilter, loadTourConnections, loadTourConnectionsExtended, loadTours } from "../../actions/tourActions";
-import { loadAllCities } from "../../actions/cityActions";
-import { hideModal, showModal } from "../../actions/modalActions";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import TextInput from "../TextInput";
-import { useTranslation } from 'react-i18next';
-
-function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast }) {
-
-    // Translation-related
-    const { t } = useTranslation();
->>>>>>> dev-drop-slovenia-front2
 
     const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
@@ -79,7 +56,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
     const maximum_label = t('filter.maximum');
 
     let sportTypesArray = [
-<<<<<<< HEAD
         {"Bike & Hike": t('filter.bike_hike')},
         {"Hochtour": t('filter.hochtour')},
         { "Klettern" : t('filter.klettern')},
@@ -90,23 +66,10 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
         { "weitwandern" : t('filter.weitwandern')},
-=======
-        { "Bike & Hike": t('filter.bike_hike') },
-        { "Hochtour": t('filter.hochtour') },
-        { "Klettern": t('filter.klettern') },
-        { "Klettersteig": t('filter.klettersteig') },
-        { "Langlaufen": t('filter.langlaufen') },
-        { "Rodeln": t('filter.rodeln') },
-        { "Schneeschuh": t('filter.schneeschuh') },
-        { "Skitour": t('filter.skitour') },
-        { "Wandern": t('filter.wandern') },
-        { "weitwandern": t('filter.weitwandern') },
->>>>>>> dev-drop-slovenia-front2
     ]
 
     //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
     let languageArray = [
-<<<<<<< HEAD
         {"de" : t('filter.deutsch')},
         {"en" : t('filter.englisch')},
         {"fr" : t('filter.franzoesisch')},
@@ -114,15 +77,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
         {"it" : t('filter.italienisch')}
     ];
     
-=======
-        { "de": t('filter.deutsch') },
-        { "en": t('filter.englisch') },
-        { "fr": t('filter.franzoesisch') },
-        { "sl": t('filter.slowenisch') },
-        { "it": t('filter.italienisch') }
-    ];
-
->>>>>>> dev-drop-slovenia-front2
 
     //loads the filter, including the languages for a specific city
     useEffect(() => {
@@ -148,11 +102,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
     }, [])
 
     useEffect(() => {
-<<<<<<< HEAD
         if(!!filter){
-=======
-        if (!!filter) {
->>>>>>> dev-drop-slovenia-front2
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
             setMinAscent(getFilterProp(filter, "minAscent", 0));
@@ -162,20 +112,12 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
             setMaxDescent(getFilterProp(filter, "maxDescent", 10000));
 
             setMinDistance(getFilterProp(filter, "minDistance", 0));
-<<<<<<< HEAD
             setMaxDistance(getFilterProp(filter,"maxDistance", 10000));
-=======
-            setMaxDistance(getFilterProp(filter, "maxDistance", 10000));
->>>>>>> dev-drop-slovenia-front2
 
             setMinTransportDuration(getFilterProp(filter, "minTransportDuration", 0));
             setMaxTransportDuration(getFilterProp(filter, "maxTransportDuration", 50));
 
-<<<<<<< HEAD
             if(!!filter.ranges){
-=======
-            if (!!filter.ranges) {
->>>>>>> dev-drop-slovenia-front2
                 setRangeValues(filter.ranges.map(e => {
                     return {
                         value: e,
@@ -183,11 +125,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                     }
                 }));
             }
-<<<<<<< HEAD
             if(!!filter.types){
-=======
-            if (!!filter.types) {
->>>>>>> dev-drop-slovenia-front2
                 setTypeValues(filter.types.map(e => {
                     return {
                         value: e,
@@ -196,11 +134,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                 }));
             }
             //sets the languageValues according to the filter
-<<<<<<< HEAD
             if(!!filter.languages){
-=======
-            if (!!filter.languages) {
->>>>>>> dev-drop-slovenia-front2
                 setLanguageValues(filter.languages.map(e => {
                     return {
                         value: e,
@@ -211,21 +145,12 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
 
             let _filter = searchParams.get('filter');
-<<<<<<< HEAD
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
                     if(!!parsed){
                         setIfNotUndefined(parsed, "singleDayTour", setSingleDayTour);
                         setIfNotUndefined(parsed, "multipleDayTour", setMultipleDayTour );
-=======
-            if (!!_filter) {
-                try {
-                    const parsed = JSON.parse(_filter);
-                    if (!!parsed) {
-                        setIfNotUndefined(parsed, "singleDayTour", setSingleDayTour);
-                        setIfNotUndefined(parsed, "multipleDayTour", setMultipleDayTour);
->>>>>>> dev-drop-slovenia-front2
                         setIfNotUndefined(parsed, "summerSeason", setSummerSeason);
                         setIfNotUndefined(parsed, "winterSeason", setWinterSeason);
                         setIfNotUndefined(parsed, "difficulty", setDifficulty);
@@ -240,11 +165,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                         setIfNotUndefined(parsed, "children", setChildren);
                         setIfNotUndefined(parsed, "traverse", setTravers);
 
-<<<<<<< HEAD
                         if(!!filter && !!filter.ranges && !!parsed.ranges){
-=======
-                        if (!!filter && !!filter.ranges && !!parsed.ranges) {
->>>>>>> dev-drop-slovenia-front2
                             setRangeValues(filter.ranges.map(entry => {
                                 const found = parsed.ranges.find(e => e == entry);
                                 return {
@@ -253,11 +174,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                 }
                             }))
                         }
-<<<<<<< HEAD
                         if(!!filter && !!filter.types && !!parsed.types){
-=======
-                        if (!!filter && !!filter.types && !!parsed.types) {
->>>>>>> dev-drop-slovenia-front2
                             setTypeValues(filter.types.map(entry => {
                                 const found = parsed.types.find(e => e == entry);
                                 return {
@@ -267,11 +184,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                             }))
                         }
                         // sets the language values for the filter
-<<<<<<< HEAD
                         if(!!filter && !!filter.languages && !!parsed.languages){
-=======
-                        if (!!filter && !!filter.languages && !!parsed.languages) {
->>>>>>> dev-drop-slovenia-front2
                             setLanguageValues(filter.languages.map(entry => {
                                 const found = parsed.languages.find(e => e === entry);
                                 return {
@@ -281,21 +194,13 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                             }))
                         }
                     }
-<<<<<<< HEAD
                 } catch(e){
-=======
-                } catch (e) {
->>>>>>> dev-drop-slovenia-front2
                     console.error(e);
                 }
             }
 
         }
-<<<<<<< HEAD
         if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
-=======
-        if (!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest) {
->>>>>>> dev-drop-slovenia-front2
             setCoordinatesNorthEast(visibleToursGPXNorthEast);
             setCoordinatesSouthWest(visibleToursGPXSouthWest);
         }
@@ -303,7 +208,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
     const countFilterActive = () => {
         let count = 0;
-<<<<<<< HEAD
         if(!(!!singleDayTour && !!multipleDayTour)){
             count++;
         }
@@ -342,58 +246,13 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
             count++;
         }
 
-=======
-        if (!(!!singleDayTour && !!multipleDayTour)) {
-            count++;
-        }
-        if (!(!!summerSeason && !!winterSeason)) {
-            count++;
-        }
-        if (difficulty != 10) {
-            count++;
-        }
-        if (!!children) {
-            count++;
-        }
-        if (!!traverse) {
-            count++;
-        }
-        if (minAscent != getFilterProp(filter, "minAscent") || maxAscent != getFilterProp(filter, "maxAscent")) {
-            count++;
-        }
-        if (minDescent != getFilterProp(filter, "minDescent") || maxDescent != getFilterProp(filter, "maxDescent")) {
-            count++;
-        }
-        if (minTransportDuration != getFilterProp(filter, "minTransportDuration") || maxTransportDuration != getFilterProp(filter, "maxTransportDuration")) {
-            count++;
-        }
-        if (minDistance != getFilterProp(filter, "minDistance") || maxDistance != getFilterProp(filter, "maxDistance")) {
-            count++;
-        }
-        if (rangeValues.filter(rv => !!!rv.checked).length > 0) {
-            count++;
-        }
-        if (typeValues.filter(rv => !!!rv.checked).length > 0) {
-            count++;
-        }
-        //includes the languages in the filter count
-        if (languageValues.filter(lv => !lv.checked).length > 0) {
-            count++;
-        }
-        console.log("couuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuunt", count)
->>>>>>> dev-drop-slovenia-front2
         return count;
     }
 
 
     const setIfNotUndefined = (object, key, _function) => {
-<<<<<<< HEAD
         if(!!object){
             if(object[key] !== undefined){
-=======
-        if (!!object) {
-            if (object[key] !== undefined) {
->>>>>>> dev-drop-slovenia-front2
                 _function(object[key]);
             }
         }
@@ -451,7 +310,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
             languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
-<<<<<<< HEAD
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
 
@@ -463,19 +321,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
         _function((!!list ? list: []).map(entry => {
             let toPush = {...entry};
             if(entry.value == key){
-=======
-        doSubmit({ filterValues: filterValues, filterCount: countFilterActive() });
-    }
-
-    const checkIfCheckedFromCheckbox = (list, key) => {
-        return !!(!!list ? list : []).find(l => l.value == key && !!l.checked);
-    }
-
-    const onChangedCheckbox = (list, key, value, _function) => {
-        _function((!!list ? list : []).map(entry => {
-            let toPush = { ...entry };
-            if (entry.value == key) {
->>>>>>> dev-drop-slovenia-front2
                 toPush.checked = value;
             }
             return toPush;
@@ -483,11 +328,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
     }
 
     const mapPosNegValues = (value) => {
-<<<<<<< HEAD
         if(!!value){
-=======
-        if (!!value) {
->>>>>>> dev-drop-slovenia-front2
             return value;
         }
         return false;
@@ -506,17 +347,10 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
             })
         }
 
-<<<<<<< HEAD
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
                     <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
-=======
-        return types.map((type, index) => {
-            return <Grid key={index} item xs={6}>
-                <Box>
-                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({ target }) => { onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues) }} />} label={type.label} />
->>>>>>> dev-drop-slovenia-front2
                 </Box>
             </Grid>
         });
@@ -538,17 +372,10 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
         languages = languages.filter(l => (!!l?.value && !!l?.label));
 
-<<<<<<< HEAD
         return languages.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
                     <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type?.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type?.value, target.checked, setLanguageValues)}}/>} label={type?.label} />
-=======
-        return languages.map((type, index) => {
-            return <Grid key={index} item xs={6}>
-                <Box>
-                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type?.value)} onChange={({ target }) => { onChangedCheckbox(languageValues, type?.value, target.checked, setLanguageValues) }} />} label={type?.label} />
->>>>>>> dev-drop-slovenia-front2
                 </Box>
             </Grid>
         });
@@ -556,11 +383,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
     const getRanges = () => {
         let ranges = [];
-<<<<<<< HEAD
         if(!!filter && !!filter.ranges){
-=======
-        if (!!filter && !!filter.ranges) {
->>>>>>> dev-drop-slovenia-front2
             ranges = filter.ranges.map(entry => {
                 return {
                     value: entry,
@@ -569,43 +392,27 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
             })
         }
 
-<<<<<<< HEAD
         return ranges.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
                     <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(rangeValues, type.value)} onChange={({target}) => {onChangedCheckbox(rangeValues, type.value, target.checked, setRangeValues)}}/>} label={type.label} />
-=======
-        return ranges.map((type, index) => {
-            return <Grid key={index} item xs={6}>
-                <Box>
-                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(rangeValues, type.value)} onChange={({ target }) => { onChangedCheckbox(rangeValues, type.value, target.checked, setRangeValues) }} />} label={type.label} />
->>>>>>> dev-drop-slovenia-front2
                 </Box>
             </Grid>
         });
     }
 
     const updateAllRangeValues = () => {
-<<<<<<< HEAD
         setRangeValues(rangeValues.map(rv => { return {...rv, checked: !!!rangeValuesState} }));
-=======
-        setRangeValues(rangeValues.map(rv => { return { ...rv, checked: !!!rangeValuesState } }));
->>>>>>> dev-drop-slovenia-front2
         setRangeValuesState(!!!rangeValuesState);
     }
 
     const updateAllTypeValues = () => {
-<<<<<<< HEAD
         setTypeValues(typeValues.map(rv => { return {...rv, checked: !!!typeValuesState} }));
-=======
-        setTypeValues(typeValues.map(rv => { return { ...rv, checked: !!!typeValuesState } }));
->>>>>>> dev-drop-slovenia-front2
         setTypeValuesState(!!!typeValuesState);
     }
 
     //function to set all checkboxes on either true or false
     const updateAllLanguageValues = () => {
-<<<<<<< HEAD
         setLanguageValues(languageValues.map(lv => { return {...lv, checked: !languageValuesState} }));
         setLanguageValuesState(!languageValuesState);
     }
@@ -614,34 +421,11 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
         {!!isLoadingFilter ?
             <Box style={{maxWidth: "100%", textAlign: "center", padding: "20px", width: "500px"}}>
-=======
-        setLanguageValues(languageValues.map(lv => { return { ...lv, checked: !languageValuesState } }));
-        setLanguageValuesState(!languageValuesState);
-    }
-
-    return <Box style={{ height: "100%" }}>
-
-        {!!isLoadingFilter ?
-            <Box style={{ maxWidth: "100%", textAlign: "center", padding: "20px", width: "500px" }}>
->>>>>>> dev-drop-slovenia-front2
                 <CircularProgress />
             </Box> :
 
             <Fragment>
                 <Box className={"filter-box-container"}>
-<<<<<<< HEAD
-
-
-                    <Box className={"filter-box border"}>
-                        <Typography variant={"subtitle1"}>{tourlaenge_label}</Typography>
-                        <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
-                                <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>{tagestour_label}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
-=======
                     <Box className={"filter-box border"}>
                         <Typography variant={"subtitle1"}>{tourlaenge_label}</Typography>
                         <Grid container>
@@ -651,7 +435,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                         <Typography variant={"subtitle3"}>{tagestour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{ textAlign: "right" }}>
->>>>>>> dev-drop-slovenia-front2
                                         <Switch
                                             checked={singleDayTour}
                                             onChange={() => setSingleDayTour(!!!singleDayTour)}
@@ -660,21 +443,12 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                     </Grid>
                                 </Grid>
                             </Grid>
-<<<<<<< HEAD
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}} className={"toggle-container-right"}>
-                                <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>{mehrtagestour_label}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
-=======
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{ alignSelf: "center" }}>
                                         <Typography variant={"subtitle3"}>{mehrtagestour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{ textAlign: "right" }}>
->>>>>>> dev-drop-slovenia-front2
                                         <Switch
                                             checked={multipleDayTour}
                                             onChange={() => setMultipleDayTour(!!!multipleDayTour)}
@@ -685,17 +459,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                             </Grid>
                         </Grid>
                     </Box>
-<<<<<<< HEAD
-                    <Box className={"filter-box border"} style={{paddingTop: "20px", paddingBottom: "20px"}}>
-                        <Typography variant={"subtitle1"}>{jahreszeit_label}</Typography>
-                        <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}} className={"toggle-container-left"}>
-                                <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>{sommertour_label}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
-=======
                     <Box className={"filter-box border"} style={{ paddingTop: "20px", paddingBottom: "20px" }}>
                         <Typography variant={"subtitle1"}>{jahreszeit_label}</Typography>
                         <Grid container>
@@ -705,7 +468,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                         <Typography>{sommertour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{ textAlign: "right" }}>
->>>>>>> dev-drop-slovenia-front2
                                         <Switch
                                             checked={summerSeason}
                                             onChange={() => setSummerSeason(!!!summerSeason)}
@@ -714,21 +476,12 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                     </Grid>
                                 </Grid>
                             </Grid>
-<<<<<<< HEAD
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>{wintertour_label}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
-=======
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
                                     <Grid item xs={6} sx={{ alignSelf: "center" }}>
                                         <Typography>{wintertour_label}</Typography>
                                     </Grid>
                                     <Grid item xs={6} sx={{ textAlign: "right" }}>
->>>>>>> dev-drop-slovenia-front2
                                         <Switch
                                             checked={winterSeason}
                                             onChange={() => setWinterSeason(!!!winterSeason)}
@@ -739,16 +492,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                             </Grid>
                         </Grid>
                     </Box>
-<<<<<<< HEAD
-                    <Box className={"filter-box"} sx={{paddingTop: "20px"}}>
-                        <Box sx={{paddingTop: "16px"}}>
-                            <Grid container sx={{paddingTop: "16px"}}>
-                                <Grid item xs={10}>
-                                    <Typography variant={"subtitle1"}>{nur_ueberschreitungen_label}</Typography>
-                                    <Typography variant={"subtitle2"} sx={{fontSize: "16px", fontWeight: 400}}>{tourstart_ende_andere_stops_label}</Typography>
-                                </Grid>
-                                <Grid item xs={2} sx={{textAlign: "right"}}>
-=======
                     <Box className={"filter-box"} sx={{ paddingTop: "20px" }}>
                         <Box sx={{ paddingTop: "16px" }}>
                             <Grid container sx={{ paddingTop: "16px" }}>
@@ -757,7 +500,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                     <Typography variant={"subtitle2"} sx={{ fontSize: "16px", fontWeight: 400 }}>{tourstart_ende_andere_stops_label}</Typography>
                                 </Grid>
                                 <Grid item xs={2} sx={{ textAlign: "right" }}>
->>>>>>> dev-drop-slovenia-front2
                                     <Switch
                                         checked={traverse}
                                         onChange={() => setTravers(!!!traverse)}
@@ -767,50 +509,29 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                             </Grid>
                         </Box>
                     </Box>
-<<<<<<< HEAD
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
-                                <Typography>{anstieg_label} (hm)</Typography>
-                                <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
-=======
                     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Grid container>
                             <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
                                 <Typography>{anstieg_label} (hm)</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
->>>>>>> dev-drop-slovenia-front2
                                     step={100}
                                     min={getFilterProp(filter, "minAscent", 0)}
                                     max={getFilterProp(filter, "maxAscent", 5000)}
                                     value={[minAscent, maxAscent]}
-<<<<<<< HEAD
-                                    onChange={({target}) => {
-=======
                                     onChange={({ target }) => {
->>>>>>> dev-drop-slovenia-front2
                                         setMinAscent(target.value[0])
                                         setMaxAscent(target.value[1])
                                     }}
                                 />
 
-<<<<<<< HEAD
-                                <Box sx={{marginTop: "15px"}}>
-=======
                                 <Box sx={{ marginTop: "15px" }}>
->>>>>>> dev-drop-slovenia-front2
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Minimum"
-<<<<<<< HEAD
-                                                label= {minimum_label}
-=======
                                                 label={minimum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 value={minAscent}
                                                 endAdormentLabel={null}
@@ -820,11 +541,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Maximum"
-<<<<<<< HEAD
-                                                label= {maximum_label}
-=======
                                                 label={maximum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxAscent}
@@ -832,49 +549,28 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                         </Grid>
                                     </Grid>
                                 </Box>
-<<<<<<< HEAD
-                                {maxAscent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ {hoehenmeter_label}</div>}
-                            </Grid>
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>{abstieg_label} (hm)</Typography>
-                                <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
-=======
                                 {maxAscent === 3000 && <div style={{ fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B" }}>3000+ {hoehenmeter_label}</div>}
                             </Grid>
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Typography>{abstieg_label} (hm)</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
->>>>>>> dev-drop-slovenia-front2
                                     step={100}
                                     min={getFilterProp(filter, "minDescent", 0)}
                                     max={getFilterProp(filter, "maxDescent", 5000)}
                                     value={[minDescent, maxDescent]}
-<<<<<<< HEAD
-                                    onChange={({target}) => {
-=======
                                     onChange={({ target }) => {
->>>>>>> dev-drop-slovenia-front2
                                         setMinDescent(target.value[0])
                                         setMaxDescent(target.value[1])
                                     }}
                                 />
-<<<<<<< HEAD
-                                <Box sx={{marginTop: "15px"}}>
-=======
                                 <Box sx={{ marginTop: "15px" }}>
->>>>>>> dev-drop-slovenia-front2
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Minimum"
-<<<<<<< HEAD
-                                                label= {minimum_label}
-=======
                                                 label={minimum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDescent}
@@ -884,11 +580,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Maximum"
-<<<<<<< HEAD
-                                                label= {maximum_label}
-=======
                                                 label={maximum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDescent}
@@ -896,18 +588,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                         </Grid>
                                     </Grid>
                                 </Box>
-<<<<<<< HEAD
-                                {maxDescent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ {hoehenmeter_label} </div>}
-                            </Grid>
-                        </Grid>
-                    </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA",paddingRight: "24px"}} className={"toggle-container-left"}>
-                                <Typography>{anfahrtszeit_label} (h)</Typography>
-                                <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
-=======
                                 {maxDescent === 3000 && <div style={{ fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B" }}>3000+ {hoehenmeter_label} </div>}
                             </Grid>
                         </Grid>
@@ -918,36 +598,23 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                 <Typography>{anfahrtszeit_label} (h)</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
->>>>>>> dev-drop-slovenia-front2
                                     step={0.50}
                                     min={getFilterProp(filter, "minTransportDuration", 0)}
                                     max={getFilterProp(filter, "maxTransportDuration", 50)}
                                     value={[minTransportDuration, maxTransportDuration]}
-<<<<<<< HEAD
-                                    onChange={({target}) => {
-=======
                                     onChange={({ target }) => {
->>>>>>> dev-drop-slovenia-front2
                                         setMinTransportDuration(target.value[0])
                                         setMaxTransportDuration(target.value[1])
                                     }}
                                 />
 
-<<<<<<< HEAD
-                                <Box sx={{marginTop: "15px"}}>
-=======
                                 <Box sx={{ marginTop: "15px" }}>
->>>>>>> dev-drop-slovenia-front2
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
                                                 // label="Minimum"
-<<<<<<< HEAD
-                                                label= {minimum_label}
-=======
                                                 label={minimum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(minTransportDuration)}
@@ -957,11 +624,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                             <TextInput
                                                 id="outlined-basic"
                                                 // label="Maximum"
-<<<<<<< HEAD
-                                                label= {maximum_label}
-=======
                                                 label={maximum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(maxTransportDuration)}
@@ -970,45 +633,26 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                     </Grid>
                                 </Box>
                             </Grid>
-<<<<<<< HEAD
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>{gehdistanz_label} (km)</Typography>
-                                <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
-=======
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Typography>{gehdistanz_label} (km)</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
->>>>>>> dev-drop-slovenia-front2
                                     step={2}
                                     min={getFilterProp(filter, "minDistance", 0)}
                                     max={getFilterProp(filter, "maxDistance", 10000)}
                                     value={[minDistance, maxDistance]}
-<<<<<<< HEAD
-                                    onChange={({target}) => {
-=======
                                     onChange={({ target }) => {
->>>>>>> dev-drop-slovenia-front2
                                         setMinDistance(target.value[0])
                                         setMaxDistance(target.value[1])
                                     }}
                                 />
-<<<<<<< HEAD
-                                <Box sx={{marginTop: "15px"}}>
-=======
                                 <Box sx={{ marginTop: "15px" }}>
->>>>>>> dev-drop-slovenia-front2
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Minimum"
-<<<<<<< HEAD
-                                                label= {minimum_label}
-=======
                                                 label={minimum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDistance}
@@ -1018,71 +662,18 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                                             <NumberInput
                                                 id="outlined-basic"
                                                 // label="Maximum"
-<<<<<<< HEAD
-                                                label= {maximum_label}
-=======
                                                 label={maximum_label}
->>>>>>> dev-drop-slovenia-front2
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDistance}
                                             />
-<<<<<<< HEAD
-                                            {maxDistance === 80 && <div style={{fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B"}}>80+ km</div>}
-=======
                                             {maxDistance === 80 && <div style={{ fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B" }}>80+ km</div>}
->>>>>>> dev-drop-slovenia-front2
                                         </Grid>
                                     </Grid>
                                 </Box>
                             </Grid>
                         </Grid>
                     </Box>
-<<<<<<< HEAD
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>{sportart_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllTypeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
-                        <Grid container sx={{paddingTop: "16px"}}>
-                            {getTypes()}
-                        </Grid>
-                    </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>{sprachen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
-                        <Grid container sx={{paddingTop: "16px"}}>
-                            {getLanguages()}
-                        </Grid>
-                    </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>{regionen_label} <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllRangeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
-                        <Grid container sx={{paddingTop: "16px"}}>
-                            {getRanges()}
-                        </Grid>
-                    </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px", position: "relative"}}>
-                        <Box sx={{position: "absolute", top: '20px', right: '20px'}}>
-                            <Typography variant={"error"}><TextWithIcon text={difficulty} iconRight={<Intensity style={{stroke: "#FF540B", fill: "none", strokeWidth: 1.5}}/>} /></Typography>
-                        </Box>
-                        <Typography variant={"subtitle1"}>{schwierigkeit_label}</Typography>
-                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>{schwierigkeitswert_label}</Typography>
-                        <DifficultySlider
-                            containerSx={{marginTop: '20px', marginRight: '10px'}}
-                            defaultValue={10}
-                            value={difficulty}
-                            onChange={({target}) => setDifficulty(target.value)}
-                        />
-                    </Box>
-                </Box>
-                <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>
-                    <Box sx={{float: "right", padding: "20px"}}>
-                        <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        {/* { slovenianMenu ? (
-                            <Button variant={"contained"} onClick={submit}>Št. aktivnih filtrov: {countFilterActive()} </Button>
-                            )
-                            :
-                            ( */}
-                            <Button variant={"contained"} onClick={submit}> {filter_anwenden_label} ({countFilterActive()}) </Button>
-                            {/* )
-                        } */}
-=======
                     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Typography variant={"subtitle1"}>{sportart_label} <Typography variant={"text"} className={"cursor-link"} sx={{ fontSize: "14px" }} onClick={updateAllTypeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
                         <Grid container sx={{ paddingTop: "16px" }}>
@@ -1127,7 +718,6 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
                         <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
->>>>>>> dev-drop-slovenia-front2
                     </Box>
                 </Box>
             </Fragment>
@@ -1135,11 +725,7 @@ function Filter({ filter, doSubmit, resetFilter, searchParams, loadFilter, isLoa
 
 
 
-<<<<<<< HEAD
-    </Box>
-=======
     </Box >
->>>>>>> dev-drop-slovenia-front2
 };
 
 const mapDispatchToProps = {

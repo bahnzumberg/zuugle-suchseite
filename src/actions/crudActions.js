@@ -109,7 +109,6 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
     })
 }
 
-<<<<<<< HEAD
 // export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
 //     dispatch({type: typeBefore});
 //     // console.log("L83: route + id : ", route+id)
@@ -167,22 +166,6 @@ export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, ent
 }
 
 
-=======
-export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
-    dispatch({type: typeBefore});
-    // console.log("L83: route + id : ", route+id)
-    return axios.get(route+id, { params: {...params, domain: window.location.host } }).then(res => {
-        const entity = res.data[entityName];
-
-        dispatch({
-            type: typeDone,
-            [entityName]: entity,
-        });
-        return res;
-    });
-}
-
->>>>>>> dev-drop-slovenia-front2
 export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, route) {
     dispatch({type: typeBefore});
     return axios.get(route+id, { params: {domain: window.location.host} }).then(res => {

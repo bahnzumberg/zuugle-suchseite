@@ -15,11 +15,8 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-<<<<<<< HEAD
-=======
 import { useMatomo } from "@jonkoops/matomo-tracker-react";
 import { myTrackPageView } from "../../utils/globals";
->>>>>>> dev-drop-slovenia-front2
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
 import {
@@ -79,24 +76,10 @@ function Start({
 	loadRanges,
 	allRanges,
 }) {
-<<<<<<< HEAD
-=======
-	const { trackPageView } = useMatomo();
->>>>>>> dev-drop-slovenia-front2
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 	const { t, i18n } = useTranslation();
-<<<<<<< HEAD
-=======
-	// description
-	// makes use of the Matomo Tracker Hook (useMatomo) to track page views. The function myTrackPageView is used to track the current page view.
-	useEffect(() => {
-		const city = searchParams.get("city");
-		// console.log('city is ' + city);
-		myTrackPageView("Start", trackPageView, city);
-	}, []);
->>>>>>> dev-drop-slovenia-front2
 
 	// description
 	// This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
@@ -375,8 +358,4 @@ export default compose(
 	// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
 	// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
 	// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
-<<<<<<< HEAD
 	// A Footer component.
-=======
-	// A Footer component.
->>>>>>> dev-drop-slovenia-front2

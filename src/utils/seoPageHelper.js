@@ -88,10 +88,6 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 export const listAllRangeLinks = (ranges, searchParams = null) => {
     const {t} = useTranslation();
     const country = translatedCountry();
-<<<<<<< HEAD
-    // country ? console.log("country", country) : console.log("no country")
-=======
->>>>>>> dev-drop-slovenia-front2
 
     if(!!ranges){
         const entries = ranges.map((range,index) => {
@@ -124,12 +120,6 @@ const translatedCountry =()=>{
     const {t} = useTranslation();
     const country =  getCountryName(); 
     const countryKey = getCountryKey(country);
-<<<<<<< HEAD
-    // const countryKey = getCountryKey("Frankreich");
-    // console.log("country: " + country);
-    // console.log("countryKey: " + countryKey);
-=======
->>>>>>> dev-drop-slovenia-front2
     
     return t(`start.${countryKey}`);
 }
@@ -139,7 +129,6 @@ const translatedCountry =()=>{
 const getCountryKey = (name) => {
 
     switch (name) {
-<<<<<<< HEAD
         case "Schweiz":
             return "schweiz";
         case "Österreich":
@@ -152,33 +141,17 @@ const getCountryKey = (name) => {
             return "slowenien";
         case "Italien":
             return "italien";
-=======
-        case name === "der Schweiz":
-            return "schweiz";
-        case name === "Österreich":
-            return "oesterreich";
-        case name === "Deutschland":
-            return "deutschland";
-        case name === "Frankreich":
-            return "frankreich";
->>>>>>> dev-drop-slovenia-front2
         default:
             return "oesterreich";
     }
 }
 
 const getCountryName = () => {
-<<<<<<< HEAD
     let host = window.location.host;
     // let host = "www2.zuugle.fr";
     
     if(host.indexOf('zuugle.ch') >= 0){
         return "Schweiz"
-=======
-    let host = location.hostname;
-    if(host.indexOf('zuugle.ch') >= 0){
-        return "der Schweiz"
->>>>>>> dev-drop-slovenia-front2
     } else if(host.indexOf('zuugle.de') >= 0){
         return "Deutschland"
     } else if(host.indexOf('zuugle.it') >= 0){

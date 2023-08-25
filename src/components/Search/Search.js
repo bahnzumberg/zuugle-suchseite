@@ -1,32 +1,3 @@
-<<<<<<< HEAD
-import * as React from "react"
-import Box from "@mui/material/Box"
-import Grid from "@mui/material/Grid"
-import {loadFavouriteTours, loadTours} from "../../actions/tourActions"
-import {compose} from "redux"
-import {connect} from "react-redux"
-import {loadCities} from "../../actions/cityActions"
-import {Fragment, useEffect, useState} from "react"
-import {loadRegions} from "../../actions/regionActions"
-import {useSearchParams} from "react-router-dom"
-import {
-    // isResponsive,
-    parseIfNeccessary,
-    setOrRemoveSearchParam,
-} from "../../utils/globals"
-import {useNavigate} from "react-router"
-import {hideModal, showModal} from "../../actions/modalActions"
-import FullScreenCityInput from "./FullScreenCityInput"
-import {useTranslation} from "react-i18next";
-import i18next from 'i18next';
-import FilterIcon from "../../icons/FilterIcon"
-import IconButton from "@mui/material/IconButton"
-import GoIcon from "../../icons/GoIcon"
-import AutosuggestSearchTour from "./AutosuggestSearch";
-import Filter from "../Filter/Filter";
-
-
-=======
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -54,63 +25,25 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
->>>>>>> dev-drop-slovenia-front2
 
 export function Search({
   loadRegions,
   loadTours,
   goto,
-<<<<<<< HEAD
-=======
   page,
   pageKey,
->>>>>>> dev-drop-slovenia-front2
   isMain,
   showModal,
   hideModal,
   allCities,
   isMapView,
-<<<<<<< HEAD
-=======
   filter,
->>>>>>> dev-drop-slovenia-front2
   // loadCities,
   // cities,
   // regions, // DO WE NEED regions ?? see L87, also note that regions redux state is mapped to props below
   // isCityLoading,
   // loadFavouriteTours,
 }) {
-<<<<<<< HEAD
-
-    //navigation
-    const navigate = useNavigate();
-    // Translation
-    const { t } = useTranslation();
-    let language = i18next.resolvedLanguage;
-    useEffect(() => {
-        setPlaceholder(t("start.suche"));
-    }, [language]);
-
-    //initialisation
-    const [placeholder, setPlaceholder] = useState(t("start.suche"));
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [cityInput, setCityInput] = useState("");
-    const [searchPhrase, setSearchPhrase] = useState("");
-    let suggestion; //variable that stores the text of the selected option
-    let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
-    const [city, setCity] = useState(null);
-    const [region, setRegion] = useState(null);
-    const [activeFilter, setActiveFilter] = useState(false);
-    const initialIsMapView = isMapView || false;
-
-
-  useEffect(() => {
-    // pull out values from URL params
-    let city = searchParams.get("city");
-    let range = searchParams.get("range");// does not showup in params list in latest version
-    let state = searchParams.get("state");// does not showup in params list in latest version
-    let country = searchParams.get("country");// does not showup in params list in latest version
-=======
   //navigation
 
   const navigate = useNavigate();
@@ -143,33 +76,21 @@ export function Search({
     let range = searchParams.get("range"); // does not showup in params list in latest version
     let state = searchParams.get("state"); // does not showup in params list in latest version
     let country = searchParams.get("country"); // does not showup in params list in latest version
->>>>>>> dev-drop-slovenia-front2
     let type = searchParams.get("type"); // does not show up in params list in latest version
     let search = searchParams.get("search");
     let filter = searchParams.get("filter");
     let orderId = searchParams.get("sort");
     let provider = searchParams.get("p");
-<<<<<<< HEAD
-
-    if (!!city && !!allCities) {
-      const cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
-      if (!!cityEntry) {
-        setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
-        setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-=======
     if (pageKey === "detail") {
       if (!!city) {
 
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
->>>>>>> dev-drop-slovenia-front2
         writeCityToLocalStorage(city); // store the city NAME in local storage
 
         /** load regions initially */
         loadRegions({ city: city }); // when is regions needed?
       }
     }
-<<<<<<< HEAD
-=======
     else {
       if (!!city && !!allCities) {
         const cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
@@ -192,7 +113,6 @@ export function Search({
     //     /** load regions initially */
     //     loadRegions({ city: city }); // when is regions needed?
     // }
->>>>>>> dev-drop-slovenia-front2
 
     if (!!!orderId || orderId == "relevanz") {
       searchParams.set("sort", "relevanz");
@@ -202,17 +122,10 @@ export function Search({
     // range does not showup in params list in latest version
     if (!!range) {
       console.log("L99 Search : region in useEffect : " + range);
-<<<<<<< HEAD
-      setSearchPhrase(range);         
-      setRegion({ value: range, label: range, type: "range" });
-    }
-    
-=======
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
 
->>>>>>> dev-drop-slovenia-front2
     if (!!search) {
       setSearchPhrase(search);
     }
@@ -232,10 +145,6 @@ export function Search({
       setRegion({ value: type, label: type, type: "type" });
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> dev-drop-slovenia-front2
     //return if start page - no load
     if (!!!isMain) {
       return;
@@ -251,24 +160,13 @@ export function Search({
         ignore_filter: true,
       };
     }
-<<<<<<< HEAD
-   
-=======
-
->>>>>>> dev-drop-slovenia-front2
     // let result = loadTours({
     loadTours({
       city: city,
       range: range, //does not showup in params list in latest version
-<<<<<<< HEAD
-      state: state,//does not showup in params list in latest version
-      country: country,//does not showup in params list in latest version
-      type: type,//does not showup in params list in latest version
-=======
       state: state, //does not showup in params list in latest version
       country: country, //does not showup in params list in latest version
       type: type, //does not showup in params list in latest version
->>>>>>> dev-drop-slovenia-front2
       search: search,
       filter: filter,
       sort: orderId,
@@ -302,10 +200,7 @@ export function Search({
     showModal("MODAL_COMPONENT", {
       CustomComponent: Filter,
       title: "Filter",
-<<<<<<< HEAD
-=======
       page: "main",
->>>>>>> dev-drop-slovenia-front2
       modalSize: "lg",
       doSubmit: handleFilterSubmit,
       resetFilter: handleResetFilter,
@@ -318,11 +213,6 @@ export function Search({
     });
   };
 
-<<<<<<< HEAD
-  const handleFilterSubmit = ({ filterValues }) => {
-    hideModal();
-    handleFilterChange(filterValues);
-=======
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
     hideModal();
     handleFilterChange(filterValues);
@@ -335,17 +225,13 @@ export function Search({
       setActiveFilter("")
     }
 
->>>>>>> dev-drop-slovenia-front2
   };
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
-<<<<<<< HEAD
-=======
     localStorage.setItem('activeFilter', "");
     setActiveFilter("")
->>>>>>> dev-drop-slovenia-front2
   };
 
   const handleFilterChange = (entry) => {
@@ -375,13 +261,8 @@ export function Search({
     values.search = suggestion
       ? suggestion
       : autoSearchPhrase
-<<<<<<< HEAD
-      ? autoSearchPhrase
-      : "";
-=======
         ? autoSearchPhrase
         : "";
->>>>>>> dev-drop-slovenia-front2
 
     if (!!searchParams.get("sort")) {
       values.sort = searchParams.get("sort");
@@ -395,20 +276,6 @@ export function Search({
     //searchParams.delete("filter"); // why delete filter values? if they exist?
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
-<<<<<<< HEAD
-    setOrRemoveSearchParam(searchParams, "range", values.range);//does not showup in params list 
-    setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "state", values.state);//does not showup in params list 
-    setOrRemoveSearchParam(searchParams, "country", values.country);//does not showup in params list 
-    setOrRemoveSearchParam(searchParams, "type", values.type);//does not showup in params list 
-
-    setSearchParams(searchParams);
-    
-    if (!!goto) {
-      navigate(goto + "?" + searchParams);
-    } else {
-    //   console.log("values passed to loadTours :", values);
-=======
     setOrRemoveSearchParam(searchParams, "range", values.range); //does not showup in params list
     setOrRemoveSearchParam(searchParams, "search", values.search);
     setOrRemoveSearchParam(searchParams, "state", values.state); //does not showup in params list
@@ -421,7 +288,6 @@ export function Search({
       navigate(goto + "?" + searchParams);
     } else {
       //   console.log("values passed to loadTours :", values);
->>>>>>> dev-drop-slovenia-front2
       loadTours(values).then((res) => {
         window.scrollTo({ top: 0 });
       });
@@ -440,10 +306,6 @@ export function Search({
   // }
 
   const showCityModal = () => {
-<<<<<<< HEAD
-=======
-
->>>>>>> dev-drop-slovenia-front2
     showModal("MODAL_COMPONENT", {
       CustomComponent: FullScreenCityInput,
       searchParams,
@@ -457,11 +319,8 @@ export function Search({
       },
       setSearchParams,
       title: "",
-<<<<<<< HEAD
-=======
       page: page,
       srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
->>>>>>> dev-drop-slovenia-front2
       modalSize: "lg",
       onBack: () => {
         hideModal();
@@ -469,9 +328,6 @@ export function Search({
     });
   };
 
-<<<<<<< HEAD
-  // does not showup in params list in latest version 
-=======
   const showRangeModal = () => {
 
     showModal("MODAL_COMPONENT", {
@@ -502,7 +358,6 @@ export function Search({
   };
 
   // does not showup in params list in latest version
->>>>>>> dev-drop-slovenia-front2
   // const showRegionInput = () => {
   //     showModal("MODAL_COMPONENT", {
   //         CustomComponent: FullScreenRegionInput,
@@ -552,65 +407,6 @@ export function Search({
 
   return (
     <Fragment>
-<<<<<<< HEAD
-      <Box className="main-search-bar">
-        <Grid
-          container
-          display="flex"
-          justifyContent="center"
-          alignContent="center"
-          alignItems="center"
-        >
-          <Grid item xs>
-            <Box display="flex" alignItems="center" justifyContent="center">
-              <AutosuggestSearchTour
-                onSearchSuggestion={getSearchSuggestion}
-                onSearchPhrase={getSearchPhrase}
-                city={city}
-                language={language}
-                placeholder={searchPhrase}
-              />
-            </Box>
-          </Grid>
-
-          <Grid item>
-            <Box className="search-bar--divider" />
-          </Grid>
-
-          <Grid item xs onClick={showCityModal}>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              sx={{ marginRight: "10px", marginLeft: "20px" }}
-            >
-              <span className="search-bar--city">
-                {cityInput.length > 0 ? cityInput : t("start.heimatbahnhof")}
-              </span>
-            </Box>
-          </Grid>
-          <Grid item>
-            {!!initialIsMapView ? null : (
-              <Box sx={{ marginLeft: "10px" }} className="filter-icon-container">
-                {!!isMain ? (
-                  <IconButton
-                    onClick={() => openFilter()}
-                    // onClick={toggleFilter}
-                     
-                  >
-                    <FilterIcon
-                        style={{
-                            transition: "stroke 0.3s",
-                            // transform: "scale(0.675)",
-                            // stroke: activeFilter ? "white" : "blue",
-                            strokeWidth: 1.25,
-                            // borderRadius: "50%",
-                            // border: "2px solid gray",
-                            // padding: "8px"
-                        }}
-                    />
-
-=======
       <Box
         className="main-search-bar"
         sx={{
@@ -704,7 +500,6 @@ export function Search({
                     <FilterIcon
                       sx={{ transition: "stroke 0.3s", strokeWidth: 1.25, stroke: activeFilter ? "#fff" : "#101010" }}
                     />
->>>>>>> dev-drop-slovenia-front2
                   </IconButton>
                 ) : (
                   <IconButton
@@ -726,45 +521,14 @@ export function Search({
                 )}
               </Box>
             )}
-<<<<<<< HEAD
-          </Grid>
-        </Grid>
-      </Box>
-    </Fragment>
-=======
           </Box>
         </Box>
       </Box>
     </Fragment >
->>>>>>> dev-drop-slovenia-front2
   );
 }
 
 const mapDispatchToProps = {
-<<<<<<< HEAD
-    loadCities,
-    loadRegions,
-    loadTours,
-    loadFavouriteTours,
-    showModal,
-    hideModal,
-}
-
-const mapStateToProps = (state) => {
-    return {
-        loading: state.tours.loading,
-        cities: state.cities.cities,
-        allCities: state.cities.all_cities,
-        regions: state.regions.regions,
-        isCityLoading: state.cities.loading,
-        isRegionLoading: state.regions.loading,
-    }
-}
-
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Search)
-
-// L57: 
-=======
   loadCities,
   loadRegions,
   loadTours,
@@ -788,7 +552,6 @@ const mapStateToProps = (state) => {
 export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
 
 // L57:
->>>>>>> dev-drop-slovenia-front2
 // console.log("Search arguments received: "); // output
 // console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
 // console.log("Search arguments : loadTours", loadTours); //(...args) => dispatch(actionCreator(...args));
@@ -839,8 +602,4 @@ export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
 //}
 
 //L124
-<<<<<<< HEAD
 // console.log("Search...search inside useEffect :", search);
-=======
-// console.log("Search...search inside useEffect :", search);
->>>>>>> dev-drop-slovenia-front2

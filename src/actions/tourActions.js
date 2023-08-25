@@ -51,7 +51,6 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-<<<<<<< HEAD
     return (dispatch, getState) => {
         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", { city: city })
             .then(res => {
@@ -79,14 +78,6 @@ export function loadTour(id, city) {
 //     };
 // }
 
-=======
-    // console.log("tourActions, LoadTour L41 :",id)
-    return (dispatch, getState) => {
-        return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", {city: city });
-    };
-}
-
->>>>>>> dev-drop-slovenia-front2
 export function loadTotalTours() {
     // console.log("tourActions, loadTotalTours L48 , no data here")
     return (dispatch, getState) => {
@@ -160,11 +151,8 @@ export function clearTours(){
     return (dispatch, getState) => {
         dispatch({type: CLEAR_TOURS});
     };
-<<<<<<< HEAD
 }
 
 export function checkProviderApproval(){
     // related to issue #65 in the project, given a provider name this function will return from the backend with a value of "Y" or "N" (to be used inside the Details page)
-=======
->>>>>>> dev-drop-slovenia-front2
 }
