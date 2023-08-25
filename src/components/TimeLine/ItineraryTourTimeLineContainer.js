@@ -284,9 +284,6 @@ export default function ItineraryTourTimeLineContainer({
                 {createEntries(entries, getSingleConnection())}
               </Timeline>
             </AccordionDetails>
-            {/* Box below is a divider */}
-            {/* <Box sx={{borderBottom: "1px solid #EAEAEA", padding: '20px', marginLeft: '-20px', marginRight: '-20px', display: "flex", flexDirection: "row", position: "relative"}}>
-                </Box> */}
           </Accordion>
           <Divider sx={{ mt: "24px" }} />
           <Accordion
@@ -296,7 +293,6 @@ export default function ItineraryTourTimeLineContainer({
             }}
           >
             <AccordionDetails>
-              {/* <Box sx={{borderBottom: "1px solid #EAEAEA", padding: '20px', marginLeft: '-20px', marginRight: '-20px', display: "flex", flexDirection: "row", position: "relative"}}> */}
               <Box
                 sx={{
                   padding: "20px",
@@ -558,7 +554,7 @@ export default function ItineraryTourTimeLineContainer({
                   lineHeight="22px"
                   sx={{ textDecoration: "underline" }}
                 >
-                  {returnEntries.length} {" "}
+                  {returnEntries.length - 2} {" "}
                   {t("Details.rückreise_moeglichkeiten")}
                 </Typography>
               </Box>
