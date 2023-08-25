@@ -13,7 +13,7 @@ import {
 } from "../../actions/tourActions";
 import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import {
 	getFilterFromParams,
@@ -123,10 +123,11 @@ export function Main({
 
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
+  const paramsFromStartPage = new URLSearchParams(location.search);
   // alternative code for useBacklistener
-  // useBackListener(() => {
+  // useBackListener = () => {
   //     navigate("/");
-  //   });
+  //   };
   // useBackListener(navigate, () => {
   //     navigate("/");
   // });
@@ -362,8 +363,16 @@ export function Main({
         >
           <Box comoponent={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Box sx={{ mr: "16px", cursor: "pointer" }} onClick={() => navigate(-1)}>
+              <Box sx={{ mr: "16px", cursor: "pointer" }}>
+                <Link
+                  to={{
+                    pathname: '/',
+                    search: paramsFromStartPage.toString(),
+                  }}
+                  replace
+                >
                 <ArrowBefore style={{ stroke: "#fff", width: "34px", height: "34px" }} />
+                </Link>
               </Box>
               <DomainMenu />
             </Box>
@@ -435,12 +444,6 @@ export function Main({
 				*/}
             {!!mapView ? (
               <Box className={"map-container"}>
-                {/* clg */}
-                {/* {console.log("tours[0].id : L271",tours[0].id)} */}
-                {/* {console.log("loadGPX : L269",loadGPX)} */}
-                {/* {console.log("onLoadAndSelectTour() : L269",onLoadAndSelectTour())} */}
-                {/* {console.log("loading : L272",loading)} */}
-                {/* <TourMapContainer tours={tours} loadGPX={loadGPX} onSelectTour={onLoadAndSelectTour} loading={loading}/>  */}
                 {memoTourMapContainer}
               </Box>
             ) : (
