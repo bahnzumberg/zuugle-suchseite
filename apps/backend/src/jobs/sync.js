@@ -16,9 +16,6 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
-    // Is there an advantage in setting the full_text to ''? I do not know. Trying it.
-    // await knex.raw(`UPDATE tour SET full_text = '';`);
-
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 }
 
@@ -26,6 +23,16 @@ export async function fixTours(){
 export async function writeKPIs(){
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_tours';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;`);
+
+    await knex.raw(`DELETE FROM kpi WHERE kpi.name LIKE 'total_tours_%';`);
+    await knex.raw(`INSERT INTO kpi SELECT 
+                                    CONCAT('total_tours_', f.city_slug) AS NAME, 
+                                    COUNT(DISTINCT t.id) AS VALUE
+                                    FROM fahrplan AS f
+                                    INNER JOIN tour AS t
+                                    ON f.tour_provider=t.provider 
+                                    AND f.hashed_url=t.hashed_url
+                                    GROUP BY f.city_slug;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;`);

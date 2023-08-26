@@ -33,8 +33,29 @@ const totalWrapper = async (req, res) => {
     // req && console.log("Request totalWrapper L25:");
     // req && console.log("req.body :", req.query);
     // req && req.params && console.log(req.query.params);
-    const total = await knex.raw(`SELECT tours.value as tours, conn.value as connections, ranges.value AS ranges, cities.value AS cities, provider.value AS provider FROM kpi AS tours LEFT OUTER JOIN kpi AS conn ON conn.name='total_connections' LEFT OUTER JOIN kpi AS ranges ON ranges.name='total_ranges' LEFT OUTER JOIN kpi AS cities ON cities.name='total_cities' LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' WHERE tours.name='total_tours';`);
-    res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
+
+    const city = req.query.city;
+    const total = await knex.raw(`SELECT 
+                                tours.value as tours,
+                                COALESCE(tours_city.value, 0) AS tours_city,
+                                conn.value as connections,
+                                ranges.value AS ranges,
+                                cities.value AS cities,
+                                provider.value AS provider 
+                                FROM kpi AS tours 
+                                LEFT OUTER JOIN kpi AS tours_city 
+                                ON tours_city.name='total_tours_${city}' 
+                                LEFT OUTER JOIN kpi AS conn 
+                                ON conn.name='total_connections' 
+                                LEFT OUTER JOIN kpi AS ranges 
+                                ON ranges.name='total_ranges' 
+                                LEFT OUTER JOIN kpi AS cities 
+                                ON cities.name='total_cities' 
+                                LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
+                                WHERE tours.name='total_tours';`);
+    
+    // const total = await knex.raw(`SELECT tours.value as tours, conn.value as connections, ranges.value AS ranges, cities.value AS cities, provider.value AS provider FROM kpi AS tours LEFT OUTER JOIN kpi AS conn ON conn.name='total_connections' LEFT OUTER JOIN kpi AS ranges ON ranges.name='total_ranges' LEFT OUTER JOIN kpi AS cities ON cities.name='total_cities' LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' WHERE tours.name='total_tours';`);
+    res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider'], total_tours_city: total.rows[0]['tours_city']});
 }
 
 //description

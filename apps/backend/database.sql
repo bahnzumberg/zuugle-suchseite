@@ -225,3 +225,5 @@ CREATE INDEX ON gpx (lat);
 CREATE INDEX ON gpx (lon);
 
 ALTER TABLE provider ADD COLUMN allow_gpx_download varchar(1) default 'y';
+
+ALTER TABLE kpi ALTER COLUMN name TYPE varchar(150);
