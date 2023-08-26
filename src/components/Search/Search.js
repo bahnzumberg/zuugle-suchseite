@@ -440,8 +440,7 @@ export function Search({
                   fontWeight: "500",
                   lineHeight: "20px",
                 }}>
-                  {/* {t("search.um_reise_berechnen_zu_koenen")} */}
-                  To be able to calculate the journey,
+                  {t("search.um_reise_berechnen_zu_koenen")}
                   </Box>
                   : <AutosuggestSearchTour
                     onSearchSuggestion={getSearchSuggestion}
@@ -482,8 +481,7 @@ export function Search({
                       lineHeight: "20px"
 
                     }}>
-                      {/* {t("search.waehle_dein_heimatbahnhof")} */}
-                      Click to select your home station.
+                      {t("search.waehle_dein_heimatbahnhof")}
                     </Box> : <Box className="search-bar--city">{cityInput}</Box>
                   )}
 
