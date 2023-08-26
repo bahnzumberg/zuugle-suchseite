@@ -158,7 +158,7 @@ export default function ItineraryTourTimeLineContainer({
     if (connection.connection_duration_minutes == 0) {
       return t("details.start_ausgangort");
     } else {
-      return t("Details.beste_anreise");
+      return t("Details.beste_anreise_kurz");
     }
   };
 
