@@ -529,7 +529,7 @@ export default function ItineraryTourTimeLineContainer({
             ))}
 
           {/* Button for more connections */}
-          {!getMore && (returnEntries.length > 0) && 
+          {!getMore && (returnEntries.length > 2) && 
           (
             <Accordion
               sx={{ backgroundColor: "transparent", boxShadow: "none" }}
