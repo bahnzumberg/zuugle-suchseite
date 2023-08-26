@@ -44,13 +44,14 @@ export function Search({
   // isCityLoading,
   // loadFavouriteTours,
 }) {
-  //navigation
 
+  //navigation
   const navigate = useNavigate();
   // Translation
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
+  //set placeholder
   useEffect(() => {
     setPlaceholder(t("start.suche"));
   }, [language]);
@@ -66,10 +67,12 @@ export function Search({
   const [region, setRegion] = useState(null);
   const [activeFilter, setActiveFilter] = useState("");
   const initialIsMapView = isMapView || false;
+
   useEffect(() => {
     let activeFilterStorage = localStorage.getItem('activeFilter')
     setActiveFilter(activeFilterStorage)
-  }, [])
+  }, []);
+
   useEffect(() => {
     // pull out values from URL params
     let city = searchParams.get("city");
@@ -436,7 +439,10 @@ export function Search({
                   fontSize: { xs: "14px", sm: "15px" },
                   fontWeight: "500",
                   lineHeight: "20px",
-                }}>In order to be able to calculate the journey,</Box>
+                }}>
+                  {/* {t("search.um_reise_berechnen_zu_koenen")} */}
+                  To be able to calculate the journey,
+                  </Box>
                   : <AutosuggestSearchTour
                     onSearchSuggestion={getSearchSuggestion}
                     onSearchPhrase={getSearchPhrase}
@@ -444,9 +450,8 @@ export function Search({
                     language={language}
                     placeholder={searchPhrase}
                   />}
-
-                {/* <span>Search</span> */}
               </Grid>
+              {/* city -----   modal ----  below */}
               <Grid
                 item
                 sm={12}
@@ -476,7 +481,10 @@ export function Search({
                       fontWeight: "700",
                       lineHeight: "20px"
 
-                    }}>Select your home station here.</Box> : <Box className="search-bar--city">{cityInput}</Box>
+                    }}>
+                      {/* {t("search.waehle_dein_heimatbahnhof")} */}
+                      Click to select your home station.
+                    </Box> : <Box className="search-bar--city">{cityInput}</Box>
                   )}
 
                 </Box>
