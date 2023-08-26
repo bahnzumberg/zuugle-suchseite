@@ -371,10 +371,10 @@ const DetailReworked = (props) => {
 	};
 
 	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
-		{
-			pdfLanguagePermit && providerPermit && (
+		
 			<>
-				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
+			{providerPermit && 
+				(<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()} onClick={() => {
 					onDownloadGpx();
 				}}>
 					<DownloadIcon /><span style={{ color: "#101010", width: "43px" }}>GPX</span>
@@ -384,7 +384,10 @@ const DetailReworked = (props) => {
 							{t("details.track_gps_geraet")}
 						</span>
 					}
-				</Button>
+				</Button>)
+			}
+			{
+			pdfLanguagePermit && providerPermit && (
 				<Button className="tour-detail-action-btns" disabled={downloadButtonsDisabled()}
 					onClick={onDownload}>
 					<PdfIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>PDF</span>
@@ -392,12 +395,9 @@ const DetailReworked = (props) => {
 						<CircularProgress sx={{ width: "20px", height: "20px" }} size={"small"} />
 						: <span style={{ color: "#8B8B8B" }}>  {shortenText(t('Details.pdf_loading_notice'), 0, maxLength)} </span>
 					}
-				</Button>
+				</Button>)
+			}
 			</>
-
-			)
-		}
-
 		{/*
         Share button
         When clicked, a link will be generated and the social media options will be shown
