@@ -420,8 +420,9 @@ const DetailReworked = (props) => {
 					console.log("Share link didn't generate as expected.");
 				}
 				});
-		
-			setSocialMediaDropDownToggle(current => !current);
+			setTimeout(() => {
+				setSocialMediaDropDownToggle(current => !current);
+			}, 1000);
 			// Return a resolved Promise to continue with the onClick
 			return Promise.resolve();
 			}}
