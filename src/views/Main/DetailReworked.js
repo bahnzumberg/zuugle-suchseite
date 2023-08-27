@@ -158,15 +158,11 @@ const DetailReworked = (props) => {
                 });
             setIsShareGenerating(false);
         }
-
-
     }, [isShareGenerating]);
 
     useEffect(() => {
         setIsShareGenerating(false);
         setSocialMediaDropDownToggle(false);
-
-
     }, [dateIndex]);
 
 
@@ -241,7 +237,8 @@ const DetailReworked = (props) => {
 				setRenderImage(!!tour?.image_url);
 			}
 		}
-	}, [!!tour]);
+	}, [tour]);
+	// }, [!!tour]);
 
 	useEffect(() => {
 		let index = dateIndex;
@@ -370,6 +367,16 @@ const DetailReworked = (props) => {
 		setActiveReturnConnection(connections[index].returns[0]);
 	};
 
+	const shareButtonHandler = (event) => {
+		const clickedElement = event.target;
+		const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
+
+		if (svgButton) {
+			setIsShareGenerating(true);
+			setSocialMediaDropDownToggle((current) => !current);
+		}
+	  };
+
 	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
 		
 			<>
@@ -397,19 +404,27 @@ const DetailReworked = (props) => {
 					}
 				</Button>)
 			}
-			</>
+			
 		{/*
         Share button
         When clicked, a link will be generated and the social media options will be shown
         */}
-		<Button className="tour-detail-action-btns" disabled={false}
+		<Box onClick={shareButtonHandler }>
+			<Button className="tour-detail-action-btns share-button" disabled={false}
+				>
+				<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
+				<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
+			</Button>
+
+		</Box>
+		{/* <Button className="tour-detail-action-btns" disabled={false}
 			onClick={() => {
 				setIsShareGenerating(true);
-				setSocialMediaDropDownToggle((current) => { return !current });
+				setSocialMediaDropDownToggle((current) => !current );
 			}}>
 			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
 			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
-		</Button>
+		</Button> */}
 		{/*
         Specific social media buttons
         */}
@@ -448,6 +463,7 @@ const DetailReworked = (props) => {
 				</span>
 			</div>
 		)}
+		</>
 	</Box>
 	);
 
@@ -561,11 +577,6 @@ const DetailReworked = (props) => {
 							<TourDetailProperties tour={tour}></TourDetailProperties>
 							<Box sx={{ textAlign: "left" }}>
 								<div className="tour-detail-difficulties">
-									{ 
-												// console.log("tour :", tour.data.difficulty)
-												// console.log("tour.difficulty", tour.difficulty)
-											}
-									{/* { console.log("tour.difficulty_orig", tour.data.difficulty_orig)} */}
 									<span className="tour-detail-difficulty">
 										{tour && translateDiff(tourDifficulty)}
 									</span>
@@ -578,7 +589,7 @@ const DetailReworked = (props) => {
 							<div
 								className="tour-detail-provider-container"
 								onClick={() => {
-									window.open(tour?.url);
+  									window.open(tour?.url);
 								}}
 							>
 								<div className="tour-detail-provider-icon">
