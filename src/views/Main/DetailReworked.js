@@ -46,7 +46,7 @@ import {
     TwitterShareButton,
     TwitterIcon,
     WhatsappShareButton,
-    WhatsappIcon
+    WhatsappIcon, 
 } from "react-share";
 import ArrowBefore from "../../icons/ArrowBefore"
 import ShareIcon from "../../icons/ShareIcon";
@@ -376,6 +376,30 @@ const DetailReworked = (props) => {
 	// 		setSocialMediaDropDownToggle((current) => !current);
 	// 	}
 	// };
+	useEffect(() => {
+		console.log("share link",shareLink )
+
+	}, [shareLink])
+	
+
+	const shareButtonHandler = async () => {
+		console.log("inside beforeOnClick ")
+	// Call generateShareLink and wait for completion
+	await generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+		.then(res => {
+		if (res.success === true) {
+			setShareLink(window.location.origin + "/tour?share=" + res.shareId);
+		} else {
+			console.log("Share link didn't generate as expected.");
+		}
+		});
+		// console.log("share link",shareLink )
+	// setTimeout(() => {
+		setSocialMediaDropDownToggle(current => !current);
+	// }, 1000);
+	// Return a resolved Promise to continue with the onClick
+	return Promise.resolve();
+	}
 
 	const actionButtonPart = (<Box className="tour-detail-action-btns-container">
 		
@@ -409,27 +433,24 @@ const DetailReworked = (props) => {
         Share button
         When clicked, a link will be generated and the social media options will be shown
         */}
+		<Box>
+
+			
+		</Box>
 		<Button className="tour-detail-action-btns share-button" disabled={false}
-			onClick={async () => {
-			// Call generateShareLink and wait for completion
-			await generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
-				.then(res => {
-				if (res.success === true) {
-					setShareLink(window.location.origin + "/tour?share=" + res.shareId);
-				} else {
-					console.log("Share link didn't generate as expected.");
-				}
-				});
-			setTimeout(() => {
-				setSocialMediaDropDownToggle(current => !current);
-			}, 1000);
-			// Return a resolved Promise to continue with the onClick
-			return Promise.resolve();
-			}}
+			// beforeonclick={shareButtonHandler}
 			// onClick={() => {
-			// // Toggle the socialMediaDropDownToggle state
-			// setSocialMediaDropDownToggle(current => !current);
+			// Toggle the socialMediaDropDownToggle state
+			//setSocialMediaDropDownToggle(current => !current);
+			// setTimeout(() => {
+			// 	console.log("Time out starts...")
+			// 	setSocialMediaDropDownToggle(current => !current);
+			// 	console.log("Time out ENDED...")
+			// }, 500);
+				// console.log("onClick here!")
+				// shareButtonHandler();
 			// }}
+			onClick={shareButtonHandler}
 
 		>
 			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
