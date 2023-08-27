@@ -559,7 +559,51 @@ export async function syncTours(){
     }
 
     while((counter *  limit) <= count){
-        const query = knexTourenDb.raw(`SELECT * from vw_touren_to_search limit ${limit} offset ${offset};`);
+        const query = knexTourenDb.raw(`SELECT
+                                        url,
+                                        provider,
+                                        hashed_url,
+                                        description,
+                                        country,
+                                        state,
+                                        range_slug,
+                                        range_name,
+                                        image_url,
+                                        ascent,
+                                        descent,
+                                        difficulty,
+                                        duration,
+                                        distance,
+                                        title,
+                                        typ,
+                                        children,
+                                        number_of_days,
+                                        traverse,
+                                        season,
+                                        jan,
+                                        feb,
+                                        mar,
+                                        apr,
+                                        may,
+                                        jun,
+                                        jul,
+                                        aug,
+                                        sep,
+                                        oct,
+                                        nov,
+                                        dec,
+                                        full_text,
+                                        publishing_date,
+                                        quality_rating,
+                                        user_rating_avg,
+                                        difficulty_orig,
+                                        text_lang,
+                                        lat_start,
+                                        lon_start,
+                                        lat_end,
+                                        lon_end,
+                                        maxele
+                                        from vw_touren_to_search limit ${limit} offset ${offset};`);
 
         /*
         if(process.env.NODE_ENV != "production"){
