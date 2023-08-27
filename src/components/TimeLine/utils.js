@@ -21,6 +21,12 @@ import ShuffleBlack from "../../icons/ShuffleBlack";
 import Seilbahn from "../../icons/Seilbahn";
 import Tram from "../../icons/Tram";
 import Car from "../../icons/Car";
+import { v4 as uuidv4 } from 'uuid';
+
+const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
+const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
+console.log('Generated keys: 1', keys_1);
+console.log('Generated keys: 2', keys_2);
 
 export const getDepartureText = (connection) => {
   if (!!!connection) {
@@ -144,9 +150,9 @@ export const createReturnEntries = (entries, connection) => {
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text, i, _entries.length));
+        toReturn.push(getDetailEntry(_text, keys_2[i], _entries.length));
       } else {
-        toReturn.push(getStationEntry(entry, i + 1 == _entries.length));
+        toReturn.push(getStationEntry(entry, i + 1 == _entries.length, keys_2[i]));
       }
     }
   }
@@ -169,9 +175,9 @@ export const createEntries = (entries, connection) => {
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text, i, _entries.length));
+        toReturn.push(getDetailEntry(_text, keys_1[i], _entries.length));
       } else {
-        toReturn.push(getStationEntry(entry, i == _entries.length));
+        toReturn.push(getStationEntry(entry,i == _entries.length, keys_1[i]));// any number above the max 5 expected entries
       }
     }
     let newStart = "     ";
@@ -191,7 +197,7 @@ export const createEntries = (entries, connection) => {
 
 export const getDetailEntry = (entry, index, length) => {
   return (
-    <TimelineItem>
+    <TimelineItem key={index} >
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -221,9 +227,9 @@ export const getDetailEntry = (entry, index, length) => {
   );
 };
 
-export const getStationEntry = (entry, isLast = false) => {
+export const getStationEntry = (entry , isLast = false, index) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }}>
+    <TimelineItem sx={{ minHeight: 0 }} key={index}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{
