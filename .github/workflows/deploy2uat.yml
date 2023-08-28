@@ -1,9 +1,9 @@
-name: UAT Deploy
-
 on: 
   push:
     branches:
       - dev-drop-slovenia
+name: UAT Deploy
+
 jobs:
   build:
 
