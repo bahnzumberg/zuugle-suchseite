@@ -220,6 +220,7 @@ const DetailReworked = (props) => {
         if (tourId && city && !connections) {
             loadTourConnectionsExtended({id: tourId, city: city}).then(res => {
                 if (res && res.data) {
+					console.log("L223 -> res.data :", res.data);
                     setConnections(res.data.result);
                 }
             })
@@ -625,9 +626,12 @@ const DetailReworked = (props) => {
 									<span className="tour-detail-difficulty">
 										{tour && translateDiff(tourDifficulty)}
 									</span>
-									<span className="tour-detail-tag tour-detail-tag-gray">
-										{tour && translateDiff(tourDifficultyOrig)}
-									</span>
+									{
+										(!!tourDifficultyOrig && !! tourDifficulty) && (tourDifficultyOrig.toLowerCase() !== tourDifficulty.toLowerCase()) &&
+										(<span className="tour-detail-tag tour-detail-tag-gray">
+											{tour && translateDiff(tourDifficultyOrig)}
+										</span>)
+									}
 								</div>
 								<Typography variant="textSmall">{tour?.description}</Typography>
 							</Box>
