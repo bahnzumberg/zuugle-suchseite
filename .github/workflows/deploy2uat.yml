@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - dev-drop-slovenia
+name: 🚀 Deploy website on push
+
+jobs:
+  my-first-job:
+    name: 🎉 Deploy
+runs-on: ubuntu-latest
+steps:
+  - name: 🚚 Get latest code
+    uses: actions/checkout@v2
+
+  - name: Use Node.js 14
+    uses: actions/setup-node@v2-beta
+    with:
+      node-version: "14.19.3"
+
+  - name: 🔨 Build Project
+    run: |
+      npm install
+      npm run build
+  
+  - name: Deploy to Server
+    uses: easingthemes/ssh-deploy@main
+      with:
+          SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "build/"
+          REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
+          TARGET: ${{ secrets.UAT_REMOTE_TARGET }}
+          EXCLUDE: "/dist/, /node_modules/"
