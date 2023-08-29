@@ -434,35 +434,14 @@ const DetailReworked = (props) => {
         Share button
         When clicked, a link will be generated and the social media options will be shown
         */}
-		<Box>
-
-			
-		</Box>
 		<Button className="tour-detail-action-btns share-button" disabled={false}
-			// beforeonclick={shareButtonHandler}
-			// onClick={() => {
-			// Toggle the socialMediaDropDownToggle state
-			//setSocialMediaDropDownToggle(current => !current);
-			// setTimeout(() => {
-			// 	console.log("Time out starts...")
-			// 	setSocialMediaDropDownToggle(current => !current);
-			// 	console.log("Time out ENDED...")
-			// }, 500);
-				// console.log("onClick here!")
-				// shareButtonHandler();
-			// }}
 			onClick={shareButtonHandler}
-
 		>
 			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
 			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
 		</Button>
-		{/* <Button className="tour-detail-action-btns share-button" disabled={false}>
-			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
-			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
-		</Button> */}
-
-		{/* <Button className="tour-detail-action-btns" disabled={false}
+		{/* 
+		<Button className="tour-detail-action-btns" disabled={false}
 			onClick={() => {
 				setIsShareGenerating(true);
 				setSocialMediaDropDownToggle((current) => !current );
@@ -470,9 +449,9 @@ const DetailReworked = (props) => {
 			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
 			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
 		</Button> */}
+		
 		{/*
-        Specific social media buttons
-        */}
+        Specific social media buttons */}
 		{/* {(socialMediaDropDownToggle && !isShareGenerating && shareLink !== null) && <div> */}
 		{(socialMediaDropDownToggle && shareLink !== null) && <div>
 			<TwitterShareButton windowWidth={800} windowHeight={800} className="tour-detail-action-btns" style={{ borderRadius: "12px", backgroundColor: "#00aced" }} url={shareLink} title={t('details.teilen_text')}>
