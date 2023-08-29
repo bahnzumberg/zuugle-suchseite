@@ -40,7 +40,7 @@ export function Search({
   filter,
   // loadCities,
   // cities,
-  // regions, // DO WE NEED regions ?? see L87, also note that regions redux state is mapped to props below
+  // regions, 
   // isCityLoading,
   // loadFavouriteTours,
 }) {
@@ -87,6 +87,7 @@ export function Search({
     if (pageKey === "detail") {
       if (!!city) {
 
+        console.log("L90 city: " + city);
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
 
@@ -403,6 +404,7 @@ export function Search({
     suggestion = autoSuggestion;
     search();
   };
+
   //Function that gives you the input text you need when no Suggestion was taken
   const getSearchPhrase = (searchPhrase) => {
     autoSearchPhrase = searchPhrase;
