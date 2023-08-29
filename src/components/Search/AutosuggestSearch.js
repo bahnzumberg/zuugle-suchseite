@@ -74,6 +74,7 @@ const AutosuggestSearchTour = ({
       textAlign: "left",
     }),
   };
+  
   useEffect(() => {
     onSearchPhrase(input);
   }, [input]);
