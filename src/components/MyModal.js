@@ -39,12 +39,13 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack 
     overflowX: "hidden",
     display: "block",
     position: "absolute",
-    // top: { xs: "auto", sm: "50%" },
-    top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
+    top: { xs: "auto", sm: "50%" },
+    // top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {
-      xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
+      xs: "translate(-50%, 0)", sm: "translate(-50%, -5%)"
+      // xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
     },
     width: "100%",
     maxWidth: "618px",
