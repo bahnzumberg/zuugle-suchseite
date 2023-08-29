@@ -34,8 +34,12 @@ export default function Header({
   // 	"GroBer Priel",
   // 	"GroBer Pythrgas",
   // ]);
+
+  let tld = location.hostname.slice(-2);
+  if (tld.length <> 2) { tld = 'at'; }
+
   const [backgroundImage, setBackgroundImage] = useState(
-    `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny.jpeg)`
+    `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
   );
   const _isMobile = isResponsive();
   const { t, i18n } = useTranslation();
@@ -49,11 +53,11 @@ export default function Header({
   useEffect(() => {
     if (!!_isMobile) {
       setBackgroundImage(
-        `${LINEAR_GRADIENT} url(/app_static/img/background_start_mobil.webp)`
+        `${LINEAR_GRADIENT} url(/app_static/img/background_start_mobil_${tld}.webp)`
       );
     } else {
       setBackgroundImage(
-        `${LINEAR_GRADIENT} url(/app_static/img/background_start_small.webp)`
+        `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`
       );
     }
   }, [_isMobile]);

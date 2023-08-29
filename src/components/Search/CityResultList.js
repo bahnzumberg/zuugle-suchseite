@@ -108,12 +108,12 @@ export function CityResultList({
             "Bahnhöfe in Italien"
           )}
           {generateLinkEntry(
-            "https://www.zuugle.it",
+            "https://www.zuugle.fr",
             "zuugle.fr",
             "Bahnhöfe in Frankreich"
           )}
           {generateLinkEntry(
-            "https://www.zuugle.it",
+            "https://www.zuugle.si",
             "zuugle.si",
             "Bahnhöfe in Slowenien"
           )}
@@ -133,19 +133,19 @@ export function CityResultList({
             "Bahnhöfe in Deutschland"
           )}
           {generateLinkEntry(
-            "https://www.zuugle.de",
+            "https://www.zuugle.ch",
             "zuugle.ch",
             "Bahnhöfe in der Schweiz"
           )}
           {generateLinkEntry(
-            "https://www.zuugle.it",
-            "zuugle.it",
-            "Bahnhöfe in Slowenien"
+            "https://www.zuugle.fr",
+            "zuugle.fr",
+            "Bahnhöfe in Frankreich"
           )}
           {generateLinkEntry(
-            "https://www.zuugle.it",
-            "zuugle.it",
-            "Bahnhöfe in Italien"
+            "https://www.zuugle.si",
+            "zuugle.si",
+            "Bahnhöfe in Slowenien"
           )}
         </Fragment>
       );

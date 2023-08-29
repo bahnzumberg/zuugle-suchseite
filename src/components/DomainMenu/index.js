@@ -16,22 +16,6 @@ const listOfDomains = [
 		url: "https://www.zuugle.de",
 	},
 	{
-		id: 2,
-		name: "Zuugle.ch",
-		url: "https://www.zuugle.ch",
-	},
-	{
-		id: 3,
-		name: "Zuugle.it",
-		url: "https://www.zuugle.it",
-	},
-	{
-		id: 4,
-		name: "Zuugle.fr",
-		url: "https://www.zuugle.fr",
-	},
-	{
-		id: 5,
 		name: "Zuugle.si",
 		url: "https://www.zuugle.si",
 	},
