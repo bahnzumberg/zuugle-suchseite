@@ -2,9 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-
 
 const BUILD_DIR = path.resolve(__dirname, 'build');
 // const SRC_DIR = path.resolve(__dirname, 'src');
@@ -13,10 +12,10 @@ const BUILD_DIR = path.resolve(__dirname, 'build');
 // console.log('SRC_DIR', SRC_DIR);
 
 module.exports = {
-  mode: "production",
+  mode: 'production',
   output: {
     path: BUILD_DIR,
-    filename: './app_static/[name].bundle.js'
+    filename: './app_static/[name].bundle.js',
   },
   watch: true,
   devServer: {
@@ -25,7 +24,7 @@ module.exports = {
     compress: true,
     hot: true,
     open: true,
-      historyApiFallback: true,
+    historyApiFallback: true,
   },
   module: {
     rules: [
@@ -35,15 +34,13 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: [
-              ['@babel/preset-env', { targets: "defaults" }]
-            ]
-          }
-        }
+            presets: [['@babel/preset-env', { targets: 'defaults' }]],
+          },
+        },
       },
       {
         test: /\.html$/,
-        loader: 'html-loader'
+        loader: 'html-loader',
       },
       {
         test: /\.(scss)$/,
@@ -51,7 +48,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.svg$/i,
@@ -65,42 +62,41 @@ module.exports = {
             // loader: 'url-loader'
             loader: 'file-loader',
             options: {
-              name: './img/[name].[hash].[ext]'
-            }
-          }
-        ]
+              name: './img/[name].[hash].[ext]',
+            },
+          },
+        ],
       },
-    ]
+    ],
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new HtmlWebpackPlugin(
-      {
-        inject: true,
-        template: './public/index.html'
-      }
-    ),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: './public/index.html',
+    }),
     new CopyWebpackPlugin({
-      patterns: [
-        { from: "./public", to: "app_static" },
-      ],
+      patterns: [{ from: './public', to: 'app_static' }],
     }),
     new MiniCssExtractPlugin({
-      filename: "./app_static/[name].styles.css",
-      attributes: {
-      },
+      filename: './app_static/[name].styles.css',
+      attributes: {},
     }),
     new webpack.DefinePlugin({}),
   ],
   optimization: {
-    minimizer: [new TerserPlugin({
-      terserOptions: {
-        format: {
-          comments: false,
+    splitChunks: {
+      chunks: 'all',
+    },
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false,
+          },
         },
-      },
-      extractComments: false,
-    })],
+        extractComments: false,
+      }),
+    ],
   },
-}
-;
+};
