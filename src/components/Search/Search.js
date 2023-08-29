@@ -87,7 +87,7 @@ export function Search({
     if (pageKey === "detail") {
       if (!!city) {
 
-        console.log("L90 city: " + city);
+        // console.log("L90 city: " + city);
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
 
@@ -210,7 +210,7 @@ export function Search({
       resetFilter: handleResetFilter,
       onBack: () => {
         hideModal();
-        console.log("onBack called L256");
+        // console.log("onBack called L256");
       },
       searchParams,
       setSearchParams,
@@ -300,7 +300,7 @@ export function Search({
 
   const toggleFilter = () => {
     // code goes here for filter overlay
-    console.log("Search.js toggleFilter() called");
+    // console.log("Search.js toggleFilter() called");
     setActiveFilter(!activeFilter);
   };
 
@@ -322,7 +322,7 @@ export function Search({
         }
       },
       setSearchParams,
-      title: "",
+      title: t("start.heimatbahnhof"),
       page: page,
       srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
       modalSize: "lg",
@@ -339,7 +339,7 @@ export function Search({
       city: city,
       language: language,
       placeholder : searchPhrase,
-      title : "",
+      title : t("start.suche"),
       page: page,
       srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
       modalSize: "lg",
