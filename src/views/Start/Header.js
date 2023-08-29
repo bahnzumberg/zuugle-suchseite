@@ -36,7 +36,7 @@ export default function Header({
   // ]);
 
   let tld = location.hostname.slice(-2);
-  if (tld.length <> 2) { tld = 'at'; }
+  if (tld.length != 2) { tld = 'at'; }
 
   const [backgroundImage, setBackgroundImage] = useState(
     `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`

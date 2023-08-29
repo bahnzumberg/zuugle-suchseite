@@ -7,7 +7,7 @@ export default function Header({title, subTitle}){
     // console.log("title",title);
     // console.log("subTitle",subTitle);
     let tld = location.hostname.slice(-2);
-    if (tld.length <> 2) { tld = 'at'; }
+    if (tld.length != 2) { tld = 'at'; }
 
     return <Box className={"header-container utils"} sx={{backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(/app_static/img/background_start_small_{tld}.jpeg)`, paddingLeft: 0, height: "300px"}}>
         <Box className={"header-text"} style={{maxWidth: "1000px", marginLeft: "auto", marginRight: "auto", paddingLeft: 0}}>
