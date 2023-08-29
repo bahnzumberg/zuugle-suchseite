@@ -1,5 +1,8 @@
 name: UAT Deploy
-on: [push]
+on:
+  push:
+    branches:
+      - 'drop-dev-slovenia'
 jobs:
   build:
     runs-on: ubuntu-latest
