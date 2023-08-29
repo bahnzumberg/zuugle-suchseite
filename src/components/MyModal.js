@@ -24,12 +24,12 @@ import {
 const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack }) => {
 
   const { t } = useTranslation();
-  const [placeholder, setPlaceholder] = useState(t("start.suche"));
-  const [cityInput, setCityInput] = useState("");
-  const [searchPhrase, setSearchPhrase] = useState("");
+  // const [placeholder, setPlaceholder] = useState(t("start.suche"));
+  // const [cityInput, setCityInput] = useState("");
+  // const [searchPhrase, setSearchPhrase] = useState("");
   const [city, setCity] = useState(null);
   const [region, setRegion] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("");
+  // const [activeFilter, setActiveFilter] = useState("");
   // const [searchParams, setSearchParams] = useSearchParams();
   let suggestion; //variable that stores the text of the selected option
   let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
@@ -60,55 +60,7 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack 
   };
 
 
-  const search = (tempRegion = null) => {
-    let values = {};
-    if (!!city && !!city.value) {
-      values.city = city.value;
-    }
-
-    let _region = region;
-    if (!!tempRegion) {
-      _region = tempRegion;
-    }
-    if (!!_region && !!_region.value) {
-      values[_region.type] = _region.value;
-    }
-    // assign values.search
-    values.search = suggestion
-      ? suggestion
-      : autoSearchPhrase
-        ? autoSearchPhrase
-        : "";
-
-    if (!!searchParams.get("sort")) {
-      values.sort = searchParams.get("sort");
-    } else {
-      values.sort = "relevanz";
-    }
-
-    values.map = searchParams.get("map"); // map related
-    values.provider = searchParams.get("p");
-    // console.log("HLO: ", searchParams);
-    //searchParams.delete("filter"); // why delete filter values? if they exist?
-
-    setOrRemoveSearchParam(searchParams, "city", values.city);
-    setOrRemoveSearchParam(searchParams, "range", values.range); //does not showup in params list
-    setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "state", values.state); //does not showup in params list
-    setOrRemoveSearchParam(searchParams, "country", values.country); //does not showup in params list
-    setOrRemoveSearchParam(searchParams, "type", values.type); //does not showup in params list
-
-    setSearchParams(searchParams);
-
-    if (!!goto) {
-      navigate(goto + "?" + searchParams);
-    } else {
-      //   console.log("values passed to loadTours :", values);
-      loadTours(values).then((res) => {
-        window.scrollTo({ top: 0 });
-      });
-    }
-  }; // end search()
+ 
 
   return (
     <Modal open={true} onClose={hideModal}>
