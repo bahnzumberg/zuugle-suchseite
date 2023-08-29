@@ -331,35 +331,49 @@ export function Search({
       },
     });
   };
-
-  const showRangeModal = () => {
-
+  const showSearchModal = () => {
     showModal("MODAL_COMPONENT", {
-      onSearchSuggestion: getSearchSuggestion,
+      CustomComponent: AutosuggestSearchTour,
+      onSearchSuggestion :getSearchSuggestion,
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: searchPhrase,
-      CustomComponent: FullScreenCityInput,
-      searchParams,
-      initialCity: cityInput,
-      onSelect: (city) => {
-        hideModal();
-        if (!!city) {
-          setCityInput(city.label);
-          setCity(city);
-        }
-      },
-      setSearchParams,
-      title: "",
+      placeholder : searchPhrase,
+      title : "",
       page: page,
       srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
       modalSize: "lg",
-      onBack: () => {
-        hideModal();
-      },
     });
   };
+
+  // const showRangeModal = () => {
+
+  //   showModal("MODAL_COMPONENT", {
+  //     onSearchSuggestion: getSearchSuggestion,
+  //     onSearchPhrase: getSearchPhrase,
+  //     city: city,
+  //     language: language,
+  //     placeholder: searchPhrase,
+  //     CustomComponent: FullScreenCityInput,
+  //     searchParams,
+  //     initialCity: cityInput,
+  //     onSelect: (city) => {
+  //       hideModal();
+  //       if (!!city) {
+  //         setCityInput(city.label);
+  //         setCity(city);
+  //       }
+  //     },
+  //     setSearchParams,
+  //     title: "",
+  //     page: page,
+  //     srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
+  //     modalSize: "lg",
+  //     onBack: () => {
+  //       hideModal();
+  //     },
+  //   });
+  // };
 
   // does not showup in params list in latest version
   // const showRegionInput = () => {
@@ -403,6 +417,7 @@ export function Search({
   const getSearchSuggestion = (autoSuggestion) => {
     suggestion = autoSuggestion;
     search();
+    hideModal();
   };
 
   //Function that gives you the input text you need when no Suggestion was taken
@@ -433,24 +448,46 @@ export function Search({
                 xs={12}
                 md={!cityInput && pageKey === "detail" ? 12 : 6}
                 sx={{ paddingRight: "16px", padding: 0 }}
-              // onClick={showRangeModal}
+              onClick={showSearchModal}
               >
-                {!cityInput && pageKey === "detail" ? <Box sx={{
-                  textAlign: "left", ml: "14px", color: "#101010",
-                  fontFamily: "Open Sans",
-                  fontSize: { xs: "14px", sm: "15px" },
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                }}>
-                  {t("search.um_reise_berechnen_zu_koenen")}
+                {!cityInput && pageKey === "detail" && 
+                  <Box sx={{
+                    textAlign: "left", ml: "14px", color: "#101010",
+                    fontFamily: "Open Sans",
+                    fontSize: { xs: "14px", sm: "15px" },
+                    fontWeight: "500",
+                    lineHeight: "20px",
+                  }}>
+                    {t("search.um_reise_berechnen_zu_koenen")}
                   </Box>
-                  : <AutosuggestSearchTour
-                    onSearchSuggestion={getSearchSuggestion}
-                    onSearchPhrase={getSearchPhrase}
-                    city={city}
-                    language={language}
-                    placeholder={searchPhrase}
-                  />}
+                 }
+                 <Box
+                  sx={{
+                    borderLeft: {
+                      sm: 0, md: !cityInput && pageKey === "detail" ? 0 : "2px solid #DDDDDD"
+                    },
+                    paddingLeft: "14px",
+                  }}
+                >
+                  {pageKey !== "detail" ? (<span className="search-bar--city">
+                    {searchPhrase.length > 0
+                      ? searchPhrase
+                      : t("start.suche")}
+                  </span>) : (
+                    !searchPhrase && pageKey === "detail" ? <Box className="search-bar--city" sx={{
+                      cursor: "pointer",
+                      color: "#4992FF !important",
+                      fontFamily: "Open Sans",
+                      fontSize: { xs: "14px", sm: "15px" },
+                      fontWeight: "700",
+                      lineHeight: "20px"
+
+                    }}>
+                      {t("start.suche")}
+                    </Box> : <Box className="search-bar--city">{searchPhrase}</Box>
+                  )}
+
+                </Box>
               </Grid>
               {/* city -----   modal ----  below */}
               <Grid
@@ -494,6 +531,7 @@ export function Search({
         </Box>
 
         <Box>
+          {/* ***** filter box in the Main page ******* */}
           <Box>
             {!cityInput && pageKey === "detail" ? "" : !!initialIsMapView ? null : (
               <Box
