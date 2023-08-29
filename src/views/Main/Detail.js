@@ -238,3 +238,4 @@ export default function Detail({tour, loadTourConnectionsExtended, onClose}){
         </TabPanel>
     </Box>
 }
+
