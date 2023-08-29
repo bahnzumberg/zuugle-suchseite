@@ -8,9 +8,9 @@ import { useTranslation } from "react-i18next";
 import { langChange } from "../../utils/language_Utils";
 
 const lngs = {
+	de: { nativeName: "Deutsch" },
 	en: { nativeName: "English" },
 	fr: { nativeName: "Français" },
-	de: { nativeName: "Deutsch" },
 	it: { nativeName: "Italiano" },
 	sl: { nativeName: "Slovenščina" },
 };

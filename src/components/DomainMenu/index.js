@@ -4,27 +4,155 @@ import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const listOfDomains = [
-	{
-		id: 0,
-		name: "Zuugle.at",
-		url: "https://www.zuugle.at",
-	},
-	{
-		id: 1,
-		name: "Zuugle.de",
-		url: "https://www.zuugle.de",
-	},
-	{
-		name: "Zuugle.si",
-		url: "https://www.zuugle.si",
-	},
-];
+
+let host = location.hostname;
+let listOfDomains = [];
+let domain = 'www.zuugle.at';
+
+if (host.indexOf("www.zuugle.at") >= 0) {
+	domain = 'www.zuugle.at';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			id: 1,
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+		{
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www.zuugle.de") >= 0) {
+	domain = 'www.zuugle.de';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+		{
+			id: 1,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www.zuugle.si") >= 0) {
+	domain = 'www.zuugle.si';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+		{
+			id: 1,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+	];
+}
+else if (host.indexOf("www.zuugle.it") >= 0) {
+	domain = 'www.zuugle.it';
+
+}
+else if (host.indexOf("www.zuugle.ch") >= 0) {
+	domain = 'www.zuugle.ch';
+	
+}
+else if (host.indexOf("www.zuugle.fr") >= 0) {
+	domain = 'www.zuugle.fr';
+
+}
+if (host.indexOf("www2.zuugle.at") >= 0) {
+	domain = 'www2.zuugle.at';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+		{
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www2.zuugle.de") >= 0) {
+	domain = 'www2.zuugle.de';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www2.zuugle.si") >= 0) {
+	domain = 'www2.zuugle.si';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+	];
+}
+else if (host.indexOf("www2.zuugle.it") >= 0) {
+	domain = 'www2.zuugle.it';
+
+}
+else if (host.indexOf("www2.zuugle.ch") >= 0) {
+	domain = 'www2.zuugle.ch';
+
+}
+else if (host.indexOf("www2.zuugle.fr") >= 0) {
+	domain = 'www2.zuugle.fr';
+
+}
+
 
 const secondMenu = [
 	{ id: 0, name: "Über Zuugle", url: "https://www.bahnzumberg.at/" },
-	{ id: 1, name: "Impressum", url: "https://www.zuugle.at/imprint" },
-	{ id: 2, name: "Datenschutz", url: "https://www.zuugle.at/privacy" },
+	{ id: 1, name: "Impressum", url: "https://{domain}/imprint" },
+	{ id: 2, name: "Datenschutz", url: "https://{domain}/privacy" },
 ];
 function DomainMenu() {
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
