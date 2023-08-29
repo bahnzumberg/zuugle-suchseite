@@ -50,6 +50,7 @@ const TourCardContainer = lazy(() =>
 	import("../../components/TourCardContainer")
 );
 
+
 function Fragment(props) {
 	return null;
 }
