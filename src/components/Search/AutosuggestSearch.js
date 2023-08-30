@@ -133,7 +133,7 @@ const AutosuggestSearchTour = ({
         components={{
           DropdownIndicator: () => null,
           IndicatorSeparator: () => null,
-          NoOptionsMessage,
+          // NoOptionsMessage,
         }}
         options={options}
         inputValue={input}
