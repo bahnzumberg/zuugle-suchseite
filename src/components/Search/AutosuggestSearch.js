@@ -4,6 +4,44 @@ import Select, { components } from "react-select";
 import { loadSuggestions } from "../../actions/crudActions";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@mui/material/styles";
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "../../icons/SearchIcon";
+import ClearSearchIcon from "../../icons/ClearSearchIcon";
+import { styled } from "@mui/system";
+
+
+const useStyles = styled("div")(({ theme }) => ({
+  "& label.Mui-focused": {
+    color: "#4992FF",
+  },
+  borderRadius: "20px",
+  border: "1.5px solid #DDD",
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "#DDD",
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      border: "0",
+    },
+    "&:hover fieldset": {
+      borderColor: "#DDD",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#DDD",
+      borderWidth: 0,
+    },
+    "& .MuiInputAdornment-root": {
+      position: "start",
+      "& svg": {
+        fill: theme.palette.text.primary,
+      },
+    },
+    "& .MuiInputAdornment-positionEnd": {
+      position: "end",
+      cursor: "pointer",
+    },
+  },
+}));
 
 const AutosuggestSearchTour = ({
   onSearchSuggestion,
@@ -57,23 +95,23 @@ const AutosuggestSearchTour = ({
     }, 1000);
   };
 
-  const styles = {
-    control: (provided, state) => ({
-      ...provided,
-      background: "#fff",
-      borderColor: "#fff",
-      boxShadow: state.isFocused ? null : null,
-      textAlign: "left",
-      paddingLeft: "6px",
-      "&:hover": {
-        borderColor: "#fff",
-      },
-    }),
-    option: (provided) => ({
-      ...provided,
-      textAlign: "left",
-    }),
-  };
+  // const styles = {
+  //   control: (provided, state) => ({
+  //     ...provided,
+  //     background: "#fff",
+  //     borderColor: "#fff",
+  //     boxShadow: state.isFocused ? null : null,
+  //     textAlign: "left",
+  //     paddingLeft: "6px",
+  //     "&:hover": {
+  //       borderColor: "#fff",
+  //     },
+  //   }),
+  //   option: (provided) => ({
+  //     ...provided,
+  //     textAlign: "left",
+  //   }),
+  // };
   
   useEffect(() => {
     onSearchPhrase(input);
@@ -87,6 +125,8 @@ const AutosuggestSearchTour = ({
     );
   };
 
+  
+
   return (
     <div>
       <Async
@@ -98,7 +138,12 @@ const AutosuggestSearchTour = ({
         options={options}
         inputValue={input}
         placeholder={placeholder ? placeholder : t("start.suche")}
-        styles={styles}
+        // styles={{
+        //   control: combinedStyles.control,
+        //   option: combinedStyles.option,
+        //   input: combinedStyles.input,
+        // }}
+        sx={useStyles} // Apply the useStyles directly
         loadOptions={loadOptions}
         value={selectedOption}
         onChange={handleSelect}
