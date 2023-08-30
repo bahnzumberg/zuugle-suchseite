@@ -322,7 +322,6 @@ export function Search({
         }
       },
       setSearchParams,
-      // title: t("start.heimatbahnhof"),
       title: "",
       sourceCall: "city",
       page: page,
@@ -342,7 +341,6 @@ export function Search({
       language: language,
       placeholder : searchPhrase,
       title: "",
-      // title : t("start.suche"),
       sourceCall: "search",      
       page: page,
       srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
