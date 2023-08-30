@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
 
 const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour }) => {
-  const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
-  // tourDuration ? console.log("duration : " + tourDuration) : console.log("duration is falsy");
 
   const { t } = useTranslation();
+
+  const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
+
 
   return (
     <div className="tour-detail-itinerary-container">
@@ -27,6 +28,7 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour }) => {
             connections={connectionData[dateIndex]}
             loading={false}
             duration={tourDuration}
+            tour={tour}
           />
         )}
       </div>

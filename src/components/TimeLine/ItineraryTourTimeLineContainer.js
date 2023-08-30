@@ -38,6 +38,7 @@ export default function ItineraryTourTimeLineContainer({
   connections,
   loading,
   duration,
+  tour
 }) {
   // console.log("----------------------------------------------------------------")
   // console.log("L26 connections : ")
@@ -331,7 +332,9 @@ export default function ItineraryTourTimeLineContainer({
                 </Box>
                 <Box sx={{ paddingLeft: "20px", textAlign: "left" }}>
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                  {t('details.circa')} {formattedDuration} {t('details.stunden_tour')}
+                  {t('details.circa')} {" "}
+                  {(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : 
+                  `${formattedDuration} ${t('details.stunden_tour')}`}
                   </Typography>
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                   {t('details.lt_tourbeschreibung')}
