@@ -9,17 +9,17 @@ import { Divider, IconButton, Typography } from "@mui/material";
 import Close from "../icons/Close";
 // import ChevronLeft from "../icons/ChevronLeft";
 // import TextWithIcon from "./TextWithIcon";
-import GoIcon from "../icons/GoIcon";
+// import GoIcon from "../icons/GoIcon";
 // import { useSearchParams } from "react-router-dom";
 
-import Grid from "@mui/material/Grid";
-import { loadFavouriteTours, loadTours } from "../actions/tourActions";
-import { loadRegions } from "../actions/regionActions";
-import {
-  // isResponsive,
-  parseIfNeccessary,
-  setOrRemoveSearchParam,
-} from "../utils/globals";
+// import Grid from "@mui/material/Grid";
+// import { loadFavouriteTours, loadTours } from "../actions/tourActions";
+// import { loadRegions } from "../actions/regionActions";
+// import {
+//   // isResponsive,
+//   parseIfNeccessary,
+//   setOrRemoveSearchParam,
+// } from "../utils/globals";
 
 const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack }) => {
 
