@@ -21,8 +21,8 @@ import Close from "../icons/Close";
 //   setOrRemoveSearchParam,
 // } from "../utils/globals";
 
-const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack }) => {
-
+const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack, sourceCall}) => {
+  console.log("L25 : sourceCall", sourceCall);
   const { t } = useTranslation();
   // const [placeholder, setPlaceholder] = useState(t("start.suche"));
   // const [cityInput, setCityInput] = useState("");
@@ -39,13 +39,13 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack 
     overflowX: "hidden",
     display: "block",
     position: "absolute",
-    top: { xs: "auto", sm: "50%" },
-    // top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
+    // top: { xs: "auto", sm: "50%" },
+    top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {
-      xs: "translate(-50%, 0)", sm: "translate(-50%, -5%)"
-      // xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
+      // xs: "translate(-50%, 0)", sm: "translate(-50%, -5%)"
+      xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
     },
     width: "100%",
     maxWidth: "618px",
@@ -96,7 +96,11 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack 
                 fontWeight: 600,
               }}
             >
-              {t("start.heimatbahnhof")}
+              {sourceCall == "city" ?
+                t("start.heimatbahnhof")
+              :
+                t("start.suche")
+              }
             </Typography>)
           }
 

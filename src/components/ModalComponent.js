@@ -36,6 +36,7 @@ class ModalComponent extends Component {
                 content={ content }
                 size={!!this.props.modalSize ? this.props.modalSize : "lg"}
                 onBack={ this.props.onBack }
+                sourceCall={ this.props.sourceCall }
             />
         );
     }
