@@ -203,7 +203,7 @@ export function Search({
     // console.log("inside openFilter L242")
     showModal("MODAL_COMPONENT", {
       CustomComponent: Filter,
-      title: "Filter",
+      title: t("filter.filter"),
       page: "main",
       modalSize: "lg",
       doSubmit: handleFilterSubmit,
