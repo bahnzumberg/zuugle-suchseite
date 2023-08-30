@@ -588,7 +588,7 @@ export function CityResultList({
         </ListItem>
       )}
 
-      {renderLinksBasedOnHost()}
+      {/* {renderLinksBasedOnHost()} */}
       {!!showNotFoundEntry && notFoundEntry()}
     </List>
   );
