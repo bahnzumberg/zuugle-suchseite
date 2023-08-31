@@ -145,7 +145,7 @@ const AutosuggestSearchTour = ({
         // }}
         sx={useStyles} // Apply the useStyles directly
         loadOptions={loadOptions}
-        value={selectedOption}
+        value={selectedOption ? selectedOption : searchPhrase ? searchPhrase : ""}
         onChange={handleSelect}
         isClearable={false}
         onInputChange={(value, action) => {
