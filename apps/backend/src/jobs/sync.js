@@ -17,6 +17,25 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
+
+    // This step creates a table, which establishes the connection between cities and tours.
+    // 1. You can filter on all tours reachable from this city (by filtering on city_slug).
+    // 2. You can filter on all tours reachable from all cities in this country (by filtering on reachable_from_country).
+    await knex.raw(`TRUNCATE city2tour;`);
+    await knex.raw(`INSERT INTO city2tour 
+                    SELECT DISTINCT
+                    tour.id AS tour_id,
+                    tour.provider,
+                    tour.hashed_url,
+                    city.city_slug,
+                    UPPER(city.city_country) AS reachable_from_country
+                    FROM city
+                    INNER JOIN fahrplan
+                    ON fahrplan.city_slug=city.city_slug
+                    INNER JOIN tour
+                    ON tour.provider=fahrplan.tour_provider
+                    AND tour.hashed_url=fahrplan.hashed_url
+                    WHERE fahrplan.city_any_connection='yes'`);
 }
 
 

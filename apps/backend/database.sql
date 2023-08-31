@@ -227,3 +227,16 @@ CREATE INDEX ON gpx (lon);
 ALTER TABLE provider ADD COLUMN allow_gpx_download varchar(1) default 'y';
 
 ALTER TABLE kpi ALTER COLUMN name TYPE varchar(150);
+
+CREATE TABLE city2tour (
+      tour_id SERIAL,
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      city_slug varchar(64) NOT NULL,
+      reachable_from_country varchar(2) NOT NULL,
+      PRIMARY KEY (tour_id)
+);
+CREATE INDEX ON city2tour (provider);
+CREATE INDEX ON city2tour (hashed_url);
+CREATE INDEX ON city2tour (city_slug);
+CREATE INDEX ON city2tour (reachable_from_country);

@@ -159,11 +159,14 @@ const listWrapper = async (req, res) => {
     /** city search */
     //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
     if(!!city && city.length > 0){
-        whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
     }
-    //clg
-    // console.log("L158 whereRaw :", whereRaw); //cities @> '[{"city_slug": "wien"}]'::jsonb
-    // console.log("L159 sql_where :", sql_where); //AND country_at = true AND cities @> '[{"city_slug": "bad-ischl"}]'::jsonb
+    else {
+        const tld = get_domain_country(domain);
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+    }
+
 
     /** region search */
     // The code sets the where object to filter results by the values entered for range, state, and country if they are present in the user input.   
@@ -260,16 +263,7 @@ const listWrapper = async (req, res) => {
         countQuery = countQuery.andWhereRaw(whereRaw);
     }
 
-    // clg
-    // console.log("________________________________________________________________")
-    // !searchIncluded && console.log("L363: countQuery value before Filter   " + countQuery);//select count("id") from "tour" where "country_at" = true and cities @> '[{"city_slug": "wien"}]'::json
-    // console.log("________________________________________________________________")
-    // !searchIncluded && console.log("L365: query value before Filter   " + query);
-    // console.log("________________________________________________________________")
-    // searchIncluded && console.log("L367: sql_select value before Filter " + sql_select);
-    // console.log("________________________________________________________________")
-
-
+    
     // ****************************************************************
     // FILTER  / (BOTH)
     // ****************************************************************
@@ -703,8 +697,10 @@ const listWrapper = async (req, res) => {
         //query 'rangeQuery' is modified to restrict the selection to a particular city.
         //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
         if(!!city && city.length > 0){
-            rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
+            // rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
+            rangeQuery = rangeQuery.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
         }
+
         //describe:
         //query is modified to order the results by month_order in ascending order, and to limit the number of rows returned to 10.
         rangeQuery = rangeQuery.orderBy("month_order", 'asc').limit(10);
@@ -741,6 +737,11 @@ const listWrapper = async (req, res) => {
             }
         }
     }
+    else {
+        const tld = get_domain_country(domain);
+        rangeQuery = rangeQuery.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+    }
+
     // clgs
     // !searchIncluded && console.log("L659 : count['count']  :", count['count']);
     // console.log("L624 : ranges :", ranges);
@@ -771,7 +772,12 @@ const filterWrapper = async (req, res) => {
 
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+    }
+    else {
+        const tld = get_domain_country(domain);
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
     }
 
     /** region search */

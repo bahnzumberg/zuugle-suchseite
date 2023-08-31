@@ -11,11 +11,18 @@ const listWrapper = async (req, res) => {
     const removeDuplicates = req.query.remove_duplicates == "true";
 
     const domain = req.query.domain;
+    // console.log("domain=", domain);
+    // console.log("hostname=", os.hostname());
 
     let whereRaw = null;
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+    }
+    else {
+        const tld = get_domain_country(domain);
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
     }
 
     let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');
