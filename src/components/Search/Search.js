@@ -243,7 +243,10 @@ export function Search({
   };
 
   // search handling function
-  const search = (tempRegion = null) => {
+  const search = (type, tempRegion = null) => {
+    if (type === "autoSuggest") {
+      hideModal();
+    }
     let values = {};
     if (!!city && !!city.value) {
       values.city = city.value;
@@ -344,6 +347,7 @@ export function Search({
         .querySelector(".main-search-bar")
         .getBoundingClientRect().top,
       modalSize: "lg",
+      search: search,
     });
   };
 

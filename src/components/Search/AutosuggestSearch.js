@@ -250,8 +250,9 @@
 import React, { useState, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "../../icons/SearchIcon";
-import { Box, InputBase, Typography, IconButton } from "@mui/material";
+import { Box, InputBase, Typography, IconButton, Grid } from "@mui/material";
 import { loadSuggestions } from "../../actions/crudActions";
+import GoIcon from "../../icons/GoIcon";
 
 const AutosuggestSearchTour = ({
   onSearchSuggestion,
@@ -260,12 +261,14 @@ const AutosuggestSearchTour = ({
   language,
   placeholder,
   goto,
+  search,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showClearButton, setShowClearButton] = useState(false);
   const [options, setOptions] = useState([]);
   const [noResults, setNoResults] = useState(false);
+  let type = "autoSuggest";
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -316,38 +319,68 @@ const AutosuggestSearchTour = ({
 
   return (
     <div>
-      <InputBase
-        value={searchTerm}
-        onChange={(e) => handleSearch(e.target.value)}
-        fullWidth
+      <Grid
+        container
+        spacing={2}
         sx={{
-          borderRadius: "12px",
-          height: "56px",
-          px: 2,
-          border: "1px solid #DDDDDD",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
-        endAdornment={
-          // Use endAdornment for the clear button
-          <>
-            {showClearButton && (
-              <IconButton onClick={handleClear}>
-                <ClearIcon />
-              </IconButton>
-            )}
-          </>
-        }
-        startAdornment={
-          // Use startAdornment for the search icon
-          <>
-            <SearchIcon
+      >
+        <Grid item xs={10}>
+          <InputBase
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            fullWidth
+            sx={{
+              borderRadius: "12px",
+              height: "56px",
+              px: 2,
+              border: "1px solid #DDDDDD",
+            }}
+            endAdornment={
+              // Use endAdornment for the clear button
+              <>
+                {showClearButton && (
+                  <IconButton onClick={handleClear}>
+                    <ClearIcon />
+                  </IconButton>
+                )}
+              </>
+            }
+            startAdornment={
+              // Use startAdornment for the search icon
+              <>
+                <SearchIcon
+                  style={{
+                    color: "#000000",
+                    marginRight: "10px",
+                  }}
+                />
+              </>
+            }
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <IconButton
+            onClick={() => search(type)}
+            sx={{
+              "&:hover": {
+                background: "#7aa8ff",
+                fill: "#7aa8ff",
+              },
+            }}
+          >
+            <GoIcon
               style={{
-                color: "#000000",
-                marginRight: "10px",
+                transform: "scale(1.55)",
+                strokeWidth: 0,
               }}
             />
-          </>
-        }
-      />
+          </IconButton>
+        </Grid>
+      </Grid>
       <Box
         sx={{
           mt: 1,
