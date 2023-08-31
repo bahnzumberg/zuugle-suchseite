@@ -21,7 +21,16 @@ import Close from "../icons/Close";
 //   setOrRemoveSearchParam,
 // } from "../utils/globals";
 
-const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack, sourceCall}) => {
+const MyModal = ({
+  title,
+  size,
+  srhBoxScrollH,
+  page,
+  content,
+  hideModal,
+  onBack,
+  sourceCall,
+}) => {
   console.log("L25 : sourceCall", sourceCall);
   const { t } = useTranslation();
   // const [placeholder, setPlaceholder] = useState(t("start.suche"));
@@ -40,12 +49,13 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
     display: "block",
     position: "absolute",
     // top: { xs: "auto", sm: "50%" },
-    top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
+    top: { xs: "auto", sm: !title ? srhBoxScrollH - 80 : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {
       // xs: "translate(-50%, 0)", sm: "translate(-50%, -5%)"
-      xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
+      xs: "translate(-50%, 0)",
+      sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)",
     },
     width: "100%",
     maxWidth: "618px",
@@ -59,9 +69,6 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
     padding: "20px 25px",
     boxSizing: "border-box",
   };
-
-
- 
 
   return (
     <Modal open={true} onClose={hideModal}>
@@ -87,8 +94,8 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
                 {title}
               </Typography>
             </Box>
-          ) :
-            (<Typography
+          ) : (
+            <Typography
               sx={{
                 textAlign: "center",
                 lineHeight: "40px",
@@ -96,23 +103,24 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
                 fontWeight: 600,
               }}
             >
-              {sourceCall == "city" ?
-                t("start.heimatbahnhof")
-              :
-                t("start.suche")
-              }
-            </Typography>)
-          }
-
+              {sourceCall == "city"
+                ? t("start.heimatbahnhof")
+                : t("start.suche")}
+            </Typography>
+          )}
 
           {!!onBack ? (
             <Box onClick={onBack}>
-              <Typography sx={{
-                textDecoration: "underline", cursor: "pointer", fontFamily: "Open Sans",
-                fontSize: "13px",
-                fontWeight: "600",
-                lineHeight: "18px",
-              }}>
+              <Typography
+                sx={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  fontFamily: "Open Sans",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  lineHeight: "18px",
+                }}
+              >
                 {t("search.abbrechen")}
               </Typography>
             </Box>
@@ -133,9 +141,8 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
               </Box>
             </Box>
           )}
-
         </Box>
-        {!!title && (<Divider />)}
+        {!!title && <Divider />}
         <Box>
           <Box>{content}</Box>
         </Box>

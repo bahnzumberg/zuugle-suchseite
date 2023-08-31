@@ -40,11 +40,10 @@ export function Search({
   filter,
   // loadCities,
   // cities,
-  // regions, 
+  // regions,
   // isCityLoading,
   // loadFavouriteTours,
 }) {
-
   //navigation
   const navigate = useNavigate();
   // Translation
@@ -69,8 +68,8 @@ export function Search({
   const initialIsMapView = isMapView || false;
 
   useEffect(() => {
-    let activeFilterStorage = localStorage.getItem('activeFilter')
-    setActiveFilter(activeFilterStorage)
+    let activeFilterStorage = localStorage.getItem("activeFilter");
+    setActiveFilter(activeFilterStorage);
   }, []);
 
   useEffect(() => {
@@ -86,7 +85,6 @@ export function Search({
     let provider = searchParams.get("p");
     if (pageKey === "detail") {
       if (!!city) {
-
         // console.log("L90 city: " + city);
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
@@ -94,8 +92,7 @@ export function Search({
         /** load regions initially */
         loadRegions({ city: city }); // when is regions needed?
       }
-    }
-    else {
+    } else {
       if (!!city && !!allCities) {
         const cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
         if (!!cityEntry) {
@@ -221,21 +218,19 @@ export function Search({
     hideModal();
     handleFilterChange(filterValues);
     if (filterCount > 0) {
-      localStorage.setItem('activeFilter', true);
-      setActiveFilter(true)
+      localStorage.setItem("activeFilter", true);
+      setActiveFilter(true);
+    } else {
+      localStorage.setItem("activeFilter", "");
+      setActiveFilter("");
     }
-    else {
-      localStorage.setItem('activeFilter', "");
-      setActiveFilter("")
-    }
-
   };
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
-    localStorage.setItem('activeFilter', "");
-    setActiveFilter("")
+    localStorage.setItem("activeFilter", "");
+    setActiveFilter("");
   };
 
   const handleFilterChange = (entry) => {
@@ -265,8 +260,8 @@ export function Search({
     values.search = suggestion
       ? suggestion
       : autoSearchPhrase
-        ? autoSearchPhrase
-        : "";
+      ? autoSearchPhrase
+      : "";
 
     if (!!searchParams.get("sort")) {
       values.sort = searchParams.get("sort");
@@ -325,7 +320,9 @@ export function Search({
       title: "",
       sourceCall: "city",
       page: page,
-      srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
+      srhBoxScrollH: document
+        .querySelector(".main-search-bar")
+        .getBoundingClientRect().top,
       modalSize: "lg",
       onBack: () => {
         hideModal();
@@ -335,15 +332,17 @@ export function Search({
   const showSearchModal = () => {
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
-      onSearchSuggestion :getSearchSuggestion,
+      onSearchSuggestion: getSearchSuggestion,
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder : searchPhrase,
+      placeholder: searchPhrase,
       title: "",
-      sourceCall: "search",      
+      sourceCall: "search",
       page: page,
-      srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
+      srhBoxScrollH: document
+        .querySelector(".main-search-bar")
+        .getBoundingClientRect().top,
       modalSize: "lg",
     });
   };
@@ -439,56 +438,86 @@ export function Search({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {!cityInput && pageKey ? <TransportTrain style={{ strokeWidth: "1px", fill: "#000", stroke: "none" }} />
-            : <SearchIcon
+          {!cityInput && pageKey ? (
+            <TransportTrain
+              style={{
+                strokeWidth: "1px",
+                fill: "#000",
+                stroke: "none",
+                backgroundColor: "grey",
+              }}
+            />
+          ) : (
+            <SearchIcon
               style={{ strokeWidth: 1, stroke: "#101010", fill: "#101010" }}
-            />}
-          <Box sx={{ width: { xs: !cityInput && pageKey === "detail" ? "100%" : "200px", md: !cityInput && pageKey === "detail" ? "100%" : "486px" } }}>
+            />
+          )}
+          <Box
+            sx={{
+              width: {
+                xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
+                md: !cityInput && pageKey === "detail" ? "100%" : "486px",
+              },
+            }}
+          >
             <Grid container>
               <Grid
                 item
                 xs={12}
                 md={!cityInput && pageKey === "detail" ? 12 : 6}
                 sx={{ paddingRight: "16px", padding: 0 }}
-              onClick={showSearchModal}
+                onClick={showSearchModal}
               >
-                {!cityInput && pageKey === "detail" && 
-                  <Box sx={{
-                    textAlign: "left", ml: "14px", color: "#101010",
-                    fontFamily: "Open Sans",
-                    fontSize: { xs: "14px", sm: "15px" },
-                    fontWeight: "500",
-                    lineHeight: "20px",
-                  }}>
+                {!cityInput && pageKey === "detail" && (
+                  <Box
+                    sx={{
+                      textAlign: "left",
+                      ml: "14px",
+                      color: "#101010",
+                      fontFamily: "Open Sans",
+                      fontSize: { xs: "14px", sm: "15px" },
+                      fontWeight: "500",
+                      lineHeight: "20px",
+                    }}
+                  >
                     {t("search.um_reise_berechnen_zu_koenen")}
                   </Box>
-                 }
-                 <Box
+                )}
+                <Box
                   sx={{
                     borderLeft: {
-                      sm: 0, md: !cityInput && pageKey === "detail" ? 0 : "2px solid #DDDDDD"
+                      sm: 0,
+                      md:
+                        !cityInput && pageKey === "detail"
+                          ? 0
+                          : "2px solid #DDDDDD",
                     },
                     paddingLeft: "14px",
                   }}
                 >
-                  {pageKey !== "detail" ? (<span className="search-bar--city">
-                    {searchPhrase.length > 0
-                      ? searchPhrase
-                      : t("start.suche")}
-                  </span>) : (
-                    !searchPhrase && pageKey === "detail" ? <Box className="search-bar--city" sx={{
-                      cursor: "pointer",
-                      color: "#4992FF !important",
-                      fontFamily: "Open Sans",
-                      fontSize: { xs: "14px", sm: "15px" },
-                      fontWeight: "700",
-                      lineHeight: "20px"
-
-                    }}>
+                  {pageKey !== "detail" ? (
+                    <span className="search-bar--city">
+                      {searchPhrase.length > 0
+                        ? searchPhrase
+                        : t("start.suche")}
+                    </span>
+                  ) : !searchPhrase && pageKey === "detail" ? (
+                    <Box
+                      className="search-bar--city"
+                      sx={{
+                        cursor: "pointer",
+                        color: "#4992FF !important",
+                        fontFamily: "Open Sans",
+                        fontSize: { xs: "14px", sm: "15px" },
+                        fontWeight: "700",
+                        lineHeight: "20px",
+                      }}
+                    >
                       {t("start.suche")}
-                    </Box> : <Box className="search-bar--city">{searchPhrase}</Box>
+                    </Box>
+                  ) : (
+                    <Box className="search-bar--city">{searchPhrase}</Box>
                   )}
-
                 </Box>
               </Grid>
               {/* city -----   modal ----  below */}
@@ -503,29 +532,38 @@ export function Search({
                 <Box
                   sx={{
                     borderLeft: {
-                      sm: 0, md: !cityInput && pageKey === "detail" ? 0 : "2px solid #DDDDDD"
+                      sm: 0,
+                      md:
+                        !cityInput && pageKey === "detail"
+                          ? 0
+                          : "2px solid #DDDDDD",
                     },
                     paddingLeft: "14px",
                   }}
                 >
-                  {pageKey !== "detail" ? (<span className="search-bar--city">
-                    {cityInput.length > 0
-                      ? cityInput
-                      : t("start.heimatbahnhof")}
-                  </span>) : (
-                    !cityInput && pageKey === "detail" ? <Box className="search-bar--city" sx={{
-                      cursor: "pointer",
-                      color: "#4992FF !important",
-                      fontFamily: "Open Sans",
-                      fontSize: { xs: "14px", sm: "15px" },
-                      fontWeight: "700",
-                      lineHeight: "20px"
-
-                    }}>
+                  {pageKey !== "detail" ? (
+                    <span className="search-bar--city">
+                      {cityInput.length > 0
+                        ? cityInput
+                        : t("start.heimatbahnhof")}
+                    </span>
+                  ) : !cityInput && pageKey === "detail" ? (
+                    <Box
+                      className="search-bar--city"
+                      sx={{
+                        cursor: "pointer",
+                        color: "#4992FF !important",
+                        fontFamily: "Open Sans",
+                        fontSize: { xs: "14px", sm: "15px" },
+                        fontWeight: "700",
+                        lineHeight: "20px",
+                      }}
+                    >
                       {t("search.waehle_dein_heimatbahnhof")}
-                    </Box> : <Box className="search-bar--city">{cityInput}</Box>
+                    </Box>
+                  ) : (
+                    <Box sx={{ backgroundColor: "pink" }}>{cityInput}</Box>
                   )}
-
                 </Box>
               </Grid>
             </Grid>
@@ -535,18 +573,28 @@ export function Search({
         <Box>
           {/* ***** filter box in the Main page ******* */}
           <Box>
-            {!cityInput && pageKey === "detail" ? "" : !!initialIsMapView ? null : (
+            {!cityInput && pageKey === "detail" ? (
+              ""
+            ) : !!initialIsMapView ? null : (
               <Box
-                sx={{ marginLeft: "10px", backgroundColor: activeFilter && "#FF7663", borderColor: activeFilter && "#FF7663" }}
+                sx={{
+                  marginLeft: "10px",
+                  backgroundColor: activeFilter && "#FF7663",
+                  borderColor: activeFilter && "#FF7663",
+                }}
                 className="filter-icon-container"
               >
                 {!!isMain ? (
                   <IconButton
                     onClick={() => openFilter()}
-                  // onClick={toggleFilter}
+                    // onClick={toggleFilter}
                   >
                     <FilterIcon
-                      sx={{ transition: "stroke 0.3s", strokeWidth: 1.25, stroke: activeFilter ? "#fff" : "#101010" }}
+                      sx={{
+                        transition: "stroke 0.3s",
+                        strokeWidth: 1.25,
+                        stroke: activeFilter ? "#fff" : "#101010",
+                      }}
                     />
                   </IconButton>
                 ) : (
@@ -572,7 +620,7 @@ export function Search({
           </Box>
         </Box>
       </Box>
-    </Fragment >
+    </Fragment>
   );
 }
 
