@@ -740,7 +740,7 @@ const listWrapper = async (req, res) => {
     }
     else {
         const tld = get_domain_country(domain);
-        rangeQuery = rangeQuery.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+        rangeQuery = rangeQuery.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`);
     }
 
     // clgs

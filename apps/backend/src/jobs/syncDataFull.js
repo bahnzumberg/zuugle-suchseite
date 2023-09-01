@@ -12,6 +12,9 @@ import {
 } from "./sync";
 import moment from "moment";
 
+syncTours();
+
+/*
 console.log('FULL LOAD: ', moment().format('HH:mm:ss'));
 console.log('START SYNC TOURS: ', moment().format('HH:mm:ss'));
 syncTours().then(res => {
@@ -56,3 +59,4 @@ syncTours().then(res => {
         });
     });
 });
+*/

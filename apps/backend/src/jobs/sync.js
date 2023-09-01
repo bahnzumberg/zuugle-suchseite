@@ -746,6 +746,10 @@ const calcMonthOrder = (entry) => {
         }
     })
 
+    console.log(" ");
+    console.log("entry = ", entry);
+    console.log(" ");
+
     return smallestValue;
 }
 
