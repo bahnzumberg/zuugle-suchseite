@@ -9,6 +9,7 @@ import {lazy, Suspense} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
 import {useMatomo} from "./hooks/useMatomo";
+import Search from "./components/Search/Search";
 const Main = lazy(() => import('./views/Main/Main'));
 const About = lazy(() => import('./views/Pages/About'));
 const Impressum = lazy(() => import('./views/Pages/Impressum'));
@@ -45,6 +46,7 @@ function App() {
                             <Route path="/imprint" element={<Impressum/>}/>
                             <Route path="/privacy" element={<Privacy/>}/>
                             <Route path="/:city" element={<Main/>}/>
+                            <Route path="/searchPhrases" element={<Search/>}/>
                             {/* <Route path="/cache" element={<TestComp/>}/> */}
 
                             <Route
