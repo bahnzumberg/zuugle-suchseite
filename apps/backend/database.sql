@@ -235,6 +235,6 @@ CREATE TABLE city2tour (
       city_slug varchar(64) NOT NULL,
       reachable_from_country varchar(2) NOT NULL
 );
-CREATE INDEX ON city2tour (id);
+CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
