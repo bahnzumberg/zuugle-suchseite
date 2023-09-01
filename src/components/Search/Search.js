@@ -109,15 +109,6 @@ export function Search({
       }
     }
 
-    // if (!!city) {
-    //     setCityInput(city.label); // set the state "cityInput" to this city LABEL / string value
-    //     setCity(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-    //     writeCityToLocalStorage(city); // store the city NAME in local storage
-
-    //     /** load regions initially */
-    //     loadRegions({ city: city }); // when is regions needed?
-    // }
-
     if (!!!orderId || orderId == "relevanz") {
       searchParams.set("sort", "relevanz");
       setSearchParams(searchParams);
@@ -418,8 +409,8 @@ export function Search({
   //Function that gets value f the selected option and directly start the search for tours
   const getSearchSuggestion = (autoSuggestion) => {
     suggestion = autoSuggestion;
-    search();
     hideModal();
+    search();
   };
 
   //Function that gives you the input text you need when no Suggestion was taken
