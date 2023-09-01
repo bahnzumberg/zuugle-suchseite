@@ -31,11 +31,11 @@ const createQuery = async (field, city, search) => {
     /** city search */
     if(!!city && city.length > 0){
         // query = query.whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-        query = query.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+        query = query.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`);
     }
     else {
         const tld = get_domain_country(os.hostname());
-        query = query.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+        query = query.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')`);
     }
 
     if(!!search && search.length > 0){

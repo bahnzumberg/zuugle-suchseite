@@ -160,7 +160,7 @@ const listWrapper = async (req, res) => {
     //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
     if(!!city && city.length > 0){
         // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
     else {
         const tld = get_domain_country(domain);
@@ -698,7 +698,8 @@ const listWrapper = async (req, res) => {
         //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
         if(!!city && city.length > 0){
             // rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
-            rangeQuery = rangeQuery.whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+            rangeQuery = rangeQuery.whereRaw (` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
+            // console.log("rangeQuery=", rangeQuery.toSQL().toNative())
         }
 
         //describe:

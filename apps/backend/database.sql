@@ -233,10 +233,8 @@ CREATE TABLE city2tour (
       provider varchar(30) NOT NULL,
       hashed_url varchar(100) NOT NULL,
       city_slug varchar(64) NOT NULL,
-      reachable_from_country varchar(2) NOT NULL,
-      PRIMARY KEY (tour_id)
+      reachable_from_country varchar(2) NOT NULL
 );
-CREATE INDEX ON city2tour (provider);
-CREATE INDEX ON city2tour (hashed_url);
+CREATE INDEX ON city2tour (id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);

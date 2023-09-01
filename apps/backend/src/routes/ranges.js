@@ -21,8 +21,14 @@ const listWrapper = async (req, res) => {
         whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
     }
     else {
-        const tld = get_domain_country(domain);
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+        let tld = '';
+        if (domain.indexOf('zuugle.de')) { tld='DE' }
+        else if (domain.indexOf('zuugle.si')) { tld='SI' }
+        else if (domain.indexOf('zuugle.it')) { tld='IT' }
+        else if (domain.indexOf('zuugle.ch')) { tld='CH' }
+        else if (domain.indexOf('zuugle.fr')) { tld='FR' }
+        else { tld='AT' }
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')`;
     }
 
     let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');
