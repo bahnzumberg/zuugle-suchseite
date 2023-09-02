@@ -43,7 +43,6 @@ export default function Header({
   else if (domain.indexOf('zuugle.ch')>0) { tld = 'ch'; }
   else if (domain.indexOf('zuugle.fr')>0) { tld = 'fr'; }
   else { tld = 'at'; }
-  console.log("tld=", tld)
 
   const [backgroundImage, setBackgroundImage] = useState(
     `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
