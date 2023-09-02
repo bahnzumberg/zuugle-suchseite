@@ -462,23 +462,25 @@ export function Search({
                     paddingLeft: "14px",
                   }}
                 >
-                  {pageKey !== "detail" ? (<span className="search-bar--city">
+                  {pageKey !== "detail" && (<span className="search-bar--city">
                     {searchPhrase.length > 0
                       ? searchPhrase
                       : t("start.suche")}
-                  </span>) : (
-                    !searchPhrase && pageKey === "detail" ? <Box className="search-bar--city" sx={{
-                      cursor: "pointer",
-                      color: "#4992FF !important",
-                      fontFamily: "Open Sans",
-                      fontSize: { xs: "14px", sm: "15px" },
-                      fontWeight: "700",
-                      lineHeight: "20px"
+                  </span>) 
+                  // : (
+                  //   !searchPhrase && pageKey === "detail" ? <Box className="search-bar--city" sx={{
+                  //     cursor: "pointer",
+                  //     color: "#4992FF !important",
+                  //     fontFamily: "Open Sans",
+                  //     fontSize: { xs: "14px", sm: "15px" },
+                  //     fontWeight: "700",
+                  //     lineHeight: "20px"
 
-                    }}>
-                      {t("start.suche")}
-                    </Box> : <Box className="search-bar--city">{searchPhrase}</Box>
-                  )}
+                  //   }}>
+                  //     {t("start.suche")}
+                  //   </Box> : <Box className="search-bar--city">{searchPhrase}</Box>
+                  // )
+                  }
 
                 </Box>
               </Grid>
