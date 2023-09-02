@@ -164,7 +164,7 @@ const listWrapper = async (req, res) => {
     }
     else {
         const tld = get_domain_country(domain);
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') `;
     }
 
 
@@ -216,7 +216,7 @@ const listWrapper = async (req, res) => {
           jsonb_array_elements(tour.gpx_data) as tour_data
           WHERE (tour_data->>'typ') = 'first'
           AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
-          AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric)`;
+          AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
     }
     //clgs
     // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
@@ -277,7 +277,9 @@ const listWrapper = async (req, res) => {
     if (searchIncluded) {
         sql_where_filter = query.toQuery(); // transform the returned query from buildWhereFromFilter to a string
         try {
-            sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";// cut off from string "sql_where_filter" everything before "where", this way we have only where values including filter conditions from original query and in a string format
+            // cut off from string "sql_where_filter" everything before "where", this way we have only where values 
+            // including filter conditions from original query and in a string format
+            sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";
             sql_and_filter = sql_where_filter.replace("where", "AND");
 
             //clg
@@ -579,7 +581,7 @@ const listWrapper = async (req, res) => {
 
     if(searchIncluded){
         try {
-            result = await knex.raw(sql_select + outer_where +sql_order + sql_limit );// fire the DB call here (when search is included)
+            result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
             // console.log('L553: result', result.rows);
             if (result && result.rows) {
@@ -600,7 +602,7 @@ const listWrapper = async (req, res) => {
         count = await countQuery.first();
             // clgs
             // console.log("________________________________________________________");
-            // console.log("L586 query.toQuery() :",query.toQuery()); // ex.  ]
+            // console.log("L605 query.toQuery() :",query.toQuery()); // ex.  ]
             // console.log("________________________________________________________");
             // console.log("countQuery.toQuery() :",countQuery.toQuery()); // ex. [ { count: '710' } ]
             // console.log("________________________________________________________");
@@ -740,13 +742,13 @@ const listWrapper = async (req, res) => {
     }
     else {
         const tld = get_domain_country(domain);
-        rangeQuery = rangeQuery.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`);
+        rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}") `);
     }
 
     // clgs
     // !searchIncluded && console.log("L659 : count['count']  :", count['count']);
     // console.log("L624 : ranges :", ranges);
-    // console.log("L625 : result :", result.title);
+    // console.log("L751 : result :", result.title);
     //describe:
     // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
 
@@ -760,7 +762,7 @@ const filterWrapper = async (req, res) => {
     const city = req.query.city;
     const range = req.query.range;
     const state = req.query.state;
-    const type = req.query.type;
+    const type = req.query.type;    
     const domain = req.query.domain;
     const country = req.query.country;
     const provider = req.query.provider;
@@ -774,11 +776,11 @@ const filterWrapper = async (req, res) => {
     /** city search */
     if(!!city && city.length > 0){
         // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}") `;
     }
     else {
         const tld = get_domain_country(domain);
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}")`;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') `;
     }
 
     /** region search */

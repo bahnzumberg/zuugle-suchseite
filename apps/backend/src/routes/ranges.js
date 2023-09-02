@@ -28,7 +28,7 @@ const listWrapper = async (req, res) => {
         else if (domain.indexOf('zuugle.ch')) { tld='CH' }
         else if (domain.indexOf('zuugle.fr')) { tld='FR' }
         else { tld='AT' }
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')`;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')  `;
     }
 
     let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');

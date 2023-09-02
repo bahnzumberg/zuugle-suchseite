@@ -746,10 +746,6 @@ const calcMonthOrder = (entry) => {
         }
     })
 
-    console.log(" ");
-    console.log("entry = ", entry);
-    console.log(" ");
-
     return smallestValue;
 }
 
@@ -761,7 +757,7 @@ export const getDynamicMonthNumber = () => {
             number: i,
             key: start.format('MMM').toLowerCase()
         })
-        start.add(1, 'month');
+        start.add(i, 'month');
     }
     return knowledge;
 }
