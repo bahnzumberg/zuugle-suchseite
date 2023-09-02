@@ -35,8 +35,15 @@ export default function Header({
   // 	"GroBer Pythrgas",
   // ]);
 
-  let tld = location.hostname.slice(-2);
-  if (tld.length != 2) { tld = 'at'; }
+  let tld = '';
+  let domain = location.hostname;
+  if (domain.indexOf('zuugle.de')>0) { tld = 'de'; }
+  else if (domain.indexOf('zuugle.si')>0) { tld = 'si'; }
+  else if (domain.indexOf('zuugle.it')>0) { tld = 'it'; }
+  else if (domain.indexOf('zuugle.ch')>0) { tld = 'ch'; }
+  else if (domain.indexOf('zuugle.fr')>0) { tld = 'fr'; }
+  else { tld = 'at'; }
+  console.log("tld=", tld)
 
   const [backgroundImage, setBackgroundImage] = useState(
     `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
