@@ -274,12 +274,7 @@ export default function ItineraryTourTimeLineContainer({
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              {/* {console.log("connection -> entries:", JSON.stringify(entries))}  */}
-              {console.log("connection -> part 1: entries", entries)}
-              {console.log(
-                "connection -> part 2 getSingleConnection():",
-                getSingleConnection()
-              )}
+      
 
               <Timeline>
                 {createEntries(entries, getSingleConnection())}
