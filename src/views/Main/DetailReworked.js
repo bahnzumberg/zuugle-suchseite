@@ -123,7 +123,8 @@ const DetailReworked = (props) => {
 	let pdfLanguagePermit = i18next.resolvedLanguage === "de" ; 
 
 	const handleCloseTab = () => {
-		window.close();
+		// window.close();
+		goToStartPage();
 	  }
 
     const navigate = useNavigate();
@@ -132,6 +133,10 @@ const DetailReworked = (props) => {
         navigate(`/?${!!city ? 'city=' + city : ''}`)
     }
 
+	// useEffect(() => {
+	// 	let returnUrl = location.state;
+	// 	returnUrl ? console.log("retrunUrl State Object", JSON.stringify(returnUrl)) : console.log("returnUrl is falsy");		
+	// })
 	//max number of characters used per specific UI element (buttons) 
 	const maxLength = 40;
 
@@ -384,7 +389,6 @@ const DetailReworked = (props) => {
 	
 
 	const shareButtonHandler = async () => {
-		console.log("inside beforeOnClick ")
 	// Call generateShareLink and wait for completion
 	await generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
 		.then(res => {
