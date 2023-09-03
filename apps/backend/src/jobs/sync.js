@@ -738,29 +738,56 @@ export async function syncCities(){
 }
 
 const calcMonthOrder = (entry) => {
-    const knowledge = getDynamicMonthNumber();
-    let smallestValue = 12;
-    knowledge.forEach(kn => {
-        if(!!entry[kn.key] && kn.number < smallestValue){
-            smallestValue = kn.number;
+    // This function looks up the current month.
+    // Then it takes the sorting fitting to the current month and calculates the sorting value.
+    // This function is called to set the column "month_order" in tables "tour".
+    // As the sorting is ASC, we need to return the best match as a low and the worst match as a high number.
+
+    const d = new Date();
+    let month = d.getMonth();
+    // console.log("month=", month);
+
+    let entryScore = 
+        [{name: "jan", value: entry.jan},
+        {name: "feb", value: entry.feb},
+        {name: "mar", value: entry.mar},
+        {name: "apr", value: entry.apr},
+        {name: "may", value: entry.may},
+        {name: "jun", value: entry.jun},
+        {name: "jul", value: entry.jul},
+        {name: "aug", value: entry.aug},
+        {name: "sep", value: entry.sep},
+        {name: "oct", value: entry.oct},
+        {name: "nov", value: entry.nov},
+        {name: "dec", value: entry.dec}];
+
+    let MonthScore = [
+        ['jan', 'feb', 'dec', 'mar', 'nov', 'apr', 'oct', 'may', 'sep', 'jun', 'aug', 'jul'],
+        ['feb', 'jan', 'mar', 'apr', 'dec', 'may', 'nov', 'jun', 'oct', 'jul', 'sep', 'aug'], 
+        ['mar', 'feb', 'apr', 'jan', 'may', 'jun', 'dec', 'jul', 'nov', 'aug', 'oct', 'sep'],
+        ['apr', 'mar', 'may', 'feb', 'jun', 'jan', 'jul', 'aug', 'dec', 'sep', 'nov', 'oct'],
+        ['may', 'apr', 'jun', 'mar', 'jul', 'feb', 'aug', 'jan', 'sep', 'oct', 'dec', 'nov'],
+        ['jun', 'may', 'jul', 'apr', 'aug', 'mar', 'sep', 'feb', 'oct', 'jan', 'nov', 'dec'],
+        ['jul', 'jun', 'aug', 'sep', 'may', 'oct', 'apr', 'nov', 'mar', 'feb', 'dec', 'jan'],
+        ['aug', 'jul', 'sep', 'jun', 'oct', 'may', 'nov', 'apr', 'dec', 'jan', 'mar', 'feb'],
+        ['sep', 'oct', 'aug', 'nov', 'jul', 'dec', 'jun', 'jan', 'may', 'feb', 'apr', 'mar'],
+        ['oct', 'sep', 'nov', 'aug', 'dec', 'jan', 'jul', 'feb', 'jun', 'mar', 'may', 'apr'],
+        ['nov', 'oct', 'dec', 'jan', 'sep', 'feb', 'aug', 'mar', 'jul', 'apr', 'jun', 'may'],
+        ['dec', 'jan', 'nov', 'feb', 'oct', 'mar', 'sep', 'apr', 'aug', 'may', 'jul', 'jun']
+    ];
+
+    let Monthname = '';
+    for(let i=0;i<=11;i++){
+        Monthname = MonthScore[month][i];
+        var Monthobject = entryScore.find(Monthvalue => Monthvalue.name === Monthname);
+
+        if (Monthobject.value=='true') {
+            return i;
         }
-    })
-
-    return smallestValue;
-}
-
-export const getDynamicMonthNumber = () => {
-    const knowledge = [];
-    const start = moment();
-    for(let i=1;i<=12;i++){
-        knowledge.push({
-            number: i,
-            key: start.format('MMM').toLowerCase()
-        })
-        start.add(i, 'month');
     }
-    return knowledge;
+    return 100;
 }
+
 
 const bulk_insert_tours = async (entries) => {
     let queries = [];
