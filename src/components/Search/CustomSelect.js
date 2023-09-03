@@ -21,6 +21,7 @@ import {
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
+
   return (
     <>
       <Grid container>

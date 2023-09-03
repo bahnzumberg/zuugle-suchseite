@@ -55,7 +55,9 @@ const AutosuggestSearchTour = ({
   const [input, setInput] = useState("");
   const { t } = useTranslation();
   const [options, setOptions] = useState([]);
-  const [searchPhrase, setSearchPhrase] = useState("");
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const searchParam = urlSearchParams.get("search");
+  const [searchPhrase, setSearchPhrase] = useState(searchParam ?? "");
   const theme = useTheme();
 
   const handleSelect = (phrase) => {
