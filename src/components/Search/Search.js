@@ -119,7 +119,7 @@ export function Search({
 
     // range does not showup in params list in latest version
     if (!!range) {
-      console.log("L99 Search : region in useEffect : " + range);
+      // console.log("L99 Search : region in useEffect : " + range);
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }

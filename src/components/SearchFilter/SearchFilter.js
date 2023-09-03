@@ -624,7 +624,7 @@ export function SearchFilter({
 													className="searchInput"
 													onChange={(e) => 
 														{setFSearchQuery(e.target.value);
-															console.log("e.target.value : " + e.target.value)
+															// console.log("e.target.value : " + e.target.value)
 														}
 													}
 													value={fSearchQuery}

@@ -32,8 +32,8 @@ export default function TourCardContainer({tours, onSelectTour, loadTourConnecti
             let filterParsed = JSON.parse(filter);
             filterParsed.ignore_filter = true;
             filter = JSON.stringify(filterParsed);
-            console.log("L35 filter inside If statement TourCardContainer: ");
-            console.log(filter);
+            // console.log("L35 filter inside If statement TourCardContainer: ");
+            // console.log(filter);
         }
 
         loadTours({

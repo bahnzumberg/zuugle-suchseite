@@ -163,9 +163,9 @@ export function Main({
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
   //using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
   useEffect(() => {
-    !!location && console.log("L158: Main , location :", location);
-    !!location.pathname &&
-      console.log("L159: Main , location.pathname :", location.pathname);
+    // !!location && console.log("L158: Main , location :", location);
+    // !!location.pathname &&
+      // console.log("L159: Main , location.pathname :", location.pathname);
 
     if (
       !!location &&
@@ -175,14 +175,14 @@ export function Main({
       allRanges &&
       allRanges.length > 0
     ) {
-      console.log("L169: Main, inside the if of useEffect");
+      // console.log("L169: Main, inside the if of useEffect");
       // description
       // calling the functions checkIfSeoPageCity and checkIfSeoPageRange with the current location and arrays allCities and allRanges as arguments to determine the current city and mountain range (if any) based on the pathname property of the location object.
       const city = checkIfSeoPageCity(location, allCities);
       const range = checkIfSeoPageRange(location, allRanges);
       //clg
-      console.log("Main/ city:", searchParams.get("city")); // working
-      !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
+      // console.log("Main/ city:", searchParams.get("city")); // working
+      // !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
       if (!!city && city.value) {
         searchParams.set("city", city.value);
         setSearchParams(searchParams);
@@ -473,11 +473,11 @@ export function Main({
                 },
               }}
             >
-              {console.log("total passed to TourCardContainer", totalTours)}
+              {/* {console.log("total passed to TourCardContainer", totalTours)}
               {console.log(
                 "tours.length passed to TourCardContainer",
                 tours.length
-              )}
+              )} */}
               <TourCardContainer
                 onSelectTour={onSelectTour}
                 tours={tours}

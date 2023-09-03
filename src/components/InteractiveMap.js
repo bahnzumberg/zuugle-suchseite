@@ -119,7 +119,7 @@ useEffect(() => {
       //   mapRef.current._leaflet_id
       // );
       if (!!mapRef.current._leaflet_id && mapRef.current._leaflet_id != (null || undefined)) {
-        console.log("Just before initialization")
+        // console.log("Just before initialization")
         mapRef.current._leaflet_id = null;
       }
     }

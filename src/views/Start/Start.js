@@ -145,8 +145,8 @@ function Start({
   // };
 
   const onSelectTour = (tour) => {
-    console.log("tour selected :");
-    console.log(tour ? tour : "undefined tour");
+    // console.log("tour selected :");
+    // console.log(tour ? tour : "undefined tour");
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
     const updatedSearchParams = new URLSearchParams();

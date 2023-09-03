@@ -100,12 +100,12 @@ function updateHtmlLangAttribute(language) {
 
             if(storedLanguage) {
               translateIndexPage(storedLanguage);
-              console.log('initialised #1: storedLanguage :', storedLanguage);
+              // console.log('initialised #1: storedLanguage :', storedLanguage);
             }else if(resolvedLanguage){
               translateIndexPage(resolvedLanguage);
-              console.log('initialised #2: resolvedLanguage:', resolvedLanguage);
+              // console.log('initialised #2: resolvedLanguage:', resolvedLanguage);
             }else{
-              console.log('initialised #3');
+              // console.log('initialised #3');
               translateIndexPage('de');
             }
           }
@@ -153,7 +153,7 @@ function updateHtmlLangAttribute(language) {
       // Event listener to update translations
       document.addEventListener("languageChanged", function (event) {
         var updatedLanguage = event.detail.language; // the passed new language selected from dropdown
-        console.log("updatedLanguage: 162 : " + updatedLanguage);
+        // console.log("updatedLanguage: 162 : " + updatedLanguage);
         updatedLanguage && updateHtmlLangAttribute(updatedLanguage)
         updatedLanguage && translateElements(updatedLanguage);
       });

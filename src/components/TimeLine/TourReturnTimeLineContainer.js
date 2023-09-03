@@ -30,10 +30,7 @@ import {useTranslation} from 'react-i18next';
 export default function TourReturnTimeLineContainer({connections, loading, date, selectedIndex, setSelectedIndex}){
 
     const {t} = useTranslation();
-<<<<<<< HEAD
-    console.log("Return : details.umstiege : " + t('details.umstiege'))
-=======
->>>>>>> dev-drop-slovenia-front2
+    // console.log("Return : details.umstiege : " + t('details.umstiege'))
 
     const [internalLoading, setInternalLoading] = useState(false);
     const [entries, setEntries] = useState([]);
@@ -77,11 +74,7 @@ export default function TourReturnTimeLineContainer({connections, loading, date,
                 }}>
                     <Box key={index} sx={{backgroundColor: (isSelected ? "#4992FF" : "#F7F7F7"), padding: "12px", borderRadius: "12px"}}>
                         <Typography sx={{color: (isSelected ? "#FFFFFF" : "#101010"), fontWeight: 600}}>{formatOnlyTime(entry.return_departure_datetime)}-{formatOnlyTime(entry.return_arrival_datetime)}</Typography>
-<<<<<<< HEAD
                         <Typography sx={{color: (isSelected ? "rgba(255,255,255, 0.7)" : "#8B8B8B"), fontWeight: 600}}>{convertNumToTime(entry.return_duration_minutes / 60)} | {entry.return_no_of_transfers} {t('details.umstiege')}.</Typography>
-=======
-                        <Typography sx={{color: (isSelected ? "rgba(255,255,255, 0.7)" : "#8B8B8B"), fontWeight: 600}}>{convertNumToTime(entry.return_duration_minutes / 60)} | {entry.return_no_of_transfers} Umst.</Typography>
->>>>>>> dev-drop-slovenia-front2
                     </Box>
                 </Box>
             })

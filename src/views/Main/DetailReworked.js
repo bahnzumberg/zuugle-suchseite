@@ -217,7 +217,7 @@ const DetailReworked = (props) => {
         })
         .catch((error) => {
           if (error.response && error.response.status === 404) {
-            console.error("DetailsReworked/ Tour not found:", error);
+            console.error("Tour not found:", error);
             // Handle the 404 error scenario
           } else {
             console.error("Error:", error);
@@ -229,7 +229,7 @@ const DetailReworked = (props) => {
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-          console.log("L223 -> res.data :", res.data);
+        //   console.log("L223 -> res.data :", res.data);
           setConnections(res.data.result);
         }
       });
@@ -387,11 +387,11 @@ const DetailReworked = (props) => {
   // 	}
   // };
   useEffect(() => {
-    console.log("share link", shareLink);
+    // console.log("share link", shareLink);
   }, [shareLink]);
 
   const shareButtonHandler = async () => {
-    console.log("inside beforeOnClick ");
+    // console.log("inside beforeOnClick ");
     // Call generateShareLink and wait for completion
     await generateShareLink(
       tour.provider,

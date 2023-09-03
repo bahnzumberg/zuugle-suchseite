@@ -24,7 +24,7 @@ export default function LanguageDropdown() {
 
 	const handleChange = (e) => {
 		const selectedLanguage = e.target.value;
-		console.log("evalue", e.target.value);
+		// console.log("evalue", e.target.value);
 		langChange(selectedLanguage);
 		localStorage.setItem("lang", selectedLanguage);
 	};

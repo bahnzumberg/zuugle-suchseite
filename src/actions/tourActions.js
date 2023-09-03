@@ -43,7 +43,7 @@ export function loadTours(data = {}) {
 export function loadFilter(data = {}) {
     // console.log("tourActions, LoadFilter L34 :",data)
     const language = i18next.resolvedLanguage;
-    console.log("from loadFilter/ tourActions : language :",language)
+    // console.log("from loadFilter/ tourActions : language :",language)
 
     return (dispatch, getState) => {
         return loadList(dispatch, getState, LOAD_TOUR_FILTER, LOAD_TOUR_FILTER_DONE, "tours", data, "tours/filter", "filter", false, undefined, language);

@@ -82,7 +82,7 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
         const entities = res.data[entityName];
         // console.log("entities :",entities)
         const total = res.data.total;
-        total && total.length && console.log("total length: ", total.length);
+        // total && total.length && console.log("total length: ", total.length);
         const filter = !!res.data.filter ? res.data.filter : null;
         if(!!useState){
             dispatch({
@@ -193,7 +193,7 @@ export function loadShareParams(shareId, city) {
         }
     })
         .then(res => {
-            console.log(res);
+            // console.log(res);
             return res.data;
         });
 }

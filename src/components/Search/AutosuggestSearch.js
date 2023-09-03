@@ -75,7 +75,7 @@ const AutosuggestSearchTour = ({
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
-          console.log("Suggestions from backend:", newOptions);
+          // console.log("Suggestions from backend:", newOptions);
           setOptions([...newOptions]);
         })
         .catch((err) => {
@@ -167,7 +167,7 @@ const AutosuggestSearchTour = ({
     );
   };
 
-  console.log(options);
+  // console.log(options);
 
   return (
     <div>

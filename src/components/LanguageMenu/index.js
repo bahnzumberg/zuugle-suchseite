@@ -17,7 +17,7 @@ function LanguageMenu() {
 	);
 	const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
 	const setLanguage = (lng) => {
-		console.log("lang inside setLanguage :", lng);
+		// console.log("lang inside setLanguage :", lng);
 		localStorage.setItem("lang", lng);
 		langChange(lng);
 		setShowLanguageMenu(false);

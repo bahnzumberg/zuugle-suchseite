@@ -2,5 +2,5 @@
 function updateHtmlLangAttribute(language) {
   var htmlTag = document.getElementById("html-tag");
   htmlTag.setAttribute("lang", language);
-  console.log("inside updateHtmlLangAttribute :", language);
+  // console.log("inside updateHtmlLangAttribute :", language);
 }
