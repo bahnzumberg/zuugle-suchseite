@@ -467,21 +467,7 @@ export function Search({
                       ? searchPhrase
                       : t("start.suche")}
                   </span>) 
-                  // : (
-                  //   !searchPhrase && pageKey === "detail" ? <Box className="search-bar--city" sx={{
-                  //     cursor: "pointer",
-                  //     color: "#4992FF !important",
-                  //     fontFamily: "Open Sans",
-                  //     fontSize: { xs: "14px", sm: "15px" },
-                  //     fontWeight: "700",
-                  //     lineHeight: "20px"
-
-                  //   }}>
-                  //     {t("start.suche")}
-                  //   </Box> : <Box className="search-bar--city">{searchPhrase}</Box>
-                  // )
                   }
-
                 </Box>
               </Grid>
               {/* city -----   modal ----  below */}
