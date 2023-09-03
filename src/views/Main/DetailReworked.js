@@ -470,7 +470,7 @@ const DetailReworked = (props) => {
         Share button
         When clicked, a link will be generated and the social media options will be shown
         */}
-        <Button
+        {/* <Button
           className="tour-detail-action-btns share-button"
           disabled={false}
           onClick={shareButtonHandler}
@@ -482,7 +482,7 @@ const DetailReworked = (props) => {
           <span style={{ color: "#8B8B8B", marginLeft: "15px" }}>
             {shortenText(t("details.teilen_description"), 0, maxLength)}
           </span>
-        </Button>
+        </Button> */}
         {/* 
 		<Button className="tour-detail-action-btns" disabled={false}
 			onClick={() => {
