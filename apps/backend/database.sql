@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS city_favourites;
+DROP TABLE IF EXISTS fahrplan;
+DROP TABLE IF EXISTS fahrplan_del;
+DROP TABLE IF EXISTS fahrplan_load;
+DROP TABLE IF EXISTS kpi;
+DROP TABLE IF EXISTS logsearchphrase;
+DROP TABLE IF EXISTS provider;
+DROP TABLE IF EXISTS tour;
+
 CREATE TABLE tour (
       id SERIAL,
       url varchar(1024) NOT NULL,
