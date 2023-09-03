@@ -8,7 +8,7 @@
     "node": "14.15.1"
   },
   "scripts": {
-    "start": "nodemon --watch src --exec babel-node -- src/index.js",
+    "start": "nodemon --trace-warnings --watch src --exec babel-node -- src/index.js",
     "build": "babel src -d build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod-import-data": "NODE_ENV=production node jobs/syncData.js",

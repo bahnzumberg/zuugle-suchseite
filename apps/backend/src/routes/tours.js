@@ -692,16 +692,17 @@ const listWrapper = async (req, res) => {
     //The ranges array is populated with data about the tours ranges. The showRanges variable is a boolean that is passed in the request to determine whether to return the ranges or not. If showRanges is true, then the code queries the database to get a list of the distinct ranges and their image urls. It then loops through the results to create an array of range objects containing the range name and the corresponding image URL. The code then queries the database to get all states of each range and adds them to the states array of each range object.
     let ranges = [];
     let rangeQuery = '';
-    if(!!showRanges){
-        //describe:
-        //rangeQuery is a Knex.js QueryBuilder object, which is used to construct SQL queries programmatically.
-        rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
+    //describe:
+    //rangeQuery is a Knex.js QueryBuilder object, which is used to construct SQL queries programmatically.
+    rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
+    
+    if(!!showRanges){    
         //describe:
         //query 'rangeQuery' is modified to restrict the selection to a particular city.
         //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
         if(!!city && city.length > 0){
             // rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
-            rangeQuery = rangeQuery.whereRaw (` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
+            rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
             // console.log("rangeQuery=", rangeQuery.toSQL().toNative())
         }
 
