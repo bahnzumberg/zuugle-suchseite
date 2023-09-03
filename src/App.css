@@ -126,7 +126,7 @@ body ::-webkit-scrollbar-thumb:hover {
   color: #ffcf23;
 }
 
-.result-bar>div {
+.result-bar > div {
   padding-top: 15px;
   padding-bottom: 15px;
   padding-left: 60px;
@@ -184,6 +184,11 @@ body ::-webkit-scrollbar-thumb:hover {
   color: #8b8b8b !important;
 }
 
+.search-bar--searchPhase {
+  color: #070000 !important;
+  font-weight: 600;
+}
+
 .search-bar--city::first-letter {
   text-transform: capitalize;
 }
@@ -223,12 +228,30 @@ body ::-webkit-scrollbar-thumb:hover {
   border-bottom-right-radius: 20px;
 }
 
-.main-search-bar>div>div>div>div>div>div>div {
+.main-search-bar > div > div > div > div > div > div > div {
   min-height: 0 !important;
 }
 
-.main-search-bar>div>div>div>div>div>div>div>div #react-select-3-placeholder,
-.main-search-bar>div>div>div>div>div>div>div>div #react-select-5-placeholder {
+.main-search-bar
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  #react-select-3-placeholder,
+.main-search-bar
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  #react-select-5-placeholder {
   color: #000;
   font-family: "Open Sans";
   font-size: 16px;
@@ -238,7 +261,7 @@ body ::-webkit-scrollbar-thumb:hover {
   letter-spacing: -0.16px;
 }
 
-.main-search-bar>div>div>div>div>div>div>div>div>div>input {
+.main-search-bar > div > div > div > div > div > div > div > div > div > input {
   color: #000 !important;
   font-weight: 600 !important;
   font-family: "Open Sans" !important;
@@ -454,11 +477,11 @@ body ::-webkit-scrollbar-thumb:hover {
     margin-right: 20px;
   } */
 
-  .search-box>div {
+  .search-box > div {
     width: 100% !important;
   }
 
-  .result-bar>div {
+  .result-bar > div {
     padding-left: 20px;
     padding-right: 20px;
   }
@@ -753,11 +776,11 @@ body ::-webkit-scrollbar-thumb:hover {
   padding: 25px;
 }
 
-.tour-detail-itinerary>div:nth-of-type(2)>div::before {
+.tour-detail-itinerary > div:nth-of-type(2) > div::before {
   display: none;
 }
 
-.tour-detail-itinerary>div:nth-of-type(2)>div>div>div {
+.tour-detail-itinerary > div:nth-of-type(2) > div > div > div {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -840,7 +863,8 @@ body ::-webkit-scrollbar-thumb:hover {
   cursor: pointer;
 }
 
-.tour-detail-itinerary-calendar-grid .tour-detail-itinerary-calendar-grid-selected {
+.tour-detail-itinerary-calendar-grid
+  .tour-detail-itinerary-calendar-grid-selected {
   position: relative;
   font-weight: 700;
   font-size: 13px;
@@ -858,7 +882,8 @@ body ::-webkit-scrollbar-thumb:hover {
   z-index: 1;
 }
 
-.tour-detail-itinerary-calendar-grid .tour-detail-itinerary-calendar-grid-selected::before {
+.tour-detail-itinerary-calendar-grid
+  .tour-detail-itinerary-calendar-grid-selected::before {
   content: "";
   position: absolute;
   top: 2px;
@@ -1024,7 +1049,7 @@ body ::-webkit-scrollbar-thumb:hover {
   color: #000000;
 }
 
-.order-container>div {
+.order-container > div {
   flex: 1;
 }
 
