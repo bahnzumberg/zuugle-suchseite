@@ -52,9 +52,9 @@ export default function TourCardContainer({tours, onSelectTour, loadTourConnecti
     }
 
     return <Box>
-            {/* <Typography sx={{textAlign: "left", marginBottom: "15px"}} className={"result-text-mobile"}>
+            <Typography sx={{textAlign: "left", marginBottom: "15px"}} className={"result-text-mobile"}>
                 {total} {total == 1 ? 'Ergebnis' : 'Ergebnisse'}
-            </Typography> */}
+            </Typography>
             <InfiniteScroll
                 dataLength={tours.length}
                 next={_loadTours}

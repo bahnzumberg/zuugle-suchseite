@@ -40,7 +40,7 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
     display: "block",
     position: "absolute",
     // top: { xs: "auto", sm: "50%" },
-    top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
+    top: { xs: 0, sm: !title ? (srhBoxScrollH-80) : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {

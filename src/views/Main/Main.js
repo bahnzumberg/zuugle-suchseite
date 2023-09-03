@@ -15,10 +15,7 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import {
-	getFilterFromParams,
-	getFilterProp
-} from "../../utils/globals";
+import { getFilterFromParams, getFilterProp } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -42,17 +39,18 @@ import ArrowBefore from "../../icons/ArrowBefore";
 // import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 // import SearchContainer from "../../views/Start/SearchContainer";
 
-const SearchFilter = lazy(() => import("../../components/SearchFilter/SearchFilter"));
+const SearchFilter = lazy(() =>
+  import("../../components/SearchFilter/SearchFilter")
+);
 // const Search = lazy(() => import("../../components/Search/Search"));
 const Search = lazy(() => import("../../components/Search/Search"));
 const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
-	import("../../components/TourCardContainer")
+  import("../../components/TourCardContainer")
 );
 
-
 function Fragment(props) {
-	return null;
+  return null;
 }
 
 Fragment.propTypes = { children: PropTypes.node };
@@ -269,9 +267,9 @@ export function Main({
       }
       if (
         _filter?.maxTransportDuration !=
-        getFilterProp(filter, "maxTransportDuration") ||
+          getFilterProp(filter, "maxTransportDuration") ||
         _filter?.minTransportDuration !=
-        getFilterProp(filter, "minTransportDuration")
+          getFilterProp(filter, "minTransportDuration")
       ) {
         count++;
       }
@@ -297,12 +295,14 @@ export function Main({
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
+    const search = currentSearchParams.get("search");
     const updatedSearchParams = new URLSearchParams();
     updatedSearchParams.set("id", tour.id);
 
     if (city) {
       updatedSearchParams.set("city", city);
     }
+
     window.open("/tour?" + updatedSearchParams.toString());
   };
 
@@ -367,12 +367,14 @@ export function Main({
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link
                   to={{
-                    pathname: '/',
+                    pathname: "/",
                     search: paramsFromStartPage.toString(),
                   }}
                   replace
                 >
-                <ArrowBefore style={{ stroke: "#fff", width: "34px", height: "34px" }} />
+                  <ArrowBefore
+                    style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                  />
                 </Link>
               </Box>
               <DomainMenu />
@@ -412,76 +414,86 @@ export function Main({
           )}
         </Box>
         <Box elevation={0} className={"header-line-main"}>
-          <Box sx={{ paddingTop: "51px", paddingBottom: "30px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Box
+            sx={{
+              paddingTop: "51px",
+              paddingBottom: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {totalTours}{" "}
               {totalTours == 1 ? " Ergebnis " : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {filterActive &&
-              (<Box display={"flex"} alignItems={"center"}>
+            {filterActive && (
+              <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;
-                <Typography sx={{ fontSize: "16px", color: "#FF7663", fontWeight: "600", mr: "2px" }}>{t("Filtered")}</Typography>
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    color: "#FF7663",
+                    fontWeight: "600",
+                    mr: "2px",
+                  }}
+                >
+                  {t("Filtered")}
+                </Typography>
                 {/* <Box sx={{ cursor: "pointer", display: "flex" }} onclick={() => { handleClearFilter() }}>
                   <ClearFilterIcon />
                 </Box> */}
-              </Box>)
-            }
-
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
-      {
-        !!loading && !!!mapView && (
-          <Box sx={{ textAlign: "center", padding: "30px" }}>
-            <CircularProgress />
-          </Box>
-        )
-      }
-      {
-        !!tours && tours.length > 0 && (
-          <>
-            {/* //description: 
+      {!!loading && !!!mapView && (
+        <Box sx={{ textAlign: "center", padding: "30px" }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {!!tours && tours.length > 0 && (
+        <>
+          {/* //description: 
                 //either display 100% size map or display the TourCardContainer 
 				*/}
-            {!!mapView ? (
-              <Box className={"map-container"}>
-                {memoTourMapContainer}
-              </Box>
-            ) : (
-              <Box
-                className={
-                  "cards-container" +
-                  (!!directLink && !!directLink.header ? " seo-page" : "")
-                }
-                sx={{
-                  marginTop: {
-                    xs: "20px",
-                    md: "250px",
-                  },
-                }}
-              >
-                {console.log("total passed to TourCardContainer", totalTours)}
-                {console.log(
-                  "tours.length passed to TourCardContainer",
-                  tours.length
-                )}
-                <TourCardContainer
-                  onSelectTour={onSelectTour}
-                  tours={tours}
-                  loadTourConnections={loadTourConnections}
-                  city={searchParams.get("city")}
-                  loadTours={loadTours}
-                  totalTours={totalTours}
-                  pageTours={pageTours}
-                  loading={loading}
-                  total={totalTours}
-                />
-              </Box>
-            )}
-          </>
-        )
-      }
-    </div >
+          {!!mapView ? (
+            <Box className={"map-container"}>{memoTourMapContainer}</Box>
+          ) : (
+            <Box
+              className={
+                "cards-container" +
+                (!!directLink && !!directLink.header ? " seo-page" : "")
+              }
+              sx={{
+                marginTop: {
+                  xs: "20px",
+                  md: "250px",
+                },
+              }}
+            >
+              {console.log("total passed to TourCardContainer", totalTours)}
+              {console.log(
+                "tours.length passed to TourCardContainer",
+                tours.length
+              )}
+              <TourCardContainer
+                onSelectTour={onSelectTour}
+                tours={tours}
+                loadTourConnections={loadTourConnections}
+                city={searchParams.get("city")}
+                loadTours={loadTours}
+                totalTours={totalTours}
+                pageTours={pageTours}
+                loading={loading}
+                total={totalTours}
+              />
+            </Box>
+          )}
+        </>
+      )}
+    </div>
   );
 }
 

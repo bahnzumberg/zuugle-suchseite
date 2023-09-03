@@ -8,7 +8,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "../../icons/SearchIcon";
 import ClearSearchIcon from "../../icons/ClearSearchIcon";
 import { styled } from "@mui/system";
-
+import CustomSelect from "./CustomSelect";
 
 const useStyles = styled("div")(({ theme }) => ({
   "& label.Mui-focused": {
@@ -54,29 +54,29 @@ const AutosuggestSearchTour = ({
   const [selectedOption, setSelectedOption] = useState(null);
   const [input, setInput] = useState("");
   const { t } = useTranslation();
-  let options = []; //Stores the given suggestions
-  let searchPhrase; //Text you type into the field
+  const [options, setOptions] = useState([]);
+  const [searchPhrase, setSearchPhrase] = useState("");
   const theme = useTheme();
 
-  const handleSelect = (selectedOption) => {
-    setSelectedOption(selectedOption);
-    const value = selectedOption ? selectedOption.label : "";
+  const handleSelect = (phrase) => {
+    const value = phrase ? phrase : searchPhrase ? searchPhrase : "";
+    setSelectedOption(value);
     onSearchSuggestion(value);
   };
 
   //What the component should do while I type in values
   const handleInputChange = (inputValue) => {
     if (city !== null) {
-      searchPhrase = inputValue;
+      setSearchPhrase(inputValue);
       loadSuggestions(inputValue, city.value, language) //Call the backend
         .then((suggestions) => {
-          console.log("Suggestions from backend:", suggestions);
           const newOptions = suggestions.map((suggestion) => ({
             //Get the New suggestions and format them the correct way
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
-          options = newOptions;
+          console.log("Suggestions from backend:", newOptions);
+          setOptions([...newOptions]);
         })
         .catch((err) => {
           console.error(err);
@@ -112,7 +112,49 @@ const AutosuggestSearchTour = ({
   //     textAlign: "left",
   //   }),
   // };
-  
+
+  const customStyles = {
+    // Style the container that holds the entire AsyncSelect component
+    container: (provided, state) => ({
+      ...provided,
+      width: "75%",
+      innerHeight: "80px",
+      borderRadius: "25px",
+    }),
+
+    // Style the control (input field and dropdown indicator)
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? "#00A8E8" : "#CED4DA", // Example: change border color
+      boxShadow: state.isFocused ? "0 0 0 0.2rem rgba(0,168,232,.25)" : "none", // Example: add focus style
+    }),
+
+    // Style the option in the dropdown menu
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? "#00A8E8" : "white", // Example: change selected option background color
+      color: state.isSelected ? "white" : "black", // Example: change selected option text color
+    }),
+
+    // Style the input field
+    input: (provided, state) => ({
+      ...provided,
+      color: "black", // Example: change text color
+    }),
+
+    // Style the loading indicator while fetching data asynchronously
+    loadingIndicator: (provided) => ({
+      ...provided,
+      color: "green", // Example: change loading indicator color
+    }),
+
+    // Style the clear indicator (X button)
+    clearIndicator: (provided) => ({
+      ...provided,
+      color: "red", // Example: change clear indicator color
+    }),
+  };
+
   useEffect(() => {
     onSearchPhrase(input);
   }, [input]);
@@ -125,11 +167,17 @@ const AutosuggestSearchTour = ({
     );
   };
 
-  
+  console.log(options);
 
   return (
     <div>
-      <Async
+      <CustomSelect
+        options={options}
+        handleSelect={handleSelect}
+        handleInputChange={handleInputChange}
+        searchPhrase={searchPhrase}
+      />
+      {/* <Async
         components={{
           DropdownIndicator: () => null,
           IndicatorSeparator: () => null,
@@ -144,17 +192,20 @@ const AutosuggestSearchTour = ({
         //   input: combinedStyles.input,
         // }}
         sx={useStyles} // Apply the useStyles directly
+        styles={customStyles}
         loadOptions={loadOptions}
-        value={selectedOption ? selectedOption : searchPhrase ? searchPhrase : ""}
+        value={
+          selectedOption ? selectedOption : searchPhrase ? searchPhrase : ""
+        }
         onChange={handleSelect}
-        isClearable={false}
+        isClearable={true}
         onInputChange={(value, action) => {
           if (action.action === "input-change") {
             setInput(value);
             handleInputChange(value);
           }
         }}
-      />
+      /> */}
     </div>
   );
 };
