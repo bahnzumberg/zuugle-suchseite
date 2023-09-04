@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import {
   InputBase,
   Grid,
@@ -21,6 +22,9 @@ import {
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
+  console.log("L24 searchPhrase: " + searchPhrase);
+  // add searchParam to value of input field if exists
+  const [selectedOption, setSelectedOption] = useState("");
 
   return (
     <>
@@ -45,14 +49,14 @@ export default function CustomSelect(props) {
             </Grid>
             <Grid xs={8} md={10}>
               <InputBase
-                value={searchPhrase}
+                value={ searchPhrase ? searchPhrase : ""}
                 autoFocus
                 onChange={(event) => {
                   handleInputChange(event?.target?.value);
                 }}
                 onKeyDown={(ev) => {
                   if (ev.key === "Enter") {
-                    handleSelect();
+                    handleSelect(ev?.target?.value);
                     ev.preventDefault();
                   }
                 }}
