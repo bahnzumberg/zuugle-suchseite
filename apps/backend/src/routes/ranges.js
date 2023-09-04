@@ -18,7 +18,7 @@ const listWrapper = async (req, res) => {
     /** city search */
     if(!!city && city.length > 0){
         // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}")`;
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`;
     }
     else {
         let tld = '';

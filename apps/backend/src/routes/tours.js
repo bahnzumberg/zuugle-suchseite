@@ -760,6 +760,9 @@ const listWrapper = async (req, res) => {
 }
 
 const filterWrapper = async (req, res) => {
+    // const timer_start= Date. now();
+    // console.log("Start filterWrapper: ", timer_start);
+
     const search = req.query.search;
     const city = req.query.city;
     const range = req.query.range;
@@ -778,7 +781,7 @@ const filterWrapper = async (req, res) => {
     /** city search */
     if(!!city && city.length > 0){
         // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
-        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug="${city}") `;
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
     else {
         const tld = get_domain_country(domain);
@@ -838,6 +841,10 @@ const filterWrapper = async (req, res) => {
 
     /** load full result for filter */
     let filterResultList = await queryForFilter;
+
+    // const timer_stop= Date. now();
+    // console.log("Stop filterWrapper: ", timer_stop);
+    // console.log("Time elapsed: ", (timer_stop - timer_start));
 
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
