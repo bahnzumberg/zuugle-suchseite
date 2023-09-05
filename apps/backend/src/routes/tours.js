@@ -1,9 +1,3 @@
-// related to issue#10 :
-// changes in the search queries as follows:
-//   Initialize the rank_xy with 1
-//   Set the TLD assotiated rank_xy with 10
-//   Set the menu_lang rank_xy with 100
-
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
@@ -53,8 +47,6 @@ const totalWrapper = async (req, res) => {
                                 ON cities.name='total_cities' 
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
                                 WHERE tours.name='total_tours';`);
-    
-    // OLD const total = await knex.raw(`SELECT tours.value as tours, conn.value as connections, ranges.value AS ranges, cities.value AS cities, provider.value AS provider FROM kpi AS tours LEFT OUTER JOIN kpi AS conn ON conn.name='total_connections' LEFT OUTER JOIN kpi AS ranges ON ranges.name='total_ranges' LEFT OUTER JOIN kpi AS cities ON cities.name='total_cities' LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' WHERE tours.name='total_tours';`);
     
     // NEW res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider'], total_tours_city: total.rows[0]['tours_city']});
     res.status(200).json({success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
@@ -115,11 +107,6 @@ const listWrapper = async (req, res) => {
     let addDetails = !!!map; // initialise with true
 
     const searchIncluded = !!search && !!search.length > 0;
-    //clgs
-    //console.log("________________________________________________________________")
-    //console.log("L92 searchIncluded :", searchIncluded) // ##tbdel
-    //console.log("L94 page value :", page) // ##tbdel
-    //console.log("________________________________________________________________")
 
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
@@ -143,14 +130,6 @@ const listWrapper = async (req, res) => {
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
     let query = knex('tour').select(selects);
     let countQuery = knex('tour').count('id');
-    //clgs
-    // console.log("=============================================================");
-    // console.log("L130 countQuery:")
-    // console.log(countQuery.toSQL().sql); //select count("id") from "tour"
-    // console.log("=============================================================");
-    // let res_count = await countQuery;
-    // console.log(res_count); // ex. [ { count: '710' } ]
-    // console.log("=============================================================");
 
     //describe:
     //initialize a new variable 'whereRaw' and use it to define the where statments
@@ -218,33 +197,7 @@ const listWrapper = async (req, res) => {
           AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
           AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
     }
-    //clgs
-    // console.log("L192 where value/ provider: " + JSON.stringify(where)); //{"country_at":true}
-    // console.log("L193 where value / provider: " + sql_where); //
 
-
-
-
-// L 259/ query:  WITH SEARCH  /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele"
-// from "tour"
-// where "country_at" = true
-// and cities @> '[{"city_slug": "wien"}]'::jsonb
-// AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
-// order by "month_order" asc,
-// ts_rank(search_column, websearch_to_tsquery('german', '"panorama" panorama:*') ) DESC,                   //order_by_rank
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-
-// L 259/ query:  WITHOUT SEARCH /Original solution
-// select "id", "url", "provider", "hashed_url", "description", "image_url", "ascent", "descent", "difficulty", "difficulty_orig", "duration", "distance", "title", "type", "number_of_days", "traverse", "country", "state", "range_slug", "range", "season", "month_order", "country_at", "country_de", "country_it", "country_ch", "country_si", "country_fr", "publishing_date", "quality_rating", "user_rating_avg", "cities", "cities_object", "max_ele"
-// from "tour"
-// where "country_at" = true
-// and cities @> '[{"city_slug": "wien"}]'::jsonb
-// order by "month_order" asc,
-// traverse DESC, FLOOR((cities_object->'wien'->>'best_connection_duration')::int/30)*30 ASC, ID % date_part('day', NOW() )::INTEGER ASC limit 9 offset 9
-
-// clg
-// !!where &&  console.log("L 340 where : " + JSON.stringify(where))
 
 // *******************************************************************
 // MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
@@ -282,16 +235,6 @@ const listWrapper = async (req, res) => {
             sql_where_filter = sql_where_filter.substring(sql_where_filter.indexOf("where")) + " ";
             sql_and_filter = sql_where_filter.replace("where", "AND");
 
-            //clg
-            // console.log("________________________________________________________________")
-            // console.log("L268: sql_select value after Filter " + sql_select);
-            // console.log("________________________________________________________________")
-            // console.log("L272: sql_where_filter val // after Filter :  " +  sql_where_filter);
-            // console.log("________________________________________________________________")
-            // console.log("L272: sql_and_filter val // after Filter :  " +  sql_and_filter);
-            // console.log("L405: query // after Filter :  " + query);
-            // console.log("________________________________________________________________")
-
         } catch (error) {
             console.log(error.message)
         }
@@ -314,9 +257,6 @@ const listWrapper = async (req, res) => {
         //example domain / menu_lang (currLanguage)
         // const tldLangArray = get_country_lanuage_from_domain("https://www.zuugle.fr/");
         // result of above clg when menu_lang = 'it' : L 217, newRanks final :  [ { en: 1 }, { de: 1 }, { fr: 10 }, { it: 100 }, { sl: 1 } ]
-        // console.log("L298 tldLangArray : ", tldLangArray);
-        // console.log("L299 currLnaguage : ", currLanguage);
-        // console.log(" L185/ search :", search);
 
         // get array of ALL languages
         const allLangs = getAllLanguages(); // ["en", "de", "it", "fr", "sl"]
@@ -339,17 +279,8 @@ const listWrapper = async (req, res) => {
         //describe:
         //If '_search' contains spaces, the if statment sets the 'order_by_rank' variable to an SQL clause that ranks results by the relevance of the user input to the search_column using the ts_rank() function, and sets the whereRaw variable to an SQL clause that searches the search_column for the user input using the websearch_to_tsquery() function.
         //else, '_search' contains NO spaces: the same is repeated but with additional modifier
-        // if(_search.indexOf(' ') > 0){
-        //     order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '${_search}') ) DESC,`;
-        //     whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`;
-        //     console.log("whereRaw / L228 :", whereRaw)
-        // }
-        // else {
-        //     order_by_rank = `ts_rank(search_column, websearch_to_tsquery('german', '"${_search}" ${_search}:*') ) DESC,`
-        //     whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
-        //     console.log("whereRaw / L233 :", whereRaw)
-        //     // whereRaw / L233 : cities @> '[{"city_slug": "wien"}]'::jsonb AND search_column @@ websearch_to_tsquery('german', '"panorama" panorama:*')
-        // }
+
+    
         // ****************************************************************
         // CREATING INNER QUERIES
         // ****************************************************************
@@ -415,11 +346,6 @@ const listWrapper = async (req, res) => {
 
     }
 
-    //clg
-    // console.log("________________________________________________________________")
-    // console.log("L408: sql_select value after SEARCH and filter " + sql_select);
-    // console.log("________________________________________________________________")
-
     // ****************************************************************
     // GET THE COUNT WHEN SEARCH TERM IS INCLUDED
     // ****************************************************************
@@ -431,14 +357,7 @@ const listWrapper = async (req, res) => {
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
-        //clgs
-        // console.log();
-        // console.log(`L430 SELECT COUNT(*) FROM tour AS row_count ${sql_where_filter} AS subquery`)
-        // console.log("L445 ________________________________________________________________")
-        // console.log("L431 Total Count/ sql_qount:", sql_count);
-        // console.log("________________________________________________________________")
-        // console.log("L432 count_query.toString :", count_query.toString()); // Convert Knex query to SQL string
-        // console.log();
+
       } catch (error) {
         console.log("Error retrieving count:", error);
       }
@@ -455,85 +374,24 @@ const listWrapper = async (req, res) => {
     let sql_order = "";
     sql_order += `ORDER BY `;
 
-    if(!!orderId && orderId == "bewertung"){
-        query = query.orderBy("user_rating_avg", 'desc');
-
-        sql_order += "user_rating_avg DESC ";
-
-        if(!!city){
-            query = query.orderByRaw(`  traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-
-            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
-        }
-
-    } else if(!!orderId && orderId == "tourdistanz"){
-        query = query.orderBy("distance", 'asc');
-
-        sql_order += "distance ASC ";
-
-        if(!!city){
-            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `
-        }
-    } else if(!!orderId && orderId == "tourdauer"){
-        if(!!city){
-            query = query.orderBy("number_of_days", 'asc').orderByRaw(`(cities_object->'${city}'->>'total_tour_duration')::float ASC`).orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-
-            sql_order += `number_of_days ASC, (cities_object->>'${city}'->>'total_tour_duration')::float ASC, traverse DESC, FLOOR((cities_object->>'${city}'->>'best_connection_duration')::int/30)*30 ASC `;
-
-
-        } else {
-            query = query.orderBy("number_of_days", 'asc').orderBy("duration", 'asc');
-            sql_order += `number_of_days ASC, duration ASC `;
-        }
-
-    } else if(!!orderId && orderId == "anfahrtszeit"){
-        if(!!city){
-            query = query.orderByRaw(` (cities_object->'${city}'->>'best_connection_duration')::int ASC`);
-            sql_order += `(cities_object->'${city}'->>'best_connection_duration')::int ASC `;
-        } else {
-            query = query.orderBy("best_connection_duration", 'desc');
-            sql_order += `best_connection_duration DESC `; // 2)
-        }
-
-    } else if(!!orderId && orderId == "relevanz"){
+    // Formerly here was checked if(!!orderId && orderId == "relevanz"){
+    // Now there is only one sorting algorithm. This one.
+    // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
+    const traverse_plus1 = 1 + parseInt(req.query.traverse, 10);
+    if(!!city){
+        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/${traverse_plus1}/30)*30 ASC`);
+        sql_order += `, ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/${traverse_plus1}/30)*30 ASC `; //4)
+    }
+    else {
         query = query.orderBy("month_order", 'asc');
         sql_order += `${order_by_rank} month_order ASC `; //3)
-
-        if(!!city){
-            // sql_order += `,`,
-            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; //4)
-        }
-
-    } else if(!!orderId){
-        query = query.orderBy(orderId, 'desc');
-        sql_order += `${orderId} DESC `; //5)
-        if(!!city){
-            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 6)
-        }
-
-    } else {
-        query = query.orderBy("user_rating_avg", 'asc');
-        sql_order += `user_rating_avg ASC `;
-        if(!!city){
-            query = query.orderByRaw(` traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC`);
-            sql_order += `, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/30)*30 ASC `; // 7)
-        }
     }
+
 
     //describe:
     // After the sorting order is applied, the query is further ordered by ID % date_part('day', NOW() )::INTEGER ASC. This orders the results by the remainder of the ID when divided by the number of days since the epoch, effectively shuffling the results.
     query = query.orderByRaw(`ID % date_part('day', NOW() )::INTEGER ASC`);
     sql_order += `, ID % date_part('day', NOW() )::INTEGER ASC ` ;
-
-    // clgs
-    //sql_select += sql_order; // Add order string to select string
-    // console.log("________________________________________________________________")
-    // console.log("L504 : sql_order after adding order values ", sql_order)
-    // console.log("________________________________________________________________")
-    // console.log("L505 : sql_select after passing through ordering ", sql_select)
 
     // ****************************************************************
     // LIMIT
@@ -549,29 +407,7 @@ const listWrapper = async (req, res) => {
         }
     }
 
-    // clgs
-    // console.log("L552 sql_limit : " + sql_limit)
-    // console.log("L553 sql_order : " + sql_order)
-    // console.log(" --------------------------------")
-    // console.log(" --------------------------------")
-    // console.log("L460 query  order : " + query);
-    // console.log(" --------------------------------")
-    // console.log("L462 sql_order  order : " + sql_order);
-    // console.log(" --------------------------------")
-    // console.log("L464 sql_select  order : " + sql_select);
-    // console.log(" --------------------------------")
-    // console.log(" --------------------------------")
-
-
     let outer_where = "WHERE 1=1 ";
-
-    //clgs
-    // if(searchIncluded){
-    //     console.log('    ');
-    //     console.log("L571 sql_select before firing call: ")
-    //     console.log(sql_select + outer_where  +sql_order + sql_limit);
-    //     console.log('    ');
-    // }
 
     // ****************************************************************
     // CALLING DATABASE
@@ -600,61 +436,16 @@ const listWrapper = async (req, res) => {
     }else{
         result = await query;
         count = await countQuery.first();
-            // clgs
-            // console.log("________________________________________________________");
-            // console.log("L605 query.toQuery() :",query.toQuery()); // ex.  ]
-            // console.log("________________________________________________________");
-            // console.log("countQuery.toQuery() :",countQuery.toQuery()); // ex. [ { count: '710' } ]
-            // console.log("________________________________________________________");
-            // console.log("count['count'] :",count['count']); // ex. [ { count: '710' } ]
-            // console.log("________________________________________________________");
     }
-
 
 
     //describe: logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
-    // try {
-    //     // Jetzt loggen wir diese query noch schnell für später
-
-    //     let searchparam = '';
-    //     // console.log("283: search : ", search) //
-
-    //     if (search !== undefined) {  // also if previous search item is different than this one ?
-    //         searchparam = search;
-    //         //clgs
-    //         // console.log("domain :" + get_domain_country(domain))
-    //         // console.log("searchparam :" + (searchparam))
-    //         // console.log("req.query.city :" + (req.query.city))
-    //         // console.log("count['count'] :" + (count['count']))
-
-    //         // searchparam = search.replace("'",'"') ;
-    //         searchparam = search.replace(/'/g,'"') ;
-    //         console.log("L587 /searchparam :" + (searchparam))
-    //         console.log("L588 /count['count'] :" + (count['count']));
-    //         console.log("L589 /sql_count :" + (sql_count));
-
-    //         let _count = searchIncluded ? sql_count : count['count'];
-    //         console.log("L592 /_count :" + (_count));
-
-    //         if( !!_count && _count > 0){
-    //             const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`;
-    //         //console.log(" sql :" + sql)
-    //             await knex.raw(sql);
-    //         }
-    //     };
-    // } catch(e){
-    //     console.error('error inserting into logsearchphrase: ', e);
-    // }
     try {
         let searchparam = '';
 
         if (search !== undefined) {
-            searchparam = search;
-            // searchparam = search.replace("'",'"') ;
             searchparam = search.replace(/'/g, "''");
-
-            console.log("L611 searchparam :", searchparam)
 
             let _count = searchIncluded ? sql_count : count['count'];
             console.log("_count", _count)
@@ -691,10 +482,10 @@ const listWrapper = async (req, res) => {
     //This code prepares the response to a HTTP request.
     //The ranges array is populated with data about the tours ranges. The showRanges variable is a boolean that is passed in the request to determine whether to return the ranges or not. If showRanges is true, then the code queries the database to get a list of the distinct ranges and their image urls. It then loops through the results to create an array of range objects containing the range name and the corresponding image URL. The code then queries the database to get all states of each range and adds them to the states array of each range object.
     let ranges = [];
-    let rangeQuery = '';
+
     //describe:
     //rangeQuery is a Knex.js QueryBuilder object, which is used to construct SQL queries programmatically.
-    rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
+    let rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
     
     if(!!showRanges){    
         //describe:
@@ -712,6 +503,7 @@ const listWrapper = async (req, res) => {
         //describe:
         //the query is executed by calling await on the rangeQuery object, which returns an array of objects representing the rows returned by the query.
         let rangeList = await rangeQuery;
+    
         //describe:
         //a loop is performed over each object in rangeList. For each object, it is checked if both tour and tour.range properties are defined and truthy. If they are, it is checked if there is no object in the ranges array that has a range property equal to tour.range. If there isn't, a new object is constructed with a range property equal to tour.range, and an image_url property equal to a string constructed with the getHost function on the domain parameter, the "/public/range-image/" path, and the tour.range_slug value. The new object is then pushed onto the ranges array.
         rangeList.forEach(tour => {
@@ -747,10 +539,6 @@ const listWrapper = async (req, res) => {
         rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}") `);
     }
 
-    // clgs
-    // !searchIncluded && console.log("L659 : count['count']  :", count['count']);
-    // console.log("L624 : ranges :", ranges);
-    // console.log("L751 : result :", result.title);
     //describe:
     // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
 
