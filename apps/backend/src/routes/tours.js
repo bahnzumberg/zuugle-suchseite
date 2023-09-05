@@ -48,7 +48,6 @@ const totalWrapper = async (req, res) => {
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
                                 WHERE tours.name='total_tours';`);
     
-    // NEW res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider'], total_tours_city: total.rows[0]['tours_city']});
     res.status(200).json({success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
 }
 
@@ -377,10 +376,9 @@ const listWrapper = async (req, res) => {
     // Formerly here was checked if(!!orderId && orderId == "relevanz"){
     // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
-    const traverse_plus1 = 1 + parseInt(req.query.traverse, 10);
     if(!!city){
-        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/${traverse_plus1}/30)*30 ASC`);
-        sql_order += `, ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/${traverse_plus1}/30)*30 ASC `; //4)
+        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse+1)/30)*30 ASC`);
+        sql_order += `, ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse+1)/30)*30 ASC `; //4)
     }
     else {
         query = query.orderBy("month_order", 'asc');
