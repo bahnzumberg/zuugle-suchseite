@@ -7,6 +7,7 @@ import {createSingleImageFromMap} from "../gpx/gpxUtils";
 import { convertDifficulty, titleCase } from "../dataConversion";
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
+    // console.log("L 10 , tourPdf.js / tourPdf, value of tour arg. : ",tour)
     const TEMPLATE = "tour-details";
 
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
@@ -51,6 +52,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     let connectionEntries = [];
     if(!!connection && !!connection.connection_description_detail){
         let entries = connection.connection_description_detail.split('\n');
+        // console.log("L54: tourPdf / entries : " + JSON.stringify(entries)) // works here
         connectionEntries = createConnectionEntries(entries, connection);
     }
 
@@ -101,10 +103,13 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         url: tour.url
     };
 
-    return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null);
+    // console.log("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
+    // console.log("L106 tourPdf tour.name is :", tour.name); // this is undefined
+    return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null); // this call works; see the test inside utils.js/writePdf
 };
 
 const parseImageToValidBase64 = async (file, contentType = "image/jpeg", resizeWidth = undefined) => {
+    // !!file && console.log("L108 / tourPdf / value of file: " + file) // this is working, getting paths to files of real images stored inside gpx-image
     try {
         let _image = await get_image_base64({
             content_type: contentType,
@@ -113,6 +118,7 @@ const parseImageToValidBase64 = async (file, contentType = "image/jpeg", resizeW
 
         if(!!_image){
             _image = `data:image/jpeg;base64,${_image}`
+            // console.log("L116, tourPdf _image type: " + typeof(_image))//this is working, got a string value of coded image (when console.logged)
         }
 
         return _image;
@@ -232,7 +238,7 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
 }
 
 export const getIconFromText = (text) => {
-    let BASE = process.env.NODE_ENV === "production" ? `/public/icons/` 
+    let BASE = process.env.NODE_ENV === "production" ? `https://www.zuugle.at/public/icons/` 
     :                                                  `http://localhost:8080/public/icons/`;
     if (!!text && (text.indexOf(' Zug ') >= 0 || text.indexOf(' U-Bahn ') >= 0)) {
         return BASE + "ic_transport_train.svg";

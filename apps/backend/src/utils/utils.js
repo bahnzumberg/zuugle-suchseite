@@ -23,6 +23,38 @@ export function listOfDays(startDate, endDate) {
     return dates;
 };
 
+export function get_domain_country(domain) {
+    if (domain == null) { return "AT" } // domain is undefined or null
+    else if (domain.indexOf("zuugle.de") >= 0){
+        return "DE";
+    } else if(domain.indexOf("zuugle.ch") >= 0){
+        return "CH";
+    } else if(domain.indexOf("zuugle.it") >= 0){
+        return "IT";
+    } else if(domain.indexOf("zuugle.si") >= 0){
+        return "SI";
+    } else if(domain.indexOf("zuugle.fr") >= 0){
+        return "FR";
+    } else {
+        return "AT"; // localhost and zuugle.at
+    }
+}
+
+export function get_country_lanuage_from_domain(domain) {
+    if (domain == null) { return ["de"] } // domain is undefined or null
+    else if (domain.indexOf("zuugle.ch") >= 0){
+        return ["de","fr","it"];
+    } else if(domain.indexOf("zuugle.it") >= 0){
+        return ["it"]; 
+    } else if(domain.indexOf("zuugle.si") >= 0){
+        return ["sl"];
+    } else if(domain.indexOf("zuugle.fr") >= 0){
+        return ["fr"];
+    } else {
+        return ["de"];   // for both TLDs .at and .de and localhost
+    }
+}
+
 export function formatTime(date){
     return !!date ? moment(date).format("HH:mm") : undefined;
 }
@@ -58,39 +90,19 @@ export const decrypt = (salt, encoded) => {
         .join("");
 };
 
-export const getWhereFromDomain = (domain) => {
-    if(!!domain){
-        if(domain.indexOf('zuugle.at') >= 0){
-            return {country_at: true}
-        } else if(domain.indexOf('zuugle.de') >= 0){
-            return {country_de: true}
-        } else if(domain.indexOf('zuugle.ch') >= 0){
-            return {country_ch: true}
-        } else if(domain.indexOf('zuugle.it') >= 0){
-            return {country_it: true}
-        } else if(domain.indexOf('zuugle.si') >= 0){
-            return {country_si: true}
-        } else if(domain.indexOf('zuugle.fr') >= 0){
-            return {country_fr: true}
-        } else {
-            return {country_at: true}
-        }
-    }
-    return {country_at: true};
-}
 
 export const getTldFromDomain = (domain) => {
-    if(domain.indexOf('zuugle.at') >= 0){
+    if(!!domain && domain.indexOf('zuugle.at') >= 0){
         return "AT";
-    } else if(domain.indexOf('zuugle.de') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.de') >= 0){
         return "DE";
-    } else if(domain.indexOf('zuugle.ch') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.ch') >= 0){
         return "CH";
-    } else if(domain.indexOf('zuugle.it') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.it') >= 0){
         return "IT";
-    } else if(domain.indexOf('zuugle.si') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
         return "SI";
-    } else if(domain.indexOf('zuugle.fr') >= 0){
+    } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
         return "FR";
     } else {
         return "AT";
@@ -102,4 +114,18 @@ export const replaceFilePath = (filePath) => {
         return filePath;
     }
     return (""+filePath).split("\\").join("/");
+}
+
+export const initializeLanguageRanks = () => {
+    return [
+        {'en' : 1},
+        {'de' : 1},
+        {'fr' : 1},
+        {'it' : 1},
+        {'sl' : 1}
+    ]
+}
+
+export const getAllLanguages = () => {
+    return ["en", "de", "it", "fr", "sl"]
 }

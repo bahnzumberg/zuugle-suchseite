@@ -2,6 +2,7 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 router.get('/', (req, res) => listWrapper(req, res));
+import os from 'os';
 
 const listWrapper = async (req, res) => {
     const search = req.query.search;
@@ -27,8 +28,14 @@ const createQuery = async (field, city, search) => {
 
     let query = knex('tour').select(field).andWhereNot(field, null).andWhereNot(field, "");
 
+    /** city search */
     if(!!city && city.length > 0){
-        query = query.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
+        // query = query.whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        query = query.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`);
+    }
+    else {
+        const tld = get_domain_country(os.hostname());
+        query = query.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') `);
     }
 
     if(!!search && search.length > 0){

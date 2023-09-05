@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS city_favourites;
+DROP TABLE IF EXISTS fahrplan;
+DROP TABLE IF EXISTS fahrplan_del;
+DROP TABLE IF EXISTS fahrplan_load;
+DROP TABLE IF EXISTS kpi;
+DROP TABLE IF EXISTS logsearchphrase;
+DROP TABLE IF EXISTS provider;
+DROP TABLE IF EXISTS tour;
+
 CREATE TABLE tour (
       id SERIAL,
       url varchar(1024) NOT NULL,
@@ -34,11 +44,6 @@ CREATE TABLE tour (
       nov boolean DEFAULT false,
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
-      country_at boolean DEFAULT false,
-      country_de boolean DEFAULT false,
-      country_it boolean DEFAULT false,
-      country_ch boolean DEFAULT false,
-
       publishing_date date DEFAULT NULL,
       quality_rating varchar(20) DEFAULT NULL,
       user_rating_avg decimal(6,2) DEFAULT NULL,
@@ -53,21 +58,11 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
-ALTER TABLE tour ADD COLUMN country_si boolean DEFAULT false;
-ALTER TABLE tour ADD COLUMN country_fr boolean DEFAULT false;
-
-UPDATE tour SET search_column = to_tsvector( 'german', full_text );
 
 CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
-CREATE INDEX ON tour (country_at);
-CREATE INDEX ON tour (country_de);
-CREATE INDEX ON tour (country_it);
-CREATE INDEX ON tour (country_ch);
-CREATE INDEX ON tour (country_fr);
-CREATE INDEX ON tour (country_si);
 CREATE INDEX ON tour (cities);
 CREATE INDEX ON tour (cities_object);
 CREATE INDEX ON tour (month_order);
@@ -152,10 +147,6 @@ CREATE TABLE fahrplan (
 );
 
 
-
-ALTER TABLE fahrplan ADD COLUMN connection_url VARCHAR(100);
-ALTER TABLE fahrplan ADD COLUMN return_url VARCHAR(100);
-
 CREATE INDEX ON fahrplan (hashed_url, tour_provider);
 CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (hashed_url);
@@ -202,3 +193,58 @@ CREATE TABLE fahrplan_del (
      id SERIAL,
      PRIMARY KEY (id)
 );
+
+
+ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
+ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
+
+ALTER TABLE tour ADD COLUMN max_ele INT default 0;
+ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';
+
+
+CREATE TABLE disposible (
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      link varchar(100) NOT NULL,
+      calendar_date timestamp NOT NULL,
+      city_slug varchar(100) NOT NULL
+);
+
+CREATE INDEX ON disposible (provider);
+CREATE INDEX ON disposible (hashed_url);
+CREATE INDEX ON disposible (link);
+CREATE INDEX ON disposible (city_slug);
+
+
+CREATE TABLE gpx (
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      typ varchar(10) NOT NULL,
+      waypoint int NOT NULL,
+      lat decimal(12,9) DEFAULT NULL,
+      lon decimal(12,9) DEFAULT NULL,
+      ele decimal(12,8) DEFAULT NULL,
+      PRIMARY KEY (provider, hashed_url, waypoint)
+);
+
+CREATE INDEX ON gpx (provider);
+CREATE INDEX ON gpx (hashed_url);
+CREATE INDEX ON gpx (typ);
+CREATE INDEX ON gpx (waypoint);
+CREATE INDEX ON gpx (lat);
+CREATE INDEX ON gpx (lon);
+
+ALTER TABLE provider ADD COLUMN allow_gpx_download varchar(1) default 'y';
+
+ALTER TABLE kpi ALTER COLUMN name TYPE varchar(150);
+
+CREATE TABLE city2tour (
+      tour_id SERIAL,
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      city_slug varchar(64) NOT NULL,
+      reachable_from_country varchar(2) NOT NULL
+);
+CREATE INDEX ON city2tour (tour_id);
+CREATE INDEX ON city2tour (city_slug);
+CREATE INDEX ON city2tour (reachable_from_country);

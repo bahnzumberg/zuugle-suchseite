@@ -1,7 +1,6 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
-import {getWhereFromDomain} from "../utils/utils";
 import os from 'os';
 
 router.get('/', (req, res) => listWrapper(req, res));
@@ -12,15 +11,27 @@ const listWrapper = async (req, res) => {
     const removeDuplicates = req.query.remove_duplicates == "true";
 
     const domain = req.query.domain;
+    // console.log("domain=", domain);
+    // console.log("hostname=", os.hostname());
 
     let whereRaw = null;
-    let where = getWhereFromDomain(domain);
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
+        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`;
+    }
+    else {
+        let tld = '';
+        if (domain.indexOf('zuugle.de')) { tld='DE' }
+        else if (domain.indexOf('zuugle.si')) { tld='SI' }
+        else if (domain.indexOf('zuugle.it')) { tld='IT' }
+        else if (domain.indexOf('zuugle.ch')) { tld='CH' }
+        else if (domain.indexOf('zuugle.fr')) { tld='FR' }
+        else { tld='AT' }
+        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')  `;
     }
 
-    let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state').where(where);
+    let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');
 
     if(!!whereRaw){
         query = query.whereRaw(whereRaw);

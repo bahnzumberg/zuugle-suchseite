@@ -3,7 +3,7 @@
 module.exports = {
   production: {
     client: 'pg',
-    version: '11',
+    version: '13',
     connection: {
       host : '',
       port : 5432,
@@ -14,10 +14,10 @@ module.exports = {
   },
   development: {
     client: 'pg',
-    version: '11',
+    version: '13',
     connection: {
       host : 'localhost',
-      port : 5432,
+      port : 5433,
       user : 'postgres',
       password : 'docker',
       database : 'zuugle_suchseite_dev'

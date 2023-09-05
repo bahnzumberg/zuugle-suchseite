@@ -1,42 +1,51 @@
-# zuugle.at API
+# Zuugle API
 
-
-## Erstinstallation
-Im Projekt-Verzeichnis 
+## First time installation
+### Install all modules
+Execute in the project directory:
 
     nvm use
-ausführen und dann 
- 
+
     npm install
-ausführen und sämtliche Abhängigkeiten installieren.
+
+and install all dependencies.
+
+### Necessary directories
+Create the folowing directories (if they do not exist):
+* public/gpx
+* public/gpx-image
+* public/gpx-image-with-track
+* public/gpx-track
+* public/headless-leaflet
+* public/range-image
+
+### Setup database PostgreSQL 13.9
+1. Install (https://www.docker.com/) on your local machine
+2. Execute these two commands: 
+
+    docker build -t zuugle-postgres-db ./
+
+    docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db
+
+### Setup database connection files
+Create a copy of each connection file and rename it. We need four files in the end. 
+
+    cp knexfileTourenDb.js.example knexfileTourenDb.js
+
+    cp knexfile.js.example knexfile.js
 
 
-## Knexfiles umbenennen
-Im src Verzeichnis liegen zwei Example Dateien: knexfile.js.example und knexfileTourenDb.js.example. 
-Bitte diese auf knexfile.js und knexfileTourenDb.js umbenennen.
+## Load data and run backend
+### Execute backend locally
+    npm run start
 
+### Import data locally
 
-### Datenbank PostgreSQL 13.9 einrichten
-1. Docker (https://www.docker.com/) lokal installieren
-2. docker build -t zuugle-postgres-db ./
-3. docker run -d --name zuugle-container -p 5432:5432 zuugle-postgres-db
-4. Sicherstellen, dass folgende Folder existieren:
-    * public/gpx
-    * public/gpx-image
-    * public/gpx-image-with-track
-    * public/gpx-track
-    * public/headless-leaflet
-    * public/range-image 
-5. Um die Daten lokal einzurichten müssen folgende Befehle ausgeführt werden:
-    1. npm run build
-    2. npm run import-data-full
-	3. Alternativ für Delta Load (an jedem folgenden Tag): npm run import-data
-    4. npm run import-files
-6. Danach sollten sämtliche Daten und Files vorhanden sein
-7. npm run start
+    npm run build
 
+    npm run import-data-full
 
-## Lokal ausführen
-Sobald die Dependencies und die Datenbank eingerichtet sind, kann die Applikation mit 
-    npm run start 
-lokal gestartet werden.
+    npm run import-files
+
+## Follow frontend Readme 
+Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite
