@@ -30,9 +30,9 @@ router.get('/:id', (req, res) => getWrapper(req, res));
 // description :
 // This function queries the database for the total number of tours, total connections, total ranges, total cities, and total provider using the knex.raw method. It then returns a JSON response with the queried values. The function is used to handle requests to the endpoint /total. The total number is used in the Start page where total all available tours is mentioned in the header. 
 const totalWrapper = async (req, res) => {
-    // req && console.log("Request totalWrapper L25:");
-    // req && console.log("req.body :", req.query);
-    // req && req.params && console.log(req.query.params);
+    req && console.log("Request totalWrapper L25:");
+    req && console.log("req.body :", req.query);
+    req && req.query.params && console.log(req.query.params);
 
     const city = req.query.city;
     const total = await knex.raw(`SELECT 
@@ -57,7 +57,7 @@ const totalWrapper = async (req, res) => {
     // OLD const total = await knex.raw(`SELECT tours.value as tours, conn.value as connections, ranges.value AS ranges, cities.value AS cities, provider.value AS provider FROM kpi AS tours LEFT OUTER JOIN kpi AS conn ON conn.name='total_connections' LEFT OUTER JOIN kpi AS ranges ON ranges.name='total_ranges' LEFT OUTER JOIN kpi AS cities ON cities.name='total_cities' LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' WHERE tours.name='total_tours';`);
     
     // NEW res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider'], total_tours_city: total.rows[0]['tours_city']});
-    res.status(200).json({success: true, total_tours: total.rows[0]['tours'], total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
+    res.status(200).json({success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
 }
 
 //description
