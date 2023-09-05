@@ -4,7 +4,7 @@ a.term AS phrase,
 COUNT(tour) AS num_results,
 f.city_slug,
 LOWER(a.text_lang) AS menu_lang,
-LOWER(city.city_country) AS country_code
+UPPER(city.city_country) AS country_code
 FROM (SELECT
 		CONCAT(provider,hashed_url) AS tour,
 		provider,
@@ -19,4 +19,5 @@ INNER JOIN city
 ON f.city_slug=city.city_slug
 WHERE LENGTH(a.term)>3
 AND f.city_any_connection='yes'
+WHERE city.city_country='SI'
 GROUP BY a.term, f.city_slug, a.text_lang, city.city_country
