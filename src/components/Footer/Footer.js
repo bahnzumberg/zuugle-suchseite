@@ -42,7 +42,7 @@ export default function Footer({}){
             </Grid>
             <Grid item xs={12} md={2}>
                 <Box sx={{textAlign: "right"}} className={"social-icons"}>
-                    <img className={"cursor-link"} src={`/app_static/img/logo-facebook.png`} width={"20px"} height={"20px"} onClick={() => window.open("https://www.facebook.com/bahnzumberg/")}  loading="lazy"/> &nbsp; <img className={"cursor-link"} src={`/app_static/img/logo-instagram.png`} width={"20px"} height={"20px"} style={{marginLeft: "5px"}} onClick={() => window.open("https://www.instagram.com/bahnzumberg/")}  loading="lazy"/>
+                    <img className={"cursor-link"} src={`/app_static/img/logo-facebook.png`} width={"20px"} height={"20px"} onClick={() => window.open("https://www.facebook.com/bahnzumberg/")}  loading="lazy"/> &nbsp; <img className={"cursor-link"} src={`/app_static/img/logo-instagram.png`} width={"20px"} height={"20px"} style={{marginLeft: "5px"}} onClick={() => window.open("https://www.instagram.com/bahnzumberg/")}  loading="lazy"/> &nbsp; <img className={"cursor-link"} src={`/app_static/img/logo-github.png`} width={"20px"} height={"20px"} style={{marginLeft: "5px"}} onClick={() => window.open("https://github.com/bahnzumberg/")}  loading="lazy"/>
                 </Box>
             </Grid>
         </Grid>
