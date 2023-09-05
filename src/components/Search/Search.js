@@ -308,13 +308,27 @@ export function Search({
       CustomComponent: FullScreenCityInput,
       searchParams,
       initialCity: cityInput,
-      onSelect: (city) => {
+      // onSelect: (city) => {
+      //   hideModal();
+      //   if (!!city) {
+      //     setCityInput(city.label);
+      //     setCity(city, () => {
+      //       // Refresh the page after setting the city
+      //       window.location.reload();
+      //     });
+      //   }
+      //   // window.location.reload();
+      // },
+      onSelect: async (city) => {
         hideModal();
         if (!!city) {
           setCityInput(city.label);
-          setCity(city);
+          await setCity(city);
+          // Refresh the page after setting the city
+          window.location.reload();
         }
       },
+      
       setSearchParams,
       title: "",
       sourceCall: "city",

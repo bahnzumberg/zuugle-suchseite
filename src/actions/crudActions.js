@@ -213,6 +213,21 @@ export function generateShareLink(provider, hashedUrl, date, city) {
     });
 }
 
+// 
+export const getTotalCityTours = (city) => { 
+    // return axios.get(`tours/total/?city=${city}`, {
+    return axios.get(`tours/total/`, {
+        params: {
+            city: city
+        }
+    })
+        .then(res => {
+            console.log("L225 res :");
+            console.log(res);
+            return res.data;
+        });
+}
+
 // Code description:
 // This code file exports several functions that interact with an API using the axios library.
 

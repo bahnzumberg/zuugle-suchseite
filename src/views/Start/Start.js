@@ -19,6 +19,7 @@ import { useMatomo } from "@jonkoops/matomo-tracker-react";
 import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
+import { getTotalCityTours } from "../../actions/crudActions";
 import {
   getPageHeader,
   listAllCityLinks,
@@ -74,12 +75,26 @@ function Start({
   allCities,
   totalProvider,
   loadRanges,
-  allRanges,
+  allRanges
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0)
   const { t, i18n } = useTranslation();
+
+  let searchParamCity ="" ;
+  let city = "";
+
+  const getCity = () => {
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if(!!city) {
+      return city;
+    }else {
+      return undefined;
+    }
+  }
 
   // description
   // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
@@ -88,7 +103,6 @@ function Start({
   // The loadAllCities function calls another action creator loadList and passes it dispatch, getState, LOAD_ALL_CITIES, LOAD_ALL_CITIES_DONE, "tours", data, "cities/" and "cities" as parameters. LOAD_ALL_CITIES and LOAD_ALL_CITIES_DONE are imported constants from the types file and they represent the types of actions that are being dispatched. The other parameters are used to make an API call to retrieve the cities data.
   // The code defines several functions that are used to dispatch actions to the Redux store.
   // Each function within the corresponding actions creators (like tourActions.js or cityActions.js) makes an API call using the functions imported from the "crudActions" file and then dispatches an action to the store with the type defined in the imported "types" file and the payload data returned from the API call.
-  // For example, in the loadTours function, an API call is made to retrieve a list of tours by calling the loadList function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOURS_DONE and the payload data is dispatched to the store.
   // Similarly, the loadTour function makes an API call to retrieve a single tour by calling the loadOne function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOUR_DONE and the payload data is dispatched to the store.
   // So the code within this useEffect handles the data flow in the application and keep the Redux store updated with the latest data retrieved from the API.
   useEffect(() => {
@@ -97,16 +111,12 @@ function Start({
     loadRanges({ ignore_limit: true, remove_duplicates: true });
     // searchParams.forEach(item=> console.log(item)) // testing params
 
-    let searchParamCity = searchParams.get("city");
-    const city = localStorage.getItem("city");
-    // console.log('city in LocalStorage :', city);
-    // console.log(' searchParamCity:', searchParamCity);
+    getCity();
+
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
-
       setSearchParams(searchParams);
-    }
-
+    }   
     loadCities({ limit: 5 });
     loadFavouriteTours({
       sort: "relevanz",
@@ -116,6 +126,18 @@ function Start({
       provider: searchParams.get("p"),
     });
   }, []);
+
+  useEffect(() => {
+    getCity();
+    if (!!city) {
+      getTotalCityTours(city).then((data) => {
+        data ? console.log("L134 tours_city :", data.tours_city) : console.log("nothing found");
+        setTotalToursFromCity(data.tours_city);
+      });
+    }
+  
+  }, [city])
+  
 
   //description:
   // onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
@@ -184,11 +206,12 @@ function Start({
       </Box>
     );
   } else {
+    console.log("totalToursFromCity", totalToursFromCity)
     return (
       <Box>
         {getPageHeader(null)}
         <Header
-          totalTours={totalTours}
+          totalTours={totalToursFromCity}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
@@ -288,7 +311,7 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadTourConnections,
   loadTotalTours,
-  loadAllCities,
+  loadAllCities
 };
 
 // description:
