@@ -112,11 +112,6 @@ export function Search({
       }
     }
 
-    if (!!!orderId || orderId == "relevanz") {
-      searchParams.set("sort", "relevanz");
-      setSearchParams(searchParams);
-    }
-
     // range does not showup in params list in latest version
     if (!!range) {
       // console.log("L99 Search : region in useEffect : " + range);

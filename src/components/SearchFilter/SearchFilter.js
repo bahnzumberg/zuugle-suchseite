@@ -146,11 +146,6 @@ export function SearchFilter({
 			}
 		}
 
-		if (!!!orderId || orderId == "relevanz") {
-			searchParams.set("sort", "relevanz");
-			setSearchParams(searchParams);
-		}
-
 		if (!!range) {
 			console.log("Search : region in useEffect : " + range);
 			setRegionInput(range);
@@ -192,19 +187,7 @@ export function SearchFilter({
 				ignore_filter: true,
 			};
 		}
-		//clgs
-		// console.log("city", city);
-		// console.log("range", range);
-		// console.log("state", state);
-		// console.log("country", country);
-		// console.log("type", type);
-		// console.log("search", search);
-		//console.log("L201: filter", filter);
-		// console.log("orderId", orderId);
-		// console.log("provider", provider);
-		// for (const entry of searchParams.entries()) {
-		// 	console.log("searchParams entries : ", entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-		// }
+
 
 		let result = loadTours({
 			// loadTours({
@@ -218,10 +201,6 @@ export function SearchFilter({
 			sort: orderId,
 			provider: provider,
 			map: searchParams.get("map"),
-		});
-		result.then((resolvedValue) => {
-			// console.log("after loading tours / result of load Tours :");
-			// console.log(resolvedValue);
 		});
 	}, [
 		// useEffect dependencies
@@ -290,122 +269,6 @@ export function SearchFilter({
 		}
 		setSearchParams(searchParams);
 	};
-	// const search = (tempRegion = null) => {
-	// 	let values = {};
-	// 	if (!!city && !!city.value) {
-	// 		values.city = city.value;
-	// 	}
-
-	// 	let _region = region;
-	// 	if (!!tempRegion) {
-	// 		_region = tempRegion;
-	// 	}
-
-	// 	if (!!_region && !!_region.value) {
-	// 		values[_region.type] = _region.value;
-	// 	} else if (!!regionInput) {
-	// 		values.search = regionInput;
-	// 	}
-
-	// 	if (!!searchParams.get("sort")) {
-	// 		values.sort = searchParams.get("sort");
-	// 	} else {
-	// 		values.sort = "relevanz";
-	// 	}
-
-	// 	values.map = searchParams.get("map");
-	// 	values.provider = searchParams.get("p");
-
-	// 	searchParams.delete("filter");
-	// 	// console.log("PART I / searchParams.get('search')", searchParams.get("search"))
-	// 	setOrRemoveSearchParam(searchParams, "city", values.city);
-	// 	setOrRemoveSearchParam(searchParams, "range", values.range);
-	// 	setOrRemoveSearchParam(searchParams, "search", values.search);
-	// 	setOrRemoveSearchParam(searchParams, "state", values.state);
-	// 	setOrRemoveSearchParam(searchParams, "country", values.country);
-	// 	setOrRemoveSearchParam(searchParams, "type", values.type);
-
-	// 	setSearchParams(searchParams);
-	// 	// console.log("PART II / searchParams.get('search')", searchParams.get("search"))
-	// 	//clg
-	// 	// for (const entry of searchParams.entries()) {
-	// 	//     console.log(entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-	// 	// }
-	// 	if (!!goto) {
-	// 		// clg
-	// 		// console.log(`navigate : goto + ? + searchParams : ${goto}?${searchParams}`) // output : /suche?city=amstetten&sort=relevanz
-	// 		navigate(goto + "?" + searchParams);
-	// 	} else {
-	// 		console.log("values passed to loadTours :", values);
-	// 		loadTours(values).then((res) => {
-	// 			window.scrollTo({ top: 0 });
-	// 		});
-	// 	}
-	// }; // end search()
-
-
-	// const gotoHome = () => {
-	//     let _city = searchParams.get("city")
-	//     navigate(`/?${!!_city ? "city=" + _city : ""}`)
-	// }
-
-	// const showCityModal = () => {
-	// 	showModal("MODAL_COMPONENT", {
-	// 		CustomComponent: FullScreenCityInput,
-	// 		searchParams,
-	// 		initialCity: cityInput,
-	// 		onSelect: (city) => {
-	// 			hideModal();
-	// 			if (!!city) {
-	// 				setCityInput(city.label);
-	// 				setCity(city);
-	// 			}
-	// 		},
-	// 		setSearchParams,
-	// 		title: "",
-	// 		modalSize: "lg",
-	// 		onBack: () => {
-	// 			hideModal();
-	// 		},
-	// 	});
-	// };
-
-	// const showRegionInput = () => {
-	//     showModal("MODAL_COMPONENT", {
-	//         CustomComponent: FullScreenRegionInput,
-	//         searchParams,
-	//         initialRegion: regionInput,
-	//         onSelect: (region) => {
-	//             hideModal()
-	//             if (!!region) {
-	//                 setRegionInput(region.value)
-	//                 setRegion(region)
-	//                 search(region)
-	//             }
-	//         },
-	//         setSearchParams,
-	//         title: "",
-	//         modalSize: "lg",
-	//         onBack: () => {
-	//             hideModal()
-	//         },
-	//     })
-	// }
-
-	// const onCustomRegionSubmit = () => {
-	//     setOpenRegionSearch(false)
-	//     search()
-	// }
-
-	// const resetRegionInput = () => {
-	//     setRegionInput("")
-	//     setRegion(null)
-	//     setOpenRegionSearch(false)
-	//     searchParams.delete("search")
-	//     searchParams.delete("range")
-	//     searchParams.delete("type")
-	//     setSearchParams(searchParams)
-	// }
 
 	return (
 		<Fragment>

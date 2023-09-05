@@ -126,27 +126,7 @@ function Start({
   // An additional state object is passed as an option to the navigate function. This state object contains a single key-value pair, where the key is tour and the value is the selected tour.
   // The purpose of onSelectTour  within the Start.js file is to allow users to navigate to the search page with the selected tour as the search query. The state object is passed along so that the search page has access to the tour information.
 
-  // const onSelectTour = (tour) => {
-  // 	console.log('L137/ tour is :', tour)
-  // 	let _city = searchParams.get("city");
-  // 	const navUrl = `/suche?sort=relevanz&search=${tour.title.replace(
-  // 		/[()-]/g,
-  // 		" "
-  // 	)}${!!_city ? "&city=" + _city : ""}`;
-  // 	//clgs
-  // 	// console.log('Line 73: URL is :', navUrl);
-  // 	// console.log(tour)
-  // 	// example : navigate(`/suche?sort=relevanz&search=Winterwanderung+über+die+Sonnsteine&city=bad-ischl&datum=2023-02-02`,{
-  // 	navigate(navUrl, {
-  // 		state: {
-  // 			tour: tour,
-  // 		},
-  // 	});
-  // };
-
   const onSelectTour = (tour) => {
-    // console.log("tour selected :");
-    // console.log(tour ? tour : "undefined tour");
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
     const updatedSearchParams = new URLSearchParams();
@@ -155,24 +135,20 @@ function Start({
     if (city) {
       updatedSearchParams.set("city", city);
     }
-    // clgs
-    // console.log("go to URL :")
-    // console.log('/tour?' + updatedSearchParams.toString())
-    // Start.js:176 go to URL :
-    // Start.js:177 /tour?id=68587&city=baden
+
     window.open("/tour?" + updatedSearchParams.toString());
   };
 
   //description:
   // The onSelectRange is a constant declaration for a JavaScript arrow function in the Start.js file.
   // The function takes one parameter range, which represents a selected range object. The function then extracts the city value from the searchParams object, which is an instance of the URLSearchParams API.
-  // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?sort=relevanz&range=${range.range}${!!_city ? '&city='+_city : ''}.
-  // The _city value is added to the URL only if it is truthy. The range.range value is included in the URL as the value of the range query parameter. The sort query parameter is set to relevanz.
+  // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?range=${range.range}${!!_city ? '&city='+_city : ''}.
+  // The _city value is added to the URL only if it is truthy. The range.range value is included in the URL as the value of the range query parameter.
   const onSelectRange = (range) => {
     let _city = searchParams.get("city");
     if (!!range && !!range.range) {
       navigate(
-        `/suche?sort=relevanz&range=${range.range}${
+        `/suche?range=${range.range}${
           !!_city ? "&city=" + _city : ""
         }`
       );

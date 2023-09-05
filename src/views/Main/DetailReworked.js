@@ -120,7 +120,7 @@ const DetailReworked = (props) => {
     } else return t("start.mittel");
   };
 
-  //gpx and pdf buttons show up only when menu language is German
+  // pdf buttons shows up only when menu language is German
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 
   const handleCloseTab = () => {
