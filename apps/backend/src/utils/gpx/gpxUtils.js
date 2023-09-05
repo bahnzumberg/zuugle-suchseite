@@ -101,7 +101,7 @@ export const createImagesFromMap = async (ids) => {
                     }
                     
                     if (!!filePath && !!!fs.existsSync(filePath)) {
-                        await createImageFromMap(browser, filePath, url + ch + ".gpx", 90);
+                        await createImageFromMap(browser, filePath, url + ch + ".gpx", 80);
                         if(process.env.NODE_ENV !== "production"){
                             // console.log('Big generated successfully: ', filePath);
                         }
@@ -111,7 +111,7 @@ export const createImagesFromMap = async (ids) => {
                                 width: 600,
                                 height: 400,
                                 fit: "inside"
-                            }).jpeg({quality: 50}).toFile(filePathSmall);
+                            }).jpeg({quality: 30}).toFile(filePathSmall);
                             if(process.env.NODE_ENV !== "production"){
                                 // console.log('Small generated successfully: ', filePathSmall);
                             }
