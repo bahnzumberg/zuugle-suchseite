@@ -1,9 +1,11 @@
 import * as React from 'react';
+import {useState, useEffect} from 'react';
 import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
 import Rueckreise from "../icons/Rueckreise";
 import {formatOnlyTime} from "../utils/globals";
 import {Fragment} from "react";
+import { useTranslation} from 'react-i18next';
 
 //description
 //This is another React component used inside TourCard. It displays information about the return trip options for a tour.
@@ -12,6 +14,16 @@ import {Fragment} from "react";
 // If there are no return trip options available, the component returns an empty fragment.
 export default function TourConnectionReturnCardNew({returns}){
 
+     // translation related
+     const {t, i18n} =useTranslation();
+
+     const [retOptions, setRetOptions] = useState([]);
+ 
+     useEffect(() => {
+         // call the function to update the retOptions state
+          setRetOptions(returnOptions());
+        }, [i18n.language]);
+ 
     const from_to_back = () => {
         if (lastReturn.connection_returns_departure_stop === lastReturn.return_arrival_stop) {
             return lastReturn.connection_returns_departure_stop;
@@ -42,7 +54,7 @@ export default function TourConnectionReturnCardNew({returns}){
             return 'Ende direkt bei Haltestelle';
         }
         else {
-            return 'Letzte Möglichkeit: ' + formatOnlyTime(lastReturn.return_departure_datetime) + ' Uhr';
+            return t('start.letze_moeglichkeit') + ": " +formatOnlyTime(lastReturn.return_departure_datetime) + " " +t('start.uhr');
         }
     }
 
@@ -59,7 +71,14 @@ export default function TourConnectionReturnCardNew({returns}){
         <Box sx={{paddingRight: "50px"}}>
             <Typography variant="subtitle1" className="station">{from_to_back()}</Typography>
         </Box>
-        <Typography variant="subtitle2" className="time">Anzahl Rückreiseoptionen: {returnOptions()}</Typography>
+            <Typography variant="subtitle2" className="time">
+                <>
+
+                    {t('start.anzahl_rueckreiseoptionen')} 
+                    {": "}
+                    {retOptions}
+                </>
+            </Typography>
         <Typography variant="subtitle2" className="time">{lastReturn_datetime()}</Typography>
     </div>;
 }

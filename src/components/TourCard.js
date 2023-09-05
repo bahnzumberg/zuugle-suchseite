@@ -16,6 +16,8 @@ import LinearProgress from "@mui/material/LinearProgress";
 import TourConnectionCardNew from "./TourConnectionCardNew";
 import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTranslation } from 'react-i18next';
+import {tourTypes} from "../utils/language_Utils";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
@@ -34,6 +36,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
+
+    // i18next
+    const {t} = useTranslation();
 
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
@@ -75,8 +80,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
                 // console.log("Line 75 TourCard:",res.data.returns)
                 // console.log("Line 75 TourCard:",res.data)
                 setConnectionLoading(false);
-                setConnections(res.data.connections);
-                setReturns(res.data.returns);
+                setConnections(res?.data?.connections);
+                setReturns(res?.data?.returns);
             })
         } else if(!!!city){
             setConnections([]);
@@ -106,6 +111,28 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
     const renderProps = () => {
+
+        const translateDiff = (diff) =>{
+            if(diff === "Leicht"){
+                return t('start.leicht');
+            }else if(diff === "Schwer") {
+                return t('start.schwer');
+            }else return t('start.mittel');
+        };
+
+        const translateTourType = (type) =>{
+            let translatedType = null; 
+            tourTypes.map((typ)=>{
+                type = type.toLowerCase();
+                if(typ === type){   //correct the small cap so both can be equal
+                    // console.log("filter.${type} : ", `filter.${type}`)
+                    translatedType = t(`filter.${type}`)
+                }
+            })
+            return translatedType;
+        };
+
+
         const values = [];
         if(!!tour){
             values.push({
@@ -114,11 +141,13 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             });
             values.push({
                 icon: <Intensity style={{fill: "transparent"}} />,
-                text: tour.difficulty,
+                text: translateDiff(tour.difficulty),
+                // text: tour.difficulty,
             })
             values.push({
                 icon: <Walk style={{fill: "transparent"}} />,
-                text: tour.type,
+                text: translateTourType(tour.type),
+                // text: tour.type,
             })
             values.push({
                 icon: <ArrowVertical style={{fill: "transparent"}} />,
@@ -130,18 +159,20 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             });
         }
 
-        return <Typography display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
+        return <Box display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
             return <Box key={index} display="inline-block" sx={{marginRight: "10px"}}>
                 {entry.icon}
                 <Typography display={"inline"} variant={"subtitle2"} sx={{lineHeight: "24px", position: "relative", top: "-7px", left: "4px"}}>{entry.text}</Typography>
             </Box>
-        })}</Typography>;
+        })}</Box>;
     }
 
 
     const getAnreise = () => {
         if(!!connections && connections.length > 0){
             let connection = connections[0];
+            // console.log("TourCard connection: ") ;
+            // console.log(connection)
             return <TourConnectionCardNew connection={connection}/>
         } else {
             return <Fragment></Fragment>
@@ -159,48 +190,56 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
 
-    return  <Card className="tour-card cursor-link" onClick={() => {
-        onSelectTour(tour)}}>
+    return (
+      <Card
+        className="tour-card cursor-link"
+        onClick={() => {
+          onSelectTour(tour);
+        }}
+      >
         <CardMedia
-            component="img"
-            height="140"
-            image={image}
-            style={{opacity: imageOpacity}}
+          component="img"
+          height="140"
+          image={image}
+          style={{ opacity: imageOpacity }}
         />
         <CardContent>
-            <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg}/>
-            <div className="mt-3">
-                <Typography variant="h5">{tour.range}</Typography>
-            </div>
-            <div className="mt-3">
-                <Typography variant="h4" style={{whiteSpace: "break-spaces"}}>{tour.title}</Typography>
-                <Typography variant="h5" style={{whiteSpace: "break-spaces"}}>{shortened_url()}</Typography>
-            </div>
-            <div className="mt-3" style={{whiteSpace: "break-space"}}>
-                {renderProps()}
-            </div>
-
-
-
+          <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
+          <div className="mt-3">
+            <Typography variant="h5">{tour.range}</Typography>
+          </div>
+          <div className="mt-3">
+            <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
+              {tour.title}
+            </Typography>
+            <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
+              {shortened_url()}
+            </Typography>
+          </div>
+          <div className="mt-3" style={{ whiteSpace: "break-space" }}>
+            {renderProps()}
+          </div>
         </CardContent>
-        {(!!connections && connections.length > 0) && <Fragment>
+        
+        {!!connections && connections.length > 0 && (
+          <Fragment>
             <div className="bottom-container">
-                <CardContent>
-                    {!!connectionLoading 
-                    ? 
-                    <Box sx={{padding: "20px"}}>
-                        <LinearProgress />
-                    </Box> 
-                    : 
-                    <Fragment>
-                        {getAnreise()}
-                        {getAbreise()}
-                    </Fragment>
-                    }
-                </CardContent>
+              <CardContent>
+                {!!connectionLoading ? (
+                  <Box sx={{ padding: "20px" }}>
+                    <LinearProgress />
+                  </Box>
+                ) : (
+                  <Fragment>
+                    {getAnreise()}
+                    {getAbreise()}
+                  </Fragment>
+                )}
+              </CardContent>
             </div>
-        </Fragment>
-        }
-
-    </Card>
+          </Fragment>
+        )}
+        
+      </Card>
+    );
 }

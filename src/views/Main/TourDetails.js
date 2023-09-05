@@ -4,7 +4,6 @@ import CustomStarRating from "../../components/CustomStarRating";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-// import DifficultyContainer from "../../components/DifficultyContainer";
 import TourProperty from "../../components/TourProperty";
 import {convertNumToTime, formatNumber, parseFileName, titleCase} from "../../utils/globals";
 import Expand from "../../icons/Expand";
@@ -15,10 +14,12 @@ import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import {loadTourGpx, loadTourPdf} from "../../actions/tourActions";
 let gpxParser = require('gpxparser');
-import FileDownload from "react-file-download";
+// import FileDownload from "react-file-download";
+var fileDownload = require('js-file-download');
 import {Buffer} from 'buffer';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useSearchParams} from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {
@@ -35,10 +36,13 @@ const setGpxTrack = (url, loadGPX, _function) => {
 
 //description:
 //The TourDetails component takes in various props such as tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, and returnConnections. It uses useState and useEffect hooks to set and update various state variables such as gpxPositions, anreiseGpxPositions, abreiseGpxPositions, and searchParams.
-// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
+// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in the states : gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
 // The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
-
+    //clgs:
+    // console.log('tour is :');
+    // console.log(tour);
+    
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
     const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
@@ -46,11 +50,40 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
     const [searchParams, setSearchParams] = useSearchParams();
     const returnsLength = !!returnConnection ? returnConnection.connection_returns_trips_back : 0;
 
+
+     //Translation related
+     const {t} = useTranslation();
+     const GPXDownloadLabel = t('main.gpx_download');
+ 
+     const  getFoundJourney = ()=> {    
+        let oneJourney = t('main.eine_rueckfahrt');
+        let manyJourneys = t('main.viele_rueckfahrten');
+        let fig99 = returnsLength >= 100 ? "99+" : returnsLength;
+        let oneOrMore = returnsLength > 1 ? manyJourneys : oneJourney ;
+        let translatedText = t('main.anreise_gefunden');  
+        return (`${translatedText} ${fig99} ${oneOrMore}`)
+     }
+
+     const journeyNotFoundText = t('main.keine_anreise_gefunden') ;
+     const difficulty_label_zuugle = t('main.schwierigkeit_zuugle');
+     const difficulty_label_original = t('main.schwierigkeit_original');
+     const sportart_label = t('main.sportart');
+     const distance_label = t('main.distanz');
+     const duration_label = t('main.dauer');
+     const days_label = t('main.tage');
+     const ascent_label = t('main.aufstieg');
+     const descent_label = t('main.abstieg');
+     const child_friendly_label = t('main.kinderfreundlich');
+     const overrun_label = t('main.ueberschreitung');
+     const yes_label = t('main.ja');
+     const no_label = t('main.nein');
+
+    // console.log( "difficulty_label: " + difficulty_label)
+
     useEffect(() => {
-        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions); //(url:string, )
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
-
     }, [tour]);
 
     useEffect(() => {
@@ -63,27 +96,50 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     }, [connection || returnConnection]);
 
-    const onDownload = () => {
+        
+            
+    async function onDownload() {
         const datum = searchParams.get("datum");
-        loadTourPdf({ id: tour.id, connection_id: !!connection ? connection.id : undefined, connection_return_id: !!returnConnection ? returnConnection.id : undefined, connection_return_ids: (!!returnConnections ? returnConnections.map(e => e.id) : []), datum}).then(
-            (res) => {
-                if(!!res && !!res.data && !!res.data.pdf){
-                    const buf = Buffer.from(res.data.pdf, 'base64');
-                    FileDownload(buf, res.data.fileName, "application/pdf");
+        try {
+            const response = await loadTourPdf({ id: tour.id, connection_id: !!connection ? connection.id : undefined, connection_return_id: !!returnConnection ? returnConnection.id : undefined, connection_return_ids: (!!returnConnections ? returnConnections.map(e => e.id) : []), datum})
+            // handle response here
+            if(response) {
+                let pdf = undefined;
+                if(!!response.data) {
+                    response.data = JSON.parse(response.data);
+                    if(!!response.data.pdf) {
+                        pdf = response.data.pdf
+                    };
+                    // console.log("L 80 response.data from loadTourPdf :", response.data)
+                }else if(!response.data || !response.data.pdf ) {
+                    console.log("no response")
                 }
-            },
-            (err) => {
-                console.log('error: ', err)
+                
+                if(!!pdf){
+                    const fileName = response.data.fileName ? response.data.fileName   : "";
+                    // clg
+                    // console.log("L87 fileName :", fileName);
+                    const buf = Buffer.from(pdf, 'base64');
+                    // clgs
+                    // !!buf ? console.log("L87 buf value is real") : console.log("buf is falsy")
+                    fileDownload(buf, fileName, "application/pdf");
+                }
+            }else{
+                console.log("no response is returned")
             }
-        );
+        } catch (error) {
+            console.log('error : ', error)
+            // console.log('error from TourDetails : ', error)
+        }
     }
+    
 
     const onDownloadGpx = () => {
 
         if(!!returnConnection && returnConnection.fromtour_track_key && !!connection && !!connection.totour_track_key){
             loadTourGpx({id: tour.id, key_anreise: connection.totour_track_key, key_abreise: returnConnection.fromtour_track_key, type: "all"}).then( (res) => {
                     if(!!res && !!res.data){
-                        FileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
                     }
                 },
                 (err) => {
@@ -92,7 +148,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
         } else {
             loadTourGpx({id: tour.id}).then( (res) => {
                     if(!!res && !!res.data){
-                        FileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
+                        fileDownload(res.data, parseFileName(tour.title, "zuugle_", ".gpx"));
                     }
                 },
                 (err) => {
@@ -170,11 +226,14 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     <Grid item xs={4}>
                         <Button variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={() => {
                             onDownloadGpx();
-                        }}>{!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'GPX Download'}</Button>
+                        }}>
+                            {!!isGpxLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : <>{GPXDownloadLabel}</>}
+                        </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Button sx={{height: "100%"}} variant="outlined" fullWidth disabled={buttonsDisabled()} onClick={onDownload}>
-                            {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}</Button>
+                            {!!isPdfLoading ? <CircularProgress sx={{width: "20px", height: "20px"}} size={"small"}/> : 'PDF'}
+                        </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Button variant="contained" fullWidth disabled={!!!tour.url} onClick={() => {
@@ -203,8 +262,12 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
             <Box sx={{marginTop: '20px'}}>
                 <Box sx={{ bgcolor: 'info.main', borderRadius: '16px', padding: '20px', position: 'relative' }}>
-                    {!!connection && !!connection.id ? <Typography>Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'}</Typography>
-                        : <Typography>Keine öffentliche Anreise gefunden</Typography>
+                    {!!connection && !!connection.id ? 
+                    <Typography>
+                        {/* Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'} */}
+                        { getFoundJourney()}
+                    </Typography>
+                        : <Typography>{journeyNotFoundText}</Typography>
                     }
 
                 </Box>
@@ -214,15 +277,13 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 {/* {console.log('tour value L210', tour)} */}
                 {/* {console.log((tour.difficulty_orig).toUpperCase())}
                 {console.log(titleCase(tour.difficulty_orig))} */}
-                {/* <DifficultyContainer value={tour.difficulty} disabled={true}/> */}
                 
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
-                        <TourProperty title={"Schwierigkeit Zuugle"} text={`${titleCase(tour.difficulty)}`}/>
+                        <TourProperty title={difficulty_label_zuugle} text={`${titleCase(tour.difficulty)}`}/>
                     </Grid>
                     <Grid item xs={6}>
-                        {/* <TourProperty title={"Schwierigkeit original"} text={`${tour.provider} : ${tour.difficulty_orig}`} /> */}
-                        <TourProperty title={"Schwierigkeit original"} text={`${titleCase(tour.difficulty_orig)}`} />
+                        <TourProperty title={difficulty_label_original} text={`${titleCase(tour.difficulty_orig)}`} />
                     </Grid>
                 </Grid>
             </Box>
@@ -230,25 +291,25 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             <Box sx={{marginTop: '20px'}}>
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
-                        <TourProperty title={"Sportart"} text={tour.type}/>
+                        <TourProperty title={sportart_label} text={tour.type}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Distanz"} text={formatNumber(tour.distance) + ' km'} />
+                        <TourProperty title={distance_label} text={formatNumber(tour.distance) + ' km'} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Dauer"} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ' Tage') : convertNumToTime(tour.total_tour_duration)} />
+                        <TourProperty title={duration_label} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + days_label) : convertNumToTime(tour.total_tour_duration)} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Aufstieg"} text={formatNumber(tour.ascent, ' hm')} />
+                        <TourProperty title={ascent_label} text={formatNumber(tour.ascent, ' hm')} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Abstieg"} text={formatNumber(tour.descent, ' hm')} />
+                        <TourProperty title={descent_label} text={formatNumber(tour.descent, ' hm')} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Kinderfreundlich"} text={!!tour.children ? 'Ja' : 'Nein'} />
+                        <TourProperty title={child_friendly_label} text={!!tour.children ? yes_label : no_label} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={"Überschreitung"} text={!!tour.traverse ? 'Ja' : 'Nein'} />
+                        <TourProperty title={overrun_label} text={!!tour.traverse ? yes_label : no_label} />
                     </Grid>
                 </Grid>
             </Box>

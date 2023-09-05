@@ -26,9 +26,7 @@ export const theme = createTheme({
         },
         MuiPaper: {
             styleOverrides: {
-                root: {
-
-                },
+                root: {},
             },
         },
         MuiTextField: {
@@ -51,9 +49,7 @@ export const theme = createTheme({
                 root: {
                     borderRadius: 100
                 },
-                select: {
-
-                },
+                select: {},
                 "&:focus": {
                     backgroundColor: '#ffddec',
                     borderColor: 'brown'
@@ -108,6 +104,10 @@ export const theme = createTheme({
             fontWeight: 600,
             color: "#101010"
         },
+        title: {
+            fontSize: 32,
+            fontWeight: 700
+        },
         h1: {
             fontSize: 54,
             fontWeight: 600,
@@ -131,6 +131,20 @@ export const theme = createTheme({
             color: "#4992FF",
             fontWeight: 700,
             textTransform: "uppercase"
+        },
+        h5alt: {
+            fontSize: 18,
+            fontWeight: 600,
+        },
+        infoKey: {
+            fontWeight: 400,
+            fontSize: "15px",
+            lineHeight: "23px",
+            color: "#101010",
+            '@media (max-width:600px)': {
+                fontSize: "12px",
+                lineHeight: "18px"
+            },
         },
         text: {
             fontSize: '16px',

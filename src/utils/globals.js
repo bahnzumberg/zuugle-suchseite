@@ -1,7 +1,7 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-export function convertNumToTime(number) {
+export function convertNumToTime(number, nonseparate = false) {
     // Check sign of given number
     var sign = (number >= 0) ? 1 : -1;
 
@@ -23,7 +23,7 @@ export function convertNumToTime(number) {
         minute = '0' + minute;
     }
 
-    return `${hour} h ${minute} min`;
+    return (!nonseparate) ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
 }
 
 export function formatNumber(number, postfix = ""){
@@ -109,19 +109,29 @@ export const getDomainText = () => {
     const host = location.hostname;
     if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
-    } else if(host.indexOf('zuugle.de') >= 0){
+    } else if(host.indexOf('www.zuugle.de') >= 0){
         return "Zuugle.de"
-    } else if(host.indexOf('zuugle.ch') >= 0){
+    } else if(host.indexOf('www.zuugle.ch') >= 0){
         return "Zuugle.ch"
-    } else if(host.indexOf('zuugle.it') >= 0){
+    } else if(host.indexOf('www.zuugle.it') >= 0){
         return "Zuugle.it"
-    } else if(host.indexOf('zuugle.fr') >= 0){
+    } else if(host.indexOf('www.zuugle.fr') >= 0){
         return "Zuugle.fr"
-    } else if(host.indexOf('zuugle.si') >= 0){
+    } else if(host.indexOf('www.zuugle.si') >= 0){
         return "Zuugle.si"
     } else if(host.indexOf('www2.zuugle.at') >= 0){
     return "UAT Zuugle.at"
-}else {
+    } else if(host.indexOf('www2.zuugle.de') >= 0){
+        return "UAT Zuugle.de"
+    } else if(host.indexOf('www2.zuugle.ch') >= 0){
+        return "UAT Zuugle.ch"
+    } else if(host.indexOf('www2.zuugle.fr') >= 0){
+        return "UAT Zuugle.fr"
+    } else if(host.indexOf('www2.zuugle.it') >= 0){
+        return "UAT Zuugle.it"
+    } else if(host.indexOf('www2.zuugle.si') >= 0){
+        return "UAT Zuugle.si"
+    } else {
         return "Localhost"
     }
 }
@@ -139,30 +149,16 @@ export function parseIfNeccessary(value) {
 };
 
 export const getTopLevelDomain = () => {
+    //This is testing code and if statment can be deleted when set for production builds
+    // if(process.env.NODE_ENV === "development") {
+    //     const domainNames = ['EN', 'DE', 'SL', 'FR', 'IT'];
+    //     const randomIndex = Math.floor(Math.random() * domainNames.length);
+    //     console.log("randomIndex",domainNames[randomIndex]) ; 
+    //     return domainNames[randomIndex];
+    // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
     return host.substring(host.length-2).toUpperCase();
-}
-
-export const myTrackPageView = (pageTitle, trackPageView, city) => {
-    let dimensions = [
-        {
-            id: 1,
-            value: getTopLevelDomain(),
-        }
-    ];
-
-    if(!!city){
-        dimensions.push({
-            id: 2,
-            value: city
-        })
-    }
-
-    trackPageView({
-        documentTitle: pageTitle,
-        customDimensions: dimensions
-    })
 }
 
 export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
@@ -191,4 +187,12 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
 export const titleCase = (string = '') =>{
     if(typeof string === 'string')
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  }
+}
+
+export 	const shortenText = (text, atChar, maxLength) => {
+    let shortText = text;
+    if(text.length > maxLength){
+        shortText = text.slice(atChar, maxLength).concat('...');
+    }
+    return shortText;
+};

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import {Typography} from "@mui/material";
+import { Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import DifficultySlider from "../DifficultySlider";
@@ -20,9 +20,65 @@ import {hideModal, showModal} from "../../actions/modalActions";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
-function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter}){
+function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
+    // Translation-related
+    const {t} = useTranslation();
+	let slovenianMenu = i18next.resolvedLanguage === "sl" ; //use different JSX for button 
+
+    const tourlaenge_label = t('filter.tourlaenge');
+    const tagestour_label = t('filter.tagestour');
+    const mehrtagestour_label = t('filter.mehrtagestour');
+    const jahreszeit_label = t('filter.jahreszeit');
+    const sommertour_label = t('filter.sommertour');
+    const wintertour_label = t('filter.wintertour');
+    const nur_ueberschreitungen_label = t('filter.nur_ueberschreitungen');
+    const tourstart_ende_andere_stops_label = t('filter.tourstart_ende_andere_stops');
+
+    const anstieg_label = t('filter.anstieg');
+    const abstieg_label = t('main.abstieg');
+    const hoehenmeter_label = t('filter.hoehenmeter');
+    const anfahrtszeit_label = t('main.anfahrtszeit');
+    const gehdistanz_label = t('filter.gehdistanz');
+    const sportart_label = t('main.sportart');
+    const alle_an_abwaehlen_label = t('filter.alle_an_abwaehlen');
+    const sprachen_label = t('filter.sprache');
+
+    const schwierigkeit_label = t('filter.schwierigkeit');
+    const schwierigkeitswert_label = t('filter.schwierigkeitswert');
+    const regionen_label = t('filter.regionen');
+    const filter_anwenden_label = t('filter.filter_anwenden');
+    const filter_loeschen_label = t('filter.filter_loeschen');
+    const minimum_label = t('filter.minimum');
+    const maximum_label = t('filter.maximum');
+
+    let sportTypesArray = [
+        {"Bike & Hike": t('filter.bike_hike')},
+        {"Hochtour": t('filter.hochtour')},
+        { "Klettern" : t('filter.klettern')},
+        { "Klettersteig" : t('filter.klettersteig')},
+        { "Langlaufen" : t('filter.langlaufen')},
+        { "Rodeln" : t('filter.rodeln')},
+        { "Schneeschuh" : t('filter.schneeschuh')},
+        { "Skitour" : t('filter.skitour')},
+        { "Wandern" : t('filter.wandern')},
+        { "weitwandern" : t('filter.weitwandern')},
+    ]
+
+    //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
+    let languageArray = [
+        {"de" : t('filter.deutsch')},
+        {"en" : t('filter.englisch')},
+        {"fr" : t('filter.franzoesisch')},
+        {"sl" : t('filter.slowenisch')},
+        {"it" : t('filter.italienisch')}
+    ];
+    
+
+    //loads the filter, including the languages for a specific city
     useEffect(() => {
         let city = searchParams.get('city');
         let range = searchParams.get('range');
@@ -31,6 +87,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let type = searchParams.get('type');
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
+        let language = searchParams.get('language');
 
         loadFilter({
             city: city,
@@ -40,6 +97,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             type: type,
             search: search,
             provider: provider,
+            language: language
         });
     }, [])
 
@@ -47,7 +105,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!!filter){
             //setAscent(getFilterProp(filter, "maxAscent", 5000));
             //setDescent(getFilterProp(filter, "maxDescent", 5000));
-
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -70,6 +127,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
             if(!!filter.types){
                 setTypeValues(filter.types.map(e => {
+                    return {
+                        value: e,
+                        checked: true
+                    }
+                }));
+            }
+            //sets the languageValues according to the filter
+            if(!!filter.languages){
+                setLanguageValues(filter.languages.map(e => {
                     return {
                         value: e,
                         checked: true
@@ -117,12 +183,26 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 }
                             }))
                         }
+                        // sets the language values for the filter
+                        if(!!filter && !!filter.languages && !!parsed.languages){
+                            setLanguageValues(filter.languages.map(entry => {
+                                const found = parsed.languages.find(e => e === entry);
+                                return {
+                                    value: entry,
+                                    checked: !!found
+                                }
+                            }))
+                        }
                     }
                 } catch(e){
                     console.error(e);
                 }
             }
 
+        }
+        if(!!visibleToursGPXNorthEast && !!visibleToursGPXSouthWest){
+            setCoordinatesNorthEast(visibleToursGPXNorthEast);
+            setCoordinatesSouthWest(visibleToursGPXSouthWest);
         }
     }, [filter]);
 
@@ -161,8 +241,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(typeValues.filter(rv => !!!rv.checked).length > 0){
             count++;
         }
-        //clg
-        // console.log("Filter.js count is : " + count)
+        //includes the languages in the filter count
+        if(languageValues.filter(lv => !lv.checked).length > 0){
+            count++;
+        }
 
         return count;
     }
@@ -196,12 +278,19 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [rangeValues, setRangeValues] = useState([]);
     const [typeValues, setTypeValues] = useState([]);
+    const [languageValues, setLanguageValues] = useState([]);
 
     const [rangeValuesState, setRangeValuesState] = useState(true);
     const [typeValuesState, setTypeValuesState] = useState(true);
+    const [languageValuesState, setLanguageValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
 
     const submit = () => {
         const filterValues = {
+            //coordinates: coordinates,  //Füg den Wert in die URL ein
+            coordinatesSouthWest: coordinatesSouthWest,
+            coordinatesNorthEast: coordinatesNorthEast,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -219,6 +308,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             maxDistance: maxDistance,
             ranges: rangeValues.filter(e => !!e.checked).map(e => e.value),
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
+            languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
@@ -246,21 +336,49 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const getTypes = () => {
         let types = [];
-        if(!!filter && !!filter.types){
-            types = filter.types.map(entry => {
+        if (!!filter && !!filter.types) {
+            types = filter.types.map((entry) => {
+                const foundType = sportTypesArray.find(typeObj => Object.keys(typeObj)[0] === entry);
+                const translatedValue = foundType ? Object.values(foundType)[0] : '';
                 return {
                     value: entry,
-                    label: entry
+                    label: translatedValue
                 }
             })
         }
+
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
-                        <Box>
-                            <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
-                        </Box>
-                    </Grid>
-            });
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(typeValues, type.value)} onChange={({target}) => {onChangedCheckbox(typeValues, type.value, target.checked, setTypeValues)}}/>} label={type.label} />
+                </Box>
+            </Grid>
+        });
+    }
+
+    // loads all the language checkboxes
+    const getLanguages = () => {
+        let languages = [];
+        if (!!filter && !!filter.languages) {
+            languages = filter.languages.map((entry) => {
+                const foundType = languageArray.find(typeObj => Object.keys(typeObj)[0] === entry);
+                const translatedValue = foundType ? Object.values(foundType)[0] : '';
+                return {
+                    value: entry,
+                    label: translatedValue
+                }
+            })
+        }
+
+        languages = languages.filter(l => (!!l?.value && !!l?.label));
+
+        return languages.map((type,index) => {
+            return  <Grid key={index} item xs={6}>
+                <Box>
+                    <FormControlLabel control={<Checkbox checked={checkIfCheckedFromCheckbox(languageValues, type?.value)} onChange={({target}) => {onChangedCheckbox(languageValues, type?.value, target.checked, setLanguageValues)}}/>} label={type?.label} />
+                </Box>
+            </Grid>
+        });
     }
 
     const getRanges = () => {
@@ -293,6 +411,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         setTypeValuesState(!!!typeValuesState);
     }
 
+    //function to set all checkboxes on either true or false
+    const updateAllLanguageValues = () => {
+        setLanguageValues(languageValues.map(lv => { return {...lv, checked: !languageValuesState} }));
+        setLanguageValuesState(!languageValuesState);
+    }
+
     return <Box style={{height: "100%"}}>
 
         {!!isLoadingFilter ?
@@ -302,17 +426,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
             <Fragment>
                 <Box className={"filter-box-container"}>
-
-
                     <Box className={"filter-box border"}>
-                        <Typography variant={"subtitle1"}>Tourlänge</Typography>
+                        <Typography variant={"subtitle1"}>{tourlaenge_label}</Typography>
                         <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
+                            <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
                                 <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>Tagestour</Typography>
+                                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                                        <Typography variant={"subtitle3"}>{tagestour_label}</Typography>
                                     </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
+                                    <Grid item xs={6} sx={{ textAlign: "right" }}>
                                         <Switch
                                             checked={singleDayTour}
                                             onChange={() => setSingleDayTour(!!!singleDayTour)}
@@ -321,12 +443,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                     </Grid>
                                 </Grid>
                             </Grid>
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}} className={"toggle-container-right"}>
+                            <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography variant={"subtitle3"}>Mehrtagestour</Typography>
+                                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                                        <Typography variant={"subtitle3"}>{mehrtagestour_label}</Typography>
                                     </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
+                                    <Grid item xs={6} sx={{ textAlign: "right" }}>
                                         <Switch
                                             checked={multipleDayTour}
                                             onChange={() => setMultipleDayTour(!!!multipleDayTour)}
@@ -337,15 +459,15 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box className={"filter-box border"} style={{paddingTop: "20px", paddingBottom: "20px"}}>
-                        <Typography variant={"subtitle1"}>Jahreszeit</Typography>
+                    <Box className={"filter-box border"} style={{ paddingTop: "20px", paddingBottom: "20px" }}>
+                        <Typography variant={"subtitle1"}>{jahreszeit_label}</Typography>
                         <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}} className={"toggle-container-left"}>
+                            <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
                                 <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>Sommertour</Typography>
+                                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                                        <Typography>{sommertour_label}</Typography>
                                     </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
+                                    <Grid item xs={6} sx={{ textAlign: "right" }}>
                                         <Switch
                                             checked={summerSeason}
                                             onChange={() => setSummerSeason(!!!summerSeason)}
@@ -354,12 +476,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                     </Grid>
                                 </Grid>
                             </Grid>
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
+                            <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
                                 <Grid container spacing={0}>
-                                    <Grid item xs={6} sx={{alignSelf: "center"}}>
-                                        <Typography>Wintertour</Typography>
+                                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                                        <Typography>{wintertour_label}</Typography>
                                     </Grid>
-                                    <Grid item xs={6} sx={{textAlign: "right"}}>
+                                    <Grid item xs={6} sx={{ textAlign: "right" }}>
                                         <Switch
                                             checked={winterSeason}
                                             onChange={() => setWinterSeason(!!!winterSeason)}
@@ -370,14 +492,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box className={"filter-box"} sx={{paddingTop: "20px"}}>
-                        <Box sx={{paddingTop: "16px"}}>
-                            <Grid container sx={{paddingTop: "16px"}}>
+                    <Box className={"filter-box"} sx={{ paddingTop: "20px" }}>
+                        <Box sx={{ paddingTop: "16px" }}>
+                            <Grid container sx={{ paddingTop: "16px" }}>
                                 <Grid item xs={10}>
-                                    <Typography variant={"subtitle1"}>Nur Überschreitungen</Typography>
-                                    <Typography variant={"subtitle2"} sx={{fontSize: "16px", fontWeight: 400}}>Tourstart und Tourende sind unterschiedliche Haltestellen.</Typography>
+                                    <Typography variant={"subtitle1"}>{nur_ueberschreitungen_label}</Typography>
+                                    <Typography variant={"subtitle2"} sx={{ fontSize: "16px", fontWeight: 400 }}>{tourstart_ende_andere_stops_label}</Typography>
                                 </Grid>
-                                <Grid item xs={2} sx={{textAlign: "right"}}>
+                                <Grid item xs={2} sx={{ textAlign: "right" }}>
                                     <Switch
                                         checked={traverse}
                                         onChange={() => setTravers(!!!traverse)}
@@ -387,28 +509,29 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             </Grid>
                         </Box>
                     </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
+                    <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA", paddingRight: "24px"}}  className={"toggle-container-left"}>
-                                <Typography>Anstieg (hm)</Typography>
+                            <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
+                                <Typography>{anstieg_label} (hm)</Typography>
                                 <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
+                                    containerSx={{ marginRight: '10px' }}
                                     step={100}
                                     min={getFilterProp(filter, "minAscent", 0)}
                                     max={getFilterProp(filter, "maxAscent", 5000)}
                                     value={[minAscent, maxAscent]}
-                                    onChange={({target}) => {
+                                    onChange={({ target }) => {
                                         setMinAscent(target.value[0])
                                         setMaxAscent(target.value[1])
                                     }}
                                 />
 
-                                <Box sx={{marginTop: "15px"}}>
+                                <Box sx={{ marginTop: "15px" }}>
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label={minimum_label}
                                                 variant="filled"
                                                 value={minAscent}
                                                 endAdormentLabel={null}
@@ -417,7 +540,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxAscent}
@@ -425,27 +549,28 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {maxAscent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ Höhenmeter</div>}
+                                {maxAscent === 3000 && <div style={{ fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B" }}>3000+ {hoehenmeter_label}</div>}
                             </Grid>
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>Abstieg (hm)</Typography>
+                            <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
+                                <Typography>{abstieg_label} (hm)</Typography>
                                 <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
+                                    containerSx={{ marginRight: '10px' }}
                                     step={100}
                                     min={getFilterProp(filter, "minDescent", 0)}
                                     max={getFilterProp(filter, "maxDescent", 5000)}
                                     value={[minDescent, maxDescent]}
-                                    onChange={({target}) => {
+                                    onChange={({ target }) => {
                                         setMinDescent(target.value[0])
                                         setMaxDescent(target.value[1])
                                     }}
                                 />
-                                <Box sx={{marginTop: "15px"}}>
+                                <Box sx={{ marginTop: "15px" }}>
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDescent}
@@ -454,7 +579,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDescent}
@@ -462,32 +588,33 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {maxDescent === 3000 && <div style={{fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B"}}>3000+ Höhenmeter</div>}
+                                {maxDescent === 3000 && <div style={{ fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B" }}>3000+ {hoehenmeter_label} </div>}
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
+                    <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Grid container>
-                            <Grid item xs={6} sx={{borderRight: "1px solid #EAEAEA",paddingRight: "24px"}} className={"toggle-container-left"}>
-                                <Typography>Anfahrtszeit (h)</Typography>
+                            <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
+                                <Typography>{anfahrtszeit_label} (h)</Typography>
                                 <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
+                                    containerSx={{ marginRight: '10px' }}
                                     step={0.50}
                                     min={getFilterProp(filter, "minTransportDuration", 0)}
                                     max={getFilterProp(filter, "maxTransportDuration", 50)}
                                     value={[minTransportDuration, maxTransportDuration]}
-                                    onChange={({target}) => {
+                                    onChange={({ target }) => {
                                         setMinTransportDuration(target.value[0])
                                         setMaxTransportDuration(target.value[1])
                                     }}
                                 />
 
-                                <Box sx={{marginTop: "15px"}}>
+                                <Box sx={{ marginTop: "15px" }}>
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(minTransportDuration)}
@@ -496,7 +623,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={convertNumToTime(maxTransportDuration)}
@@ -505,25 +633,26 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                     </Grid>
                                 </Box>
                             </Grid>
-                            <Grid item xs={6} sx={{paddingLeft: "24px"}}  className={"toggle-container-right"}>
-                                <Typography>Gehdistanz (km)</Typography>
+                            <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
+                                <Typography>{gehdistanz_label} (km)</Typography>
                                 <GeneralSlider
-                                    containerSx={{marginRight: '10px'}}
+                                    containerSx={{ marginRight: '10px' }}
                                     step={2}
                                     min={getFilterProp(filter, "minDistance", 0)}
                                     max={getFilterProp(filter, "maxDistance", 10000)}
                                     value={[minDistance, maxDistance]}
-                                    onChange={({target}) => {
+                                    onChange={({ target }) => {
                                         setMinDistance(target.value[0])
                                         setMaxDistance(target.value[1])
                                     }}
                                 />
-                                <Box sx={{marginTop: "15px"}}>
+                                <Box sx={{ marginTop: "15px" }}>
                                     <Grid container spacing={"10px"}>
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Minimum"
+                                                // label="Minimum"
+                                                label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={minDistance}
@@ -532,48 +661,63 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                label="Maximum"
+                                                // label="Maximum"
+                                                label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
                                                 value={maxDistance}
                                             />
-                                            {maxDistance === 80 && <div style={{fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B"}}>80+ km</div>}
+                                            {maxDistance === 80 && <div style={{ fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B" }}>80+ km</div>}
                                         </Grid>
                                     </Grid>
                                 </Box>
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>Sportart <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllTypeValues}>Alle ab-/anwählen</Typography></Typography>
-                        <Grid container sx={{paddingTop: "16px"}}>
+                    <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                        <Typography variant={"subtitle1"}>{sportart_label} <Typography variant={"text"} className={"cursor-link"} sx={{ fontSize: "14px" }} onClick={updateAllTypeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Grid container sx={{ paddingTop: "16px" }}>
                             {getTypes()}
                         </Grid>
                     </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px"}}>
-                        <Typography variant={"subtitle1"}>Regionen <Typography variant={"text"} className={"cursor-link"} sx={{fontSize: "14px"}} onClick={updateAllRangeValues}>Alle ab-/anwählen</Typography></Typography>
-                        <Grid container sx={{paddingTop: "16px"}}>
+                    <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                        <Typography variant={"subtitle1"}>{sprachen_label} <Typography variant={"text"} className={"cursor-link"} sx={{ fontSize: "14px" }} onClick={updateAllLanguageValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Grid container sx={{ paddingTop: "16px" }}>
+                            {getLanguages()}
+                        </Grid>
+                    </Box>
+                    <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                        <Typography variant={"subtitle1"}>{regionen_label} <Typography variant={"text"} className={"cursor-link"} sx={{ fontSize: "14px" }} onClick={updateAllRangeValues}>{alle_an_abwaehlen_label}</Typography></Typography>
+                        <Grid container sx={{ paddingTop: "16px" }}>
                             {getRanges()}
                         </Grid>
                     </Box>
-                    <Box className={"filter-box border"} sx={{paddingTop: "20px", position: "relative"}}>
-                        <Box sx={{position: "absolute", top: '20px', right: '20px'}}>
-                            <Typography variant={"error"}><TextWithIcon text={difficulty} iconRight={<Intensity style={{stroke: "#FF540B", fill: "none", strokeWidth: 1.5}}/>} /></Typography>
+                    <Box className={"filter-box"} sx={{ paddingTop: "20px", position: "relative" }}>
+                        <Box sx={{ position: "absolute", top: '20px', right: '20px' }}>
+                            <Typography variant={"error"}><TextWithIcon text={difficulty} iconRight={<Intensity style={{ stroke: "#FF540B", fill: "none", strokeWidth: 1.5 }} />} /></Typography>
                         </Box>
-                        <Typography variant={"subtitle1"}>Schwierigkeit</Typography>
-                        <Typography variant={"subtitle2"} sx={{fontSize: "14px", fontWeight: 400}}>Der Schwierigkeitswert wurde nach den Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann "leicht", "mittel" oder "schwer" sein.</Typography>
+                        <Typography variant={"subtitle1"}>{schwierigkeit_label}</Typography>
+                        <Typography variant={"subtitle2"} sx={{ fontSize: "14px", fontWeight: 400 }}>{schwierigkeitswert_label}</Typography>
                         <DifficultySlider
-                            containerSx={{marginTop: '20px', marginRight: '10px'}}
+                            containerSx={{ marginTop: '20px', marginRight: '10px' }}
                             defaultValue={10}
                             value={difficulty}
-                            onChange={({target}) => setDifficulty(target.value)}
+                            onChange={({ target }) => setDifficulty(target.value)}
                         />
                     </Box>
                 </Box>
-                <Box className={"filter-box bottom"}  sx={{marginBottom: "40px", borderTop: "1px solid #EAEAEA", padding: 0}}>
-                    <Box sx={{float: "right", padding: "20px"}}>
-                        <Button variant={"text"} sx={{marginRight: "15px", color: "#8B8B8B"}} onClick={resetFilter}>Filter löschen</Button>
-                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} Filter anwenden</Button>
+                <Box className={"filter-box"} sx={{
+                    backgroundColor: "#fff",
+                    width: "100%",
+                    boxSizing:"border-box",
+                    borderTop: "1px solid #EAEAEA",
+                    display: "flex",
+                    padding:"0",
+                    justifyContent: { xs: "center", sm: "end" }
+                }}>
+                    <Box sx={{ pt: "18px" }}>
+                        <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
+                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
                     </Box>
                 </Box>
             </Fragment>
@@ -581,7 +725,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
 
 
-    </Box>
+    </Box >
 };
 
 const mapDispatchToProps = {
@@ -599,6 +743,8 @@ const mapStateToProps = (state) => {
     return {
         filter: state.tours.filter,
         isLoadingFilter: state.tours.isLoadingFilter,
+        visibleToursGPXSouthWest: state.tours.visibleToursGPX._southWest,
+        visibleToursGPXNorthEast: state.tours.visibleToursGPX._northEast,
     }
 };
 

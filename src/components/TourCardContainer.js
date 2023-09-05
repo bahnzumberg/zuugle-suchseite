@@ -8,6 +8,11 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {Typography} from "@mui/material";
 
 export default function TourCardContainer({tours, onSelectTour, loadTourConnections, city, loadTours, totalTours, pageTours, loading, total}){
+
+    // console.log("L12: received totalTours :",totalTours);
+    // console.log("L13: received total :",total);
+    // console.log("L14: received tours.length :",tours.length);
+
     const [searchParams, setSearchParams] = useSearchParams();
 
     const _loadTours = () => {
@@ -22,10 +27,13 @@ export default function TourCardContainer({tours, onSelectTour, loadTourConnecti
         let map = searchParams.get('map');
         let provider = searchParams.get('p');
 
+  
         if(!!filter){
             let filterParsed = JSON.parse(filter);
             filterParsed.ignore_filter = true;
             filter = JSON.stringify(filterParsed);
+            // console.log("L35 filter inside If statement TourCardContainer: ");
+            // console.log(filter);
         }
 
         loadTours({
@@ -53,6 +61,10 @@ export default function TourCardContainer({tours, onSelectTour, loadTourConnecti
                 hasMore={!!!(tours.length === totalTours)}
                 loader={!!loading && <CircularProgress />}
             >
+                {/* {console.log("L64: TourCardContainer/ tours.length", tours.length)}                
+                {console.log("L65: TourCardContainer/ totalTours", totalTours)}
+                {console.log("L66: TourCardContainer/ onSelectTour ", onSelectTour )}
+                {console.log("L67: TourCardContainer/ tours[0]", tours[0])} */}
                 <Grid container spacing={2}>
                     {
                         (!!tours ? tours : []).filter(tour => !!!tour.is_map_entry).map((tour,index) => <Grid key={index} item xs={12} sm={6} lg={4} style={{marginBottom: "5px"}}>

@@ -31,9 +31,12 @@ class ModalComponent extends Component {
             <MyModal
                 style="primary"
                 title={ this.props.title }
+                page={this.props.page}
+                srhBoxScrollH={this.props.srhBoxScrollH}
                 content={ content }
                 size={!!this.props.modalSize ? this.props.modalSize : "lg"}
                 onBack={ this.props.onBack }
+                sourceCall={ this.props.sourceCall }
             />
         );
     }

@@ -3,6 +3,9 @@ import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 // import {listAllCityLinks} from "../../utils/seoPageHelper";
+import { useTranslation } from 'react-i18next';
+
+
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -10,6 +13,8 @@ const currentYear = currentDate.getFullYear();
 //description
 //The Footer.js file is a React component that displays a footer section on a web page. It includes the Zuugle logo, the current year, and links to Bahn zum Berg, Datenschutz, and Impressum pages. Additionally, it also includes social media icons for Facebook and Instagram.
 export default function Footer({}){
+    const {t}  = useTranslation();
+
     return  <Box sx={{width: "100%", borderTop: "1px solid #dfdfdf"}}>
         <Grid container sx={{padding: "20px 40px"} }>
             <Grid item xs={12} md={10}>
@@ -24,10 +29,14 @@ export default function Footer({}){
                         <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`https://www.bahnzumberg.at`)}>Bahn zum Berg</Typography>
                     </Grid>
                     <Grid item xs  >
-                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick={() => window.open(`${window.location.protocol}//${window.location.host}/privacy`)}>Datenschutz</Typography>
+                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} onClick=   {() => window.open(`${window.location.protocol}//${window.location.host}/privacy`)}>
+                            {t('start.datenschutz')} 
+                        </Typography>
                     </Grid>
                     <Grid item xs  >
-                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`${window.location.protocol}//${window.location.host}/imprint`)}>Impressum</Typography>
+                        <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`${window.location.protocol}//${window.location.host}/imprint`)}>
+                            {t('start.impressum')} 
+                        </Typography>
                     </Grid>
                 </Grid>
             </Grid>

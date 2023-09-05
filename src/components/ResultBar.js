@@ -9,8 +9,17 @@ import Box from "@mui/material/Box";
 import {FormControlLabel, Typography} from "@mui/material";
 import Switch from "@mui/material/Switch";
 import {getFilterProp} from "../utils/globals";
+import { useTranslation } from 'react-i18next';
+import TourMapContainer from "./Map/TourMapContainer";
 
 export default function ResultBar({total, showModal, hideModal, filter, filterActive, everythingDisabled = false, clearTours}){
+
+    const{t} = useTranslation();
+
+   const resultLabel = total == 1 ? 'Ergebnis' : t('main.ergebnisse');
+   const mapLabel = t('main.karte');
+   const sortLabel = t('main.sortieren_nach');
+
 
     // console.log("Total in ResultBar: " + total);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +31,8 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         let _order = searchParams.get('sort');
         let _mapView = searchParams.get('map');
 
+        localStorage.setItem('MapToggle', false);
+
         if(!!_mapView){
             setMapView(_mapView == "true");
         }
@@ -32,15 +43,19 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
     }, [!!searchParams]);
 
     const openFilter = () => {
+        localStorage.setItem('MapToggle', true);
         showModal("MODAL_COMPONENT", {
             CustomComponent: Filter,
             title: "Filter",
             modalSize: "lg",
+            page:"main",
             doSubmit: handleFilterSubmit,
             resetFilter: handleResetFilter,
             searchParams,
             setSearchParams
         });
+
+        localStorage.setItem('MapToggle', true);
     }
 
     const handleFilterSubmit = ({filterValues}) => {
@@ -53,7 +68,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         handleChange("filter", null);
     }
 
-    const handleChange = (queryType, entry) => {
+     const handleChange = (queryType, entry) => {
         if(queryType == "order" && !!entry && !!entry.value){
             setOrder(entry.value);
             searchParams.set("sort", entry.value);
@@ -69,6 +84,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         } else if(queryType == "view"){
             searchParams.set("map", entry.value);
             setSearchParams(searchParams);
+            localStorage.setItem('MapToggle', entry.value);
         }
 
     };
@@ -78,7 +94,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
         <div>
             <Grid container rowSpacing={0} columnSpacing={1}>
                 <Grid item xs={12} sm={12} md={3} style={{alignSelf: "center", textAlign: "left"}} className={"result-text"}>
-                    {Number(total).toLocaleString()} {total == 1 ? 'Ergebnis' : 'Ergebnisse'}
+                    {Number(total).toLocaleString()} {resultLabel}
                 </Grid>
                 <Grid item xs={12} sm={12} md={9}>
                     <Grid container>
@@ -89,7 +105,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
                                     handleChange('view', {value: !!!mapView})
                                     setMapView(!!!mapView)
                                 }}
-                            />} label="Karte" labelPlacement="end"/>
+                            />} label={mapLabel} labelPlacement="end"/>
                         </Grid>
                         <Grid item xs={12} sm={12} md={4}>
                             <Box className={"filter-button-container"}>
@@ -98,7 +114,7 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
                         </Grid>
                         <Grid item xs={12} sm={12} md={6}>
                             <Box className={"order-container cursor-link"} style={{display: "flex"}}>
-                                <Typography style={{alignSelf: "center", paddingRight: "10px"}}>Sortieren nach</Typography>
+                                <Typography style={{alignSelf: "center", paddingRight: "10px"}}>{sortLabel}</Typography>
                                 <SortInput onChange={(value) => handleChange("order", value)} value={order} disabled={everythingDisabled}/>
                             </Box>
                         </Grid>
