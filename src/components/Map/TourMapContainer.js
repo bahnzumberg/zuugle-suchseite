@@ -177,7 +177,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        console.log("Filter: ", bounds);
+        // console.log("Filter: ", bounds);
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -199,7 +199,7 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
-        console.log("filter values:", filterValues);
+        // console.log("filter values:", filterValues);
         if (filterValues == null) {
             searchParams.delete("filter");
         } else {

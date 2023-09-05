@@ -135,11 +135,11 @@ export async function setLanguage() {
 	} else {
 		try {
 			const extractedLang = await extractLanguage();
-			console.log("Utils: extractedLang:", extractedLang);
+			// console.log("Utils: extractedLang:", extractedLang);
 
 			const formattedLang =
 				i18n.services.languageUtils.formatLanguageCode(extractedLang);
-			console.log("Utils: formattedLang:", formattedLang);
+			// console.log("Utils: formattedLang:", formattedLang);
 
 			// i18n.changeLanguage(formattedLang);
 			langChange(formattedLang);

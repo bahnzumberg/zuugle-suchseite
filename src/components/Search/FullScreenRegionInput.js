@@ -47,8 +47,8 @@ function FullScreenRegionInput({
     return (
         <Box>
             <Box sx={{ padding: "20px" }}>
-                {console.log("FSRI / regionInput :", regionInput) }
-                {console.log("FSRI / city :", city) }
+                {/* {console.log("FSRI / regionInput :", regionInput) }
+                {console.log("FSRI / city :", city) } */}
                 <RegionInput
                     region={regionInput}
                     setRegion={(value) =>

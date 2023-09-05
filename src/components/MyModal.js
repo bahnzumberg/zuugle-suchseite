@@ -22,7 +22,7 @@ import Close from "../icons/Close";
 // } from "../utils/globals";
 
 const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack, sourceCall}) => {
-  console.log("L25 : sourceCall", sourceCall);
+  // console.log("L25 : sourceCall", sourceCall);
   const { t } = useTranslation();
   // const [placeholder, setPlaceholder] = useState(t("start.suche"));
   // const [cityInput, setCityInput] = useState("");
@@ -40,7 +40,7 @@ const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack,
     display: "block",
     position: "absolute",
     // top: { xs: "auto", sm: "50%" },
-    top: { xs: "auto", sm: !title ? (srhBoxScrollH-80) : "50%" },
+    top: { xs: 0, sm: !title ? (srhBoxScrollH-80) : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {

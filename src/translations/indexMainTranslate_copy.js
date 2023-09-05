@@ -3,7 +3,7 @@
 function updateHtmlLangAttribute(language) {
   var htmlTag = document.getElementById("html-tag");
   htmlTag.setAttribute("lang", language);
-  console.log("inside updateHtmlLangAttribute:", language);
+  // console.log("inside updateHtmlLangAttribute:", language);
 }
 
 async function translateElements(lng) {
@@ -12,13 +12,13 @@ async function translateElements(lng) {
 
   i18n.changeLanguage(lng, function (err, t) {
     if (err) return console.error('Error changing language:', err);
-    console.log("translateElements - lng changed: " + lng);
+    // console.log("translateElements - lng changed: " + lng);
     var elements = document.querySelectorAll('[data-i18n]');
 
     Array.prototype.forEach.call(elements, function (el) {
       var key = el.getAttribute('data-i18n');
-      console.log("key: " + key);
-      console.log("element:", el);
+      // console.log("key: " + key);
+      // console.log("element:", el);
 
       switch (key) {
         case "index.zuugle_description":
@@ -49,7 +49,7 @@ initializeTranslation();
 // Event listener to update translations
 document.addEventListener('languageChanged', function (event) {
   var updatedLanguage = event.detail.language; // the passed new language selected from dropdown
-  console.log("updatedLanguage: " + updatedLanguage);
+  // console.log("updatedLanguage: " + updatedLanguage);
   updateHtmlLangAttribute(updatedLanguage);
   translateElements(updatedLanguage);
 });

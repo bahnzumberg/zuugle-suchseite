@@ -70,12 +70,12 @@ export default function ItineraryTourTimeLineContainer({
   }, [connections]);
   
   const formatDuration = (duration) => { 
-    !!duration ? console.log("Duration dude is : ", duration) : console.log("no duration !!!");
+    // !!duration ? console.log("Duration dude is : ", duration) : console.log("no duration !!!");
     // if(!duration) return " ";
     let _time = " ";
     _time = !!duration && convertNumToTime(duration, true);
     _time = _time.replace(/\s*h\s*$/, '');
-    console.log("trimed time ", _time); // Output: "07:00"
+    // console.log("trimed time ", _time); // Output: "07:00"
     return _time;
   }
 
@@ -274,7 +274,12 @@ export default function ItineraryTourTimeLineContainer({
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-      
+              {/* {console.log("connection -> entries:", JSON.stringify(entries))}  */}
+              {/* {console.log("connection -> part 1: entries", entries)}
+              {console.log(
+                "connection -> part 2 getSingleConnection():",
+                getSingleConnection()
+              )} */}
 
               <Timeline>
                 {createEntries(entries, getSingleConnection())}

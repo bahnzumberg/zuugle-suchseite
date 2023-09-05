@@ -25,8 +25,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
-console.log('Generated keys: 1', keys_1);
-console.log('Generated keys: 2', keys_2);
+// console.log('Generated keys: 1', keys_1);
+// console.log('Generated keys: 2', keys_2);
 
 export const getDepartureText = (connection) => {
   if (!!!connection) {
