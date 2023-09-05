@@ -2,7 +2,8 @@ name: UAT Deploy
 on:
   push:
     branches:
-      - 'dev-drop-**'
+      - 'main'
+      - 'uat'
 jobs:
   build:
     runs-on: ubuntu-latest
