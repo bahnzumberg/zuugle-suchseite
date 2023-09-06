@@ -26,7 +26,7 @@ router.get('/:id', (req, res) => getWrapper(req, res));
 const totalWrapper = async (req, res) => {
     req && console.log("Request totalWrapper L25:");
     req && console.log("req.body :", req.query);
-    req && req.query.params && console.log(req.query.params);
+    // req && req.query.params && console.log(req.query.params);
 
     const city = req.query.city;
     const total = await knex.raw(`SELECT 
@@ -54,17 +54,34 @@ const totalWrapper = async (req, res) => {
 //description
 //The getWrapper function in tours.js is responsible for handling GET requests to retrieve information about a specific tour. It receives the request object and response object as parameters, extracts the city, id, and domain query parameters from the request, and uses the id parameter to query the tour table in the database using Knex. If the id exists, it then calls the prepareTourEntry function to prepare the tour entry with additional information and sends the entry as a JSON response. If the id doesn't exist, it sends a 404 error response.
 const getWrapper = async (req, res) => {
-    // req && console.log("Request / getWrapper L35 :");
-    // req && console.log("req.body/ getWrapper L36 :", req.body);
+    // req && console.log("Request / getWrapper L57 :");
+    // req && console.log("req.body/ getWrapper L58:", JSON.stringify(req.query));
+    // console.log("L59 Request / getWrapper");
+    
     const city = req.query.city;
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10); // Parse id as an integer
     const domain = req.query.domain;
+
+    console.log("City:", city);
+    console.log("ID:", id);
+    console.log("Domain:", domain);
+
+    if (isNaN(id)) {
+        res.status(400).json({ success: false, message: "Invalid tour ID" });
+        return;
+    }
 
     if(!!!id){
         res.status(404).json({success: false});
     } else {
         let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-        let entry = await knex('tour').select(selects).where({id: id}).first();
+        // let entry = await knex('tour').select(selects).where({id: id}).first();
+
+        let entryQuery = knex('tour').select(selects).where({id: id}).first();
+        console.log("Knex Query:", entryQuery.toSQL());
+        let entry = await entryQuery;
+
+
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({success: true, tour: entry});
     }
