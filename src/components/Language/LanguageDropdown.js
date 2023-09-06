@@ -7,7 +7,7 @@ import Select from "@mui/material/Select";
 import { useTranslation } from "react-i18next";
 import { langChange } from "../../utils/language_Utils";
 
-var resolvedLanguage = await import('./i18n').then((module) => module.default.language);
+var resolvedLanguage = await import('../../translations/i18n').then((module) => module.default.language);
 const storedLanguage = localStorage.getItem("lang");
 let currLanguage = storedLanguage || resolvedLanguage;
 
