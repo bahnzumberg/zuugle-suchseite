@@ -55,6 +55,7 @@
   },
   "scripts": {
     "start": "webpack serve --mode development --port 3000 --open --hot --progress --host localhost --static .",
+    "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
     "build": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
