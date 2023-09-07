@@ -1,61 +1,34 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
+// import { Language } from "@mui/icons-material";
 
-var resolvedLanguage = await import('../../translations/i18n').then((module) => module.default.language);
-const storedLanguage = localStorage.getItem("lang");
-let currLanguage = storedLanguage || resolvedLanguage;
-
-if (currLanguage=="en") {
-	const Languages = [
-		{ key: "en", nativeName: "English" },
-		{ key: "fr", nativeName: "Français" },
-		{ key: "de", nativeName: "Deutsch" },
-		{ key: "it", nativeName: "Italiano" },
-		{ key: "sl", nativeName: "Slovenščina" },
-	];
-}
-else if (currLanguage=="de") {
-	const Languages = [
-		{ key: "de", nativeName: "Deutsch" },
-		{ key: "en", nativeName: "English" },
-		{ key: "fr", nativeName: "Français" },
-		{ key: "it", nativeName: "Italiano" },
-		{ key: "sl", nativeName: "Slovenščina" },
-	];
-}
-else if (currLanguage=="fr") {
-	const Languages = [
-		{ key: "fr", nativeName: "Français" },
-		{ key: "de", nativeName: "Deutsch" },
-		{ key: "en", nativeName: "English" },
-		{ key: "it", nativeName: "Italiano" },
-		{ key: "sl", nativeName: "Slovenščina" },
-	];
-}
-else if (currLanguage=="it") {
-	const Languages = [
-		{ key: "it", nativeName: "Italiano" },
-		{ key: "de", nativeName: "Deutsch" },
-		{ key: "en", nativeName: "English" },
-		{ key: "fr", nativeName: "Français" },
-		{ key: "sl", nativeName: "Slovenščina" },
-	];
-}
-else if (currLanguage=="sl") {
-	const Languages = [
-		{ key: "sl", nativeName: "Slovenščina" },
-		{ key: "de", nativeName: "Deutsch" },
-		{ key: "en", nativeName: "English" },
-		{ key: "fr", nativeName: "Français" },
-		{ key: "it", nativeName: "Italiano" },
-	];
-}
 
 function LanguageMenu() {
 	const { i18n } = useTranslation();
+
+	var resolvedLanguage = i18n.language
+	const storedLanguage = localStorage.getItem("lang");
+	let currLanguage = storedLanguage || resolvedLanguage;
+	const [Languages, setLanguages] = useState([
+		{ key: "en", nativeName: "English" },
+		{ key: "fr", nativeName: "Français" },
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "it", nativeName: "Italiano" },
+		{ key: "sl", nativeName: "Slovenščina" },
+	]);
+	
+
+	useEffect(() =>	{
+		let currIndex = null;
+		if(!!currLanguage){ currIndex = Languages.findIndex(lang => lang.key == currLanguage); }
+		const [ langObject] = Languages.splice(currIndex, 1);
+		Languages.sort((a,b) => a.key.localeCompare(b.key) ) ;
+		Languages.unshift(langObject);
+	},[currLanguage])
+	
 	const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
 		i18n.language
 	);
@@ -66,14 +39,6 @@ function LanguageMenu() {
 		langChange(lng);
 		setShowLanguageMenu(false);
 	};
-	// let selectedValue = '';
-	// Languages.forEach((item) =>{
-	// if(item.key == i18LangFormatted){
-	// selectedValue = item.key;
-	// return
-	// }
-	// }
-	// );
 
 	return (
 		<div>
