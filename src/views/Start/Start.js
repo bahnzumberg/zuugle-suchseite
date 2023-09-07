@@ -131,7 +131,7 @@ function Start({
     getCity();
     if (!!city) {
       getTotalCityTours(city).then((data) => {
-        data ? console.log("L134 tours_city :", data.tours_city) : console.log("nothing found");
+        // data ? console.log("L134 tours_city :", data.tours_city) : console.log("nothing found");
         setTotalToursFromCity(data.tours_city);
       });
     }
@@ -157,8 +157,9 @@ function Start({
     if (city) {
       updatedSearchParams.set("city", city);
     }
-
-    window.open("/tour?" + updatedSearchParams.toString());
+    console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
+    console.log("/tour?" + updatedSearchParams.toString());
+    window.open("/tour?" + updatedSearchParams.toString(),'_blank', 'noreferrer');
   };
 
   //description:
@@ -206,7 +207,7 @@ function Start({
       </Box>
     );
   } else {
-    console.log("totalToursFromCity", totalToursFromCity)
+    // console.log("totalToursFromCity", totalToursFromCity)
     return (
       <Box>
         {getPageHeader(null)}

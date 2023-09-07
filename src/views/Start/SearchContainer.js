@@ -8,7 +8,9 @@ export default function SearchContainer({
   showMobileMenu,
   setShowMobileMenu,
 }) {
-  // console.log("SearchContainer / goto : ", goto);
+  // console.log("SearchContainer / goto : ", goto); // '/suche'
+  // console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
+  // console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
 
   return (
     <Box>
