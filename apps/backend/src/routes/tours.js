@@ -394,8 +394,8 @@ const listWrapper = async (req, res) => {
     // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
-        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse+1)/30)*30 ASC`);
-        sql_order += `, ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse+1)/30)*30 ASC `; //4)
+        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
+        sql_order += ` ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC `; //4)
     }
     else {
         query = query.orderBy("month_order", 'asc');
@@ -432,6 +432,8 @@ const listWrapper = async (req, res) => {
 
     if(searchIncluded){
         try {
+            console.log(" L435: final query :", sql_select + outer_where + sql_order + sql_limit)
+            console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
             // console.log('L553: result', result.rows);
