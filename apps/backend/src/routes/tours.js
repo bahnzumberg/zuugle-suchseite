@@ -24,8 +24,8 @@ router.get('/:id', (req, res) => getWrapper(req, res));
 // description :
 // This function queries the database for the total number of tours, total connections, total ranges, total cities, and total provider using the knex.raw method. It then returns a JSON response with the queried values. The function is used to handle requests to the endpoint /total. The total number is used in the Start page where total all available tours is mentioned in the header. 
 const totalWrapper = async (req, res) => {
-    req && console.log("Request totalWrapper L25:");
-    req && console.log("req.body :", req.query);
+    // req && console.log("Request totalWrapper L25:");
+    // req && console.log("req.body :", req.query);
     // req && req.query.params && console.log(req.query.params);
 
     const city = req.query.city;
@@ -62,9 +62,9 @@ const getWrapper = async (req, res) => {
     const id = parseInt(req.params.id, 10); // Parse id as an integer
     const domain = req.query.domain;
 
-    console.log("City:", city);
-    console.log("ID:", id);
-    console.log("Domain:", domain);
+    // console.log("City:", city);
+    // console.log("ID:", id);
+    // console.log("Domain:", domain);
 
     if (isNaN(id)) {
         res.status(400).json({ success: false, message: "Invalid tour ID" });
@@ -78,7 +78,7 @@ const getWrapper = async (req, res) => {
         // let entry = await knex('tour').select(selects).where({id: id}).first();
 
         let entryQuery = knex('tour').select(selects).where({id: id}).first();
-        console.log("Knex Query:", entryQuery.toSQL());
+        // console.log("Knex Query:", entryQuery.toSQL());
         let entry = await entryQuery;
 
 
@@ -432,8 +432,8 @@ const listWrapper = async (req, res) => {
 
     if(searchIncluded){
         try {
-            console.log(" L435: final query :", sql_select + outer_where + sql_order + sql_limit)
-            console.log("================================================")
+            // console.log(" L435: final query :", sql_select + outer_where + sql_order + sql_limit)
+            // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
             // console.log('L553: result', result.rows);
