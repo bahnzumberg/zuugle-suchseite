@@ -55,6 +55,8 @@ export function loadTour(id, city) {
         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", { city: city })
             .then(res => {
                 // Process the successful response here if needed
+                // console.log("loatTour res.data:")
+                // console.log(res.data)
                 return res;
             })
             .catch(error => {

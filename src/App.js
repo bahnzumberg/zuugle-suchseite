@@ -50,6 +50,7 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<Start />} />
+            <Route path="/total" element={<Start />} />
             <Route path="/suche" element={<Main />} />
             <Route path="/about" element={<About />} />
             <Route path="/tour" element={<DetailReworked />} />

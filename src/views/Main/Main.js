@@ -36,9 +36,6 @@ import ClearFilterIcon from "../../icons/ClearFilterIcon";
 import { ArrowLeft } from "@mui/icons-material";
 import ArrowBefore from "../../icons/ArrowBefore";
 
-// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
-// import SearchContainer from "../../views/Start/SearchContainer";
-
 const SearchFilter = lazy(() =>
   import("../../components/SearchFilter/SearchFilter")
 );

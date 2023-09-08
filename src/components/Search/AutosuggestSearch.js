@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Async from "react-select/async";
 import Select, { components } from "react-select";
 import { loadSuggestions } from "../../actions/crudActions";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@mui/material/styles";
-import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "../../icons/SearchIcon";
-import ClearSearchIcon from "../../icons/ClearSearchIcon";
+// import Async from "react-select/async";
+// import InputAdornment from "@mui/material/InputAdornment";
+// import SearchIcon from "../../icons/SearchIcon";
+// import ClearSearchIcon from "../../icons/ClearSearchIcon";
 import { styled } from "@mui/system";
 import CustomSelect from "./CustomSelect";
 
@@ -56,7 +56,7 @@ const AutosuggestSearchTour = ({
   const { t } = useTranslation();
   const [options, setOptions] = useState([]);
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const searchParam = urlSearchParams.get("search");
+  let searchParam = urlSearchParams.get("search");
   const [searchPhrase, setSearchPhrase] = useState(searchParam ?? "");
   const theme = useTheme();
 
@@ -158,8 +158,12 @@ const AutosuggestSearchTour = ({
   };
 
   useEffect(() => {
+    console.log("Input : ", input)
     onSearchPhrase(input);
+    searchParam = urlSearchParams.get("search")
   }, [input]);
+
+
 
   const NoOptionsMessage = (props) => {
     return (

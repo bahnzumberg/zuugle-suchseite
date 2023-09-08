@@ -133,6 +133,7 @@ export default function Header({
           >
             <Box sx={{ width: "100%" }}>
               <SearchContainer
+                pageKey="start"
                 goto={"/suche"}
                 showMobileMenu={showMobileMenu}
                 setShowMobileMenu={setShowMobileMenu}
