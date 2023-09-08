@@ -16,6 +16,7 @@ const LINEAR_GRADIENT =
 
 export default function Header({
   totalTours,
+  totalToursFromCity,
   allCities,
   showMobileMenu,
   setShowMobileMenu,
@@ -111,7 +112,10 @@ export default function Header({
         </Box>
         <Box className={"header-text"}>
           <Typography variant={"h1"} height={"162px"}>
-            {totalTours.toLocaleString()} {t("start.tourenanzahl_untertitel")}
+            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString() 
+            : 
+            (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()
+            }  {" "} {t("start.tourenanzahl_untertitel")}
           </Typography>
         </Box>
         {!!allCities && allCities.length > 0 && (

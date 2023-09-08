@@ -212,7 +212,8 @@ function Start({
       <Box>
         {getPageHeader(null)}
         <Header
-          totalTours={totalToursFromCity}
+          totalTours={totalTours}
+          totalToursFromCity = {totalToursFromCity}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
