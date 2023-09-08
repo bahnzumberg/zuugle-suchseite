@@ -47,9 +47,9 @@ export function Search({
   // loadFavouriteTours,
 }) {
 
-  console.log("SearchContainer / goto : ", goto); // '/suche'
-  console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
-  console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
+  //console.log("SearchContainer / goto : ", goto); // '/suche'
+  //console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
+  //console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
 
   //navigation
   const navigate = useNavigate();
@@ -144,7 +144,7 @@ export function Search({
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }
-    console.log("L140 Search : pageKey == 'detail' ->", pageKey == 'detail')
+    // console.log("L140 Search : pageKey == 'detail' ->", pageKey == 'detail')
     //return if start page - no load
     if (!!!isMain ) {
       return;
