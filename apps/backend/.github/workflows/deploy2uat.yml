@@ -35,4 +35,6 @@ jobs:
           username: ${{ secrets.UAT_REMOTE_USER }}
           key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
           port: ${{ secrets.UAT_REMOTE_PORT }}
-          script: ${{ secrets.UAT_REMOTE_SCRIPT }}
+          script: /
+            EXPORT PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
+            ${{ secrets.UAT_REMOTE_SCRIPT }}
