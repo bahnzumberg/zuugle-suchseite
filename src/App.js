@@ -14,7 +14,7 @@ const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
+// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 function App() {
   // production matomo ID
@@ -27,7 +27,7 @@ function App() {
   ) {
     siteId = 11;
 
-    tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
+    // tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
   }
 
   useMatomo({
