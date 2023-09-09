@@ -36,5 +36,5 @@ jobs:
           key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
           port: ${{ secrets.UAT_REMOTE_PORT }}
           script: |
-            export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
+            /usr/bin/bash -c "export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin"
             pm2 restart all
