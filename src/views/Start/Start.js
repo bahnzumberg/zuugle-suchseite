@@ -92,7 +92,7 @@ function Start({
     if(!!city) {
       return city;
     }else {
-      return undefined;
+      return "XXX";
     }
   }
 
@@ -212,6 +212,7 @@ function Start({
       <Box>
         {getPageHeader(null)}
         <Header
+          city={getCity()}
           totalTours={totalTours}
           totalToursFromCity = {totalToursFromCity}
           allCities={allCities}
