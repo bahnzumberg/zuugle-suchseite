@@ -38,3 +38,4 @@ jobs:
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
             pm2 restart all
+            npm run import-files
