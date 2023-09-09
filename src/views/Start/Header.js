@@ -115,7 +115,7 @@ export default function Header({
             {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city")
             : 
             (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()+' '+t("start.tourenanzahl_untertitel")
-            }  {" "} {t("start.tourenanzahl_untertitel")}
+            }
           </Typography>
         </Box>
         {!!allCities && allCities.length > 0 && (
