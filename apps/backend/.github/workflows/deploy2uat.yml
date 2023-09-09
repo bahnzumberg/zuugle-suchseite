@@ -27,7 +27,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
           TARGET: ${{ secrets.UAT_REMOTE_TARGET }}
-          EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/'
+          EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/ package.json'
     - name: executing remote ssh command to restart the api using ssh key
       uses: appleboy/ssh-action@v1.0.0
       with:
