@@ -37,4 +37,4 @@ jobs:
           port: ${{ secrets.UAT_REMOTE_PORT }}
           script: |
             EXPORT PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
-            ${{ secrets.UAT_REMOTE_SCRIPT }}
+            pm2 restart all
