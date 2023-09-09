@@ -22,20 +22,10 @@ export default function Header({
   showMobileMenu,
   setShowMobileMenu,
 }) {
-  // const [fSearchQuery, setFSearchQuery] = React.useState("");
-  // const [showFirstMenu, setShowFirstMenu] = React.useState(false);
-  // const [firstMenuOptions, setFirstMenuOptions] = React.useState([
-  // 	"GroBer Patel",
-  // 	"GroBer Priel",
-  // 	"GroBer Pythrgas",
-  // ]);
-  // const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
-  // const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-  // const [secondMenuOptions, setSecondMenuOptions] = React.useState([
-  // 	"GroBer Patel",
-  // 	"GroBer Priel",
-  // 	"GroBer Pythrgas",
-  // ]);
+  
+  const[capCity, setCapCity] = useState(city)
+
+
 
   let tld = '';
   let domain = location.hostname;
@@ -52,11 +42,16 @@ export default function Header({
   const _isMobile = isResponsive();
   const { t, i18n } = useTranslation();
 
-  // const secondMenu = [
-  // 	{ id: 0, name: "Über Zuugle" },
-  // 	{ id: 1, name: "Impressum" },
-  // 	{ id: 2, name: "Datenschutz" },
-  // ];
+  useEffect(() => {
+    !!city && setCapCity(city.charAt(0).toUpperCase() + city.slice(1));
+    // if (!!city && !!allCities) {
+    //   const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+    //   if (!!cityObj) {
+    //       setCapCity(cityObj.city_name)
+    //   }
+    // }
+  }, [city])
+  
 
   useEffect(() => {
     if (!!_isMobile) {
@@ -113,7 +108,7 @@ export default function Header({
         </Box>
         <Box className={"header-text"}>
           <Typography variant={"h1"} height={"162px"}>
-            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city", {city})
+            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city", {capCity})
             : 
             (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()+' '+t("start.tourenanzahl_untertitel")
             }
