@@ -359,7 +359,7 @@ export function Main({
           }}
           position={"relative"}
         >
-          <Box comoponent={"div"} className="rowing blueDiv">
+          <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link

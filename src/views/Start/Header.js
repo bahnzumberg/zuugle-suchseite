@@ -106,15 +106,15 @@ export default function Header({
         sx={{ position: "relative" }}
         style={{ backgroundImage: backgroundImage }}
       >
-        <Box comoponent={"div"} className="rowing countryDiv">
+        <Box component={"div"} className="rowing countryDiv">
           <DomainMenu />
           <LanguageMenu />
         </Box>
         <Box className={"header-text"}>
           <Typography variant={"h1"} height={"162px"}>
-            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString() 
+            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city")
             : 
-            (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()
+            (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()+' '+t("start.tourenanzahl_untertitel")
             }  {" "} {t("start.tourenanzahl_untertitel")}
           </Typography>
         </Box>

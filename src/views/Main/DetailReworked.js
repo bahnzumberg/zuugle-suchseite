@@ -620,7 +620,7 @@ const DetailReworked = (props) => {
   return (
     <Box sx={{ backgroundColor: "#fff" }}>
       <Box className="newHeader" sx={{ position: "relative" }}>
-        <Box comoponent={"div"} className="rowing blueDiv">
+        <Box component={"div"} className="rowing blueDiv">
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box
               sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}

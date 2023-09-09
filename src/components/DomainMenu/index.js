@@ -159,7 +159,7 @@ function DomainMenu() {
 	// const [activeDomain, setActiveDomain] = React.useState("");
 
 	return (
-		<Box comoponent={"div"} className="colLeft">
+		<Box component={"div"} className="colLeft">
 			<div
 				className="countrySwitch rowing"
 				onClick={() => setShowDomainMenu(true)}
