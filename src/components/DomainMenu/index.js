@@ -151,8 +151,8 @@ else if (host.indexOf("www2.zuugle.fr") >= 0) {
 
 const secondMenu = [
 	{ id: 0, name: "Über Zuugle", url: "https://www.bahnzumberg.at/" },
-	{ id: 1, name: "Impressum", url: "https://${domain}/imprint" },
-	{ id: 2, name: "Datenschutz", url: "https://${domain}/privacy" },
+	{ id: 1, name: "Impressum", url: "https://" + domain + "/imprint" },
+	{ id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
 ];
 function DomainMenu() {
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
