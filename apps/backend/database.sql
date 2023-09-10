@@ -248,3 +248,13 @@ CREATE TABLE city2tour (
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
+
+
+CREATE TABLE gpx_changed (
+      id SERIAL,
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL
+);
+CREATE INDEX ON gpx_changed (id);
+CREATE INDEX ON gpx_changed (provider);
+CREATE INDEX ON gpx_changed (hashed_url);

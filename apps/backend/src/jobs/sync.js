@@ -152,7 +152,7 @@ async function _syncConnectionGPX(key, fileName, title){
 }
 
 export async function syncConnectionGPX(){
-    const _limit = pLimit(25);
+    const _limit = pLimit(20);
 
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
@@ -176,7 +176,7 @@ export async function syncConnectionGPX(){
 export async function syncGPX(){
     const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
     if(!!allTours && allTours.length > 0){
-        const _limit = pLimit(25);
+        const _limit = pLimit(20);
         const promises = allTours.map(entry => {
             return _limit(() => _syncGPX(entry.provider, entry.hashed_url, entry.title));
         });
@@ -281,7 +281,59 @@ export async function syncGPXdata(){
         try {
             await knex('gpx').insert([...result]);
         } catch(err){
-            console.log('error: ', err)
+            console.log('error syncGPXdata: ', err)
+        }
+        counter++;
+    }
+}
+
+
+export async function syncGPXdata_changed(){
+    try {
+        const query_max_id = await knex.raw(`SELECT max(id) as max_id FRM gpx_changed;`);
+    } catch(err){
+        console.log('error max_id syncGPXdata_changed: ', err)
+    }
+    const max_id = query_max_id[0]["max_id"];
+
+    const result_query = knexTourenDb('vw_gpx_changed').select('id', 'provider', 'hashed_url').whereRaw(`id > ${max_id}`);
+    const result = await result_query;
+    try {
+        await knex('gpx').insert([...result]);
+    } catch(err){
+        console.log('error insert syncGPXdata_changed: ', err)
+    }
+
+    try {
+        const delete_query = await knex.raw(`DELETE gpx_changed WHERE id < ${max_id};`);
+    } catch(err){
+        console.log('error delete syncGPXdata_changed: ', err)
+    }
+
+    try {
+        const delete_query_gpx = await knex.raw(`DELETE gpx INNER JOIN gpx_changed as c ON gpx.provider=c.provider AND gpx.hashed_url=c.hashed_url;`);
+    } catch(err){
+        console.log('error delete gpx syncGPXdata_changed: ', err)
+    }
+
+
+    let limit = 5000;
+    const query_count = await knexTourenDb('vw_gpx_to_search_changed').whereRaw(`changed_id > ${max_id}`).count('* as anzahl'); 
+    let count_gpx = query_count[0]["anzahl"];
+    let count_chunks = round(count_gpx / limit, 0);
+    let counter = 0;
+
+    console.log('Info: Handling ', count_gpx.toLocaleString("de-de"), ' rows with gpx datapoints via ', count_chunks, ' chunks.');
+
+    /* The following loop has to be parallised */
+    while(counter < count_chunks){
+        const result_query = knexTourenDb('vw_gpx_to_search_changed').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`changed_id > ${max_id}`).whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
+        const result = await result_query;
+            
+        try {
+            await knex('gpx').insert([...result]);
+        } catch(err){
+            console.log('error while syncGPXdata: ', err)
         }
         counter++;
     }
