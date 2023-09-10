@@ -11,3 +11,4 @@ src/firebase.json
 src/knexfile.js
 src/knexfileTourenDb.js
 .DS_Store
+.local-chromium
