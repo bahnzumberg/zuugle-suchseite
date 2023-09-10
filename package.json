@@ -1,5 +1,9 @@
 {
   "name": "zuugle-suchseite",
+  "bugs": {
+    "url": "https://github.com/bahnzumberg/zuugle-suchseite/issues/",
+    "email": "test@zuugle.at"
+  },
   "version": "2.0.0",
   "private": true,
   "dependencies": {
@@ -85,7 +89,7 @@
     "terser-webpack-plugin": "^5.3.7",
     "url-loader": "^4.1.1",
     "webpack": "^5.77.0",
-    "webpack-cli": "^5.0.1",
+    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.13.2"
   }
 }

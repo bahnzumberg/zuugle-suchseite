@@ -21,10 +21,7 @@ app.use("/public", express.static(path.join(__dirname, '../api/public'), {fallth
 
 app.get([ '/*' ], function(req, res) {
   res.sendFile(path.join(__dirname, '../suche/index.html'));
+  console.log(os.hostname())
 });
 
 app.listen(port, () => {console.log("Listening on port " + port)});
-
- 
-
-
