@@ -211,14 +211,14 @@ function Start({
     return (
       <Box>
         {getPageHeader(null)}
-        <Header
+     { !!allCities && allCities.length>0 &&  <Header
           city={getCity()}
           totalTours={totalTours}
           totalToursFromCity = {totalToursFromCity}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
-        />
+        />}
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>

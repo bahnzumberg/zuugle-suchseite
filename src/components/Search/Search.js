@@ -37,6 +37,7 @@ export function Search({
   hideModal,
   allCities,
   isMapView,
+  updateCapCity,
   showMobileMenu,
   setShowMobileMenu,
   filter,
@@ -320,8 +321,7 @@ export function Search({
         if (!!city) {
           setCityInput(city.label);
           await setCity(city);
-          // Refresh the page after setting the city
-          window.location.reload();
+          updateCapCity(city.label);
         }
       },
       
