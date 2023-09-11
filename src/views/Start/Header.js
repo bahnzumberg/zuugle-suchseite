@@ -7,6 +7,7 @@ import { getDomainText, isResponsive } from "../../utils/globals";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
@@ -15,7 +16,6 @@ const LINEAR_GRADIENT =
 //Header.js is a React component that renders the header section of a web page. It receives two props, totalTours and allCities, and conditionally renders different elements based on the value of totalTours. If totalTours is 0, it displays a maintenance message. Otherwise, it displays a heading that indicates the total number of tours available in the website and a search container for cities. The component also sets a background image using the backgroundImage state variable, which changes depending on the device's responsiveness. The component makes use of other React components from the Material-UI library such as Box and Typography, and a custom SearchContainer component. It also makes use of some utility functions from the utils/globals module.
 
 export default function Header({
-  city,
   totalTours,
   totalToursFromCity,
   allCities,
@@ -23,7 +23,14 @@ export default function Header({
   setShowMobileMenu,
 }) {
   
-  const[capCity, setCapCity] = useState(city)
+  // console.log(" L26 : allCities")
+  // console.log(allCities);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  let city = searchParams.get("city");
+
+  const[capCity, setCapCity] = useState(city);
+
 
 
 
@@ -42,15 +49,21 @@ export default function Header({
   const _isMobile = isResponsive();
   const { t, i18n } = useTranslation();
 
+  function updateCapCity(newCity) {
+    setCapCity(newCity);
+  }
+
   useEffect(() => {
-    !!city && setCapCity(city.charAt(0).toUpperCase() + city.slice(1));
-    // if (!!city && !!allCities) {
-    //   const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
-    //   if (!!cityObj) {
-    //       setCapCity(cityObj.city_name)
-    //   }
-    // }
-  }, [city])
+    city = searchParams.get("city");
+    if (!!city && !!allCities && allCities.length > 0) {
+      const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+      if (!!cityObj) {
+        updateCapCity(cityObj.label)
+        searchParams.set("city", city);
+      }
+    }
+
+  }, [])
   
 
   useEffect(() => {
@@ -137,6 +150,7 @@ export default function Header({
                 goto={"/suche"}
                 showMobileMenu={showMobileMenu}
                 setShowMobileMenu={setShowMobileMenu}
+                updateCapCity={updateCapCity}
               />
             </Box>
           </Box>
