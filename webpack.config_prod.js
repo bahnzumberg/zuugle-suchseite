@@ -98,14 +98,11 @@ module.exports = {
 		splitChunks: {
 			chunks: 'all',
 		},
+		minimize: true,
 		minimizer: [
 			new TerserPlugin({
-				terserOptions: {
-					format: {
-						comments: false,
-					},
-				},
-				extractComments: false,
+				extractComments: 'all',
+				parallel: true,
 			}),
 		],
 	},
