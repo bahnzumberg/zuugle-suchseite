@@ -19,5 +19,4 @@ INNER JOIN city
 ON f.city_slug=city.city_slug
 WHERE LENGTH(a.term)>3
 AND f.city_any_connection='yes'
-WHERE city.city_country='SI'
 GROUP BY a.term, f.city_slug, a.text_lang, city.city_country
