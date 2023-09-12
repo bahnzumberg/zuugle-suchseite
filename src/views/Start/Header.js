@@ -58,7 +58,7 @@ export default function Header({
     getCity();
     if (!!city) {
       getTotalCityTours(city).then((data) => {
-        data ? console.log("L61 tours_city :", data.tours_city) : console.log("nothing found");
+        // data ? console.log("L61 tours_city :", data.tours_city) : console.log("nothing found");
         setTotalToursFromCity(data.tours_city);
       });
     }
