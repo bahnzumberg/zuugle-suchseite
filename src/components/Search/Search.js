@@ -321,7 +321,9 @@ export function Search({
         if (!!city) {
           setCityInput(city.label);
           await setCity(city);
-          updateCapCity(city.label);
+          pageKey=="start" && updateCapCity(city.label);
+          pageKey=="detail" && window.location.reload();
+
         }
       },
       

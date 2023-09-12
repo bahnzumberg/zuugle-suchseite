@@ -8,6 +8,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { getTotalCityTours } from "../../actions/crudActions";
 
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
@@ -17,7 +18,7 @@ const LINEAR_GRADIENT =
 
 export default function Header({
   totalTours,
-  totalToursFromCity,
+  getCity,
   allCities,
   showMobileMenu,
   setShowMobileMenu,
@@ -28,8 +29,8 @@ export default function Header({
 
   const [searchParams, setSearchParams] = useSearchParams();
   let city = searchParams.get("city");
-
   const[capCity, setCapCity] = useState(city);
+  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0) 
 
 
 
@@ -52,6 +53,16 @@ export default function Header({
   function updateCapCity(newCity) {
     setCapCity(newCity);
   }
+
+  useEffect(() => {
+    getCity();
+    if (!!city) {
+      getTotalCityTours(city).then((data) => {
+        data ? console.log("L61 tours_city :", data.tours_city) : console.log("nothing found");
+        setTotalToursFromCity(data.tours_city);
+      });
+    }
+  }, [city])
 
   useEffect(() => {
     city = searchParams.get("city");

@@ -19,7 +19,7 @@ import { useNavigate } from "react-router";
 // import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
-import { getTotalCityTours } from "../../actions/crudActions";
+
 import {
   getPageHeader,
   listAllCityLinks,
@@ -80,13 +80,13 @@ function Start({
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
-  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0)
   const { t, i18n } = useTranslation();
 
   let searchParamCity ="" ;
   let city = "";
 
-  const getCity = () => {
+  // PASS AS PARAM !!
+  const getCity = () => { 
     searchParamCity = searchParams.get("city");
     city = localStorage.getItem("city");
     if(!!city) {
@@ -127,16 +127,7 @@ function Start({
     });
   }, []);
 
-  useEffect(() => {
-    getCity();
-    if (!!city) {
-      getTotalCityTours(city).then((data) => {
-        // data ? console.log("L134 tours_city :", data.tours_city) : console.log("nothing found");
-        setTotalToursFromCity(data.tours_city);
-      });
-    }
-  
-  }, [city])
+
   
 
   //description:
@@ -207,14 +198,14 @@ function Start({
       </Box>
     );
   } else {
-    // console.log("totalToursFromCity", totalToursFromCity)
     return (
       <Box>
         {getPageHeader(null)}
-     { !!allCities && allCities.length>0 &&  <Header
-          city={getCity()}
+     { !!allCities && allCities.length>0 
+      &&  
+      <Header
+          getCity={getCity}
           totalTours={totalTours}
-          totalToursFromCity = {totalToursFromCity}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
