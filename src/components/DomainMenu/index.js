@@ -208,7 +208,7 @@ listOfDomains.forEach((domain) => {
 						fontSize: "15.4px",
 						color: "#FFF",
 						lineHeight: "21px",
-						// marginLeft: "5px",
+						marginLeft: "5px",
 					}}
 				>
 					{getDomainText()}
