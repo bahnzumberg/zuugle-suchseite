@@ -38,12 +38,16 @@ function App() {
   //  enableAutoPageTrack: true,
   // });
   
+  const city_name = localStorage.getItem("city");
+
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.async=true; g.src='https://stats.bahnzumberg.at/js/container_ANAXmMKf.js'; s.parentNode.insertBefore(g,s);
-    _mtm.push(['setCustomDimension', customDimensionId = 1, customDimensionValue = '$(localStorage.getItem("city"))']);
+    if (!!city_name) { 
+      _mtm.push(['setCustomDimension', customDimensionId = 1, customDimensionValue = '$(city_name)']); 
+    }
   }, [])
   
 
