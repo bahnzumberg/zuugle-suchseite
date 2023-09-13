@@ -9,8 +9,8 @@ function DomainMenu() {
 // let host = location.hostname;
 let host = location.href;
 
-console.log("host: " + host);
-console.log("host.indexOf", host.indexOf("http://localhost:3000"))
+// console.log("host: " + host);
+// console.log("host.indexOf", host.indexOf("http://localhost:3000"))
 let listOfDomains = [];
 let domain = 'www.zuugle.at';
 
@@ -192,9 +192,9 @@ const secondMenu = [
 ];
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
 	// const [activeDomain, setActiveDomain] = React.useState("");
-listOfDomains.forEach((domain) => {
-  console.log(domain.name + " === " + domain.url);
-});
+// listOfDomains.forEach((domain) => {
+//   console.log(domain.name + " === " + domain.url);
+// });
 	return (
 		<Box component={"div"} className="colLeft">
 			<div
