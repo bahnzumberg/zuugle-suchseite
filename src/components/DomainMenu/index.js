@@ -14,30 +14,33 @@ console.log("host.indexOf", host.indexOf("http://localhost:3000"))
 let listOfDomains = [];
 let domain = 'www.zuugle.at';
 
-if (host.indexOf("http://localhost:3000/") >= 0) {
-	domain = 'http://localhost:3000/';
-	listOfDomains = [
-		{
-			id: 0,
-			name: "Localhost",
-			url: "http://localhost:3000/",
-		},
-		{
-			id: 1,
-			name: "Zuugle.at",
-			url: "https://www.zuugle.at",
-		},
-		{
-			id: 2,
-			name: "Zuugle.de",
-			url: "https://www.zuugle.de",
-		},
-		{
-			id: 3,
-			name: "Zuugle.si",
-			url: "https://www.zuugle.si",
-		},
-	];
+if(process.env.NODE_ENV === "development") {
+	
+		if (host.indexOf("http://localhost:3000/") >= 0) {
+		domain = 'http://localhost:3000/';
+		listOfDomains = [
+			{
+				id: 0,
+				name: "Localhost",
+				url: "http://localhost:3000/",
+			},
+			{
+				id: 1,
+				name: "Zuugle.at",
+				url: "https://www.zuugle.at",
+			},
+			{
+				id: 2,
+				name: "Zuugle.de",
+				url: "https://www.zuugle.de",
+			},
+			{
+				id: 3,
+				name: "Zuugle.si",
+				url: "https://www.zuugle.si",
+			},
+		];
+	}
 }
 
 if (host.indexOf("www.zuugle.at") >= 0) {
