@@ -38,8 +38,8 @@ i18n
     fallbackLng: "de",
     supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true, //note 3 below
-    //debug: false, 
-    debug: process.env.NODE_ENV === "development",
+    debug: false, 
+    // debug: process.env.NODE_ENV === "development",
     interpolation: {
       spaceValue: false,
       formatSeperator: ",",
