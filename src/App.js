@@ -30,16 +30,17 @@ function App() {
     // tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
   }
 
-  // useMatomo({
-  //  hostConfig: {
-  //    siteId: siteId,
-  //    url: "https://stats.bahnzumberg.at",
-  //  },
-  //  enableAutoPageTrack: true,
-  // });
+  useMatomo({
+    hostConfig: {
+      siteId: siteId,
+      url: "https://stats.bahnzumberg.at",
+    },
+    enableAutoPageTrack: true,
+  });
   
+  
+  /*
   const city_name = localStorage.getItem("city");
-
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
@@ -49,6 +50,7 @@ function App() {
       _mtm.push(['setCustomDimension', customDimensionId = 1, customDimensionValue = '$(city_name)']); 
     }
   }, [])
+  */
   
 
   return (
