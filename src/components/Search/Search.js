@@ -347,7 +347,7 @@ export function Search({
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: searchPhrase,
+      placeholder: searchParams.get("search") ? searchParams.get("search") : t("start.suche"),
       title: "",
       sourceCall: "search",
       page: page,
@@ -502,9 +502,7 @@ export function Search({
                 >
                   {pageKey !== "detail" && (
                     <span className="search-bar--searchPhase">
-                      {searchPhrase.length > 0
-                        ? searchPhrase
-                        : t("start.suche")}
+                      {searchParams.get("search") ? searchParams.get("search") : t("start.suche")}
                     </span>
                   )}
                 </Box>
