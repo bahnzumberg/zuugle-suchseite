@@ -8,7 +8,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
-// import { useMatomo } from "./hooks/useMatomo";
+import { useMatomo } from "./hooks/useMatomo";
 import Search from "./components/Search/Search";
 const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
@@ -30,7 +30,6 @@ function App() {
     // tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
   }
 
-  /*
   useMatomo({
     hostConfig: {
       siteId: siteId,
@@ -38,14 +37,21 @@ function App() {
     },
     enableAutoPageTrack: true,
   });
-  */
-
+  
+  
+  /*
+  const city_name = localStorage.getItem("city");
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.async=true; g.src='https://stats.bahnzumberg.at/js/container_HjRnjBlM.js'; s.parentNode.insertBefore(g,s);
+    g.async=true; g.src='https://stats.bahnzumberg.at/js/container_ANAXmMKf.js'; s.parentNode.insertBefore(g,s);
+    if (!!city_name) { 
+      _mtm.push(['setCustomDimension', customDimensionId = 1, customDimensionValue = '$(city_name)']); 
+    }
   }, [])
+  */
+  
 
   return (
     <ThemeProvider theme={theme}>
