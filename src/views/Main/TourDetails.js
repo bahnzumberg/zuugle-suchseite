@@ -202,8 +202,8 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
     }
 
     React.useEffect(() => {
-        var _mtm = window._mtm = window._mtm || [];
-        _mtm.push({'setDocumentTitle': tour.title});
+        // var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'pagetitel': tour.title});
     }, []);
     
 
