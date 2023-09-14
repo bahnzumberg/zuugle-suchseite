@@ -49,7 +49,7 @@ function App() {
     g.async=true; g.src='https://stats.bahnzumberg.at/js/container_ANAXmMKf.js'; s.parentNode.insertBefore(g,s);
     let language = i18next.resolvedLanguage;
     _mtm.push({'language': language});
-    _mtm.push({'pagetitel': "Startseite"});
+    // _mtm.push({'pagetitel': "Startseite"});
   }, []);
   
 
