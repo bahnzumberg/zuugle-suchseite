@@ -84,10 +84,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions); //(url:string, )
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
-        console.log("tour.title=", tour.title);
-        console.log("tour.provider_name=", tour.provider_name);
-        _mtm.push({'pagetitel': tour.title});
-        _mtm.push({'provider': tour.provider_name});
     }, [tour]);
 
     useEffect(() => {
@@ -98,14 +94,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             setGpxTrack(returnConnection.gpx_file, loadGPX, setAbreiseGpxPositions);
         }
 
-    }, [connection || returnConnection]);
-
-
-    UseEffect(() => {
-        var _mtm = window._mtm = window._mtm || [];
-        _mtm.push({'pagetitel': tour.title});
-        _mtm.push({'provider': tour.provider_name});
-    }, []);   
+    }, [connection || returnConnection]); 
     
     
     async function onDownload() {

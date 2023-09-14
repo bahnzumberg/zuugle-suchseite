@@ -143,6 +143,10 @@ const DetailReworked = (props) => {
     if (!!tour && tour.provider && tour.provider == "mapzssi") {
       setProviderPermit(false);
     }
+
+    // var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'pagetitel': tour.title});
+    _mtm.push({'provider': tour.provider_name});
   }, [tour]);
 
   //Creating a new share link
