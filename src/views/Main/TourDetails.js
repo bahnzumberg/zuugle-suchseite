@@ -201,6 +201,12 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
         return final_url;
     }
 
+    React.useEffect(() => {
+        // var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'setDocumentTitle': tour.title});
+    }, []);
+    
+
     return <Box sx={{ width: '100%', padding: 0}}>
 
         <Box sx={{width: "100%", position: "relative", height: 300}}>
