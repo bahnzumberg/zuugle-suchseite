@@ -4,13 +4,9 @@ import Header from "./Header";
 import {Typography} from "@mui/material";
 import { getPrivacyLabels } from '../../translations/translation.labels';
 
-useEffect(() => {
-    _mtm.push({'pagetitel': "Datenschutzerklärung"});
-  }, []);
+_mtm.push({'pagetitel': "Datenschutzerklärung"});
 
 function Privacy({}){
-
-    
     //translation related
     const PrivacyLabels = getPrivacyLabels();
     const matomo_link  = <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>

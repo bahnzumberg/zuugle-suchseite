@@ -45,9 +45,7 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-useEffect(() => {
-  _mtm.push({'pagetitel': "Startseite"});
-}, []);
+_mtm.push({'pagetitel': "Startseite"});
 
 function Fragment(props) {
   return null;
