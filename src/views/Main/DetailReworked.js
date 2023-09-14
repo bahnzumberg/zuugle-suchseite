@@ -147,9 +147,6 @@ const DetailReworked = (props) => {
 
   useEffect(() => {
     if (!!tour) {
-      // var _mtm = window._mtm = window._mtm || [];
-      console.log("tour.title=", tour.title);
-      console.log("tour.provider_name=", tour.provider_name);
       _mtm.push({'pagetitel': tour.title});
       _mtm.push({'provider': tour.provider_name});
     }

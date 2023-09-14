@@ -45,6 +45,10 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
+useEffect(() => {
+  _mtm.push({'pagetitel': "Startseite"});
+}, []);
+
 function Fragment(props) {
   return null;
 }
@@ -130,11 +134,6 @@ export function Main({
   //     navigate('/');
   // });
 
-  //Matomo related
-  // useEffect(() => {
-  //     const city = searchParams.get('city');
-  //     myTrackPageView("Main", trackPageView, city);
-  // }, [])
 
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)

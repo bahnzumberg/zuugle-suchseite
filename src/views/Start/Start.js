@@ -96,6 +96,11 @@ function Start({
     }
   }
 
+  useEffect(() => {
+    _mtm.push({'pagetitel': "Suche"});
+  }, []);
+
+
   // description
   // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
   // The loadAllCities function takes an optional parameter data and returns a function that is used to dispatch actions to the Redux store. The data object is used to pass any additional data that needs to be sent to the server. In this case, the data object has a property all set to true.

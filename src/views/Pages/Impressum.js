@@ -4,6 +4,11 @@ import Header from "./Header";
 import { Typography } from "@mui/material";
 import { getImpressumLabels } from "../../translations/translation.labels";
 
+useEffect(() => {
+	_mtm.push({'pagetitel': "Impressum"});
+  }, []);
+
+
 function Impressum({}) {
 	//Translation related
 	const ImpressumLabels = getImpressumLabels();
