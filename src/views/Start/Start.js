@@ -97,7 +97,7 @@ function Start({
   }
 
   useEffect(() => {
-    // _mtm.push({'pagetitel': "Suche"});
+    _mtm.push({'pagetitel': "Suche"});
   }, []);
 
 

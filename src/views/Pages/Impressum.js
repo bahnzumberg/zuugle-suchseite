@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 import { getImpressumLabels } from "../../translations/translation.labels";
 
 useEffect(() => {
-	// _mtm.push({'pagetitel': "Impressum"});
+	_mtm.push({'pagetitel': "Impressum"});
   }, []);
 
 

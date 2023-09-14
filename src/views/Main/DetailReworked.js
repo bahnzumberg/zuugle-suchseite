@@ -149,7 +149,8 @@ const DetailReworked = (props) => {
     if (!!tour) {
       _mtm.push({'pagetitel': tour.title});
       _mtm.push({'provider': tour.provider_name});
-      console.log("tour=", tour);
+      _mtm.push({'range': tour.range});
+      // console.log("tour=", tour);
     }
   }, [tour]);
 
