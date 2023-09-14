@@ -96,8 +96,14 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
     }, [connection || returnConnection]);
 
-        
-            
+
+    UseEffect(() => {
+        var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'pagetitel': tour.title});
+        _mtm.push({'provider': tour.provider_name});
+    }, []);   
+    
+    
     async function onDownload() {
         const datum = searchParams.get("datum");
         try {
@@ -200,11 +206,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
         return final_url;
     }
-
-    React.useEffect(() => {
-        // var _mtm = window._mtm = window._mtm || [];
-        _mtm.push({'pagetitel': tour.title});
-    }, []);
     
 
     return <Box sx={{ width: '100%', padding: 0}}>
