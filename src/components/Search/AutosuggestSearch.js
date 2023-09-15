@@ -51,18 +51,18 @@ const AutosuggestSearchTour = ({
   placeholder,
   goto,
 }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+  // const [selectedOption, setSelectedOption] = useState(null);
   const [input, setInput] = useState("");
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const [options, setOptions] = useState([]);
   const urlSearchParams = new URLSearchParams(window.location.search);
   let searchParam = urlSearchParams.get("search");
   const [searchPhrase, setSearchPhrase] = useState(searchParam ?? "");
-  const theme = useTheme();
+  // const theme = useTheme();
 
   const handleSelect = (phrase) => {
     const value = phrase ? phrase : searchPhrase ? searchPhrase : "";
-    setSelectedOption(value);
+    // setSelectedOption(value);
     onSearchSuggestion(value);
   };
 
