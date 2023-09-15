@@ -49,7 +49,6 @@ function App() {
     let language = i18next.resolvedLanguage;
     _mtm.push({'language': language});
   }, []);
-  _mtm.push({'pagetitel': "Startseite"});
 
 
   return (

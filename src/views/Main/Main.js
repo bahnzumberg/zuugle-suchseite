@@ -45,7 +45,7 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-useEffect(() => {
+React.useEffect(() => {
   var _mtm = window._mtm = window._mtm || [];
   _mtm.push({'pagetitel': "Suche"});
 }, []);

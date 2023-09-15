@@ -4,7 +4,7 @@ import Header from "./Header";
 import { Typography } from "@mui/material";
 import { getImpressumLabels } from "../../translations/translation.labels";
 
-useEffect(() => {
+React.useEffect(() => {
 	var _mtm = window._mtm = window._mtm || [];
 	_mtm.push({'pagetitel': "Impressum"});
 }, []);
