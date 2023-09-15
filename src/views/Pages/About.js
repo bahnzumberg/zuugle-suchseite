@@ -4,15 +4,16 @@ import Header from "./Header";
 import {Typography} from "@mui/material";
 import { getAboutLabels } from '../../translations/translation.labels';
 
-React.useEffect(() => {
-    var _mtm = window._mtm = window._mtm || [];
-    _mtm.push({'pagetitel': "About"});
-}, []);
 
 function About({}){
 
     const AboutLabels = getAboutLabels();
 
+    React.useEffect(() => {
+        var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'pagetitel': "About"});
+    }, []);
+    
     return <Box className={"about-container"}>
         <Header title={AboutLabels.was_ist_zuugle}/>
 

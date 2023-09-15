@@ -45,10 +45,6 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-React.useEffect(() => {
-  var _mtm = window._mtm = window._mtm || [];
-  _mtm.push({'pagetitel': "Suche"});
-}, []);
 
 function Fragment(props) {
   return null;
@@ -154,6 +150,13 @@ export function Main({
       setSearchParams(searchParams);
     }
   }, []);
+
+  
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'pagetitel': "Suche"});
+  }, []);
+
 
   //description:
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.

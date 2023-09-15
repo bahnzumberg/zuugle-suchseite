@@ -145,7 +145,7 @@ const DetailReworked = (props) => {
     }
   }, [tour]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     if (!!tour) {
       _mtm.push({'provider': tour.provider_name});
