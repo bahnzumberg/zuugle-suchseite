@@ -150,9 +150,10 @@ const DetailReworked = (props) => {
     if (!!tour) {
       _mtm.push({'provider': tour.provider_name});
       _mtm.push({'range': tour.range});
+      _mtm.push({'pagetitel': tour.title});
     }
   }, [tour]);
-  _mtm.push({'pagetitel': tour.title});
+
 
   //Creating a new share link
   // useEffect(() => {

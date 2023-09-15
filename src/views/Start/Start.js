@@ -96,10 +96,6 @@ function Start({
     }
   }
 
-  useEffect(() => {
-    _mtm.push({'pagetitel': "Suche"});
-  }, []);
-
 
   // description
   // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
