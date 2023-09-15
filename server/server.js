@@ -31,7 +31,9 @@ app.use((req, res, next) => {
 });
 
 app.get([ '/*' ], function(req, res) {
-	var host = req.get('host');
+	// var host = req.get('host');
+	const host = req.hostname;
+
 	console.log(" L34 Server.js : " + host);
 
 	if(host.indexOf('zuugle.si') >= 0) {
