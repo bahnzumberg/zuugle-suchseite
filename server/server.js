@@ -45,7 +45,7 @@ app.get([ '/*' ], function(req, res) {
 	);
 		
 	}
-	else if(host.indexOf('zuugle.it') >= 0) {
+	else if(host.indexOf('zuugle.it') >= 0 || host === 'www2.zuugle.si') {
 		res.sendFile(path.join(__dirname, '../app/index-it.html'));
 	}
 	else if(host.indexOf('zuugle.fr') >= 0) {
