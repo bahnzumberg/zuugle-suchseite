@@ -4,8 +4,10 @@ import Header from "./Header";
 import {Typography} from "@mui/material";
 import { getAboutLabels } from '../../translations/translation.labels';
 
-var _mtm = window._mtm = window._mtm || [];
-_mtm.push({'pagetitel': "About"});
+useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'pagetitel': "About"});
+}, []);
 
 function About({}){
 
