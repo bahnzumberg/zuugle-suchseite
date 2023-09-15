@@ -37,7 +37,13 @@ app.get([ '/*' ], function(req, res) {
 	console.log(" L34 Server.js : " + host);
 
 	if(host.indexOf('zuugle.si') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/index-si.html'));
+		res.sendFile(path.join(__dirname, '../app/index-si.html'), (err) => {
+			if (err) {
+			  console.error('Error sending file:', err)
+			}
+		}
+	);
+		
 	}
 	else if(host.indexOf('zuugle.it') >= 0) {
 		res.sendFile(path.join(__dirname, '../app/index-it.html'));
