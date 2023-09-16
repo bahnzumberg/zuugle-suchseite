@@ -34,19 +34,19 @@ app.get([ '/*' ], function(req, res) {
 	var host = req.get('host');
 	
 	if(host.indexOf('zuugle.si') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/app_static/index-si.html'));
+		res.sendFile(path.join(__dirname, '../app/index-si.html'));
 	}
 	else if(host.indexOf('zuugle.it') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/app_static/index-it.html'));
+		res.sendFile(path.join(__dirname, '../app/index-it.html'));
 	}
 	else if(host.indexOf('zuugle.fr') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/app_static/index-fr.html'));
+		res.sendFile(path.join(__dirname, '../app/index-fr.html'));
 	}
 	else if(host.indexOf('zuugle.de') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/app_static/index-de.html'));
+		res.sendFile(path.join(__dirname, '../app/index-de.html'));
 	}
 	else if(host.indexOf('zuugle.ch') >= 0) {
-		res.sendFile(path.join(__dirname, '../app/app_static/index-ch.html'));
+		res.sendFile(path.join(__dirname, '../app/index-ch.html'));
 	}
 	else {
 	  res.sendFile(path.join(__dirname, '../app/index.html'));
