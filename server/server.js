@@ -49,6 +49,6 @@ app.get([ '/*' ], function(req, res) {
 		res.sendFile(path.join(__dirname, '../app/app_static/index-ch.html'));
 	}
 	else {
-	  res.sendFile(path.join(__dirname, '../app/app_static/index.html'));
+	  res.sendFile(path.join(__dirname, '../app/index.html'));
 	}
 });
