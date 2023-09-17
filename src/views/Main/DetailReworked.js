@@ -145,6 +145,16 @@ const DetailReworked = (props) => {
     }
   }, [tour]);
 
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    if (!!tour) {
+      _mtm.push({'provider': tour.provider_name});
+      _mtm.push({'range': tour.range});
+      _mtm.push({'pagetitel': tour.title});
+    }
+  }, [tour]);
+
+
   //Creating a new share link
   // useEffect(() => {
   //     if (isShareGenerating === true) {

@@ -45,6 +45,7 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
+
 function Fragment(props) {
   return null;
 }
@@ -130,11 +131,6 @@ export function Main({
   //     navigate('/');
   // });
 
-  //Matomo related
-  // useEffect(() => {
-  //     const city = searchParams.get('city');
-  //     myTrackPageView("Main", trackPageView, city);
-  // }, [])
 
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -154,6 +150,13 @@ export function Main({
       setSearchParams(searchParams);
     }
   }, []);
+
+  
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'pagetitel': "Suche"});
+  }, []);
+
 
   //description:
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
