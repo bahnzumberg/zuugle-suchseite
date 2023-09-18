@@ -18,29 +18,15 @@ const Privacy = lazy(() => import("./views/Pages/Privacy"));
 import i18next from "i18next";
 
 function App() {
-  // production matomo ID
-  let siteId = 9;
-
   // UAT and local development should use matomo test instance
   if (
     location.hostname.indexOf("localhost") !== -1 ||
     location.hostname.indexOf("www2.") !== -1
   ) {
-    siteId = 11;
-
     // tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
   }
 
-  /*
-  useMatomo({
-    hostConfig: {
-      siteId: siteId,
-      url: "https://stats.bahnzumberg.at",
-    },
-    enableAutoPageTrack: true,
-  });
-  */
-  
+  // Matomo tracking
   var _mtm = window._mtm = window._mtm || [];
   React.useEffect(() => {
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
