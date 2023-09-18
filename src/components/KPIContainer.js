@@ -17,7 +17,7 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
 
     const navigate = useNavigate();
     const goto = () => {
-        navigate(`/suche?sort=relevanz&${!!city ? '&city='+city : ''}`)
+        navigate(`/suche?${!!city ? '&city='+city : ''}`)
     }
 
     return  <Paper sx={{

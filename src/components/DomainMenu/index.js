@@ -4,10 +4,44 @@ import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
+function DomainMenu() {
 
-let host = location.hostname;
+// let host = location.hostname;
+let host = location.href;
+
+// console.log("host: " + host);
+// console.log("host.indexOf", host.indexOf("http://localhost:3000"))
 let listOfDomains = [];
 let domain = 'www.zuugle.at';
+
+if(process.env.NODE_ENV === "development") {
+	
+		if (host.indexOf("http://localhost:3000/") >= 0) {
+		domain = 'http://localhost:3000/';
+		listOfDomains = [
+			{
+				id: 0,
+				name: "Localhost",
+				url: "http://localhost:3000/",
+			},
+			{
+				id: 1,
+				name: "Zuugle.at",
+				url: "https://www.zuugle.at",
+			},
+			{
+				id: 2,
+				name: "Zuugle.de",
+				url: "https://www.zuugle.de",
+			},
+			{
+				id: 3,
+				name: "Zuugle.si",
+				url: "https://www.zuugle.si",
+			},
+		];
+	}
+}
 
 if (host.indexOf("www.zuugle.at") >= 0) {
 	domain = 'www.zuugle.at';
@@ -23,6 +57,7 @@ if (host.indexOf("www.zuugle.at") >= 0) {
 			url: "https://www.zuugle.de",
 		},
 		{
+			id: 2,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -42,6 +77,7 @@ else if (host.indexOf("www.zuugle.de") >= 0) {
 			url: "https://www.zuugle.at",
 		},
 		{
+			id: 2,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -151,15 +187,16 @@ else if (host.indexOf("www2.zuugle.fr") >= 0) {
 
 const secondMenu = [
 	{ id: 0, name: "Über Zuugle", url: "https://www.bahnzumberg.at/" },
-	{ id: 1, name: "Impressum", url: "https://{domain}/imprint" },
-	{ id: 2, name: "Datenschutz", url: "https://{domain}/privacy" },
+	{ id: 1, name: "Impressum", url: "https://" + domain + "/imprint" },
+	{ id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
 ];
-function DomainMenu() {
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
 	// const [activeDomain, setActiveDomain] = React.useState("");
-
+// listOfDomains.forEach((domain) => {
+//   console.log(domain.name + " === " + domain.url);
+// });
 	return (
-		<Box comoponent={"div"} className="colLeft">
+		<Box component={"div"} className="colLeft">
 			<div
 				className="countrySwitch rowing"
 				onClick={() => setShowDomainMenu(true)}
@@ -174,7 +211,7 @@ function DomainMenu() {
 						fontSize: "15.4px",
 						color: "#FFF",
 						lineHeight: "21px",
-						// marginLeft: "5px",
+						marginLeft: "5px",
 					}}
 				>
 					{getDomainText()}
@@ -188,9 +225,12 @@ function DomainMenu() {
 					style={{ outline: "none", border: "none" }}
 				>
 					<div className="domainMenu colCenteral">
-						{listOfDomains.map((item) =>
+						{/* {listOfDomains.map((item) => */}
+						{listOfDomains.map((item,i) =>
 							// getDomainText() === item.name
-							item.name === "Zuugle.at" ? (
+							i === 0 ? 
+							// item.name === "Zuugle.at" ? 
+							(
 								<div
 									className="rowing"
 									key={item.id}

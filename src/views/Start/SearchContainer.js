@@ -7,8 +7,11 @@ export default function SearchContainer({
   pageKey,
   showMobileMenu,
   setShowMobileMenu,
+  updateCapCity,
 }) {
-  // console.log("SearchContainer / goto : ", goto);
+  // console.log("SearchContainer / goto : ", goto); // '/suche'
+  // console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
+  // console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
 
   return (
     <Box>
@@ -19,6 +22,7 @@ export default function SearchContainer({
         goto={goto}
         showMobileMenu={showMobileMenu ?? true}
         setShowMobileMenu={setShowMobileMenu ?? true}
+        updateCapCity={updateCapCity}
       />
     </Box>
   );

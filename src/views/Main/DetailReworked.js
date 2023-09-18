@@ -120,10 +120,11 @@ const DetailReworked = (props) => {
     } else return t("start.mittel");
   };
 
-  //gpx and pdf buttons show up only when menu language is German
+  // pdf buttons shows up only when menu language is German
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 
   const handleCloseTab = () => {
+    // console.log("at handleCloseTab !")
     window.close();
   };
 
@@ -143,6 +144,16 @@ const DetailReworked = (props) => {
       setProviderPermit(false);
     }
   }, [tour]);
+
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    if (!!tour) {
+      _mtm.push({'provider': tour.provider_name});
+      _mtm.push({'range': tour.range});
+      _mtm.push({'pagetitel': tour.title});
+    }
+  }, [tour]);
+
 
   //Creating a new share link
   // useEffect(() => {
@@ -167,6 +178,12 @@ const DetailReworked = (props) => {
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
     const city = localStorage.getItem("city");
+    const Id = searchParams.get("id");
+
+    // console.log("detail page --> shareId :", shareId)
+    // console.log("detail page --> city :", city)
+    // console.log("detail page --> Id :", Id)
+
     //Redirects to according page when it is a share link
     if (shareId !== null) {
       loadShareParams(shareId, city)
@@ -183,6 +200,7 @@ const DetailReworked = (props) => {
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
+            console.log("URL redirect :" + "/tour?" + redirectSearchParams.toString())
             lazy(navigate("/tour?" + redirectSearchParams.toString()));
           } else {
             city && searchParams.set("city", city);
@@ -190,6 +208,7 @@ const DetailReworked = (props) => {
           }
         })
         .catch((err) => {
+          console.log("error: " + err)
           city && searchParams.set("city", city);
           goToStartPage();
         });
@@ -202,45 +221,58 @@ const DetailReworked = (props) => {
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+            // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
             tourDuration =
-              !!tourExtracted.data.tour.duration &&
-              tourExtracted.data.tour.duration;
+            !!tourExtracted.data.tour.duration &&
+            tourExtracted.data.tour.duration;
+            //console.log(" L 218 : searchParams", searchParams.toString()); //id=17788&city=bad-ischl
+            //console.log(" L 219 : tourDuration", tourDuration)
+            
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
-                tourExtracted.data.tour.difficulty
-            );
+              tourExtracted.data.tour.difficulty
+              );
             setTourDifficultyOrig(
               !!tourExtracted.data.tour.difficulty_orig &&
-                tourExtracted.data.tour.difficulty_orig
-            );
+              tourExtracted.data.tour.difficulty_orig
+              );
           }
         })
-        .catch((error) => {
-          if (error.response && error.response.status === 404) {
-            console.error("Tour not found:", error);
-            // Handle the 404 error scenario
-          } else {
-            console.error("Error:", error);
-            // Handle other errors
-          }
-        });
+        // .catch((error) => {
+        //   if (error.response && error.response.status === 404) {
+        //     console.error("Tour not found:", error);
+        //     // Handle the 404 error scenario
+        //   } else {
+        //     console.error("Error:", error);
+        //     // Handle other errors
+        //   }
+        // });
     }
+    // console.log(" L 240 : tourDifficulty", tourDifficulty)
+    // console.log(" L 241 : tourDifficultyOrig", tourDifficultyOrig)
 
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-        //   console.log("L223 -> res.data :", res.data);
+          // console.log("L247 -> res.data :", res.data);
           setConnections(res.data.result);
         }
       });
     }
   }, [searchParams]);
 
+  // console.log(" L 253 : tourDifficulty", tourDifficulty)
+  // console.log(" L 254 : tourDifficultyOrig", tourDifficultyOrig)
+
+
   useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
+        console.log("No city L260");
         //goToStartPage();  // check if this is desirable (was commented out by external guy)
       } else {
+        // console.log("inside block for setting gopx files and tracks")
+        // console.log("===============================================")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -598,7 +630,7 @@ const DetailReworked = (props) => {
   return (
     <Box sx={{ backgroundColor: "#fff" }}>
       <Box className="newHeader" sx={{ position: "relative" }}>
-        <Box comoponent={"div"} className="rowing blueDiv">
+        <Box component={"div"} className="rowing blueDiv">
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box
               sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
@@ -612,7 +644,7 @@ const DetailReworked = (props) => {
           </Box>
           <Box
             sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-            onClick={() => window.close()}
+            onClick={handleCloseTab}
           >
             <Close
               style={{
@@ -661,41 +693,9 @@ const DetailReworked = (props) => {
           <Box sx={{ width: "100%" }}>
             <SearchContainer pageKey="detail" goto={"/suche"} />
           </Box>
-        </Box>
-        {/* )} */}
+        </Box> 
       </Box>
       <Box>
-        {/* {!!allCities && allCities.length > 0 && (
-					<Box
-						alignItems={"center"}
-						justifyContent={"center"}
-						display="inline-block"
-						sx={{
-							position: "absolute",
-							bottom: "0",
-							left: "50%",
-							transform: "translate(-50%,50%)",
-							backgroundColor: "#FFF",
-							borderRadius: "15px",
-							padding: "12px 24px",
-							border: "2px solid #ddd",
-							boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-							width: {
-								xs: "75%",
-								md: "600px",
-								lg: "600px",
-							},
-							maxWidth: {
-								xs: "325px",
-								md: "600px",
-							},
-						}}
-					>
-						<Box elevation={1} className={"colCenter"}>
-							<Search isMain={true} />
-						</Box>
-					</Box>
-				)} */}
         <Box className="tour-detail-header">
           <Box className="mt-3">
             <Typography variant="title">{tour?.title}</Typography>
@@ -710,9 +710,9 @@ const DetailReworked = (props) => {
             className="tour-detail-map-container"
           >
             <InteractiveMap
-              gpxPositions={gpxPositions}
-              anreiseGpxPositions={anreiseGpxPositions}
-              abreiseGpxPositions={abreiseGpxPositions}
+              gpxPositions={!!gpxPositions && gpxPositions}
+              anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+              abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
               scrollWheelZoom={false}
             />
           </Box>

@@ -4,14 +4,17 @@ import Header from "./Header";
 import {Typography} from "@mui/material";
 import { getPrivacyLabels } from '../../translations/translation.labels';
 
-
 function Privacy({}){
-
-    
     //translation related
     const PrivacyLabels = getPrivacyLabels();
     const matomo_link  = <a href={"https://matomo.org/"} target={"_blank"}>Matomo</a>
 
+    React.useEffect(() => {
+        var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'pagetitel': "Datenschutzerklärung"});
+    }, []);
+
+    
     return <Box className={"about-container"}>
         <Header title={PrivacyLabels.datenschutzerklaerung} subTitle={"aktualisiert: April 2022"}/>
 

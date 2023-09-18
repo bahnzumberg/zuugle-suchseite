@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import Async from "react-select/async";
 import Select, { components } from "react-select";
 import { loadSuggestions } from "../../actions/crudActions";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@mui/material/styles";
-import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "../../icons/SearchIcon";
-import ClearSearchIcon from "../../icons/ClearSearchIcon";
+// import Async from "react-select/async";
+// import InputAdornment from "@mui/material/InputAdornment";
+// import SearchIcon from "../../icons/SearchIcon";
+// import ClearSearchIcon from "../../icons/ClearSearchIcon";
 import { styled } from "@mui/system";
 import CustomSelect from "./CustomSelect";
+import { isArray } from "lodash";
 
 const useStyles = styled("div")(({ theme }) => ({
   "& label.Mui-focused": {
@@ -51,18 +52,18 @@ const AutosuggestSearchTour = ({
   placeholder,
   goto,
 }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+  // const [selectedOption, setSelectedOption] = useState(null);
   const [input, setInput] = useState("");
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const [options, setOptions] = useState([]);
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const searchParam = urlSearchParams.get("search");
+  let searchParam = urlSearchParams.get("search");
   const [searchPhrase, setSearchPhrase] = useState(searchParam ?? "");
-  const theme = useTheme();
+  // const theme = useTheme();
 
   const handleSelect = (phrase) => {
     const value = phrase ? phrase : searchPhrase ? searchPhrase : "";
-    setSelectedOption(value);
+    // setSelectedOption(value);
     onSearchSuggestion(value);
   };
 
@@ -72,13 +73,13 @@ const AutosuggestSearchTour = ({
       setSearchPhrase(inputValue);
       loadSuggestions(inputValue, city.value, language) //Call the backend
         .then((suggestions) => {
-          const newOptions = suggestions.map((suggestion) => ({
+          const newOptions = suggestions?.map((suggestion) => ({
             //Get the New suggestions and format them the correct way
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
           // console.log("Suggestions from backend:", newOptions);
-          setOptions([...newOptions]);
+          newOptions && isArray(newOptions) && setOptions([...newOptions]);
         })
         .catch((err) => {
           console.error(err);
@@ -157,9 +158,13 @@ const AutosuggestSearchTour = ({
     }),
   };
 
-  useEffect(() => {
-    onSearchPhrase(input);
-  }, [input]);
+  // useEffect(() => {
+  //   console.log("Input : ", input)
+  //   onSearchPhrase(input);
+  //   searchParam = urlSearchParams.get("search")
+  // }, [input]);
+
+
 
   const NoOptionsMessage = (props) => {
     return (

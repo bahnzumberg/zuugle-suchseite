@@ -125,10 +125,14 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
 
 export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
     dispatch({ type: typeBefore });
-
+    //console.log("crudActions : route + id : ", `${route}${id}`) //  'tours/17788'
+    //console.log("window.location.host = ", window.location.host) // localhost:3000
+    //console.log("params  = ", params) // {city: "bad-ischl"}
+    //console.log("entityName  = ", entityName) //  tour
     return axios.get(route + id, { params: { ...params, domain: window.location.host } })
         .then(res => {
             const entity = res.data[entityName];
+            // console.log("entity = ", entity)
 
             dispatch({
                 type: typeDone,
@@ -211,6 +215,21 @@ export function generateShareLink(provider, hashedUrl, date, city) {
     }).catch(err => {
         return err.response.data;
     });
+}
+
+// 
+export const getTotalCityTours = (city) => { 
+    // return axios.get(`tours/total/?city=${city}`, {
+    return axios.get(`tours/total/`, {
+        params: {
+            city: city
+        }
+    })
+        .then(res => {
+            // console.log("L225 res :");
+            // console.log(res);
+            return res.data;
+        });
 }
 
 // Code description:

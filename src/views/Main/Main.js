@@ -36,18 +36,15 @@ import ClearFilterIcon from "../../icons/ClearFilterIcon";
 import { ArrowLeft } from "@mui/icons-material";
 import ArrowBefore from "../../icons/ArrowBefore";
 
-// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
-// import SearchContainer from "../../views/Start/SearchContainer";
-
 const SearchFilter = lazy(() =>
   import("../../components/SearchFilter/SearchFilter")
 );
-// const Search = lazy(() => import("../../components/Search/Search"));
 const Search = lazy(() => import("../../components/Search/Search"));
 const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
+
 
 function Fragment(props) {
   return null;
@@ -134,11 +131,6 @@ export function Main({
   //     navigate('/');
   // });
 
-  //Matomo related
-  // useEffect(() => {
-  //     const city = searchParams.get('city');
-  //     myTrackPageView("Main", trackPageView, city);
-  // }, [])
 
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -158,6 +150,13 @@ export function Main({
       setSearchParams(searchParams);
     }
   }, []);
+
+  
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'pagetitel': "Suche"});
+  }, []);
+
 
   //description:
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
@@ -362,7 +361,7 @@ export function Main({
           }}
           position={"relative"}
         >
-          <Box comoponent={"div"} className="rowing blueDiv">
+          <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link

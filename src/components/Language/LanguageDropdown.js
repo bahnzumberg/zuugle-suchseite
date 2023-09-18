@@ -7,13 +7,55 @@ import Select from "@mui/material/Select";
 import { useTranslation } from "react-i18next";
 import { langChange } from "../../utils/language_Utils";
 
-const lngs = {
-	de: { nativeName: "Deutsch" },
-	en: { nativeName: "English" },
-	fr: { nativeName: "Français" },
-	it: { nativeName: "Italiano" },
-	sl: { nativeName: "Slovenščina" },
-};
+var resolvedLanguage = await import('../../translations/i18n').then((module) => module.default.language);
+const storedLanguage = localStorage.getItem("lang");
+let currLanguage = storedLanguage || resolvedLanguage;
+
+if (currLanguage=="en") {
+	const lngs = [
+		{ key: "en", nativeName: "English" },
+		{ key: "fr", nativeName: "Français" },
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "it", nativeName: "Italiano" },
+		{ key: "sl", nativeName: "Slovenščina" },
+	];
+}
+else if (currLanguage=="de") {
+	const lngs = [
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "en", nativeName: "English" },
+		{ key: "fr", nativeName: "Français" },
+		{ key: "it", nativeName: "Italiano" },
+		{ key: "sl", nativeName: "Slovenščina" },
+	];
+}
+else if (currLanguage=="fr") {
+	const lngs = [
+		{ key: "fr", nativeName: "Français" },
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "en", nativeName: "English" },
+		{ key: "it", nativeName: "Italiano" },
+		{ key: "sl", nativeName: "Slovenščina" },
+	];
+}
+else if (currLanguage=="it") {
+	const lngs = [
+		{ key: "it", nativeName: "Italiano" },
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "en", nativeName: "English" },
+		{ key: "fr", nativeName: "Français" },
+		{ key: "sl", nativeName: "Slovenščina" },
+	];
+}
+else if (currLanguage=="sl") {
+	const lngs = [
+		{ key: "sl", nativeName: "Slovenščina" },
+		{ key: "de", nativeName: "Deutsch" },
+		{ key: "en", nativeName: "English" },
+		{ key: "fr", nativeName: "Français" },
+		{ key: "it", nativeName: "Italiano" },
+	];
+}
 
 export default function LanguageDropdown() {
 	const { i18n } = useTranslation();

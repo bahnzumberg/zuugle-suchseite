@@ -23,20 +23,22 @@ const resources = {
 
 const supportedLanguages = ['en','de','sl','fr','it'];
 
+
+const detectionOptions = {
+  order : ['querystring', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain']
+}
+
 i18n
   .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    // Backend:{
-    //     loadpath: `/public/i18n/{lng}.json`,
-    // },
     resources,
     //lng: "de", // see note 1 below
     fallbackLng: "de",
     supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true, //note 3 below
-    debug: false,
+    debug: false, 
     // debug: process.env.NODE_ENV === "development",
     interpolation: {
       spaceValue: false,
@@ -46,10 +48,10 @@ i18n
       // wait : true,
       useSuspense: true,
     },
+    detection: detectionOptions
   });
 
-export default i18n
-
+export default i18n;
 
 //notes: https://phrase.com/blog/posts/localizing-react-apps-with-i18next/ 
 // 1. lng 

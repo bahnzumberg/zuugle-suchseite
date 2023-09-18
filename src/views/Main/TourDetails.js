@@ -94,10 +94,9 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             setGpxTrack(returnConnection.gpx_file, loadGPX, setAbreiseGpxPositions);
         }
 
-    }, [connection || returnConnection]);
-
-        
-            
+    }, [connection || returnConnection]); 
+    
+    
     async function onDownload() {
         const datum = searchParams.get("datum");
         try {
@@ -200,6 +199,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
         return final_url;
     }
+    
 
     return <Box sx={{ width: '100%', padding: 0}}>
 

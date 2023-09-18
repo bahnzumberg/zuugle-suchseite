@@ -158,7 +158,8 @@ export const getTopLevelDomain = () => {
     // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
-    return host.substring(host.length-2).toUpperCase();
+    return host.substring(host.length-2).toLowerCase();
+    // return host.substring(host.length-2).toUpperCase();
 }
 
 export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {

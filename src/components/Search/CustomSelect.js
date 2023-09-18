@@ -22,9 +22,8 @@ import {
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
-  console.log("L24 searchPhrase: " + searchPhrase);
+  // console.log("L24 searchPhrase: " + searchPhrase);
   // add searchParam to value of input field if exists
-  const [selectedOption, setSelectedOption] = useState("");
 
   return (
     <>
@@ -107,7 +106,7 @@ export default function CustomSelect(props) {
           >
             <IconButton
               onClick={(ev) => {
-                handleSelect();
+                handleSelect('');
                 ev.preventDefault();
               }}
             >
@@ -117,9 +116,9 @@ export default function CustomSelect(props) {
         </Grid>
       </Grid>
       <List>
-        {options?.map((option) => {
+        {options?.map((option, index) => {
           return (
-            <ListItem disablePadding>
+            <ListItem disablePadding key={index}>
               <ListItemButton
                 onClick={() => {
                   handleSelect(option?.value);

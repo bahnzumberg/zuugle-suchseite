@@ -15,10 +15,11 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-import { useMatomo } from "@jonkoops/matomo-tracker-react";
-import { myTrackPageView } from "../../utils/globals";
+// import { useMatomo } from "@jonkoops/matomo-tracker-react";
+// import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
+
 import {
   getPageHeader,
   listAllCityLinks,
@@ -74,12 +75,32 @@ function Start({
   allCities,
   totalProvider,
   loadRanges,
-  allRanges,
+  allRanges
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const { t, i18n } = useTranslation();
+
+  let searchParamCity ="" ;
+  let city = "";
+
+  // PASS AS PARAM !!
+  const getCity = () => { 
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if(!!city) {
+      return city;
+    }else {
+      return "XXX";
+    }
+  }
+
+  React.useEffect(() => {
+    _mtm.push({'pagetitel': "Startseite"});
+  }, []);
+
+
 
   // description
   // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
@@ -88,7 +109,6 @@ function Start({
   // The loadAllCities function calls another action creator loadList and passes it dispatch, getState, LOAD_ALL_CITIES, LOAD_ALL_CITIES_DONE, "tours", data, "cities/" and "cities" as parameters. LOAD_ALL_CITIES and LOAD_ALL_CITIES_DONE are imported constants from the types file and they represent the types of actions that are being dispatched. The other parameters are used to make an API call to retrieve the cities data.
   // The code defines several functions that are used to dispatch actions to the Redux store.
   // Each function within the corresponding actions creators (like tourActions.js or cityActions.js) makes an API call using the functions imported from the "crudActions" file and then dispatches an action to the store with the type defined in the imported "types" file and the payload data returned from the API call.
-  // For example, in the loadTours function, an API call is made to retrieve a list of tours by calling the loadList function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOURS_DONE and the payload data is dispatched to the store.
   // Similarly, the loadTour function makes an API call to retrieve a single tour by calling the loadOne function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOUR_DONE and the payload data is dispatched to the store.
   // So the code within this useEffect handles the data flow in the application and keep the Redux store updated with the latest data retrieved from the API.
   useEffect(() => {
@@ -97,16 +117,15 @@ function Start({
     loadRanges({ ignore_limit: true, remove_duplicates: true });
     // searchParams.forEach(item=> console.log(item)) // testing params
 
-    let searchParamCity = searchParams.get("city");
-    const city = localStorage.getItem("city");
-    // console.log('city in LocalStorage :', city);
-    // console.log(' searchParamCity:', searchParamCity);
+    getCity();
+
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
-
       setSearchParams(searchParams);
-    }
 
+      // Matomo tracking
+      _mtm.push({'city': city.label});
+    }   
     loadCities({ limit: 5 });
     loadFavouriteTours({
       sort: "relevanz",
@@ -117,6 +136,9 @@ function Start({
     });
   }, []);
 
+
+  
+
   //description:
   // onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
   // Here's what the function does step by step:
@@ -126,27 +148,7 @@ function Start({
   // An additional state object is passed as an option to the navigate function. This state object contains a single key-value pair, where the key is tour and the value is the selected tour.
   // The purpose of onSelectTour  within the Start.js file is to allow users to navigate to the search page with the selected tour as the search query. The state object is passed along so that the search page has access to the tour information.
 
-  // const onSelectTour = (tour) => {
-  // 	console.log('L137/ tour is :', tour)
-  // 	let _city = searchParams.get("city");
-  // 	const navUrl = `/suche?sort=relevanz&search=${tour.title.replace(
-  // 		/[()-]/g,
-  // 		" "
-  // 	)}${!!_city ? "&city=" + _city : ""}`;
-  // 	//clgs
-  // 	// console.log('Line 73: URL is :', navUrl);
-  // 	// console.log(tour)
-  // 	// example : navigate(`/suche?sort=relevanz&search=Winterwanderung+über+die+Sonnsteine&city=bad-ischl&datum=2023-02-02`,{
-  // 	navigate(navUrl, {
-  // 		state: {
-  // 			tour: tour,
-  // 		},
-  // 	});
-  // };
-
   const onSelectTour = (tour) => {
-    // console.log("tour selected :");
-    // console.log(tour ? tour : "undefined tour");
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
     const updatedSearchParams = new URLSearchParams();
@@ -155,24 +157,21 @@ function Start({
     if (city) {
       updatedSearchParams.set("city", city);
     }
-    // clgs
-    // console.log("go to URL :")
-    // console.log('/tour?' + updatedSearchParams.toString())
-    // Start.js:176 go to URL :
-    // Start.js:177 /tour?id=68587&city=baden
-    window.open("/tour?" + updatedSearchParams.toString());
+    //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
+    //console.log("/tour?" + updatedSearchParams.toString());
+    window.open("/tour?" + updatedSearchParams.toString(),'_blank', 'noreferrer');
   };
 
   //description:
   // The onSelectRange is a constant declaration for a JavaScript arrow function in the Start.js file.
   // The function takes one parameter range, which represents a selected range object. The function then extracts the city value from the searchParams object, which is an instance of the URLSearchParams API.
-  // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?sort=relevanz&range=${range.range}${!!_city ? '&city='+_city : ''}.
-  // The _city value is added to the URL only if it is truthy. The range.range value is included in the URL as the value of the range query parameter. The sort query parameter is set to relevanz.
+  // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?range=${range.range}${!!_city ? '&city='+_city : ''}.
+  // The _city value is added to the URL only if it is truthy. The range.range value is included in the URL as the value of the range query parameter.
   const onSelectRange = (range) => {
     let _city = searchParams.get("city");
     if (!!range && !!range.range) {
       navigate(
-        `/suche?sort=relevanz&range=${range.range}${
+        `/suche?range=${range.range}${
           !!_city ? "&city=" + _city : ""
         }`
       );
@@ -211,12 +210,15 @@ function Start({
     return (
       <Box>
         {getPageHeader(null)}
-        <Header
+     { !!allCities && allCities.length>0 
+      &&  
+      <Header
+          getCity={getCity}
           totalTours={totalTours}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
-        />
+        />}
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
@@ -312,7 +314,7 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadTourConnections,
   loadTotalTours,
-  loadAllCities,
+  loadAllCities
 };
 
 // description:

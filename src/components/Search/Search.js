@@ -37,6 +37,9 @@ export function Search({
   hideModal,
   allCities,
   isMapView,
+  updateCapCity,
+  showMobileMenu,
+  setShowMobileMenu,
   filter,
   // loadCities,
   // cities,
@@ -44,6 +47,11 @@ export function Search({
   // isCityLoading,
   // loadFavouriteTours,
 }) {
+
+  //console.log("SearchContainer / goto : ", goto); // '/suche'
+  //console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
+  //console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
+
   //navigation
   const navigate = useNavigate();
   // Translation
@@ -112,11 +120,6 @@ export function Search({
       }
     }
 
-    if (!!!orderId || orderId == "relevanz") {
-      searchParams.set("sort", "relevanz");
-      setSearchParams(searchParams);
-    }
-
     // range does not showup in params list in latest version
     if (!!range) {
       // console.log("L99 Search : region in useEffect : " + range);
@@ -142,24 +145,24 @@ export function Search({
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }
-
+    // console.log("L140 Search : pageKey == 'detail' ->", pageKey == 'detail')
     //return if start page - no load
-    if (!!!isMain) {
+    if (!!!isMain ) {
       return;
     }
     let _filter = !!filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
     if (!!_filter) {
       filter = {
         ..._filter,
-        ignore_filter: true,
+        ignore_filter: false,
       };
     } else {
       filter = {
         ignore_filter: true,
       };
     }
-    // let result = loadTours({
-    loadTours({
+    let result = loadTours({
+    // loadTours({
       city: city,
       range: range, //does not showup in params list in latest version
       state: state, //does not showup in params list in latest version
@@ -171,9 +174,9 @@ export function Search({
       provider: provider,
       map: searchParams.get("map"),
     });
-    // result.then((resolvedValue) => {
-    //     console.log("result of load Tours", resolvedValue);
-    // });
+    result.then((resolvedValue) => {
+        // console.log("result of load Tours", resolvedValue);
+    });
   }, [
     // useEffect dependencies
     searchParams && searchParams.get("city"),
@@ -226,7 +229,7 @@ export function Search({
   useEffect(() => {
     if (pageKey === "detail") {
       let city = searchParams.get("city");
-      navigate(`/?${!!city ? "city=" + city : ""}`);
+      // navigate(`/?${!!city ? "city=" + city : ""}`);
     }
   }, [city]);
 
@@ -263,8 +266,10 @@ export function Search({
     // assign values.search
     values.search = suggestion
       ? suggestion
-      : autoSearchPhrase
-      ? autoSearchPhrase
+      : searchPhrase
+      // : autoSearchPhrase
+      ? searchPhrase
+      // ? autoSearchPhrase
       : "";
 
     if (!!searchParams.get("sort")) {
@@ -313,13 +318,17 @@ export function Search({
       CustomComponent: FullScreenCityInput,
       searchParams,
       initialCity: cityInput,
-      onSelect: (city) => {
+      onSelect: async (city) => {
         hideModal();
         if (!!city) {
           setCityInput(city.label);
-          setCity(city);
+          await setCity(city);
+          pageKey=="start" && updateCapCity(city.label);
+          pageKey=="detail" && window.location.reload();
+
         }
       },
+      
       setSearchParams,
       title: "",
       sourceCall: "city",
@@ -340,7 +349,7 @@ export function Search({
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: searchPhrase,
+      placeholder: searchParams.get("search") ? searchParams.get("search") : t("start.suche"),
       title: "",
       sourceCall: "search",
       page: page,
@@ -419,7 +428,29 @@ export function Search({
   // }
 
   //Function that gets value f the selected option and directly start the search for tours
+  
+  const handleGoButton = () => {
+    console.log(" L433 searchPhrase: " + searchPhrase);
+    if(!!searchPhrase && searchPhrase.length == 0){ 
+      searchParams.delete("search");
+      // setSearchPhrase("");
+      setSearchParams(searchParams);
+      hideModal();
+      if (!!goto) {
+        navigate(goto + "?" + searchParams);
+      }
+    }else{
+      search();
+    }
+  }
   const getSearchSuggestion = (autoSuggestion) => {
+    if (autoSuggestion == '') {
+      searchParams.delete("search");
+      setSearchPhrase("");
+      setSearchParams(searchParams);
+      hideModal();
+      return;
+    }
     suggestion = autoSuggestion;
     hideModal();
     search();
@@ -495,27 +526,8 @@ export function Search({
                 >
                   {pageKey !== "detail" && (
                     <span className="search-bar--searchPhase">
-                      {searchPhrase.length > 0
-                        ? searchPhrase
-                        : t("start.suche")}
+                      {searchParams.get("search") ? searchParams.get("search") : t("start.suche")}
                     </span>
-                  // ) 
-                  // : !searchPhrase && pageKey === "detail" ? (
-                  //   <Box
-                  //     className="search-bar--city"
-                  //     sx={{
-                  //       cursor: "pointer",
-                  //       color: "#4992FF !important",
-                  //       fontFamily: "Open Sans",
-                  //       fontSize: { xs: "14px", sm: "15px" },
-                  //       fontWeight: "700",
-                  //       lineHeight: "20px",
-                  //     }}
-                  //   >
-                  //     {t("start.suche")}
-                  //   </Box>
-                  // ) : (
-                  //   <Box className="search-bar--city">{searchPhrase}</Box>
                   )}
                 </Box>
               </Grid>
@@ -598,7 +610,7 @@ export function Search({
                   </IconButton>
                 ) : (
                   <IconButton
-                    onClick={() => search()}
+                    onClick={handleGoButton}
                     sx={{
                       "&:hover": {
                         background: "#7aa8ff",
@@ -645,56 +657,3 @@ const mapStateToProps = (state) => {
 };
 
 export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);
-
-// L57:
-// console.log("Search arguments received: "); // output
-// console.log("Search arguments :loadRegions ",loadRegions); //(...args) => dispatch(actionCreator(...args));
-// console.log("Search arguments : loadTours", loadTours); //(...args) => dispatch(actionCreator(...args));
-// console.log("Search arguments , goto value :", goto); //     '/suche'
-// console.log("Search arguments : isMain", isMain);  //undefined
-// console.log("Search arguments : showModal", showModal);//(...args) => dispatch(actionCreator(...args));
-// console.log("Search arguments : hideModal ", hideModal);//(...args) => dispatch(actionCreator(...args));
-// console.log("Search arguments : allCities ", allCities[0]); //{value: 'amstetten', label: 'Amstetten'}
-// console.log("Search arguments : isMapView ", isMapView); // undefined
-
-//L66
-// const handleFocus = () => {
-//     setRegionInput("");
-//     setPlaceholder("");
-//   };
-
-//   const handleBlur = () => {
-//     setPlaceholder(t("start.suche"));
-//   };
-
-//L79
-// clgs :
-// only the following have actually changed , not necessarily in same instant : "city", "range", "orderId", "filter", rest remained null
-//console.log("searchParams ", JSON.stringify(searchParams)); //output:  searchParams  {};
-// console.log("city", city);
-// console.log("range", range);
-// console.log("state", state);
-// console.log("country", country);
-// console.log("type", type);
-// console.log("search", search);
-// console.log("filter", filter);
-// console.log("orderId", orderId);
-// console.log("provider", provider);
-
-//L142
-//clgs
-// console.log("city", city);
-// console.log("range", range);
-// console.log("state", state);
-// console.log("country", country);
-// console.log("type", type);
-// console.log("search", search);
-// console.log("filter", filter);
-// console.log("orderId", orderId);
-// console.log("provider", provider);
-//for (const entry of searchParams.entries()) {
-//    console.log("searchParams entries : ",entry); //output : ['city', 'bischofshofen'] ['sort', 'relevanz']
-//}
-
-//L124
-// console.log("Search...search inside useEffect :", search);

@@ -7,32 +7,20 @@ import { hideModal } from "../actions/modalActions";
 import Box from "@mui/material/Box";
 import { Divider, IconButton, Typography } from "@mui/material";
 import Close from "../icons/Close";
-// import ChevronLeft from "../icons/ChevronLeft";
-// import TextWithIcon from "./TextWithIcon";
-// import GoIcon from "../icons/GoIcon";
-// import { useSearchParams } from "react-router-dom";
 
-// import Grid from "@mui/material/Grid";
-// import { loadFavouriteTours, loadTours } from "../actions/tourActions";
-// import { loadRegions } from "../actions/regionActions";
-// import {
-//   // isResponsive,
-//   parseIfNeccessary,
-//   setOrRemoveSearchParam,
-// } from "../utils/globals";
 
 const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack, sourceCall}) => {
-  // console.log("L25 : sourceCall", sourceCall);
   const { t } = useTranslation();
+  // console.log("L25 : sourceCall", sourceCall);
   // const [placeholder, setPlaceholder] = useState(t("start.suche"));
   // const [cityInput, setCityInput] = useState("");
   // const [searchPhrase, setSearchPhrase] = useState("");
-  const [city, setCity] = useState(null);
-  const [region, setRegion] = useState(null);
+  //const [city, setCity] = useState(null);
+  //const [region, setRegion] = useState(null);
   // const [activeFilter, setActiveFilter] = useState("");
   // const [searchParams, setSearchParams] = useSearchParams();
-  let suggestion; //variable that stores the text of the selected option
-  let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
+  //let suggestion; //variable that stores the text of the selected option
+  //let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
 
   const style = {
     overflowY: "scroll",

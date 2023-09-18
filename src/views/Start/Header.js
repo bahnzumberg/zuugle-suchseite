@@ -7,6 +7,8 @@ import { getDomainText, isResponsive } from "../../utils/globals";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import { getTotalCityTours } from "../../actions/crudActions";
 
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
@@ -16,24 +18,22 @@ const LINEAR_GRADIENT =
 
 export default function Header({
   totalTours,
+  getCity,
   allCities,
   showMobileMenu,
   setShowMobileMenu,
 }) {
-  // const [fSearchQuery, setFSearchQuery] = React.useState("");
-  // const [showFirstMenu, setShowFirstMenu] = React.useState(false);
-  // const [firstMenuOptions, setFirstMenuOptions] = React.useState([
-  // 	"GroBer Patel",
-  // 	"GroBer Priel",
-  // 	"GroBer Pythrgas",
-  // ]);
-  // const [secondSearchQuery, setSecondSearchQuery] = React.useState("");
-  // const [showSecondMenu, setShowSecondMenu] = React.useState(false);
-  // const [secondMenuOptions, setSecondMenuOptions] = React.useState([
-  // 	"GroBer Patel",
-  // 	"GroBer Priel",
-  // 	"GroBer Pythrgas",
-  // ]);
+  
+  // console.log(" L26 : allCities")
+  // console.log(allCities);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  let city = searchParams.get("city");
+  const[capCity, setCapCity] = useState(city);
+  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0) 
+
+
+
 
   let tld = '';
   let domain = location.hostname;
@@ -50,11 +50,32 @@ export default function Header({
   const _isMobile = isResponsive();
   const { t, i18n } = useTranslation();
 
-  // const secondMenu = [
-  // 	{ id: 0, name: "Über Zuugle" },
-  // 	{ id: 1, name: "Impressum" },
-  // 	{ id: 2, name: "Datenschutz" },
-  // ];
+  function updateCapCity(newCity) {
+    setCapCity(newCity);
+  }
+
+  useEffect(() => {
+    getCity();
+    if (!!city) {
+      getTotalCityTours(city).then((data) => {
+        // data ? console.log("L61 tours_city :", data.tours_city) : console.log("nothing found");
+        setTotalToursFromCity(data.tours_city);
+      });
+    }
+  }, [city])
+
+  useEffect(() => {
+    city = searchParams.get("city");
+    if (!!city && !!allCities && allCities.length > 0) {
+      const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+      if (!!cityObj) {
+        updateCapCity(cityObj.label)
+        searchParams.set("city", city);
+      }
+    }
+
+  }, [])
+  
 
   useEffect(() => {
     if (!!_isMobile) {
@@ -105,13 +126,16 @@ export default function Header({
         sx={{ position: "relative" }}
         style={{ backgroundImage: backgroundImage }}
       >
-        <Box comoponent={"div"} className="rowing countryDiv">
+        <Box component={"div"} className="rowing countryDiv">
           <DomainMenu />
           <LanguageMenu />
         </Box>
         <Box className={"header-text"}>
           <Typography variant={"h1"} height={"162px"}>
-            {totalTours.toLocaleString()} {t("start.tourenanzahl_untertitel")}
+            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city", {capCity})
+            : 
+            (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()+' '+t("start.tourenanzahl_untertitel")
+            }
           </Typography>
         </Box>
         {!!allCities && allCities.length > 0 && (
@@ -133,9 +157,11 @@ export default function Header({
           >
             <Box sx={{ width: "100%" }}>
               <SearchContainer
+                pageKey="start"
                 goto={"/suche"}
                 showMobileMenu={showMobileMenu}
                 setShowMobileMenu={setShowMobileMenu}
+                updateCapCity={updateCapCity}
               />
             </Box>
           </Box>
