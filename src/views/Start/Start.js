@@ -157,8 +157,8 @@ function Start({
     if (city) {
       updatedSearchParams.set("city", city);
     }
-    console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-    console.log("/tour?" + updatedSearchParams.toString());
+    //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
+    //console.log("/tour?" + updatedSearchParams.toString());
     window.open("/tour?" + updatedSearchParams.toString(),'_blank', 'noreferrer');
   };
 

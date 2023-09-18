@@ -175,7 +175,7 @@ export function Search({
       map: searchParams.get("map"),
     });
     result.then((resolvedValue) => {
-        console.log("result of load Tours", resolvedValue);
+        // console.log("result of load Tours", resolvedValue);
     });
   }, [
     // useEffect dependencies

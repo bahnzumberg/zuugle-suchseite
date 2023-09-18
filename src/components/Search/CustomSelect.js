@@ -22,9 +22,8 @@ import {
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
-  console.log("L24 searchPhrase: " + searchPhrase);
+  // console.log("L24 searchPhrase: " + searchPhrase);
   // add searchParam to value of input field if exists
-  const [selectedOption, setSelectedOption] = useState("");
 
   return (
     <>
