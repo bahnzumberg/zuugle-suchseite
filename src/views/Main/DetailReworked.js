@@ -180,9 +180,9 @@ const DetailReworked = (props) => {
     const city = localStorage.getItem("city");
     const Id = searchParams.get("id");
 
-    console.log("detail page --> shareId :", shareId)
-    console.log("detail page --> city :", city)
-    console.log("detail page --> Id :", Id)
+    // console.log("detail page --> shareId :", shareId)
+    // console.log("detail page --> city :", city)
+    // console.log("detail page --> Id :", Id)
 
     //Redirects to according page when it is a share link
     if (shareId !== null) {
@@ -221,12 +221,12 @@ const DetailReworked = (props) => {
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
+            // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
             tourDuration =
             !!tourExtracted.data.tour.duration &&
             tourExtracted.data.tour.duration;
-            console.log(" L 218 : searchParams", searchParams.toString()); //id=17788&city=bad-ischl
-            console.log(" L 219 : tourDuration", tourDuration)
+            //console.log(" L 218 : searchParams", searchParams.toString()); //id=17788&city=bad-ischl
+            //console.log(" L 219 : tourDuration", tourDuration)
             
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
@@ -254,15 +254,15 @@ const DetailReworked = (props) => {
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-          console.log("L247 -> res.data :", res.data);
+          // console.log("L247 -> res.data :", res.data);
           setConnections(res.data.result);
         }
       });
     }
   }, [searchParams]);
 
-  console.log(" L 253 : tourDifficulty", tourDifficulty)
-  console.log(" L 254 : tourDifficultyOrig", tourDifficultyOrig)
+  // console.log(" L 253 : tourDifficulty", tourDifficulty)
+  // console.log(" L 254 : tourDifficultyOrig", tourDifficultyOrig)
 
 
   useEffect(() => {
@@ -271,8 +271,8 @@ const DetailReworked = (props) => {
         console.log("No city L260");
         //goToStartPage();  // check if this is desirable (was commented out by external guy)
       } else {
-        console.log("inside block for setting gopx files and tracks")
-        console.log("===============================================")
+        // console.log("inside block for setting gopx files and tracks")
+        // console.log("===============================================")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
