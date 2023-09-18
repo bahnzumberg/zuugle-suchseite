@@ -9,6 +9,7 @@ import { useTheme } from "@mui/material/styles";
 // import ClearSearchIcon from "../../icons/ClearSearchIcon";
 import { styled } from "@mui/system";
 import CustomSelect from "./CustomSelect";
+import { isArray } from "lodash";
 
 const useStyles = styled("div")(({ theme }) => ({
   "& label.Mui-focused": {
@@ -72,13 +73,13 @@ const AutosuggestSearchTour = ({
       setSearchPhrase(inputValue);
       loadSuggestions(inputValue, city.value, language) //Call the backend
         .then((suggestions) => {
-          const newOptions = suggestions.map((suggestion) => ({
+          const newOptions = suggestions?.map((suggestion) => ({
             //Get the New suggestions and format them the correct way
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
           // console.log("Suggestions from backend:", newOptions);
-          setOptions([...newOptions]);
+          newOptions && isArray(newOptions) && setOptions([...newOptions]);
         })
         .catch((err) => {
           console.error(err);
@@ -157,11 +158,11 @@ const AutosuggestSearchTour = ({
     }),
   };
 
-  useEffect(() => {
-    console.log("Input : ", input)
-    onSearchPhrase(input);
-    searchParam = urlSearchParams.get("search")
-  }, [input]);
+  // useEffect(() => {
+  //   console.log("Input : ", input)
+  //   onSearchPhrase(input);
+  //   searchParam = urlSearchParams.get("search")
+  // }, [input]);
 
 
 

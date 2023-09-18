@@ -154,7 +154,7 @@ export function Search({
     if (!!_filter) {
       filter = {
         ..._filter,
-        ignore_filter: true,
+        ignore_filter: false,
       };
     } else {
       filter = {
@@ -266,8 +266,10 @@ export function Search({
     // assign values.search
     values.search = suggestion
       ? suggestion
-      : autoSearchPhrase
-      ? autoSearchPhrase
+      : searchPhrase
+      // : autoSearchPhrase
+      ? searchPhrase
+      // ? autoSearchPhrase
       : "";
 
     if (!!searchParams.get("sort")) {
@@ -426,7 +428,29 @@ export function Search({
   // }
 
   //Function that gets value f the selected option and directly start the search for tours
+  
+  const handleGoButton = () => {
+    console.log(" L433 searchPhrase: " + searchPhrase);
+    if(!!searchPhrase && searchPhrase.length == 0){ 
+      searchParams.delete("search");
+      // setSearchPhrase("");
+      setSearchParams(searchParams);
+      hideModal();
+      if (!!goto) {
+        navigate(goto + "?" + searchParams);
+      }
+    }else{
+      search();
+    }
+  }
   const getSearchSuggestion = (autoSuggestion) => {
+    if (autoSuggestion == '') {
+      searchParams.delete("search");
+      setSearchPhrase("");
+      setSearchParams(searchParams);
+      hideModal();
+      return;
+    }
     suggestion = autoSuggestion;
     hideModal();
     search();
@@ -586,7 +610,7 @@ export function Search({
                   </IconButton>
                 ) : (
                   <IconButton
-                    onClick={() => search()}
+                    onClick={handleGoButton}
                     sx={{
                       "&:hover": {
                         background: "#7aa8ff",

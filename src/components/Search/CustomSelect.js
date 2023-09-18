@@ -107,7 +107,7 @@ export default function CustomSelect(props) {
           >
             <IconButton
               onClick={(ev) => {
-                handleSelect();
+                handleSelect('');
                 ev.preventDefault();
               }}
             >
@@ -117,9 +117,9 @@ export default function CustomSelect(props) {
         </Grid>
       </Grid>
       <List>
-        {options?.map((option) => {
+        {options?.map((option, index) => {
           return (
-            <ListItem disablePadding>
+            <ListItem disablePadding key={index}>
               <ListItemButton
                 onClick={() => {
                   handleSelect(option?.value);
