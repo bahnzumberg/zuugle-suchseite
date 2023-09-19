@@ -34,8 +34,6 @@ function App() {
   }, []);
 
 
-  ReactDOM.render(component, document.getElementById('root'));
-
 
   return (
     <ThemeProvider theme={theme}>
