@@ -17,7 +17,7 @@ const Privacy = lazy(() => import("./views/Pages/Privacy"));
 import i18next from "i18next";
 
 
-async function App() {
+function App() {
   // UAT and local development should use matomo test instance
   if (location.hostname.indexOf("localhost") !== -1 || location.hostname.indexOf("www2.") !== -1) {
       // tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', isProduction: false, });
