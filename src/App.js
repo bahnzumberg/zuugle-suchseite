@@ -57,7 +57,6 @@ async function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/:city" element={<Main />} />
             <Route path="/searchPhrases" element={<Search />} />
-            {/* <Route path="/cache" element={<TestComp/>}/> */}
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -66,10 +65,6 @@ async function App() {
       <ModalRoot />
     </ThemeProvider>
   );
-}
-
-function isProduction() {
-  return window.location.hostname.indexOf("www.zuugle.") > -1;
 }
 
 export default App;
