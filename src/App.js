@@ -19,7 +19,7 @@ import i18next from "i18next";
 function App() {
   // UAT and local development should use matomo test instance
   if (location.hostname.indexOf("localhost") !== -1 || location.hostname.indexOf("www2.") !== -1) {
-      tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', });
+      tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', isProduction: false, });
   }
 
   // Matomo tracking
@@ -31,6 +31,9 @@ function App() {
     let language = i18next.resolvedLanguage;
     _mtm.push({'language': language});
   }, []);
+
+
+  ReactDOM.render(component, document.getElementById('root'));
 
 
   return (
@@ -62,6 +65,10 @@ function App() {
       <ModalRoot />
     </ThemeProvider>
   );
+}
+
+function isProduction() {
+  return window.location.hostname.indexOf("www.zuugle.") > -1;
 }
 
 export default App;
