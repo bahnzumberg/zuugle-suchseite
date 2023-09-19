@@ -13,10 +13,11 @@ const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
+import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
 import i18next from "i18next";
 
-function App() {
+
+async function App() {
   // UAT and local development should use matomo test instance
   if (location.hostname.indexOf("localhost") !== -1 || location.hostname.indexOf("www2.") !== -1) {
       tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', isProduction: false, });
@@ -33,7 +34,7 @@ function App() {
   }, []);
 
 
-  ReactDOM.render(component, document.getElementById('root'));
+  // ReactDOM.render(component, document.getElementById('root'));
 
 
   return (
