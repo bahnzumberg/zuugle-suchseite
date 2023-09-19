@@ -92,6 +92,10 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
     if(!!ranges){
         const entries = ranges.map((range,index) => {
             let link = `${range.range_slug}`;
+            if (link == "null") {
+                return [];
+            }
+
             if(!!searchParams && !!searchParams.get('p')){
                 link = `${link}?p=${searchParams.get('p')}`
             }
