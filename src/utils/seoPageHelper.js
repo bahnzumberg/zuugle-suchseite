@@ -91,15 +91,19 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
 
     if(!!ranges){
         const entries = ranges.map((range,index) => {
-            let link = `${range.range_slug}`;
+            let city= '';
+            let link = `${range.range}`;
             if (link == "null") {
                 return [];
             }
-
+            link = parseRangeToUrl(link)
             if(!!searchParams && !!searchParams.get('p')){
                 link = `${link}?p=${searchParams.get('p')}`
             }
-            return <Grid key={index} item xs={12} sm={6} md={4}><a href={`/${parseRangeToUrl(link)}`} className={"seo-city-link"}>{range.range}</a></Grid>
+            if(!!searchParams && !!searchParams.get('city')){
+                city = searchParams.get('city')
+            }
+            return <Grid key={index} item xs={12} sm={6} md={4}><a href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`} className={"seo-city-link"}>{range.range}</a></Grid>
         });
 
         return <Box sx={{textAlign: "left"}}>
