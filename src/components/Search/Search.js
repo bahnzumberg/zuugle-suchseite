@@ -60,7 +60,7 @@ export function Search({
 
   //set placeholder
   useEffect(() => {
-    setPlaceholder(t("start.suche"));
+    setPlaceholder(searchParams.get("search") ? searchParams.get("search") : t("start.suche"));
   }, [language]);
 
   //initialisation
@@ -349,7 +349,7 @@ export function Search({
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: searchParams.get("search") ? searchParams.get("search") : t("start.suche"),
+      placeholder: placeholder,
       title: "",
       sourceCall: "search",
       page: page,
