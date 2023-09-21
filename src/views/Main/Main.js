@@ -423,7 +423,7 @@ export function Main({
             }}
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
-              {totalTours}{" "}
+              {Number(totalTours).toLocaleString()}{" "}
               {totalTours == 1 ? " Ergebnis " : ` ${t("main.ergebnisse")}`}
             </Typography>
             {filterActive && (
