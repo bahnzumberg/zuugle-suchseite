@@ -48,10 +48,6 @@ export function Search({
   // loadFavouriteTours,
 }) {
 
-  //console.log("SearchContainer / goto : ", goto); // '/suche'
-  //console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
-  //console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
-
   //navigation
   const navigate = useNavigate();
   // Translation
@@ -60,7 +56,7 @@ export function Search({
 
   //set placeholder
   useEffect(() => {
-    setPlaceholder(t("start.suche"));
+    setPlaceholder(searchParams.get("search") ? searchParams.get("search") : t("start.suche"));
   }, [language]);
 
   //initialisation
@@ -99,12 +95,11 @@ export function Search({
     let provider = searchParams.get("p");
     if (pageKey === "detail") {
       if (!!city) {
-        // console.log("L90 city: " + city);
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
 
         /** load regions initially */
-        loadRegions({ city: city }); // when is regions needed?
+        loadRegions({ city: city });
       }
     } else {
       if (!!city && !!allCities) {
@@ -115,14 +110,12 @@ export function Search({
           writeCityToLocalStorage(city); // store the city NAME in local storage
 
           /** load regions initially */
-          loadRegions({ city: city }); // when is regions needed?
+          loadRegions({ city: city });
         }
       }
     }
 
-    // range does not showup in params list in latest version
     if (!!range) {
-      // console.log("L99 Search : region in useEffect : " + range);
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
@@ -130,22 +123,21 @@ export function Search({
     if (!!search) {
       setSearchPhrase(search);
     }
-    // state does not showup in params list in latest version
+    // state might be useful for future enhancement or new feature related to Klimaticket
     if (!!state) {
       setSearchPhrase(state);
       setRegion({ value: state, label: state, type: "state" });
     }
-    // country does not showup in params list in latest version
+    // country might be useful for future enhancement or new feature related to Klimaticket
     if (!!country) {
       setSearchPhrase(country);
       setRegion({ value: country, label: country, type: "country" });
     }
-    // type does not showup in params list in latest version
+    // type might be useful for future enhancement or new feature related to Klimaticket
     if (!!type) {
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }
-    // console.log("L140 Search : pageKey == 'detail' ->", pageKey == 'detail')
     //return if start page - no load
     if (!!!isMain ) {
       return;
@@ -207,7 +199,6 @@ export function Search({
       resetFilter: handleResetFilter,
       onBack: () => {
         hideModal();
-        // console.log("onBack called L256");
       },
       searchParams,
       setSearchParams,
@@ -302,12 +293,6 @@ export function Search({
     }
   }; // end search()
 
-  const toggleFilter = () => {
-    // code goes here for filter overlay
-    // console.log("Search.js toggleFilter() called");
-    setActiveFilter(!activeFilter);
-  };
-
   // const gotoHome = () => {
   //     let _city = searchParams.get("city")
   //     navigate(`/?${!!_city ? "city=" + _city : ""}`)
@@ -349,7 +334,7 @@ export function Search({
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: searchParams.get("search") ? searchParams.get("search") : t("start.suche"),
+      placeholder: placeholder,
       title: "",
       sourceCall: "search",
       page: page,
@@ -430,10 +415,8 @@ export function Search({
   //Function that gets value f the selected option and directly start the search for tours
   
   const handleGoButton = () => {
-    console.log(" L433 searchPhrase: " + searchPhrase);
     if(!!searchPhrase && searchPhrase.length == 0){ 
       searchParams.delete("search");
-      // setSearchPhrase("");
       setSearchParams(searchParams);
       hideModal();
       if (!!goto) {

@@ -415,7 +415,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
   .header-container {
     height: unset;
-    padding-bottom: 30px;
+    padding-bottom: 50px;
   }
 
   .header-container.utils {
