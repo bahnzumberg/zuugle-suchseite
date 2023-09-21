@@ -25,7 +25,7 @@ jobs:
           SOURCE: 'build/'
           REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
-          TARGET: ${{ secrets.PROD_REMOTE_TARGET }}
+          TARGET: ${{ secrets.PROD_REMOTE_TARGET_API }}
           EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/, /package.json'
     - name: executing remote ssh command to restart the api using ssh key
       uses: appleboy/ssh-action@v1.0.0
