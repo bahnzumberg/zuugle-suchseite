@@ -122,9 +122,6 @@ function Start({
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
       setSearchParams(searchParams);
-
-      // Matomo tracking
-      _mtm.push({'city': city.label});
     }   
     loadCities({ limit: 5 });
     loadFavouriteTours({
