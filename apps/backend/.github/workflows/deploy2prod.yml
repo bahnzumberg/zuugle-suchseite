@@ -1,8 +1,8 @@
-name: UAT Deploy
+name: PROD Deploy
 on:
   push:
     branches:
-      - 'uat'
+      - 'main'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,21 +20,20 @@ jobs:
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
-          SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           ARGS: '-rlgoDzvc -i --delete'
           SOURCE: 'build/'
-          REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
-          TARGET: ${{ secrets.UAT_REMOTE_TARGET }}
+          REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
+          TARGET: ${{ secrets.PROD_REMOTE_TARGET_API }}
           EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/, /package.json'
     - name: executing remote ssh command to restart the api using ssh key
       uses: appleboy/ssh-action@v1.0.0
       with:
-          host: ${{ secrets.UAT_REMOTE_HOST }}
-          username: ${{ secrets.UAT_REMOTE_USER }}
-          key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.UAT_REMOTE_PORT }}
+          host: ${{ secrets.PROD_REMOTE_HOST }}
+          username: ${{ secrets.PROD_REMOTE_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
             pm2 restart all
-            /usr/local/zuugle/import-data-full-files.sh
