@@ -36,6 +36,9 @@ export async function fixTours(){
                     ON tour.provider=fahrplan.tour_provider
                     AND tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
+
+    // Delete all the entries from logsearchphrase, which are older than 360 days.
+    await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
 }
 
 
