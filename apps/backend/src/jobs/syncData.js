@@ -6,9 +6,8 @@ import {
     mergeToursWithFahrplan,
     syncCities,
     syncFahrplan,
-    syncGPXdata,
-    syncTours,
-    generateTestdata
+    syncGPXdata_changed,
+    syncTours
 } from "./sync";
 import moment from "moment";
 
@@ -35,19 +34,9 @@ syncTours().then(res => {
                         getProvider().then(res6 => {
                             console.log('FETCHED PROVIDER: ', moment().format('HH:mm:ss'));
                             console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
-                            syncGPXdata().then(res7 => {
+                            syncGPXdata_changed().then(res7 => {
                                 console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
-
-                                if(process.env.NODE_ENV !== "production"){
-                                    console.log('GENERATE TEST DATA: ', moment().format('HH:mm:ss'));
-                                    generateTestdata().then(res8 => {
-                                        console.log('DONE GENERATING TEST DATA: ', moment().format('HH:mm:ss'));
-                                        process.exit();    
-                                    })
-                                }
-                                else {
-                                    process.exit();
-                                }
+                                process.exit();
                             });
                         });
                     });

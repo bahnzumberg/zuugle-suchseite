@@ -36,6 +36,9 @@ export async function fixTours(){
                     ON tour.provider=fahrplan.tour_provider
                     AND tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
+
+    // Delete all the entries from logsearchphrase, which are older than 360 days.
+    await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
 }
 
 
@@ -152,7 +155,7 @@ async function _syncConnectionGPX(key, fileName, title){
 }
 
 export async function syncConnectionGPX(){
-    const _limit = pLimit(25);
+    const _limit = pLimit(20);
 
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
@@ -176,7 +179,7 @@ export async function syncConnectionGPX(){
 export async function syncGPX(){
     const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
     if(!!allTours && allTours.length > 0){
-        const _limit = pLimit(25);
+        const _limit = pLimit(20);
         const promises = allTours.map(entry => {
             return _limit(() => _syncGPX(entry.provider, entry.hashed_url, entry.title));
         });
@@ -259,6 +262,7 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
 }
 
 export async function syncGPXdata(){
+    // As we do a full load of the table "gpx" here, we empty it completely and fill it up afterwards
     try {
         await knex.raw(`TRUNCATE gpx;`);
     } catch(err){
@@ -268,10 +272,10 @@ export async function syncGPXdata(){
     let limit = 5000;
     const query_count = await knexTourenDb('vw_gpx_to_search').count('* as anzahl'); 
     let count_gpx = query_count[0]["anzahl"];
-    let count_chunks = round(count_gpx / limit, 0);
+    let count_chunks = Math.ceil(count_gpx / limit, 0);
     let counter = 0;
 
-    console.log('Info: Handling ', count_gpx.toLocaleString("de-de"), ' rows with gpx datapoints via ', count_chunks, ' chunks.');
+    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'rows with gpx datapoints via ', count_chunks, ' chunks.');
 
     /* The following loop has to be parallised */
     while(counter < count_chunks){
@@ -281,9 +285,90 @@ export async function syncGPXdata(){
         try {
             await knex('gpx').insert([...result]);
         } catch(err){
-            console.log('error: ', err)
+            console.log('error syncGPXdata: ', err)
         }
         counter++;
+    }
+}
+
+
+export async function syncGPXdata_changed(){
+    // Delta mode. We handle only those gpx datapoints, which have changed since the last run.
+
+    // Get the last id, which has been handled before. From here on, we will only handle ids greater than max_id.
+    let max_id = 0;
+    const query_max_id = await knex('gpx_changed').max('id as max_id');
+    max_id = query_max_id[0]["max_id"];
+    if (!!!max_id) {
+        max_id = 0;
+    }
+
+    let error_occurred = false;
+    let limit = 5000;
+    let query_count = 0;
+    let count_gpx = 0;
+    let count_chunks = 0;
+    let counter = 0;
+
+    // First, we fetch all tours, where gpx data has been changed. We insert these into the table "gpx_changed".
+    query_count = await knexTourenDb('vw_gpx_changed').whereRaw(`id > ${max_id}`).count('* as anzahl'); 
+    count_gpx = query_count[0]["anzahl"];
+    count_chunks = Math.ceil(count_gpx / limit, 0);
+    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'tours with changed gpx datapoints via ', count_chunks, ' chunks.');
+
+    while(counter < count_chunks){
+        const result_query = knexTourenDb('vw_gpx_changed').select('id', 'provider', 'hashed_url').whereRaw(`id > ${max_id}`).whereRaw(`id % ${count_chunks} = ${counter}`);
+        const result = await result_query; 
+        try {
+            await knex('gpx_changed').insert([...result]);
+        } catch(err){
+            error_occurred = true;
+            console.log('error while insert into gpx syncGPXdata: ', err)
+        }
+        // console.log('gpx_changed insert counter: ', counter);
+        counter++;
+    }
+    // In gpx_changed we have got now those tours locally, which have changed gpx points.
+
+
+    // Now we delete all gpx points, which have changed.
+    try {
+        await knex.raw(`DELETE FROM gpx WHERE CONCAT(provider, hashed_url) IN (SELECT CONCAT(provider, hashed_url) FROM gpx_changed);`);
+    } catch(err){
+        error_occurred = true;
+        console.log('error delete gpx syncGPXdata_changed: ', err)
+    }
+
+
+    // Now we insert the new gpx points.
+    query_count = await knexTourenDb('vw_gpx_to_search_changed').whereRaw(`changed_id > ${max_id}`).count('* as anzahl'); 
+    count_gpx = query_count[0]["anzahl"];
+    count_chunks = Math.ceil(count_gpx / limit, 0);
+    counter = 0;
+    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'rows with gpx datapoints via ', count_chunks, ' chunks.');
+
+    // The following loop has to be parallised
+    while(counter < count_chunks){
+        const result_query = knexTourenDb('vw_gpx_to_search_changed').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`changed_id > ${max_id}`).whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
+        const result = await result_query;
+        try {
+            await knex('gpx').insert([...result]);
+        } catch(err){
+            error_occurred = true;
+            console.log('error while syncGPXdata: ', err)
+        }
+        // console.log('gpx insert counter: ', counter);
+        counter++;
+    }
+
+    // Now we delete all entries from gpx_changed, which have been handled, so we can load next time only the new ones.
+    if (!!!error_occurred) {
+        try {
+            await knex.raw(`DELETE FROM gpx_changed WHERE id <= ${max_id};`);
+            console.log('gpx delta for next run prepared');
+        } catch(err){
+            console.log('error delete from gpx_changed: ', err)
+        }
     }
 }
 
@@ -345,7 +430,7 @@ export async function syncFahrplan(mode='delta'){
 
     const query_count = await knexTourenDb('vw_fplan_to_search').count('* as anzahl').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
     count_tours = query_count[0]["anzahl"];
-    chunksizer = round( count_tours / limit, 0 );
+    chunksizer = Math.ceil( count_tours / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
         chunksizer = 1;
     }

@@ -4,7 +4,7 @@ a.term AS phrase,
 COUNT(tour) AS num_results,
 f.city_slug,
 LOWER(a.text_lang) AS menu_lang,
-LOWER(city.city_country) AS country_code
+UPPER(city.city_country) AS country_code
 FROM (SELECT
 		CONCAT(provider,hashed_url) AS tour,
 		provider,
