@@ -25,5 +25,5 @@ jobs:
           SOURCE: 'build/'
           REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
-          TARGET: ${{ secrets.PROD_REMOTE_TARGET }}
+          TARGET: ${{ secrets.PROD_REMOTE_TARGET_SUCHSEITE }}
           EXCLUDE: '/dist/, /node_modules/'
