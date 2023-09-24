@@ -152,7 +152,10 @@ function Start({
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
     const updatedSearchParams = new URLSearchParams();
-    updatedSearchParams.set("id", tour.id);
+    // updatedSearchParams.set("id", tour.id);
+
+    !!tour && localStorage.setItem("tourId", tour.id);
+    // console.log(" L158 get tourId from local storage : ", localStorage.getItem("tourId"));
 
     if (city) {
       updatedSearchParams.set("city", city);

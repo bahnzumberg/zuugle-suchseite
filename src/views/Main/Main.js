@@ -296,7 +296,8 @@ export function Main({
     const city = currentSearchParams.get("city");
     const search = currentSearchParams.get("search");
     const updatedSearchParams = new URLSearchParams();
-    updatedSearchParams.set("id", tour.id);
+    // updatedSearchParams.set("id", tour.id);
+    !!tour && localStorage.setItem("tourId", tour.id);
 
     if (city) {
       updatedSearchParams.set("city", city);

@@ -215,7 +215,7 @@ const DetailReworked = (props) => {
     }
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = searchParams.get("id");
+    const tourId = localStorage.getItem("tourId");
 
     if (tourId) {
       loadTour(tourId, city)
