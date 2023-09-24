@@ -6,11 +6,8 @@ import { isArray } from "lodash";
 
 const AutosuggestSearchTour = ({
   onSearchSuggestion,
-  onSearchPhrase,
   city,
   language,
-  placeholder,
-  goto,
 }) => {
 
   const [options, setOptions] = useState([]);
