@@ -23,7 +23,7 @@ export const syncDataApplicationSide = async () => {
     await getProvider();
     console.log('DONE FETCHING PROVIDERS: ', moment().format('HH:mm:ss'));
     console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
-    await syncGPXdata();
+    await syncGPXdata_changed();
     console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
 }
 

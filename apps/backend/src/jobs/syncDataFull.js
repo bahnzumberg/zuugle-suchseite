@@ -6,7 +6,7 @@ import {
     mergeToursWithFahrplan,
     syncCities,
     syncFahrplan,
-    syncGPXdata,
+    syncGPXdata_changed,
     syncTours,
     generateTestdata
 } from "./sync";
@@ -35,7 +35,7 @@ syncTours().then(res => {
                         getProvider().then(res6 => {
                             console.log('FETCHED PROVIDER: ', moment().format('HH:mm:ss'));
                             console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
-                            syncGPXdata().then(res7 => {
+                            syncGPXdata_changed().then(res7 => {
                                 console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
                                 process.exit();
                             });

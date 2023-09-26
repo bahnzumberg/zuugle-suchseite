@@ -261,6 +261,8 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
     }
 }
 
+// Depricated function. We do not use this anymore.
+// Full Load can be achieved  by truncating table gpx_changed and then running syncGPXdata_changed().
 export async function syncGPXdata(){
     // As we do a full load of the table "gpx" here, we empty it completely and fill it up afterwards
     try {
@@ -336,7 +338,7 @@ export async function syncGPXdata_changed(){
         await knex.raw(`DELETE FROM gpx WHERE CONCAT(provider, hashed_url) IN (SELECT CONCAT(provider, hashed_url) FROM gpx_changed);`);
     } catch(err){
         error_occurred = true;
-        console.log('error delete gpx syncGPXdata_changed: ', err)
+        console.log('error delete gpx syncGPXdata: ', err)
     }
 
 
@@ -355,7 +357,7 @@ export async function syncGPXdata_changed(){
             await knex('gpx').insert([...result]);
         } catch(err){
             error_occurred = true;
-            console.log('error while syncGPXdata: ', err)
+            console.log('error while syncGPXdata_changed: ', err)
         }
         // console.log('gpx insert counter: ', counter);
         counter++;
