@@ -261,9 +261,15 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
     }
 }
 
-// Depricated function. We do not use this anymore.
-// Full Load can be achieved  by truncating table gpx_changed and then running syncGPXdata_changed().
-export async function syncGPXdata(){
+
+export async function syncGPXdata(mode='dev'){
+    if(mode=='prod'){
+        // On production the table gpx has been already loaded 
+        console.log('Skipping this step, as we are on production.');
+        return true;
+    }
+
+
     // As we do a full load of the table "gpx" here, we empty it completely and fill it up afterwards
     try {
         await knex.raw(`TRUNCATE gpx;`);
@@ -279,7 +285,6 @@ export async function syncGPXdata(){
 
     console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'rows with gpx datapoints via ', count_chunks, ' chunks.');
 
-    /* The following loop has to be parallised */
     while(counter < count_chunks){
         const result_query = knexTourenDb('vw_gpx_to_search').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
         const result = await result_query;
@@ -294,110 +299,20 @@ export async function syncGPXdata(){
 }
 
 
-export async function syncGPXdata_changed(){
-    // Delta mode. We handle only those gpx datapoints, which have changed since the last run.
-
-    // Get the last id, which has been handled before. From here on, we will only handle ids greater than max_id.
-    let max_id = 0;
-    const query_max_id = await knex('gpx_changed').max('id as max_id');
-    max_id = query_max_id[0]["max_id"];
-    if (!!!max_id) {
-        max_id = 0;
+export async function syncFahrplan(mode='dev'){
+    if(mode=='prod'){
+        // On production the table fahrplan has been already loaded 
+        console.log('Skipping this step, as we are on production.');
+        return true;
     }
-
-    let error_occurred = false;
-    let limit = 5000;
-    let query_count = 0;
-    let count_gpx = 0;
-    let count_chunks = 0;
-    let counter = 0;
-
-    // First, we fetch all tours, where gpx data has been changed. We insert these into the table "gpx_changed".
-    query_count = await knexTourenDb('vw_gpx_changed').whereRaw(`id > ${max_id}`).count('* as anzahl'); 
-    count_gpx = query_count[0]["anzahl"];
-    count_chunks = Math.ceil(count_gpx / limit, 0);
-    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'tours with changed gpx datapoints via ', count_chunks, ' chunks.');
-
-    while(counter < count_chunks){
-        const result_query = knexTourenDb('vw_gpx_changed').select('id', 'provider', 'hashed_url').whereRaw(`id > ${max_id}`).whereRaw(`id % ${count_chunks} = ${counter}`);
-        const result = await result_query; 
-        try {
-            await knex('gpx_changed').insert([...result]);
-        } catch(err){
-            error_occurred = true;
-            console.log('error while insert into gpx syncGPXdata: ', err)
-        }
-        // console.log('gpx_changed insert counter: ', counter);
-        counter++;
-    }
-    // In gpx_changed we have got now those tours locally, which have changed gpx points.
-
-
-    // Now we delete all gpx points, which have changed.
+    
+    
     try {
-        await knex.raw(`DELETE FROM gpx WHERE CONCAT(provider, hashed_url) IN (SELECT CONCAT(provider, hashed_url) FROM gpx_changed);`);
+        await knex.raw(`TRUNCATE fahrplan;`);
     } catch(err){
-        error_occurred = true;
-        console.log('error delete gpx syncGPXdata: ', err)
+        console.log('error: ', err)
     }
-
-
-    // Now we insert the new gpx points.
-    query_count = await knexTourenDb('vw_gpx_to_search_changed').whereRaw(`changed_id > ${max_id}`).count('* as anzahl'); 
-    count_gpx = query_count[0]["anzahl"];
-    count_chunks = Math.ceil(count_gpx / limit, 0);
-    counter = 0;
-    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'rows with gpx datapoints via ', count_chunks, ' chunks.');
-
-    // The following loop has to be parallised
-    while(counter < count_chunks){
-        const result_query = knexTourenDb('vw_gpx_to_search_changed').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`changed_id > ${max_id}`).whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
-        const result = await result_query;
-        try {
-            await knex('gpx').insert([...result]);
-        } catch(err){
-            error_occurred = true;
-            console.log('error while syncGPXdata_changed: ', err)
-        }
-        // console.log('gpx insert counter: ', counter);
-        counter++;
-    }
-
-    // Now we delete all entries from gpx_changed, which have been handled, so we can load next time only the new ones.
-    if (!!!error_occurred) {
-        try {
-            await knex.raw(`DELETE FROM gpx_changed WHERE id <= ${max_id};`);
-            console.log('gpx delta for next run prepared');
-        } catch(err){
-            console.log('error delete from gpx_changed: ', err)
-        }
-    }
-}
-
-
-export async function syncFahrplan(mode='delta'){
-    if(mode=='delta'){
-        // delta mode
-        await syncFahrplan_del();
-
-        try {
-            await knex.raw(`DELETE FROM fahrplan WHERE calendar_date < CURRENT_DATE;`);
-            await knex.raw(`DELETE FROM fahrplan WHERE id IN (SELECT id FROM fahrplan_del);`);
-        } catch(err){
-            console.log('error: ', err)
-        }
-        // console.log('del Inserts done');
-    }
-    else {
-        // In full load mode, we want everything gone and inserted new
-        try {
-            await knex.raw(`TRUNCATE fahrplan;`);
-        } catch(err){
-            console.log('error: ', err)
-        }
-        // console.log('Truncate done');
-    }
-
+    
     // Now add new lines
     let limit = 10000;
     let counter = 0;
@@ -410,10 +325,6 @@ export async function syncFahrplan(mode='delta'){
     let trigger_id_max_array = [];
     let chunksizer = 0;
     let count_tours = 0;
-
-    if(mode=='delta'){
-        orwhere = {delta_type: 'xxx'};
-    }
 
     let trigger_id_min = 0;
     let trigger_id_max = 0;
@@ -492,52 +403,6 @@ export async function syncFahrplan(mode='delta'){
     }
 }
 
-
-const syncFahrplan_del = async () => {
-    let limit = 5000;
-    let counter = 0;
-    let where = {delta_type: 'del'};
-    const _limit = pLimit(15);
-    let bundles = [];
-    let trigger_id_min_array = [];
-    let trigger_id_max_array = [];
-
-    try {
-        await knex.raw(`TRUNCATE fahrplan_del;`);
-    } catch(err){
-        console.log('error: ', err)
-    }
-
-    let trigger_id_min = 0;
-    let trigger_id_max = 0;
-    try {
-        const query_del_min = knexTourenDb('vw_fplan_to_search').min('trigger_id').where(where);
-        const query_del_max = knexTourenDb('vw_fplan_to_search').max('trigger_id').where(where);
-        // console.log('syncFahrplan query del min: ', query_del_min.toQuery());
-        // console.log('syncFahrplan query del max: ', query_del_max.toQuery());
-        trigger_id_min_array = await query_del_min;
-        trigger_id_max_array = await query_del_max;
-        trigger_id_min = trigger_id_min_array[0]['min(`trigger_id`)'];
-        trigger_id_max = trigger_id_max_array[0]['max(`trigger_id`)'];
-    } catch(err){
-        console.log('error: ', err)
-    }
-
-    counter = trigger_id_min;
-    bundles = [];
-    while(counter <= (trigger_id_max + limit)){
-        bundles.push({
-            from: counter,
-            to: counter + limit
-        });
-        counter = counter + limit;
-    }
-      
-    const promises_del = bundles.map(bundle => {
-        return _limit(() => readAndInsertFahrplan_del(bundle, where));
-    });
-    await Promise.all(promises_del);
-}
 
 const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
     return new Promise(async resolve => {
@@ -829,7 +694,7 @@ const calcMonthOrder = (entry) => {
     // Then it takes the sorting fitting to the current month and calculates the sorting value.
     // This function is called to set the column "month_order" in tables "tour".
     // As the sorting is ASC, we need to return the best match as a low and the worst match as a high number.
-
+ 
     const d = new Date();
     let month = d.getMonth();
     // console.log("month=", month);
@@ -958,6 +823,8 @@ const bulk_insert_tours = async (entries) => {
     }
 }
 
+/*
+// These function seem to be not used anymore
 const insertCity = async (entry) => {
     try {
         await knex('city').insert({
@@ -969,7 +836,10 @@ const insertCity = async (entry) => {
         return false;
     }
 }
+*/
 
+/*
+// These function seem to be not used anymore
 const insertFahrplan = async (entry) => {
 
     let attrToRemove = [
@@ -994,10 +864,14 @@ const insertFahrplan = async (entry) => {
         return false;
     }
 }
+*/
 
+/*
+// These function seem to be not used anymore
 const compare = async () => {
     return true;
 }
+*/
 
 const deleteFileModulo30 = (h_url, filePath) => {
     if (!!fs.existsSync(filePath)) {

@@ -7,8 +7,7 @@ import {
     syncCities,
     syncFahrplan,
     syncGPXdata_changed,
-    syncTours,
-    generateTestdata
+    syncTours
 } from "./sync";
 import moment from "moment";
 
