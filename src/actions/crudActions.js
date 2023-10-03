@@ -1,5 +1,5 @@
 import axios from "../axios";
-import {LOAD_TOUR, LOAD_TOUR_DONE} from "./types";
+import {LOAD_DATA_ERROR, NO_DATA_AVAILABLE, NO_TOURS_AVAILABLE} from "./types";
 
 export async function loadFile(dispatch, getState, typeBefore, typeDone, stateName, data, route, entityName, responseType = "buffer") {
     dispatch({type: typeBefore, ...data});
@@ -14,7 +14,6 @@ export async function loadFile(dispatch, getState, typeBefore, typeDone, stateNa
             ...data
         }
     }
-
     try{
         let res = await axios.get(route, {
             data: {},
@@ -109,26 +108,10 @@ export function loadList(dispatch, getState, typeBefore, typeDone, stateName, da
     })
 }
 
-// export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
-//     dispatch({type: typeBefore});
-//     // console.log("L83: route + id : ", route+id)
-//     return axios.get(route+id, { params: {...params, domain: window.location.host } }).then(res => {
-//         const entity = res.data[entityName];
-
-//         dispatch({
-//             type: typeDone,
-//             [entityName]: entity,
-//         });
-//         return res;
-//     });
-// }
-
 export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, entityName, params = {}) {
+
     dispatch({ type: typeBefore });
-    //console.log("crudActions : route + id : ", `${route}${id}`) //  'tours/17788'
-    //console.log("window.location.host = ", window.location.host) // localhost:3000
-    //console.log("params  = ", params) // {city: "bad-ischl"}
-    //console.log("entityName  = ", entityName) //  tour
+
     return axios.get(route + id, { params: { ...params, domain: window.location.host } })
         .then(res => {
             const entity = res.data[entityName];
@@ -153,33 +136,58 @@ export function loadOne(dispatch, getState, typeBefore, typeDone, id, route, ent
                 });
                 throw error; // Throwing the error here as well
             }
-        });
-        // .catch(error => {
-        //     console.error("Error in loadOne:", error); // Log the full error object
-        //     if (error.response && error.response.status === 404) {
-        //         throw error; // Throwing the error here
-        //     } else {
-        //         dispatch({
-        //             type: typeDone,
-        //             error: "An error occurred",
-        //         });
-        //         throw error; // Throwing the error here as well
-        //     }
-        // });
-        
+        });      
 }
+
 
 
 export function loadOneReturnAll(dispatch, getState, typeBefore, typeDone, id, route) {
-    dispatch({type: typeBefore});
-    return axios.get(route+id, { params: {domain: window.location.host} }).then(res => {
-        dispatch({
-            type: typeDone,
-            ...!!res && !!res.data ? res.data : {}
-        });
+
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    const requestConfig = {
+        params: { domain: window.location.host },
+        signal: signal,
+    };
+    dispatch({ type: typeBefore });
+  
+    return axios
+      .get(route + id, requestConfig )
+      .then((res) => {
+        if (!!res && !!res.data) {
+            const { total_tours } = res.data;
+  
+            if (total_tours === 0) {
+              dispatch({ type: NO_TOURS_AVAILABLE });
+            } else {
+              dispatch({
+                type: typeDone,
+                ...res.data,
+              });
+            }
+          } else {
+            dispatch({ type: NO_DATA_AVAILABLE });
+          }
         return res;
-    });
-}
+      })
+      .catch((error) => {
+        // errors that occur during the request
+        if (error.name === 'AbortError') {
+            console.log('Request was canceled:', error.message);
+        } else {
+            console.error('Error loading data:', error);
+        // Dispatch LOAD_DATA_ERROR action with the error message
+        dispatch({ type: LOAD_DATA_ERROR, error });
+        }
+        return error; // Allow calling code to know there was an error
+      })
+      .finally(() => {
+        // Clean up and cancel the request if necessary
+        abortController.abort();
+      });
+  }
+  
 
 //Calling the BE and getting suggestions out of the LogSearchPhrase table based on the language, city, and searchPhrase
 export function loadSuggestions(searchPhrase, city, language) {
@@ -231,14 +239,3 @@ export const getTotalCityTours = (city) => {
             return res.data;
         });
 }
-
-// Code description:
-// This code file exports several functions that interact with an API using the axios library.
-
-// loadFile is used to download a file from the API. It dispatches an action with type typeBefore to indicate that the file is being loaded and sets the parameters to be passed to the API (page, page size, order, etc.). Then it makes a GET request to the API's route with the specified parameters, and on success, dispatches an action with type typeDone.
-
-// loadList is used to load a list of items from the API. It dispatches an action with type typeBefore to indicate that the list is being loaded, and sets the parameters to be passed to the API (page, page size, order, etc.). Then it makes a GET request to the API's route with the specified parameters, and on success, dispatches an action with type typeDone and passes the list of items as well as information about total items and filters. If there's an error, it dispatches an action with type typeDone and sets the list of items and total to empty.
-
-// loadOne is used to load a single item from the API. It dispatches an action with type typeBefore to indicate that the item is being loaded, and makes a GET request to the API's route/id with specified parameters. On success, it dispatches an action with type typeDone and passes the item.
-
-// loadOneReturnAll is used to load a single item from the API and return all the data related to it. It dispatches an action with type typeBefore to indicate that the item is being loaded, and makes a GET request to the API's route/id with specified parameters. On success, it dispatches an action with type typeDone and passes all the data related to the item.

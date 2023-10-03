@@ -18,7 +18,10 @@ import {
     LOAD_TOUR_PDF_DONE,
     LOAD_TOURS,
     LOAD_TOURS_DONE,
-    SET_SELECTED_DATE
+    SET_SELECTED_DATE,
+    NO_DATA_AVAILABLE,
+    NO_TOURS_AVAILABLE,
+    LOAD_DATA_ERROR
 } from './types';
 import {loadFile, loadList, loadOne, loadOneReturnAll} from "./crudActions";
 import i18next from 'i18next';
@@ -54,31 +57,23 @@ export function loadTour(id, city) {
     return (dispatch, getState) => {
         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", { city: city })
             .then(res => {
-                // Process the successful response here if needed
                 // console.log("loatTour res.data:")
                 // console.log(res.data)
                 return res;
             })
             .catch(error => {
                 if (error.response && error.response.status === 404) {
-                    // Handle the 404 error scenario
+                    // 404 error scenario
                     console.error("loadTours/ Tour not found:", error);
                 } else {
-                    // Handle other errors
+                    // other errors
                     console.error("Error:", error);
                 }
-                // Re-throw the error to be caught by the calling code
+                // Re-throw error to the calling code
                 throw error;
             });
     };
 }
-
-// export function loadTour(id, city) {
-//     // console.log("tourActions, LoadTour L41 :",id)
-//     return (dispatch, getState) => {
-//         return loadOne(dispatch, getState, LOAD_TOUR, LOAD_TOUR_DONE, id, "tours/", "tour", {city: city });
-//     };
-// }
 
 export function loadTotalTours() {
     // console.log("tourActions, loadTotalTours L48 , no data here")

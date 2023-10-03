@@ -13,12 +13,9 @@ import { getTotalCityTours } from "../../actions/crudActions";
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
 
-// description
-//Header.js is a React component that renders the header section of a web page. It receives two props, totalTours and allCities, and conditionally renders different elements based on the value of totalTours. If totalTours is 0, it displays a maintenance message. Otherwise, it displays a heading that indicates the total number of tours available in the website and a search container for cities. The component also sets a background image using the backgroundImage state variable, which changes depending on the device's responsiveness. The component makes use of other React components from the Material-UI library such as Box and Typography, and a custom SearchContainer component. It also makes use of some utility functions from the utils/globals module.
-
 export default function Header({
   totalTours,
-  getCity,
+  // getCity,
   allCities,
   showMobileMenu,
   setShowMobileMenu,
@@ -33,7 +30,14 @@ export default function Header({
   const [totalToursFromCity, setTotalToursFromCity] = React.useState(0) 
 
 
-
+  const getCity = () => { 
+    city = localStorage.getItem("city");
+    if(!!city) {
+      return city;
+    }else {
+      return "XXX";
+    }
+  }
 
   let tld = '';
   let domain = location.hostname;
@@ -74,7 +78,7 @@ export default function Header({
       }
     }
 
-  }, [])
+  }, [searchParams, city, allCities])
   
 
   useEffect(() => {
@@ -87,9 +91,10 @@ export default function Header({
         `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`
       );
     }
-  }, [_isMobile]);
+  }, [_isMobile,tld]);
 
   if (totalTours === 0) {
+    console.log("L93: inside Header.js, totalTours === 0")
     return (
       <Box
         className={"header-container"}
