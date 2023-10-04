@@ -65,7 +65,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Schneeschuh" : t('filter.schneeschuh')},
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
-        { "weitwandern" : t('filter.weitwandern')},
+        { "Weitwandern" : t('filter.weitwandern')},
     ]
 
     //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
@@ -346,7 +346,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             })
         }
-
+        console.log("L358 : types :", types)
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
