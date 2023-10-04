@@ -27,7 +27,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     // Translation-related
     const {t} = useTranslation();
-	let slovenianMenu = i18next.resolvedLanguage === "sl" ; //use different JSX for button 
+
 
     const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
