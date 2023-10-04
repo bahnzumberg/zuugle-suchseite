@@ -16,7 +16,7 @@
     "build": "babel src -d build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-data": "node build/jobs/syncData.js",
-    "import-data-full": "node build/jobs/syncDataFull.js",
+    "import-data-full": "node build/jobs/syncData.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
     "generate-testdata": "node build/jobs/generateTestdata.js"
