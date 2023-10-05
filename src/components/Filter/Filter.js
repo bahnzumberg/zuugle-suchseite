@@ -27,7 +27,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     // Translation-related
     const {t} = useTranslation();
-	let slovenianMenu = i18next.resolvedLanguage === "sl" ; //use different JSX for button 
+
 
     const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
@@ -65,7 +65,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         { "Schneeschuh" : t('filter.schneeschuh')},
         { "Skitour" : t('filter.skitour')},
         { "Wandern" : t('filter.wandern')},
-        { "weitwandern" : t('filter.weitwandern')},
+        { "Weitwandern" : t('filter.weitwandern')},
     ]
 
     //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
@@ -346,7 +346,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             })
         }
-
+        console.log("L358 : types :", types)
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
@@ -717,7 +717,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }}>
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        <Button variant={"contained"} onClick={submit}>{countFilterActive()} {filter_anwenden_label} </Button>
+                        <Button variant={"contained"} onClick={submit}>
+                            {countFilterActive() == 0 ? '' : countFilterActive()} 
+                            {filter_anwenden_label} 
+                        </Button>
                     </Box>
                 </Box>
             </Fragment>

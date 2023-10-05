@@ -1,7 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import { lazy, useEffect } from "react";
+import { lazy, useEffect, useState } from "react";
 import {
   loadFavouriteTours,
   loadTotalTours,
@@ -15,11 +15,9 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-// import { useMatomo } from "@jonkoops/matomo-tracker-react";
-// import { myTrackPageView } from "../../utils/globals";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
-
+import Header from "./Header"
 import {
   getPageHeader,
   listAllCityLinks,
@@ -38,27 +36,10 @@ const AboutZuugleContainer = lazy(() =>
 const UserRecommendationContainer = lazy(() =>
   import("../../components/UserRecommendationContainer")
 );
-const Header = lazy(() => import("./Header"));
+// const Header = lazy(() => import("./Header"));
 const SponsoringContainer = lazy(() =>
   import("../../components/SponsoringContainer")
 );
-
-// General Description of Start.js:
-// Code's main function is displaying information about tours.
-// libraries used  :
-//      redux / react-redux : compose / connect
-//      react : useEffect, lazy
-//      React-router-dom / react-router: using  useSearchParams / useNavigate
-//      Material UI components
-//      matomo-tracker-react
-// Components used :
-//      from redux 'actions' folder , 3 action creators:  toursActions, cityActions and rangeActions
-//      seoPageHelper file with imported functions, one of these uses Helmet library to set up meta tags, other function for rendering seo friendly lists
-// The component uses the React Hook useEffect to perform several side effects when the component is first mounted. This includes loading information about cities, tours, ranges, etc. using the redux action creators.
-// Start also uses the React Router Hook useSearchParams to obtain the search parameters from the URL. If the search parameter city is not specified, the component attempts to retrieve the city from local storage.
-// Start has two functions onSelectTour and onSelectRange which navigate to the search page with specified parameters (tour name or range) when a tour or a range is selected.
-// The component also makes use of the Matomo Tracker React Hook useMatomo to track page views. The function myTrackPageView is used to track the current page view.
-// Finally, the component makes use of several lazy-loaded components including RangeCardContainer, ScrollingTourCardContainer, KPIContainer, AboutZuugleContainer, UserRecommendationContainer, Header, and SponsoringContainer.
 
 function Start({
   loadFavouriteTours,
@@ -75,95 +56,98 @@ function Start({
   allCities,
   totalProvider,
   loadRanges,
-  allRanges
+  allRanges,
+  noDataAvailable, 
+  noToursAvailable, 
+  error,
 }) {
+  // const [showMaintenance, setShowMaintenance] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const { t, i18n } = useTranslation();
+  const abortController = new AbortController();
 
   let searchParamCity ="" ;
   let city = "";
-
-  // PASS AS PARAM !!
+   
   const getCity = () => { 
     searchParamCity = searchParams.get("city");
     city = localStorage.getItem("city");
     if(!!city) {
       return city;
     }else {
-      return "XXX";
+      return "";
     }
   }
 
-  React.useEffect(() => {
-    _mtm.push({'pagetitel': "Startseite"});
-  }, []);
-
-
-
-  // description
-  // This useEffect hook is used to execute some code in response to a change in the component's state or props. It is executed whenever the component is updated or rendered. The hook runs the loadAllCities function which is an action creator from the file cityActions.js.
-  // The loadAllCities function takes an optional parameter data and returns a function that is used to dispatch actions to the Redux store. The data object is used to pass any additional data that needs to be sent to the server. In this case, the data object has a property all set to true.
-  // The dispatch function is used to dispatch actions to the store and the getState function is used to get the current state of the store.
-  // The loadAllCities function calls another action creator loadList and passes it dispatch, getState, LOAD_ALL_CITIES, LOAD_ALL_CITIES_DONE, "tours", data, "cities/" and "cities" as parameters. LOAD_ALL_CITIES and LOAD_ALL_CITIES_DONE are imported constants from the types file and they represent the types of actions that are being dispatched. The other parameters are used to make an API call to retrieve the cities data.
-  // The code defines several functions that are used to dispatch actions to the Redux store.
-  // Each function within the corresponding actions creators (like tourActions.js or cityActions.js) makes an API call using the functions imported from the "crudActions" file and then dispatches an action to the store with the type defined in the imported "types" file and the payload data returned from the API call.
-  // Similarly, the loadTour function makes an API call to retrieve a single tour by calling the loadOne function imported from the "crudActions" file. If the API call is successful, the action with the type LOAD_TOUR_DONE and the payload data is dispatched to the store.
-  // So the code within this useEffect handles the data flow in the application and keep the Redux store updated with the latest data retrieved from the API.
-  useEffect(() => {
-    loadAllCities();
-    loadTotalTours();
-    loadRanges({ ignore_limit: true, remove_duplicates: true });
-    // searchParams.forEach(item=> console.log(item)) // testing params
-
-    getCity();
-
-    if (!!city && !!!searchParamCity) {
-      searchParams.set("city", city);
-      setSearchParams(searchParams);
-    }   
-    loadCities({ limit: 5 });
-    loadFavouriteTours({
-      sort: "relevanz",
-      limit: 10,
-      city: !!city ? city : undefined,
-      ranges: true,
-      provider: searchParams.get("p"),
-    });
-  }, []);
-
-
   
+  useEffect(() => {
+    // matomo
+    _mtm.push({'pagetitel': "Startseite"});
 
-  //description:
-  // onSelectTour is a function that is called when a tour is selected. This function takes in a single argument tour, which represents the tour that was selected. The purpose of the function is to navigate the user to the search page with the selected tour as the search query.
-  // Here's what the function does step by step:
-  // The _city variable is created and set to the value of the city in the searchParams object.
-  // A navUrl variable is created, which represents the URL that the user will be navigated to. The value of this URL is constructed using string manipulation and includes the tour title, the sort order and the city. The tour title is first cleaned up by replacing characters like (, ), - with spaces.
-  // The navigate function is called with the navUrl as the argument. The navigate function part of react-route library, with a purpose to navigate the user to a new page.
-  // An additional state object is passed as an option to the navigate function. This state object contains a single key-value pair, where the key is tour and the value is the selected tour.
-  // The purpose of onSelectTour  within the Start.js file is to allow users to navigate to the search page with the selected tour as the search query. The state object is passed along so that the search page has access to the tour information.
+    // network request configuration
+    const requestConfig = {
+      params: { domain: window.location.host },
+      signal: abortController.signal,
+    };
+
+    // Async function to load data and handle requests
+    const loadData = async () => {
+      try {
+        await loadTotalTours(requestConfig);
+        await loadAllCities(requestConfig);
+        await loadRanges({ ignore_limit: true, remove_duplicates: true }, requestConfig);
+        getCity();
+
+        if (!!city && !!!searchParamCity) {
+          searchParams.set("city", city);
+          setSearchParams(searchParams);
+        }
+
+        await loadCities({ limit: 5 }, requestConfig);
+        await loadFavouriteTours({
+          sort: "relevanz",
+          limit: 10,
+          city: !!city ? city : undefined,
+          ranges: true,
+          provider: searchParams.get("p"),
+        }, requestConfig);
+
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('Request was canceled:', error.message);
+        } else {
+          console.error('Error loading data:', error);
+        }
+      }
+    };
+
+    loadData();
+
+    // Return a cleanup function
+    return () => {
+      // Cancel any ongoing network request when the component unmounts
+      abortController.abort();
+    };
+  }, [totalTours]); 
+
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
     const updatedSearchParams = new URLSearchParams();
-    updatedSearchParams.set("id", tour.id);
+
+    !!tour && localStorage.setItem("tourId", tour.id);
 
     if (city) {
       updatedSearchParams.set("city", city);
     }
     //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-    //console.log("/tour?" + updatedSearchParams.toString());
     window.open("/tour?" + updatedSearchParams.toString(),'_blank', 'noreferrer');
   };
 
-  //description:
-  // The onSelectRange is a constant declaration for a JavaScript arrow function in the Start.js file.
-  // The function takes one parameter range, which represents a selected range object. The function then extracts the city value from the searchParams object, which is an instance of the URLSearchParams API.
-  // If range is truthy (not null, undefined, or false) and range.range is truthy as well, the function uses the navigate function to navigate to a URL with the following pattern: /suche?range=${range.range}${!!_city ? '&city='+_city : ''}.
-  // The _city value is added to the URL only if it is truthy. The range.range value is included in the URL as the value of the range query parameter.
+  
   const onSelectRange = (range) => {
     let _city = searchParams.get("city");
     if (!!range && !!range.range) {
@@ -193,29 +177,35 @@ function Start({
     }
   };
 
-  if (totalTours === 0) {
+  // console.log(" L198 noToursAvailable :", noToursAvailable);
+
+  if (noToursAvailable ) {
+    
+    console.log(" L203 inside the the true option/ noToursAvailable :", noToursAvailable);
+    console.log(" L203 inside the the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
-        <Box>
-          <Typography>NO TOURS AVAILABLE</Typography>
-        </Box>
         <Footer />
       </Box>
     );
-  } else {
+  } else 
+  if (!noToursAvailable) {
+    console.log(" L216 inside the the false option / noToursAvailable  :", noToursAvailable);
+    console.log(" L216 inside the the false option / totalTours  :", totalTours);
     return (
       <Box>
         {getPageHeader(null)}
-     { !!allCities && allCities.length>0 
-      &&  
-      <Header
-          getCity={getCity}
-          totalTours={totalTours}
-          allCities={allCities}
-          showMobileMenu={showMobileMenu}
-          setShowMobileMenu={setShowMobileMenu}
-        />}
+        { !!allCities && allCities.length>0
+          &&  
+          <Header
+            getCity={getCity}
+            totalTours={totalTours}
+            allCities={allCities}
+            showMobileMenu={showMobileMenu}
+            setShowMobileMenu={setShowMobileMenu}
+          />
+        }
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
@@ -328,6 +318,9 @@ const mapStateToProps = (state) => {
     totalCities: state.tours.total_cities,
     allCities: state.cities.all_cities,
     totalProvider: state.tours.total_provider,
+    noDataAvailable: state.tours.noDataAvailable,
+    noToursAvailable: state.tours.noToursAvailable,
+    error: state.tours.error,
   };
 };
 

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import Box from "@mui/material/Box";
 import {Grid, Typography} from "@mui/material";
-import {Helmet} from "react-helmet";
+// import {Helmet} from "react-helmet";
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
 
@@ -11,19 +12,22 @@ export const getPageHeader = (directLink) => {
 
     //console.log("directLink :", directLink) // seems to be always on null value 
     if(!!directLink && !!directLink.header){
-        return <Helmet>
-            <title>{directLink.header}</title>
-            <meta name="title" content={directLink.header} />
-            <meta name="description" content={directLink.description} />
-        </Helmet>
+        return <HelmetProvider>
+            <Helmet>
+                <title>{directLink.header}</title>
+                <meta name="title" content={directLink.header} />
+                <meta name="description" content={directLink.description} />
+            </Helmet>
+        </HelmetProvider>
     } else {
-        return <Helmet>
-            <title>{t("start.helmet_title")}</title>
-            <meta name="title" content="Zuugle - die Suchmaschine für Öffi-Bergtouren" />
-            <meta name="description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
-        </Helmet>
+        return <HelmetProvider>
+            <Helmet>
+                <title>{t("start.helmet_title")}</title>
+                <meta name="title" content="Zuugle - die Suchmaschine für Öffi-Bergtouren" />
+                <meta name="description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
+            </Helmet>
+        </HelmetProvider>
     }
-    // return <></>
 }
 
 export const checkIfSeoPageCity = (location, cities) => {

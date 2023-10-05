@@ -15,9 +15,11 @@ import {
 	LOAD_TOURS,
 	LOAD_TOURS_DONE,
 	SET_SELECTED_DATE,
-	LOAD_MAP_FILTERS
+	LOAD_MAP_FILTERS,
+	NO_DATA_AVAILABLE,
+	LOAD_DATA_ERROR,
+	NO_TOURS_AVAILABLE
 } from '../actions/types';
-// import {useStateManager} from "react-select";
 
 const initialState = {
 	loading: false,
@@ -32,11 +34,16 @@ const initialState = {
 	filter: null,
 	selectedDate: null,
 	isPdfLoading: false,
-	total_tours: 3000,
+	total_tours: null,
 	favouriteRanges: [],
 	isLoadingFilter: false,
-	total_provider: ' ',
-	visibleToursGPX: []
+	total_provider: 222,
+	// total_provider: ' ',
+	total_cities: 222,
+	total_ranges: 222,
+	total_connections: 222,
+	visibleToursGPX: [],
+	noToursAvailable: null,
 }
 
 export default (state = initialState, action = {}) => {
@@ -122,7 +129,8 @@ export default (state = initialState, action = {}) => {
 				total_connections: action.total_connections,
 				total_ranges: action.total_ranges,
 				total_cities: action.total_cities,
-				total_provider: action.total_provider
+				total_provider: action.total_provider,
+				noToursAvailable: action.total_tours === 0 ? true : false
 			}
 		case LOAD_TOUR_GPX:
 			return {
@@ -157,5 +165,25 @@ export default (state = initialState, action = {}) => {
 				visibleToursGPX: action.visibleToursGPX
 			}
 		default: return state;
+		// cases when NO DATA AVAILABLE or LOAD DATA ERROR
+		case NO_DATA_AVAILABLE:
+			return {
+			...state,
+			noDataAvailable: true, // set a flag to indicate no data
+			};
+		
+		// cases when NO TOURS AVAILABLE or LOAD DATA ERROR
+		case NO_TOURS_AVAILABLE:
+			return {
+			...state,
+			noToursAvailable: true, // set a flag to indicate no data
+			};
+		
+		case LOAD_DATA_ERROR:
+			return {
+			...state,
+			error: action.error, // Store the error message for display
+			};
+  
 	}
 }

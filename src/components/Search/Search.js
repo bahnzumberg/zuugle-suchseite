@@ -334,7 +334,6 @@ export function Search({
       onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
-      placeholder: placeholder,
       title: "",
       sourceCall: "search",
       page: page,
