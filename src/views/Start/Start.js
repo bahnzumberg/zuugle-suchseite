@@ -71,6 +71,8 @@ function Start({
   let searchParamCity ="" ;
   let city = "";
    
+  let _city = searchParams.get("city");
+
   const getCity = () => { 
     searchParamCity = searchParams.get("city");
     city = localStorage.getItem("city");
@@ -85,13 +87,11 @@ function Start({
   useEffect(() => {
     // matomo
     _mtm.push({'pagetitel': "Startseite"});
-
     // network request configuration
     const requestConfig = {
       params: { domain: window.location.host },
       signal: abortController.signal,
     };
-
     // Async function to load data and handle requests
     const loadData = async () => {
       try {
@@ -149,7 +149,6 @@ function Start({
 
   
   const onSelectRange = (range) => {
-    let _city = searchParams.get("city");
     if (!!range && !!range.range) {
       navigate(
         `/suche?range=${range.range}${
@@ -160,7 +159,6 @@ function Start({
   };
 
   const getRangeText = () => {
-    let _city = searchParams.get("city");
     if (!!_city && _city.length > 0) {
       return t("start.schoene_wanderungen_nahe");
     } else {
@@ -169,7 +167,6 @@ function Start({
   };
 
   const getFavouriteToursText = () => {
-    let _city = searchParams.get("city");
     if (!!_city && _city.length > 0) {
       return t("start.beliebte_bergtouren_nahe");
     } else {
@@ -181,8 +178,8 @@ function Start({
 
   if (noToursAvailable ) {
     
-    console.log(" L203 inside the the true option/ noToursAvailable :", noToursAvailable);
-    console.log(" L203 inside the the true option/ totalTours :", totalTours);
+    console.log(" L203 inside the true option/ noToursAvailable :", noToursAvailable);
+    console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
@@ -190,9 +187,10 @@ function Start({
       </Box>
     );
   } else 
+  // if (!noToursAvailable && noToursAvailable !== null) {
   if (!noToursAvailable) {
-    console.log(" L216 inside the the false option / noToursAvailable  :", noToursAvailable);
-    console.log(" L216 inside the the false option / totalTours  :", totalTours);
+    console.log(" L216 inside the false option / noToursAvailable  :", noToursAvailable);
+    console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
         {getPageHeader(null)}
