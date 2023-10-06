@@ -438,7 +438,7 @@ export function Main({
                     mr: "2px",
                   }}
                 >
-                  {t("Filtered")}
+                  {t("filter.filter")}
                 </Typography>
                 {/* <Box sx={{ cursor: "pointer", display: "flex" }} onclick={() => { handleClearFilter() }}>
                   <ClearFilterIcon />
