@@ -188,7 +188,7 @@ function Start({
 
   // console.log(" L198 noToursAvailable1 :", noToursAvailable1);
 
-  if (noToursAvailable1) {
+  if (totalTours === 0) {
     console.log(
       " L203 inside the true option/ noToursAvailable1 :",
       noToursAvailable1
@@ -202,14 +202,14 @@ function Start({
     );
   }
   // if (!noToursAvailable1 && noToursAvailable1 !== null) {
-  else if (!noToursAvailable1) {
+  else if (totalTours > 0) {
     console.log(
       " L216 inside the false option / noToursAvailable1  :",
       noToursAvailable1
     );
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
-      <Box style={{ display: totalTours > 0 ? "" : "none" }}>
+      <Box>
         {getPageHeader(null)}
         {!!allCities && allCities.length > 0 && (
           <Header
