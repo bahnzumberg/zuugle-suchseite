@@ -67,8 +67,6 @@ function Start({
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
-  noToursAvailable = true;
-  totalTours = 0;
 
   let searchParamCity = "";
   let city = "";
