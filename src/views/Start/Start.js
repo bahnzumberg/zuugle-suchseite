@@ -192,7 +192,7 @@ function Start({
     );
   }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  else if (noToursAvailable === false) {
+  else if (noToursAvailable) {
     console.log(
       " L216 inside the false option / noToursAvailable  :",
       noToursAvailable
