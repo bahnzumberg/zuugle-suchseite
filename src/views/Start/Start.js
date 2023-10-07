@@ -209,7 +209,7 @@ function Start({
     );
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
-      <Box>
+      <Box style={{ display: totalTours > 0 ? "" : "none" }}>
         {getPageHeader(null)}
         {!!allCities && allCities.length > 0 && (
           <Header
