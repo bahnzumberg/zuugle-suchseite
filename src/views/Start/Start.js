@@ -67,11 +67,23 @@ function Start({
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
+  noToursAvailable = true;
+  totalTours = 0;
 
   let searchParamCity = "";
   let city = "";
 
   let _city = searchParams.get("city");
+
+  const getCity = () => {
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if (!!city) {
+      return city;
+    } else {
+      return "";
+    }
+  };
 
   useEffect(() => {
     // matomo
@@ -126,16 +138,6 @@ function Start({
     };
   }, [totalTours]);
 
-  const getCity = () => {
-    searchParamCity = searchParams.get("city");
-    city = localStorage.getItem("city");
-    if (!!city) {
-      return city;
-    } else {
-      return "";
-    }
-  };
-
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
     const city = currentSearchParams.get("city");
@@ -178,131 +180,121 @@ function Start({
 
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
-  // if (noToursAvailable) {
-  //   console.log(
-  //     " L203 inside the true option/ noToursAvailable :",
-  //     noToursAvailable
-  //   );
-  //   console.log(" L203 inside the true option/ totalTours :", totalTours);
-  //   return (
-  //     <Box>
-  //       <Header totalTours={totalTours} allCities={allCities} />
-  //       <Footer />
-  //     </Box>
-  //   );
-  // }
-  // // if (!noToursAvailable && noToursAvailable !== null) {
-  // else if (!noToursAvailable) {
-  console.log(
-    " L216 inside the false option / noToursAvailable  :",
-    noToursAvailable
-  );
-  console.log(" L216 inside the false option / totalTours  :", totalTours);
-  return (
-    <>
-      {noToursAvailable === true ? (
-        <>
-          <Header totalTours={totalTours} allCities={allCities} />
-          <Footer />
-        </>
-      ) : noToursAvailable === false ? (
-        <>
-          <Box>
-            {getPageHeader(null)}
-            {!!allCities && allCities.length > 0 && (
-              <Header
-                getCity={getCity}
-                totalTours={totalTours}
-                allCities={allCities}
-                showMobileMenu={showMobileMenu}
-                setShowMobileMenu={setShowMobileMenu}
-              />
-            )}
+  if (noToursAvailable === true) {
+    console.log(
+      " L203 inside the true option/ noToursAvailable :",
+      noToursAvailable
+    );
+    console.log(" L203 inside the true option/ totalTours :", totalTours);
+    return (
+      <Box>
+        <Header totalTours={totalTours} allCities={allCities} />
+        <Footer />
+      </Box>
+    );
+  }
+  // if (!noToursAvailable && noToursAvailable !== null) {
+  else if (noToursAvailable) {
+    console.log(
+      " L216 inside the false option / noToursAvailable  :",
+      noToursAvailable
+    );
+    console.log(" L216 inside the false option / totalTours  :", totalTours);
+    return (
+      <Box>
+        {getPageHeader(null)}
+        {!!allCities && allCities.length > 0 && (
+          <Header
+            getCity={getCity}
+            totalTours={totalTours}
+            allCities={allCities}
+            showMobileMenu={showMobileMenu}
+            setShowMobileMenu={setShowMobileMenu}
+          />
+        )}
 
-            {!showMobileMenu && (
-              <Box elevation={0} className={"header-line"}>
-                <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
-                  <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                    {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
-                    {t("start.zuugle_sucht_fuer_dich_2")}
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-            {!showMobileMenu && (
-              <Box className={"start-body-container"}>
-                <Box>
-                  <Typography
-                    variant={"h4"}
-                    sx={{
-                      textAlign: "left",
-                      paddingBottom: "15px",
-                      paddingTop: "15px",
-                    }}
-                  >
-                    {getRangeText()}
-                  </Typography>
-                  <RangeCardContainer
-                    ranges={favouriteRanges}
-                    onSelectTour={onSelectRange}
-                  />
-                </Box>
-
-                <Box sx={{ marginTop: "20px" }}>
-                  <Typography
-                    variant={"h4"}
-                    sx={{
-                      textAlign: "left",
-                      paddingTop: "20px",
-                      paddingBottom: "15px",
-                    }}
-                  >
-                    {getFavouriteToursText()}
-                  </Typography>
-                  <ScrollingTourCardContainer
-                    tours={favouriteTours}
-                    onSelectTour={onSelectTour}
-                    loadTourConnections={loadTourConnections}
-                    city={searchParams.get("city")}
-                  />
-                </Box>
-
-                <Box sx={{ marginTop: "20px" }}>
-                  <AboutZuugleContainer />
-                </Box>
-
-                <Box sx={{ marginTop: "20px" }}>
-                  <UserRecommendationContainer />
-                </Box>
-
-                <Box sx={{ marginTop: "20px" }}>
-                  <SponsoringContainer />
-                </Box>
-
-                <Box sx={{ marginTop: "20px" }}>
-                  <KPIContainer
-                    totalTours={totalTours}
-                    totalConnections={totalConnections}
-                    totalRanges={totalRanges}
-                    totalCities={totalCities}
-                    city={searchParams.get("city")}
-                    totalProvider={totalProvider}
-                  />
-                </Box>
-              </Box>
-            )}
-            {!showMobileMenu && (
-              <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-            )}
-            {!showMobileMenu && (
-              <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-            )}
-            {!showMobileMenu && <Footer />}
+        {!showMobileMenu && (
+          <Box elevation={0} className={"header-line"}>
+            <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
+              <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+                {t("start.zuugle_sucht_fuer_dich_2")}
+              </Typography>
+            </Box>
           </Box>
-        </>
-      ) : null}
-    </>
-  );
+        )}
+        {!showMobileMenu && (
+          <Box className={"start-body-container"}>
+            <Box>
+              <Typography
+                variant={"h4"}
+                sx={{
+                  textAlign: "left",
+                  paddingBottom: "15px",
+                  paddingTop: "15px",
+                }}
+              >
+                {getRangeText()}
+              </Typography>
+              <RangeCardContainer
+                ranges={favouriteRanges}
+                onSelectTour={onSelectRange}
+              />
+            </Box>
+
+            <Box sx={{ marginTop: "20px" }}>
+              <Typography
+                variant={"h4"}
+                sx={{
+                  textAlign: "left",
+                  paddingTop: "20px",
+                  paddingBottom: "15px",
+                }}
+              >
+                {getFavouriteToursText()}
+              </Typography>
+              <ScrollingTourCardContainer
+                tours={favouriteTours}
+                onSelectTour={onSelectTour}
+                loadTourConnections={loadTourConnections}
+                city={searchParams.get("city")}
+              />
+            </Box>
+
+            <Box sx={{ marginTop: "20px" }}>
+              <AboutZuugleContainer />
+            </Box>
+
+            <Box sx={{ marginTop: "20px" }}>
+              <UserRecommendationContainer />
+            </Box>
+
+            <Box sx={{ marginTop: "20px" }}>
+              <SponsoringContainer />
+            </Box>
+
+            <Box sx={{ marginTop: "20px" }}>
+              <KPIContainer
+                totalTours={totalTours}
+                totalConnections={totalConnections}
+                totalRanges={totalRanges}
+                totalCities={totalCities}
+                city={searchParams.get("city")}
+                totalProvider={totalProvider}
+              />
+            </Box>
+          </Box>
+        )}
+        {!showMobileMenu && (
+          <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
+        )}
+        {!showMobileMenu && (
+          <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
+        )}
+        {!showMobileMenu && <Footer />}
+      </Box>
+    );
+  }
 }
 
 //description:
