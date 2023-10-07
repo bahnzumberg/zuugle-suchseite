@@ -36,7 +36,6 @@ const AboutZuugleContainer = lazy(() =>
 const UserRecommendationContainer = lazy(() =>
   import("../../components/UserRecommendationContainer")
 );
-// const Header = lazy(() => import("./Header"));
 const SponsoringContainer = lazy(() =>
   import("../../components/SponsoringContainer")
 );
@@ -61,7 +60,6 @@ function Start({
   noToursAvailable,
   error,
 }) {
-  // const [showMaintenance, setShowMaintenance] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
@@ -84,14 +82,13 @@ function Start({
   };
 
   useEffect(() => {
-    // matomo
     _mtm.push({ pagetitel: "Startseite" });
-    // network request configuration
+
     const requestConfig = {
       params: { domain: window.location.host },
       signal: abortController.signal,
     };
-    // Async function to load data and handle requests
+
     const loadData = async () => {
       try {
         await loadTotalTours(requestConfig);
@@ -129,9 +126,7 @@ function Start({
 
     loadData();
 
-    // Return a cleanup function
     return () => {
-      // Cancel any ongoing network request when the component unmounts
       abortController.abort();
     };
   }, [totalTours]);
@@ -146,7 +141,7 @@ function Start({
     if (city) {
       updatedSearchParams.set("city", city);
     }
-    //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
+
     window.open(
       "/tour?" + updatedSearchParams.toString(),
       "_blank",
@@ -176,28 +171,14 @@ function Start({
     }
   };
 
-  // console.log(" L198 noToursAvailable :", noToursAvailable);
-
   if (noToursAvailable) {
-    console.log(
-      " L203 inside the true option/ noToursAvailable :",
-      noToursAvailable
-    );
-    console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
         <Footer />
       </Box>
     );
-  }
-  // if (!noToursAvailable && noToursAvailable !== null) {
-  else if (!noToursAvailable) {
-    console.log(
-      " L216 inside the false option / noToursAvailable  :",
-      noToursAvailable
-    );
-    console.log(" L216 inside the false option / totalTours  :", totalTours);
+  } else {
     return (
       <Box>
         {getPageHeader(null)}
@@ -295,9 +276,6 @@ function Start({
   }
 }
 
-//description:
-// mapDispatchToProps is an object used in Redux to map action creators to the props of a component. In this code, it maps the action creators loadFavouriteTours, loadCities, loadRanges, loadTourConnectionsExtended, loadTourConnections, loadTotalTours, and loadAllCities to the props of the component. This means that when the component is connected to the Redux store, it will have access to these action creators as props, which it can use to dispatch actions to the store.
-// For example, if the component needs to load some data from an API, it can call the loadFavouriteTours action creator, which will dispatch an action to the store that triggers the data loading process. This pattern makes it easier to reuse action creators across multiple components and to test the components in isolation.
 const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
@@ -308,8 +286,6 @@ const mapDispatchToProps = {
   loadAllCities,
 };
 
-// description:
-// This is a constant called mapStateToProps which is a function that takes in a state object as an argument. This function returns an object that contains properties derived from the state object, specifically properties that are related to tours, ranges, cities, and other data related to tours and their connections.
 const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
@@ -328,30 +304,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-// description:
-// The code exports a higher-order component (HOC) that is the result of composing the "Start" component with the "connect" function from the "react-redux" library. The "connect" function connects the "Start" component to the Redux store, allowing it to access the state stored in the store and dispatch actions to the store.
-// The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
-// The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
-export default compose(
-  connect(
-    //connects the component Start to the redux store
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(Start);
-
-// description
-// This code defines a React component that returns a conditional rendering based on the value of totalTours. If totalTours is equal to 0, the component returns a Box component with a Header and a Footer component.
-// Otherwise, it returns a Box component with several other components:
-// getPageHeader(null)
-// Header with totalTours and allCities props
-// A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
-// A RangeCardContainer component with favouriteRanges and onSelectTour props.
-// A ScrollingTourCardContainer component with favouriteTours, onSelectTour, loadTourConnections, and city props.
-// An AboutZuugleContainer component.
-// A UserRecommendationContainer component.
-// A SponsoringContainer component.
-// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
-// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
-// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
-// A Footer component.
+export default compose(connect(mapStateToProps, mapDispatchToProps))(Start);
