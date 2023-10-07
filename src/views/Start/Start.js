@@ -65,15 +65,8 @@ function Start({
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
-  const [noToursAvailable1, setNoTourAvailable] = useState(
-    noToursAvailable ? true : false
-  );
 
-  useEffect(() => {
-    setNoTourAvailable(noToursAvailable ? true : false);
-  }, [noToursAvailable]);
-
-  console.log(noToursAvailable1, "No Tours Available");
+  console.log(noToursAvailable, "No Tours Available");
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
@@ -140,10 +133,10 @@ function Start({
     loadData();
 
     // Return a cleanup function
-    return () => {
-      // Cancel any ongoing network request when the component unmounts
-      abortController.abort();
-    };
+    // return () => {
+    //   // Cancel any ongoing network request when the component unmounts
+    //   abortController.abort();
+    // };
   }, [totalTours]);
 
   const onSelectTour = (tour) => {
@@ -186,12 +179,12 @@ function Start({
     }
   };
 
-  // console.log(" L198 noToursAvailable1 :", noToursAvailable1);
+  // console.log(" L198 noToursAvailable :", noToursAvailable);
 
-  if (totalTours === 0) {
+  if (noToursAvailable) {
     console.log(
-      " L203 inside the true option/ noToursAvailable1 :",
-      noToursAvailable1
+      " L203 inside the true option/ noToursAvailable :",
+      noToursAvailable
     );
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
@@ -201,11 +194,11 @@ function Start({
       </Box>
     );
   }
-  // if (!noToursAvailable1 && noToursAvailable1 !== null) {
-  else if (totalTours > 0) {
+  // if (!noToursAvailable && noToursAvailable !== null) {
+  else if (!noToursAvailable) {
     console.log(
-      " L216 inside the false option / noToursAvailable1  :",
-      noToursAvailable1
+      " L216 inside the false option / noToursAvailable  :",
+      noToursAvailable
     );
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
@@ -333,7 +326,7 @@ const mapStateToProps = (state) => {
     allCities: state.cities.all_cities,
     totalProvider: state.tours.total_provider,
     noDataAvailable: state.tours.noDataAvailable,
-    noToursAvailable1: state.tours.noToursAvailable1,
+    noToursAvailable: state.tours.noToursAvailable,
     error: state.tours.error,
   };
 };
