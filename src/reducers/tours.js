@@ -34,7 +34,7 @@ const initialState = {
 	filter: null,
 	selectedDate: null,
 	isPdfLoading: false,
-	total_tours: null,
+	total_tours: 0,
 	favouriteRanges: [],
 	isLoadingFilter: false,
 	total_provider: 222,
