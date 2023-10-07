@@ -1,9 +1,8 @@
 var axios = require("axios");
-export const baseURL =
-  //"https://www2.zuugle.at/api";
-  window.location.host.indexOf("localhost") >= 0
-    ? "http://localhost:8080/api"
-    : `${window.location.protocol}//${window.location.host}/api`;
+export const baseURL = "https://www2.zuugle.at/api";
+// window.location.host.indexOf("localhost") >= 0
+//   ? "http://localhost:8080/api"
+//   : `${window.location.protocol}//${window.location.host}/api`;
 
 let axiosInstance = axios.create({
   baseURL: baseURL,
