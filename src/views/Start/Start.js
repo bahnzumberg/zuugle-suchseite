@@ -69,7 +69,10 @@ function Start({
     noToursAvailable ? true : false
   );
 
-  console.log(noToursAvailable);
+  useEffect(() => {
+    setNoTourAvailable(noToursAvailable ? true : false);
+  }, [noToursAvailable]);
+
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
 
