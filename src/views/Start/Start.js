@@ -200,105 +200,107 @@ function Start({
   console.log(" L216 inside the false option / totalTours  :", totalTours);
   return (
     <>
-      {!noToursAvailable ? (
-        <Box>
-          {getPageHeader(null)}
-          {!!allCities && allCities.length > 0 && (
-            <Header
-              getCity={getCity}
-              totalTours={totalTours}
-              allCities={allCities}
-              showMobileMenu={showMobileMenu}
-              setShowMobileMenu={setShowMobileMenu}
-            />
-          )}
-
-          {!showMobileMenu && (
-            <Box elevation={0} className={"header-line"}>
-              <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
-                <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                  {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
-                  {t("start.zuugle_sucht_fuer_dich_2")}
-                </Typography>
-              </Box>
-            </Box>
-          )}
-          {!showMobileMenu && (
-            <Box className={"start-body-container"}>
-              <Box>
-                <Typography
-                  variant={"h4"}
-                  sx={{
-                    textAlign: "left",
-                    paddingBottom: "15px",
-                    paddingTop: "15px",
-                  }}
-                >
-                  {getRangeText()}
-                </Typography>
-                <RangeCardContainer
-                  ranges={favouriteRanges}
-                  onSelectTour={onSelectRange}
-                />
-              </Box>
-
-              <Box sx={{ marginTop: "20px" }}>
-                <Typography
-                  variant={"h4"}
-                  sx={{
-                    textAlign: "left",
-                    paddingTop: "20px",
-                    paddingBottom: "15px",
-                  }}
-                >
-                  {getFavouriteToursText()}
-                </Typography>
-                <ScrollingTourCardContainer
-                  tours={favouriteTours}
-                  onSelectTour={onSelectTour}
-                  loadTourConnections={loadTourConnections}
-                  city={searchParams.get("city")}
-                />
-              </Box>
-
-              <Box sx={{ marginTop: "20px" }}>
-                <AboutZuugleContainer />
-              </Box>
-
-              <Box sx={{ marginTop: "20px" }}>
-                <UserRecommendationContainer />
-              </Box>
-
-              <Box sx={{ marginTop: "20px" }}>
-                <SponsoringContainer />
-              </Box>
-
-              <Box sx={{ marginTop: "20px" }}>
-                <KPIContainer
-                  totalTours={totalTours}
-                  totalConnections={totalConnections}
-                  totalRanges={totalRanges}
-                  totalCities={totalCities}
-                  city={searchParams.get("city")}
-                  totalProvider={totalProvider}
-                />
-              </Box>
-            </Box>
-          )}
-          {!showMobileMenu && (
-            <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-          )}
-          {!showMobileMenu && (
-            <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-          )}
-          {!showMobileMenu && <Footer />}
-        </Box>
-      ) : (
+      {noToursAvailable === true ? (
         <>
           <Header totalTours={totalTours} allCities={allCities} />
           <Footer />
         </>
-      )}
+      ) : noToursAvailable === false ? (
+        <>
+          <Box>
+            {getPageHeader(null)}
+            {!!allCities && allCities.length > 0 && (
+              <Header
+                getCity={getCity}
+                totalTours={totalTours}
+                allCities={allCities}
+                showMobileMenu={showMobileMenu}
+                setShowMobileMenu={setShowMobileMenu}
+              />
+            )}
+
+            {!showMobileMenu && (
+              <Box elevation={0} className={"header-line"}>
+                <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
+                  <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                    {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+                    {t("start.zuugle_sucht_fuer_dich_2")}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+            {!showMobileMenu && (
+              <Box className={"start-body-container"}>
+                <Box>
+                  <Typography
+                    variant={"h4"}
+                    sx={{
+                      textAlign: "left",
+                      paddingBottom: "15px",
+                      paddingTop: "15px",
+                    }}
+                  >
+                    {getRangeText()}
+                  </Typography>
+                  <RangeCardContainer
+                    ranges={favouriteRanges}
+                    onSelectTour={onSelectRange}
+                  />
+                </Box>
+
+                <Box sx={{ marginTop: "20px" }}>
+                  <Typography
+                    variant={"h4"}
+                    sx={{
+                      textAlign: "left",
+                      paddingTop: "20px",
+                      paddingBottom: "15px",
+                    }}
+                  >
+                    {getFavouriteToursText()}
+                  </Typography>
+                  <ScrollingTourCardContainer
+                    tours={favouriteTours}
+                    onSelectTour={onSelectTour}
+                    loadTourConnections={loadTourConnections}
+                    city={searchParams.get("city")}
+                  />
+                </Box>
+
+                <Box sx={{ marginTop: "20px" }}>
+                  <AboutZuugleContainer />
+                </Box>
+
+                <Box sx={{ marginTop: "20px" }}>
+                  <UserRecommendationContainer />
+                </Box>
+
+                <Box sx={{ marginTop: "20px" }}>
+                  <SponsoringContainer />
+                </Box>
+
+                <Box sx={{ marginTop: "20px" }}>
+                  <KPIContainer
+                    totalTours={totalTours}
+                    totalConnections={totalConnections}
+                    totalRanges={totalRanges}
+                    totalCities={totalCities}
+                    city={searchParams.get("city")}
+                    totalProvider={totalProvider}
+                  />
+                </Box>
+              </Box>
+            )}
+            {!showMobileMenu && (
+              <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
+            )}
+            {!showMobileMenu && (
+              <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
+            )}
+            {!showMobileMenu && <Footer />}
+          </Box>
+        </>
+      ) : null}
     </>
   );
 }
