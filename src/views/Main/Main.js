@@ -425,7 +425,7 @@ export function Main({
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {Number(totalTours).toLocaleString()}{" "}
-              {totalTours == 1 ? " Ergebnis " : ` ${t("main.ergebnisse")}`}
+              {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {filterActive && (
               <Box display={"flex"} alignItems={"center"}>
