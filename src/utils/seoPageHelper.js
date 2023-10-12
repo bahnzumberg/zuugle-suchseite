@@ -93,7 +93,6 @@ export const listAllCityLinks = (cities, searchParams = null) => {
         </Grid>
       );
     });
-
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
@@ -105,8 +104,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
       </Box>
     );
   }
-
-  return null; // Return null when there are no cities to render
+  return [];
 };
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
