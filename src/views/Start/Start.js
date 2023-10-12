@@ -203,7 +203,7 @@ function Start({
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {/* {getPageHeader(null)} */}
+        {getPageHeader(null)}
         {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
