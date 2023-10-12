@@ -203,7 +203,8 @@ export function loadOneReturnAll(
         const { total_tours } = res.data;
 
         if (total_tours === 0) {
-          //dispatch({ type: NO_TOURS_AVAILABLE });
+          console.log("The type error");
+          dispatch({ type: NO_TOURS_AVAILABLE });
         } else {
           dispatch({
             type: typeDone,
