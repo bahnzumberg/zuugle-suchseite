@@ -106,7 +106,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 };
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
-  const { t } = useTranslation();
+  //   const { t } = useTranslation();
   const country = translatedCountry();
 
   if (!!ranges) {
@@ -138,9 +138,7 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>
-            {t("start.wanderdestinationen")} {country}
-          </>
+          <>{{ country }}</>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
