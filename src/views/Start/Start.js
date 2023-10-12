@@ -286,13 +286,13 @@ function Start({
             </Box>
           </Box>
         )}
-        {!showMobileMenu && (
+        {/* {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )}
-        {/* {!showMobileMenu && (
+        {!showMobileMenu && (
           <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-        )}
-        {!showMobileMenu && <Footer />} */}
+        )} */}
+        {!showMobileMenu && <Footer />}
       </Box>
     );
   }
