@@ -96,90 +96,92 @@ export default function Header({
     }
   };
 
-  if (totalTours === 1) {
-    console.log("L93: inside Header.js, totalTours === 0");
-    return (
-      <Box
-        className={"header-container"}
-        style={{ backgroundImage: backgroundImage }}
-      >
-        <Box className={"header-text"}>
-          <Box
-            sx={{ display: "flex", alignItems: "center", marginBottom: "16px" }}
-          >
-            <img
-              src={`/app_static/img/logo-white.png`}
-              height={"16px"}
-              width={"29px"}
-            />
-            <Typography
-              style={{
-                fontSize: "16px",
-                color: "#FFF",
-                lineHeight: "16px",
-                marginLeft: "5px",
-              }}
-            >
-              {getDomainText()}
-            </Typography>
-          </Box>
-          <Typography variant={"h1"}>{t("start.wartungsmodus")}</Typography>
-        </Box>
-      </Box>
-    );
-  } else {
-    return (
-      <Box
-        className={"header-container"}
-        sx={{ position: "relative" }}
-        style={{ backgroundImage: backgroundImage }}
-      >
-        <Box component={"div"} className="rowing countryDiv">
-          <DomainMenu />
-          <LanguageMenu />
-        </Box>
-        <Box className={"header-text"}>
-          <Typography variant={"h1"} height={"162px"}>
-            {!!totalToursFromCity && totalToursFromCity !== 0
-              ? totalToursFromCity.toLocaleString() +
-                " " +
-                t("start.tourenanzahl_untertitel_city", { capCity })
-              : !!totalTours &&
-                totalTours !== 0 &&
-                totalTours.toLocaleString() +
-                  " " +
-                  t("start.tourenanzahl_untertitel")}
-          </Typography>
-        </Box>
-        {!!allCities && allCities.length > 0 && (
-          <Box
-            sx={{
-              backgroundColor: "#FFF",
-              position: "absolute",
-              bottom: "0",
-              transform: "translate(-50%, 50%)",
-              display: "inline-flex",
-              borderRadius: "20px",
-              padding: "12px 15px",
-              border: "2px solid #ddd",
-              width: "100%",
-              maxWidth: { xs: "325px", md: "600px" },
-              boxSizing: "border-box",
-              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <SearchContainer
-                pageKey="start"
-                goto={"/suche"}
-                showMobileMenu={showMobileMenu}
-                setShowMobileMenu={setShowMobileMenu}
-                updateCapCity={updateCapCity}
-              />
-            </Box>
-          </Box>
-        )}
-      </Box>
-    );
-  }
+  return <div>hello</div>;
+
+  // if (totalTours === 0) {
+  //   console.log("L93: inside Header.js, totalTours === 0");
+  //   return (
+  //     <Box
+  //       className={"header-container"}
+  //       style={{ backgroundImage: backgroundImage }}
+  //     >
+  //       <Box className={"header-text"}>
+  //         <Box
+  //           sx={{ display: "flex", alignItems: "center", marginBottom: "16px" }}
+  //         >
+  //           <img
+  //             src={`/app_static/img/logo-white.png`}
+  //             height={"16px"}
+  //             width={"29px"}
+  //           />
+  //           <Typography
+  //             style={{
+  //               fontSize: "16px",
+  //               color: "#FFF",
+  //               lineHeight: "16px",
+  //               marginLeft: "5px",
+  //             }}
+  //           >
+  //             {getDomainText()}
+  //           </Typography>
+  //         </Box>
+  //         <Typography variant={"h1"}>{t("start.wartungsmodus")}</Typography>
+  //       </Box>
+  //     </Box>
+  //   );
+  // } else {
+  //   return (
+  //     <Box
+  //       className={"header-container"}
+  //       sx={{ position: "relative" }}
+  //       style={{ backgroundImage: backgroundImage }}
+  //     >
+  //       <Box component={"div"} className="rowing countryDiv">
+  //         <DomainMenu />
+  //         <LanguageMenu />
+  //       </Box>
+  //       <Box className={"header-text"}>
+  //         <Typography variant={"h1"} height={"162px"}>
+  //           {!!totalToursFromCity && totalToursFromCity !== 0
+  //             ? totalToursFromCity.toLocaleString() +
+  //               " " +
+  //               t("start.tourenanzahl_untertitel_city", { capCity })
+  //             : !!totalTours &&
+  //               totalTours !== 0 &&
+  //               totalTours.toLocaleString() +
+  //                 " " +
+  //                 t("start.tourenanzahl_untertitel")}
+  //         </Typography>
+  //       </Box>
+  //       {!!allCities && allCities.length > 0 && (
+  //         <Box
+  //           sx={{
+  //             backgroundColor: "#FFF",
+  //             position: "absolute",
+  //             bottom: "0",
+  //             transform: "translate(-50%, 50%)",
+  //             display: "inline-flex",
+  //             borderRadius: "20px",
+  //             padding: "12px 15px",
+  //             border: "2px solid #ddd",
+  //             width: "100%",
+  //             maxWidth: { xs: "325px", md: "600px" },
+  //             boxSizing: "border-box",
+  //             boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+  //           }}
+  //         >
+  //           <Box sx={{ width: "100%" }}>
+  //             <SearchContainer
+  //               pageKey="start"
+  //               goto={"/suche"}
+  //               showMobileMenu={showMobileMenu}
+  //               setShowMobileMenu={setShowMobileMenu}
+  //               updateCapCity={updateCapCity}
+  //             />
+  //           </Box>
+  //         </Box>
+  //       )}
+  //     </Box>
+  //   );
+  // }
 }

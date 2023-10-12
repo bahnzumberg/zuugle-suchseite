@@ -137,7 +137,7 @@ function Start({
     //   // Cancel any ongoing network request when the component unmounts
     //   abortController.abort();
     // };
-  }, []);
+  }, [totalTours]);
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -181,7 +181,7 @@ function Start({
 
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
-  if (totalTours === 1) {
+  if (noToursAvailable) {
     console.log(
       " L203 inside the true option/ noToursAvailable :",
       noToursAvailable
@@ -195,7 +195,7 @@ function Start({
     );
   }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  else {
+  else if (!noToursAvailable) {
     console.log(
       " L216 inside the false option / noToursAvailable  :",
       noToursAvailable
