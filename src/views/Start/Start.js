@@ -292,9 +292,9 @@ function Start({
             //links={listAllCityLinks(allCities, searchParams)}
           />
         )}
-        {!showMobileMenu && (
+        {/* {!showMobileMenu && (
           <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-        )}
+        )} */}
         {!showMobileMenu && <Footer />}
       </Box>
     );
