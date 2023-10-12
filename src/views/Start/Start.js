@@ -47,7 +47,7 @@ function Start({
   loadCities,
   loadTourConnections,
   totalTours,
-  loadTotalTours,
+  // loadTotalTours,
   totalConnections,
   totalCities,
   totalRanges,
@@ -87,7 +87,8 @@ function Start({
     // Async function to load data and handle requests
     const loadData = async () => {
       try {
-        // await loadTotalTours(requestConfig);
+        await loadTotalTours(requestConfig);
+
         await loadAllCities(requestConfig);
         await loadRanges(
           { ignore_limit: true, remove_duplicates: true },
