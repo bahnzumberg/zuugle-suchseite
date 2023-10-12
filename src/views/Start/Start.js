@@ -286,10 +286,10 @@ function Start({
             </Box>
           </Box>
         )}
-        {console.log(listAllCityLinks(allCities, searchParams))}
-        {/* {!showMobileMenu && (
+
+        {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )} */}
+        )}
         {/* {!showMobileMenu && (
           <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
         )} */}

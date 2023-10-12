@@ -75,7 +75,7 @@ export const checkIfSeoPageRange = (location, ranges) => {
 //description
 //This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
-  const { t } = useTranslation();
+  //   const { t } = useTranslation();
 
   //   const country = translatedCountry();
 
@@ -106,7 +106,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
   //       </Box>
   //     );
   //   }
-  return [];
+  return ["Hello"];
 };
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
