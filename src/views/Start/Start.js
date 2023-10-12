@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
 import {
   loadFavouriteTours,
-  //loadTotalTours,
+  loadTotalTours,
   loadTourConnections,
   loadTourConnectionsExtended,
 } from "../../actions/tourActions";
@@ -196,7 +196,7 @@ function Start({
     );
   }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  else if (!noToursAvailable) {
+  else {
     console.log(
       " L216 inside the false option / noToursAvailable  :",
       noToursAvailable
