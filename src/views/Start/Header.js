@@ -96,7 +96,7 @@ export default function Header({
     }
   };
 
-  return <div>hello</div>;
+  return <div>{totalTours === 0 ? "0 Tours" : "More Tours"}</div>;
 
   // if (totalTours === 0) {
   //   console.log("L93: inside Header.js, totalTours === 0");
