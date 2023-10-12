@@ -93,24 +93,24 @@ function Start({
           { ignore_limit: true, remove_duplicates: true },
           requestConfig
         );
-        // getCity();
+        getCity();
 
         if (!!city && !!!searchParamCity) {
           searchParams.set("city", city);
           setSearchParams(searchParams);
         }
 
-        await loadCities({ limit: 5 }, requestConfig);
-        await loadFavouriteTours(
-          {
-            sort: "relevanz",
-            limit: 10,
-            city: !!city ? city : undefined,
-            ranges: true,
-            provider: searchParams.get("p"),
-          },
-          requestConfig
-        );
+        // await loadCities({ limit: 5 }, requestConfig);
+        // await loadFavouriteTours(
+        //   {
+        //     sort: "relevanz",
+        //     limit: 10,
+        //     city: !!city ? city : undefined,
+        //     ranges: true,
+        //     provider: searchParams.get("p"),
+        //   },
+        //   requestConfig
+        // );
       } catch (error) {
         if (error.name === "AbortError") {
           console.log("Request was canceled:", error.message);
