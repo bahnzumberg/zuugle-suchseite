@@ -111,7 +111,7 @@ export function loadTour(id, city) {
 export function loadTotalTours() {
   // console.log("tourActions, loadTotalTours L48 , no data here")
   return (dispatch, getState) => {
-    return loadOneReturnAll(
+    return loadOne(
       dispatch,
       getState,
       LOAD_TOTAL_TOURS,
