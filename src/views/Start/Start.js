@@ -214,7 +214,7 @@ function Start({
           />
         )}
 
-        {!showMobileMenu && (
+        {/* {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
             <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
               <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
@@ -223,8 +223,8 @@ function Start({
               </Typography>
             </Box>
           </Box>
-        )}
-        {!showMobileMenu && (
+        )} */}
+        {/* {!showMobileMenu && (
           <Box className={"start-body-container"}>
             <Box>
               <Typography
@@ -285,14 +285,14 @@ function Start({
               />
             </Box>
           </Box>
-        )}
-        {!showMobileMenu && (
+        )} */}
+        {/* {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )}
         {!showMobileMenu && (
           <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
         )}
-        {!showMobileMenu && <Footer />}
+        {!showMobileMenu && <Footer />} */}
       </Box>
     );
   }

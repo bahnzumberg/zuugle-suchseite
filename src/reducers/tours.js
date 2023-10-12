@@ -125,11 +125,11 @@ export default (state = initialState, action = {}) => {
     case LOAD_TOTAL_TOURS_DONE:
       return {
         ...state,
-        // total_tours: action.total_tours,
-        // total_connections: action.total_connections,
-        // total_ranges: action.total_ranges,
-        // total_cities: action.total_cities,
-        // total_provider: action.total_provider,
+        total_tours: action.total_tours,
+        total_connections: action.total_connections,
+        total_ranges: action.total_ranges,
+        total_cities: action.total_cities,
+        total_provider: action.total_provider,
         noToursAvailable: action.total_tours === 0 ? true : false,
       };
     case LOAD_TOUR_GPX:
