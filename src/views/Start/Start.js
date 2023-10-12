@@ -190,12 +190,6 @@ function Start({
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
-        {!showMobileMenu && (
-          <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )}
-        {!showMobileMenu && (
-          <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-        )}
         <Footer />
       </Box>
     );
@@ -293,7 +287,10 @@ function Start({
           </Box>
         )}
         {!showMobileMenu && (
-          <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
+          <FooterLinks
+            links={["hello"]}
+            //links={listAllCityLinks(allCities, searchParams)}
+          />
         )}
         {!showMobileMenu && (
           <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
