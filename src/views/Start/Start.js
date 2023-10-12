@@ -282,14 +282,14 @@ function Start({
             </Box>
 
             <Box sx={{ marginTop: "20px" }}>
-              <KPIContainer
+              {/* <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}
                 totalRanges={totalRanges}
                 totalCities={totalCities}
                 city={searchParams.get("city")}
                 totalProvider={totalProvider}
-              />
+              /> */}
             </Box>
           </Box>
         )}
