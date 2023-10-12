@@ -88,11 +88,11 @@ function Start({
     const loadData = async () => {
       try {
         // await loadTotalTours(requestConfig);
-        // await loadAllCities(requestConfig);
-        // await loadRanges(
-        //   { ignore_limit: true, remove_duplicates: true },
-        //   requestConfig
-        // );
+        await loadAllCities(requestConfig);
+        await loadRanges(
+          { ignore_limit: true, remove_duplicates: true },
+          requestConfig
+        );
         getCity();
 
         if (!!city && !!!searchParamCity) {
