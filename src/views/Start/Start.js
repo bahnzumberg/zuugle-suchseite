@@ -93,7 +93,7 @@ function Start({
           { ignore_limit: true, remove_duplicates: true },
           requestConfig
         );
-        getCity();
+        // getCity();
 
         if (!!city && !!!searchParamCity) {
           searchParams.set("city", city);
@@ -120,7 +120,7 @@ function Start({
       }
     };
 
-    //loadData();
+    loadData();
 
     // Return a cleanup function
     // return () => {
