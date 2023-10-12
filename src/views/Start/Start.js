@@ -66,7 +66,7 @@ function Start({
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
-  console.log("entry point : noToursAvailable :", noToursAvailable);
+  console.log(noToursAvailable, "No Tours Available");
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
@@ -75,6 +75,16 @@ function Start({
   let city = "";
 
   let _city = searchParams.get("city");
+
+  const getCity = () => {
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if (!!city) {
+      return city;
+    } else {
+      return "";
+    }
+  };
 
   useEffect(() => {
     // matomo
@@ -88,7 +98,6 @@ function Start({
     const loadData = async () => {
       try {
         await loadTotalTours(requestConfig);
-
         await loadAllCities(requestConfig);
         await loadRanges(
           { ignore_limit: true, remove_duplicates: true },
@@ -129,16 +138,6 @@ function Start({
     //   abortController.abort();
     // };
   }, []);
-
-  const getCity = () => {
-    searchParamCity = searchParams.get("city");
-    city = localStorage.getItem("city");
-    if (!!city) {
-      return city;
-    } else {
-      return "";
-    }
-  };
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -190,19 +189,13 @@ function Start({
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
-        {/* <Header
-          getCity={getCity}
-          totalTours={totalTours}
-          allCities={allCities}
-          showMobileMenu={showMobileMenu}
-          setShowMobileMenu={setShowMobileMenu}
-        /> */}
+        <Header totalTours={totalTours} allCities={allCities} />
         <Footer />
       </Box>
     );
   }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  else {
+  else if (!noToursAvailable) {
     console.log(
       " L216 inside the false option / noToursAvailable  :",
       noToursAvailable
@@ -210,8 +203,8 @@ function Start({
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {/* {getPageHeader(null)}
-        {allCities && allCities.length > 0 && (
+        {getPageHeader(null)}
+        {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
             totalTours={totalTours}
@@ -219,7 +212,7 @@ function Start({
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
-        )} */}
+        )}
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
@@ -282,14 +275,14 @@ function Start({
             </Box>
 
             <Box sx={{ marginTop: "20px" }}>
-              {/* <KPIContainer
+              <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}
                 totalRanges={totalRanges}
                 totalCities={totalCities}
                 city={searchParams.get("city")}
                 totalProvider={totalProvider}
-              /> */}
+              />
             </Box>
           </Box>
         )}
