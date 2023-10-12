@@ -76,16 +76,6 @@ function Start({
 
   let _city = searchParams.get("city");
 
-  const getCity = () => {
-    searchParamCity = searchParams.get("city");
-    city = localStorage.getItem("city");
-    if (!!city) {
-      return city;
-    } else {
-      return "";
-    }
-  };
-
   useEffect(() => {
     // matomo
     _mtm.push({ pagetitel: "Startseite" });
@@ -138,6 +128,16 @@ function Start({
     //   abortController.abort();
     // };
   }, [totalTours]);
+
+  const getCity = () => {
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if (!!city) {
+      return city;
+    } else {
+      return "";
+    }
+  };
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -204,7 +204,7 @@ function Start({
     return (
       <Box>
         {getPageHeader(null)}
-        {!!allCities && allCities.length > 0 && (
+        {allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
             totalTours={totalTours}
