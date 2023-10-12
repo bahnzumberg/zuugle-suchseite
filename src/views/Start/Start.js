@@ -17,7 +17,7 @@ import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
 import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
-import Header from "./Header"
+import Header from "./Header";
 import {
   getPageHeader,
   listAllCityLinks,
@@ -57,36 +57,28 @@ function Start({
   totalProvider,
   loadRanges,
   allRanges,
-  noDataAvailable, 
-  noToursAvailable, 
+  noDataAvailable,
+  noToursAvailable,
   error,
 }) {
   // const [showMaintenance, setShowMaintenance] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+
+  console.log(noToursAvailable, "No Tours Available");
+
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
 
-  let searchParamCity ="" ;
+  let searchParamCity = "";
   let city = "";
-   
+
   let _city = searchParams.get("city");
 
-  const getCity = () => { 
-    searchParamCity = searchParams.get("city");
-    city = localStorage.getItem("city");
-    if(!!city) {
-      return city;
-    }else {
-      return "";
-    }
-  }
-
-  
   useEffect(() => {
     // matomo
-    _mtm.push({'pagetitel': "Startseite"});
+    _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
       params: { domain: window.location.host },
@@ -97,7 +89,10 @@ function Start({
       try {
         await loadTotalTours(requestConfig);
         await loadAllCities(requestConfig);
-        await loadRanges({ ignore_limit: true, remove_duplicates: true }, requestConfig);
+        await loadRanges(
+          { ignore_limit: true, remove_duplicates: true },
+          requestConfig
+        );
         getCity();
 
         if (!!city && !!!searchParamCity) {
@@ -106,19 +101,21 @@ function Start({
         }
 
         await loadCities({ limit: 5 }, requestConfig);
-        await loadFavouriteTours({
-          sort: "relevanz",
-          limit: 10,
-          city: !!city ? city : undefined,
-          ranges: true,
-          provider: searchParams.get("p"),
-        }, requestConfig);
-
+        await loadFavouriteTours(
+          {
+            sort: "relevanz",
+            limit: 10,
+            city: !!city ? city : undefined,
+            ranges: true,
+            provider: searchParams.get("p"),
+          },
+          requestConfig
+        );
       } catch (error) {
-        if (error.name === 'AbortError') {
-          console.log('Request was canceled:', error.message);
+        if (error.name === "AbortError") {
+          console.log("Request was canceled:", error.message);
         } else {
-          console.error('Error loading data:', error);
+          console.error("Error loading data:", error);
         }
       }
     };
@@ -126,12 +123,21 @@ function Start({
     loadData();
 
     // Return a cleanup function
-    return () => {
-      // Cancel any ongoing network request when the component unmounts
-      abortController.abort();
-    };
-  }, [totalTours]); 
+    // return () => {
+    //   // Cancel any ongoing network request when the component unmounts
+    //   abortController.abort();
+    // };
+  }, [totalTours]);
 
+  const getCity = () => {
+    searchParamCity = searchParams.get("city");
+    city = localStorage.getItem("city");
+    if (!!city) {
+      return city;
+    } else {
+      return "";
+    }
+  };
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -144,17 +150,16 @@ function Start({
       updatedSearchParams.set("city", city);
     }
     //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-    window.open("/tour?" + updatedSearchParams.toString(),'_blank', 'noreferrer');
+    window.open(
+      "/tour?" + updatedSearchParams.toString(),
+      "_blank",
+      "noreferrer"
+    );
   };
 
-  
   const onSelectRange = (range) => {
     if (!!range && !!range.range) {
-      navigate(
-        `/suche?range=${range.range}${
-          !!_city ? "&city=" + _city : ""
-        }`
-      );
+      navigate(`/suche?range=${range.range}${!!_city ? "&city=" + _city : ""}`);
     }
   };
 
@@ -176,9 +181,11 @@ function Start({
 
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
-  if (noToursAvailable ) {
-    
-    console.log(" L203 inside the true option/ noToursAvailable :", noToursAvailable);
+  if (noToursAvailable) {
+    console.log(
+      " L203 inside the true option/ noToursAvailable :",
+      noToursAvailable
+    );
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
@@ -186,16 +193,18 @@ function Start({
         <Footer />
       </Box>
     );
-  } else 
+  }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  if (!noToursAvailable) {
-    console.log(" L216 inside the false option / noToursAvailable  :", noToursAvailable);
+  else if (noToursAvailable === false) {
+    console.log(
+      " L216 inside the false option / noToursAvailable  :",
+      noToursAvailable
+    );
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
         {getPageHeader(null)}
-        { !!allCities && allCities.length>0
-          &&  
+        {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
             totalTours={totalTours}
@@ -203,7 +212,7 @@ function Start({
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
-        }
+        )}
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
@@ -277,6 +286,7 @@ function Start({
             </Box>
           </Box>
         )}
+
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )}
@@ -299,7 +309,7 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadTourConnections,
   loadTotalTours,
-  loadAllCities
+  loadAllCities,
 };
 
 // description:

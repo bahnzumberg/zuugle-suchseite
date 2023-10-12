@@ -31,16 +31,9 @@ import { loadRanges } from "../../actions/rangeActions";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import ClearSearchIcon from "../../icons/ClearSearchIcon";
-import ClearFilterIcon from "../../icons/ClearFilterIcon";
-import { ArrowLeft } from "@mui/icons-material";
 import ArrowBefore from "../../icons/ArrowBefore";
 
-const SearchFilter = lazy(() =>
-  import("../../components/SearchFilter/SearchFilter")
-);
 const Search = lazy(() => import("../../components/Search/Search"));
-const ResultBar = lazy(() => import("../../components/ResultBar"));
 const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
@@ -425,7 +418,7 @@ export function Main({
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {Number(totalTours).toLocaleString()}{" "}
-              {totalTours == 1 ? " Ergebnis " : ` ${t("main.ergebnisse")}`}
+              {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {filterActive && (
               <Box display={"flex"} alignItems={"center"}>
