@@ -76,58 +76,58 @@ function Start({
 
   let _city = searchParams.get("city");
 
-  // useEffect(() => {
-  //   // matomo
-  //   _mtm.push({ pagetitel: "Startseite" });
-  //   // network request configuration
-  //   const requestConfig = {
-  //     params: { domain: window.location.host },
-  //     signal: abortController.signal,
-  //   };
-  //   // Async function to load data and handle requests
-  //   const loadData = async () => {
-  //     try {
-  //       await loadTotalTours(requestConfig);
-  //       await loadAllCities(requestConfig);
-  //       await loadRanges(
-  //         { ignore_limit: true, remove_duplicates: true },
-  //         requestConfig
-  //       );
-  //       getCity();
+  useEffect(() => {
+    // matomo
+    _mtm.push({ pagetitel: "Startseite" });
+    // network request configuration
+    const requestConfig = {
+      params: { domain: window.location.host },
+      signal: abortController.signal,
+    };
+    // Async function to load data and handle requests
+    const loadData = async () => {
+      try {
+        await loadTotalTours(requestConfig);
+        await loadAllCities(requestConfig);
+        await loadRanges(
+          { ignore_limit: true, remove_duplicates: true },
+          requestConfig
+        );
+        getCity();
 
-  //       if (!!city && !!!searchParamCity) {
-  //         searchParams.set("city", city);
-  //         setSearchParams(searchParams);
-  //       }
+        if (!!city && !!!searchParamCity) {
+          searchParams.set("city", city);
+          setSearchParams(searchParams);
+        }
 
-  //       await loadCities({ limit: 5 }, requestConfig);
-  //       await loadFavouriteTours(
-  //         {
-  //           sort: "relevanz",
-  //           limit: 10,
-  //           city: !!city ? city : undefined,
-  //           ranges: true,
-  //           provider: searchParams.get("p"),
-  //         },
-  //         requestConfig
-  //       );
-  //     } catch (error) {
-  //       if (error.name === "AbortError") {
-  //         console.log("Request was canceled:", error.message);
-  //       } else {
-  //         console.error("Error loading data:", error);
-  //       }
-  //     }
-  //   };
+        await loadCities({ limit: 5 }, requestConfig);
+        await loadFavouriteTours(
+          {
+            sort: "relevanz",
+            limit: 10,
+            city: !!city ? city : undefined,
+            ranges: true,
+            provider: searchParams.get("p"),
+          },
+          requestConfig
+        );
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Request was canceled:", error.message);
+        } else {
+          console.error("Error loading data:", error);
+        }
+      }
+    };
 
-  //   loadData();
+    //loadData();
 
-  //   // Return a cleanup function
-  //   // return () => {
-  //   //   // Cancel any ongoing network request when the component unmounts
-  //   //   abortController.abort();
-  //   // };
-  // }, [totalTours]);
+    // Return a cleanup function
+    // return () => {
+    //   // Cancel any ongoing network request when the component unmounts
+    //   abortController.abort();
+    // };
+  }, [totalTours]);
 
   const getCity = () => {
     searchParamCity = searchParams.get("city");
