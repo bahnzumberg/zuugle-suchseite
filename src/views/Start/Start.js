@@ -66,7 +66,7 @@ function Start({
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
-  console.log( "entry point : noToursAvailable :",noToursAvailable);
+  console.log("entry point : noToursAvailable :", noToursAvailable);
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
@@ -189,7 +189,7 @@ function Start({
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
-        <Header totalTours={totalTours} allCities={allCities} />
+        {/* <Header totalTours={totalTours} allCities={allCities} /> */}
         <Footer />
       </Box>
     );
@@ -205,13 +205,14 @@ function Start({
       <Box>
         {getPageHeader(null)}
         {allCities && allCities.length > 0 && (
-          <Header
-            getCity={getCity}
-            totalTours={totalTours}
-            allCities={allCities}
-            showMobileMenu={showMobileMenu}
-            setShowMobileMenu={setShowMobileMenu}
-          />
+          <></>
+          // <Header
+          //   getCity={getCity}
+          //   totalTours={totalTours}
+          //   allCities={allCities}
+          //   showMobileMenu={showMobileMenu}
+          //   setShowMobileMenu={setShowMobileMenu}
+          // />
         )}
 
         {!showMobileMenu && (
