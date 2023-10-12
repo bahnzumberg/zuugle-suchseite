@@ -286,7 +286,7 @@ function Start({
             </Box>
           </Box>
         )}
-        {/* {console.log(listAllCityLinks(allCities, searchParams))} */}
+        {console.log(listAllCityLinks(allCities, searchParams))}
         {/* {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )} */}
