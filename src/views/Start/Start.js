@@ -66,7 +66,7 @@ function Start({
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
-  console.log(noToursAvailable, "No Tours Available");
+  console.log( "entry point : noToursAvailable :",noToursAvailable);
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
