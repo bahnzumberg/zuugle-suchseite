@@ -96,9 +96,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>
-            {t("start.heimatbahnhoefe_in")} {country}
-          </>
+          <>{/* {t("start.heimatbahnhoefe_in")} {country} */}</>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
