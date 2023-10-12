@@ -87,30 +87,30 @@ function Start({
     // Async function to load data and handle requests
     const loadData = async () => {
       try {
-        await loadTotalTours(requestConfig);
-        await loadAllCities(requestConfig);
-        await loadRanges(
-          { ignore_limit: true, remove_duplicates: true },
-          requestConfig
-        );
-        getCity();
-
-        if (!!city && !!!searchParamCity) {
-          searchParams.set("city", city);
-          setSearchParams(searchParams);
-        }
-
-        // await loadCities({ limit: 5 }, requestConfig);
-        // await loadFavouriteTours(
-        //   {
-        //     sort: "relevanz",
-        //     limit: 10,
-        //     city: !!city ? city : undefined,
-        //     ranges: true,
-        //     provider: searchParams.get("p"),
-        //   },
+        // await loadTotalTours(requestConfig);
+        // await loadAllCities(requestConfig);
+        // await loadRanges(
+        //   { ignore_limit: true, remove_duplicates: true },
         //   requestConfig
         // );
+        // getCity();
+
+        // if (!!city && !!!searchParamCity) {
+        //   searchParams.set("city", city);
+        //   setSearchParams(searchParams);
+        // }
+
+        await loadCities({ limit: 5 }, requestConfig);
+        await loadFavouriteTours(
+          {
+            sort: "relevanz",
+            limit: 10,
+            city: !!city ? city : undefined,
+            ranges: true,
+            provider: searchParams.get("p"),
+          },
+          requestConfig
+        );
       } catch (error) {
         if (error.name === "AbortError") {
           console.log("Request was canceled:", error.message);
