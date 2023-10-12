@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
 import {
   loadFavouriteTours,
-  loadTotalTours,
+  //loadTotalTours,
   loadTourConnections,
   loadTourConnectionsExtended,
 } from "../../actions/tourActions";
@@ -47,7 +47,7 @@ function Start({
   loadCities,
   loadTourConnections,
   totalTours,
-  // loadTotalTours,
+  loadTotalTours,
   totalConnections,
   totalCities,
   totalRanges,
