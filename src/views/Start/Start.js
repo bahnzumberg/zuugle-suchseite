@@ -214,7 +214,7 @@ function Start({
           />
         )}
 
-        {/* {!showMobileMenu && (
+        {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
             <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
               <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
@@ -223,7 +223,7 @@ function Start({
               </Typography>
             </Box>
           </Box>
-        )} */}
+        )}
         {/* {!showMobileMenu && (
           <Box className={"start-body-container"}>
             <Box>
