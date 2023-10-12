@@ -93,12 +93,12 @@ function Start({
         //   { ignore_limit: true, remove_duplicates: true },
         //   requestConfig
         // );
-        // getCity();
+        getCity();
 
-        // if (!!city && !!!searchParamCity) {
-        //   searchParams.set("city", city);
-        //   setSearchParams(searchParams);
-        // }
+        if (!!city && !!!searchParamCity) {
+          searchParams.set("city", city);
+          setSearchParams(searchParams);
+        }
 
         await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
