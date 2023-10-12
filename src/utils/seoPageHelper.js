@@ -77,9 +77,9 @@ export const checkIfSeoPageRange = (location, ranges) => {
 export const listAllCityLinks = (cities, searchParams = null) => {
   //   const { t } = useTranslation();
 
-  //   const country = translatedCountry();
+  const country = translatedCountry();
 
-  console.log(searchParams);
+  console.log(searchParams, country);
 
   //   if (!!cities) {
   //     const entries = cities.map((city, index) => {
