@@ -202,14 +202,14 @@ export function loadOneReturnAll(
       if (!!res && !!res.data) {
         const { total_tours } = res.data;
 
-        // if (total_tours === 0) {
-        //   dispatch({ type: NO_TOURS_AVAILABLE });
-        // } else {
-        //   dispatch({
-        //     type: typeDone,
-        //     ...res.data,
-        //   });
-        // }
+        if (total_tours === 0) {
+          //dispatch({ type: NO_TOURS_AVAILABLE });
+        } else {
+          dispatch({
+            type: typeDone,
+            ...res.data,
+          });
+        }
       } else {
         dispatch({ type: NO_DATA_AVAILABLE });
       }

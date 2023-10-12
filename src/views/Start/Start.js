@@ -181,7 +181,7 @@ function Start({
 
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
-  if (noToursAvailable) {
+  if (!totalTours) {
     console.log(
       " L203 inside the true option/ noToursAvailable :",
       noToursAvailable
@@ -195,7 +195,7 @@ function Start({
     );
   }
   // if (!noToursAvailable && noToursAvailable !== null) {
-  else if (!noToursAvailable) {
+  else if (totalTours) {
     console.log(
       " L216 inside the false option / noToursAvailable  :",
       noToursAvailable
