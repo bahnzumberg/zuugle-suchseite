@@ -96,7 +96,7 @@ export default function Header({
     }
   };
 
-  if (totalTours === 0) {
+  if (totalTours === 1) {
     console.log("L93: inside Header.js, totalTours === 0");
     return (
       <Box
