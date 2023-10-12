@@ -190,7 +190,13 @@ function Start({
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
-        <Header totalTours={totalTours} allCities={allCities} />
+        <Header
+          getCity={getCity}
+          totalTours={totalTours}
+          allCities={allCities}
+          showMobileMenu={showMobileMenu}
+          setShowMobileMenu={setShowMobileMenu}
+        />
         <Footer />
       </Box>
     );
