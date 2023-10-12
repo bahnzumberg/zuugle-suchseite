@@ -77,7 +77,7 @@ export const checkIfSeoPageRange = (location, ranges) => {
 export const listAllCityLinks = (cities, searchParams = null) => {
   //   const { t } = useTranslation();
 
-  //   const country = translatedCountry();
+  const country = translatedCountry();
 
   if (!!cities) {
     const entries = cities.map((city, index) => {
@@ -96,7 +96,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>{/* {t("start.heimatbahnhoefe_in")} {country} */}</>
+          <>{country}</>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
@@ -150,11 +150,11 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
 };
 
 const translatedCountry = () => {
-  const { t } = useTranslation();
+  //   const { t } = useTranslation();
   const country = getCountryName();
   const countryKey = getCountryKey(country);
 
-  return t(`start.${countryKey}`);
+  return `start.${countryKey}`;
 };
 
 const getCountryKey = (name) => {
