@@ -77,35 +77,33 @@ export const checkIfSeoPageRange = (location, ranges) => {
 export const listAllCityLinks = (cities, searchParams = null) => {
   //   const { t } = useTranslation();
 
-  const country = translatedCountry();
+  //   const country = translatedCountry();
 
-  console.log(searchParams, country);
-
-  //   if (!!cities) {
-  //     const entries = cities.map((city, index) => {
-  //       let link = `${city.value}`;
-  //       if (!!searchParams && !!searchParams.get("p")) {
-  //         link = `${link}?p=${searchParams.get("p")}`;
-  //       }
-  //       return (
-  //         <Grid key={index} item xs={12} sm={6} md={4}>
-  //           <a href={`/${link}`} className={"seo-city-link"}>
-  //             {city.label}
-  //           </a>
-  //         </Grid>
-  //       );
-  //     });
-  //     return (
-  //       <Box sx={{ textAlign: "left" }}>
-  //         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-  //           <>
-  //             {t("start.heimatbahnhoefe_in")} {country}
-  //           </>
-  //         </Typography>
-  //         <Grid container>{entries}</Grid>
-  //       </Box>
-  //     );
-  //   }
+  if (!!cities) {
+    const entries = cities.map((city, index) => {
+      let link = `${city.value}`;
+      if (!!searchParams && !!searchParams.get("p")) {
+        link = `${link}?p=${searchParams.get("p")}`;
+      }
+      return (
+        <Grid key={index} item xs={12} sm={6} md={4}>
+          <a href={`/${link}`} className={"seo-city-link"}>
+            {city.label}
+          </a>
+        </Grid>
+      );
+    });
+    return (
+      <Box sx={{ textAlign: "left" }}>
+        <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
+          <>
+            {t("start.heimatbahnhoefe_in")} {country}
+          </>
+        </Typography>
+        <Grid container>{entries}</Grid>
+      </Box>
+    );
+  }
   return ["Hello"];
 };
 
