@@ -190,13 +190,13 @@ function Start({
     console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
-        <Header
+        {/* <Header
           getCity={getCity}
           totalTours={totalTours}
           allCities={allCities}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
-        />
+        /> */}
         <Footer />
       </Box>
     );
@@ -210,7 +210,7 @@ function Start({
     console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {getPageHeader(null)}
+        {/* {getPageHeader(null)}
         {allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
@@ -219,7 +219,7 @@ function Start({
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
-        )}
+        )} */}
 
         {!showMobileMenu && (
           <Box elevation={0} className={"header-line"}>
