@@ -224,7 +224,7 @@ function Start({
             </Box>
           </Box>
         )}
-        {/* {!showMobileMenu && (
+        {!showMobileMenu && (
           <Box className={"start-body-container"}>
             <Box>
               <Typography
@@ -285,7 +285,7 @@ function Start({
               />
             </Box>
           </Box>
-        )} */}
+        )}
         {/* {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )}
