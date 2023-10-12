@@ -102,7 +102,6 @@ export const listAllCityLinks = (cities, searchParams = null) => {
       </Box>
     );
   }
-  return ["Hello"];
 };
 
 export const listAllRangeLinks = (ranges, searchParams = null) => {
@@ -138,7 +137,7 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>{{ country }}</>
+          <> country </>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
