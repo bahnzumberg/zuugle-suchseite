@@ -128,7 +128,7 @@ function Start({
     //   // Cancel any ongoing network request when the component unmounts
     //   abortController.abort();
     // };
-  }, [totalTours]);
+  }, []);
 
   const getCity = () => {
     searchParamCity = searchParams.get("city");
