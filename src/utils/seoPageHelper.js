@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 //ToDo: Translate meta content in getPageHeader
 export const getPageHeader = (directLink) => {
-  const { t } = useTranslation();
+  //   const { t } = useTranslation();
 
   //console.log("directLink :", directLink) // seems to be always on null value
   if (!!directLink && !!directLink.header) {
@@ -24,7 +24,7 @@ export const getPageHeader = (directLink) => {
     return (
       <HelmetProvider>
         <Helmet>
-          <title>{t("start.helmet_title")}</title>
+          <title>start.helmet_title</title>
           <meta
             name="title"
             content="Zuugle - die Suchmaschine für Öffi-Bergtouren"
