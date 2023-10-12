@@ -20,34 +20,30 @@ export default function Header({
   showMobileMenu,
   setShowMobileMenu,
 }) {
-  
   // console.log(" L26 : allCities")
   // console.log(allCities);
 
   const [searchParams, setSearchParams] = useSearchParams();
   let city = searchParams.get("city");
-  const[capCity, setCapCity] = useState(city);
-  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0) 
+  const [capCity, setCapCity] = useState(city);
+  const [totalToursFromCity, setTotalToursFromCity] = React.useState(0);
 
-
-  const getCity = () => { 
-    city = localStorage.getItem("city");
-    if(!!city) {
-      return city;
-    }else {
-      return "XXX";
-    }
+  let tld = "";
+  let domain = location.hostname;
+  if (domain.indexOf("zuugle.de") > 0) {
+    tld = "de";
+  } else if (domain.indexOf("zuugle.si") > 0) {
+    tld = "si";
+  } else if (domain.indexOf("zuugle.it") > 0) {
+    tld = "it";
+  } else if (domain.indexOf("zuugle.ch") > 0) {
+    tld = "ch";
+  } else if (domain.indexOf("zuugle.fr") > 0) {
+    tld = "fr";
+  } else {
+    tld = "at";
   }
 
-  let tld = '';
-  let domain = location.hostname;
-  if (domain.indexOf('zuugle.de')>0) { tld = 'de'; }
-  else if (domain.indexOf('zuugle.si')>0) { tld = 'si'; }
-  else if (domain.indexOf('zuugle.it')>0) { tld = 'it'; }
-  else if (domain.indexOf('zuugle.ch')>0) { tld = 'ch'; }
-  else if (domain.indexOf('zuugle.fr')>0) { tld = 'fr'; }
-  else { tld = 'at'; }
-  
   const [backgroundImage, setBackgroundImage] = useState(
     `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
   );
@@ -66,20 +62,18 @@ export default function Header({
         setTotalToursFromCity(data.tours_city);
       });
     }
-  }, [city])
+  }, [city]);
 
   useEffect(() => {
     city = searchParams.get("city");
     if (!!city && !!allCities && allCities.length > 0) {
       const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
       if (!!cityObj) {
-        updateCapCity(cityObj.label)
+        updateCapCity(cityObj.label);
         searchParams.set("city", city);
       }
     }
-
-  }, [searchParams, city, allCities])
-  
+  }, [searchParams, city, allCities]);
 
   useEffect(() => {
     if (!!_isMobile) {
@@ -91,10 +85,19 @@ export default function Header({
         `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`
       );
     }
-  }, [_isMobile,tld]);
+  }, [_isMobile, tld]);
+
+  const getCity = () => {
+    city = localStorage.getItem("city");
+    if (!!city) {
+      return city;
+    } else {
+      return "XXX";
+    }
+  };
 
   if (totalTours === 0) {
-    console.log("L93: inside Header.js, totalTours === 0")
+    console.log("L93: inside Header.js, totalTours === 0");
     return (
       <Box
         className={"header-container"}
@@ -137,10 +140,15 @@ export default function Header({
         </Box>
         <Box className={"header-text"}>
           <Typography variant={"h1"} height={"162px"}>
-            {!!totalToursFromCity && totalToursFromCity !== 0 ? totalToursFromCity.toLocaleString()+' '+t("start.tourenanzahl_untertitel_city", {capCity})
-            : 
-            (!!totalTours && totalTours !== 0) && totalTours.toLocaleString()+' '+t("start.tourenanzahl_untertitel")
-            }
+            {!!totalToursFromCity && totalToursFromCity !== 0
+              ? totalToursFromCity.toLocaleString() +
+                " " +
+                t("start.tourenanzahl_untertitel_city", { capCity })
+              : !!totalTours &&
+                totalTours !== 0 &&
+                totalTours.toLocaleString() +
+                  " " +
+                  t("start.tourenanzahl_untertitel")}
           </Typography>
         </Box>
         {!!allCities && allCities.length > 0 && (
