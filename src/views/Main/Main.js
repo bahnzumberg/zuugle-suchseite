@@ -157,7 +157,7 @@ export function Main({
   useEffect(() => {
     // !!location && console.log("L158: Main , location :", location);
     // !!location.pathname &&
-      // console.log("L159: Main , location.pathname :", location.pathname);
+    // console.log("L159: Main , location.pathname :", location.pathname);
 
     if (
       !!location &&
@@ -171,7 +171,7 @@ export function Main({
       // description
       // calling the functions checkIfSeoPageCity and checkIfSeoPageRange with the current location and arrays allCities and allRanges as arguments to determine the current city and mountain range (if any) based on the pathname property of the location object.
       const city = checkIfSeoPageCity(location, allCities);
-      const range = checkIfSeoPageRange(location, allRanges);
+      // const range = checkIfSeoPageRange(location, allRanges);
       //clg
       // console.log("Main/ city:", searchParams.get("city")); // working
       // !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
@@ -182,13 +182,14 @@ export function Main({
           header: `Öffi-Bergtouren für ${city.label}`,
           description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
         });
-      } else if (!!range && !!range.range) {
-        searchParams.set("range", range.range);
-        setSearchParams(searchParams);
-        setDirectLink({
-          header: `Gebirgsgruppe ${range.range}`,
-          description: `Alle Bergtouren in der Gebirgsgruppe "${range.range}".`,
-        });
+      // } 
+      // else if (!!range && !!range.range) {
+      //   searchParams.set("range", range.range);
+      //   setSearchParams(searchParams);
+      //   setDirectLink({
+      //     header: `Gebirgsgruppe ${range.range}`,
+      //     description: `Alle Bergtouren in der Gebirgsgruppe "${range.range}".`,
+      //   });
       } else if (location && location.pathname !== "/suche") {
         navigate("/");
       }
