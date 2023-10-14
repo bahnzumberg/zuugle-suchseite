@@ -24,7 +24,8 @@ export const getPageHeader = (directLink) => {
     return (
       <HelmetProvider>
         <Helmet>
-          <title>start.helmet_title</title>
+          {/* <title>start.helmet_title</title> */}
+          <title>Zuugle</title>
           <meta
             name="title"
             content="Zuugle - die Suchmaschine für Öffi-Bergtouren"
