@@ -24,7 +24,8 @@ export const getPageHeader = (directLink) => {
     return (
       <HelmetProvider>
         <Helmet>
-          <title>start.helmet_title</title>
+          {/* <title>start.helmet_title</title> */}
+          <title>Zuugle</title>
           <meta
             name="title"
             content="Zuugle - die Suchmaschine für Öffi-Bergtouren"
@@ -58,19 +59,19 @@ export const checkIfSeoPageCity = (location, cities) => {
   }
 };
 
-export const checkIfSeoPageRange = (location, ranges) => {
-  if (!!location && !!location.pathname && location.pathname == "/suche") {
-    return null;
-  } else if (!!location && !!location.pathname && ranges.length > 0) {
-    const found = ranges.find(
-      (range) =>
-        range.range_slug == parseRangeFromUrl(location.pathname.substring(1))
-    );
-    return found;
-  } else {
-    return null;
-  }
-};
+// export const checkIfSeoPageRange = (location, ranges) => {
+//   if (!!location && !!location.pathname && location.pathname == "/suche") {
+//     return null;
+//   } else if (!!location && !!location.pathname && ranges.length > 0) {
+//     const found = ranges.find(
+//       (range) =>
+//         range.range_slug == parseRangeFromUrl(location.pathname.substring(1))
+//     );
+//     return found;
+//   } else {
+//     return null;
+//   }
+// };
 
 //description
 //This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
@@ -96,7 +97,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>{country}</>
+          {/* <>{country}</> */}
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
@@ -104,47 +105,47 @@ export const listAllCityLinks = (cities, searchParams = null) => {
   }
 };
 
-export const listAllRangeLinks = (ranges, searchParams = null) => {
-  //   const { t } = useTranslation();
-  const country = translatedCountry();
+// export const listAllRangeLinks = (ranges, searchParams = null) => {
+//   //   const { t } = useTranslation();
+//   const country = translatedCountry();
 
-  if (!!ranges) {
-    const entries = ranges.map((range, index) => {
-      let city = "";
-      let link = `${range.range}`;
-      if (link == "null") {
-        return [];
-      }
-      link = parseRangeToUrl(link);
-      if (!!searchParams && !!searchParams.get("p")) {
-        link = `${link}?p=${searchParams.get("p")}`;
-      }
-      if (!!searchParams && !!searchParams.get("city")) {
-        city = searchParams.get("city");
-      }
-      return (
-        <Grid key={index} item xs={12} sm={6} md={4}>
-          <a
-            href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`}
-            className={"seo-city-link"}
-          >
-            {range.range}
-          </a>
-        </Grid>
-      );
-    });
+//   if (!!ranges) {
+//     const entries = ranges.map((range, index) => {
+//       let city = "";
+//       let link = `${range.range}`;
+//       if (link == "null") {
+//         return [];
+//       }
+//       link = parseRangeToUrl(link);
+//       if (!!searchParams && !!searchParams.get("p")) {
+//         link = `${link}?p=${searchParams.get("p")}`;
+//       }
+//       if (!!searchParams && !!searchParams.get("city")) {
+//         city = searchParams.get("city");
+//       }
+//       return (
+//         <Grid key={index} item xs={12} sm={6} md={4}>
+//           <a
+//             href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`}
+//             className={"seo-city-link"}
+//           >
+//             {range.range}
+//           </a>
+//         </Grid>
+//       );
+//     });
 
-    return (
-      <Box sx={{ textAlign: "left" }}>
-        <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <> country </>
-        </Typography>
-        <Grid container>{entries}</Grid>
-      </Box>
-    );
-  }
-  return [];
-};
+//     return (
+//       <Box sx={{ textAlign: "left" }}>
+//         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
+//           {/* <> country </> */}
+//         </Typography>
+//         <Grid container>{entries}</Grid>
+//       </Box>
+//     );
+//   }
+//   return [];
+// };
 
 const translatedCountry = () => {
   //   const { t } = useTranslation();
