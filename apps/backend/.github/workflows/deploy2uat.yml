@@ -42,7 +42,6 @@ jobs:
           REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
           TARGET: ${{ secrets.UAT_REMOTE_TARGET }}
           EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/, /package.json'
-          command_timeout: 20m
     - name: executing remote ssh command to restart the api using ssh key
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -50,6 +49,7 @@ jobs:
           username: ${{ secrets.UAT_REMOTE_USER }}
           key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
           port: ${{ secrets.UAT_REMOTE_PORT }}
+          command_timeout: 20m
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
             pm2 restart all
