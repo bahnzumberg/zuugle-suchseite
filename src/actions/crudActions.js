@@ -68,7 +68,8 @@ export function loadList(
   language
 ) {
   //clg
-  // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
+  // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`);
+  //dispatch: packageFcn, getState: packageFcn, typeBefore: LOAD_TOUR_CONNECTIONS, typeDone:LOAD_TOUR_CONNECTIONS_DONE, stateName: tours, data: {"id":30296,"city":"graz","domain":"localhost:3000"}, route: tours/30296/connections, entityName: connections, usePagination: false,useState: true, language: en
 
   // language && console.log("language: " + language)
   // language && console.log("data: " + JSON.stringify(data));
@@ -102,6 +103,7 @@ export function loadList(
       ...data,
       currLanguage: langPassed,
     };
+    // console.log(" L105: params: inside if(state) : " + JSON.stringify(params));
   }
 
   // console.log("wichtiiiig", route, { params: params });
@@ -201,7 +203,6 @@ export function loadOneReturnAll(
     .then((res) => {
       if (!!res && !!res.data) {
         const { total_tours } = res.data;
-        console.log("The type error");
 
         if (total_tours === 0) {
           dispatch({ type: NO_TOURS_AVAILABLE });
