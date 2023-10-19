@@ -97,7 +97,7 @@ export default function Header({
   };
 
   if (totalTours === 0) {
-    console.log("L93: inside Header.js, totalTours === 0");
+    // console.log("L93: inside Header.js, totalTours === 0");
     return (
       <Box
         className={"header-container"}
@@ -171,6 +171,7 @@ export default function Header({
             <Box sx={{ width: "100%" }}>
               <SearchContainer
                 pageKey="start"
+                page="start"
                 goto={"/suche"}
                 showMobileMenu={showMobileMenu}
                 setShowMobileMenu={setShowMobileMenu}
