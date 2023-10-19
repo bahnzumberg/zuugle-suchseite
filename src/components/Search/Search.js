@@ -9,7 +9,6 @@ import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams } from "react-router-dom";
 import {
-  // isResponsive,
   parseIfNeccessary,
   setOrRemoveSearchParam,
 } from "../../utils/globals";
@@ -25,6 +24,8 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
+import { countFilterActive } from "../../utils/globals"
+
 
 export function Search({
   loadRegions,
@@ -38,9 +39,10 @@ export function Search({
   allCities,
   isMapView,
   updateCapCity,
-  showMobileMenu,
-  setShowMobileMenu,
   filter,
+  setFilterValues, 
+  // filterValues,
+  // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
   // regions,
@@ -54,18 +56,13 @@ export function Search({
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
-  //set placeholder
-  useEffect(() => {
-    setPlaceholder(searchParams.get("search") ? searchParams.get("search") : t("start.suche"));
-  }, [language]);
 
   //initialisation
-  const [placeholder, setPlaceholder] = useState(t("start.suche"));
   const [searchParams, setSearchParams] = useSearchParams();
   const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   let suggestion; //variable that stores the text of the selected option
-  let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
+  //let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
   const [city, setCity] = useState({
@@ -74,24 +71,25 @@ export function Search({
   });
 
   const [region, setRegion] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("");
   const initialIsMapView = isMapView || false;
+  const [activeFilter, setActiveFilter] = useState(false)
 
+  
   useEffect(() => {
-    let activeFilterStorage = localStorage.getItem("activeFilter");
-    setActiveFilter(activeFilterStorage);
-  }, []);
+    // should be set inside Filter
+    setActiveFilter(countFilterActive(searchParams, filter) > 0);  
+  }, [filter,searchParams]);
 
   useEffect(() => {
     // pull out values from URL params
     let city = searchParams.get("city");
-    let range = searchParams.get("range"); // does not showup in params list in latest version
-    let state = searchParams.get("state"); // does not showup in params list in latest version
-    let country = searchParams.get("country"); // does not showup in params list in latest version
-    let type = searchParams.get("type"); // does not show up in params list in latest version
+    let range = searchParams.get("range"); 
+    let state = searchParams.get("state"); 
+    let country = searchParams.get("country"); 
+    let type = searchParams.get("type"); 
     let search = searchParams.get("search");
     let filter = searchParams.get("filter");
-    let orderId = searchParams.get("sort");
+    let sort = searchParams.get("sort");
     let provider = searchParams.get("p");
     if (pageKey === "detail") {
       if (!!city) {
@@ -99,7 +97,7 @@ export function Search({
         writeCityToLocalStorage(city); // store the city NAME in local storage
 
         /** load regions initially */
-        loadRegions({ city: city });
+        loadRegions({ city: city });  
       }
     } else {
       if (!!city && !!allCities) {
@@ -114,12 +112,11 @@ export function Search({
         }
       }
     }
-
+    //setting searchPhrase to the value of the search parameter
     if (!!range) {
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
-
     if (!!search) {
       setSearchPhrase(search);
     }
@@ -138,11 +135,14 @@ export function Search({
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }
-    //return if start page - no load
+
+    //Remaining code in this useEffect is for Main page only .
+    //=======================================================
     if (!!!isMain ) {
       return;
     }
     let _filter = !!filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
+    // !!_filter && console.log(" L142 -> _filter is of †ype :", typeof(_filter))
     if (!!_filter) {
       filter = {
         ..._filter,
@@ -153,21 +153,40 @@ export function Search({
         ignore_filter: true,
       };
     }
+    // flag active filter if count > 0
+    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
+
+    // console.log("inside useEffect L153 -> city: ", city)
+    // console.log("inside useEffect L154 -> search: ", search)
+    console.log(" L155 inside useEffect -> filter: ", filter)
+    // clgs for values passed to loadours()
+        // console.log("L161  city:", city); // Graz
+        // console.log("L161  range:", range); //null
+        // console.log("L161  state:", state);//null
+        // console.log("L161  country:", country);//null
+        // console.log("L161  type:", type);//null
+        // console.log("L161  search:", search); //Schnee
+        // console.log("L161  filter:", filter); // actual filter object
+        // console.log("L161  sort:", sort);//null
+        // console.log("L161  map:", searchParams.get("map"));//null
+        // console.log("L161  provider:", provider);//null
+
     let result = loadTours({
     // loadTours({
       city: city,
-      range: range, //does not showup in params list in latest version
-      state: state, //does not showup in params list in latest version
-      country: country, //does not showup in params list in latest version
-      type: type, //does not showup in params list in latest version
+      range: range, 
+      state: state, 
+      country: country, 
+      type: type, 
       search: search,
       filter: filter,
-      sort: orderId,
+      sort: sort,
       provider: provider,
       map: searchParams.get("map"),
     });
     result.then((resolvedValue) => {
-        // console.log("result of load Tours", resolvedValue);
+      console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
+      // console.log("Search L165 result of load Tours", resolvedValue);
     });
   }, [
     // useEffect dependencies
@@ -187,9 +206,8 @@ export function Search({
     localStorage.setItem("city", city);
   };
 
-  // Filter related starts here
+  // Filter modal constructed here
   const openFilter = () => {
-    // console.log("inside openFilter L242")
     showModal("MODAL_COMPONENT", {
       CustomComponent: Filter,
       title: t("filter.filter"),
@@ -205,35 +223,46 @@ export function Search({
     });
   };
 
+  // !!!!! IMPORTANT: states activeFilter and filterValues should be set at submission here
+  // setFilterValues(filterValues)
+  //these are to be passed then from Main to TourCardContainer
+  // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
+
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
+    //clgs
+    // console.log("Search L233 filterValues/Filter.js: ", filterValues)
+    // !!filterValues.traverse && console.log("Search L234 handleFilterSubmit/traverse : ", filterValues.traverse)
+    // !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
     handleFilterChange(filterValues);
     if (filterCount > 0) {
-      localStorage.setItem("activeFilter", true);
       setActiveFilter(true);
+      !!filterValues && setFilterValues(filterValues)
     } else {
-      localStorage.setItem("activeFilter", "");
-      setActiveFilter("");
+      setActiveFilter(false);
     }
   };
 
-  useEffect(() => {
-    if (pageKey === "detail") {
-      let city = searchParams.get("city");
-      // navigate(`/?${!!city ? "city=" + city : ""}`);
-    }
-  }, [city]);
+  // useEffect(() => {
+  //   if (pageKey === "detail") {
+  //     let city = searchParams.get("city");
+  //     // navigate(`/?${!!city ? "city=" + city : ""}`);
+  //   }
+  // }, [city]);
+
+  
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
-    localStorage.setItem("activeFilter", "");
-    setActiveFilter("");
+    setActiveFilter(false);  // WE PASS IT FROM MAIN TO SEARCH and from main to TourCardContainer
+    setFilterValues(null);  // Reset the state in Main
   };
 
   const handleFilterChange = (entry) => {
     if (entry == null) {
       searchParams.delete("filter");
+      console.log("Filter deleted from searchParams")
     } else {
       searchParams.set("filter", JSON.stringify(entry));
     }
@@ -241,6 +270,7 @@ export function Search({
   };
 
   // search handling function
+  
   const search = (tempRegion = null) => {
     let values = {};
     if (!!city && !!city.value) {
@@ -275,14 +305,14 @@ export function Search({
     //searchParams.delete("filter"); // why delete filter values? if they exist?
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
-    setOrRemoveSearchParam(searchParams, "range", values.range); //does not showup in params list
+    setOrRemoveSearchParam(searchParams, "range", values.range);
     setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "state", values.state); //does not showup in params list
-    setOrRemoveSearchParam(searchParams, "country", values.country); //does not showup in params list
-    setOrRemoveSearchParam(searchParams, "type", values.type); //does not showup in params list
+    setOrRemoveSearchParam(searchParams, "state", values.state);
+    setOrRemoveSearchParam(searchParams, "country", values.country);
+    setOrRemoveSearchParam(searchParams, "type", values.type);
 
     setSearchParams(searchParams);
-
+    // console.log("Search --> goto: ", goto);
     if (!!goto) {
       navigate(goto + "?" + searchParams);
     } else {
@@ -293,10 +323,6 @@ export function Search({
     }
   }; // end search()
 
-  // const gotoHome = () => {
-  //     let _city = searchParams.get("city")
-  //     navigate(`/?${!!_city ? "city=" + _city : ""}`)
-  // }
 
   const showCityModal = () => {
     showModal("MODAL_COMPONENT", {
@@ -331,7 +357,7 @@ export function Search({
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
       onSearchSuggestion: getSearchSuggestion,
-      onSearchPhrase: getSearchPhrase,
+      // onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
       title: "",
@@ -413,18 +439,25 @@ export function Search({
 
   //Function that gets value f the selected option and directly start the search for tours
   
-  const handleGoButton = () => {
-    if(!!searchPhrase && searchPhrase.length == 0){ 
-      searchParams.delete("search");
-      setSearchParams(searchParams);
-      hideModal();
-      if (!!goto) {
-        navigate(goto + "?" + searchParams);
-      }
-    }else{
-      search();
-    }
-  }
+  const handleGoButton = () =>  search();
+    
+ 
+  // const handleGoButton = () => {
+  //   console.log("first line of handleGoButton")
+  //   searchPhrase && console.log("searchPhrase", searchPhrase)
+  //   console.log("L413:!!searchPhrase && searchPhrase.length == 0  : ", !!searchPhrase && searchPhrase.length == 0)
+  //   if(!!searchPhrase && searchPhrase.length == 0){ 
+  //     console.log(" L414 : searchPhrase value:", searchPhrase)
+  //     searchParams.delete("search");
+  //     setSearchParams(searchParams);
+  //     hideModal();
+  //     if (!!goto) {
+  //       navigate(goto + "?" + searchParams);
+  //     }
+  //   }else{
+  //     search();
+  //   }
+  // }
   const getSearchSuggestion = (autoSuggestion) => {
     if (autoSuggestion == '') {
       searchParams.delete("search");
@@ -439,9 +472,10 @@ export function Search({
   };
 
   //Function that gives you the input text you need when no Suggestion was taken
-  const getSearchPhrase = (searchPhrase) => {
-    autoSearchPhrase = searchPhrase;
-  };
+  // const getSearchPhrase = (searchPhrase) => {
+  //   // autoSearchPhrase = searchPhrase;
+  //   setSearchPhrase(searchPhrase);
+  // };
 
   return (
     <Fragment>
@@ -506,11 +540,9 @@ export function Search({
                     display: "flex",
                   }}
                 >
-                  {pageKey !== "detail" && (
                     <span className="search-bar--searchPhase">
                       {searchParams.get("search") ? searchParams.get("search") : t("start.suche")}
                     </span>
-                  )}
                 </Box>
               </Grid>
               {/* city -----   modal ----  below */}
@@ -580,7 +612,6 @@ export function Search({
                 {!!isMain ? (
                   <IconButton
                     onClick={() => openFilter()}
-                    // onClick={toggleFilter}
                   >
                     <FilterIcon
                       sx={{

@@ -1,5 +1,8 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useSearchParams} from "react-router-dom";
+
+
 
 export function convertNumToTime(number, nonseparate = false) {
     // Check sign of given number
@@ -82,6 +85,8 @@ export function getFilterFromParams(searchParams){
 }
 
 export const getFilterProp = (filter, key, defaultValue = false) => {
+    key === "isTraversePossible" && console.log("L88 :: globals / getFilterProp / filter :", filter[key])
+    key === "isTraversePossible" && console.log("L89 :: globals / getFilterProp / filter :", filter)
     return !!filter ? filter[key] : defaultValue;
 }
 
@@ -197,3 +202,84 @@ export 	const shortenText = (text, atChar, maxLength) => {
     }
     return shortText;
 };
+
+export const countFilterActive = (searchParams, filter) => {
+    //description:
+    //The function first retrieves the current filter options from the URL search parameters using getFilterFromParams(searchParams).
+    // It initializes a variable called count to 0, which will keep track of the number of active filters.
+    // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
+    // Finally, the function returns the value of count.
+
+    let count = 0;
+
+    const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
+    console.log(" L214 : _filter :",_filter)
+    console.log(" L215 : filter :",filter)
+    if (!!_filter && !!filter) {
+        console.log("globals / count value: start", count)
+      if (!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)) {
+        count++;
+        console.log("globals / count value: step 1", count)
+      }
+      if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
+        count++;
+        console.log("globals / count value: step 2", count)
+      }
+      if (_filter?.difficulty != 10) {
+        count++;
+        console.log("globals / count value: step 3", count)
+      }
+      if (!!_filter?.children) {
+        count++;
+        console.log("globals / count value: step 4", count)
+      }
+      if (!!_filter?.traverse) {
+        count++;
+        console.log("globals / count value: step 5", count)
+      }
+      if (
+        _filter?.maxAscent != getFilterProp(filter, "maxAscent") ||
+        _filter?.minAscent != getFilterProp(filter, "minAscent")
+      ) {
+        count++;
+        console.log("globals / count value: step 6", count)
+      }
+      if (
+        _filter?.maxDescent != getFilterProp(filter, "maxDescent") ||
+        _filter?.minDescent != getFilterProp(filter, "minDescent")
+      ) {
+        count++;
+        console.log("globals / count value: step 7", count)
+      }
+      if (
+        _filter?.maxTransportDuration !=
+          getFilterProp(filter, "maxTransportDuration") ||
+        _filter?.minTransportDuration !=
+          getFilterProp(filter, "minTransportDuration")
+      ) {
+        count++;
+        console.log("globals / count value: step 8", count)
+      }
+      if (
+        _filter?.minDistance != getFilterProp(filter, "minDistance") ||
+        _filter?.maxDistance != getFilterProp(filter, "maxDistance")
+      ) {
+        count++;
+        console.log("globals / count value: step 9", count)
+      }
+      if (_filter?.ranges?.length != filter?.ranges?.length) {
+        count++;
+        console.log("globals / count value: step 10", count)
+      }
+      if (_filter?.types?.length != filter?.types?.length) {
+        count++;
+        console.log("globals / count value: step 11", count)
+      }
+      if (_filter?.languages?.length != filter?.languages?.length) {
+        count++;
+        console.log("globals / count value: step 12", count)
+      }
+    }
+    console.log("L267 : FINAL count :",count)
+    return count;
+  };

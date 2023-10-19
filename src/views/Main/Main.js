@@ -15,7 +15,7 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { getFilterFromParams, getFilterProp } from "../../utils/globals";
+import { countFilterActive } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -90,41 +90,37 @@ export function Main({
     filter = {};
   }
   //clgs
-  // console.log("L99: Main , totalTours upon entry:",totalTours)
+  console.log("L99: Main , totalTours upon entry:",totalTours)
   // console.log("L100: Main , tours.length upon entry:",tours.length)
-  // console.log("L101: Main , filter upon entry:",filter)
+  console.log("L101: Main , filter upon entry:",filter)
   // console.log("L102: Main , allCities:",allCities)
   // console.log("L103: Main , allRanges:",allRanges)
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t }    = useTranslation();
 
-  // const { trackPageView, trackEvent } = useMatomo()
-
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [tour, setTour] = useState(null);
+  const [detailOpen, setDetailOpen]     = useState(false);
+  const [tour, setTour]                 = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterActive, setFilterActive] = React.useState(0);
-  const [mapView, setMapView] = React.useState(false);
-  const [directLink, setDirectLink] = React.useState(null);
-  const [tourID, setTourID] = useState(null);
-
-  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [mapView, setMapView]           = useState(false);
+  const [directLink, setDirectLink]     = useState(null);
+  const [tourID, setTourID]             = useState(null);
+  const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
+  const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
 
   const paramsFromStartPage = new URLSearchParams(location.search);
-  // alternative code for useBacklistener
-  // useBackListener = () => {
-  //     navigate("/");
-  //   };
-  // useBackListener(navigate, () => {
-  //     navigate("/");
-  // });
-  // useBackListener(({ location }) => {
-  //     navigate('/');
-  // });
 
-
+   // Convert the URLSearchParams object to a regular JavaScript object
+   const searchParamsObject = {};
+   for (const [key, value] of searchParams.entries()) {
+     searchParamsObject[key] = value;
+   }
+  //  console.log(" L120 Main / searchParams as an object:", searchParamsObject);
+   //sample output searchParamsObject
+   //"{"coordinatesSouthWest":[],"coordinatesNorthEast":[],"singleDayTour":true,"multipleDayTour":true,"summerSeason":true,"winterSeason":false,"children":false,"traverse":false,"difficulty":10,"minAscent":0,"maxAscent":3000,"minDescent":0,"maxDescent":3000,"minTransportDuration":0.1,"maxTransportDuration":5.83,"minDistance":0,"maxDistance":40,"ranges":["Alpenvorland","Ankogelgruppe","Berchtesgadener Alpen","Dachsteingebirge","Ennstaler Alpen","Gailtaler Alpen","Goldberggruppe","Gurktaler Alpen, Nockberge","Gutensteiner Alpen","Hochschwabgruppe","Kaisergebirge","Karavanke / Karawanken","Karpaten","Kreuzeckgruppe","Lavanttaler Alpen","Mühlviertel","Mürzsteger Alpen","Niederösterreich","Oberösterreich","Oberösterreichische Voralpen","Randgebirge östlich der Mur","Rax-Schneeberg-Gruppe","Rottenmanner und Wölzer Tauern","Salzkammergut-Berge","Schladminger Tauern","Seckauer Tauern","Totes Gebirge","Türnitzer Alpen","Waldviertel","Wien","Wienerwald","Ybbstaler Alpen"],"types":["Bike & Hike","Klettern","Klettersteig","Langlaufen","Schneeschuh","Skitour","Wandern"],"languages":["de"]}"
+  
+  // console.log("L113 Main , activeFilter  :", activeFilter)
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
   //details:
@@ -140,12 +136,16 @@ export function Main({
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
-      setSearchParams(searchParams);
+      // setSearchParams(searchParams);
     }
+    // setActiveFilter(countFilterActive(searchParams, filter))
+    // console.log("L130: Main , filter in useEffect:",filter)
+    // console.log("L133: Main , activeFilter in useEffect:",activeFilter)
+
   }, []);
 
   
-  React.useEffect(() => {
+  useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     _mtm.push({'pagetitel': "Suche"});
   }, []);
@@ -155,10 +155,6 @@ export function Main({
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
   //using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
   useEffect(() => {
-    // !!location && console.log("L158: Main , location :", location);
-    // !!location.pathname &&
-    // console.log("L159: Main , location.pathname :", location.pathname);
-
     if (
       !!location &&
       location.pathname &&
@@ -177,7 +173,7 @@ export function Main({
       // !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
       if (!!city && city.value) {
         searchParams.set("city", city.value);
-        setSearchParams(searchParams);
+        // setSearchParams(searchParams);
         setDirectLink({
           header: `Öffi-Bergtouren für ${city.label}`,
           description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
@@ -196,94 +192,32 @@ export function Main({
     }
   }, [allCities && allRanges]);
 
-  //description
+  //description  // TODO: legacy code, check if it is still needed
   // This hook is essentially checking if the user navigated to the current page from a tour detail page, and if so, it extracts the tour object from the location state and sets it in the tour local state. The detailOpen state is set to true to open the tour detail modal by default when the page loads.
   // The hook depends on the location object, so it is set as a dependency in the dependency array. This ensures that the hook is executed whenever the location object changes, which could happen if the user navigates to a different page.
-  useEffect(() => {
-    if (!!location && !!location.state && !!location.state.tour) {
-      setTour(location.state.tour);
-      setDetailOpen(true);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (!!location && !!location.state && !!location.state.tour) {
+  //     setTour(location.state.tour);
+  //     setDetailOpen(true);
+  //   }
+  // }, [location]);
 
+
+  
   //description:
-  //useEffect updates the state of filterActive and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
+  //useEffect updates the state of activeFilter and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    //description:
-    //setFilterActive(countFilterActive()) updates the state of filterActive by calling the function countFilterActive() which returns the count of active filters by looping through the filter object and counting the number of properties that have a value other than null or undefined.
-    setFilterActive(localStorage.getItem("activeFilter"));
+    // console.log(" L210 searchParams : ", searchParams)
+    setActiveFilter(countFilterActive(searchParams, filter) > 0);
+    console.log(" L211 countFilterActive(searchParams, filter) : ", countFilterActive(searchParams, filter))
     //descriptions:
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     setMapView(searchParams.get("map") == "true");
-  }, [searchParams || filter]);
+  }, [searchParams , filter]);
 
-  //descriptions:
-  //calculates the number of active filters currently applied to the search results. It does this by comparing the filter options currently selected by the user to the default filter options.
-  const countFilterActive = () => {
-    //description:
-    //The function first retrieves the current filter options from the URL search parameters using getFilterFromParams(searchParams).
-    // It initializes a variable called count to 0, which will keep track of the number of active filters.
-    // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
-    // Finally, the function returns the value of count.
-
-    let count = 0;
-    // console.log("L172: Main filter:",filter);
-
-    const _filter = getFilterFromParams(searchParams);
-    if (!!_filter && !!filter) {
-      if (!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)) {
-        count++;
-      }
-      if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
-        count++;
-      }
-      if (_filter?.difficulty != 10) {
-        count++;
-      }
-      if (!!_filter?.children) {
-        count++;
-      }
-      if (!!_filter?.traverse) {
-        count++;
-      }
-      if (
-        _filter?.maxAscent != getFilterProp(filter, "maxAscent") ||
-        _filter?.minAscent != getFilterProp(filter, "minAscent")
-      ) {
-        count++;
-      }
-      if (
-        _filter?.maxDescent != getFilterProp(filter, "maxDescent") ||
-        _filter?.minDescent != getFilterProp(filter, "minDescent")
-      ) {
-        count++;
-      }
-      if (
-        _filter?.maxTransportDuration !=
-          getFilterProp(filter, "maxTransportDuration") ||
-        _filter?.minTransportDuration !=
-          getFilterProp(filter, "minTransportDuration")
-      ) {
-        count++;
-      }
-      if (
-        _filter?.minDistance != getFilterProp(filter, "minDistance") ||
-        _filter?.maxDistance != getFilterProp(filter, "maxDistance")
-      ) {
-        count++;
-      }
-      if (_filter?.ranges?.length != filter?.ranges?.length) {
-        count++;
-      }
-      if (_filter?.types?.length != filter?.types?.length) {
-        count++;
-      }
-      if (_filter?.languages?.length != filter?.languages?.length) {
-        count++;
-      }
-    }
-    return count;
-  };
+  
+  console.log(" L218 -> countFilterActive = ",countFilterActive(searchParams, filter));
+  console.log(" L219 -> activeFilter = ",activeFilter);
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -306,9 +240,6 @@ export function Main({
     onSelectTour({ id: id });
   };
 
-  // const handleClearFilter = () => {
-  //   setFilterActive("")
-  // }
   const memoTourMapContainer = useMemo(() => {
     // console.log("L 273 tourID : " + tourID)
     return (
@@ -322,6 +253,7 @@ export function Main({
       />
     );
   }, tourID);
+
 
   return (
     <div>
@@ -402,7 +334,14 @@ export function Main({
               }}
             >
               <Box elevation={1} className={"colCenter"}>
-                <Search isMain={true} page="main" />
+                <Search 
+                  isMain={true} 
+                  page="main" 
+                  activeFilter = {activeFilter}
+                  // setActiveFilter = {setActiveFilter}
+                  filterValues = {filterValues}
+                  setFilterValues = {setFilterValues}
+                />
               </Box>
             </Box>
           )}
@@ -421,7 +360,7 @@ export function Main({
               {Number(totalTours).toLocaleString()}{" "}
               {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {filterActive && (
+            {activeFilter && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;
                 <Typography
@@ -434,9 +373,6 @@ export function Main({
                 >
                   {t("filter.filter")}
                 </Typography>
-                {/* <Box sx={{ cursor: "pointer", display: "flex" }} onclick={() => { handleClearFilter() }}>
-                  <ClearFilterIcon />
-                </Box> */}
               </Box>
             )}
           </Box>
@@ -482,6 +418,8 @@ export function Main({
                 pageTours={pageTours}
                 loading={loading}
                 total={totalTours}
+                filterValues={filterValues}
+                
               />
             </Box>
           )}
