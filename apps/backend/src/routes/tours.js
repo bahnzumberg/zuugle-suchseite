@@ -360,7 +360,7 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
-                    * as result_rank 
+                    as result_rank 
                     FROM tour AS i${i + 1}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
@@ -368,6 +368,7 @@ const listWrapper = async (req, res) => {
                     ${sql_and_filter}
                 `;
             }
+            // console.log("sql=", sql_select)
             if (i !== allLangs.length - 1) {        // as long as end of array not reached
             sql_select += "\nUNION ";               // create a union with a line break
         }
