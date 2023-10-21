@@ -322,6 +322,12 @@ const listWrapper = async (req, res) => {
             // console.log(" i :", i)
             const lang = allLangs[i];
             const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
+
+            // Additional rank based on ascent, difficulty, traverse
+            // 1.0/(ABS(1100-ascent)+1) AS rank_ascent,
+            // CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END as rank_difficulty,
+            // CASE WHEN traverse=1 THEN 1 ELSE 0.5 END AS rank_traverse,
+
             if(_search.indexOf(' ') > 0){
                 // console.log("L335 / space separated here !")
                 sql_select += `
@@ -329,7 +335,11 @@ const listWrapper = async (req, res) => {
                     i${i + 1}.*,
                     ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
                     encodeLang[i][lang]
-                    }', ' ${_search}')) * ${langRank} as result_rank     
+                    }', ' ${_search}')) * ${langRank} 
+                    * 1.0/(ABS(1100-ascent)+1)
+                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
+                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    as result_rank     
                     FROM tour AS i${i + 1}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
@@ -346,7 +356,11 @@ const listWrapper = async (req, res) => {
                     i${i + 1}.*,
                     ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
                     encodeLang[i][lang]
-                    }', ' "${_search}" ${_search}:*')) * ${langRank} as result_rank 
+                    }', ' "${_search}" ${_search}:*')) * ${langRank} 
+                    * 1.0/(ABS(1100-ascent)+1)
+                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
+                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * as result_rank 
                     FROM tour AS i${i + 1}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
