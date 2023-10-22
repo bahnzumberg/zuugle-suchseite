@@ -234,7 +234,8 @@ CREATE TABLE city2tour (
       provider varchar(30) NOT NULL,
       hashed_url varchar(100) NOT NULL,
       city_slug varchar(64) NOT NULL,
-      reachable_from_country varchar(2) NOT NULL
+      reachable_from_country varchar(2) NOT NULL,
+      min_connection_duration int DEFAULT 200
 );
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);

@@ -37,6 +37,25 @@ export async function fixTours(){
                     AND tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
 
+    await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
+                    FROM (
+                    SELECT 
+                    f.tour_provider AS provider,
+                    f.hashed_url,
+                    f.city_slug,
+                    EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60 AS min_connection_dur
+                    FROM fahrplan AS f
+                    WHERE f.city_any_connection='yes'
+                    GROUP BY f.tour_provider, f.hashed_url, f.city_slug
+                    ) AS i
+                    WHERE i.provider=c.provider
+                    AND i.hashed_url=c.hashed_url
+                    AND i.city_slug=c.city_slug`);
+                    
+                    
+                    
+                    
+
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
 }

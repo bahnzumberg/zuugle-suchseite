@@ -315,8 +315,8 @@ const listWrapper = async (req, res) => {
         //console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
-        //clgs
-        // console.log("L290 sql_select inside 'searchIncluded' : ", sql_select);
+        let _traveltime_weight = ''
+        let _traveltime_join   = ''
 
         for (let i = 0; i < allLangs.length; i++) {
             // console.log(" i :", i)
@@ -328,8 +328,13 @@ const listWrapper = async (req, res) => {
             // CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END as rank_difficulty,
             // CASE WHEN traverse=1 THEN 1 ELSE 0.5 END AS rank_traverse,
 
+            if(!!city && city.length > 0){
+                _traveltime_weight = ` * 2.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
+                _traveltime_join = ` INNER JOIN city2tour as c ON c.tour_id=i${i + 1}.id AND c.city_slug='${city}' `
+            }
+
             if(_search.indexOf(' ') > 0){
-                // console.log("L335 / space separated here !")
+                // console.log("L335 / search phrase consists of more than one word - space separated here !")
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -339,18 +344,18 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    ${_traveltime_weight}
                     as result_rank     
                     FROM tour AS i${i + 1}
+                    ${_traveltime_join}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
-                    
                     AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}')
                     ${sql_and_filter}
                 `;
 
             }else {
                 // console.log("L376 / NO space separated here !")
-
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
@@ -360,8 +365,10 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    ${_traveltime_weight}
                     as result_rank 
                     FROM tour AS i${i + 1}
+                    ${_traveltime_join}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
                     AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', ' "${_search}" ${_search}:*')
