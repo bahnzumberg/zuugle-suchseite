@@ -72,10 +72,10 @@ export function loadList(
   //dispatch: packageFcn, getState: packageFcn, typeBefore: LOAD_TOUR_CONNECTIONS, typeDone:LOAD_TOUR_CONNECTIONS_DONE, stateName: tours, data: {"id":30296,"city":"graz","domain":"localhost:3000"}, route: tours/30296/connections, entityName: connections, usePagination: false,useState: true, language: en
 
   // language && console.log("language: " + language)
-  // language && console.log("data: " + JSON.stringify(data));
+  //language && console.log("loadList / data: " + JSON.stringify(data));
   // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
   // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
-  //initialize language param
+  // initialize language param
   const langPassed =
     language &&
     (typeBefore == "LOAD_TOURS" || typeBefore == "LOAD_TOUR_CONNECTIONS")
@@ -88,6 +88,8 @@ export function loadList(
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
+  //console.log("L91 crudActions / state :", state); // object with 31 properties (including tours and filter)
+  //console.log("L91 crudActions / stateName :", stateName); // 'tours'
   let params = {};
   if (state) {
     let pagination = {};
@@ -97,24 +99,30 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-    // console.log("data: inside if(state) : " + JSON.stringify(data));
+    //console.log(" L101 data: inside if(state) : ", state.filter); //  filter is passed
+    // now pass the filter
+    // data = {...data, filter: filter}
     params = {
       ...pagination,
       ...data,
       currLanguage: langPassed,
+      // filter: state.filter,
     };
-    // console.log(" L105: params: inside if(state) : " + JSON.stringify(params));
   }
 
-  // console.log("wichtiiiig", route, { params: params });
+  console.log("wichtiiiig", route, { params: params });
   return axios
     .get(route, { params: params })
     .then((res) => {
       const entities = res.data[entityName];
-      // console.log("entities :",entities)
+      //console.log(" L112 entityName :",entityName); // "connections"
+      // console.log(" L113 entities :",entities) // (7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}]
+      // console.log(" L114 crudActions / res.data :",res.data) 
+      //connections:(7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}] returns : (5) [{…}, {…}, {…}, {…}, {…}] success : true
       const total = res.data.total;
-      // total && total.length && console.log("total length: ", total.length);
+      total && total.length && console.log("total length: ", total.length);
       const filter = !!res.data.filter ? res.data.filter : null;
+      //console.log(" L118: filter: ", filter) // null
       if (!!useState) {
         dispatch({
           type: typeDone,

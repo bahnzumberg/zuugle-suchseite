@@ -40,8 +40,11 @@ export function Search({
   isMapView,
   updateCapCity,
   filter,
+  counter,
+  setCounter,
   setFilterValues, 
-  // filterValues,
+  filterValues,
+  handleRefresh,
   // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
@@ -76,9 +79,11 @@ export function Search({
 
   
   useEffect(() => {
-    // should be set inside Filter
-    setActiveFilter(countFilterActive(searchParams, filter) > 0);  
-  }, [filter,searchParams]);
+    const filterParamValue = searchParams.get('filter');
+    if (filterParamValue) {
+      setActiveFilter(!!counter && counter > 0);
+    }
+  }, [searchParams, counter]);
 
   useEffect(() => {
     // pull out values from URL params
@@ -154,8 +159,8 @@ export function Search({
       };
     }
     // flag active filter if count > 0
-    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
-
+    filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
+    
     // console.log("inside useEffect L153 -> city: ", city)
     // console.log("inside useEffect L154 -> search: ", search)
     console.log(" L155 inside useEffect -> filter: ", filter)
@@ -172,18 +177,19 @@ export function Search({
         // console.log("L161  provider:", provider);//null
 
     let result = loadTours({
-    // loadTours({
       city: city,
       range: range, 
       state: state, 
       country: country, 
       type: type, 
       search: search,
-      filter: filter,
+      filter: filterValues ? filterValues : filter,  // get this from Filter.js (through Search and Main)
+      // filter: filter,
       sort: sort,
       provider: provider,
       map: searchParams.get("map"),
     });
+
     result.then((resolvedValue) => {
       console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       // console.log("Search L165 result of load Tours", resolvedValue);
@@ -223,23 +229,35 @@ export function Search({
     });
   };
 
-  // !!!!! IMPORTANT: states activeFilter and filterValues should be set at submission here
-  // setFilterValues(filterValues)
-  //these are to be passed then from Main to TourCardContainer
+  //description
+  // state filterValues(from Main) should be set at submission here
+  // or be set at at handleResetFilter to null
+  // state to be passed then from Main to TourCardContainer
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
     //clgs
     // console.log("Search L233 filterValues/Filter.js: ", filterValues)
     // !!filterValues.traverse && console.log("Search L234 handleFilterSubmit/traverse : ", filterValues.traverse)
-    // !!filterCount && console.log("Search L235 filterCount: ", filterCount)
+    !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
-    handleFilterChange(filterValues);
+    handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
+      setCounter(filterCount);
       setActiveFilter(true);
       !!filterValues && setFilterValues(filterValues)
+      localStorage.setItem("filterValues", JSON.stringify(filterValues));
+      localStorage.setItem("filterCount", filterCount);
+      // refresh the main page here
+      // handleRefresh();
+      window.location.reload();
     } else {
       setActiveFilter(false);
+      // setCounter(0);
+      searchParams.delete("filter");
+      localStorage.removeItem("filterValues");
+      localStorage.setItem("filterCount", 0);
+
     }
   };
 
@@ -255,16 +273,21 @@ export function Search({
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
-    setActiveFilter(false);  // WE PASS IT FROM MAIN TO SEARCH and from main to TourCardContainer
-    setFilterValues(null);  // Reset the state in Main
+    setActiveFilter(false); // reset activeFilter state
+    setCounter(0);
+    setFilterValues(null);  // Reset the state in parent Main
+    localStorage.removeItem("filterValues");
+    localStorage.setItem("filterCount", 0);
   };
 
   const handleFilterChange = (entry) => {
     if (entry == null) {
       searchParams.delete("filter");
-      console.log("Filter deleted from searchParams")
+      localStorage.removeItem("filterValues");
+      localStorage.setItem("filterCount", 0);
     } else {
       searchParams.set("filter", JSON.stringify(entry));
+      localStorage.setItem("filterValues", JSON.stringify(entry));
     }
     setSearchParams(searchParams);
   };
@@ -303,6 +326,7 @@ export function Search({
     values.provider = searchParams.get("p");
     // console.log("HLO: ", searchParams);
     //searchParams.delete("filter"); // why delete filter values? if they exist?
+    if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
     setOrRemoveSearchParam(searchParams, "range", values.range);
@@ -311,12 +335,23 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "country", values.country);
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
+    // added for issue #208
+    setOrRemoveSearchParam(searchParams, "filter", values.filter);
+
     setSearchParams(searchParams);
-    // console.log("Search --> goto: ", goto);
+    
+    const paramsObject = {};
+
+    // Iterate through the URLSearchParams and populate the object
+    for (const [key, value] of searchParams) {
+      paramsObject[key] = value;
+    }
+    console.log(" L328 : paramsObject", paramsObject);
+
     if (!!goto) {
       navigate(goto + "?" + searchParams);
     } else {
-      //   console.log("values passed to loadTours :", values);
+      // console.log(" 333 => values passed to loadTours :", values);
       loadTours(values).then((res) => {
         window.scrollTo({ top: 0 });
       });
@@ -471,6 +506,9 @@ export function Search({
     search();
   };
 
+  let showFilterColor = counter && counter > 0 ?  "#101010" : "#fff" ;//can also check number inside localStorage.getItem("filterCount")
+  // console.log("L479 showFilterColor", showFilterColor)
+  // console.log("L479 counter ", counter )
   //Function that gives you the input text you need when no Suggestion was taken
   // const getSearchPhrase = (searchPhrase) => {
   //   // autoSearchPhrase = searchPhrase;
@@ -617,7 +655,9 @@ export function Search({
                       sx={{
                         transition: "stroke 0.3s",
                         strokeWidth: 1.25,
+                        stroke: {showFilterColor},
                         stroke: activeFilter ? "#fff" : "#101010",
+                        // stroke:  "#101010",
                       }}
                     />
                   </IconButton>

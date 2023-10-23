@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState, useMemo, useCallback } from "react";
+import { lazy, useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -32,6 +32,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
+import {urlSearchParamsToObject} from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -79,48 +80,64 @@ export function Main({
   // loadTour,
   // loadTourConnectionsExtended,
 }) {
-  //if filter is a string then convert to object
-  if (typeof filter === "string") {
+
+// console.log("L84: (typeof filter === 'string')", typeof filter === "string");
+// console.log("L84: (typeof filter === 'object')", typeof filter === "object");
+
+try {
+  if (typeof filter === "string" && filter.length > 0) {
     filter = JSON.parse(filter);
-    // console.log('Filter is string : ')
+    // Valid JSON data
   } else if (typeof filter === "object") {
-    filter = filter;
-    // console.log('Filter is object : ')
+    // Object is already valid --> do nothing
   } else {
     filter = {};
   }
+} catch (error) {
+  // case of JSON parsing error
+  console.error(" Main : Error parsing JSON:", error);
+  filter = {}; 
+}
+console.log("L84 filter :", filter);
+// sample output : when using filter, gives correct object in the 1st renders
+//{coordinatesSouthWest: Array(0), coordinatesNorthEast: Array(0), singleDayTour: true, multipleDayTour: true, summerSeason: true, …}/
+
+ 
   //clgs
-  console.log("L99: Main , totalTours upon entry:",totalTours)
-  // console.log("L100: Main , tours.length upon entry:",tours.length)
-  console.log("L101: Main , filter upon entry:",filter)
-  // console.log("L102: Main , allCities:",allCities)
-  // console.log("L103: Main , allRanges:",allRanges)
+  // console.log("L99: Main , totalTours upon entry:",totalTours)
+  // console.log("L101: Main , filter upon entry:",filter)
+
 
   const navigate = useNavigate();
   const location = useLocation();
   const { t }    = useTranslation();
 
-  const [detailOpen, setDetailOpen]     = useState(false);
-  const [tour, setTour]                 = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [mapView, setMapView]           = useState(false);
   const [directLink, setDirectLink]     = useState(null);
   const [tourID, setTourID]             = useState(null);
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
+  // !!! when Main is re-rendered, the filterValues get initialized again even though we should be using acquired value inside Search/Filter, another option is to use local storage
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
+  const [counter, setCounter] = useState(null); // do we need it? 
 
+
+  // pulling filter value from URLSearchParams
   const paramsFromStartPage = new URLSearchParams(location.search);
 
-   // Convert the URLSearchParams object to a regular JavaScript object
-   const searchParamsObject = {};
-   for (const [key, value] of searchParams.entries()) {
-     searchParamsObject[key] = value;
-   }
-  //  console.log(" L120 Main / searchParams as an object:", searchParamsObject);
-   //sample output searchParamsObject
-   //"{"coordinatesSouthWest":[],"coordinatesNorthEast":[],"singleDayTour":true,"multipleDayTour":true,"summerSeason":true,"winterSeason":false,"children":false,"traverse":false,"difficulty":10,"minAscent":0,"maxAscent":3000,"minDescent":0,"maxDescent":3000,"minTransportDuration":0.1,"maxTransportDuration":5.83,"minDistance":0,"maxDistance":40,"ranges":["Alpenvorland","Ankogelgruppe","Berchtesgadener Alpen","Dachsteingebirge","Ennstaler Alpen","Gailtaler Alpen","Goldberggruppe","Gurktaler Alpen, Nockberge","Gutensteiner Alpen","Hochschwabgruppe","Kaisergebirge","Karavanke / Karawanken","Karpaten","Kreuzeckgruppe","Lavanttaler Alpen","Mühlviertel","Mürzsteger Alpen","Niederösterreich","Oberösterreich","Oberösterreichische Voralpen","Randgebirge östlich der Mur","Rax-Schneeberg-Gruppe","Rottenmanner und Wölzer Tauern","Salzkammergut-Berge","Schladminger Tauern","Seckauer Tauern","Totes Gebirge","Türnitzer Alpen","Waldviertel","Wien","Wienerwald","Ybbstaler Alpen"],"types":["Bike & Hike","Klettern","Klettersteig","Langlaufen","Schneeschuh","Skitour","Wandern"],"languages":["de"]}"
+  // Usage:
+  const searchParamsObj = urlSearchParamsToObject(paramsFromStartPage);
+  const searchParamsObj1 = urlSearchParamsToObject(searchParams);
+  console.log(" L137 Main / searchParams as an object:", searchParamsObj1); // same result as searchParamsObj
   
   // console.log("L113 Main , activeFilter  :", activeFilter)
+
+  // purpose of handleRefresh is to trigger a refresh of main when handleFilterSubmit is triggered
+  const [refresh, setRefresh] = useState(false);
+  const handleRefresh = () => {
+    setRefresh(!refresh);
+  }
+
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
   //details:
@@ -136,9 +153,9 @@ export function Main({
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
-      // setSearchParams(searchParams);
+      setSearchParams(searchParams);
     }
-    // setActiveFilter(countFilterActive(searchParams, filter))
+    //clgs
     // console.log("L130: Main , filter in useEffect:",filter)
     // console.log("L133: Main , activeFilter in useEffect:",activeFilter)
 
@@ -173,7 +190,7 @@ export function Main({
       // !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
       if (!!city && city.value) {
         searchParams.set("city", city.value);
-        // setSearchParams(searchParams);
+        setSearchParams(searchParams);
         setDirectLink({
           header: `Öffi-Bergtouren für ${city.label}`,
           description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
@@ -207,17 +224,26 @@ export function Main({
   //description:
   //useEffect updates the state of activeFilter and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    // console.log(" L210 searchParams : ", searchParams)
-    setActiveFilter(countFilterActive(searchParams, filter) > 0);
-    console.log(" L211 countFilterActive(searchParams, filter) : ", countFilterActive(searchParams, filter))
+    //clg
+    !!counter ? console.log(" L210 counter : ", counter) : console.log("L210 : falsy counter")
+    // setActiveFilter(countFilterActive(searchParams, filter) > 0);
+    if(!!localStorage.getItem("filterCount") && localStorage.getItem("filterCount") > 0){
+      setActiveFilter(localStorage.getItem("filterCount"));
+    }
+    // !!counter && setActiveFilter(counter > 0);
+    !!localStorage.getItem("filterValues") ? setFilterValues(localStorage.getItem("filterValues")) : setFilterValues({});
+
+    //clgs
+    console.log(" L213 Main/useEffect / activeFilter = ",activeFilter);
     //descriptions:
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     setMapView(searchParams.get("map") == "true");
-  }, [searchParams , filter]);
+  }, [localStorage.getItem("filterCount")]);
 
   
-  console.log(" L218 -> countFilterActive = ",countFilterActive(searchParams, filter));
-  console.log(" L219 -> activeFilter = ",activeFilter);
+  // console.log(" L218 -> countFilterActive = ",countFilterActive(searchParams, filter));
+  // console.log(" L218 -> countFilterActive = ",counter);
+  // console.log(" L219 -> Main/activeFilter = ",activeFilter);
 
   const onSelectTour = (tour) => {
     let currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -241,7 +267,6 @@ export function Main({
   };
 
   const memoTourMapContainer = useMemo(() => {
-    // console.log("L 273 tourID : " + tourID)
     return (
       <TourMapContainer
         tours={tours}
@@ -261,7 +286,7 @@ export function Main({
         getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
       {/* clg */}
       {/*{console.log("directLink L 230:",directLink) }*/}{" "}
-      {/*  seems to be always on null value */}
+      {/* {console.log("L280: Main / counter :", counter)} */}
       {getPageHeader(directLink)}
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
@@ -294,7 +319,7 @@ export function Main({
                 <Link
                   to={{
                     pathname: "/",
-                    search: paramsFromStartPage.toString(),
+                    search: paramsFromStartPage.toString(), // do we need to update the filter from localStorage?
                   }}
                   replace
                 >
@@ -338,9 +363,11 @@ export function Main({
                   isMain={true} 
                   page="main" 
                   activeFilter = {activeFilter}
-                  // setActiveFilter = {setActiveFilter}
+                  handleRefresh = {handleRefresh}
                   filterValues = {filterValues}
                   setFilterValues = {setFilterValues}
+                  counter = {counter}
+                  setCounter = {setCounter}
                 />
               </Box>
             </Box>
@@ -360,7 +387,8 @@ export function Main({
               {Number(totalTours).toLocaleString()}{" "}
               {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {activeFilter && (
+            {(!!localStorage.getItem("filterCount") && localStorage.getItem("filterCount") > 0)  
+            && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;
                 <Typography
@@ -419,7 +447,7 @@ export function Main({
                 loading={loading}
                 total={totalTours}
                 filterValues={filterValues}
-                
+                setFilterValues={setFilterValues}
               />
             </Box>
           )}

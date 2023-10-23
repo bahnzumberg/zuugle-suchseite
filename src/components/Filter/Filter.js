@@ -24,8 +24,41 @@ import { useTranslation } from 'react-i18next';
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
+    const [singleDayTour, setSingleDayTour] = useState(true);
+    const [multipleDayTour, setMultipleDayTour] = useState(true);
+    const [summerSeason, setSummerSeason] = useState(true);
+    const [winterSeason, setWinterSeason] = useState(true);
+    const [difficulty, setDifficulty] = useState(10);
+    const [minAscent, setMinAscent] = useState(0);
+    const [maxAscent, setMaxAscent] = useState(10000);
+    const [minDescent, setMinDescent] = useState(0);
+    const [maxDescent, setMaxDescent] = useState(10000);
+
+    const [minTransportDuration, setMinTransportDuration] = useState(0);
+    const [maxTransportDuration, setMaxTransportDuration] = useState(10000);
+
+    const [minDistance, setMinDistance] = useState(0);
+    const [maxDistance, setMaxDistance] = useState(10000);
+    const [children, setChildren] = useState(false);
+    const [traverse, setTravers] = useState(false);
+
+    const [rangeValues, setRangeValues] = useState([]);
+    const [typeValues, setTypeValues] = useState([]);
+    const [languageValues, setLanguageValues] = useState([]);
+
+    const [rangeValuesState, setRangeValuesState] = useState(true);
+    const [typeValuesState, setTypeValuesState] = useState(true);
+    const [languageValuesState, setLanguageValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
+
+    
+    
+
     // Translation-related
     const {t} = useTranslation();
+
+    // const[activeBtn, setActiveBtn] = useState(true);
 
     // set translation variables
     const tourlaenge_label = t('filter.tourlaenge');
@@ -76,7 +109,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         {"it" : t('filter.italienisch')}
     ];
     
-
+    
     //loads the filter, including the languages for a specific city
     useEffect(() => {
         let city = searchParams.get('city');
@@ -101,6 +134,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     }, [])
 
     useEffect(() => {
+        
         if(!!filter){
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
@@ -247,6 +281,12 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         return count;
     }
 
+    // useEffect(() => {
+    //     const count = countFilterActive();
+    //     console.log("L285 --> countFilterActive() returns:", count);
+    // }, [filter, singleDayTour, multipleDayTour, summerSeason, winterSeason, difficulty, minAscent, maxAscent, minDescent, maxDescent, minTransportDuration, maxTransportDuration, minDistance, maxDistance, rangeValues, typeValues, languageValues, children, traverse]);
+    
+
 
     const setIfNotUndefined = (object, key, _function) => {
         if(!!object){
@@ -256,33 +296,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
     }
 
-    const [singleDayTour, setSingleDayTour] = useState(true);
-    const [multipleDayTour, setMultipleDayTour] = useState(true);
-    const [summerSeason, setSummerSeason] = useState(true);
-    const [winterSeason, setWinterSeason] = useState(true);
-    const [difficulty, setDifficulty] = useState(10);
-    const [minAscent, setMinAscent] = useState(0);
-    const [maxAscent, setMaxAscent] = useState(10000);
-    const [minDescent, setMinDescent] = useState(0);
-    const [maxDescent, setMaxDescent] = useState(10000);
-
-    const [minTransportDuration, setMinTransportDuration] = useState(0);
-    const [maxTransportDuration, setMaxTransportDuration] = useState(10000);
-
-    const [minDistance, setMinDistance] = useState(0);
-    const [maxDistance, setMaxDistance] = useState(10000);
-    const [children, setChildren] = useState(false);
-    const [traverse, setTravers] = useState(false);
-
-    const [rangeValues, setRangeValues] = useState([]);
-    const [typeValues, setTypeValues] = useState([]);
-    const [languageValues, setLanguageValues] = useState([]);
-
-    const [rangeValuesState, setRangeValuesState] = useState(true);
-    const [typeValuesState, setTypeValuesState] = useState(true);
-    const [languageValuesState, setLanguageValuesState] = useState(true);
-    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
-    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
+    
 
     const submit = () => {
         console.log("L288 traverse value : ", traverse)
@@ -309,11 +323,11 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
             languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
-        console.log("L288 filterValues.traverse :", filterValues.traverse)
+        localStorage.setItem("filterValues", JSON.stringify(filterValues));
+        localStorage.setItem("filterCount", countFilterActive());
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
     //setFilterFromFilter(filterValues); // passed back to Search back to Main and finally -> TourCardContainer
-
     const checkIfCheckedFromCheckbox = (list, key) => {
         return !!(!!list ? list: []).find(l => l.value == key && !!l.checked);
     }
@@ -717,7 +731,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }}>
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        <Button variant={"contained"} onClick={submit}>
+                        <Button variant={"contained"} onClick={submit} >
                             {countFilterActive() == 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
                         </Button>

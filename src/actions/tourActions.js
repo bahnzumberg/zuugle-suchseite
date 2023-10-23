@@ -32,7 +32,7 @@ export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
   // console.log("from loadTours/ tourActions : language :",language)
 
-    // console.log("tourActions, LoadTours L36 / data passed  :", data)
+    console.log("tourActions, LoadTours L36 / data.filter passed  :", data.filter)// right filter is passed
     return (dispatch, getState) => {
         data.domain = window.location.host;
         //clgs
