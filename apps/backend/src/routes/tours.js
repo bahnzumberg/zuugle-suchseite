@@ -73,18 +73,39 @@ const getWrapper = async (req, res) => {
 
     if(!!!id){
         res.status(404).json({success: false});
-    } else {
-        let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-        // let entry = await knex('tour').select(selects).where({id: id}).first();
+        return
+    }
+    // } else {
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let entryQuery = knex('tour').select(selects).where({id: id}).first();
 
-        let entryQuery = knex('tour').select(selects).where({id: id}).first();
-        // console.log("Knex Query:", entryQuery.toSQL());
+    try {
         let entry = await entryQuery;
-
+        if (!entry) {
+            // If entry is not found in the database, return a not found response
+            res.status(404).json({ success: false, message: "Tour not found" });
+            return;
+        }
 
         entry = await prepareTourEntry(entry, city, domain, true);
-        res.status(200).json({success: true, tour: entry});
+        res.status(200).json({ success: true, tour: entry });
+    } catch (error) {
+        // errors that occur during database query
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
+
+    //previous code
+    // let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    //     // let entry = await knex('tour').select(selects).where({id: id}).first();
+
+    //     let entryQuery = knex('tour').select(selects).where({id: id}).first();
+    //     // console.log("Knex Query:", entryQuery.toSQL());
+    //     let entry = await entryQuery;
+
+
+    //     entry = await prepareTourEntry(entry, city, domain, true);
+    //     res.status(200).json({success: true, tour: entry});
+    // }
 }
 //Brief Summery :
 // listWrapper takes req and res. Based on the properties of the req object, the function generates a query to a database (using the Knex.js library) and returns the results in the res object.
@@ -1053,7 +1074,7 @@ const buildFilterResult = (result, city, params) => {
 const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
-    //clg: params
+    //clg: params/* 
     // console.log('L1078 , params : ')
     // console.log(params)
 
@@ -1066,7 +1087,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // }
     //clg: query
     // console.log("L1137 query at entry to buildWhereFromFilter :");
-    // console.log(query.toSQL().sql)
+    // console.log(query.toSQL().sql) */
     
     if(!!!params.filter ) return query;
     
