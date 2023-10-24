@@ -66,7 +66,7 @@ function Start({
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
-  console.log(noToursAvailable, "No Tours Available");
+  // console.log( "entry point : noToursAvailable :",noToursAvailable);
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
@@ -182,11 +182,11 @@ function Start({
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
   if (noToursAvailable) {
-    console.log(
-      " L203 inside the true option/ noToursAvailable :",
-      noToursAvailable
-    );
-    console.log(" L203 inside the true option/ totalTours :", totalTours);
+    // console.log(
+    //   " L203 inside the true option/ noToursAvailable :",
+    //   noToursAvailable
+    // );
+    // console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
@@ -194,13 +194,12 @@ function Start({
       </Box>
     );
   }
-  // if (!noToursAvailable && noToursAvailable !== null) {
   else if (noToursAvailable === false) {
-    console.log(
-      " L216 inside the false option / noToursAvailable  :",
-      noToursAvailable
-    );
-    console.log(" L216 inside the false option / totalTours  :", totalTours);
+    // console.log(
+    //   " L216 inside the false option / noToursAvailable  :",
+    //   noToursAvailable
+    // );
+    // console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
         {getPageHeader(null)}

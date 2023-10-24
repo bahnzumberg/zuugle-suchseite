@@ -32,27 +32,15 @@ export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
   // console.log("from loadTours/ tourActions : language :",language)
 
-  // console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
-  return (dispatch, getState) => {
-    data.domain = window.location.host;
-    //clgs
-    // console.log("loadTours -> LOAD_TOURS :", LOAD_TOURS);
-    // console.log("loadTours -> data :", data);
-    // console.log("loadTours -> language :", language);
-    return loadList(
-      dispatch,
-      getState,
-      LOAD_TOURS,
-      LOAD_TOURS_DONE,
-      "tours",
-      data,
-      "tours/",
-      "tours",
-      false,
-      true,
-      language
-    );
-  };
+    console.log("tourActions, LoadTours L36 / data.filter passed  :", data.filter)// right filter is passed
+    return (dispatch, getState) => {
+        data.domain = window.location.host;
+        //clgs
+        // console.log("loadTours -> LOAD_TOURS :", LOAD_TOURS);
+        // console.log("loadTours -> data :", data);
+        // console.log("loadTours -> language :", language);
+        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
+    };
 }
 
 export function loadFilter(data = {}) {

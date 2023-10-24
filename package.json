@@ -9,6 +9,7 @@
   "dependencies": {
     "@alwaysmeticulous/recorder-loader": "^2.76.0",
     "@babel/polyfill": "^7.12.1",
+    "@babel/traverse": "^7.23.2",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@jonkoops/matomo-tracker-react": "^0.7.0",

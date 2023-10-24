@@ -1,5 +1,8 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
+// import { useSearchParams} from "react-router-dom";
+
+
 
 export function convertNumToTime(number, nonseparate = false) {
     // Check sign of given number
@@ -149,13 +152,6 @@ export function parseIfNeccessary(value) {
 };
 
 export const getTopLevelDomain = () => {
-    //This is testing code and if statment can be deleted when set for production builds
-    // if(process.env.NODE_ENV === "development") {
-    //     const domainNames = ['EN', 'DE', 'SL', 'FR', 'IT'];
-    //     const randomIndex = Math.floor(Math.random() * domainNames.length);
-    //     console.log("randomIndex",domainNames[randomIndex]) ; 
-    //     return domainNames[randomIndex];
-    // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
     return host.substring(host.length-2).toLowerCase();
@@ -197,3 +193,139 @@ export 	const shortenText = (text, atChar, maxLength) => {
     }
     return shortText;
 };
+
+//TODO : add remaining values from filter
+//TODO : set values in a dynamic way (calls to the database/ tourActions )
+export const defaultFilterValues = [    //index
+    {difficulty: 10 },                  // : 0
+    {maxAscent: 3000 },                 // : 1
+    {minAscent: 0 },                    // : 2
+    {maxDescent: 3000 },                // : 3
+    {minDescent: 0 },                   // : 4
+    {maxDistance: 80 },                 // : 5
+    {minDistance: 0 },                  // : 6
+    {maxTransportDuration: 6 },      // : 7
+    {minTransportDuration: 0.18 },       // : 8
+    {ranges_length: 62 },               // : 9
+]
+export const countFilterActive = (searchParams, filter) => {
+    //description:
+    //The function first retrieves the current filter options from the URL search parameters using getFilterFromParams(searchParams).
+    // It initializes a variable called count to 0, which will keep track of the number of active filters.
+    // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
+    // Finally, the function returns the value of count.
+
+    let count = 0;
+
+    const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
+    // console.log(" L215 : filter :",filter)
+    if (!!_filter && !!filter) {
+        // console.log("globals / count value: start", count)
+      if (!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)) {
+        count++;
+        // console.log("globals / count value: step 1", count)
+      }
+      if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
+        count++;
+        // console.log("globals / count value: step 2", count)
+      }
+      if (_filter?.difficulty != 10) {
+        count++;
+        // console.log("globals / count value: step 3", count)
+      }
+      if (!!_filter?.children) {
+        count++;
+        // console.log("globals / count value: step 4", count)
+      }
+      if (!!_filter?.traverse) {
+        count++;
+        // console.log("globals / count value: step 5", count)
+      }
+      if (
+        _filter?.minAscent > defaultFilterValues[2].minAscent 
+        || 
+        _filter?.maxAscent < defaultFilterValues[1].maxAscent  
+
+      ) {
+        count++;
+        // console.log("L255 globals / count maxAscent/minAscent: step 6", count)
+      }
+
+      if (
+        _filter?.minDescent > defaultFilterValues[4].minDescent 
+        || 
+        _filter?.maxDescent < defaultFilterValues[3].maxDescent 
+        
+      ) {
+        count++;
+        // console.log("globals / count maxDescent/minDescent: step 7", count)
+      }
+    // clgs
+    //   console.log("L246 (_filter?.maxTransportDuration ) ", _filter?.maxTransportDuration ) //
+    //   console.log("L246 (defaultFilterValues[7].maxTransportDuration ) ", defaultFilterValues[7].maxTransportDuration )// 
+    //   console.log("L247 (_filter?.ranges?.length ) ", _filter?.ranges?.length ) //
+    //   console.log("L247 (filter?.ranges?.length ) ", filter?.ranges?.length ) //
+    //   console.log("L247 (defaultFilterValues[9].ranges_length ) ", defaultFilterValues[9].ranges_length )// 
+    //   console.log("L248 (defaultFilterValues[7].maxTransportDuration ) ", defaultFilterValues[7].maxTransportDuration ) //
+    //   console.log("L248 (_filter?.maxTransportDuration ) ", _filter?.maxTransportDuration ) //
+    //   console.log("L248 (defaultFilterValues[8].minTransportDuration ) ", defaultFilterValues[8].minTransportDuration ) //
+    //   console.log("L248 (_filter?.minTransportDuration ) ", _filter?.minTransportDuration ) //
+      if (
+        _filter?.minTransportDuration != defaultFilterValues[8].minTransportDuration 
+        || 
+        // _filter?.maxTransportDuration > defaultFilterValues[7].maxTransportDuration 
+        // ||
+        _filter?.maxTransportDuration < defaultFilterValues[7].maxTransportDuration 
+      ) {
+        count++;
+        // console.log("globals / count minTranDur/maxTranDur: step 8", count)
+      }    
+      if (
+        // _filter?.minDistance != getFilterProp(filter, "minDistance") ||
+        // _filter?.maxDistance != getFilterProp(filter, "maxDistance")
+        _filter?.minDistance > defaultFilterValues[6].minDistance 
+        || 
+        _filter?.maxDistance < defaultFilterValues[5].maxDistance  
+      ) {
+        count++;
+        // console.log("globals / count maxDistance/minDistance: step 9", count)
+      }
+      if (
+        // _filter?.ranges?.length < defaultFilterValues[7].ranges_length )
+        _filter?.ranges?.length != filter?.ranges?.length) 
+        {
+        count++;
+        // console.log("globals / count ranges: step 10", count)
+      }
+      if (_filter?.types?.length != filter?.types?.length) {
+        count++;
+        // console.log("globals / count types: step 11", count)
+      }
+      if (_filter?.languages?.length != filter?.languages?.length) {
+        count++;
+        // console.log("globals / count languages: step 12", count)
+      }
+    }
+    console.log("L267 : FINAL count :",count)
+    return count;
+  };
+
+
+
+export function urlSearchParamsToObject(searchParams) {
+const obj = {};
+for (const [key, value] of searchParams) {
+    if (obj[key]) {
+    if (Array.isArray(obj[key])) {
+        obj[key].push(value);
+    } else {
+        obj[key] = [obj[key], value];
+    }
+    } else {
+    obj[key] = value;
+    }
+}
+return obj;
+}
+
+  
