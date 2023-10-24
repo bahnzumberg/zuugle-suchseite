@@ -44,7 +44,6 @@ export function Search({
   setCounter,
   setFilterValues, 
   filterValues,
-  handleRefresh,
   // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
@@ -160,22 +159,7 @@ export function Search({
     }
     // flag active filter if count > 0
     filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
-    
-    // console.log("inside useEffect L153 -> city: ", city)
-    // console.log("inside useEffect L154 -> search: ", search)
-    console.log(" L155 inside useEffect -> filter: ", filter)
-    // clgs for values passed to loadours()
-        // console.log("L161  city:", city); // Graz
-        // console.log("L161  range:", range); //null
-        // console.log("L161  state:", state);//null
-        // console.log("L161  country:", country);//null
-        // console.log("L161  type:", type);//null
-        // console.log("L161  search:", search); //Schnee
-        // console.log("L161  filter:", filter); // actual filter object
-        // console.log("L161  sort:", sort);//null
-        // console.log("L161  map:", searchParams.get("map"));//null
-        // console.log("L161  provider:", provider);//null
-
+     
     let result = loadTours({
       city: city,
       range: range, 
@@ -191,7 +175,7 @@ export function Search({
     });
 
     result.then((resolvedValue) => {
-      console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
+      //console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       // console.log("Search L165 result of load Tours", resolvedValue);
     });
   }, [
@@ -212,6 +196,10 @@ export function Search({
     localStorage.setItem("city", city);
   };
 
+  const resetFilterLocalStorage = () => {
+    localStorage.removeItem("filterValues");
+    localStorage.setItem("filterCount", 0);
+  }
   // Filter modal constructed here
   const openFilter = () => {
     showModal("MODAL_COMPONENT", {
@@ -248,8 +236,6 @@ export function Search({
       !!filterValues && setFilterValues(filterValues)
       localStorage.setItem("filterValues", JSON.stringify(filterValues));
       localStorage.setItem("filterCount", filterCount);
-      // refresh the main page here
-      // handleRefresh();
       window.location.reload();
     } else {
       setActiveFilter(false);
@@ -294,7 +280,7 @@ export function Search({
 
   // search handling function
   
-  const search = (tempRegion = null) => {
+  const search = async (tempRegion = null) => {
     let values = {};
     if (!!city && !!city.value) {
       values.city = city.value;
@@ -311,9 +297,7 @@ export function Search({
     values.search = suggestion
       ? suggestion
       : searchPhrase
-      // : autoSearchPhrase
       ? searchPhrase
-      // ? autoSearchPhrase
       : "";
 
     if (!!searchParams.get("sort")) {
@@ -324,8 +308,6 @@ export function Search({
 
     values.map = searchParams.get("map"); // map related
     values.provider = searchParams.get("p");
-    // console.log("HLO: ", searchParams);
-    //searchParams.delete("filter"); // why delete filter values? if they exist?
     if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
@@ -336,23 +318,25 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
     // added for issue #208
-    setOrRemoveSearchParam(searchParams, "filter", values.filter);
+    pageKey != "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
+    if(pageKey == "detail") {
+      resetFilterLocalStorage();
+    }
 
     setSearchParams(searchParams);
     
-    const paramsObject = {};
-
-    // Iterate through the URLSearchParams and populate the object
-    for (const [key, value] of searchParams) {
-      paramsObject[key] = value;
-    }
-    console.log(" L328 : paramsObject", paramsObject);
-
     if (!!goto) {
       navigate(goto + "?" + searchParams);
+      window.location.reload();
     } else {
+     
       // console.log(" 333 => values passed to loadTours :", values);
       loadTours(values).then((res) => {
+        if(pageKey == "detail") {
+          console.log("Search L333 searchParams :", JSON.stringify(searchParams));
+          navigate("/suche" + "?" + searchParams);
+        }
+        window.location.reload();
         window.scrollTo({ top: 0 });
       });
     }
@@ -405,94 +389,15 @@ export function Search({
     });
   };
 
-  // const showRangeModal = () => {
-
-  //   showModal("MODAL_COMPONENT", {
-  //     onSearchSuggestion: getSearchSuggestion,
-  //     onSearchPhrase: getSearchPhrase,
-  //     city: city,
-  //     language: language,
-  //     placeholder: searchPhrase,
-  //     CustomComponent: FullScreenCityInput,
-  //     searchParams,
-  //     initialCity: cityInput,
-  //     onSelect: (city) => {
-  //       hideModal();
-  //       if (!!city) {
-  //         setCityInput(city.label);
-  //         setCity(city);
-  //       }
-  //     },
-  //     setSearchParams,
-  //     title: "",
-  //     page: page,
-  //     srhBoxScrollH: document.querySelector(".main-search-bar").getBoundingClientRect().top,
-  //     modalSize: "lg",
-  //     onBack: () => {
-  //       hideModal();
-  //     },
-  //   });
-  // };
-
-  // does not showup in params list in latest version
-  // const showRegionInput = () => {
-  //     showModal("MODAL_COMPONENT", {
-  //         CustomComponent: FullScreenRegionInput,
-  //         searchParams,
-  //         initialRegion: regionInput,
-  //         onSelect: (region) => {
-  //             hideModal()
-  //             if (!!region) {
-  //                 setRegionInput(region.value)
-  //                 setRegion(region)
-  //                 search(region)
-  //             }
-  //         },
-  //         setSearchParams,
-  //         title: "",
-  //         modalSize: "lg",
-  //         onBack: () => {
-  //             hideModal()
-  //         },
-  //     })
-  // }
-
-  // const onCustomRegionSubmit = () => {
-  //     setOpenRegionSearch(false)
-  //     search()
-  // }
-
-  // const resetRegionInput = () => {
-  //     setRegionInput("")
-  //     setRegion(null)
-  //     setOpenRegionSearch(false)
-  //     searchParams.delete("search")
-  //     searchParams.delete("range")
-  //     searchParams.delete("type")
-  //     setSearchParams(searchParams)
-  // }
-
+  
   //Function that gets value f the selected option and directly start the search for tours
   
-  const handleGoButton = () =>  search();
+  const handleGoButton = () =>  {
+    search();
+    window.location.reload();
+  }
     
  
-  // const handleGoButton = () => {
-  //   console.log("first line of handleGoButton")
-  //   searchPhrase && console.log("searchPhrase", searchPhrase)
-  //   console.log("L413:!!searchPhrase && searchPhrase.length == 0  : ", !!searchPhrase && searchPhrase.length == 0)
-  //   if(!!searchPhrase && searchPhrase.length == 0){ 
-  //     console.log(" L414 : searchPhrase value:", searchPhrase)
-  //     searchParams.delete("search");
-  //     setSearchParams(searchParams);
-  //     hideModal();
-  //     if (!!goto) {
-  //       navigate(goto + "?" + searchParams);
-  //     }
-  //   }else{
-  //     search();
-  //   }
-  // }
   const getSearchSuggestion = (autoSuggestion) => {
     if (autoSuggestion == '') {
       searchParams.delete("search");
@@ -503,17 +408,11 @@ export function Search({
     }
     suggestion = autoSuggestion;
     hideModal();
+    // pageKey !== "detail" ? 
     search();
   };
 
-  let showFilterColor = counter && counter > 0 ?  "#101010" : "#fff" ;//can also check number inside localStorage.getItem("filterCount")
-  // console.log("L479 showFilterColor", showFilterColor)
-  // console.log("L479 counter ", counter )
-  //Function that gives you the input text you need when no Suggestion was taken
-  // const getSearchPhrase = (searchPhrase) => {
-  //   // autoSearchPhrase = searchPhrase;
-  //   setSearchPhrase(searchPhrase);
-  // };
+  let showFilterColor = counter && counter > 0 ?  "#101010" : "#fff";//alternativly use 'filterCount' in localStorage
 
   return (
     <Fragment>
@@ -655,7 +554,7 @@ export function Search({
                       sx={{
                         transition: "stroke 0.3s",
                         strokeWidth: 1.25,
-                        stroke: {showFilterColor},
+                        // stroke: {showFilterColor},
                         stroke: activeFilter ? "#fff" : "#101010",
                         // stroke:  "#101010",
                       }}
