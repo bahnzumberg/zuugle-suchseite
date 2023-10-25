@@ -358,7 +358,6 @@ console.log("L84 filter :", filter);
                   isMain={true} 
                   page="main" 
                   activeFilter = {activeFilter}
-                  handleRefresh = {handleRefresh}
                   filterValues = {filterValues}
                   setFilterValues = {setFilterValues}
                   counter = {counter}
