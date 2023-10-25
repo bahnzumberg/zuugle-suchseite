@@ -15,7 +15,7 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { countFilterActive } from "../../utils/globals";
+// import { countFilterActive } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 // import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -125,18 +125,6 @@ console.log("L84 filter :", filter);
   // pulling filter value from URLSearchParams
   const paramsFromStartPage = new URLSearchParams(location.search);
 
-  // Usage:
-  const searchParamsObj = urlSearchParamsToObject(paramsFromStartPage);
-  const searchParamsObj1 = urlSearchParamsToObject(searchParams);
-  console.log(" L137 Main / searchParams as an object:", searchParamsObj1); // same result as searchParamsObj
-  
-  // console.log("L113 Main , activeFilter  :", activeFilter)
-
-  // purpose of handleRefresh is to trigger a refresh of main when handleFilterSubmit is triggered
-  const [refresh, setRefresh] = useState(false);
-  const handleRefresh = () => {
-    setRefresh(!refresh);
-  }
 
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -246,18 +234,25 @@ console.log("L84 filter :", filter);
   // console.log(" L219 -> Main/activeFilter = ",activeFilter);
 
   const onSelectTour = (tour) => {
-    let currentSearchParams = new URLSearchParams(searchParams.toString());
-    const city = currentSearchParams.get("city");
-    const search = currentSearchParams.get("search");
+    // let currentSearchParams = new URLSearchParams(searchParams.toString());// not working?
+    // console.log("L250 searchParams :", urlSearchParamsToObject(searchParams));
+    
+    // const city = currentSearchParams.get("city");
+    const city = searchParams.get("city");
     const updatedSearchParams = new URLSearchParams();
-    // updatedSearchParams.set("id", tour.id);
-    !!tour && localStorage.setItem("tourId", tour.id);
-
+    
     if (city) {
       updatedSearchParams.set("city", city);
     }
-
-    window.open("/tour?" + updatedSearchParams.toString());
+    // if tour  does not exist -> redirect to start page else redirect to detail
+    // window.open("/tour?" + updatedSearchParams.toString());
+    if (!!tour && !!tour.id) {
+    //   window.open("/" + updatedSearchParams.toString());
+    // } else {
+    localStorage.setItem("tourId", tour.id);
+    window.open("/tour?" + searchParams.toString());
+    // window.open("/tour?" + updatedSearchParams.toString());
+    }
   };
 
   //description:

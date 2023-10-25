@@ -52,9 +52,8 @@ import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
-import { Fragment } from "react";
 import i18next from "i18next";
-import { Search } from "../../components/Search/Search";
+import {urlSearchParamsToObject} from "../../utils/globals";
 
 const setGpxTrack = (url, loadGPX, _function) => {
   loadGPX(url).then((res) => {
@@ -108,7 +107,6 @@ const DetailReworked = (props) => {
   //Whether a warning that says that your local trainstation has not been used, should be shown
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
-  let tourDuration = null;
 
   // Translation-related
   const { t } = useTranslation();
@@ -119,7 +117,7 @@ const DetailReworked = (props) => {
       return t("start.schwer");
     } else return t("start.mittel");
   };
-
+  
   // pdf buttons shows up only when menu language is German
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 
@@ -129,15 +127,34 @@ const DetailReworked = (props) => {
   };
 
   const navigate = useNavigate();
+
   const goToStartPage = () => {
     let city = searchParams.get("city");
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
+  const goToStartPageUnavailableTour = () => {
+    navigate(`/?${searchParams.toString()}`);
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    // Call navigate inside a useEffect hook
+    if (!tour?.title) {
+      goToStartPageUnavailableTour();
+    }
+  }, []);
+
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
   const [providerPermit, setProviderPermit] = useState(true);
+
+  // useEffect(() => {
+  //   if
+  
+  // }, [])
+  
 
   useEffect(() => {
     if (!!tour && tour.provider && tour.provider == "mapzssi") {
@@ -178,11 +195,9 @@ const DetailReworked = (props) => {
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
     const city = localStorage.getItem("city");
-    const Id = searchParams.get("id");
 
     // console.log("detail page --> shareId :", shareId)
     // console.log("detail page --> city :", city)
-    // console.log("detail page --> Id :", Id)
 
     //Redirects to according page when it is a share link
     if (shareId !== null) {
@@ -217,9 +232,11 @@ const DetailReworked = (props) => {
     loadCities({ limit: 5 });
     const tourId = localStorage.getItem("tourId");
 
-    if (tourId) {
+    if (!!tourId) {
+      // tourId = 555;
       loadTour(tourId, city)
         .then((tourExtracted) => {
+          // console.log("L225 : we are inside loadTour.then")
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
             // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
             tourDuration =
@@ -236,17 +253,22 @@ const DetailReworked = (props) => {
               !!tourExtracted.data.tour.difficulty_orig &&
               tourExtracted.data.tour.difficulty_orig
               );
+          }else{
+            console.log("No tour data retrieved")
           }
         })
-        // .catch((error) => {
-        //   if (error.response && error.response.status === 404) {
-        //     console.error("Tour not found:", error);
-        //     // Handle the 404 error scenario
-        //   } else {
-        //     console.error("Error:", error);
-        //     // Handle other errors
-        //   }
-        // });
+        .catch((error) => {
+          console.error("Tour not found:", error);
+          if (error.response && error.response.status === 404) {
+            console.error("Tour not found:", error);
+            // Handle the 404 error scenario
+            goToStartPageUnavailableTour();
+            return
+          } else {
+            console.error("Error:", error);
+            // Handle other errors
+          }
+        });
     }
     // console.log(" L 240 : tourDifficulty", tourDifficulty)
     // console.log(" L 241 : tourDifficultyOrig", tourDifficultyOrig)
@@ -269,7 +291,6 @@ const DetailReworked = (props) => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
         console.log("No city L260");
-        //goToStartPage();  // check if this is desirable (was commented out by external guy)
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
@@ -627,132 +648,162 @@ const DetailReworked = (props) => {
     </Box>
   );
 
-  return (
-    <Box sx={{ backgroundColor: "#fff" }}>
-      <Box className="newHeader" sx={{ position: "relative" }}>
-        <Box component={"div"} className="rowing blueDiv">
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+  // if(!tour?.title) {
+  if(!tour) {
+    goToStartPageUnavailableTour();
+  }  else {
+    return (
+      <Box sx={{ backgroundColor: "#fff" }}>
+        <Box className="newHeader" sx={{ position: "relative" }}>
+          <Box component={"div"} className="rowing blueDiv">
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box
+                sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                onClick={handleCloseTab}
+              >
+                <ArrowBefore
+                  style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                />
+              </Box>
+              <DomainMenu />
+            </Box>
             <Box
               sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
               onClick={handleCloseTab}
             >
-              <ArrowBefore
-                style={{ stroke: "#fff", width: "34px", height: "34px" }}
+              <Close
+                style={{
+                  stroke: "#fff",
+                  fill: "#fff",
+                  width: "24px",
+                  height: "24px",
+                }}
               />
             </Box>
-            <DomainMenu />
-          </Box>
-          <Box
-            sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-            onClick={handleCloseTab}
-          >
-            <Close
-              style={{
-                stroke: "#fff",
-                fill: "#fff",
-                width: "24px",
-                height: "24px",
-              }}
-            />
-          </Box>
-          {!searchParams.get("city") && (
-            <Box
-              sx={{
-                position: "fixed",
-                right: 0,
-                bottom: 0,
-                top: 0,
-                left: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: "1300",
-              }}
-            />
-          )}
-        </Box>
-        {/* {!!allCities && allCities.length > 0 && ( */}
-        <Box
-          sx={{
-            backgroundColor: "#FFF",
-            position: "absolute",
-            bottom: "0",
-            transform: "translate(-50%, 50%)",
-            display: "inline-flex",
-            borderRadius: "20px",
-            padding: "12px 15px",
-            border: "2px solid #ddd",
-            width: "100%",
-            maxWidth: {
-              xs: !searchParams.get("city") ? "360px" : "325px",
-              md: !searchParams.get("city") ? "376px" : "600px",
-            },
-            boxSizing: "border-box",
-            boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-            zIndex: "1300",
-          }}
-        >
-          <Box sx={{ width: "100%" }}>
-            <SearchContainer pageKey="detail" goto={"/suche"} />
-          </Box>
-        </Box> 
-      </Box>
-      <Box>
-        <Box className="tour-detail-header">
-          <Box className="mt-3">
-            <Typography variant="title">{tour?.title}</Typography>
-          </Box>
-          <Box className="mt-3">
-            <span className="tour-detail-tag">{tour?.range}</span>
-          </Box>
-        </Box>
-        <div>
-          <Box
-            sx={{ width: "100%", position: "relative" }}
-            className="tour-detail-map-container"
-          >
-            <InteractiveMap
-              gpxPositions={!!gpxPositions && gpxPositions}
-              anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-              abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-              scrollWheelZoom={false}
-            />
-          </Box>
-          <div className="tour-detail-data-container">
-            <Box>
-              <TourDetailProperties tour={tour}></TourDetailProperties>
-              <Box sx={{ textAlign: "left" }}>
-                <div className="tour-detail-difficulties">
-                  <span className="tour-detail-difficulty">
-                    {tour && translateDiff(tourDifficulty)}
-                  </span>
-                  {!!tourDifficultyOrig &&
-                    !!tourDifficulty &&
-                    tourDifficultyOrig.toLowerCase() !==
-                      tourDifficulty.toLowerCase() && (
-                      <span className="tour-detail-tag tour-detail-tag-gray">
-                        {tour && translateDiff(tourDifficultyOrig)}
-                      </span>
-                    )}
-                </div>
-                <Typography variant="textSmall">{tour?.description}</Typography>
-              </Box>
-              <div
-                className="tour-detail-provider-container"
-                onClick={() => {
-                  window.open(tour?.url);
+            {!searchParams.get("city") && (
+              <Box
+                sx={{
+                  position: "fixed",
+                  right: 0,
+                  bottom: 0,
+                  top: 0,
+                  left: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  zIndex: "1300",
                 }}
-              >
-                <div className="tour-detail-provider-icon">
-                  <ProviderLogo provider={tour?.provider} />
+              />
+            )}
+          </Box>
+          {/* {!!allCities && allCities.length > 0 && ( */}
+          <Box
+            sx={{
+              backgroundColor: "#FFF",
+              position: "absolute",
+              bottom: "0",
+              transform: "translate(-50%, 50%)",
+              display: "inline-flex",
+              borderRadius: "20px",
+              padding: "12px 15px",
+              border: "2px solid #ddd",
+              width: "100%",
+              maxWidth: {
+                xs: !searchParams.get("city") ? "360px" : "325px",
+                md: !searchParams.get("city") ? "376px" : "600px",
+              },
+              boxSizing: "border-box",
+              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+              zIndex: "1300",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <SearchContainer pageKey="detail" goto={"/suche"} />
+            </Box>
+          </Box> 
+        </Box>
+        <Box>
+          <Box className="tour-detail-header">
+            <Box className="mt-3">
+              <Typography variant="title">{tour?.title}</Typography>
+            </Box>
+            <Box className="mt-3">
+              <span className="tour-detail-tag">{tour?.range}</span>
+            </Box>
+          </Box>
+          <div>
+            <Box
+              sx={{ width: "100%", position: "relative" }}
+              className="tour-detail-map-container"
+            >
+              <InteractiveMap
+                gpxPositions={!!gpxPositions && gpxPositions}
+                anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                scrollWheelZoom={false}
+              />
+            </Box>
+            <div className="tour-detail-data-container">
+              <Box>
+                <TourDetailProperties tour={tour}></TourDetailProperties>
+                <Box sx={{ textAlign: "left" }}>
+                  <div className="tour-detail-difficulties">
+                    <span className="tour-detail-difficulty">
+                      {tour && translateDiff(tourDifficulty)}
+                    </span>
+                    {!!tourDifficultyOrig &&
+                      !!tourDifficulty &&
+                      tourDifficultyOrig.toLowerCase() !==
+                        tourDifficulty.toLowerCase() && (
+                        <span className="tour-detail-tag tour-detail-tag-gray">
+                          {tour && translateDiff(tourDifficultyOrig)}
+                        </span>
+                      )}
+                  </div>
+                  <Typography variant="textSmall">{tour?.description}</Typography>
+                </Box>
+                <div
+                  className="tour-detail-provider-container"
+                  onClick={() => {
+                    window.open(tour?.url);
+                  }}
+                >
+                  <div className="tour-detail-provider-icon">
+                    <ProviderLogo provider={tour?.provider} />
+                  </div>
+                  <div className="tour-detail-provider-name-link">
+                    <span className="tour-detail-provider-name">
+                      {tour?.provider_name}
+                    </span>
+                    <span className="tour-detail-provider-link">{tour?.url}</span>
+                  </div>
                 </div>
-                <div className="tour-detail-provider-name-link">
-                  <span className="tour-detail-provider-name">
-                    {tour?.provider_name}
-                  </span>
-                  <span className="tour-detail-provider-link">{tour?.url}</span>
-                </div>
-              </div>
-              {renderImage && (
+                {renderImage && (
+                  <Box className="tour-detail-conditional-desktop">
+                    <Divider variant="middle" />
+                    <div className="tour-detail-img-container">
+                      <img
+                        src={tour?.image_url}
+                        alt="image"
+                        onError={() => {
+                          setRenderImage(false);
+                        }}
+                      />
+                    </div>
+                  </Box>
+                )}
                 <Box className="tour-detail-conditional-desktop">
+                  {actionButtonPart}
+                </Box>
+              </Box>
+              <Box className="tour-detail-itinerary-container">
+                <Itinerary
+                  connectionData={connections}
+                  dateIndex={dateIndex}
+                  onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
+                  tour={tour}
+                ></Itinerary>
+              </Box>
+              {renderImage && (
+                <Box className="tour-detail-conditional-mobile">
                   <Divider variant="middle" />
                   <div className="tour-detail-img-container">
                     <img
@@ -765,45 +816,21 @@ const DetailReworked = (props) => {
                   </div>
                 </Box>
               )}
-              <Box className="tour-detail-conditional-desktop">
-                {actionButtonPart}
-              </Box>
-            </Box>
-            <Box className="tour-detail-itinerary-container">
-              <Itinerary
-                connectionData={connections}
-                dateIndex={dateIndex}
-                onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
-                tour={tour}
-              ></Itinerary>
-            </Box>
-            {renderImage && (
-              <Box className="tour-detail-conditional-mobile">
-                <Divider variant="middle" />
-                <div className="tour-detail-img-container">
-                  <img
-                    src={tour?.image_url}
-                    alt="image"
-                    onError={() => {
-                      setRenderImage(false);
-                    }}
-                  />
-                </div>
-              </Box>
-            )}
-            {
-              <Box className="tour-detail-conditional-mobile">
-                {actionButtonPart}
-              </Box>
-            }
+              {
+                <Box className="tour-detail-conditional-mobile">
+                  {actionButtonPart}
+                </Box>
+              }
+            </div>
           </div>
-        </div>
-        <div></div>
-        <Divider variant="middle" />
+          <div></div>
+          <Divider variant="middle" />
+        </Box>
+        <Footer></Footer>
       </Box>
-      <Footer></Footer>
-    </Box>
-  );
+    );
+  }
+  
 };
 
 const mapDispatchToProps = {

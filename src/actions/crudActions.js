@@ -110,7 +110,7 @@ export function loadList(
     };
   }
 
-  console.log("wichtiiiig", route, { params: params });
+  // console.log("wichtiiiig", route, { params: params });
   return axios
     .get(route, { params: params })
     .then((res) => {

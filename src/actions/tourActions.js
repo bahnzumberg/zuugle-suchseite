@@ -86,6 +86,7 @@ export function loadTour(id, city) {
         if (error.response && error.response.status === 404) {
           // 404 error scenario
           console.error("loadTours/ Tour not found:", error);
+          return
         } else {
           // other errors
           console.error("Error:", error);

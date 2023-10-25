@@ -33,7 +33,7 @@ export default function TourCardContainer({
   let _filter = localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {} ;
   useEffect(() => {
     // if(_filter){
-        _loadTours();
+    _loadTours();
     // }
   }, [!!localStorage.getItem("filterValues")])
 
@@ -138,7 +138,6 @@ export default function TourCardContainer({
         dataLength={tours.length}
         next={_loadTours}
         hasMore={hasMore}
-        // hasMore={tours.length < totalTours}
         loader={!!loading && <CircularProgress />}
         endMessage={<EndOfList />}
       >
