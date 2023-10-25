@@ -34,7 +34,7 @@ const createQuery = async (field, alias, city, search, language) => {
         .whereNot(field, null)
         .andWhereNot(field, "");
 
-    if(!!city && city.length > 0){
+    if(!!city && city.length > 0 && city != 'null'){
         query = query.andWhere('city_slug', city);
     }
 
