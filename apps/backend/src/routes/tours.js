@@ -336,45 +336,67 @@ const listWrapper = async (req, res) => {
         //console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
-        //clgs
-        // console.log("L290 sql_select inside 'searchIncluded' : ", sql_select);
+        let _traveltime_weight = ''
+        let _traveltime_join   = ''
 
         for (let i = 0; i < allLangs.length; i++) {
             // console.log(" i :", i)
             const lang = allLangs[i];
             const langRank = langRanks[i][lang]; //e.g.  i=0 /lang='en' => langRanks[0][lang] = 100
+
+            // Additional rank based on ascent, difficulty, traverse
+            // 1.0/(ABS(1100-ascent)+1) AS rank_ascent,
+            // CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END as rank_difficulty,
+            // CASE WHEN traverse=1 THEN 1 ELSE 0.5 END AS rank_traverse,
+
+            if(!!city && city.length > 0){
+                _traveltime_weight = ` * 2.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
+                _traveltime_join = ` INNER JOIN city2tour as c ON c.tour_id=i${i + 1}.id AND c.city_slug='${city}' `
+            }
+
             if(_search.indexOf(' ') > 0){
-                // console.log("L335 / space separated here !")
+                // console.log("L335 / search phrase consists of more than one word - space separated here !")
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
                     ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
                     encodeLang[i][lang]
-                    }', ' ${_search}')) * ${langRank} as result_rank     
+                    }', ' ${_search}')) * ${langRank} 
+                    * 1.0/(ABS(1100-ascent)+1)
+                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
+                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    ${_traveltime_weight}
+                    as result_rank     
                     FROM tour AS i${i + 1}
+                    ${_traveltime_join}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
-                    
                     AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', '${_search}')
                     ${sql_and_filter}
                 `;
 
             }else {
                 // console.log("L376 / NO space separated here !")
-
                 sql_select += `
                     SELECT
                     i${i + 1}.*,
                     ts_rank(i${i + 1}.search_column, websearch_to_tsquery('${
                     encodeLang[i][lang]
-                    }', ' "${_search}" ${_search}:*')) * ${langRank} as result_rank 
+                    }', ' "${_search}" ${_search}:*')) * ${langRank} 
+                    * 1.0/(ABS(1100-ascent)+1)
+                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
+                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    ${_traveltime_weight}
+                    as result_rank 
                     FROM tour AS i${i + 1}
+                    ${_traveltime_join}
                     WHERE
                     i${i + 1}.text_lang = '${lang}'
                     AND i${i + 1}.search_column @@ websearch_to_tsquery('${ encodeLang[i][lang]}', ' "${_search}" ${_search}:*')
                     ${sql_and_filter}
                 `;
             }
+            // console.log("sql=", sql_select)
             if (i !== allLangs.length - 1) {        // as long as end of array not reached
             sql_select += "\nUNION ";               // create a union with a line break
         }
@@ -487,10 +509,10 @@ const listWrapper = async (req, res) => {
         let searchparam = '';
 
         if (search !== undefined && search !== null && search.length > 0) {
-            searchparam = search.replace(/'/g, "''");
+            searchparam = search.replace(/'/g, "''").toLowerCase;
 
             let _count = searchIncluded ? sql_count : count['count'];
-            console.log("_count", _count)
+            // console.log("_count", _count)
             if (!!_count && _count > 1) {
                 const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES(:searchparam, :count, :city, :language, :country);`;
 

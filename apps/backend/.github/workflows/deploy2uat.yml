@@ -49,7 +49,8 @@ jobs:
           username: ${{ secrets.UAT_REMOTE_USER }}
           key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
           port: ${{ secrets.UAT_REMOTE_PORT }}
+          command_timeout: 20m
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
             pm2 restart all
-            /usr/local/zuugle/import-data-full-files.sh
+            /usr/local/zuugle/import-data-files.sh

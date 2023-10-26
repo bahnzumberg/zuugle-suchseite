@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS city;
-DROP TABLE IF EXISTS city_favourites;
 DROP TABLE IF EXISTS fahrplan;
 DROP TABLE IF EXISTS fahrplan_del;
 DROP TABLE IF EXISTS fahrplan_load;
@@ -84,14 +83,6 @@ CREATE TABLE city (
 );
 
 CREATE INDEX ON city (city_slug);
-
-CREATE TABLE city_favourites (
-      city_slug varchar(64) NOT NULL,
-      city_name varchar(128) NOT NULL,
-      city_country varchar(128) NOT NULL,
-      search_count int NOT NULL DEFAULT 0,
-      PRIMARY KEY (city_slug)
-);
 
 CREATE TABLE fahrplan (
      id SERIAL,
@@ -243,7 +234,8 @@ CREATE TABLE city2tour (
       provider varchar(30) NOT NULL,
       hashed_url varchar(100) NOT NULL,
       city_slug varchar(64) NOT NULL,
-      reachable_from_country varchar(2) NOT NULL
+      reachable_from_country varchar(2) NOT NULL,
+      min_connection_duration int DEFAULT 200
 );
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);

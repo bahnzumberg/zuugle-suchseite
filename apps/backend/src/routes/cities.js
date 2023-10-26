@@ -19,10 +19,7 @@ const listWrapper = async (req, res) => {
         if(!!search && search.length > 0){
             result = await knex('city').select().where(where).andWhereRaw(`LOWER(city_name) LIKE '%${search.toLowerCase()}%'`).orderBy('city', 'asc').limit(100);
         } else {
-            result = await knex('city_favourites').select().where(where).orderBy('search_count', 'desc').limit(100);
-            if(!!!result || result.length === 0){
-                result = await knex('city').select().where(where).orderBy('city', 'asc').limit(100);
-            }
+            result = await knex('city').select().where(where).orderBy('city', 'asc').limit(100);
         }
     }
 
