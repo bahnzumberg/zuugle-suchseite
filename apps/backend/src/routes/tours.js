@@ -483,11 +483,10 @@ const listWrapper = async (req, res) => {
     try {
         let searchparam = '';
 
-        if (search !== undefined && search !== null && search.length > 0) {
+        if (search !== undefined && search !== null && search.length > 0 && req.query.city !== undefined) {
             searchparam = search.replace(/'/g, "''").toLowerCase;
 
             let _count = searchIncluded ? sql_count : count['count'];
-            // console.log("_count", _count)
             if (!!_count && _count > 1) {
                 const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES(:searchparam, :count, :city, :language, :country);`;
 
