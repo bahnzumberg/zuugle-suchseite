@@ -133,29 +133,19 @@ const DetailReworked = (props) => {
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
+  // has been moved to Main.js
   const goToStartPageUnavailableTour = () => {
     navigate(`/?${searchParams.toString()}`);
     window.location.reload();
   };
 
-  useEffect(() => {
-    // Call navigate inside a useEffect hook
-    if (!tour?.title) {
-      goToStartPageUnavailableTour();
-    }
-  }, []);
 
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
   const [providerPermit, setProviderPermit] = useState(true);
 
-  // useEffect(() => {
-  //   if
   
-  // }, [])
-  
-
   useEffect(() => {
     if (!!tour && tour.provider && tour.provider == "mapzssi") {
       setProviderPermit(false);
@@ -649,9 +639,9 @@ const DetailReworked = (props) => {
   );
 
   // if(!tour?.title) {
-  if(!tour) {
-    goToStartPageUnavailableTour();
-  }  else {
+  // if(!tour) {
+  //   goToStartPageUnavailableTour();
+  // }  else {
     return (
       <Box sx={{ backgroundColor: "#fff" }}>
         <Box className="newHeader" sx={{ position: "relative" }}>
@@ -829,7 +819,7 @@ const DetailReworked = (props) => {
         <Footer></Footer>
       </Box>
     );
-  }
+  // }
   
 };
 

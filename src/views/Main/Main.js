@@ -61,6 +61,7 @@ Fragment.propTypes = { children: PropTypes.node };
 
 export function Main({
   loadTours,
+  loadTour,
   loadAllCities,
   tours,
   showModal,
@@ -117,13 +118,15 @@ console.log("L84 filter :", filter);
   const [directLink, setDirectLink]     = useState(null);
   const [tourID, setTourID]             = useState(null);
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
-  // !!! when Main is re-rendered, the filterValues get initialized again even though we should be using acquired value inside Search/Filter, another option is to use local storage
+ 
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
-  const [counter, setCounter] = useState(null); // do we need it? 
+  const [counter, setCounter] = useState(null); 
 
 
-  // pulling filter value from URLSearchParams
-  const paramsFromStartPage = new URLSearchParams(location.search);
+  const currentParams = new URLSearchParams(location.search);
+
+  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
 
   //describe:
@@ -135,18 +138,14 @@ console.log("L84 filter :", filter);
   // It gets the city value from local storage and the city search parameter from the URL query string, if it exists.
   // If there is a city value in local storage and no city search parameter in the URL query string, it sets the city search parameter in the URL query string to the value in local storage using the setSearchParams state method.
   useEffect(() => {
-    loadAllCities(); // working
-    loadRanges({ ignore_limit: true, remove_duplicates: true }); // working
+    loadAllCities();
+    loadRanges({ ignore_limit: true, remove_duplicates: true });
     let searchParamCity = searchParams.get("city");
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {
       searchParams.set("city", city);
       setSearchParams(searchParams);
     }
-    //clgs
-    // console.log("L130: Main , filter in useEffect:",filter)
-    // console.log("L133: Main , activeFilter in useEffect:",activeFilter)
-
   }, []);
 
   
@@ -164,18 +163,11 @@ console.log("L84 filter :", filter);
       !!location &&
       location.pathname &&
       allCities &&
-      allCities.length > 0 &&
-      allRanges &&
-      allRanges.length > 0
+      allCities.length > 0 
     ) {
-      // console.log("L169: Main, inside the if of useEffect");
       // description
-      // calling the functions checkIfSeoPageCity and checkIfSeoPageRange with the current location and arrays allCities and allRanges as arguments to determine the current city and mountain range (if any) based on the pathname property of the location object.
+      // checkIfSeoPageCity matches the current city (if any found in url params) with an entry in allCities.
       const city = checkIfSeoPageCity(location, allCities);
-      // const range = checkIfSeoPageRange(location, allRanges);
-      //clg
-      // console.log("Main/ city:", searchParams.get("city")); // working
-      // !!range && console.log("Main/ range:", searchParams.get("range")); // not working, do we need it?
       if (!!city && city.value) {
         searchParams.set("city", city.value);
         setSearchParams(searchParams);
@@ -183,75 +175,53 @@ console.log("L84 filter :", filter);
           header: `Öffi-Bergtouren für ${city.label}`,
           description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
         });
-      // } 
-      // else if (!!range && !!range.range) {
-      //   searchParams.set("range", range.range);
-      //   setSearchParams(searchParams);
-      //   setDirectLink({
-      //     header: `Gebirgsgruppe ${range.range}`,
-      //     description: `Alle Bergtouren in der Gebirgsgruppe "${range.range}".`,
-      //   });
       } else if (location && location.pathname !== "/suche") {
         navigate("/");
       }
     }
-  }, [allCities && allRanges]);
+  }, [allCities]);
 
-  //description  // TODO: legacy code, check if it is still needed
-  // This hook is essentially checking if the user navigated to the current page from a tour detail page, and if so, it extracts the tour object from the location state and sets it in the tour local state. The detailOpen state is set to true to open the tour detail modal by default when the page loads.
-  // The hook depends on the location object, so it is set as a dependency in the dependency array. This ensures that the hook is executed whenever the location object changes, which could happen if the user navigates to a different page.
-  // useEffect(() => {
-  //   if (!!location && !!location.state && !!location.state.tour) {
-  //     setTour(location.state.tour);
-  //     setDetailOpen(true);
-  //   }
-  // }, [location]);
-
-
-  
   //description:
-  //useEffect updates the state of activeFilter and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
+  //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    //clg
-    !!counter ? console.log(" L210 counter : ", counter) : console.log("L210 : falsy counter")
-    // setActiveFilter(countFilterActive(searchParams, filter) > 0);
-    if(!!localStorage.getItem("filterCount") && localStorage.getItem("filterCount") > 0){
-      setActiveFilter(localStorage.getItem("filterCount"));
-    }
-    // !!counter && setActiveFilter(counter > 0);
-    !!localStorage.getItem("filterValues") ? setFilterValues(localStorage.getItem("filterValues")) : setFilterValues({});
-
-    //clgs
-    console.log(" L213 Main/useEffect / activeFilter = ",activeFilter);
+    !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
+    !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //descriptions:
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     setMapView(searchParams.get("map") == "true");
-  }, [localStorage.getItem("filterCount")]);
+  }, [filterCountLocal,filterValuesLocal, searchParams]);
 
-  
-  // console.log(" L218 -> countFilterActive = ",countFilterActive(searchParams, filter));
-  // console.log(" L218 -> countFilterActive = ",counter);
-  // console.log(" L219 -> Main/activeFilter = ",activeFilter);
+  const goToStartPageUnavailableTour = () => {
+    navigate(`/?${searchParams.toString()}`);
+  };
 
   const onSelectTour = (tour) => {
+    //legacy code
     // let currentSearchParams = new URLSearchParams(searchParams.toString());// not working?
     // console.log("L250 searchParams :", urlSearchParamsToObject(searchParams));
-    
     // const city = currentSearchParams.get("city");
-    const city = searchParams.get("city");
-    const updatedSearchParams = new URLSearchParams();
-    
-    if (city) {
-      updatedSearchParams.set("city", city);
-    }
-    // if tour  does not exist -> redirect to start page else redirect to detail
-    // window.open("/tour?" + updatedSearchParams.toString());
-    if (!!tour && !!tour.id) {
-    //   window.open("/" + updatedSearchParams.toString());
-    // } else {
-    localStorage.setItem("tourId", tour.id);
-    window.open("/tour?" + searchParams.toString());
-    // window.open("/tour?" + updatedSearchParams.toString());
+    // const updatedSearchParams = new URLSearchParams();
+    // if (city) {
+      //   updatedSearchParams.set("city", city);
+      // }
+
+    // tour.id = 33333
+    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+
+    if (!!tour && !!tour.id && !!city) {
+      loadTour(tour.id, city)
+        .then((tourExtracted) => {
+          // console.log("L211 : we are inside loadTour.then")
+          if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+            //clgs
+            // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
+            // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
+            localStorage.setItem("tourId", tour.id);
+            window.open("/tour?" + searchParams.toString());
+          }else{
+            goToStartPageUnavailableTour();
+          }
+        })
     }
   };
 
@@ -314,7 +284,7 @@ console.log("L84 filter :", filter);
                 <Link
                   to={{
                     pathname: "/",
-                    search: paramsFromStartPage.toString(), // do we need to update the filter from localStorage?
+                    search: currentParams.toString(), 
                   }}
                   replace
                 >
@@ -381,7 +351,7 @@ console.log("L84 filter :", filter);
               {Number(totalTours).toLocaleString()}{" "}
               {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {(!!localStorage.getItem("filterCount") && localStorage.getItem("filterCount") > 0)  
+            {(!!filterCountLocal && filterCountLocal > 0)  
             && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;

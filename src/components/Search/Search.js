@@ -239,7 +239,6 @@ export function Search({
       window.location.reload();
     } else {
       setActiveFilter(false);
-      // setCounter(0);
       searchParams.delete("filter");
       localStorage.removeItem("filterValues");
       localStorage.setItem("filterCount", 0);
@@ -372,6 +371,7 @@ export function Search({
       },
     });
   };
+  
   const showSearchModal = () => {
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
@@ -389,9 +389,7 @@ export function Search({
     });
   };
 
-  
-  //Function that gets value f the selected option and directly start the search for tours
-  
+    
   const handleGoButton = () =>  {
     search();
     window.location.reload();
@@ -408,11 +406,8 @@ export function Search({
     }
     suggestion = autoSuggestion;
     hideModal();
-    // pageKey !== "detail" ? 
     search();
   };
-
-  let showFilterColor = counter && counter > 0 ?  "#101010" : "#fff";//alternativly use 'filterCount' in localStorage
 
   return (
     <Fragment>
@@ -554,9 +549,7 @@ export function Search({
                       sx={{
                         transition: "stroke 0.3s",
                         strokeWidth: 1.25,
-                        // stroke: {showFilterColor},
                         stroke: activeFilter ? "#fff" : "#101010",
-                        // stroke:  "#101010",
                       }}
                     />
                   </IconButton>
