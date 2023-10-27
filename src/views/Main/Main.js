@@ -196,32 +196,30 @@ console.log("L84 filter :", filter);
   };
 
   const onSelectTour = (tour) => {
-    //legacy code
-    // let currentSearchParams = new URLSearchParams(searchParams.toString());// not working?
-    // console.log("L250 searchParams :", urlSearchParamsToObject(searchParams));
-    // const city = currentSearchParams.get("city");
-    // const updatedSearchParams = new URLSearchParams();
-    // if (city) {
-      //   updatedSearchParams.set("city", city);
-      // }
-
     // tour.id = 33333
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
-
-    if (!!tour && !!tour.id && !!city) {
-      loadTour(tour.id, city)
-        .then((tourExtracted) => {
-          // console.log("L211 : we are inside loadTour.then")
-          if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            //clgs
-            // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
-            // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
-            localStorage.setItem("tourId", tour.id);
-            window.open("/tour?" + searchParams.toString());
-          }else{
-            goToStartPageUnavailableTour();
-          }
-        })
+    // tour.id=33333
+    if (!!tour && !!tour.id ) {
+      if(!!city){
+        loadTour(tour.id, city)
+          .then((tourExtracted) => {
+            // console.log("L211 : we are inside loadTour.then")
+            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+              //clgs
+              // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
+              // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
+              localStorage.setItem("tourId", tour.id);
+              window.open("/tour?" + searchParams.toString());
+            }else{
+              goToStartPageUnavailableTour();
+            }
+          })
+      }else{
+        localStorage.setItem("tourId", tour.id);
+        window.open("/tour?" + searchParams.toString());
+      }
+    }else{
+      goToStartPageUnavailableTour();
     }
   };
 
