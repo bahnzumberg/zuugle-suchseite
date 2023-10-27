@@ -327,6 +327,7 @@ const listWrapper = async (req, res) => {
             // 1.0/(ABS(1100-ascent)+1) AS rank_ascent,
             // CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END as rank_difficulty,
             // CASE WHEN traverse=1 THEN 1 ELSE 0.5 END AS rank_traverse,
+            // and on the quality_rating (the value of 10 should result in 1.1 and the value of 0 in 0.1)
 
             if(!!city && city.length > 0){
                 _traveltime_weight = ` * 2.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
@@ -344,6 +345,7 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (quality_rating+1)/10.0
                     ${_traveltime_weight}
                     as result_rank     
                     FROM tour AS i${i + 1}
@@ -365,6 +367,7 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (quality_rating+1)/10.0
                     ${_traveltime_weight}
                     as result_rank 
                     FROM tour AS i${i + 1}
