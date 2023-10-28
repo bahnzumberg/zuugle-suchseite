@@ -12,6 +12,7 @@ const path = require('path');
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
+router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
 router.get('/gpx', (req, res) => gpxWrapper(req, res));
@@ -20,6 +21,20 @@ router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper
 router.get('/:id/pdf', (req, res) => tourPdfWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id', (req, res) => getWrapper(req, res));
+
+const providerWrapper = async (req, res) => {
+    const provider = req.params.provider; // Use req.params to get the "provider" value from the URL
+    console.log("L27 req.params :", req.params)
+    const approved = await knex('provider').select('allow_gpx_download').where({ provider: provider }).first();
+    if (approved) {
+        console.log(" L30 : approved.allow_gpx_download : ",approved.allow_gpx_download )
+        res.status(200).json({ success: true, allow_gpx_download: approved.allow_gpx_download });
+    } else {
+        console.log(" L33 : approved is falsy " )
+        res.status(404).json({ success: false, message: "Provider not found" });
+    }
+}
+
 
 // description :
 // This function queries the database for the total number of tours, total connections, total ranges, total cities, and total provider using the knex.raw method. It then returns a JSON response with the queried values. The function is used to handle requests to the endpoint /total. The total number is used in the Start page where total all available tours is mentioned in the header. 
@@ -94,18 +109,6 @@ const getWrapper = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 
-    //previous code
-    // let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-    //     // let entry = await knex('tour').select(selects).where({id: id}).first();
-
-    //     let entryQuery = knex('tour').select(selects).where({id: id}).first();
-    //     // console.log("Knex Query:", entryQuery.toSQL());
-    //     let entry = await entryQuery;
-
-
-    //     entry = await prepareTourEntry(entry, city, domain, true);
-    //     res.status(200).json({success: true, tour: entry});
-    // }
 }
 //Brief Summery :
 // listWrapper takes req and res. Based on the properties of the req object, the function generates a query to a database (using the Knex.js library) and returns the results in the res object.
