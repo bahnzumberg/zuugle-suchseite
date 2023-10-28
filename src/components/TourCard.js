@@ -222,8 +222,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
           </div>
         </CardContent>
         
-        {/* {!!connections && connections.length > 0 && ( */}
-        {!!connections && connections.length > 0 && !!tour.id ? (
+        {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
+        {!!connections && connections.length > 0 && (
                 <Fragment>
                     <div className="bottom-container">
                     <CardContent>
@@ -241,22 +241,22 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
                     </div>
                 </Fragment>
             )
-            : ( <Fragment>
-                <div className="bottom-container">
-                    <CardContent>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
-                                {/* {t('start.keine_tour_gefunden')} */}
-                                Diese Tour ist derzeit nicht verfügbar
-                            </Typography>
-                        </Box>
-                    </CardContent>
-                </div>
-            </Fragment>)
+            // : ( <Fragment>
+            //     <div className="bottom-container">
+            //         <CardContent>
+            //             <Box
+            //                 display="flex"
+            //                 alignItems="center"
+            //                 justifyContent="center"
+            //             >
+            //                 <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
+            //                     {/* {t('start.keine_tour_gefunden')} */}
+            //                     Diese Tour ist derzeit nicht verfügbar
+            //                 </Typography>
+            //             </Box>
+            //         </CardContent>
+            //     </div>
+            // </Fragment>)
         }
         
       </Card>

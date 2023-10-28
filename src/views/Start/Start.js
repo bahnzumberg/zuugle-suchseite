@@ -161,12 +161,11 @@ function Start({
 
   const onSelectTour = (tour) => {
     // tour.id = 33333;
-    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+    // const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id ) {
-      if(!!city){
+      // if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
-            // console.log("L211 : we are inside loadTour.then")
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               //clgs
               // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
@@ -174,13 +173,13 @@ function Start({
               localStorage.setItem("tourId", tour.id);
               window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
             }else{
-              goToStartPage();
+              window.location.reload();
             }
           })
-      }else{
-        localStorage.setItem("tourId", tour.id);
-        window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-      }
+      // }else{
+      //   localStorage.setItem("tourId", tour.id);
+      //   window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+      // }
     }else{
       // goToStartPage();
       window.location.reload()

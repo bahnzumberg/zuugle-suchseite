@@ -223,7 +223,6 @@ const DetailReworked = (props) => {
     const tourId = localStorage.getItem("tourId");
 
     if (!!tourId) {
-      // tourId = 555;
       loadTour(tourId, city)
         .then((tourExtracted) => {
           // console.log("L225 : we are inside loadTour.then")
@@ -253,7 +252,7 @@ const DetailReworked = (props) => {
             console.error("Tour not found:", error);
             // Handle the 404 error scenario
             goToStartPageUnavailableTour();
-            return
+            // return
           } else {
             console.error("Error:", error);
             // Handle other errors

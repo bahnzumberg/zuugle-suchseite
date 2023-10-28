@@ -198,9 +198,8 @@ console.log("L84 filter :", filter);
   const onSelectTour = (tour) => {
     // tour.id = 33333
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
-    // tour.id = 33333
     if (!!tour && !!tour.id ) {
-      if(!!city){
+      // if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
             // console.log("L211 : we are inside loadTour.then")
@@ -214,10 +213,10 @@ console.log("L84 filter :", filter);
               goToStartPage();
             }
           })
-      }else{
-        localStorage.setItem("tourId", tour.id);
-        window.open("/tour?" + searchParams.toString());
-      }
+      // }else{
+        // localStorage.setItem("tourId", tour.id);
+        // window.open("/tour?" + searchParams.toString());
+      // }
     }else{
       goToStartPage();
     }
