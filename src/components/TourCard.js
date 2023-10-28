@@ -39,6 +39,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     // i18next
     const {t} = useTranslation();
+    console.log("L42 : t('start.keine_tour_gefunden')", t('start.keine_tour_gefunden'))
 
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
@@ -221,24 +222,42 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
           </div>
         </CardContent>
         
-        {!!connections && connections.length > 0 && (
-          <Fragment>
-            <div className="bottom-container">
-              <CardContent>
-                {!!connectionLoading ? (
-                  <Box sx={{ padding: "20px" }}>
-                    <LinearProgress />
-                  </Box>
-                ) : (
-                  <Fragment>
-                    {getAnreise()}
-                    {getAbreise()}
-                  </Fragment>
-                )}
-              </CardContent>
-            </div>
-          </Fragment>
-        )}
+        {/* {!!connections && connections.length > 0 && ( */}
+        {!!connections && connections.length > 0 && !!tour.id ? (
+                <Fragment>
+                    <div className="bottom-container">
+                    <CardContent>
+                        {!!connectionLoading ? (
+                        <Box sx={{ padding: "20px" }}>
+                            <LinearProgress />
+                        </Box>
+                        ) : (
+                        <Fragment>
+                            {getAnreise()}
+                            {getAbreise()}
+                        </Fragment>
+                        )}
+                    </CardContent>
+                    </div>
+                </Fragment>
+            )
+            : ( <Fragment>
+                <div className="bottom-container">
+                    <CardContent>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
+                                {/* {t('start.keine_tour_gefunden')} */}
+                                Diese Tour ist derzeit nicht verfügbar
+                            </Typography>
+                        </Box>
+                    </CardContent>
+                </div>
+            </Fragment>)
+        }
         
       </Card>
     );

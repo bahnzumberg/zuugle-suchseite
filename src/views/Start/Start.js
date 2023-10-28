@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
 import {
+  loadTour,
   loadFavouriteTours,
   loadTotalTours,
   loadTourConnections,
@@ -47,6 +48,7 @@ function Start({
   loadCities,
   loadTourConnections,
   totalTours,
+  loadTour,
   loadTotalTours,
   totalConnections,
   totalCities,
@@ -139,22 +141,50 @@ function Start({
     }
   };
 
+  const goToStartPage = () => {
+    navigate(`/?${searchParams.toString()}`);
+  };
+
+  // const onSelectTour1 = (tour) => {
+  //   let currentSearchParams = new URLSearchParams(searchParams.toString());
+  //   const city = currentSearchParams.get("city");
+  //   const updatedSearchParams = new URLSearchParams();
+
+  //   !!tour && localStorage.setItem("tourId", tour.id);
+  //   console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
+  //   window.open(
+  //     "/tour?" + updatedSearchParams.toString(),
+  //     "_blank",
+  //     "noreferrer"
+  //   );
+  // };
+
   const onSelectTour = (tour) => {
-    let currentSearchParams = new URLSearchParams(searchParams.toString());
-    const city = currentSearchParams.get("city");
-    const updatedSearchParams = new URLSearchParams();
-
-    !!tour && localStorage.setItem("tourId", tour.id);
-
-    if (city) {
-      updatedSearchParams.set("city", city);
+    // tour.id = 33333;
+    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+    if (!!tour && !!tour.id ) {
+      if(!!city){
+        loadTour(tour.id, city)
+          .then((tourExtracted) => {
+            // console.log("L211 : we are inside loadTour.then")
+            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+              //clgs
+              // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
+              // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
+              localStorage.setItem("tourId", tour.id);
+              window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+            }else{
+              goToStartPage();
+            }
+          })
+      }else{
+        localStorage.setItem("tourId", tour.id);
+        window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+      }
+    }else{
+      // goToStartPage();
+      window.location.reload()
     }
-    //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-    window.open(
-      "/tour?" + updatedSearchParams.toString(),
-      "_blank",
-      "noreferrer"
-    );
   };
 
   const onSelectRange = (range) => {
@@ -309,6 +339,7 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTotalTours,
   loadAllCities,
+  loadTour,
 };
 
 // description:
@@ -349,8 +380,8 @@ export default compose(
 // getPageHeader(null)
 // Header with totalTours and allCities props
 // A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
-// A RangeCardContainer component with favouriteRanges and onSelectTour props.
-// A ScrollingTourCardContainer component with favouriteTours, onSelectTour, loadTourConnections, and city props.
+// A RangeCardContainer component with favouriteRanges and on SelectTour props.
+// A ScrollingTourCardContainer component with favouriteTours, on SelectTour, loadTourConnections, and city props.
 // An AboutZuugleContainer component.
 // A UserRecommendationContainer component.
 // A SponsoringContainer component.

@@ -191,14 +191,14 @@ console.log("L84 filter :", filter);
     setMapView(searchParams.get("map") == "true");
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
-  const goToStartPageUnavailableTour = () => {
+  const goToStartPage = () => {
     navigate(`/?${searchParams.toString()}`);
   };
 
   const onSelectTour = (tour) => {
     // tour.id = 33333
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
-    // tour.id=33333
+    // tour.id = 33333
     if (!!tour && !!tour.id ) {
       if(!!city){
         loadTour(tour.id, city)
@@ -211,7 +211,7 @@ console.log("L84 filter :", filter);
               localStorage.setItem("tourId", tour.id);
               window.open("/tour?" + searchParams.toString());
             }else{
-              goToStartPageUnavailableTour();
+              goToStartPage();
             }
           })
       }else{
@@ -219,7 +219,7 @@ console.log("L84 filter :", filter);
         window.open("/tour?" + searchParams.toString());
       }
     }else{
-      goToStartPageUnavailableTour();
+      goToStartPage();
     }
   };
 
