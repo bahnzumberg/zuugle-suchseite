@@ -39,7 +39,6 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     // i18next
     const {t} = useTranslation();
-    console.log("L42 : t('start.keine_tour_gefunden')", t('start.keine_tour_gefunden'))
 
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE

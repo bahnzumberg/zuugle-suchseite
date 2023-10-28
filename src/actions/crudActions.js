@@ -120,7 +120,7 @@ export function loadList(
       // console.log(" L114 crudActions / res.data :",res.data) 
       //connections:(7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}] returns : (5) [{…}, {…}, {…}, {…}, {…}] success : true
       const total = res.data.total;
-      total && total.length && console.log("total length: ", total.length);
+      // total && total.length && console.log("total length: ", total.length);
       const filter = !!res.data.filter ? res.data.filter : null;
       //console.log(" L118: filter: ", filter) // null
       if (!!useState) {

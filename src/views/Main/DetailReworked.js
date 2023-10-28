@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "../../axios";
 import { lazy, useEffect, useState } from "react";
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
@@ -145,12 +146,33 @@ const DetailReworked = (props) => {
 
   const [providerPermit, setProviderPermit] = useState(true);
 
-  
-  useEffect(() => {
-    if (!!tour && tour.provider && tour.provider == "mapzssi") {
-      setProviderPermit(false);
-    }
-  }, [tour]);
+
+useEffect(() => {
+  if (!!tour && tour.provider) {
+    
+    // API call to check the provider's permit
+    // axios.get(`tours/provider/mapzssi`)  // test a case with value = 'n'
+    axios.get(`tours/provider/${tour.provider}`)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("L158 : first response.data", response.data)
+          return response.data;
+        }
+        throw new Error("Network response was not ok.");
+      })
+      .then((data) => {
+        // Check the `allow_gpx_download` value from the API response
+        if (data.allow_gpx_download === 'n') {
+          setProviderPermit(false); // Set the state accordingly
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching provider permit status:", error);
+      });
+  }
+  console.log("L172 : providerPermit", providerPermit)
+}, [tour]);
+
 
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
@@ -225,14 +247,7 @@ const DetailReworked = (props) => {
     if (!!tourId) {
       loadTour(tourId, city)
         .then((tourExtracted) => {
-          // console.log("L225 : we are inside loadTour.then")
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
-            tourDuration =
-            !!tourExtracted.data.tour.duration &&
-            tourExtracted.data.tour.duration;
-            //console.log(" L 218 : searchParams", searchParams.toString()); //id=17788&city=bad-ischl
-            //console.log(" L 219 : tourDuration", tourDuration)
             
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
@@ -259,9 +274,6 @@ const DetailReworked = (props) => {
           }
         });
     }
-    // console.log(" L 240 : tourDifficulty", tourDifficulty)
-    // console.log(" L 241 : tourDifficultyOrig", tourDifficultyOrig)
-
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
@@ -290,7 +302,6 @@ const DetailReworked = (props) => {
       }
     }
   }, [tour]);
-  // }, [!!tour]);
 
   useEffect(() => {
     let index = dateIndex;

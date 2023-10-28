@@ -78,6 +78,7 @@ if(!localStorage.getItem('visited')) {
             <Route path="/suche" element={<Main />} />
             <Route path="/about" element={<About />} />
             <Route path="/tour" element={<DetailReworked />} />
+            <Route path="/provider/:provider" element={<DetailReworked />} />
             <Route path="/imprint" element={<Impressum />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/:city" element={<Main />} />
