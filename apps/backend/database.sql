@@ -44,7 +44,7 @@ CREATE TABLE tour (
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
       publishing_date date DEFAULT NULL,
-      quality_rating varchar(20) DEFAULT NULL,
+      quality_rating integer DEFAULT 5,
       user_rating_avg decimal(6,2) DEFAULT NULL,
       cities JSONB DEFAULT NULL,
       cities_object JSONB DEFAULT NULL,

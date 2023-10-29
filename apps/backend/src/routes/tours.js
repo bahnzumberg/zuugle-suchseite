@@ -369,6 +369,7 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (quality_rating+1)/10.0
                     ${_traveltime_weight}
                     as result_rank     
                     FROM tour AS i${i + 1}
@@ -390,6 +391,7 @@ const listWrapper = async (req, res) => {
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (quality_rating+1)/10.0
                     ${_traveltime_weight}
                     as result_rank 
                     FROM tour AS i${i + 1}
