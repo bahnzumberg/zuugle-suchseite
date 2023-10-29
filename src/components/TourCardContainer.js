@@ -32,9 +32,7 @@ export default function TourCardContainer({
   
   let _filter = localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {} ;
   useEffect(() => {
-    // if(_filter){
     _loadTours();
-    // }
   }, [!!localStorage.getItem("filterValues")])
 
   useEffect(() => {
@@ -119,15 +117,6 @@ export default function TourCardContainer({
       if (retrievedTours.length === 0 || retrievedTours.length < 9) {
         setHasMore(false);        
       }
-      const scrollY = window.scrollY; // Current scroll position
-      const windowHeight = window.innerHeight;
-
-      // Scroll down one page
-      window.scrollTo({
-      top: scrollY + windowHeight,
-      behavior: 'smooth', 
-      });
-
     });
   };
   // {console.log("L76: hasMore", hasMore)} ;

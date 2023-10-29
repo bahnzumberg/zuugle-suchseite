@@ -75,7 +75,13 @@ export function Search({
   const [region, setRegion] = useState(null);
   const initialIsMapView = isMapView || false;
   const [activeFilter, setActiveFilter] = useState(false)
+  const [scrollToTop, setScrollToTop] = useState(false);
 
+  useEffect(() => {
+    if (scrollToTop) {
+      window.scrollTo({ top: 0 , behavior: 'smooth'});
+    }
+  }, [scrollToTop]);
   
   useEffect(() => {
     const filterParamValue = searchParams.get('filter');
@@ -200,6 +206,7 @@ export function Search({
     localStorage.removeItem("filterValues");
     localStorage.setItem("filterCount", 0);
   }
+
   // Filter modal constructed here
   const openFilter = () => {
     showModal("MODAL_COMPONENT", {
@@ -328,7 +335,6 @@ export function Search({
       navigate(goto + "?" + searchParams);
       window.location.reload();
     } else {
-     
       // console.log(" 333 => values passed to loadTours :", values);
       loadTours(values).then((res) => {
         if(pageKey == "detail") {
@@ -336,7 +342,7 @@ export function Search({
           navigate("/suche" + "?" + searchParams);
         }
         window.location.reload();
-        window.scrollTo({ top: 0 });
+        setScrollToTop(true);
       });
     }
   }; // end search()
