@@ -481,8 +481,8 @@ const listWrapper = async (req, res) => {
 
     if(searchIncluded){
         try {
-            console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
-            console.log("================================================")
+            // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
+            // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
             // console.log('L553: result', result.rows);
@@ -500,10 +500,10 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        console.log("#######################################################")
-        const sqlQuery = query.toString();
-        console.log(" L455: No search term/ final query :", sqlQuery)
-        console.log("#######################################################")
+        //console.log("#######################################################")
+        // const sqlQuery = query.toString();
+        // console.log(" L455: No search term/ final query :", sqlQuery)
+        // console.log("#######################################################")
         result = await query;
         count = await countQuery.first();
     }
@@ -515,20 +515,11 @@ const listWrapper = async (req, res) => {
         let searchparam = '';
 
         if (search !== undefined && search !== null && search.length > 0 && req.query.city !== undefined) {
-            searchparam = search.replace(/'/g, "''").toLowerCase;
+            searchparam = search.replace(/'/g, "''").toLowerCase();
 
             let _count = searchIncluded ? sql_count : count['count'];
             if (!!_count && _count > 1) {
-                const sql = `INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES(:searchparam, :count, :city, :language, :country);`;
-
-                await knex.raw(sql, {
-                    searchparam,
-                    count: _count,
-                    city: req.query.city,
-                    language: currLanguage,
-                    country: get_domain_country(domain)
-                });
-
+                await knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
             }
         }
     } catch (e) {
@@ -612,7 +603,7 @@ const listWrapper = async (req, res) => {
     // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
 
     let count_final = searchIncluded ? sql_count : count['count'];
-    console.log("L 563 count_final :", count_final)
+    // console.log("L 563 count_final :", count_final)
 
     res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges});
 }
