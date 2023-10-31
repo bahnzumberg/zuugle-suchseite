@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import {
   getPageHeader,
+  getTranslatedCountryName,
   listAllCityLinks,
   listAllRangeLinks,
 } from "../../utils/seoPageHelper";
@@ -145,20 +146,6 @@ function Start({
     navigate(`/?${searchParams.toString()}`);
   };
 
-  // const onSelectTour1 = (tour) => {
-  //   let currentSearchParams = new URLSearchParams(searchParams.toString());
-  //   const city = currentSearchParams.get("city");
-  //   const updatedSearchParams = new URLSearchParams();
-
-  //   !!tour && localStorage.setItem("tourId", tour.id);
-  //   console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-  //   window.open(
-  //     "/tour?" + updatedSearchParams.toString(),
-  //     "_blank",
-  //     "noreferrer"
-  //   );
-  // };
-
   const onSelectTour = (tour) => {
     // tour.id = 33333;
     // const city = !!searchParams.get("city") ? searchParams.get("city") : null;
@@ -210,6 +197,8 @@ function Start({
 
   // console.log(" L198 noToursAvailable :", noToursAvailable);
 
+  const country = getTranslatedCountryName();
+
   if (noToursAvailable) {
     // console.log(
     //   " L203 inside the true option/ noToursAvailable :",
@@ -231,7 +220,7 @@ function Start({
     // console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {getPageHeader(null)}
+        {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
         {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
@@ -372,19 +361,3 @@ export default compose(
     mapDispatchToProps
   )
 )(Start);
-
-// description
-// This code defines a React component that returns a conditional rendering based on the value of totalTours. If totalTours is equal to 0, the component returns a Box component with a Header and a Footer component.
-// Otherwise, it returns a Box component with several other components:
-// getPageHeader(null)
-// Header with totalTours and allCities props
-// A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
-// A RangeCardContainer component with favouriteRanges and on SelectTour props.
-// A ScrollingTourCardContainer component with favouriteTours, on SelectTour, loadTourConnections, and city props.
-// An AboutZuugleContainer component.
-// A UserRecommendationContainer component.
-// A SponsoringContainer component.
-// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
-// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
-// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
-// A Footer component.

@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 export const getPageHeader = (directLink) => {
   //   const { t } = useTranslation();
 
-  //console.log("directLink :", directLink) // seems to be always on null value
   if (!!directLink && !!directLink.header) {
     return (
       <HelmetProvider>
@@ -155,7 +154,7 @@ const translatedCountry = () => {
   return `start.${countryKey}`;
 };
 
-const getCountryKey = (name) => {
+export const getCountryKey = (name) => {
   switch (name) {
     case "Schweiz":
       return "schweiz";
@@ -174,7 +173,7 @@ const getCountryKey = (name) => {
   }
 };
 
-const getCountryName = () => {
+export const getCountryName = () => {
   let host = window.location.host;
   // let host = "www2.zuugle.fr";
 
@@ -192,6 +191,25 @@ const getCountryName = () => {
     return "Österreich";
   }
 };
+
+export const getTranslatedCountryName = () => {
+  let host = window.location.host;
+
+  if (host.indexOf("zuugle.ch") >= 0) {
+    return "start.schweiz";
+  } else if (host.indexOf("zuugle.de") >= 0) {
+    return "start.deutschland";
+  } else if (host.indexOf("zuugle.it") >= 0) {
+    return "start.italien";
+  } else if (host.indexOf("zuugle.fr") >= 0) {
+    return "start.frankreich";
+  } else if (host.indexOf("zuugle.si") >= 0) {
+    return "start.slowenien";
+  } else {
+    return "start.oesterreich";
+  }
+};
+
 
 const parseRangeFromUrl = (text) => {
   return decodeURI(text);
