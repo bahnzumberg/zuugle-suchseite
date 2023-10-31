@@ -6,7 +6,12 @@ router.get('/', (req, res) => listWrapper(req, res));
 //calls the database statement (createQuery) and sends the therefor needed props
 //it also waits for the result of the statement and returns the status of it
 const listWrapper = async (req, res) => {
-    const search = req.query.search;
+    let search = req.query.search;
+
+    if (typeof search !== 'string') { 
+        search = '';
+        return res.status(400).json({success: false, error: 'Bad Request - no valid search term'});
+    }
 
     if(!search || search.length == 0) {
         return res.status(200).json({success: true, error: 'no search term'})
