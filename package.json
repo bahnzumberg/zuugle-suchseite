@@ -7,7 +7,7 @@
   "version": "2.0.0",
   "private": true,
   "dependencies": {
-    "@alwaysmeticulous/recorder-loader": "^2.76.0",
+    "@alwaysmeticulous/recorder-loader": "^2.79.0",
     "@babel/polyfill": "^7.12.1",
     "@babel/traverse": "^7.23.2",
     "@emotion/react": "^11.8.1",
