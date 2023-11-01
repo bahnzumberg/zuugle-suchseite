@@ -23,9 +23,10 @@ import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
 import { IconButton, Typography } from "@mui/material";
 import {
-  checkIfSeoPageCity,
-  checkIfSeoPageRange,
+  // checkIfSeoPageCity,
+  // checkIfSeoPageRange,
   getPageHeader,
+  getCityLabel,
 } from "../../utils/seoPageHelper";
 import { loadRanges } from "../../actions/rangeActions";
 import DomainMenu from "../../components/DomainMenu";
@@ -100,10 +101,7 @@ try {
   filter = {}; 
 }
 console.log("L84 filter :", filter);
-// sample output : when using filter, gives correct object in the 1st renders
-//{coordinatesSouthWest: Array(0), coordinatesNorthEast: Array(0), singleDayTour: true, multipleDayTour: true, summerSeason: true, …}/
 
- 
   //clgs
   // console.log("L99: Main , totalTours upon entry:",totalTours)
   // console.log("L101: Main , filter upon entry:",filter)
@@ -128,6 +126,7 @@ console.log("L84 filter :", filter);
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
+  let cityLabel ="";
 
   //describe:
   // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
@@ -148,6 +147,14 @@ console.log("L84 filter :", filter);
     }
   }, []);
 
+  useEffect(() => {
+    if(!!location && !!allCities && allCities.length > 0){
+      cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
+      console.log("L 255 useEffect  : cityLabel :", cityLabel);
+      getPageHeader({ header: `Zuugli boy ${cityLabel}` });
+    }
+  },[allCities,location])
+
   
   useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
@@ -158,28 +165,31 @@ console.log("L84 filter :", filter);
   //description:
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
   //using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
-  useEffect(() => {
-    if (
-      !!location &&
-      location.pathname &&
-      allCities &&
-      allCities.length > 0 
-    ) {
-      // description
-      // checkIfSeoPageCity matches the current city (if any found in url params) with an entry in allCities.
-      const city = checkIfSeoPageCity(location, allCities);
-      if (!!city && city.value) {
-        searchParams.set("city", city.value);
-        setSearchParams(searchParams);
-        setDirectLink({
-          header: `Öffi-Bergtouren für ${city.label}`,
-          description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
-        });
-      } else if (location && location.pathname !== "/suche") {
-        navigate("/");
-      }
-    }
-  }, [allCities]);
+  // useEffect(() => {
+  //   if (
+  //     !!location &&
+  //     location.pathname &&
+  //     allCities &&
+  //     allCities.length > 0 
+  //   ) {
+
+  //     const city = checkIfSeoPageCity(location, allCities);
+  //     // console.log(" L171 : city :", city)
+  //     if (!!city && city.value) {
+  //       searchParams.set("city", city.value);
+  //       setSearchParams(searchParams);
+  //       setDirectLink({
+  //         header: `Öffi-Bergtouren für ${city.label}`,
+  //         description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
+  //       });
+  //     }else if(!!!city || !!!city.value){
+  //       setDirectLink(null);
+  //     }
+  //   }
+  //   if (location && location.pathname !== "/suche") {
+  //     navigate("/");
+  //   }
+  // }, [allCities]);
 
   //description:
   //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
@@ -241,17 +251,18 @@ console.log("L84 filter :", filter);
     );
   }, tourID);
 
-
+ 
   return (
     <div>
-      {/* description
-        getPageHeader() is imported from seoPageHelper.js This is a function that returns a JSX element containing the page (Head Tags /meta data). The directLink prop is inside one of the useEffects() hooks above and now passed as an argument to this getPageHeader, it is used to customize the header text and link based on the current page URL.  */}
       {/* clg */}
       {/*{console.log("directLink L 230:",directLink) }*/}{" "}
       {/* {console.log("L280: Main / counter :", counter)} */}
-      {getPageHeader(directLink)}
+      {/* {getPageHeader(directLink)} */}
+      {/* {getPageHeader({ header: `Zuugle ${t(`${cityLabel}`)}` })} */}
+      {/* {getPageHeader({ header: `Zuugle ${t(`${getCityLabel(location, allCities)}`)}` })} */}
+
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
-        {!!directLink && (
+        {/* {!!directLink && (
           <Box className={"seo-bar"}>
             <Typography
               variant={"h1"}
@@ -263,8 +274,9 @@ console.log("L84 filter :", filter);
               {directLink.description}
             </Typography>
           </Box>
-        )}
+        )} */}
         {/* new top header */}
+        {/* {getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
         <Box
           className="newHeader"
           sx={{

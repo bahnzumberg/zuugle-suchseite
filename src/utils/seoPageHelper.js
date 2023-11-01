@@ -3,19 +3,18 @@ import Box from "@mui/material/Box";
 import { Grid, Typography } from "@mui/material";
 // import {Helmet} from "react-helmet";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { useTranslation } from "react-i18next";
 
-//ToDo: Translate meta content in getPageHeader
 export const getPageHeader = (directLink) => {
-  //   const { t } = useTranslation();
-
+  console.log("L8 directLink: ", JSON.stringify(directLink));
+  
   if (!!directLink && !!directLink.header) {
+    console.log("L11 directLink.header: ", JSON.stringify(directLink.header));
     return (
       <HelmetProvider>
         <Helmet>
           <title>{directLink.header}</title>
-          <meta name="title" content={directLink.header} />
-          <meta name="description" content={directLink.description} />
+          <meta name="og:title" content={directLink.header} />
+          <meta name="og:description" content={directLink.description} />
         </Helmet>
       </HelmetProvider>
     );
@@ -39,24 +38,40 @@ export const getPageHeader = (directLink) => {
   }
 };
 
-export const checkIfSeoPageCity = (location, cities) => {
-  //console.log("seoPageHelper: location : " + location) // /suche
-  //console.log("seoPageHelper: cities.length : " + cities.length) // 37 (exists)
-  if (!!location && !!location.pathname && location.pathname == "/suche") {
-    return null;
-  } else if (!!location && !!location.pathname && cities.length > 0) {
-    //description:
-    // If location is null or pathname is null or undefined or the path is not a city path, the function returns null.
-    // If a city is found in the cities array that matches the value of the path name, the function returns an object representing the found city.
-    // If no city is found in the cities array that matches the value of the path name, the function returns undefined.
-    const found = cities.find(
-      (city) => city.value == location.pathname.substring(1)
-    );
-    return found;
-  } else {
-    return null;
+export const extractCityFromLocation = (location) => {
+  if (!!location && !!location.search) {
+    const searchParams = new URLSearchParams(location.search);
+    const cityParam = searchParams.get("city");
+    return cityParam;
   }
+  return null; // Return null if the city parameter is not found in the search
 };
+
+export const getCityLabel = (location, cities) => {
+  let citySlug = !!location ? extractCityFromLocation(location) : null;
+  if(!!cities && cities.length > 0){
+    const found = cities.find(
+      (city) => city.value == citySlug
+    );
+    return found.label;
+    }else{
+      return "";
+    }
+}
+// export const checkIfSeoPageCity = (location, cities) => {
+//   let citySlug = extractCityFromLocation(location);
+ 
+//   if (!!location && !!location.pathname && location.pathname == "/suche") {
+//     return null;
+//   } else if (!!location && !!location.pathname && cities.length > 0) {
+//     const found = cities.find(
+//       (city) => city.value == citySlug
+//     );
+//     return found;
+//   } else {
+//     return null;
+//   }
+// };
 
 // export const checkIfSeoPageRange = (location, ranges) => {
 //   if (!!location && !!location.pathname && location.pathname == "/suche") {
