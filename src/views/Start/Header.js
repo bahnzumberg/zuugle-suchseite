@@ -30,6 +30,7 @@ export default function Header({
 
   let tld = "";
   let domain = location.hostname;
+  console.log("type of domain : ", typeof(domain))
   if (domain.indexOf("zuugle.de") > 0) {
     tld = "de";
   } else if (domain.indexOf("zuugle.si") > 0) {

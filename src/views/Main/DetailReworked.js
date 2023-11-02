@@ -55,6 +55,8 @@ import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
 import {urlSearchParamsToObject} from "../../utils/globals";
+import {getPageHeader} from "../../utils/seoPageHelper";
+
 
 const setGpxTrack = (url, loadGPX, _function) => {
   loadGPX(url).then((res) => {
@@ -87,6 +89,7 @@ const DetailReworked = (props) => {
     setShowMobileMenu,
   } = props;
 
+  // getPageHeader(null);
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
   const [activeReturnConnection, setActiveReturnConnection] = useState(null);
@@ -119,6 +122,7 @@ const DetailReworked = (props) => {
     } else return t("start.mittel");
   };
   
+
   // pdf buttons shows up only when menu language is German
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 

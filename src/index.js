@@ -6,7 +6,8 @@ import App from './App';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from "./rootReducer";
-import { Helmet } from 'react-helmet';
+// import { Helmet } from 'react-helmet';
+import { HelmetProvider } from "react-helmet-async";
 import { Provider } from 'react-redux';
 import "./translations/i18n";
 import {BrowserRouter} from "react-router-dom";
@@ -34,21 +35,12 @@ const root = createRoot(document.getElementById('root'))
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <div>
-        <Helmet>
-          <link rel="canonical" href="https://www.zuugle.at" />
-          <link
-            id="favicon"
-            rel="icon"
-            href="/app_static/favicon.png"
-            type="image/x-icon"
-            />
-        </Helmet>
-      </div>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </Provider>
+    <HelmetProvider>
+      <Provider store={store}>
+          <BrowserRouter>
+              <App />
+          </BrowserRouter>
+      </Provider>
+    </HelmetProvider>
   </React.StrictMode>
 );

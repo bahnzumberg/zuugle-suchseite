@@ -2,28 +2,47 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Grid, Typography } from "@mui/material";
 // import {Helmet} from "react-helmet";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { Helmet } from "react-helmet-async";
 
 export const getPageHeader = (directLink) => {
   console.log("L8 directLink: ", JSON.stringify(directLink));
+
+  const openGraphTags = (
+    <>
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://www.zuugle.at/" />
+      <meta property="og:title" content="Zuugle - die Suchmaschine für Öffi-Bergtouren im österreichischen Alpenraum" />
+      <meta property="og:description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
+      <meta property="og:image" content="https://www.zuugle.at/app_static/img/Zuugle_Opengraph.jpg" />
+  
+      {/* Twitter */}
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:url" content="https://www.zuugle.at/" />
+      <meta property="twitter:title" content="Zuugle - die Suchmaschine für Öffi-Bergtouren im österreichischen Alpenraum" />
+      <meta property="twitter:description" content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an." />
+      <meta property="twitter:image" content="https://www.zuugle.at/app_static/img/Zuugle_Opengraph.jpg" />
+    </>
+  );
+  
   
   if (!!directLink && !!directLink.header) {
     console.log("L11 directLink.header: ", JSON.stringify(directLink.header));
     return (
-      <HelmetProvider>
+      // <HelmetProvider>
         <Helmet>
           <title>{directLink.header}</title>
           <meta name="og:title" content={directLink.header} />
           <meta name="og:description" content={directLink.description} />
+          {openGraphTags}
         </Helmet>
-      </HelmetProvider>
+      // </HelmetProvider>
     );
   } else {
     return (
-      <HelmetProvider>
+      // <HelmetProvider>
         <Helmet>
           {/* <title>start.helmet_title</title> */}
-          <title>Zuugle</title>
+          <title>Zuugle AUT</title>
           <meta
             name="title"
             content="Zuugle - die Suchmaschine für Öffi-Bergtouren"
@@ -31,9 +50,10 @@ export const getPageHeader = (directLink) => {
           <meta
             name="description"
             content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an."
-          />
+            />
+          {openGraphTags}
         </Helmet>
-      </HelmetProvider>
+      // </HelmetProvider>
     );
   }
 };

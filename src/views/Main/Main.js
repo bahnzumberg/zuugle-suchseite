@@ -147,13 +147,14 @@ console.log("L84 filter :", filter);
     }
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
       cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
-      console.log("L 255 useEffect  : cityLabel :", cityLabel);
-      getPageHeader({ header: `Zuugli boy ${cityLabel}` });
+      console.log("L 255 ->  : cityLabel :", cityLabel);
+      getPageHeader(null);
+      // getPageHeader({ header: `Zuugle ${cityLabel}` });
     }
-  },[allCities,location])
+  // },[allCities,location])
 
   
   useEffect(() => {
@@ -257,9 +258,6 @@ console.log("L84 filter :", filter);
       {/* clg */}
       {/*{console.log("directLink L 230:",directLink) }*/}{" "}
       {/* {console.log("L280: Main / counter :", counter)} */}
-      {/* {getPageHeader(directLink)} */}
-      {/* {getPageHeader({ header: `Zuugle ${t(`${cityLabel}`)}` })} */}
-      {/* {getPageHeader({ header: `Zuugle ${t(`${getCityLabel(location, allCities)}`)}` })} */}
 
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {/* {!!directLink && (
@@ -276,7 +274,7 @@ console.log("L84 filter :", filter);
           </Box>
         )} */}
         {/* new top header */}
-        {/* {getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
+        {/* {!!cityLabel && getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
         <Box
           className="newHeader"
           sx={{

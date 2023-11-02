@@ -79,6 +79,9 @@ function Start({
 
   let _city = searchParams.get("city");
 
+  let domain = location.hostname;
+  console.log("type of domain : ", typeof(domain))
+  
   useEffect(() => {
     // matomo
     _mtm.push({ pagetitel: "Startseite" });
@@ -220,7 +223,8 @@ function Start({
     // console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
+        {getPageHeader(null)}
+        {/* {!!country && getPageHeader({ header: `Zuugle ${t(`${country}`)}` })} */}
         {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
