@@ -23,7 +23,7 @@ import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
 import { IconButton, Typography } from "@mui/material";
 import {
-  // checkIfSeoPageCity,
+  checkIfSeoPageCity,
   // checkIfSeoPageRange,
   getPageHeader,
   getCityLabel,
@@ -165,31 +165,32 @@ console.log("L84 filter :", filter);
   //description:
   // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
   //using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
-  // useEffect(() => {
-  //   if (
-  //     !!location &&
-  //     location.pathname &&
-  //     allCities &&
-  //     allCities.length > 0 
-  //   ) {
+  useEffect(() => {
+    if (
+      !!location &&
+      location.pathname &&
+      allCities &&
+      allCities.length > 0 
+    ) {
 
-  //     const city = checkIfSeoPageCity(location, allCities);
-  //     // console.log(" L171 : city :", city)
-  //     if (!!city && city.value) {
-  //       searchParams.set("city", city.value);
-  //       setSearchParams(searchParams);
-  //       setDirectLink({
-  //         header: `Öffi-Bergtouren für ${city.label}`,
-  //         description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
-  //       });
-  //     }else if(!!!city || !!!city.value){
-  //       setDirectLink(null);
-  //     }
-  //   }
-  //   if (location && location.pathname !== "/suche") {
-  //     navigate("/");
-  //   }
-  // }, [allCities]);
+      const city = checkIfSeoPageCity(location, allCities);
+      // console.log(" L171 : city :", city); // city : {label: "Wien", value: "wien"}
+      if (!!city && city.value) {
+        searchParams.set("city", city.value);
+        setSearchParams(searchParams);
+        setDirectLink({
+          header: `Öffi-Bergtouren für ${city.label}`,
+          description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
+        });
+      }
+      else if(!!!city || !!!city.value){
+        setDirectLink(null);
+      }
+    }
+    // if (location && location.pathname !== "/suche") {
+    //   navigate("/");
+    // }
+  }, [allCities]);
 
   //description:
   //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
@@ -262,7 +263,7 @@ console.log("L84 filter :", filter);
       {/* {getPageHeader({ header: `Zuugle ${t(`${getCityLabel(location, allCities)}`)}` })} */}
 
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
-        {/* {!!directLink && (
+        {!!directLink && (
           <Box className={"seo-bar"}>
             <Typography
               variant={"h1"}
@@ -274,7 +275,7 @@ console.log("L84 filter :", filter);
               {directLink.description}
             </Typography>
           </Box>
-        )} */}
+        )}
         {/* new top header */}
         {/* {getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
         <Box
