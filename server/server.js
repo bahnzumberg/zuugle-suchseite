@@ -9,8 +9,8 @@ const app = express();
 import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	windowMs: 1 * 60 * 1000, // 15 minutes // 1 * 60 * 1000 = 1 minute
+	limit: 1, // Limit each IP to 100 requests per `window` (here, per 15 minutes). // 1 = 1 request per minute
 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 	// store: ... , // Use an external store for consistency across multiple server instances.
