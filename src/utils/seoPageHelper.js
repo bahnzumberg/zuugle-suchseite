@@ -3,9 +3,10 @@ import Box from "@mui/material/Box";
 import { Grid, Typography } from "@mui/material";
 // import {Helmet} from "react-helmet";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+// import { useTranslation } from "react-i18next";
 
 export const getPageHeader = (directLink) => {
-  console.log("L8 directLink: ", JSON.stringify(directLink));
+  // console.log("L8 directLink: ", JSON.stringify(directLink));
   
   if (!!directLink && !!directLink.header) {
     console.log("L11 directLink.header: ", JSON.stringify(directLink.header));
@@ -38,66 +39,87 @@ export const getPageHeader = (directLink) => {
   }
 };
 
-export const extractCityFromLocation = (location) => {
-  if (!!location && !!location.search) {
-    const searchParams = new URLSearchParams(location.search);
-    const cityParam = searchParams.get("city");
-    return cityParam;
+// TODO : legacy code
+// export const extractCityFromLocation = (location) => {
+//   if (!!location && !!location.search) {
+//     const searchParams = new URLSearchParams(location.search);
+//     const cityParam = searchParams.get("city");
+//     return cityParam;
+//   }
+//   return null; // Return null if the city parameter is not found in the search
+// };
+
+export const extractCityFromLocation = (location, cities) => {
+  //searching for the case: "/cityslug" in location.pathname, in that case we check if it is a valid city, 
+  if (!!location && location.pathname.startsWith('/')) {
+    const pathSegments = location.pathname.split('/').filter(segment => !!segment);
+    
+    if (pathSegments.length === 1 && pathSegments[0] === 'suche') {
+      if (!!location && !!location.search) {
+        const searchParams = new URLSearchParams(location.search);
+        const cityParam = searchParams.get("city");
+        return cityParam;
+      }
+    } else if (pathSegments.length === 1) {
+      const citySlug = pathSegments[0];
+
+      // Check if citySlug exists in the cities array
+      const matchingCity = cities.find(city => city.value === citySlug);
+      
+      if (matchingCity) {
+        
+        return matchingCity.value; // Set the city parameter to the label of the matching city
+      }
+    }
   }
-  return null; // Return null if the city parameter is not found in the search
+  
+  return null; // Return null if city param is not search or if the path doesn't match the pattern
 };
 
 export const getCityLabel = (location, cities) => {
-  let citySlug = !!location ? extractCityFromLocation(location) : null;
+  let citySlug = !!location ? extractCityFromLocation(location, cities) : null;
   if(!!cities && cities.length > 0){
     const found = cities.find(
       (city) => city.value == citySlug
     );
-    return found.label;
+    if (!!found && !!found.label) {
+      return found.label
+      }else return "" ;
     }else{
       return "";
     }
 }
-// export const checkIfSeoPageCity = (location, cities) => {
-//   let citySlug = extractCityFromLocation(location);
- 
-//   if (!!location && !!location.pathname && location.pathname == "/suche") {
-//     return null;
-//   } else if (!!location && !!location.pathname && cities.length > 0) {
-//     const found = cities.find(
-//       (city) => city.value == citySlug
-//     );
-//     return found;
-//   } else {
-//     return null;
-//   }
-// };
 
-// export const checkIfSeoPageRange = (location, ranges) => {
-//   if (!!location && !!location.pathname && location.pathname == "/suche") {
-//     return null;
-//   } else if (!!location && !!location.pathname && ranges.length > 0) {
-//     const found = ranges.find(
-//       (range) =>
-//         range.range_slug == parseRangeFromUrl(location.pathname.substring(1))
-//     );
-//     return found;
-//   } else {
-//     return null;
-//   }
-// };
+export const checkIfSeoPageCity = (location, cities) => {
+  console.log("L62 location: ", JSON.stringify(location)); // L62 {"pathname":"/amstetten","search":"?city=wien","hash":"","state":null,"key":"nslk04ae"}
+
+  let citySlug = extractCityFromLocation(location,cities); // this is the city extrtcted from city param and not from location.pathname
+  //console.log("L65 citySlug: ", JSON.stringify(citySlug)); // L63 citySlug:  "wien"
+ 
+  if (!!location && !!location.pathname && location.pathname == "/suche") {
+    return null;
+  } else if (!!location && !!location.pathname && cities.length > 0) {
+    const found = cities.find(
+      (city) => city.value == citySlug
+    );
+    return found;
+  } else {
+    return null;
+  }
+};
 
 //description
 //This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
   //   const { t } = useTranslation();
 
-  const country = translatedCountry();
+  const country = translatedCountry();// currently not displayed due to re-redering issues arrising from i18next translations
 
   if (!!cities) {
     const entries = cities.map((city, index) => {
+      // console.log("L99 city: ", JSON.stringify(city));
       let link = `${city.value}`;
-      if (!!searchParams && !!searchParams.get("p")) {
+      if (!!searchParams && !!searchParams.get("p")) { // redundant if we do not use provider anymore
         link = `${link}?p=${searchParams.get("p")}`;
       }
       return (
@@ -111,7 +133,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          {/* <>{country}</> */}
+          <>{country}</>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
@@ -162,11 +184,13 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 // };
 
 const translatedCountry = () => {
-  //   const { t } = useTranslation();
+    // const { t } = useTranslation();
   const country = getCountryName();
-  const countryKey = getCountryKey(country);
+  // const countryKey = getCountryKey(country);
 
-  return `start.${countryKey}`;
+  // return t(`start.${countryKey}`);
+  //try to pass the countryKey to the translation function in utils/translation.js
+  return country;
 };
 
 export const getCountryKey = (name) => {
