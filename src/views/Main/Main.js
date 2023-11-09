@@ -267,11 +267,11 @@ console.log("L84 filter :", filter);
           <Box className={"seo-bar"}>
             <Typography
               variant={"h1"}
-              sx={{ color: "#000000", fontSize: "18px", marginBottom: "5px" }}
+              sx={{ color: "#fff", fontSize: "18px", marginBottom: "5px" }}
             >
               {directLink.header}
             </Typography>
-            <Typography variant={"text"} sx={{ fontSize: "14px" }}>
+            <Typography variant={"h2"} sx={{ fontSize: "14px" , color: "#fff"}}>
               {directLink.description}
             </Typography>
           </Box>
