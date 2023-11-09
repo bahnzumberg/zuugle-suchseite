@@ -185,19 +185,19 @@ useEffect(() => {
 
 
   //Creating a new share link
-  // useEffect(() => {
-  //     if (isShareGenerating === true) {
-  //         generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
-  //             .then(res => {
-  //                 if (res.success === true){
-  //                     setShareLink(window.location.origin + "/tour?share=" + res.shareId);
-  //                 } else {
-  //                     console.log("Share link didn't generate as expected.");
-  //                 }
-  //             });
-  //         setIsShareGenerating(false);
-  //     }
-  // }, [isShareGenerating]);
+  useEffect(() => {
+      if (isShareGenerating === true) {
+          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+              .then(res => {
+                  if (res.success === true){
+                      setShareLink(window.location.origin + "/tour?share=" + res.shareId);
+                  } else {
+                      console.log("Share link didn't generate as expected.");
+                  }
+              });
+          setIsShareGenerating(false);
+      }
+  }, [isShareGenerating]);
 
   useEffect(() => {
     setIsShareGenerating(false);
@@ -439,12 +439,9 @@ useEffect(() => {
   // 		setSocialMediaDropDownToggle((current) => !current);
   // 	}
   // };
-  useEffect(() => {
-    // console.log("share link", shareLink);
-  }, [shareLink]);
+  
 
   const shareButtonHandler = async () => {
-    // console.log("inside beforeOnClick ");
     // Call generateShareLink and wait for completion
     await generateShareLink(
       tour.provider,
@@ -459,9 +456,7 @@ useEffect(() => {
       }
     });
     // console.log("share link",shareLink )
-    // setTimeout(() => {
     setSocialMediaDropDownToggle((current) => !current);
-    // }, 1000);
     // Return a resolved Promise to continue with the onClick
     return Promise.resolve();
   };
@@ -523,7 +518,7 @@ useEffect(() => {
         Share button
         When clicked, a link will be generated and the social media options will be shown
         */}
-        {/* <Button
+        <Button
           className="tour-detail-action-btns share-button"
           disabled={false}
           onClick={shareButtonHandler}
@@ -535,16 +530,7 @@ useEffect(() => {
           <span style={{ color: "#8B8B8B", marginLeft: "15px" }}>
             {shortenText(t("details.teilen_description"), 0, maxLength)}
           </span>
-        </Button> */}
-        {/* 
-		<Button className="tour-detail-action-btns" disabled={false}
-			onClick={() => {
-				setIsShareGenerating(true);
-				setSocialMediaDropDownToggle((current) => !current );
-			}}>
-			<ShareIcon /><span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>{t('details.teilen')}</span>
-			<span style={{ color: "#8B8B8B", marginLeft: "15px" }}>{shortenText(t('details.teilen_description'), 0, maxLength)}</span>
-		</Button> */}
+        </Button> 
 
         {/*
         Specific social media buttons */}
