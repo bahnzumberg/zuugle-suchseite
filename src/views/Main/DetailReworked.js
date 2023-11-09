@@ -534,7 +534,8 @@ useEffect(() => {
 
         {/*
         Specific social media buttons */}
-        {/* {(socialMediaDropDownToggle && !isShareGenerating && shareLink !== null) && <div> */}
+        {(socialMediaDropDownToggle && console.log("socialMediaDropDownToggle :", socialMediaDropDownToggle)) }
+        {(!!shareLink ? console.log("shareLink :", shareLink) : console.log("Falsy shareLink"))}
         {socialMediaDropDownToggle && shareLink !== null && (
           <div>
             <TwitterShareButton
