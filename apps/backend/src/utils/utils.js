@@ -92,21 +92,23 @@ export const decrypt = (salt, encoded) => {
 
 
 export const getTldFromDomain = (domain) => {
-    if(!!domain && domain.indexOf('zuugle.at') >= 0){
-        return "AT";
-    } else if(!!domain && domain.indexOf('zuugle.de') >= 0){
-        return "DE";
-    } else if(!!domain && domain.indexOf('zuugle.ch') >= 0){
-        return "CH";
-    } else if(!!domain && domain.indexOf('zuugle.it') >= 0){
-        return "IT";
-    } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
-        return "SI";
-    } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
-        return "FR";
-    } else {
-        return "AT";
-    }
+    if (typeof domain === "string")    
+        {if(!!domain && domain.indexOf('zuugle.at') >= 0){
+            return "AT";
+        } else if(!!domain && domain.indexOf('zuugle.de') >= 0){
+            return "DE";
+        } else if(!!domain && domain.indexOf('zuugle.ch') >= 0){
+            return "CH";
+        } else if(!!domain && domain.indexOf('zuugle.it') >= 0){
+            return "IT";
+        } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
+            return "SI";
+        } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
+            return "FR";
+        } else {
+            return "AT";
+        }
+    }else return "AT";
 }
 
 export const replaceFilePath = (filePath) => {
