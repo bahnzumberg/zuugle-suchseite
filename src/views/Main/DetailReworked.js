@@ -430,36 +430,36 @@ useEffect(() => {
     setActiveReturnConnection(connections[index].returns[0]);
   };
 
-  // const shareButtonHandler = (event) => {
-  // 	const clickedElement = event.target;
-  // 	const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
+  const shareButtonHandler = (event) => {
+  	const clickedElement = event.target;
+  	const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
 
-  // 	if (svgButton) {
-  // 		setIsShareGenerating(true);
-  // 		setSocialMediaDropDownToggle((current) => !current);
-  // 	}
-  // };
+  	if (svgButton) {
+  		setIsShareGenerating(true);
+  		setSocialMediaDropDownToggle((current) => !current);
+  	}
+  };
   
 
-  const shareButtonHandler = async () => {
-    // Call generateShareLink and wait for completion
-    await generateShareLink(
-      tour.provider,
-      tour.hashed_url,
-      moment(activeConnection?.date).format("YYYY-MM-DD"),
-      searchParams.get("city")
-    ).then((res) => {
-      if (res.success === true) {
-        setShareLink(window.location.origin + "/tour?share=" + res.shareId);
-      } else {
-        console.log("Share link didn't generate as expected.");
-      }
-    });
-    // console.log("share link",shareLink )
-    setSocialMediaDropDownToggle((current) => !current);
-    // Return a resolved Promise to continue with the onClick
-    return Promise.resolve();
-  };
+  // const shareButtonHandler = async () => {
+  //   // Call generateShareLink and wait for completion
+  //   await generateShareLink(
+  //     tour.provider,
+  //     tour.hashed_url,
+  //     moment(activeConnection?.date).format("YYYY-MM-DD"),
+  //     searchParams.get("city")
+  //   ).then((res) => {
+  //     if (res.success === true) {
+  //       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
+  //     } else {
+  //       console.log("Share link didn't generate as expected.");
+  //     }
+  //   });
+  //   // console.log("share link",shareLink )
+  //   setSocialMediaDropDownToggle((current) => !current);
+  //   // Return a resolved Promise to continue with the onClick
+  //   return Promise.resolve();
+  // };
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
