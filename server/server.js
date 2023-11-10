@@ -33,6 +33,7 @@ app.listen(port);
 app.use("/app_static", express.static(path.join(__dirname, '../app/app_static')));
 app.use('/api', proxy({target: 'http://localhost:6060', secure: false}));
 app.use("/public", express.static(path.join(__dirname, '../api/public'), {fallthrough: false}));
+app.use("/ip", ()=> response.send(request.ip), {fallthrough: false});
 
 app.use((req, res, next) => {
   //res.append('Access-Control-Allow-Origin', ['*']);
