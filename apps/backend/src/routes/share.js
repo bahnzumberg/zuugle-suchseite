@@ -34,7 +34,7 @@ const newShareWrapper = async (req, res) => {
         }*/
 
         //Inserting new share link
-        const result = await knex('disposible')
+        await knex('disposible')
             .insert({
                 provider: req.body.provider,
                 hashed_url: req.body.hashedUrl,
