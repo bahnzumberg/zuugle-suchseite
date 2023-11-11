@@ -24,7 +24,7 @@ router.get('/:id', (req, res) => getWrapper(req, res));
 
 const providerWrapper = async (req, res) => {
     const provider = req.params.provider; // Use req.params to get the "provider" value from the URL
-    console.log("L27 req.params :", req.params)
+    // console.log("L27 req.params :", req.params)
     const approved = await knex('provider').select('allow_gpx_download').where({ provider: provider }).first();
     if (approved) {
         console.log(" L30 : approved.allow_gpx_download : ",approved.allow_gpx_download )
