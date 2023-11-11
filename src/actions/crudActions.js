@@ -272,7 +272,7 @@ export function loadShareParams(shareId, city) {
 export function generateShareLink(provider, hashedUrl, date, city) {
   console.log("From generateShareLink :")
   return axios
-    .post("shares/", {
+    .post("/shares", {
       provider: provider,
       hashedUrl: hashedUrl,
       date: date,
