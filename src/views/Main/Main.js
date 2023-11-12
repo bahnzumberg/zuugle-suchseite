@@ -128,7 +128,7 @@ try {
   useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
       cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
-      console.log("L 255 useEffect  : cityLabel :", cityLabel);
+      // console.log("L 255 useEffect  : cityLabel :", cityLabel);
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
   },[allCities,location])
@@ -153,8 +153,8 @@ try {
         searchParams.set("city", city.value);
         setSearchParams(searchParams);
         setDirectLink({
-          header: `Öffi-Bergtouren für ${city.label}`,
-          description: `Alle Bergtouren, die du von ${city.label} aus, mit Bahn und Bus, erreichen kannst.`,
+          header: t(`main.oeffi_bergtouren_fuer_cityname`, { "city.label": city.label }),
+          description: t(`main.alle_bergtouren_von_cityname`, { "city.label": city.label }),
         });
       }
       else if(!!!city || !!!city.value){
