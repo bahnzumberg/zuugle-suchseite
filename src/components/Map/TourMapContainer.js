@@ -185,7 +185,7 @@ function TourMapContainer({
             multipleDayTour: filter.multipleDayTour,
             summerSeason: filter.summerSeason,
             winterSeason: filter.winterSeason,
-            children: filter.children,
+            // children: filter.children,
             traverse: filter.traverse,
             difficulty: filter.difficulty,
             minAscent: filter.minAscent,
