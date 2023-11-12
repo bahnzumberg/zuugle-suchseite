@@ -123,7 +123,6 @@ const DetailReworked = (props) => {
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 
   const handleCloseTab = () => {
-    // console.log("at handleCloseTab !")
     window.close();
   };
 
@@ -134,7 +133,6 @@ const DetailReworked = (props) => {
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
-  // has been moved to Main.js
   const goToStartPageUnavailableTour = () => {
     navigate(`/?${searchParams.toString()}`);
     window.location.reload();
@@ -270,22 +268,18 @@ useEffect(() => {
             // return
           } else {
             console.error("Error:", error);
-            // Handle other errors
+            // TODO: Handle other errors
           }
         });
     }
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-          // console.log("L247 -> res.data :", res.data);
           setConnections(res.data.result);
         }
       });
     }
   }, [searchParams]);
-
-  // console.log(" L 253 : tourDifficulty", tourDifficulty)
-  // console.log(" L 254 : tourDifficultyOrig", tourDifficultyOrig)
 
 
   useEffect(() => {
@@ -440,26 +434,6 @@ useEffect(() => {
   	}
   };
   
-
-  // const shareButtonHandler = async () => {
-  //   // Call generateShareLink and wait for completion
-  //   await generateShareLink(
-  //     tour.provider,
-  //     tour.hashed_url,
-  //     moment(activeConnection?.date).format("YYYY-MM-DD"),
-  //     searchParams.get("city")
-  //   ).then((res) => {
-  //     if (res.success === true) {
-  //       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
-  //     } else {
-  //       console.log("Share link didn't generate as expected.");
-  //     }
-  //   });
-  //   setIsShareGenerating(true);
-  //   setSocialMediaDropDownToggle((current) => !current);
-  //   // Return a resolved Promise to continue with the onClick
-  //   return Promise.resolve();
-  // };
 
   useEffect(() => {
   console.log("L464  : share link",shareLink )
@@ -639,10 +613,6 @@ useEffect(() => {
     </Box>
   );
 
-  // if(!tour?.title) {
-  // if(!tour) {
-  //   goToStartPageUnavailableTour();
-  // }  else {
     return (
       <Box sx={{ backgroundColor: "#fff" }}>
         <Box className="newHeader" sx={{ position: "relative" }}>
@@ -685,7 +655,6 @@ useEffect(() => {
               />
             )}
           </Box>
-          {/* {!!allCities && allCities.length > 0 && ( */}
           <Box
             sx={{
               backgroundColor: "#FFF",

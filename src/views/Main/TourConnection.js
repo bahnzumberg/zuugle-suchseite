@@ -89,10 +89,6 @@ export function TourConnection({tour, connectionEntity, currentIndex, setCurrent
             initialCity: cityInput,
             onSelect: (city) => {
                 hideModal();
-                /*if(!!city){
-                    setCityInput(city.label);
-                    setCity(city);
-                }*/
             },
             setSearchParams,
             title: "",

@@ -15,9 +15,7 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-// import { countFilterActive } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
-// import {useBackListener} from "../../utils/backListener";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
@@ -250,7 +248,7 @@ try {
             height: {
               xs: "170px",
               md: "150px",
-            }, // Set the desired height for the newHeader
+            },
           }}
           position={"relative"}
         >
@@ -353,9 +351,7 @@ try {
       )}
       {!!tours && tours.length > 0 && (
         <>
-          {/* //description: 
-                //either display 100% size map or display the TourCardContainer 
-				*/}
+          {/* //either display 100% size map or display the TourCardContainer */}
           {!!mapView ? (
             <Box className={"map-container"}>{memoTourMapContainer}</Box>
           ) : (
@@ -371,11 +367,6 @@ try {
                 },
               }}
             >
-              {/* {console.log("total passed to TourCardContainer", totalTours)}
-              {console.log(
-                "tours.length passed to TourCardContainer",
-                tours.length
-              )} */}
               <TourCardContainer
                 onSelectTour={onSelectTour}
                 tours={tours}
@@ -412,9 +403,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => {
-  //clg
-  // console.log("Main L333 list of ALL tours : state.tours.tours :", state.tours.tours)
-  // console.log("Main L334 : Store state mapping, state.tours.total :", state.tours.total)
+
   return {
     loading: state.tours.loading,
     tours: state.tours.tours,

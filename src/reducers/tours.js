@@ -38,7 +38,6 @@ const initialState = {
   favouriteRanges: [],
   isLoadingFilter: false,
   total_provider: 0,
-  // total_provider: ' ',
   total_cities: 0,
   total_ranges: 0,
   total_connections: 0,
@@ -69,11 +68,7 @@ export default (state = initialState, action = {}) => {
         loading: false,
         page: action.page,
       };
-
-      /*if(!!action.filter){
-				toPush.filter = action.filter;
-			}*/
-
+ 
       return {
         ...toPush,
       };

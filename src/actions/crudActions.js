@@ -44,9 +44,6 @@ export async function loadFile(
       type: typeDone,
     });
 
-    //clgs
-    // console.log("L34 crudActions /getFileFromServer res :", res)
-    // console.log("L39 crudActions /getFileFromServer res.request.responseURL :", res.request.responseURL)
     return res;
   } catch (error) {
     console.log(" error :, L39", error.message);
@@ -67,14 +64,7 @@ export function loadList(
   useState = true,
   language
 ) {
-  //clg
-  // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`);
-  //dispatch: packageFcn, getState: packageFcn, typeBefore: LOAD_TOUR_CONNECTIONS, typeDone:LOAD_TOUR_CONNECTIONS_DONE, stateName: tours, data: {"id":30296,"city":"graz","domain":"localhost:3000"}, route: tours/30296/connections, entityName: connections, usePagination: false,useState: true, language: en
-
-  // language && console.log("language: " + language)
-  //language && console.log("loadList / data: " + JSON.stringify(data));
-  // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
-  // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
+  
   // initialize language param
   const langPassed =
     language &&
@@ -82,14 +72,11 @@ export function loadList(
       ? language
       : "de";
 
-  // langPassed && console.log("passed language : " + langPassed)
-
   if (!!useState) {
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
-  //console.log("L91 crudActions / state :", state); // object with 31 properties (including tours and filter)
-  //console.log("L91 crudActions / stateName :", stateName); // 'tours'
+
   let params = {};
   if (state) {
     let pagination = {};
@@ -99,7 +86,7 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-    //console.log(" L101 data: inside if(state) : ", state.filter); //  filter is passed
+    //console.log(" L89 data: inside if(state) : ", state.filter); //  filter is passed
     // now pass the filter
     // data = {...data, filter: filter}
     params = {
@@ -110,19 +97,12 @@ export function loadList(
     };
   }
 
-  // console.log("wichtiiiig", route, { params: params });
   return axios
     .get(route, { params: params })
     .then((res) => {
       const entities = res.data[entityName];
-      //console.log(" L112 entityName :",entityName); // "connections"
-      // console.log(" L113 entities :",entities) // (7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}]
-      // console.log(" L114 crudActions / res.data :",res.data) 
-      //connections:(7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}] returns : (5) [{…}, {…}, {…}, {…}, {…}] success : true
       const total = res.data.total;
-      // total && total.length && console.log("total length: ", total.length);
       const filter = !!res.data.filter ? res.data.filter : null;
-      //console.log(" L118: filter: ", filter) // null
       if (!!useState) {
         dispatch({
           type: typeDone,
@@ -133,8 +113,6 @@ export function loadList(
           ranges: res.data.ranges,
         });
       }
-      //console.log("crudActions : response ", res); // issue #9 API
-
       return res;
     })
     .catch((err) => {
@@ -290,7 +268,6 @@ export function generateShareLink(provider, hashedUrl, date, city) {
 
 //
 export const getTotalCityTours = (city) => {
-  // return axios.get(`tours/total/?city=${city}`, {
   return axios
     .get(`tours/total/`, {
       params: {
@@ -298,8 +275,6 @@ export const getTotalCityTours = (city) => {
       },
     })
     .then((res) => {
-      // console.log("L225 res :");
-      // console.log(res);
       return res.data;
     });
 };

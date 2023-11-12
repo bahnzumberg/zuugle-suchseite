@@ -52,8 +52,3 @@ function About({}){
 }
 
 export default About;
-
-{/* 
-<Typography variant={"h5"} sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px"}}><i>Zuugle</i> {AboutLabels.user_group}</Typography>
-
-<Typography sx={{textAlign: "left", paddingBottom: "15px", lineHeight: "22px", textDecoration: "underline"}} className={"cursor-link"}  onClick={() => window.open(`https://www.facebook.com/groups/zuugle/`)}>{AboutLabels.link_zur_fb} </Typography> */}

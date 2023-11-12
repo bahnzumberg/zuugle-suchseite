@@ -249,7 +249,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 <Box sx={{ bgcolor: 'info.main', borderRadius: '16px', padding: '20px', position: 'relative' }}>
                     {!!connection && !!connection.id ? 
                     <Typography>
-                        {/* Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'} */}
                         { getFoundJourney()}
                     </Typography>
                         : <Typography>{journeyNotFoundText}</Typography>
