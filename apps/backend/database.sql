@@ -22,7 +22,7 @@ CREATE TABLE tour (
       distance decimal(6,2) DEFAULT NULL,
       title varchar(255) DEFAULT NULL,
       type varchar(255) DEFAULT NULL,
-      children int DEFAULT NULL,
+      -- children int DEFAULT NULL,
       number_of_days int DEFAULT NULL,
       traverse int DEFAULT NULL,
       country varchar(128) DEFAULT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE tour (
       nov boolean DEFAULT false,
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
-      publishing_date date DEFAULT NULL,
+      -- publishing_date date DEFAULT NULL,
       quality_rating integer DEFAULT 5,
       user_rating_avg decimal(6,2) DEFAULT NULL,
       cities JSONB DEFAULT NULL,
@@ -56,9 +56,9 @@ ALTER TABLE tour ADD COLUMN full_text TEXT;
 ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
-ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
+-- ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
 
-CREATE index on tour (internal_status);
+-- CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
@@ -133,7 +133,7 @@ CREATE TABLE fahrplan (
      totour_track_duration time DEFAULT NULL,
      fromtour_track_key int default null,
      fromtour_track_duration time DEFAULT NULL,
-     internal_status varchar(32) default 'new',
+--      internal_status varchar(32) default 'new',
      PRIMARY KEY (id)
 );
 
@@ -158,8 +158,8 @@ CREATE TABLE kpi (
       value int DEFAULT 0,
       PRIMARY KEY (name)
 );
-INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour WHERE internal_status='used';
-INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan WHERE internal_status='used';
+-- INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour WHERE internal_status='used';
+-- INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan WHERE internal_status='used';
 INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
 INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
 

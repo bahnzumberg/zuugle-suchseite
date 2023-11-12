@@ -91,7 +91,7 @@ const getWrapper = async (req, res) => {
         return
     }
     // } else {
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
     let entryQuery = knex('tour').select(selects).where({id: id}).first();
 
     try {
@@ -150,10 +150,10 @@ const listWrapper = async (req, res) => {
 
     //describe: create selects
     //construuct the array of selected columns within the table beforehand , the value of which is dependant on the value of the req.query.map.
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'publishing_date', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
     // CASE OF SEARCH
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order ,  publishing_date ,  quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
    
 
     let where = {};

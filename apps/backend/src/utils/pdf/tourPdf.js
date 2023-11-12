@@ -21,7 +21,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         {title: "Dauer", value: ((!!tour.number_of_days && tour.number_of_days > 1) ? `${tour.number_of_days} Tage` : `${convertNumToTime(tour.duration)}`)},
         {title: "Abstieg", value: `${tour.ascent} hm` },
         {title: "Aufstieg", value: `${tour.descent} hm`},
-        {title: "Kinderfreundlich", value: !!tour.children ? "Ja" : "Nein"},
+        // {title: "Kinderfreundlich", value: !!tour.children ? "Ja" : "Nein"},
         {title: "Überschreitung", value: !!tour.traverse ? "Ja" : "Nein"},
     ];
 

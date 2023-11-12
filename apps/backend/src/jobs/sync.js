@@ -387,7 +387,7 @@ export async function syncFahrplan(mode='dev'){
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_provider_idx;`);
-        await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_internal_status_idx;`);
+        // await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_internal_status_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_duration_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_hashed_url_city_slug_idx;`);
@@ -566,7 +566,6 @@ export async function syncTours(){
                                         t.distance,
                                         t.title,
                                         t.typ,
-                                        t.children,
                                         t.number_of_days,
                                         t.traverse,
                                         t.season,
@@ -583,7 +582,6 @@ export async function syncTours(){
                                         t.nov,
                                         t.dec,
                                         t.full_text,
-                                        t.publishing_date,
                                         t.quality_rating,
                                         t.user_rating_avg,
                                         t.difficulty_orig,
@@ -765,9 +763,9 @@ const bulk_insert_tours = async (entries) => {
 
     for (let i=0; i<entries.length; i++) {
         let entry = entries[i];
-        if(entry.publishing_date == '0000-00-00'){
-            delete entry['publishing_date'];
-        }
+        // if(entry.publishing_date == '0000-00-00'){
+        //     delete entry['publishing_date'];
+        // }
 
         let gpxData = [];
         if(entry.lat_start && entry.lon_start){
@@ -805,7 +803,7 @@ const bulk_insert_tours = async (entries) => {
             range_slug: entry.range_slug,
             range: entry.range_name,
             season: entry.season,
-            children: entry.children,
+            // children: entry.children,
             number_of_days: entry.number_of_days,
             jan: entry.jan,
             feb: entry.feb,
@@ -821,7 +819,7 @@ const bulk_insert_tours = async (entries) => {
             dec: entry.dec,
             month_order: calcMonthOrder(entry),
             traverse: entry.traverse,
-            publishing_date: entry.publishing_date,
+            // publishing_date: entry.publishing_date,
             quality_rating: entry.quality_rating,
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
