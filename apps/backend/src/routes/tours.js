@@ -26,10 +26,8 @@ const providerWrapper = async (req, res) => {
     const provider = req.params.provider; 
     const approved = await knex('provider').select('allow_gpx_download').where({ provider: provider }).first();
     if (approved) {
-        console.log(" L30 : approved.allow_gpx_download : ",approved.allow_gpx_download )
         res.status(200).json({ success: true, allow_gpx_download: approved.allow_gpx_download });
     } else {
-        console.log(" L33 : approved is falsy " )
         res.status(404).json({ success: false, message: "Provider not found" });
     }
 }
