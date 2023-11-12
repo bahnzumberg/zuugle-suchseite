@@ -3,7 +3,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
-// import { Language } from "@mui/icons-material";
 
 
 function LanguageMenu() {
@@ -34,7 +33,6 @@ function LanguageMenu() {
 	);
 	const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
 	const setLanguage = (lng) => {
-		// console.log("lang inside setLanguage :", lng);
 		localStorage.setItem("lang", lng);
 		langChange(lng);
 		setShowLanguageMenu(false);

@@ -177,7 +177,6 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        // console.log("Filter: ", bounds);
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -185,7 +184,6 @@ function TourMapContainer({
             multipleDayTour: filter.multipleDayTour,
             summerSeason: filter.summerSeason,
             winterSeason: filter.winterSeason,
-            // children: filter.children,
             traverse: filter.traverse,
             difficulty: filter.difficulty,
             minAscent: filter.minAscent,
@@ -199,7 +197,6 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
-        // console.log("filter values:", filterValues);
         if (filterValues == null) {
             searchParams.delete("filter");
         } else {

@@ -6,11 +6,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 function DomainMenu() {
 
-// let host = location.hostname;
 let host = location.href;
 
-// console.log("host: " + host);
-// console.log("host.indexOf", host.indexOf("http://localhost:3000"))
 let listOfDomains = [];
 let domain = 'www.zuugle.at';
 
@@ -225,11 +222,8 @@ const secondMenu = [
 					style={{ outline: "none", border: "none" }}
 				>
 					<div className="domainMenu colCenteral">
-						{/* {listOfDomains.map((item) => */}
 						{listOfDomains.map((item,i) =>
-							// getDomainText() === item.name
 							i === 0 ? 
-							// item.name === "Zuugle.at" ? 
 							(
 								<div
 									className="rowing"

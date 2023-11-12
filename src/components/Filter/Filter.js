@@ -39,7 +39,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [minDistance, setMinDistance] = useState(0);
     const [maxDistance, setMaxDistance] = useState(10000);
-    // const [children, setChildren] = useState(false);
     const [traverse, setTravers] = useState(false);
 
     const [rangeValues, setRangeValues] = useState([]);
@@ -57,8 +56,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     // Translation-related
     const {t} = useTranslation();
-
-    // const[activeBtn, setActiveBtn] = useState(true);
 
     // set translation variables
     const tourlaenge_label = t('filter.tourlaenge');
@@ -179,13 +176,13 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
-                    // console.log("L149 :: inside useEffect/parsed: ", parsed);
+
                     if(!!parsed){
                         setIfNotUndefined(parsed, "singleDayTour", setSingleDayTour);
                         setIfNotUndefined(parsed, "multipleDayTour", setMultipleDayTour );
                         setIfNotUndefined(parsed, "summerSeason", setSummerSeason);
                         setIfNotUndefined(parsed, "winterSeason", setWinterSeason);
-                        setIfNotUndefined(parsed, "difficulty", setDifficulty);//TODO: check if should be deleted
+                        setIfNotUndefined(parsed, "difficulty", setDifficulty);
                         setIfNotUndefined(parsed, "minAscent", setMinAscent);
                         setIfNotUndefined(parsed, "maxAscent", setMaxAscent);
                         setIfNotUndefined(parsed, "minDescent", setMinDescent);
@@ -194,7 +191,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         setIfNotUndefined(parsed, "maxTransportDuration", setMaxTransportDuration);
                         setIfNotUndefined(parsed, "minDistance", setMinDistance);
                         setIfNotUndefined(parsed, "maxDistance", setMaxDistance);
-                        //setIfNotUndefined(parsed, "children", setChildren); //TODO: check if should be deleted
                         setIfNotUndefined(parsed, "traverse", setTravers);
 
                         if(!!filter && !!filter.ranges && !!parsed.ranges){
@@ -249,9 +245,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(difficulty != 10){
             count++;
         }
-        // if(!!children){
-        //     count++;
-        // }
         if(!!traverse){
             count++;
         }
@@ -281,12 +274,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         return count;
     }
 
-    // useEffect(() => {
-    //     const count = countFilterActive();
-    //     console.log("L285 --> countFilterActive() returns:", count);
-    // }, [filter, singleDayTour, multipleDayTour, summerSeason, winterSeason, difficulty, minAscent, maxAscent, minDescent, maxDescent, minTransportDuration, maxTransportDuration, minDistance, maxDistance, rangeValues, typeValues, languageValues, children, traverse]);
-    
-
 
     const setIfNotUndefined = (object, key, _function) => {
         if(!!object){
@@ -308,7 +295,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
             winterSeason: mapPosNegValues(winterSeason),
-            // children: mapPosNegValues(children),
             traverse: mapPosNegValues(traverse),
             difficulty: difficulty,
             minAscent: minAscent,
@@ -327,7 +313,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         localStorage.setItem("filterCount", countFilterActive());
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
-    //setFilterFromFilter(filterValues); // passed back to Search back to Main and finally -> TourCardContainer
+
     const checkIfCheckedFromCheckbox = (list, key) => {
         return !!(!!list ? list: []).find(l => l.value == key && !!l.checked);
     }
@@ -544,7 +530,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 value={minAscent}
@@ -554,7 +539,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -583,7 +567,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -593,7 +576,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -627,7 +609,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -637,7 +618,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -665,7 +645,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -675,7 +654,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
