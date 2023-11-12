@@ -11,13 +11,10 @@ const listWrapper = async (req, res) => {
     const removeDuplicates = req.query.remove_duplicates == "true";
 
     const domain = req.query.domain;
-    // console.log("domain=", domain);
-    // console.log("hostname=", os.hostname());
 
     let whereRaw = null;
     /** city search */
     if(!!city && city.length > 0){
-        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
         whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`;
     }
     else {
@@ -45,7 +42,6 @@ const listWrapper = async (req, res) => {
 
     let result = await query;
     if(!!result){
-        // const hostname = location.hostname;
         const hostname = os.hostname();
 
         var host = "http://localhost:8080";

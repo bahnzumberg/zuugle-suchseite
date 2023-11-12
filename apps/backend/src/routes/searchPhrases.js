@@ -63,9 +63,4 @@ const createQuery = async (field, alias, city, search, language) => {
     })
     return result;
 }
-    
-    // console.log( "Query result", queryResult);
-    // console.log(queryResult.toKnexQuery().toSQL())
-    //console.log("L54 query.toQuery() :",query.toQuery()); // ex.  ]
-
 export default router;

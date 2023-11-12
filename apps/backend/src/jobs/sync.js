@@ -492,10 +492,6 @@ const insertFahrplanMultiple = async (entries) => {
                 tour_provider: entry.provider, 
             };
             delete entry.provider; // Delete the original "provider" property
-            // console.log("L502 sync.js / insertFahrplanMultiple : " )
-            // console.log("_________________________________ " )
-            // console.log(entry)
-            // console.log("_________________________________ " )
         }
 
         return entry;

@@ -30,7 +30,6 @@ const createQuery = async (field, city, search) => {
 
     /** city search */
     if(!!city && city.length > 0){
-        // query = query.whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
         query = query.whereRaw(`id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`);
     }
     else {

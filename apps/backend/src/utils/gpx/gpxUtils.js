@@ -146,16 +146,13 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 console.log('createImageFromMap , L127 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
             }
             const page = await browser.newPage();
-            await page.emulateMediaType('print'); //console.log("reached.....122")
-            await page.setCacheEnabled(false);// console.log("reached.....123")
-            await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); //console.log("reached.....124")
-            await page.waitForTimeout(10); //console.log("reached.....125")
-            await page.bringToFront(); //console.log("reached.....126")
-            // console.log('Screenshot start');
+            await page.emulateMediaType('print'); 
+            await page.setCacheEnabled(false);
+            await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); 
+            await page.waitForTimeout(10);
+            await page.bringToFront();
             await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
-            //console.log('Screenshot done: ', filePath);
             await page.close();
-            //console.log('page close done');
         }
     } catch (err) {
         console.log('createImageFromMap error with url=',url, ' error:', err.message);
@@ -210,13 +207,11 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
             ...addParam
         });
 
-        // !!filePath ? console.log("L194, gpxUtils/ filePath", filePath) : console.log("L194, gpxUtils/No filePath available")
         if(!!filePath){
             const page = await browser.newPage();
             await page.emulateMediaType('print');
             await page.setCacheEnabled(false);
             await page.goto(url, { timeout: 1000000, waitUntil: 'networkidle0' });
-            // await page.goto(url, { timeout: 45000, waitUntil: 'networkidle0' });
             await page.waitForTimeout(20);
             await page.bringToFront();
             await page.screenshot({path: filePath, type: "jpeg", quality: 90});
@@ -256,8 +251,6 @@ export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => 
                 if(!!trackAbreise && trackAbreise.elements){
                     json.elements[0].elements.push(trackAbreise);
                 }
-                //json.elements[0].elements[0].elements.splice( json.elements[0].elements[0].elements.length == 2 ? 1 : 0, 0, sequenceAnreise );
-                //json.elements[0].elements[0].elements.splice( json.elements[0].elements[0].elements.length == 3 ? 3 : 2, 0, sequenceAbreise );
             }
             const doc = create(convertXML.js2xml(json));
             return doc.end({prettyPrint: true});
@@ -275,7 +268,7 @@ const getSequenceFromFile = async (file) => {
         if(!!fileContent){
             const jsObj = convertXML.xml2js(fileContent);
             if(!!jsObj && jsObj.elements.length > 0 && jsObj.elements[0].elements.length > 0){
-                const found = jsObj.elements[0].elements[0];  //now returning whole track .elements.find(el => el.name == "trkseg");
+                const found = jsObj.elements[0].elements[0];   
                 return found;
             }
         }
@@ -284,9 +277,3 @@ const getSequenceFromFile = async (file) => {
     }
     return null;
 }
-
-// description:
-// This script exports a single function called createImagesFromMap, which creates and saves images of GPX files. It does so by using the puppeteer library to launch a headless instance of the Google Chrome browser, load a webpage that displays GPX files on a map, and then take screenshots of the resulting maps.
-// The function accepts an array of GPX file IDs, and for each ID, it generates a large and small image of the corresponding GPX file on a map. The images are stored in the public/gpx-image/ directory, with filenames based on the GPX file IDs.
-// Before creating the images, the function first checks if the images already exist in the public/gpx-image/ directory. If they do, it skips generating them and moves on to the next GPX file ID.
-// The script also contains some configuration options for running the script in different environments (development or production). It sets the path to the Chrome executable, sets the browser launch options, and sets the base URL for loading the GPX files in the browser.
