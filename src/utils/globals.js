@@ -233,10 +233,10 @@ export const countFilterActive = (searchParams, filter) => {
         count++;
         // console.log("globals / count value: step 3", count)
       }
-      if (!!_filter?.children) {
-        count++;
-        // console.log("globals / count value: step 4", count)
-      }
+    //   if (!!_filter?.children) {
+    //     count++;
+    //     // console.log("globals / count value: step 4", count)
+    //   }
       if (!!_filter?.traverse) {
         count++;
         // console.log("globals / count value: step 5", count)

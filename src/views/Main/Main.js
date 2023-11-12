@@ -100,7 +100,7 @@ try {
   console.error(" Main : Error parsing JSON:", error);
   filter = {}; 
 }
-console.log("L84 filter :", filter);
+// console.log("L84 filter :", filter);
 
   //clgs
   // console.log("L99: Main , totalTours upon entry:",totalTours)

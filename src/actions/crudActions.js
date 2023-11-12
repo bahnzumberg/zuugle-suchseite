@@ -270,18 +270,21 @@ export function loadShareParams(shareId, city) {
 
 //generateShareLink is used to generate a new sharing link to the corresponding tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
 export function generateShareLink(provider, hashedUrl, date, city) {
+  console.log("From inside generateShareLink")
   return axios
-    .post("shares/", {
+    .post("/shares", {
       provider: provider,
       hashedUrl: hashedUrl,
       date: date,
       city: city,
     })
     .then((res) => {
+      console.log("L281 crudActions / generateShareLink res.data :", res.data);
       return res.data;
     })
     .catch((err) => {
-      return err.response.data;
+      console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
+      return err.response;
     });
 }
 

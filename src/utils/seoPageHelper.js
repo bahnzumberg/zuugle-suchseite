@@ -3,13 +3,14 @@ import Box from "@mui/material/Box";
 import { Grid, Typography } from "@mui/material";
 // import {Helmet} from "react-helmet";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { t } from "i18next";
 // import { useTranslation } from "react-i18next";
 
 export const getPageHeader = (directLink) => {
   // console.log("L8 directLink: ", JSON.stringify(directLink));
   
   if (!!directLink && !!directLink.header) {
-    console.log("L11 directLink.header: ", JSON.stringify(directLink.header));
+    // console.log("L11 directLink.header: ", JSON.stringify(directLink.header));
     return (
       <HelmetProvider>
         <Helmet>
@@ -185,12 +186,32 @@ export const listAllCityLinks = (cities, searchParams = null) => {
 
 const translatedCountry = () => {
     // const { t } = useTranslation();
-  const country = getCountryName();
+  let country = getCountryName();
   // const countryKey = getCountryKey(country);
 
+  country = getTranslatedCountry(country);
   // return t(`start.${countryKey}`);
   //try to pass the countryKey to the translation function in utils/translation.js
   return country;
+};
+
+export const getTranslatedCountry = (name) => {
+  switch (name) {
+    case "Schweiz":
+      return t("start.schweiz");
+    case "Österreich":
+      return t("start.oesterreich");
+    case "Deutschland":
+      return t("start.deutschland");
+    case "Frankreich":
+      return t("start.frankreich");
+    case "Slowenien":
+      return t("start.slowenien");
+    case "Italien":
+      return t("start.italien");
+    default:
+      return t("start.oesterreich");
+  }
 };
 
 export const getCountryKey = (name) => {

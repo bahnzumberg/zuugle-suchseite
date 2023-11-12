@@ -305,9 +305,9 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     <Grid item xs={6}>
                         <TourProperty title={descent_label} text={formatNumber(tour.descent, ' hm')} />
                     </Grid>
-                    <Grid item xs={6}>
+                    {/* <Grid item xs={6}>
                         <TourProperty title={child_friendly_label} text={!!tour.children ? yes_label : no_label} />
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={6}>
                         <TourProperty title={overrun_label} text={!!tour.traverse ? yes_label : no_label} />
                     </Grid>

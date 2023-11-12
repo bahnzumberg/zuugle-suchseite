@@ -39,7 +39,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
     const [minDistance, setMinDistance] = useState(0);
     const [maxDistance, setMaxDistance] = useState(10000);
-    const [children, setChildren] = useState(false);
+    // const [children, setChildren] = useState(false);
     const [traverse, setTravers] = useState(false);
 
     const [rangeValues, setRangeValues] = useState([]);
@@ -194,7 +194,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         setIfNotUndefined(parsed, "maxTransportDuration", setMaxTransportDuration);
                         setIfNotUndefined(parsed, "minDistance", setMinDistance);
                         setIfNotUndefined(parsed, "maxDistance", setMaxDistance);
-                        setIfNotUndefined(parsed, "children", setChildren); //TODO: check if should be deleted
+                        //setIfNotUndefined(parsed, "children", setChildren); //TODO: check if should be deleted
                         setIfNotUndefined(parsed, "traverse", setTravers);
 
                         if(!!filter && !!filter.ranges && !!parsed.ranges){
@@ -249,9 +249,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(difficulty != 10){
             count++;
         }
-        if(!!children){
-            count++;
-        }
+        // if(!!children){
+        //     count++;
+        // }
         if(!!traverse){
             count++;
         }
@@ -308,7 +308,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
             winterSeason: mapPosNegValues(winterSeason),
-            children: mapPosNegValues(children),
+            // children: mapPosNegValues(children),
             traverse: mapPosNegValues(traverse),
             difficulty: difficulty,
             minAscent: minAscent,
