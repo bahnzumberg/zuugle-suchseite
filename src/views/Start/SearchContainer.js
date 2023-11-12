@@ -10,9 +10,6 @@ export default function SearchContainer({
   setShowMobileMenu,
   updateCapCity,
 }) {
-  // console.log("SearchContainer / goto : ", goto); // '/suche'
-  // console.log("SearchContainer / pageKey : ", pageKey); // 'detail'
-  // console.log("SearchContainer / showMobileMenu : ", showMobileMenu); // undefined
 
   return (
     <Box>

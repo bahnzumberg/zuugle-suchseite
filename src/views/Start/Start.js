@@ -38,7 +38,6 @@ const AboutZuugleContainer = lazy(() =>
 const UserRecommendationContainer = lazy(() =>
   import("../../components/UserRecommendationContainer")
 );
-// const Header = lazy(() => import("./Header"));
 const SponsoringContainer = lazy(() =>
   import("../../components/SponsoringContainer")
 );
@@ -64,12 +63,9 @@ function Start({
   noToursAvailable,
   error,
 }) {
-  // const [showMaintenance, setShowMaintenance] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
-
-  // console.log( "entry point : noToursAvailable :",noToursAvailable);
 
   const { t, i18n } = useTranslation();
   const abortController = new AbortController();
@@ -126,10 +122,10 @@ function Start({
     loadData();
 
     // Return a cleanup function
-    // return () => {
-    //   // Cancel any ongoing network request when the component unmounts
-    //   abortController.abort();
-    // };
+    return () => {
+      // Cancel any ongoing network request when the component unmounts
+      abortController.abort();
+    };
   }, [totalTours]);
 
   const getCity = () => {
@@ -147,16 +143,11 @@ function Start({
   };
 
   const onSelectTour = (tour) => {
-    // tour.id = 33333;
-    // const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id ) {
       // if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-              //clgs
-              // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
-              // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
               localStorage.setItem("tourId", tour.id);
               window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
             }else{
@@ -168,7 +159,6 @@ function Start({
       //   window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
       // }
     }else{
-      // goToStartPage();
       window.location.reload()
     }
   };
@@ -195,16 +185,10 @@ function Start({
     }
   };
 
-  // console.log(" L198 noToursAvailable :", noToursAvailable);
 
   const country = getTranslatedCountryName();
 
   if (noToursAvailable) {
-    // console.log(
-    //   " L203 inside the true option/ noToursAvailable :",
-    //   noToursAvailable
-    // );
-    // console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
@@ -213,11 +197,6 @@ function Start({
     );
   }
   else if (noToursAvailable === false) {
-    // console.log(
-    //   " L216 inside the false option / noToursAvailable  :",
-    //   noToursAvailable
-    // );
-    // console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
@@ -316,9 +295,6 @@ function Start({
   }
 }
 
-//description:
-// mapDispatchToProps is an object used in Redux to map action creators to the props of a component. In this code, it maps the action creators loadFavouriteTours, loadCities, loadRanges, loadTourConnectionsExtended, loadTourConnections, loadTotalTours, and loadAllCities to the props of the component. This means that when the component is connected to the Redux store, it will have access to these action creators as props, which it can use to dispatch actions to the store.
-// For example, if the component needs to load some data from an API, it can call the loadFavouriteTours action creator, which will dispatch an action to the store that triggers the data loading process. This pattern makes it easier to reuse action creators across multiple components and to test the components in isolation.
 const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
@@ -330,8 +306,6 @@ const mapDispatchToProps = {
   loadTour,
 };
 
-// description:
-// This is a constant called mapStateToProps which is a function that takes in a state object as an argument. This function returns an object that contains properties derived from the state object, specifically properties that are related to tours, ranges, cities, and other data related to tours and their connections.
 const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
@@ -350,13 +324,8 @@ const mapStateToProps = (state) => {
   };
 };
 
-// description:
-// The code exports a higher-order component (HOC) that is the result of composing the "Start" component with the "connect" function from the "react-redux" library. The "connect" function connects the "Start" component to the Redux store, allowing it to access the state stored in the store and dispatch actions to the store.
-// The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
-// The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
 export default compose(
   connect(
-    //connects the component Start to the redux store
     mapStateToProps,
     mapDispatchToProps
   )

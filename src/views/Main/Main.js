@@ -47,19 +47,6 @@ function Fragment(props) {
 
 Fragment.propTypes = { children: PropTypes.node };
 
-//describe :
-// imports various components from MUI, React Router, and other custom components.
-// uses hooks, such as useState and useEffect, to manage component state and perform side effects.
-// defines a function that counts the number of active filters in the search.
-// uses the react-redux library to connect the component to the Redux store.
-// defines functions that dispatch Redux actions to load tours, cities, ranges, filters, tour connections, and GPX files.
-// defines functions that dispatch Redux actions to show and hide modals.
-// defines a function that handles a click on a tour card to open the tour detail view.
-// uses the react-router-dom library to handle navigation and URL parameters.
-// defines functions that track page views and events using the Matomo tracker.
-// uses the Helmet component to manage the document head of the app.
-// renders various child components, such as the search bar, tour cards, and tour map.
-
 export function Main({
   loadTours,
   loadTour,
@@ -83,8 +70,6 @@ export function Main({
   // loadTourConnectionsExtended,
 }) {
 
-// console.log("L84: (typeof filter === 'string')", typeof filter === "string");
-// console.log("L84: (typeof filter === 'object')", typeof filter === "object");
 
 try {
   if (typeof filter === "string" && filter.length > 0) {
@@ -100,11 +85,6 @@ try {
   console.error(" Main : Error parsing JSON:", error);
   filter = {}; 
 }
-// console.log("L84 filter :", filter);
-
-  //clgs
-  // console.log("L99: Main , totalTours upon entry:",totalTours)
-  // console.log("L101: Main , filter upon entry:",filter)
 
 
   const navigate = useNavigate();
@@ -162,9 +142,6 @@ try {
   }, []);
 
 
-  //description:
-  // updating the state of searchParams and directLink based on the current location object and the arrays allCities and allRanges.
-  //using the location object to check if the user has landed on a specific page for a city or mountain range. If the user has landed on one of these pages, the code updates the search parameters to reflect the city or mountain range in the URL and sets the directLink object to display a specific header and description based on the page the user is on.
   useEffect(() => {
     if (
       !!location &&
@@ -174,7 +151,6 @@ try {
     ) {
 
       const city = checkIfSeoPageCity(location, allCities);
-      // console.log(" L171 : city :", city); // city : {label: "Wien", value: "wien"}
       if (!!city && city.value) {
         searchParams.set("city", city.value);
         setSearchParams(searchParams);
@@ -192,12 +168,10 @@ try {
     // }
   }, [allCities]);
 
-  //description:
   //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
     !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
-    //descriptions:
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     setMapView(searchParams.get("map") == "true");
   }, [filterCountLocal,filterValuesLocal, searchParams]);
@@ -207,7 +181,6 @@ try {
   };
 
   const onSelectTour = (tour) => {
-    // tour.id = 33333
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id ) {
       // if(!!city){
@@ -215,19 +188,12 @@ try {
           .then((tourExtracted) => {
             // console.log("L211 : we are inside loadTour.then")
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-              //clgs
-              // console.log(" L 214 : tourExtracted.data.tour", tourExtracted.data.tour)
-              // console.log("L209 URL path : ", "/tour?" + searchParams.toString() )
               localStorage.setItem("tourId", tour.id);
               window.open("/tour?" + searchParams.toString());
             }else{
               goToStartPage();
             }
           })
-      // }else{
-        // localStorage.setItem("tourId", tour.id);
-        // window.open("/tour?" + searchParams.toString());
-      // }
     }else{
       goToStartPage();
     }

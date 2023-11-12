@@ -20,9 +20,7 @@ export default function Header({
   showMobileMenu,
   setShowMobileMenu,
 }) {
-  // console.log(" L26 : allCities")
-  // console.log(allCities);
-
+  
   const [searchParams, setSearchParams] = useSearchParams();
   let city = searchParams.get("city");
   const [capCity, setCapCity] = useState(city);
@@ -58,7 +56,6 @@ export default function Header({
     getCity();
     if (!!city) {
       getTotalCityTours(city).then((data) => {
-        // data ? console.log("L61 tours_city :", data.tours_city) : console.log("nothing found");
         setTotalToursFromCity(data.tours_city);
       });
     }
@@ -97,7 +94,6 @@ export default function Header({
   };
 
   if (totalTours === 0) {
-    // console.log("L93: inside Header.js, totalTours === 0");
     return (
       <Box
         className={"header-container"}

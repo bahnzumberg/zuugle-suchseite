@@ -11,7 +11,7 @@ let axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(function (config) {
-  config.headers.Authorization = "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4";
+  config.headers.authorization = "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4";
   return config;
 });
 

@@ -14,14 +14,11 @@ import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
 import {hideModal, showModal} from "../../actions/modalActions";
 import SearchLight from "../../components/Search/SearchLight";
 
-//description
-//TourConnection is a React component that renders a timeline view of a tour's connections, and some functions (currently idle) that allow the user to select a city from which to start the tour.
 export function TourConnection({tour, connectionEntity, currentIndex, setCurrentIndex, selectedReturnIndex, setSelectedReturnIndex, loadCities, showModal, hideModal, onCitySelected}){
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [connectionLoading, setConnectionLoading] = useState(false);
     const [cityInput, setCityInput] = useState("");
-    const [openCitySearch, setOpenCitySearch] = useState(false);
 
     useEffect(() => {
         const entry = getEntryFromIndex();
