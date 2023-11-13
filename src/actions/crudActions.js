@@ -14,7 +14,7 @@ export async function loadFile(
   data,
   route,
   entityName,
-  responseType = "buffer"
+  responseType = "arraybuffer"
 ) {
   dispatch({ type: typeBefore, ...data });
   const state = getState()[stateName];

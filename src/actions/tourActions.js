@@ -178,7 +178,7 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
       data,
       "tours/" + data.id + "/pdf",
       "pdf",
-      "buffer"
+      "arraybuffer"
     );
     return response;
   } catch (error) {
