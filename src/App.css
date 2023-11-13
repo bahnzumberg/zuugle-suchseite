@@ -182,11 +182,13 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .search-bar--city {
   color: #8b8b8b !important;
+  width: 100%;
 }
 
 .search-bar--searchPhase {
   color: #070000 !important;
   font-weight: 600;
+  width: 100%;
 }
 
 .search-bar--city::first-letter {

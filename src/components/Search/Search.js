@@ -382,7 +382,6 @@ export function Search({
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
       onSearchSuggestion: getSearchSuggestion,
-      // onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
       title: "",
@@ -461,7 +460,6 @@ export function Search({
                       textAlign: "left",
                       ml: "14px",
                       color: "#101010",
-                      // backgroundColor: "red",
                       fontFamily: "Open Sans",
                       fontSize: { xs: "14px", sm: "15px" },
                       fontWeight: "500",
