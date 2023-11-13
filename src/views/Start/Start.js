@@ -23,7 +23,6 @@ import {
   getPageHeader,
   getTranslatedCountryName,
   listAllCityLinks,
-  listAllRangeLinks,
 } from "../../utils/seoPageHelper";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
@@ -285,9 +284,6 @@ function Start({
 
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )}
-        {!showMobileMenu && (
-          <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
         )}
         {!showMobileMenu && <Footer />}
       </Box>
