@@ -5,6 +5,7 @@ import DifficultySlider from "./DifficultySlider";
 import TextWithIcon from "./TextWithIcon";
 import Intensity from "../icons/Intensity";
 
+//marked for deletion // check if this is used anywhere
 export default function DifficultyContainer({value, disabled = false}){
 
     return <Box sx={{ bgcolor: 'info.main', borderRadius: '16px', padding: '20px', position: 'relative' }}>

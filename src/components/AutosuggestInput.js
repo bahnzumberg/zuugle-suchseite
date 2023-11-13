@@ -4,6 +4,7 @@ import Async from 'react-select/async';
 import Home from "../icons/Home";
 import ChevronDown from "../icons/ChevronDown";
 
+//marked for deletion
 export default function AutosuggestInput({loadFunction}){
 
     const DropdownIndicator = (props) => {

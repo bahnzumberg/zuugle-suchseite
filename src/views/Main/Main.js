@@ -31,7 +31,6 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import {urlSearchParamsToObject} from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -128,7 +127,6 @@ try {
   useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
       cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
-      // console.log("L 255 useEffect  : cityLabel :", cityLabel);
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
   },[allCities,location])
@@ -184,7 +182,6 @@ try {
       // if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
-            // console.log("L211 : we are inside loadTour.then")
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
               window.open("/tour?" + searchParams.toString());

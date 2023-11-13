@@ -21,13 +21,6 @@ import {tourTypes} from "../utils/language_Utils";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-//description
-// This component is used to display detailed information about a tour and its associated connections.
-//detailed information:
-//It imports various components and icons from the @mui/material library and some custom components and utility functions.
-// The component takes in several props such as tour, onSelectTour, loadTourConnections, and city. It uses the useState hook to keep track of the state of various variables such as image, imageOpacity, connectionLoading, connections, and returns. It also uses the useEffect hook to fetch and set the image, connections, and returns based on the tour and city props.
-// The renderProps() function returns an array of JSX elements that contain information about the tour such as its duration, difficulty, type, distance, and ascent/descent. 
-// The component also includes a shortened_url() function which returns a shortened version of the URL for the tour.
 export default function TourCard({tour, onSelectTour, loadTourConnections, city}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);

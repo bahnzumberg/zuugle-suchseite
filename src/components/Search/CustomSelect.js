@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import {
   InputBase,
   Grid,
@@ -13,18 +12,13 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import {
   ArrowForward,
-  ArrowRight,
   Close,
-  LocationCityOutlined,
-  LocationOn,
   LocationOnOutlined,
 } from "@mui/icons-material";
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
-  // console.log("L24 searchPhrase: " + searchPhrase);
-  // add searchParam to value of input field if exists
-
+ 
   return (
     <>
       <Grid container>

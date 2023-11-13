@@ -33,7 +33,7 @@ const setGpxTrack = (url, loadGPX, _function) => {
     })
 }
 
-
+//marked for deletion
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
     
     const [gpxPositions, setGpxPositions] = useState(null);

@@ -4,8 +4,6 @@ import {Typography} from "@mui/material";
 import {getDomainText} from "../../utils/globals";
 
 export default function Header({title, subTitle}){
-    // console.log("title",title);
-    // console.log("subTitle",subTitle);
     let tld = location.hostname.slice(-2);
     if (tld.length != 2) { tld = 'at'; }
 

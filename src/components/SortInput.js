@@ -2,6 +2,7 @@ import * as React from 'react';
 import Select from "react-select";
 import { useTranslation } from 'react-i18next';
 
+//marked for deletion  with ResultBar.js
 export default function SortInput({onChange, value, disabled}){
 
     const{t} =useTranslation();

@@ -26,7 +26,6 @@ import fileDownload from "js-file-download";
 import { parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-// import {Alert} from "@mui/lab";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
@@ -36,8 +35,6 @@ import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
-// import LanguageMenu from "../../components/LanguageMenu";
-// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 import { generateShareLink, loadShareParams } from "../../actions/crudActions";
 import {
   EmailShareButton,
@@ -54,7 +51,6 @@ import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
-import {urlSearchParamsToObject} from "../../utils/globals";
 
 const setGpxTrack = (url, loadGPX, _function) => {
   loadGPX(url).then((res) => {

@@ -4,7 +4,6 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "../../icons/SearchIcon";
 import ClearSearchIcon from "../../icons/ClearSearchIcon";
-// import { useTranslation } from "react-i18next";
 
 const CssTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -39,7 +38,6 @@ export default function CityInput({
   onClick,
   disabled,
 }) {
-  //   const { t } = useTranslation();
 
   const placeholder = () => {
     let host = window.location.host;

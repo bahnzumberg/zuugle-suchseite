@@ -64,7 +64,6 @@ export function Search({
   const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   let suggestion; //variable that stores the text of the selected option
-  //let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
   const [city, setCity] = useState({
@@ -104,7 +103,7 @@ export function Search({
     if (pageKey === "detail") {
       if (!!city) {
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-        writeCityToLocalStorage(city); // store the city NAME in local storage
+        writeCityToLocalStorage(city);
 
         /** load regions initially */
         loadRegions({ city: city });  
@@ -174,15 +173,14 @@ export function Search({
       type: type, 
       search: search,
       filter: filterValues ? filterValues : filter,  // get this from Filter.js (through Search and Main)
-      // filter: filter,
       sort: sort,
       provider: provider,
       map: searchParams.get("map"),
     });
 
     result.then((resolvedValue) => {
-      //console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
-      // console.log("Search L165 result of load Tours", resolvedValue);
+      //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
+      // console.log("Search L183 result of load Tours", resolvedValue);
     });
   }, [
     // useEffect dependencies
@@ -224,16 +222,14 @@ export function Search({
     });
   };
 
-  //description
+  //important:
   // state filterValues(from Main) should be set at submission here
   // or be set at at handleResetFilter to null
   // state to be passed then from Main to TourCardContainer
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
-    //clgs
-    // console.log("Search L233 filterValues/Filter.js: ", filterValues)
-    // !!filterValues.traverse && console.log("Search L234 handleFilterSubmit/traverse : ", filterValues.traverse)
+    
     !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
@@ -253,21 +249,13 @@ export function Search({
     }
   };
 
-  // useEffect(() => {
-  //   if (pageKey === "detail") {
-  //     let city = searchParams.get("city");
-  //     // navigate(`/?${!!city ? "city=" + city : ""}`);
-  //   }
-  // }, [city]);
-
-  
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
-    setFilterValues(null);  // Reset the state in parent Main
+    setFilterValues(null);  // reset state in parent Main
     localStorage.removeItem("filterValues");
     localStorage.setItem("filterCount", 0);
   };
@@ -335,7 +323,6 @@ export function Search({
       navigate(goto + "?" + searchParams);
       window.location.reload();
     } else {
-      // console.log(" 333 => values passed to loadTours :", values);
       loadTours(values).then((res) => {
         if(pageKey == "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));
@@ -419,7 +406,7 @@ export function Search({
       <Box
         className="main-search-bar"
         sx={{
-          // width: "100%",
+          width: "100%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",

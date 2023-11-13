@@ -206,12 +206,7 @@ export const defaultFilterValues = [    //index
     {ranges_length: 62 },               // : 9
 ]
 export const countFilterActive = (searchParams, filter) => {
-    //description:
-    //The function first retrieves the current filter options from the URL search parameters using getFilterFromParams(searchParams).
-    // It initializes a variable called count to 0, which will keep track of the number of active filters.
-    // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
-    // Finally, the function returns the value of count.
-
+    
     let count = 0;
 
     const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
