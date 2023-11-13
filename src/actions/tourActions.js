@@ -198,7 +198,7 @@ export function loadTourGpx(data) {
       data,
       "tours/" + data.id + "/gpx",
       "gpx",
-      "arraybuffer"
+      "buffer"
     );
   };
 }

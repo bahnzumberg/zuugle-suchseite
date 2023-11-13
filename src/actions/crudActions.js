@@ -36,7 +36,7 @@ export async function loadFile(
       params: params,
       timeout: 60000,
       headers: {
-        Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
+        "authorization": "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
       },
     });
 
