@@ -178,7 +178,7 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
       data,
       "tours/" + data.id + "/pdf",
       "pdf",
-      "arraybuffer"
+      "buffer"
     );
     return response;
   } catch (error) {
@@ -198,7 +198,7 @@ export function loadTourGpx(data) {
       data,
       "tours/" + data.id + "/gpx",
       "gpx",
-      "arraybuffer"
+      "buffer"
     );
   };
 }
