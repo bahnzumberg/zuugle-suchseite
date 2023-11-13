@@ -19,7 +19,7 @@
     "@mui/x-date-pickers": "^6.17.0",
     "@react-leaflet/core": "^2.1.0",
     "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^14.1.0",
     "@testing-library/user-event": "^14.4.3",
     "again": "0.0.1",
     "ajv": "^8.12.0",
