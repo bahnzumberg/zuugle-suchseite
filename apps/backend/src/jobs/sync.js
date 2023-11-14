@@ -90,8 +90,8 @@ const deleteFilesOlder30days = (dirPath) => {
 
     if(process.env.NODE_ENV != "production"){
         commandline = "touch .nothing";
-        const { execnothing } = require('child_process');
-        execnothing(commandline, (err, stdout, stderr) => {
+        const { exec } = require('child_process');
+        exec(commandline, (err, stdout, stderr) => {
             if (err) {
                 // node couldn't execute the command
                 return;
