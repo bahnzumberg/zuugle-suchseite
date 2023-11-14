@@ -51,14 +51,59 @@ export async function fixTours(){
                     WHERE i.provider=c.provider
                     AND i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
-                    
-                    
-                    
+                             
                     
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
+
+
+    // All files, which are older than 30 days, are deleted now. This means they have to be 
+    // recreated new and by this we ensure all is updated and unused files are removed.  
+    let proddevPath = '';
+    if(process.env.NODE_ENV == "production"){
+        proddevPath = "../"
+    } else {
+        proddevPath = "../../";
+    }
+    deleteFilesOlder30days(path.join(__dirname, proddevPath, "public/gpx/"));
+    deleteFilesOlder30days(path.join(__dirname, proddevPath, "public/gpx-image/"));
+    deleteFilesOlder30days(path.join(__dirname, proddevPath, "public/gpx-image-with-track/"));
+    deleteFilesOlder30days(path.join(__dirname, proddevPath, "public/gpx-track/"));
 }
+
+
+const deleteFilesOlder30days = (dirPath) => {
+    let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
+    // console.log("commandline = ", commandline)
+    const { exec } = require('child_process');
+    exec(commandline, (err, stdout, stderr) => {
+        if (err) {
+            // node couldn't execute the command
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+    });
+
+    if(process.env.NODE_ENV != "production"){
+        commandline = "touch .nothing";
+        const { execnothing } = require('child_process');
+        execnothing(commandline, (err, stdout, stderr) => {
+            if (err) {
+                // node couldn't execute the command
+                return;
+            }
+
+            // the *entire* stdout and stderr (buffered)
+            console.log(`Only on local environment: stdout: ${stdout}`);
+            console.log(`Only on local environment: stderr: ${stderr}`);
+        });
+    }
+}
+
 
 
 export async function writeKPIs(){
@@ -159,7 +204,7 @@ async function _syncConnectionGPX(key, fileName, title){
         }
 
         if(!!key){
-            deleteFileModulo30(fileName, filePath);
+            // deleteFileModulo30(fileName, filePath);
 
             let trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
@@ -246,7 +291,7 @@ async function _syncGPX(prov, h_url, title){
             } else {
                 filePath = path.join(__dirname, "../../", fileName);
             }
-            deleteFileModulo30(h_url, filePath);
+            // deleteFileModulo30(h_url, filePath);
 
             if (!!!fs.existsSync(filePath)) {
                 const waypoints = await knex('gpx').select().where({hashed_url: h_url, provider: prov}).orderBy('waypoint');
