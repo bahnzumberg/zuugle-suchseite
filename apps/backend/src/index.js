@@ -31,7 +31,7 @@ app.use(express.json({limit: '1024mb'}));
 app.use(express.urlencoded({limit: '1024mb',extended: false}));
 
 //static file access
-app.use("/public", cors({}), express.static('public'));
+app.use("/public", cors(corsOptions), express.static('public'));
 
 app.use('/api/tours', cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
