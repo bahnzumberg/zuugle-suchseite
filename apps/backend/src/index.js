@@ -31,7 +31,7 @@ app.use(express.json({limit: '1024mb'}));
 app.use(express.urlencoded({limit: '1024mb',extended: false}));
 
 // preflight options requests for json files fail otherwise
-app.options("/public", cors(corsOptions));
+app.options("/public/*", cors(corsOptions));
 //static file access
 app.use("/public", cors(corsOptions), express.static('public'));
 
