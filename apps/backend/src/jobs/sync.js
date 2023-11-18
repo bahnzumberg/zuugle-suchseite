@@ -401,8 +401,8 @@ export async function syncFahrplan(mode='dev'){
     let trigger_id_min = 0;
     let trigger_id_max = 0;
     try {
-        const query_add_min = knexTourenDb('vw_fplan_to_search').min('trigger_id').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
-        const query_add_max = knexTourenDb('vw_fplan_to_search').max('trigger_id').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+        const query_add_min = knexTourenDb('vw_fplan_to_search').min('trigger_id');
+        const query_add_max = knexTourenDb('vw_fplan_to_search').max('trigger_id');
         // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
         // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
         trigger_id_min_array = await query_add_min;
@@ -413,7 +413,7 @@ export async function syncFahrplan(mode='dev'){
         console.log('error: ', err);
     }
 
-    const query_count = await knexTourenDb('vw_fplan_to_search').count('* as anzahl').andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) ); 
+    const query_count = await knexTourenDb('vw_fplan_to_search').count('* as anzahl'); 
     count_tours = query_count[0]["anzahl"];
     chunksizer = Math.ceil( count_tours / limit, 0 );
     if (isNaN(chunksizer) || chunksizer < 1) { 
@@ -440,7 +440,6 @@ export async function syncFahrplan(mode='dev'){
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_fromtour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_hashed_url_provider_idx;`);
-        // await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_internal_status_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_duration_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_totour_track_key_idx;`);
         await knex.raw(`DROP INDEX IF EXISTS public.fahrplan_provider_hashed_url_city_slug_idx;`);
@@ -451,7 +450,7 @@ export async function syncFahrplan(mode='dev'){
     }
 
     const promises_add = bundles.map(bundle => {
-        return _limit(() => readAndInsertFahrplan(bundle, where, orwhere));
+        return _limit(() => readAndInsertFahrplan(bundle));
     });
     await Promise.all(promises_add);
 
@@ -459,8 +458,6 @@ export async function syncFahrplan(mode='dev'){
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
         await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
         await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
@@ -476,7 +473,7 @@ export async function syncFahrplan(mode='dev'){
 }
 
 
-const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
+const readAndInsertFahrplan = (bundle) => {
     return new Promise(async resolve => {
         const result_query = knexTourenDb('vw_fplan_to_search').select('provider', 'hashed_url',
                                             'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
@@ -494,7 +491,7 @@ const readAndInsertFahrplan = (bundle, where = {}, orwhere = {}) => {
                                             'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
                                             'return_arrival_stop_lat', 'return_arrival_datetime',
                                             'totour_track_key', 'totour_track_duration', 
-                                            'fromtour_track_key', 'fromtour_track_duration').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`).andWhere( (whereBuilder) => whereBuilder.where(where).orWhere(orwhere) );
+                                            'fromtour_track_key', 'fromtour_track_duration').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
