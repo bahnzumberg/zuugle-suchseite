@@ -139,9 +139,7 @@ CREATE TABLE fahrplan (
 
 
 CREATE INDEX ON fahrplan (hashed_url, tour_provider);
-CREATE INDEX ON fahrplan (tour_provider);
-CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);
+CREATE INDEX ON fahrplan (hashed_url, tour_provider, city_slug);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
 CREATE INDEX ON fahrplan (connection_duration);
@@ -158,8 +156,6 @@ CREATE TABLE kpi (
       value int DEFAULT 0,
       PRIMARY KEY (name)
 );
--- INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour WHERE internal_status='used';
--- INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan WHERE internal_status='used';
 INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
 INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
 
@@ -178,16 +174,9 @@ CREATE TABLE logsearchphrase (
      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (id)
 );
-
-
-CREATE TABLE fahrplan_del (
-     id SERIAL,
-     PRIMARY KEY (id)
-);
-
-
 ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
 ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
+
 
 ALTER TABLE tour ADD COLUMN max_ele INT default 0;
 ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';
