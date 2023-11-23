@@ -406,7 +406,7 @@ const listWrapper = async (req, res) => {
     // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
-        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
+        query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
         sql_order += ` ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC `; //4)
     }
     else {
@@ -415,10 +415,6 @@ const listWrapper = async (req, res) => {
     }
 
 
-    //describe:
-    // After the sorting order is applied, the query is further ordered by ID % date_part('day', NOW() )::INTEGER ASC. This orders the results by the remainder of the ID when divided by the number of days since the epoch, effectively shuffling the results.
-    query = query.orderByRaw(`ID % date_part('day', NOW() )::INTEGER ASC`);
-    sql_order += `, ID % date_part('day', NOW() )::INTEGER ASC ` ;
 
     // ****************************************************************
     // LIMIT
@@ -448,7 +444,8 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
-            // console.log('L553: result', result.rows);
+            console.log('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
+            
             if (result && result.rows) {
                 result = result.rows;
             //clg
@@ -464,8 +461,8 @@ const listWrapper = async (req, res) => {
 
     }else{
         //console.log("#######################################################")
-        // const sqlQuery = query.toString();
-        // console.log(" L455: No search term/ final query :", sqlQuery)
+        const sqlQuery = query.toString();
+        console.log("SQL without search phrase :", sqlQuery)
         // console.log("#######################################################")
         result = await query;
         count = await countQuery.first();
