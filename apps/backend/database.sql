@@ -56,9 +56,7 @@ ALTER TABLE tour ADD COLUMN full_text TEXT;
 ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
--- ALTER TABLE tour ADD COLUMN internal_status varchar(32) default 'new';
 
--- CREATE index on tour (internal_status);
 CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
@@ -133,7 +131,6 @@ CREATE TABLE fahrplan (
      totour_track_duration time DEFAULT NULL,
      fromtour_track_key int default null,
      fromtour_track_duration time DEFAULT NULL,
---      internal_status varchar(32) default 'new',
      PRIMARY KEY (id)
 );
 
@@ -229,3 +226,15 @@ CREATE TABLE city2tour (
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
+
+
+ALTER TABLE fahrplan ADD COLUMN connection_description_json JSONB DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop varchar(250) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_datetime timestamp DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN return_description_json JSONB DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop varchar(250) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL;
+ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_datetime timestamp DEFAULT NULL;

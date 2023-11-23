@@ -491,7 +491,17 @@ const readAndInsertFahrplan = (bundle) => {
                                             'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
                                             'return_arrival_stop_lat', 'return_arrival_datetime',
                                             'totour_track_key', 'totour_track_duration', 
-                                            'fromtour_track_key', 'fromtour_track_duration').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
+                                            'fromtour_track_key', 'fromtour_track_duration',
+                                            'connection_description_json',
+                                            'connection_lastregular_arrival_stop',
+                                            'connection_lastregular_arrival_stop_lon',
+                                            'connection_lastregular_arrival_stop_lat',
+                                            'connection_lastregular_arrival_datetime',
+                                            'return_description_json',
+                                            'return_firstregular_departure_stop',
+                                            'return_firstregular_departure_stop_lon',
+                                            'return_firstregular_departure_stop_lat',
+                                            'return_firstregular_departure_datetime').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
         // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
         
         const result = await result_query;
