@@ -538,40 +538,57 @@ const readAndInsertFahrplan = (bundle) => {
                                             'return_firstregular_departure_stop_lat',
                                             'return_firstregular_departure_datetime') VALUES `;
 
-        if(!!result && result.length > 0){
-            for i to n
-            insert_sql += '('
-            insert_sql += result['provider']
-            , 'hashed_url', 'calendar_date', 
-            'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
-            'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
-            'connection_rank', 'connection_departure_datetime', 'connection_duration', 
-            'connection_no_of_transfers', 'connection_description', 
-            'connection_description_detail', 'connection_departure_stop', 
-            'connection_departure_stop_lon', 'connection_departure_stop_lat',
-            'connection_arrival_stop', 'connection_arrival_stop_lon', 
-            'connection_arrival_stop_lat', 'connection_arrival_datetime',
-            'connection_returns_departure_stop', 'connection_returns_trips_back',
-            'connection_returns_min_waiting_duration', 
-            'connection_returns_max_waiting_duration',
-            'connection_returns_warning_level', 'connection_returns_warning', 
-            'return_row', 'return_waiting_duration', 'return_departure_datetime',
-            'return_duration', 'return_no_of_transfers', 'return_description',
-            'return_description_detail', 'return_departure_stop_lon',
-            'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
-            'return_arrival_stop_lat', 'return_arrival_datetime',
-            'totour_track_key', 'totour_track_duration', 
-            'fromtour_track_key', 'fromtour_track_duration',
-            connection_description_json,
-            'connection_lastregular_arrival_stop',
-            'connection_lastregular_arrival_stop_lon',
-            'connection_lastregular_arrival_stop_lat',
-            'connection_lastregular_arrival_datetime',
-            return_description_json,
-            'return_firstregular_departure_stop',
-            'return_firstregular_departure_stop_lon',
-            'return_firstregular_departure_stop_lat',
-            'return_firstregular_departure_datetime']
+        if(!!result && result.length > 0) {
+            for i to n {
+                insert_sql += '('
+
+                insert_sql += result['provider']
+                , 'hashed_url', 'calendar_date', 
+                'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
+                'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
+                'connection_rank', 'connection_departure_datetime', 'connection_duration', 
+                'connection_no_of_transfers', 'connection_description', 
+                'connection_description_detail', 'connection_departure_stop', 
+                'connection_departure_stop_lon', 'connection_departure_stop_lat',
+                'connection_arrival_stop', 'connection_arrival_stop_lon', 
+                'connection_arrival_stop_lat', 'connection_arrival_datetime',
+                'connection_returns_departure_stop', 'connection_returns_trips_back',
+                'connection_returns_min_waiting_duration', 
+                'connection_returns_max_waiting_duration',
+                'connection_returns_warning_level', 'connection_returns_warning', 
+                'return_row', 'return_waiting_duration', 'return_departure_datetime',
+                'return_duration', 'return_no_of_transfers', 'return_description',
+                'return_description_detail', 'return_departure_stop_lon',
+                'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
+                'return_arrival_stop_lat', 'return_arrival_datetime',
+                'totour_track_key', 'totour_track_duration', 
+                'fromtour_track_key', 'fromtour_track_duration',
+                connection_description_json,
+                'connection_lastregular_arrival_stop',
+                'connection_lastregular_arrival_stop_lon',
+                'connection_lastregular_arrival_stop_lat',
+                'connection_lastregular_arrival_datetime',
+                return_description_json,
+                'return_firstregular_departure_stop',
+                'return_firstregular_departure_stop_lon',
+                'return_firstregular_departure_stop_lat',
+                'return_firstregular_departure_datetime'
+
+                insert_sql += ')';
+
+                if i < n-1 {
+                    insert_sql += ', ';
+                }
+            }   
+            
+            console.log("Insert sql into fahrplan table: ", insert_sql +" ON CONFLICT(id) DO NOTHING")
+            try {
+                await knex.raw(insert_sql +" ON CONFLICT(id) DO NOTHING");
+                return true;
+            } catch(err){
+                console.log('error insert into table fahrplan: ', err)
+                return false;
+            }
             
             // await insertFahrplanMultiple(result);
         }
