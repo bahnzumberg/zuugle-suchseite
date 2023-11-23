@@ -249,10 +249,11 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     //search
     // The next block of code builds on the sql_select to create a series of inner queries. The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
-    let order_by_rank = ""; //case of search/ initialize the order by rank to be used for "order by" var
+    //case of search/ initialize the order by rank to be used for "order by" var
+    let order_by_rank = " 1.0/(ABS(1100-ascent)+1) * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END) * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END) * (quality_rating+1)/10.0 * 1.0 / (month_order+0.5) DESC "; 
 
     if(searchIncluded){
-        order_by_rank = " result_rank DESC, ";
+        order_by_rank = " result_rank DESC ";
 
         const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an array of strings
 
@@ -333,6 +334,7 @@ const listWrapper = async (req, res) => {
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
                     * (quality_rating+1)/10.0
+                    * 1.0 / (month_order+0.5)
                     ${_traveltime_weight}
                     as result_rank     
                     FROM tour AS i${i + 1}
@@ -355,6 +357,7 @@ const listWrapper = async (req, res) => {
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
                     * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
                     * (quality_rating+1)/10.0
+                    * 1.0 / (month_order+0.5)
                     ${_traveltime_weight}
                     as result_rank 
                     FROM tour AS i${i + 1}
@@ -406,8 +409,10 @@ const listWrapper = async (req, res) => {
     // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
-        query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
-        sql_order += ` ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC `; //4)
+        // query = query.orderByRaw(`${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
+        // sql_order += ` ${order_by_rank} month_order ASC, traverse DESC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC `;)
+        query = query.orderByRaw(`${order_by_rank}`);
+        sql_order += ` ${order_by_rank} `; 
     }
     else {
         query = query.orderBy("month_order", 'asc');
