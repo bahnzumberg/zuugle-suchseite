@@ -386,10 +386,8 @@ export async function syncFahrplan(mode='dev'){
     }
     
     // Now add new lines
-    let limit = 10000;
+    let limit = 5000;
     let counter = 0;
-    let where = {delta_type: 'add'};
-    let orwhere = {delta_type: 'noc'};
     const _limit = pLimit(3);
     let bundles = [];
     
