@@ -7,7 +7,7 @@ export const syncDataApplicationSide = async () => {
     await syncTours()
     console.log('DONE SYNC TOURS: ', moment().format('HH:mm:ss'));
     console.log('START SYNC FAHRPLAN: ', moment().format('HH:mm:ss'));
-    await syncFahrplan('delta');
+    await syncFahrplan('delta');  // @martinheppner : can be 'dev' or 'prod' inside syncFahrplan
     console.log('DONE SYNC FAHRPLAN: ', moment().format('HH:mm:ss'));
     console.log('START SYNC CITIES: ', moment().format('HH:mm:ss'));
     await syncCities();
