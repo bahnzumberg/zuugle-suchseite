@@ -537,12 +537,12 @@ const readAndInsertFahrplan = (bundle) => {
                                             'return_firstregular_departure_stop_lon',
                                             'return_firstregular_departure_stop_lat',
                                             'return_firstregular_departure_datetime') VALUES `;
-
+ 
         if(!!result && result.length > 0) {
             for i to n {
                 insert_sql += '('
 
-                insert_sql += result['provider']
+                insert_sql += result[i]['provider']
                 , 'hashed_url', 'calendar_date', 
                 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
                 'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
@@ -581,9 +581,9 @@ const readAndInsertFahrplan = (bundle) => {
                 }
             }   
             
-            console.log("Insert sql into fahrplan table: ", insert_sql +" ON CONFLICT(id) DO NOTHING")
+            console.log("Insert sql into fahrplan table: ", insert_sql)
             try {
-                await knex.raw(insert_sql +" ON CONFLICT(id) DO NOTHING");
+                await knex.raw(insert_sql);
                 return true;
             } catch(err){
                 console.log('error insert into table fahrplan: ', err)
