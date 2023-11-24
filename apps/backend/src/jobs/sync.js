@@ -8,6 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
+import { isArrayLike } from "lodash";
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
@@ -505,7 +506,15 @@ const readAndInsertFahrplan = async (bundle) => {
         'return_firstregular_departure_datetime' FROM vw_fplan_to_search WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
         const result = await result_query;
 
-        console.log("L606 : result = ", result);
+
+        // let data = result[0];
+        let data = result[0].map(row => ({ ...row }));
+        
+        console.log("L511 : data = ");
+        console.log(" ================== : ");
+        console.log(data);
+
+        if (!!data && Array.isArray(data) && data.length > 0) {
         insert_sql = `INSERT INTO fahrplan ('provider', 'hashed_url', 'calendar_date', 
                                             'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
                                             'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
@@ -537,23 +546,37 @@ const readAndInsertFahrplan = async (bundle) => {
                                             'return_firstregular_departure_stop_lat',
                                             'return_firstregular_departure_datetime') VALUES `;
  
-        if (!!result && result.length > 0) {
-            for (let i = 0; i < result.length; i++) {
+        // if (!!result && result.length > 0) {
+
+            for (let i = 0; i < data.length; i++) {
                 insert_sql += '(';
 
-                Object.keys(result[i]).forEach(column => {
+                Object.keys(data[i]).forEach(column => {
+                    //check the type of each column
+                    const col_value = data[i][column];
+
                     if (column === 'connection_description_json' || column === 'return_description_json') {
-                        insert_sql += `REPLACE('${result[i][column]}', '\\n', '')`;
+                        // remove line breaks in JSON columns
+                        insert_sql += `REPLACE('${col_value}', '\\n', '')`;
+                    } 
+                    // else if (typeof col_value === 'string') {
+                    //     // escape single quotes in string values ? do we need this ?
+                    //     insert_sql += `'${col_value.replace(/'/g, "''")}'`;
+                    //} 
+                    else if (col_value === null || col_value === undefined) {
+                        // case of  null or undefined
+                        insert_sql += 'NULL';
                     } else {
-                        insert_sql += `'${result[i][column]}'`;
+                        insert_sql += col_value;
                     }
 
                     if (column !== 'return_firstregular_departure_datetime') {
                         insert_sql += ', ';
                     }
-                });
+                }
+                );
                 insert_sql += ')';
-                if (i < result.length - 1) {
+                if (i < data.length - 1) {
                     insert_sql += ', ';
                 }
             }   
@@ -567,6 +590,8 @@ const readAndInsertFahrplan = async (bundle) => {
                 resolve(false);
             }
         } else {
+            console.log("L582 : (!!data && Array.isArray(data) && data.length > 0) is FALSE")
+            console.log("======================================================================")
             resolve();
         }
     });

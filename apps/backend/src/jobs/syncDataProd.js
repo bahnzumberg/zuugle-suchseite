@@ -15,9 +15,9 @@ console.log('FULL LOAD: ', moment().format('HH:mm:ss'));
 console.log('START SYNC TOURS: ', moment().format('HH:mm:ss'));
 syncTours().then(res => {
     console.log('DONE SYNC TOURS: ', moment().format('HH:mm:ss'));
-    console.log('START SYNC FAHRPLAN: ', moment().format('HH:mm:ss'));
+    console.log('START SYNC FAHRPLAN 4: ', moment().format('HH:mm:ss'));
     syncFahrplan('prod').then(res1 => {
-        console.log('DONE SYNC FAHRPLAN: ', moment().format('HH:mm:ss'));
+        console.log('DONE SYNC FAHRPLAN 4: ', moment().format('HH:mm:ss'));
         console.log('START SYNC CITIES: ', moment().format('HH:mm:ss'));
         syncCities().then(res2 => {
             console.log('DONE SYNC CITIES: ', moment().format('HH:mm:ss'));
