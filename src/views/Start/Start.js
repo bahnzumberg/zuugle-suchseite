@@ -64,9 +64,9 @@ function Start({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
@@ -76,6 +76,7 @@ function Start({
 
   useEffect(() => {
     // matomo
+    // eslint-disable-next-line no-undef
     _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
@@ -125,6 +126,7 @@ function Start({
       // Cancel any ongoing network request when the component unmounts
       abortController.abort();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalTours]);
 
   const getCity = () => {
@@ -137,9 +139,9 @@ function Start({
     }
   };
 
-  const goToStartPage = () => {
-    navigate(`/?${searchParams.toString()}`);
-  };
+  // const goToStartPage = () => {
+  //   navigate(`/?${searchParams.toString()}`);
+  // };
 
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id ) {
