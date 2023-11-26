@@ -510,9 +510,9 @@ const readAndInsertFahrplan = async (bundle) => {
         // let data = result[0];
         let data = result[0].map(row => ({ ...row }));
         
-        console.log("L511 : data = ");
-        console.log(" ================== : ");
-        console.log(data);
+        // console.log("L511 : data = ");
+        // console.log(" ================== : ");
+        // console.log(data);
 
         if (!!data && Array.isArray(data) && data.length > 0) {
         insert_sql = `INSERT INTO fahrplan ('provider', 'hashed_url', 'calendar_date', 
