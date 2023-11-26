@@ -581,7 +581,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 }
             }   
 
-            console.log("Insert sql into fahrplan table: ", insert_sql);
+            // console.log("Insert sql into fahrplan table: ", insert_sql);
             try {
                 await knex.raw(insert_sql);
                 resolve(true);
