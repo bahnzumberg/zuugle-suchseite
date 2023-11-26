@@ -8,6 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
+import { isArrayLike } from "lodash";
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
@@ -386,7 +387,7 @@ export async function syncFahrplan(mode='dev'){
     }
     
     // Now add new lines
-    let limit = 5000;
+    let limit = 5; // 5000;
     let counter = 0;
     const _limit = pLimit(3);
     let bundles = [];
@@ -471,17 +472,61 @@ export async function syncFahrplan(mode='dev'){
 }
 
 
-const readAndInsertFahrplan = (bundle) => {
+
+
+const readAndInsertFahrplan = async (bundle) => {
+    let insert_sql = '';
+
     return new Promise(async resolve => {
-        const result_query = knexTourenDb('vw_fplan_to_search').select('provider', 'hashed_url',
-                                            'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
+        const result_query = knexTourenDb.raw(`select 'provider', 'hashed_url', 'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
+        'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
+        'connection_rank', 'connection_departure_datetime', 'connection_duration', 
+        'connection_no_of_transfers', 'connection_description', 'connection_description_detail',
+        'connection_departure_stop', 'connection_departure_stop_lon', 'connection_departure_stop_lat',
+        'connection_arrival_stop', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat',
+        'connection_arrival_datetime', 'connection_returns_departure_stop', 'connection_returns_trips_back',
+        'connection_returns_min_waiting_duration', 'connection_returns_max_waiting_duration',
+        'connection_returns_warning_level', 'connection_returns_warning', 
+        'return_row', 'return_waiting_duration', 'return_departure_datetime',
+        'return_duration', 'return_no_of_transfers', 'return_description',
+        'return_description_detail', 'return_departure_stop_lon',
+        'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
+        'return_arrival_stop_lat', 'return_arrival_datetime',
+        'totour_track_key', 'totour_track_duration', 
+        'fromtour_track_key', 'fromtour_track_duration',
+        REPLACE(connection_description_json, '\n', '') as connection_description_json,
+        'connection_lastregular_arrival_stop',
+        'connection_lastregular_arrival_stop_lon',
+        'connection_lastregular_arrival_stop_lat',
+        'connection_lastregular_arrival_datetime',
+        REPLACE(return_description_json, '\n', '') as return_description_json,
+        'return_firstregular_departure_stop',
+        'return_firstregular_departure_stop_lon',
+        'return_firstregular_departure_stop_lat',
+        'return_firstregular_departure_datetime' FROM vw_fplan_to_search WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
+        const result = await result_query;
+
+
+        // let data = result[0];
+        let data = result[0].map(row => ({ ...row }));
+        
+        console.log("L511 : data = ");
+        console.log(" ================== : ");
+        console.log(data);
+
+        if (!!data && Array.isArray(data) && data.length > 0) {
+        insert_sql = `INSERT INTO fahrplan ('provider', 'hashed_url', 'calendar_date', 
+                                            'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
                                             'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
                                             'connection_rank', 'connection_departure_datetime', 'connection_duration', 
-                                            'connection_no_of_transfers', 'connection_description', 'connection_description_detail',
-                                            'connection_departure_stop', 'connection_departure_stop_lon', 'connection_departure_stop_lat',
-                                            'connection_arrival_stop', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat',
-                                            'connection_arrival_datetime', 'connection_returns_departure_stop', 'connection_returns_trips_back',
-                                            'connection_returns_min_waiting_duration', 'connection_returns_max_waiting_duration',
+                                            'connection_no_of_transfers', 'connection_description', 
+                                            'connection_description_detail', 'connection_departure_stop', 
+                                            'connection_departure_stop_lon', 'connection_departure_stop_lat',
+                                            'connection_arrival_stop', 'connection_arrival_stop_lon', 
+                                            'connection_arrival_stop_lat', 'connection_arrival_datetime',
+                                            'connection_returns_departure_stop', 'connection_returns_trips_back',
+                                            'connection_returns_min_waiting_duration', 
+                                            'connection_returns_max_waiting_duration',
                                             'connection_returns_warning_level', 'connection_returns_warning', 
                                             'return_row', 'return_waiting_duration', 'return_departure_datetime',
                                             'return_duration', 'return_no_of_transfers', 'return_description',
@@ -499,17 +544,59 @@ const readAndInsertFahrplan = (bundle) => {
                                             'return_firstregular_departure_stop',
                                             'return_firstregular_departure_stop_lon',
                                             'return_firstregular_departure_stop_lat',
-                                            'return_firstregular_departure_datetime').whereRaw(`trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
-        // console.log('select interface_fplan_to_search_delta: ', result_query.toQuery());
-        
-        const result = await result_query;
+                                            'return_firstregular_departure_datetime') VALUES `;
+ 
+        // if (!!result && result.length > 0) {
 
-        if(!!result && result.length > 0){
-            await insertFahrplanMultiple(result);
+            for (let i = 0; i < data.length; i++) {
+                insert_sql += '(';
+
+                Object.keys(data[i]).forEach(column => {
+                    //check the type of each column
+                    const col_value = data[i][column];
+
+                    if (column === 'connection_description_json' || column === 'return_description_json') {
+                        // remove line breaks in JSON columns
+                        insert_sql += `REPLACE('${col_value}', '\\n', '')`;
+                    } 
+                    // else if (typeof col_value === 'string') {
+                    //     // escape single quotes in string values ? do we need this ?
+                    //     insert_sql += `'${col_value.replace(/'/g, "''")}'`;
+                    //} 
+                    else if (col_value === null || col_value === undefined) {
+                        // case of  null or undefined
+                        insert_sql += 'NULL';
+                    } else {
+                        insert_sql += col_value;
+                    }
+
+                    if (column !== 'return_firstregular_departure_datetime') {
+                        insert_sql += ', ';
+                    }
+                }
+                );
+                insert_sql += ')';
+                if (i < data.length - 1) {
+                    insert_sql += ', ';
+                }
+            }   
+
+            console.log("Insert sql into fahrplan table: ", insert_sql);
+            try {
+                await knex.raw(insert_sql);
+                resolve(true);
+            } catch (err) {
+                console.log('error insert into table fahrplan: ', err);
+                resolve(false);
+            }
+        } else {
+            console.log("L582 : (!!data && Array.isArray(data) && data.length > 0) is FALSE")
+            console.log("======================================================================")
+            resolve();
         }
-        resolve();
-    })
-}
+    });
+};
+
 
 
 const readAndInsertFahrplan_del = (bundle, where = {}) => {

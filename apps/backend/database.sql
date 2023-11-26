@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS kpi;
 DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS provider;
 DROP TABLE IF EXISTS tour;
+DROP TABLE IF EXISTS city2tour;
 
 CREATE TABLE tour (
       id SERIAL,
