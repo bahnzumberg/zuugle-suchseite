@@ -508,6 +508,7 @@ const readAndInsertFahrplan = async (bundle) => {
 
 
         // let data = result[0];
+        // console.log(result);
         let data = result[0].map(row => ({ ...row }));
         
         // console.log("L511 : data = ");
