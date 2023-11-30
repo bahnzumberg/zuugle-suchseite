@@ -379,7 +379,6 @@ export async function syncFahrplan(mode='dev'){
         return true;
     }
     
-    
     try {
         await knex.raw(`TRUNCATE fahrplan;`);
     } catch(err){
@@ -387,7 +386,7 @@ export async function syncFahrplan(mode='dev'){
     }
     
     // Now add new lines
-    let limit = 5; // 5000;
+    let limit = 1000; // not more than 5000;
     let counter = 0;
     const _limit = pLimit(3);
     let bundles = [];
@@ -478,141 +477,98 @@ const readAndInsertFahrplan = async (bundle) => {
     let insert_sql = '';
 
     return new Promise(async resolve => {
-        // const result_query = knexTourenDb.raw(`select 'provider', 'hashed_url', 'calendar_date', 'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
-        // 'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
-        // 'connection_rank', 'connection_departure_datetime', 'connection_duration', 
-        // 'connection_no_of_transfers', 'connection_description', 'connection_description_detail',
-        // 'connection_departure_stop', 'connection_departure_stop_lon', 'connection_departure_stop_lat',
-        // 'connection_arrival_stop', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat',
-        // 'connection_arrival_datetime', 'connection_returns_departure_stop', 'connection_returns_trips_back',
-        // 'connection_returns_min_waiting_duration', 'connection_returns_max_waiting_duration',
-        // 'connection_returns_warning_level', 'connection_returns_warning', 
-        // 'return_row', 'return_waiting_duration', 'return_departure_datetime',
-        // 'return_duration', 'return_no_of_transfers', 'return_description',
-        // 'return_description_detail', 'return_departure_stop_lon',
-        // 'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
-        // 'return_arrival_stop_lat', 'return_arrival_datetime',
-        // 'totour_track_key', 'totour_track_duration', 
-        // 'fromtour_track_key', 'fromtour_track_duration',
-        // REPLACE(connection_description_json, '\n', '') as connection_description_json,
-        // 'connection_lastregular_arrival_stop',
-        // 'connection_lastregular_arrival_stop_lon',
-        // 'connection_lastregular_arrival_stop_lat',
-        // 'connection_lastregular_arrival_datetime',
-        // REPLACE(return_description_json, '\n', '') as return_description_json,
-        // 'return_firstregular_departure_stop',
-        // 'return_firstregular_departure_stop_lon',
-        // 'return_firstregular_departure_stop_lat',
-        // 'return_firstregular_departure_datetime' FROM vw_fplan_to_search WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`);
-        
-        const result_query =
-          knexTourenDb.raw(`SELECT provider, hashed_url, calendar_date, valid_thru, weekday, weekday_type, date_any_connection,
-    city_slug, city_name, city_any_connection, best_connection_duration,
-    connection_rank, connection_departure_datetime, connection_duration, 
-    connection_no_of_transfers, connection_description, connection_description_detail,
-    connection_departure_stop, connection_departure_stop_lon, connection_departure_stop_lat,
-    connection_arrival_stop, connection_arrival_stop_lon, connection_arrival_stop_lat,
-    connection_arrival_datetime, connection_returns_departure_stop, connection_returns_trips_back,
-    connection_returns_min_waiting_duration, connection_returns_max_waiting_duration,
-    connection_returns_warning_level, connection_returns_warning, 
-    return_row, return_waiting_duration, return_departure_datetime,
-    return_duration, return_no_of_transfers, return_description,
-    return_description_detail, return_departure_stop_lon,
-    return_departure_stop_lat, return_arrival_stop, return_arrival_stop_lon,
-    return_arrival_stop_lat, return_arrival_datetime,
-    totour_track_key, totour_track_duration, 
-    fromtour_track_key, fromtour_track_duration,
-    REPLACE(connection_description_json, '\n', '') AS connection_description_json,
-    connection_lastregular_arrival_stop,
-    connection_lastregular_arrival_stop_lon,
-    connection_lastregular_arrival_stop_lat,
-    connection_lastregular_arrival_datetime,
-    REPLACE(return_description_json, '\n', '') AS return_description_json,
-    return_firstregular_departure_stop,
-    return_firstregular_departure_stop_lon,
-    return_firstregular_departure_stop_lat,
-    return_firstregular_departure_datetime
-FROM vw_fplan_to_search 
-WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} 
-    AND calendar_date >= CURRENT_DATE`);
-
+        const result_query = knexTourenDb.raw(`select 
+                                                provider,
+                                                hashed_url, 
+                                                CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
+                                                CONCAT(DATE_FORMAT(valid_thru, '%Y-%m-%d'), ' 00:00:00') as  valid_thru,
+                                                weekday, weekday_type, date_any_connection,
+                                                city_slug, 
+                                                city_name, 
+                                                city_any_connection, 
+                                                best_connection_duration,
+                                                connection_rank, 
+                                                CONCAT(DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_departure_datetime, 
+                                                connection_duration, 
+                                                connection_no_of_transfers, 
+                                                REPLACE(connection_description, "'", "´") as connection_description, 
+                                                REPLACE(connection_description_detail, "'", "´") as connection_description_detail,
+                                                connection_departure_stop, 
+                                                connection_departure_stop_lon, 
+                                                connection_departure_stop_lat, 
+                                                connection_arrival_stop, 
+                                                connection_arrival_stop_lon, 
+                                                connection_arrival_stop_lat, 
+                                                CONCAT(DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_arrival_datetime,
+                                                connection_returns_departure_stop, connection_returns_trips_back, 
+                                                connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
+                                                connection_returns_warning_level, 
+                                                connection_returns_warning,  
+                                                return_row, 
+                                                return_waiting_duration, 
+                                                CONCAT(DATE_FORMAT(return_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as return_departure_datetime, 
+                                                return_duration,
+                                                return_no_of_transfers,
+                                                REPLACE(return_description, "'", "´") as return_description, 
+                                                REPLACE(return_description_detail, "'", "´") as return_description_detail,
+                                                return_departure_stop_lon, 
+                                                return_departure_stop_lat,
+                                                return_arrival_stop,
+                                                return_arrival_stop_lon, 
+                                                return_arrival_stop_lat,
+                                                CONCAT(DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as return_arrival_datetime, 
+                                                totour_track_key, totour_track_duration,  
+                                                fromtour_track_key,
+                                                fromtour_track_duration, 
+                                                REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
+                                                connection_lastregular_arrival_stop, 
+                                                connection_lastregular_arrival_stop_lon, 
+                                                connection_lastregular_arrival_stop_lat, 
+                                                CONCAT(DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_lastregular_arrival_datetime, 
+                                                REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
+                                                return_firstregular_departure_stop, 
+                                                return_firstregular_departure_stop_lon, 
+                                                return_firstregular_departure_stop_lat, 
+                                                CONCAT(DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as return_firstregular_departure_datetime
+                                                FROM vw_fplan_to_search 
+                                                WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE
+        `);
         const result = await result_query;
 
-
-        // let data = result[0];
-        // console.log(result);
         let data = result[0].map(row => ({ ...row }));
         
-        // console.log("L511 : data = ");
-        // console.log(" ================== : ");
-        // console.log(data);
-
         if (!!data && Array.isArray(data) && data.length > 0) {
-        
-            insert_sql = `INSERT INTO fahrplan (provider, hashed_url, calendar_date, 
-                valid_thru, weekday, weekday_type, date_any_connection,
-                city_slug, city_name, city_any_connection, best_connection_duration,
-                connection_rank, connection_departure_datetime, connection_duration, 
-                connection_no_of_transfers, connection_description, 
-                connection_description_detail, connection_departure_stop, 
-                connection_departure_stop_lon, connection_departure_stop_lat,
-                connection_arrival_stop, connection_arrival_stop_lon, 
-                connection_arrival_stop_lat, connection_arrival_datetime,
-                connection_returns_departure_stop, connection_returns_trips_back,
-                connection_returns_min_waiting_duration, 
-                connection_returns_max_waiting_duration,
-                connection_returns_warning_level, connection_returns_warning, 
-                return_row, return_waiting_duration, return_departure_datetime,
-                return_duration, return_no_of_transfers, return_description,
-                return_description_detail, return_departure_stop_lon,
-                return_departure_stop_lat, return_arrival_stop, return_arrival_stop_lon,
-                return_arrival_stop_lat, return_arrival_datetime,
-                totour_track_key, totour_track_duration, 
-                fromtour_track_key, fromtour_track_duration,
-                connection_description_json,
-                connection_lastregular_arrival_stop,
-                connection_lastregular_arrival_stop_lon,
-                connection_lastregular_arrival_stop_lat,
-                connection_lastregular_arrival_datetime,
-                return_description_json,
-                return_firstregular_departure_stop,
-                return_firstregular_departure_stop_lon,
-                return_firstregular_departure_stop_lat,
-                return_firstregular_departure_datetime) VALUES `;
-            
-        
-        // insert_sql = `INSERT INTO fahrplan ('provider', 'hashed_url', 'calendar_date', 
-        //                                     'valid_thru', 'weekday', 'weekday_type', 'date_any_connection',
-        //                                     'city_slug', 'city_name', 'city_any_connection', 'best_connection_duration',
-        //                                     'connection_rank', 'connection_departure_datetime', 'connection_duration', 
-        //                                     'connection_no_of_transfers', 'connection_description', 
-        //                                     'connection_description_detail', 'connection_departure_stop', 
-        //                                     'connection_departure_stop_lon', 'connection_departure_stop_lat',
-        //                                     'connection_arrival_stop', 'connection_arrival_stop_lon', 
-        //                                     'connection_arrival_stop_lat', 'connection_arrival_datetime',
-        //                                     'connection_returns_departure_stop', 'connection_returns_trips_back',
-        //                                     'connection_returns_min_waiting_duration', 
-        //                                     'connection_returns_max_waiting_duration',
-        //                                     'connection_returns_warning_level', 'connection_returns_warning', 
-        //                                     'return_row', 'return_waiting_duration', 'return_departure_datetime',
-        //                                     'return_duration', 'return_no_of_transfers', 'return_description',
-        //                                     'return_description_detail', 'return_departure_stop_lon',
-        //                                     'return_departure_stop_lat', 'return_arrival_stop', 'return_arrival_stop_lon',
-        //                                     'return_arrival_stop_lat', 'return_arrival_datetime',
-        //                                     'totour_track_key', 'totour_track_duration', 
-        //                                     'fromtour_track_key', 'fromtour_track_duration',
-        //                                     'connection_description_json',
-        //                                     'connection_lastregular_arrival_stop',
-        //                                     'connection_lastregular_arrival_stop_lon',
-        //                                     'connection_lastregular_arrival_stop_lat',
-        //                                     'connection_lastregular_arrival_datetime',
-        //                                     'return_description_json',
-        //                                     'return_firstregular_departure_stop',
-        //                                     'return_firstregular_departure_stop_lon',
-        //                                     'return_firstregular_departure_stop_lat',
-        //                                     'return_firstregular_departure_datetime') VALUES `;
+            insert_sql = `INSERT INTO fahrplan (tour_provider, hashed_url, calendar_date, 
+                                            valid_thru, weekday, weekday_type, date_any_connection,
+                                            city_slug, city_name, city_any_connection, best_connection_duration,
+                                            connection_rank, connection_departure_datetime, connection_duration, 
+                                            connection_no_of_transfers, connection_description, 
+                                            connection_description_detail, connection_departure_stop, 
+                                            connection_departure_stop_lon, connection_departure_stop_lat,
+                                            connection_arrival_stop, connection_arrival_stop_lon, 
+                                            connection_arrival_stop_lat, connection_arrival_datetime,
+                                            connection_returns_departure_stop, connection_returns_trips_back,
+                                            connection_returns_min_waiting_duration, 
+                                            connection_returns_max_waiting_duration,
+                                            connection_returns_warning_level, connection_returns_warning, 
+                                            return_row, return_waiting_duration, return_departure_datetime,
+                                            return_duration, return_no_of_transfers, return_description,
+                                            return_description_detail, return_departure_stop_lon,
+                                            return_departure_stop_lat, return_arrival_stop, return_arrival_stop_lon,
+                                            return_arrival_stop_lat, return_arrival_datetime,
+                                            totour_track_key, totour_track_duration, 
+                                            fromtour_track_key, fromtour_track_duration,
+                                            connection_description_json,
+                                            connection_lastregular_arrival_stop,
+                                            connection_lastregular_arrival_stop_lon,
+                                            connection_lastregular_arrival_stop_lat,
+                                            connection_lastregular_arrival_datetime,
+                                            return_description_json,
+                                            return_firstregular_departure_stop,
+                                            return_firstregular_departure_stop_lon,
+                                            return_firstregular_departure_stop_lat,
+                                            return_firstregular_departure_datetime) VALUES `;
  
-        // if (!!result && result.length > 0) {
 
             for (let i = 0; i < data.length; i++) {
                 insert_sql += '(';
@@ -621,19 +577,15 @@ WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover}
                     //check the type of each column
                     const col_value = data[i][column];
 
-                    if (column === 'connection_description_json' || column === 'return_description_json') {
-                        // remove line breaks in JSON columns
-                        insert_sql += `REPLACE('${col_value}', '\\n', '')`;
-                    } 
-                    // else if (typeof col_value === 'string') {
-                    //     // escape single quotes in string values ? do we need this ?
-                    //     insert_sql += `'${col_value.replace(/'/g, "''")}'`;
-                    //} 
-                    else if (col_value === null || col_value === undefined) {
+                    if (col_value === null || col_value === undefined) {
                         // case of  null or undefined
                         insert_sql += 'NULL';
+                    } else if (column == 'connection_description_json' || column == 'return_description_json') {
+                        insert_sql += "'";
+                        insert_sql += col_value.replaceAll("'", '"');
+                        insert_sql += "'";
                     } else {
-                        insert_sql += col_value;
+                        insert_sql += "'"+col_value+"'";
                     }
 
                     if (column !== 'return_firstregular_departure_datetime') {
@@ -653,11 +605,12 @@ WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover}
                 resolve(true);
             } catch (err) {
                 // console.log('error insert into table fahrplan: ', err);
+                console.log('############### Eror with this SQL ###############');
+                console.log("Insert sql into fahrplan table: ", insert_sql);
+                console.log('###############');
                 resolve(false);
             }
         } else {
-            console.log("L582 : (!!data && Array.isArray(data) && data.length > 0) is FALSE")
-            console.log("======================================================================")
             resolve();
         }
     });
@@ -800,11 +753,6 @@ export async function syncTours(){
                                         t.maxele
                                         from vw_touren_to_search as t limit ${limit} offset ${offset};`);
 
-        /*
-        if(process.env.NODE_ENV != "production"){
-            console.log('query: ', query.toQuery());
-        }
-        */
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
             bulk_insert_tours(result[0]);
@@ -1036,8 +984,6 @@ const bulk_insert_tours = async (entries) => {
         });
     }
 
-    // let query = knex('tour').insert(queries).toString();
-    // console.log('SQL hier: ', query);
     try {
         await knex('tour').insert(queries);
         return true;
@@ -1046,56 +992,6 @@ const bulk_insert_tours = async (entries) => {
         return false;
     }
 }
-
-/*
-// These function seem to be not used anymore
-const insertCity = async (entry) => {
-    try {
-        await knex('city').insert({
-            ...entry
-        });
-        return true;
-    } catch(err){
-        console.log('error: ', err)
-        return false;
-    }
-}
-*/
-
-/*
-// These function seem to be not used anymore
-const insertFahrplan = async (entry) => {
-
-    let attrToRemove = [
-        "trigger_id",
-        "trigger_datetime",
-        "tour_duration",
-        "tour_hiking_days",
-        "tour_title",
-    ];
-
-    attrToRemove.forEach(attr => {
-        delete entry[attr];
-    });
-
-    try {
-        await knex('fahrplan').insert({
-            ...entry
-        });
-        return true;
-    } catch(err){
-        console.log('error: ', err)
-        return false;
-    }
-}
-*/
-
-/*
-// These function seem to be not used anymore
-const compare = async () => {
-    return true;
-}
-*/
 
 const deleteFileModulo30 = (h_url, filePath) => {
     if (!!fs.existsSync(filePath)) {
