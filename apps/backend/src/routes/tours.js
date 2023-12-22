@@ -116,9 +116,30 @@ const listWrapper = async (req, res) => {
     let useLimit = !!!map;  // initialise with true
     let addDetails = !!!map; // initialise with true
 
-    const searchIncluded = !!search && !!search.length > 0;
+    // This determines, if there is a search term given by the user.
+    let searchIncluded = !!search && !!search.length > 0;
 
-    //construuct the array of selected columns 
+    // If there is a search term given, but no city is set, we want to check, if the search term
+    // is actually exactly a city_slug. If it is, we will set the city and let the search process
+    // proceed as if the user had selected the city himself. The search term stays as it was inserted.
+    
+    /*
+    I believe we do not need this, as we can manage to do this in Search.js on the frontend
+    // check if city is set
+    if(! (!!city && city.length > 0) ){
+        // if city is not set - check if search term can be found in the city_slugs.
+        let city_exists_Query = knex('city').count('city_slug').where('city_slug', search);
+        count = await city_exists_Query.first();
+        if(count==1) {
+            // if the search term is a unique city_slug, the city is set.
+            city = search
+        }
+    }
+    // Any drop outs from this checking means, that we proceed with the normal search process below.
+    */
+
+
+    //construct the array of selected columns 
     let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
     // CASE OF SEARCH
@@ -250,10 +271,10 @@ const listWrapper = async (req, res) => {
     //search
     // The next block of code builds on the sql_select to create a series of inner queries. The query searches through the search_column for "search" using the PostgreSQL ts_rank() and websearch_to_tsquery() functions. So called "Fulltext search"
     //case of search/ initialize the order by rank to be used for "order by" var
-    let order_by_rank = " 1.0/(ABS(1100-ascent)+1) * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END) * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END) * (quality_rating+1)/10.0 * 1.0 / (month_order+0.5) DESC "; 
+    let order_by_rank = " 1.0/(ABS(1100-ascent)+1) * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END) * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END) * (quality_rating+1)/10.0 * 1.0 / (month_order+0.5) DESC, "; 
 
     if(searchIncluded){
-        order_by_rank = " result_rank DESC ";
+        order_by_rank = " result_rank DESC, ";
 
         const tldLangArray = get_country_lanuage_from_domain(domain);// get language of TLD / return an array of strings
 
@@ -447,7 +468,7 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             //clg
-            console.log('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
+            // console.log('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
             
             if (result && result.rows) {
                 result = result.rows;
@@ -464,8 +485,8 @@ const listWrapper = async (req, res) => {
 
     }else{
         //console.log("#######################################################")
-        const sqlQuery = query.toString();
-        console.log("SQL without search phrase :", sqlQuery)
+        // const sqlQuery = query.toString();
+        // console.log("SQL without search phrase :", sqlQuery)
         // console.log("#######################################################")
         result = await query;
         count = await countQuery.first();
