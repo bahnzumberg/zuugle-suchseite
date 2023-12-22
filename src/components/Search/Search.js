@@ -100,6 +100,8 @@ export function Search({
     let filter = searchParams.get("filter");
     let sort = searchParams.get("sort");
     let provider = searchParams.get("p");
+    let cityEntry = null;
+
     if (pageKey === "detail") {
       if (!!city) {
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
@@ -110,7 +112,7 @@ export function Search({
       }
     } else {
       if (!!city && !!allCities) {
-        const cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+        cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
@@ -128,6 +130,17 @@ export function Search({
     }
     if (!!search) {
       setSearchPhrase(search);
+
+      if (!city && !search.includes(' ')) {
+        // If a search phrase is given and city is empty and the search term consists only of one word,
+        // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
+        cityEntry = allCities.find((e) => e.value == search); // find the city object in array "allCities"
+        if (!!cityEntry) {
+          setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
+          setCity(cityEntry);
+          writeCityToLocalStorage(search);
+        }
+      }
     }
     // state might be useful for future enhancement or new feature related to Klimaticket
     if (!!state) {
