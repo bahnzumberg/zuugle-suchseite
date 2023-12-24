@@ -134,11 +134,11 @@ export function Search({
       if (!city && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        cityEntry = allCities.find((e) => e.value == search); // find the city object in array "allCities"
+        cityEntry = allCities.find((e) => e.value == search.toLowerCase()); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
-          writeCityToLocalStorage(search);
+          writeCityToLocalStorage(search.toLowerCase());
         }
       }
     }
