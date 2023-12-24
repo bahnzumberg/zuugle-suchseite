@@ -21,13 +21,6 @@ import {tourTypes} from "../utils/language_Utils";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-//description
-// This component is used to display detailed information about a tour and its associated connections.
-//detailed information:
-//It imports various components and icons from the @mui/material library and some custom components and utility functions.
-// The component takes in several props such as tour, onSelectTour, loadTourConnections, and city. It uses the useState hook to keep track of the state of various variables such as image, imageOpacity, connectionLoading, connections, and returns. It also uses the useEffect hook to fetch and set the image, connections, and returns based on the tour and city props.
-// The renderProps() function returns an array of JSX elements that contain information about the tour such as its duration, difficulty, type, distance, and ascent/descent. 
-// The component also includes a shortened_url() function which returns a shortened version of the URL for the tour.
 export default function TourCard({tour, onSelectTour, loadTourConnections, city}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
@@ -221,24 +214,42 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
           </div>
         </CardContent>
         
+        {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
         {!!connections && connections.length > 0 && (
-          <Fragment>
-            <div className="bottom-container">
-              <CardContent>
-                {!!connectionLoading ? (
-                  <Box sx={{ padding: "20px" }}>
-                    <LinearProgress />
-                  </Box>
-                ) : (
-                  <Fragment>
-                    {getAnreise()}
-                    {getAbreise()}
-                  </Fragment>
-                )}
-              </CardContent>
-            </div>
-          </Fragment>
-        )}
+                <Fragment>
+                    <div className="bottom-container">
+                    <CardContent>
+                        {!!connectionLoading ? (
+                        <Box sx={{ padding: "20px" }}>
+                            <LinearProgress />
+                        </Box>
+                        ) : (
+                        <Fragment>
+                            {getAnreise()}
+                            {getAbreise()}
+                        </Fragment>
+                        )}
+                    </CardContent>
+                    </div>
+                </Fragment>
+            )
+            // : ( <Fragment>
+            //     <div className="bottom-container">
+            //         <CardContent>
+            //             <Box
+            //                 display="flex"
+            //                 alignItems="center"
+            //                 justifyContent="center"
+            //             >
+            //                 <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
+            //                     {/* {t('start.keine_tour_gefunden')} */}
+            //                     Diese Tour ist derzeit nicht verfügbar
+            //                 </Typography>
+            //             </Box>
+            //         </CardContent>
+            //     </div>
+            // </Fragment>)
+        }
         
       </Card>
     );

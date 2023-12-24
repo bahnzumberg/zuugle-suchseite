@@ -2,7 +2,6 @@ import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-// import {listAllCityLinks} from "../../utils/seoPageHelper";
 import { useTranslation } from 'react-i18next';
 
 
@@ -10,8 +9,6 @@ import { useTranslation } from 'react-i18next';
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 
-//description
-//The Footer.js file is a React component that displays a footer section on a web page. It includes the Zuugle logo, the current year, and links to Bahn zum Berg, Datenschutz, and Impressum pages. Additionally, it also includes social media icons for Facebook and Instagram.
 export default function Footer({}){
     const {t}  = useTranslation();
 

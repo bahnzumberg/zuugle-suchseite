@@ -1,6 +1,7 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
+
 export function convertNumToTime(number, nonseparate = false) {
     // Check sign of given number
     var sign = (number >= 0) ? 1 : -1;
@@ -149,17 +150,9 @@ export function parseIfNeccessary(value) {
 };
 
 export const getTopLevelDomain = () => {
-    //This is testing code and if statment can be deleted when set for production builds
-    // if(process.env.NODE_ENV === "development") {
-    //     const domainNames = ['EN', 'DE', 'SL', 'FR', 'IT'];
-    //     const randomIndex = Math.floor(Math.random() * domainNames.length);
-    //     console.log("randomIndex",domainNames[randomIndex]) ; 
-    //     return domainNames[randomIndex];
-    // }
     let host = window.location.hostname;
     host = host.replaceAll('www2.', '').replaceAll('www.', '');
     return host.substring(host.length-2).toLowerCase();
-    // return host.substring(host.length-2).toUpperCase();
 }
 
 export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
@@ -197,3 +190,102 @@ export 	const shortenText = (text, atChar, maxLength) => {
     }
     return shortText;
 };
+
+//TODO : add remaining values from filter
+//TODO : set values in a dynamic way (calls to the database/ tourActions )
+export const defaultFilterValues = [    //index
+    {difficulty: 10 },                  // : 0
+    {maxAscent: 3000 },                 // : 1
+    {minAscent: 0 },                    // : 2
+    {maxDescent: 3000 },                // : 3
+    {minDescent: 0 },                   // : 4
+    {maxDistance: 80 },                 // : 5
+    {minDistance: 0 },                  // : 6
+    {maxTransportDuration: 6 },         // : 7
+    {minTransportDuration: 0.18 },      // : 8
+    {ranges_length: 62 },               // : 9
+]
+export const countFilterActive = (searchParams, filter) => {
+    
+    let count = 0;
+
+    const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
+    if (!!_filter && !!filter) {
+      if (!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)) {
+        count++;
+      }
+      if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
+        count++;
+      }
+      if (_filter?.difficulty != 10) {
+        count++;
+      }
+      if (!!_filter?.traverse) {
+        count++;
+      }
+      if (
+        _filter?.minAscent > defaultFilterValues[2].minAscent 
+        || 
+        _filter?.maxAscent < defaultFilterValues[1].maxAscent  
+
+      ) {
+        count++;
+      }
+
+      if (
+        _filter?.minDescent > defaultFilterValues[4].minDescent 
+        || 
+        _filter?.maxDescent < defaultFilterValues[3].maxDescent 
+        
+      ) {
+        count++;
+      }
+      if (
+        _filter?.minTransportDuration != defaultFilterValues[8].minTransportDuration 
+        || 
+        _filter?.maxTransportDuration < defaultFilterValues[7].maxTransportDuration 
+      ) {
+        count++;
+      }    
+      if (
+        _filter?.minDistance > defaultFilterValues[6].minDistance 
+        || 
+        _filter?.maxDistance < defaultFilterValues[5].maxDistance  
+      ) {
+        count++;
+      }
+      if (
+        _filter?.ranges?.length != filter?.ranges?.length) 
+        {
+        count++;
+      }
+      if (_filter?.types?.length != filter?.types?.length) {
+        count++;
+      }
+      if (_filter?.languages?.length != filter?.languages?.length) {
+        count++;
+      }
+    }
+    console.log("L267 : FINAL count :",count)
+    return count;
+  };
+
+
+
+export function urlSearchParamsToObject(searchParams) {
+const obj = {};
+for (const [key, value] of searchParams) {
+    if (obj[key]) {
+    if (Array.isArray(obj[key])) {
+        obj[key].push(value);
+    } else {
+        obj[key] = [obj[key], value];
+    }
+    } else {
+    obj[key] = value;
+    }
+}
+return obj;
+}
+
+  

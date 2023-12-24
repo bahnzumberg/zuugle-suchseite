@@ -17,7 +17,6 @@ const AutosuggestSearchTour = ({
 
   const handleSelect = (phrase) => {
     const value = phrase ? phrase : searchPhrase ? searchPhrase : "";
-    // setSelectedOption(value);
     onSearchSuggestion(value);
   };
 
@@ -50,35 +49,6 @@ const AutosuggestSearchTour = ({
         handleInputChange={handleInputChange}
         searchPhrase={searchPhrase}
       />
-      {/* <Async
-        components={{
-          DropdownIndicator: () => null,
-          IndicatorSeparator: () => null,
-          // NoOptionsMessage,
-        }}
-        options={options}
-        inputValue={input}
-        placeholder={placeholder ? placeholder : t("start.suche")}
-        // styles={{
-        //   control: combinedStyles.control,
-        //   option: combinedStyles.option,
-        //   input: combinedStyles.input,
-        // }}
-        sx={useStyles} // Apply the useStyles directly
-        styles={customStyles}
-        loadOptions={loadOptions}
-        value={
-          selectedOption ? selectedOption : searchPhrase ? searchPhrase : ""
-        }
-        onChange={handleSelect}
-        isClearable={true}
-        onInputChange={(value, action) => {
-          if (action.action === "input-change") {
-            setInput(value);
-            handleInputChange(value);
-          }
-        }}
-      /> */}
     </div>
   );
 };

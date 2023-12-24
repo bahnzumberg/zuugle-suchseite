@@ -14,7 +14,6 @@ import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
 import {loadTourGpx, loadTourPdf} from "../../actions/tourActions";
 let gpxParser = require('gpxparser');
-// import FileDownload from "react-file-download";
 var fileDownload = require('js-file-download');
 import {Buffer} from 'buffer';
 import CircularProgress from "@mui/material/CircularProgress";
@@ -34,14 +33,8 @@ const setGpxTrack = (url, loadGPX, _function) => {
     })
 }
 
-//description:
-//The TourDetails component takes in various props such as tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, and returnConnections. It uses useState and useEffect hooks to set and update various state variables such as gpxPositions, anreiseGpxPositions, abreiseGpxPositions, and searchParams.
-// The setGpxTrack function uses the loadGPX function to load a GPX file and parse its data to extract latitude and longitude information. This information is then stored in the states : gpxPositions, anreiseGpxPositions, or abreiseGpxPositions depending on the type of GPX file being loaded.
-// The TourDetails component also defines various helper functions such as onDownload, onDownloadGpx, buttonsDisabled, openProviderLink, and get_provider_url to perform various tasks such as downloading PDFs and GPX files, checking if buttons should be disabled, and opening provider links.
+//marked for deletion
 function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, returnConnection, loadTourGpx, isGpxLoading, handleTabChange, returnConnections}){
-    //clgs:
-    // console.log('tour is :');
-    // console.log(tour);
     
     const [gpxPositions, setGpxPositions] = useState(null);
     const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
@@ -73,12 +66,10 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
      const days_label = t('main.tage');
      const ascent_label = t('main.aufstieg');
      const descent_label = t('main.abstieg');
-     const child_friendly_label = t('main.kinderfreundlich');
      const overrun_label = t('main.ueberschreitung');
      const yes_label = t('main.ja');
      const no_label = t('main.nein');
 
-    // console.log( "difficulty_label: " + difficulty_label)
 
     useEffect(() => {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions); //(url:string, )
@@ -109,18 +100,13 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     if(!!response.data.pdf) {
                         pdf = response.data.pdf
                     };
-                    // console.log("L 80 response.data from loadTourPdf :", response.data)
                 }else if(!response.data || !response.data.pdf ) {
                     console.log("no response")
                 }
                 
                 if(!!pdf){
                     const fileName = response.data.fileName ? response.data.fileName   : "";
-                    // clg
-                    // console.log("L87 fileName :", fileName);
                     const buf = Buffer.from(pdf, 'base64');
-                    // clgs
-                    // !!buf ? console.log("L87 buf value is real") : console.log("buf is falsy")
                     fileDownload(buf, fileName, "application/pdf");
                 }
             }else{
@@ -128,7 +114,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
             }
         } catch (error) {
             console.log('error : ', error)
-            // console.log('error from TourDetails : ', error)
         }
     }
     
@@ -264,7 +249,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 <Box sx={{ bgcolor: 'info.main', borderRadius: '16px', padding: '20px', position: 'relative' }}>
                     {!!connection && !!connection.id ? 
                     <Typography>
-                        {/* Öffentliche Anreise gefunden mit {returnsLength >= 100 ? "99+" : returnsLength} {returnsLength > 1 ? 'Rückfahrten' : 'Rückfahrt'} */}
                         { getFoundJourney()}
                     </Typography>
                         : <Typography>{journeyNotFoundText}</Typography>
@@ -273,11 +257,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                 </Box>
             </Box>
 
-            <Box sx={{marginTop: '20px'}}>
-                {/* {console.log('tour value L210', tour)} */}
-                {/* {console.log((tour.difficulty_orig).toUpperCase())}
-                {console.log(titleCase(tour.difficulty_orig))} */}
-                
+            <Box sx={{marginTop: '20px'}}>                
                 <Grid container spacing={'20px'}>
                     <Grid item xs={6}>
                         <TourProperty title={difficulty_label_zuugle} text={`${titleCase(tour.difficulty)}`}/>
@@ -304,9 +284,6 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                     </Grid>
                     <Grid item xs={6}>
                         <TourProperty title={descent_label} text={formatNumber(tour.descent, ' hm')} />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TourProperty title={child_friendly_label} text={!!tour.children ? yes_label : no_label} />
                     </Grid>
                     <Grid item xs={6}>
                         <TourProperty title={overrun_label} text={!!tour.traverse ? yes_label : no_label} />

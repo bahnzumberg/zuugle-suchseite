@@ -37,16 +37,17 @@ const initialState = {
   total_tours: 0,
   favouriteRanges: [],
   isLoadingFilter: false,
-  total_provider: 222,
-  // total_provider: ' ',
-  total_cities: 222,
-  total_ranges: 222,
-  total_connections: 222,
+  total_provider: 0,
+  total_cities: 0,
+  total_ranges: 0,
+  total_connections: 0,
   visibleToursGPX: [],
   noToursAvailable: null,
 };
 
-export default (state = initialState, action = {}) => {
+// Keep comment below for Eslint purposes
+// eslint-disable-next-line import/no-anonymous-default-export
+export default ((state = initialState, action = {}) => {
   switch (action.type) {
     case LOAD_TOURS:
       return {
@@ -69,11 +70,7 @@ export default (state = initialState, action = {}) => {
         loading: false,
         page: action.page,
       };
-
-      /*if(!!action.filter){
-				toPush.filter = action.filter;
-			}*/
-
+ 
       return {
         ...toPush,
       };
@@ -164,8 +161,6 @@ export default (state = initialState, action = {}) => {
         ...state,
         visibleToursGPX: action.visibleToursGPX,
       };
-    default:
-      return state;
     // cases when NO DATA AVAILABLE or LOAD DATA ERROR
     case NO_DATA_AVAILABLE:
       return {
@@ -185,5 +180,7 @@ export default (state = initialState, action = {}) => {
         ...state,
         error: action.error, // Store the error message for display
       };
+      default:
+        return state;
   }
-};
+})
