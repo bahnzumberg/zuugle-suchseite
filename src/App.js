@@ -13,7 +13,7 @@ const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
+// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 
@@ -22,11 +22,11 @@ import { getTopLevelDomain } from "./utils/globals";
 
 function App() {
 
-  //check if first visit and change code to domain language
+//check if first visit and change code to domain language
 if(!localStorage.getItem('visited')) {
-  // get the domain 
-  // let domain = 'fr';
+
   let domain = getTopLevelDomain();
+
   //switch to domain language
   switch (domain) {
     case 'si':
@@ -45,10 +45,6 @@ if(!localStorage.getItem('visited')) {
 
   localStorage.setItem('visited',true);
 }
-  // UAT and local development should use matomo test instance
-  if (location.hostname.indexOf("localhost") !== -1 || location.hostname.indexOf("www2.") !== -1) {
-      tryLoadAndStartRecorder({ projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO', isProduction: false, });
-  }
 
   // Matomo tracking
   var _mtm = window._mtm = window._mtm || [];
@@ -78,6 +74,7 @@ if(!localStorage.getItem('visited')) {
             <Route path="/suche" element={<Main />} />
             <Route path="/about" element={<About />} />
             <Route path="/tour" element={<DetailReworked />} />
+            <Route path="/provider/:provider" element={<DetailReworked />} />
             <Route path="/imprint" element={<Impressum />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/:city" element={<Main />} />

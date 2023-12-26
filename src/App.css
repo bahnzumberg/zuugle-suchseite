@@ -182,11 +182,13 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .search-bar--city {
   color: #8b8b8b !important;
+  width: 100%;
 }
 
 .search-bar--searchPhase {
   color: #070000 !important;
   font-weight: 600;
+  width: 100%;
 }
 
 .search-bar--city::first-letter {
@@ -388,10 +390,10 @@ body ::-webkit-scrollbar-thumb:hover {
   text-align: left;
   padding-left: 20px;
   padding-right: 20px;
-  border-bottom: 1px solid #ececec;
+  /* border-bottom: 1px solid #ececec; */
   padding-bottom: 20px;
   padding-top: 20px;
-  background-color: #fff;
+  background-color: #4992ff;
 }
 
 @media only screen and (max-width: 600px) {

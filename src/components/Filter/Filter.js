@@ -21,14 +21,43 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
-import i18next from 'i18next';
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
+
+    const [singleDayTour, setSingleDayTour] = useState(true);
+    const [multipleDayTour, setMultipleDayTour] = useState(true);
+    const [summerSeason, setSummerSeason] = useState(true);
+    const [winterSeason, setWinterSeason] = useState(true);
+    const [difficulty, setDifficulty] = useState(10);
+    const [minAscent, setMinAscent] = useState(0);
+    const [maxAscent, setMaxAscent] = useState(10000);
+    const [minDescent, setMinDescent] = useState(0);
+    const [maxDescent, setMaxDescent] = useState(10000);
+
+    const [minTransportDuration, setMinTransportDuration] = useState(0);
+    const [maxTransportDuration, setMaxTransportDuration] = useState(10000);
+
+    const [minDistance, setMinDistance] = useState(0);
+    const [maxDistance, setMaxDistance] = useState(10000);
+    const [traverse, setTravers] = useState(false);
+
+    const [rangeValues, setRangeValues] = useState([]);
+    const [typeValues, setTypeValues] = useState([]);
+    const [languageValues, setLanguageValues] = useState([]);
+
+    const [rangeValuesState, setRangeValuesState] = useState(true);
+    const [typeValuesState, setTypeValuesState] = useState(true);
+    const [languageValuesState, setLanguageValuesState] = useState(true);
+    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
+    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
+
+    
+    
 
     // Translation-related
     const {t} = useTranslation();
 
-
+    // set translation variables
     const tourlaenge_label = t('filter.tourlaenge');
     const tagestour_label = t('filter.tagestour');
     const mehrtagestour_label = t('filter.mehrtagestour');
@@ -77,7 +106,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         {"it" : t('filter.italienisch')}
     ];
     
-
+    
     //loads the filter, including the languages for a specific city
     useEffect(() => {
         let city = searchParams.get('city');
@@ -102,9 +131,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     }, [])
 
     useEffect(() => {
+        
         if(!!filter){
-            //setAscent(getFilterProp(filter, "maxAscent", 5000));
-            //setDescent(getFilterProp(filter, "maxDescent", 5000));
             setMinAscent(getFilterProp(filter, "minAscent", 0));
             setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
 
@@ -148,6 +176,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
+
                     if(!!parsed){
                         setIfNotUndefined(parsed, "singleDayTour", setSingleDayTour);
                         setIfNotUndefined(parsed, "multipleDayTour", setMultipleDayTour );
@@ -162,7 +191,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         setIfNotUndefined(parsed, "maxTransportDuration", setMaxTransportDuration);
                         setIfNotUndefined(parsed, "minDistance", setMinDistance);
                         setIfNotUndefined(parsed, "maxDistance", setMaxDistance);
-                        setIfNotUndefined(parsed, "children", setChildren);
                         setIfNotUndefined(parsed, "traverse", setTravers);
 
                         if(!!filter && !!filter.ranges && !!parsed.ranges){
@@ -217,9 +245,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(difficulty != 10){
             count++;
         }
-        if(!!children){
-            count++;
-        }
         if(!!traverse){
             count++;
         }
@@ -245,7 +270,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(languageValues.filter(lv => !lv.checked).length > 0){
             count++;
         }
-
+        console.log("From within Filter.js: countFilterActive() returns: ", count)
         return count;
     }
 
@@ -258,35 +283,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
     }
 
-    const [singleDayTour, setSingleDayTour] = useState(true);
-    const [multipleDayTour, setMultipleDayTour] = useState(true);
-    const [summerSeason, setSummerSeason] = useState(true);
-    const [winterSeason, setWinterSeason] = useState(true);
-    const [difficulty, setDifficulty] = useState(10);
-    const [minAscent, setMinAscent] = useState(0);
-    const [maxAscent, setMaxAscent] = useState(10000);
-    const [minDescent, setMinDescent] = useState(0);
-    const [maxDescent, setMaxDescent] = useState(10000);
-
-    const [minTransportDuration, setMinTransportDuration] = useState(0);
-    const [maxTransportDuration, setMaxTransportDuration] = useState(10000);
-
-    const [minDistance, setMinDistance] = useState(0);
-    const [maxDistance, setMaxDistance] = useState(10000);
-    const [children, setChildren] = useState(false);
-    const [traverse, setTravers] = useState(false);
-
-    const [rangeValues, setRangeValues] = useState([]);
-    const [typeValues, setTypeValues] = useState([]);
-    const [languageValues, setLanguageValues] = useState([]);
-
-    const [rangeValuesState, setRangeValuesState] = useState(true);
-    const [typeValuesState, setTypeValuesState] = useState(true);
-    const [languageValuesState, setLanguageValuesState] = useState(true);
-    const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
-    const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
+    
 
     const submit = () => {
+        console.log("L288 traverse value : ", traverse)
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
             coordinatesSouthWest: coordinatesSouthWest,
@@ -295,7 +295,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
             winterSeason: mapPosNegValues(winterSeason),
-            children: mapPosNegValues(children),
             traverse: mapPosNegValues(traverse),
             difficulty: difficulty,
             minAscent: minAscent,
@@ -310,6 +309,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             types: typeValues.filter(e => !!e.checked).map(e => e.value),
             languages: languageValues.filter(e => !!e.checked).map(e => e.value), // submits also the languages in the filter
         }
+        localStorage.setItem("filterValues", JSON.stringify(filterValues));
+        localStorage.setItem("filterCount", countFilterActive());
         doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
 
@@ -346,7 +347,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }
             })
         }
-        console.log("L358 : types :", types)
         return types.map((type,index) => {
             return  <Grid key={index} item xs={6}>
                 <Box>
@@ -530,7 +530,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 value={minAscent}
@@ -540,7 +539,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -569,7 +567,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -579,7 +576,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -613,7 +609,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -623,7 +618,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <TextInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -651,7 +645,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Minimum"
                                                 label={minimum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -661,7 +654,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                         <Grid item xs={6}>
                                             <NumberInput
                                                 id="outlined-basic"
-                                                // label="Maximum"
                                                 label={maximum_label}
                                                 variant="filled"
                                                 endAdormentLabel={null}
@@ -717,9 +709,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }}>
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        <Button variant={"contained"} onClick={submit}>
+                        <Button variant={"contained"} onClick={submit} >
                             {countFilterActive() == 0 ? '' : countFilterActive()} 
-                            {filter_anwenden_label} 
+                            {" "}{filter_anwenden_label} 
                         </Button>
                     </Box>
                 </Box>

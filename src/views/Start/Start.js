@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
 import {
+  loadTour,
   loadFavouriteTours,
   loadTotalTours,
   loadTourConnections,
@@ -20,8 +21,8 @@ import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import {
   getPageHeader,
+  getTranslatedCountryName,
   listAllCityLinks,
-  listAllRangeLinks,
 } from "../../utils/seoPageHelper";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
@@ -36,7 +37,6 @@ const AboutZuugleContainer = lazy(() =>
 const UserRecommendationContainer = lazy(() =>
   import("../../components/UserRecommendationContainer")
 );
-// const Header = lazy(() => import("./Header"));
 const SponsoringContainer = lazy(() =>
   import("../../components/SponsoringContainer")
 );
@@ -47,6 +47,7 @@ function Start({
   loadCities,
   loadTourConnections,
   totalTours,
+  loadTour,
   loadTotalTours,
   totalConnections,
   totalCities,
@@ -61,14 +62,11 @@ function Start({
   noToursAvailable,
   error,
 }) {
-  // const [showMaintenance, setShowMaintenance] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  console.log(noToursAvailable, "No Tours Available");
-
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
@@ -78,6 +76,7 @@ function Start({
 
   useEffect(() => {
     // matomo
+    // eslint-disable-next-line no-undef
     _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
@@ -123,10 +122,11 @@ function Start({
     loadData();
 
     // Return a cleanup function
-    // return () => {
-    //   // Cancel any ongoing network request when the component unmounts
-    //   abortController.abort();
-    // };
+    return () => {
+      // Cancel any ongoing network request when the component unmounts
+      abortController.abort();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalTours]);
 
   const getCity = () => {
@@ -139,22 +139,29 @@ function Start({
     }
   };
 
+  // const goToStartPage = () => {
+  //   navigate(`/?${searchParams.toString()}`);
+  // };
+
   const onSelectTour = (tour) => {
-    let currentSearchParams = new URLSearchParams(searchParams.toString());
-    const city = currentSearchParams.get("city");
-    const updatedSearchParams = new URLSearchParams();
-
-    !!tour && localStorage.setItem("tourId", tour.id);
-
-    if (city) {
-      updatedSearchParams.set("city", city);
+    if (!!tour && !!tour.id ) {
+      // if(!!city){
+        loadTour(tour.id, city)
+          .then((tourExtracted) => {
+            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+              localStorage.setItem("tourId", tour.id);
+              window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+            }else{
+              window.location.reload();
+            }
+          })
+      // }else{
+      //   localStorage.setItem("tourId", tour.id);
+      //   window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+      // }
+    }else{
+      window.location.reload()
     }
-    //console.log(`"Start page ..route :`);//  '/tour?id=18117&city=bad-ischl'
-    window.open(
-      "/tour?" + updatedSearchParams.toString(),
-      "_blank",
-      "noreferrer"
-    );
   };
 
   const onSelectRange = (range) => {
@@ -179,14 +186,10 @@ function Start({
     }
   };
 
-  // console.log(" L198 noToursAvailable :", noToursAvailable);
+
+  const country = getTranslatedCountryName();
 
   if (noToursAvailable) {
-    console.log(
-      " L203 inside the true option/ noToursAvailable :",
-      noToursAvailable
-    );
-    console.log(" L203 inside the true option/ totalTours :", totalTours);
     return (
       <Box>
         <Header totalTours={totalTours} allCities={allCities} />
@@ -194,16 +197,10 @@ function Start({
       </Box>
     );
   }
-  // if (!noToursAvailable && noToursAvailable !== null) {
   else if (noToursAvailable === false) {
-    console.log(
-      " L216 inside the false option / noToursAvailable  :",
-      noToursAvailable
-    );
-    console.log(" L216 inside the false option / totalTours  :", totalTours);
     return (
       <Box>
-        {getPageHeader(null)}
+        {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
         {!!allCities && allCities.length > 0 && (
           <Header
             getCity={getCity}
@@ -290,18 +287,12 @@ function Start({
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
         )}
-        {/* {!showMobileMenu && (
-          <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
-        )} */}
         {!showMobileMenu && <Footer />}
       </Box>
     );
   }
 }
 
-//description:
-// mapDispatchToProps is an object used in Redux to map action creators to the props of a component. In this code, it maps the action creators loadFavouriteTours, loadCities, loadRanges, loadTourConnectionsExtended, loadTourConnections, loadTotalTours, and loadAllCities to the props of the component. This means that when the component is connected to the Redux store, it will have access to these action creators as props, which it can use to dispatch actions to the store.
-// For example, if the component needs to load some data from an API, it can call the loadFavouriteTours action creator, which will dispatch an action to the store that triggers the data loading process. This pattern makes it easier to reuse action creators across multiple components and to test the components in isolation.
 const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
@@ -310,10 +301,9 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTotalTours,
   loadAllCities,
+  loadTour,
 };
 
-// description:
-// This is a constant called mapStateToProps which is a function that takes in a state object as an argument. This function returns an object that contains properties derived from the state object, specifically properties that are related to tours, ranges, cities, and other data related to tours and their connections.
 const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
@@ -332,30 +322,9 @@ const mapStateToProps = (state) => {
   };
 };
 
-// description:
-// The code exports a higher-order component (HOC) that is the result of composing the "Start" component with the "connect" function from the "react-redux" library. The "connect" function connects the "Start" component to the Redux store, allowing it to access the state stored in the store and dispatch actions to the store.
-// The "connect" function takes two arguments: "mapStateToProps" and "mapDispatchToProps". "mapStateToProps" is a function that maps the state in the Redux store to the props in the "Start" component. "mapDispatchToProps" is an object that maps the dispatch actions to the props in the "Start" component.
-// The result of this composition is a new component that has access to the state in the Redux store and the ability to dispatch actions to the store, and is then exported for use in other parts of the application.
 export default compose(
   connect(
-    //connects the component Start to the redux store
     mapStateToProps,
     mapDispatchToProps
   )
 )(Start);
-
-// description
-// This code defines a React component that returns a conditional rendering based on the value of totalTours. If totalTours is equal to 0, the component returns a Box component with a Header and a Footer component.
-// Otherwise, it returns a Box component with several other components:
-// getPageHeader(null)
-// Header with totalTours and allCities props
-// A Box with a white text that says "Zuugle sucht für dich in {totalProvider} Tourenportalen nach Öffi-Bergtouren".
-// A RangeCardContainer component with favouriteRanges and onSelectTour props.
-// A ScrollingTourCardContainer component with favouriteTours, onSelectTour, loadTourConnections, and city props.
-// An AboutZuugleContainer component.
-// A UserRecommendationContainer component.
-// A SponsoringContainer component.
-// A KPIContainer component with totalTours, totalConnections, totalRanges, totalCities, city, and totalProvider props.
-// A FooterLinks component with listAllCityLinks(allCities, searchParams) as the links prop.
-// A FooterLinks component with listAllRangeLinks(allRanges, searchParams) as the links prop.
-// A Footer component.

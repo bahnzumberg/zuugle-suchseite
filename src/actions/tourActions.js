@@ -30,35 +30,16 @@ import i18next from "i18next";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
-  // console.log("from loadTours/ tourActions : language :",language)
 
-  // console.log("tourActions, LoadTours L36 / data passed to loadList :", data)
-  return (dispatch, getState) => {
-    data.domain = window.location.host;
-    //clgs
-    // console.log("loadTours -> LOAD_TOURS :", LOAD_TOURS);
-    // console.log("loadTours -> data :", data);
-    // console.log("loadTours -> language :", language);
-    return loadList(
-      dispatch,
-      getState,
-      LOAD_TOURS,
-      LOAD_TOURS_DONE,
-      "tours",
-      data,
-      "tours/",
-      "tours",
-      false,
-      true,
-      language
-    );
-  };
+    return (dispatch, getState) => {
+        data.domain = window.location.host;
+        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
+    };
 }
 
 export function loadFilter(data = {}) {
-  // console.log("tourActions, LoadFilter L34 :",data)
+
   const language = i18next.resolvedLanguage;
-  // console.log("from loadFilter/ tourActions : language :",language)
 
   return (dispatch, getState) => {
     return loadList(
@@ -90,14 +71,13 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-        // console.log("loatTour res.data:")
-        // console.log(res.data)
         return res;
       })
       .catch((error) => {
         if (error.response && error.response.status === 404) {
           // 404 error scenario
           console.error("loadTours/ Tour not found:", error);
+          return
         } else {
           // other errors
           console.error("Error:", error);
@@ -109,7 +89,6 @@ export function loadTour(id, city) {
 }
 
 export function loadTotalTours() {
-  // console.log("tourActions, loadTotalTours L48 , no data here")
   return (dispatch, getState) => {
     return loadOneReturnAll(
       dispatch,
@@ -123,10 +102,8 @@ export function loadTotalTours() {
 }
 
 export function loadTourConnections(data) {
-  // console.log("tourActions, loadTourConnections L55 :", data)
   const language = i18next.resolvedLanguage;
 
-  // console.log("from loadTourConnections/ tourActions : language :",language)
   return (dispatch, getState) => {
     data.domain = window.location.host;
     return loadList(
@@ -146,12 +123,10 @@ export function loadTourConnections(data) {
 }
 
 export function loadTourConnectionsExtended(data) {
-  // console.log("tourActions, loadTourConnectionsExtended L63 :", data)
-  const language = i18next.resolvedLanguage;
-  // console.log("from loadTourConnectionsExtended/ tourActions : language :",language)
+
   return (dispatch, getState) => {
     data.domain = window.location.host;
-    // return loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);;
+  
     return loadList(
       dispatch,
       getState,
@@ -167,9 +142,7 @@ export function loadTourConnectionsExtended(data) {
 }
 
 export function loadFavouriteTours(data = {}) {
-  // console.log("tourActions, loadFavouriteTours L71 :", data)
   const language = i18next.resolvedLanguage;
-  // console.log("from loadFavouriteTours/ tourActions : language :",language)
   return (dispatch, getState) => {
     data.domain = window.location.host;
     return loadList(
@@ -207,9 +180,6 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
       "pdf",
       "buffer"
     );
-
-    // console.log("L91 tourActions / loadTourPdf response :", response)
-    // e.g. Promise {<fulfilled>: undefined}[[Prototype]] :  Promise [[PromiseState]] :  "fulfilled" [[PromiseResult]] : undefined
     return response;
   } catch (error) {
     console.log("L94, tourActions Error: " + error.message);
@@ -218,7 +188,6 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
 };
 
 export function loadTourGpx(data) {
-  // console.log("tourActions, loadFTourGpx L92 :", data)
   return (dispatch, getState) => {
     return loadFile(
       dispatch,
@@ -229,7 +198,7 @@ export function loadTourGpx(data) {
       data,
       "tours/" + data.id + "/gpx",
       "gpx",
-      "arraybuffer"
+      "buffer"
     );
   };
 }

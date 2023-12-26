@@ -1,22 +1,18 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Grid, Typography } from "@mui/material";
-// import {Helmet} from "react-helmet";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { useTranslation } from "react-i18next";
+import { t } from "i18next";
 
-//ToDo: Translate meta content in getPageHeader
 export const getPageHeader = (directLink) => {
-  //   const { t } = useTranslation();
-
-  //console.log("directLink :", directLink) // seems to be always on null value
+  
   if (!!directLink && !!directLink.header) {
     return (
       <HelmetProvider>
         <Helmet>
           <title>{directLink.header}</title>
-          <meta name="title" content={directLink.header} />
-          <meta name="description" content={directLink.description} />
+          <meta name="og:title" content={directLink.header} />
+          <meta name="og:description" content={directLink.description} />
         </Helmet>
       </HelmetProvider>
     );
@@ -40,18 +36,57 @@ export const getPageHeader = (directLink) => {
   }
 };
 
+
+export const extractCityFromLocation = (location, cities) => {
+  //searching for the case: "/cityslug" in location.pathname, in that case we check if it is a valid city, 
+  if (!!location && location.pathname.startsWith('/')) {
+    const pathSegments = location.pathname.split('/').filter(segment => !!segment);
+    
+    if (pathSegments.length === 1 && pathSegments[0] === 'suche') {
+      if (!!location && !!location.search) {
+        const searchParams = new URLSearchParams(location.search);
+        const cityParam = searchParams.get("city");
+        return cityParam;
+      }
+    } else if (pathSegments.length === 1) {
+      const citySlug = pathSegments[0];
+
+      // Check if citySlug exists in the cities array
+      const matchingCity = cities.find(city => city.value === citySlug);
+      
+      if (matchingCity) {
+        
+        return matchingCity.value; // Set the city parameter to the label of the matching city
+      }
+    }
+  }
+  
+  return null; // Return null if city param is not search or if the path doesn't match the pattern
+};
+
+export const getCityLabel = (location, cities) => {
+  let citySlug = !!location ? extractCityFromLocation(location, cities) : null;
+  if(!!cities && cities.length > 0){
+    const found = cities.find(
+      (city) => city.value == citySlug
+    );
+    if (!!found && !!found.label) {
+      return found.label
+      }else return "" ;
+    }else{
+      return "";
+    }
+}
+
 export const checkIfSeoPageCity = (location, cities) => {
-  //console.log("seoPageHelper: location : " + location) // /suche
-  //console.log("seoPageHelper: cities.length : " + cities.length) // 37 (exists)
+
+  let citySlug = extractCityFromLocation(location,cities); // this is the city extracted from city param and not from location.pathname
+ 
   if (!!location && !!location.pathname && location.pathname == "/suche") {
     return null;
   } else if (!!location && !!location.pathname && cities.length > 0) {
-    //description:
-    // If location is null or pathname is null or undefined or the path is not a city path, the function returns null.
-    // If a city is found in the cities array that matches the value of the path name, the function returns an object representing the found city.
-    // If no city is found in the cities array that matches the value of the path name, the function returns undefined.
     const found = cities.find(
-      (city) => city.value == location.pathname.substring(1)
+      (city) => city.value == citySlug
     );
     return found;
   } else {
@@ -59,31 +94,14 @@ export const checkIfSeoPageCity = (location, cities) => {
   }
 };
 
-// export const checkIfSeoPageRange = (location, ranges) => {
-//   if (!!location && !!location.pathname && location.pathname == "/suche") {
-//     return null;
-//   } else if (!!location && !!location.pathname && ranges.length > 0) {
-//     const found = ranges.find(
-//       (range) =>
-//         range.range_slug == parseRangeFromUrl(location.pathname.substring(1))
-//     );
-//     return found;
-//   } else {
-//     return null;
-//   }
-// };
-
-//description
-//This function, listAllCityLinks, takes in an array of cities and an optional searchParams object. It then maps over the array of cities and generates links for each city with appropriate URL parameters. Finally, it returns a JSX element containing a grid of city links wrapped in a Box with a Typography element for the title. If the cities argument is falsy, it returns an empty array.
 export const listAllCityLinks = (cities, searchParams = null) => {
-  //   const { t } = useTranslation();
 
   const country = translatedCountry();
 
   if (!!cities) {
     const entries = cities.map((city, index) => {
       let link = `${city.value}`;
-      if (!!searchParams && !!searchParams.get("p")) {
+      if (!!searchParams && !!searchParams.get("p")) { // redundant if we do not use provider anymore
         link = `${link}?p=${searchParams.get("p")}`;
       }
       return (
@@ -97,7 +115,7 @@ export const listAllCityLinks = (cities, searchParams = null) => {
     return (
       <Box sx={{ textAlign: "left" }}>
         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          {/* <>{country}</> */}
+          <>{country}</>
         </Typography>
         <Grid container>{entries}</Grid>
       </Box>
@@ -105,57 +123,74 @@ export const listAllCityLinks = (cities, searchParams = null) => {
   }
 };
 
-// export const listAllRangeLinks = (ranges, searchParams = null) => {
-//   //   const { t } = useTranslation();
-//   const country = translatedCountry();
+export const listAllRangeLinks = (ranges, searchParams = null) => {
 
-//   if (!!ranges) {
-//     const entries = ranges.map((range, index) => {
-//       let city = "";
-//       let link = `${range.range}`;
-//       if (link == "null") {
-//         return [];
-//       }
-//       link = parseRangeToUrl(link);
-//       if (!!searchParams && !!searchParams.get("p")) {
-//         link = `${link}?p=${searchParams.get("p")}`;
-//       }
-//       if (!!searchParams && !!searchParams.get("city")) {
-//         city = searchParams.get("city");
-//       }
-//       return (
-//         <Grid key={index} item xs={12} sm={6} md={4}>
-//           <a
-//             href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`}
-//             className={"seo-city-link"}
-//           >
-//             {range.range}
-//           </a>
-//         </Grid>
-//       );
-//     });
+  const country = translatedCountry();
 
-//     return (
-//       <Box sx={{ textAlign: "left" }}>
-//         <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-//           {/* <> country </> */}
-//         </Typography>
-//         <Grid container>{entries}</Grid>
-//       </Box>
-//     );
-//   }
-//   return [];
-// };
+  if (!!ranges) {
+    const entries = ranges.map((range, index) => {
+      let city = "";
+      let link = `${range.range}`;
+      if (link == "null") {
+        return [];
+      }
+      link = parseRangeToUrl(link);
+      if (!!searchParams && !!searchParams.get("p")) {
+        link = `${link}?p=${searchParams.get("p")}`;
+      }
+      if (!!searchParams && !!searchParams.get("city")) {
+        city = searchParams.get("city");
+      }
+      return (
+        <Grid key={index} item xs={12} sm={6} md={4}>
+          <a
+            href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`}
+            className={"seo-city-link"}
+          >
+            {range.range}
+          </a>
+        </Grid>
+      );
+    });
 
-const translatedCountry = () => {
-  //   const { t } = useTranslation();
-  const country = getCountryName();
-  const countryKey = getCountryKey(country);
-
-  return `start.${countryKey}`;
+    return (
+      <Box sx={{ textAlign: "left" }}>
+        <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
+          <> {country} </>
+        </Typography>
+        <Grid container>{entries}</Grid>
+      </Box>
+    );
+  }
+  return [];
 };
 
-const getCountryKey = (name) => {
+const translatedCountry = () => {
+  let country = getCountryName();
+  country = getTranslatedCountry(country);
+  return country;
+};
+
+export const getTranslatedCountry = (name) => {
+  switch (name) {
+    case "Schweiz":
+      return t("start.schweiz");
+    case "Österreich":
+      return t("start.oesterreich");
+    case "Deutschland":
+      return t("start.deutschland");
+    case "Frankreich":
+      return t("start.frankreich");
+    case "Slowenien":
+      return t("start.slowenien");
+    case "Italien":
+      return t("start.italien");
+    default:
+      return t("start.oesterreich");
+  }
+};
+
+export const getCountryKey = (name) => {
   switch (name) {
     case "Schweiz":
       return "schweiz";
@@ -174,9 +209,8 @@ const getCountryKey = (name) => {
   }
 };
 
-const getCountryName = () => {
+export const getCountryName = () => {
   let host = window.location.host;
-  // let host = "www2.zuugle.fr";
 
   if (host.indexOf("zuugle.ch") >= 0) {
     return "Schweiz";
@@ -192,6 +226,25 @@ const getCountryName = () => {
     return "Österreich";
   }
 };
+
+export const getTranslatedCountryName = () => {
+  let host = window.location.host;
+
+  if (host.indexOf("zuugle.ch") >= 0) {
+    return "start.schweiz";
+  } else if (host.indexOf("zuugle.de") >= 0) {
+    return "start.deutschland";
+  } else if (host.indexOf("zuugle.it") >= 0) {
+    return "start.italien";
+  } else if (host.indexOf("zuugle.fr") >= 0) {
+    return "start.frankreich";
+  } else if (host.indexOf("zuugle.si") >= 0) {
+    return "start.slowenien";
+  } else {
+    return "start.oesterreich";
+  }
+};
+
 
 const parseRangeFromUrl = (text) => {
   return decodeURI(text);

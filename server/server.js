@@ -6,6 +6,26 @@ var express = require('express'),
 var port = 4000;
 const app = express();
 
+app.set('trust proxy', 1 /* number of proxies between user and server */)
+app.get('/ip', (request, response) => {
+	console.log("L11 Server.js request.ip: ", request.ip);
+	response.send(request.ip)
+	}) 
+
+
+import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
+
+const limiter = rateLimit({
+	windowMs: 1 * 60 * 1000, // 15 minutes
+	limit: 1, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+	// store: ... , // Use an external store for consistency across multiple server instances.
+})
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter)
+
 app.use(compression());
 
 app.listen(port);

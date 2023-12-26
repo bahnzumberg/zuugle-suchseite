@@ -1,6 +1,7 @@
 import { UNSAFE_NavigationContext } from "react-router-dom";
 import {useContext, useEffect} from "react";
 
+//marked for deletion
 export const useBackListener = (callback) => {
     const navigator = useContext(UNSAFE_NavigationContext).navigator;
 

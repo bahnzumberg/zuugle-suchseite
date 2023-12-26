@@ -12,6 +12,7 @@ import {getFilterProp} from "../utils/globals";
 import { useTranslation } from 'react-i18next';
 import TourMapContainer from "./Map/TourMapContainer";
 
+//marked for deletion  , check what component is taking the place inside header
 export default function ResultBar({total, showModal, hideModal, filter, filterActive, everythingDisabled = false, clearTours}){
 
     const{t} = useTranslation();

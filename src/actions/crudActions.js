@@ -36,7 +36,7 @@ export async function loadFile(
       params: params,
       timeout: 60000,
       headers: {
-        Authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
+        "authorization": "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
       },
     });
 
@@ -44,9 +44,6 @@ export async function loadFile(
       type: typeDone,
     });
 
-    //clgs
-    // console.log("L34 crudActions /getFileFromServer res :", res)
-    // console.log("L39 crudActions /getFileFromServer res.request.responseURL :", res.request.responseURL)
     return res;
   } catch (error) {
     console.log(" error :, L39", error.message);
@@ -67,26 +64,19 @@ export function loadList(
   useState = true,
   language
 ) {
-  //clg
-  // console.log(`dispatch: packageFcn, getState: packageFcn, typeBefore: ${typeBefore}, typeDone:${typeDone}, stateName: ${stateName}, data: ${JSON.stringify(data)}, route: ${route}, entityName: ${entityName}, usePagination: ${usePagination},useState: ${useState}, language: ${language}`)
-
-  // language && console.log("language: " + language)
-  // language && console.log("data: " + JSON.stringify(data));
-  // console.log("Type is LOAD_TOURS ? : ", typeBefore == 'LOAD_TOURS')
-  // console.log("Type is LOAD_TOUR_CONNECTIONS ? : ", typeBefore == 'LOAD_TOUR_CONNECTIONS')
-  //initialize language param
+  
+  // initialize language param
   const langPassed =
     language &&
     (typeBefore == "LOAD_TOURS" || typeBefore == "LOAD_TOUR_CONNECTIONS")
       ? language
       : "de";
 
-  // langPassed && console.log("passed language : " + langPassed)
-
   if (!!useState) {
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
+
   let params = {};
   if (state) {
     let pagination = {};
@@ -96,22 +86,22 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-    // console.log("data: inside if(state) : " + JSON.stringify(data));
+    //console.log(" L89 data: inside if(state) : ", state.filter); //  filter is passed
+    // now pass the filter
+    // data = {...data, filter: filter}
     params = {
       ...pagination,
       ...data,
       currLanguage: langPassed,
+      // filter: state.filter,
     };
   }
 
-  // console.log("wichtiiiig", route, { params: params });
   return axios
     .get(route, { params: params })
     .then((res) => {
       const entities = res.data[entityName];
-      // console.log("entities :",entities)
       const total = res.data.total;
-      // total && total.length && console.log("total length: ", total.length);
       const filter = !!res.data.filter ? res.data.filter : null;
       if (!!useState) {
         dispatch({
@@ -123,8 +113,6 @@ export function loadList(
           ranges: res.data.ranges,
         });
       }
-      //console.log("crudActions : response ", res); // issue #9 API
-
       return res;
     })
     .catch((err) => {
@@ -201,7 +189,6 @@ export function loadOneReturnAll(
     .then((res) => {
       if (!!res && !!res.data) {
         const { total_tours } = res.data;
-        console.log("The type error");
 
         if (total_tours === 0) {
           dispatch({ type: NO_TOURS_AVAILABLE });
@@ -261,24 +248,26 @@ export function loadShareParams(shareId, city) {
 
 //generateShareLink is used to generate a new sharing link to the corresponding tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
 export function generateShareLink(provider, hashedUrl, date, city) {
+  console.log("From inside generateShareLink")
   return axios
-    .post("shares/", {
+    .post("/shares", {
       provider: provider,
       hashedUrl: hashedUrl,
       date: date,
       city: city,
     })
     .then((res) => {
+      console.log("L281 crudActions / generateShareLink res.data :", res.data);
       return res.data;
     })
     .catch((err) => {
-      return err.response.data;
+      console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
+      return err.response;
     });
 }
 
 //
 export const getTotalCityTours = (city) => {
-  // return axios.get(`tours/total/?city=${city}`, {
   return axios
     .get(`tours/total/`, {
       params: {
@@ -286,8 +275,6 @@ export const getTotalCityTours = (city) => {
       },
     })
     .then((res) => {
-      // console.log("L225 res :");
-      // console.log(res);
       return res.data;
     });
 };
