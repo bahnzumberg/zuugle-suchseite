@@ -3,10 +3,12 @@ DROP TABLE IF EXISTS fahrplan;
 DROP TABLE IF EXISTS fahrplan_del;
 DROP TABLE IF EXISTS fahrplan_load;
 DROP TABLE IF EXISTS kpi;
-DROP TABLE IF EXISTS logsearchphrase;
+-- DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS provider;
 DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS city2tour;
+DROP TABLE IF EXISTS disposible;
+DROP TABLE IF EXISTS gpx;
 
 CREATE TABLE tour (
       id SERIAL,
@@ -23,7 +25,6 @@ CREATE TABLE tour (
       distance decimal(6,2) DEFAULT NULL,
       title varchar(255) DEFAULT NULL,
       type varchar(255) DEFAULT NULL,
-      -- children int DEFAULT NULL,
       number_of_days int DEFAULT NULL,
       traverse int DEFAULT NULL,
       country varchar(128) DEFAULT NULL,
@@ -44,7 +45,6 @@ CREATE TABLE tour (
       nov boolean DEFAULT false,
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
-      -- publishing_date date DEFAULT NULL,
       quality_rating integer DEFAULT 5,
       user_rating_avg decimal(6,2) DEFAULT NULL,
       cities JSONB DEFAULT NULL,
@@ -239,3 +239,10 @@ ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop varchar(250) 
 ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL;
 ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL;
 ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_datetime timestamp DEFAULT NULL;
+
+INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;
+INSERT INTO kpi SELECT CONCAT('total_tours_', f.city_slug) AS NAME, COUNT(DISTINCT t.id) AS VALUE FROM fahrplan AS f INNER JOIN tour AS t ON f.tour_provider=t.provider AND f.hashed_url=t.hashed_url GROUP BY f.city_slug;
+INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
+INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
+INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
+INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
