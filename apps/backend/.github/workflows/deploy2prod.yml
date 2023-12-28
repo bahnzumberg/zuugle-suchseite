@@ -32,6 +32,16 @@ jobs:
       run: npm install
     - name: Run build task
       run: npm run build
+    - name: executing remote ssh command to backup api
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+          host: ${{ secrets.PROD_REMOTE_HOST }}
+          username: ${{ secrets.PROD_REMOTE_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PROD_REMOTE_PORT }}
+          script: |
+            rm -r /root/suchseite/api-backup/
+            cp -r /root/suchseite/api/ /root/suchseite/api-backup/
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
