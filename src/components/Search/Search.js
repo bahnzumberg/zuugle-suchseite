@@ -139,6 +139,7 @@ export function Search({
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
           writeCityToLocalStorage(search.toLowerCase());
+          
         }
       }
     }
