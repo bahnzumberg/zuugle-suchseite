@@ -266,7 +266,9 @@ export const countFilterActive = (searchParams, filter) => {
         count++;
       }
     }
-    console.log("L267 : FINAL count :",count)
+    if(process.env.NODE_ENV != "production"){
+        console.log("L267 : FINAL count :",count)
+    }
     return count;
   };
 

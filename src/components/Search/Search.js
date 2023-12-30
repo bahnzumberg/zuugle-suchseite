@@ -123,15 +123,16 @@ export function Search({
         }
       }
     }
+
     //setting searchPhrase to the value of the search parameter
     if (!!range) {
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
-    if (!!search) {
+    else if (!!search) {
       setSearchPhrase(search);
 
-      if (!city && !search.includes(' ')) {
+      if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
         cityEntry = allCities.find((e) => e.value == search.toLowerCase()); // find the city object in array "allCities"
@@ -143,18 +144,18 @@ export function Search({
         }
       }
     }
-    // state might be useful for future enhancement or new feature related to Klimaticket
-    if (!!state) {
+    else if (!!state) {
+      // state might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(state);
       setRegion({ value: state, label: state, type: "state" });
     }
-    // country might be useful for future enhancement or new feature related to Klimaticket
-    if (!!country) {
+    else if (!!country) {
+      // country might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(country);
       setRegion({ value: country, label: country, type: "country" });
     }
-    // type might be useful for future enhancement or new feature related to Klimaticket
-    if (!!type) {
+    else if (!!type) {
+      // type might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }

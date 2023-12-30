@@ -9,18 +9,28 @@ import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
 import Search from "./components/Search/Search";
+import i18next from "i18next";
+import { getTopLevelDomain } from "./utils/globals";
+import CacheBuster, { useCacheBuster } from 'react-cache-buster';
+import packageJson from '../package.json';
+import LoadingVersionCheck from "./components/Loading/LoadingVersionCheck.jsx";
+const { version } = packageJson;
+
 const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
 // import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
-import i18next from "i18next";
-import { getTopLevelDomain } from "./utils/globals";
 
 
 
 
 function App() {
+  const isProduction = process.env.NODE_ENV === 'production';
+  console.log("FROM APP.JS: ", isProduction)
+  const { checkCacheStatus } = useCacheBuster();
+
+
 
 //check if first visit and change code to domain language
 if(!localStorage.getItem('visited')) {
@@ -54,11 +64,19 @@ if(!localStorage.getItem('visited')) {
     g.async=true; g.src='https://stats.bahnzumberg.at/js/container_ANAXmMKf.js'; s.parentNode.insertBefore(g,s);
     let language = i18next.resolvedLanguage;
     _mtm.push({'language': language});
-  }, []);
+  });
 
 
 
   return (
+    <>
+    <CacheBuster
+      currentVersion={version}
+      isEnabled={isProduction} //If false, the library is disabled.
+      isVerboseMode={false} //If true, the library writes verbose logs to console.
+      metaFileDirectory={'.'} //If public assets are hosted somewhere other than root on your server.
+    >
+
     <ThemeProvider theme={theme}>
       <div className="App">
         <Suspense
@@ -86,6 +104,9 @@ if(!localStorage.getItem('visited')) {
       </div>
       <ModalRoot />
     </ThemeProvider>
+    </CacheBuster>
+  </>
+
   );
 }
 

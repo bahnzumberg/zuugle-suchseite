@@ -4,7 +4,7 @@
     "url": "https://github.com/bahnzumberg/zuugle-suchseite/issues/",
     "email": "test@zuugle.at"
   },
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "dependencies": {
     "@alwaysmeticulous/recorder-loader": "^2.79.0",
@@ -38,6 +38,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "react": "^18.2.0",
+    "react-cache-buster": "^0.1.8",
     "react-dom": "^18.2.0",
     "react-file-download": "^0.3.5",
     "react-full-screen": "^1.1.0",
@@ -62,8 +63,10 @@
     "@types/react": "^18.0.0"
   },
   "scripts": {
+    "generate-meta-tag": "node ./node_modules/react-cache-buster/dist/generate-meta-tag.js",
     "start": "webpack serve --mode development --port 3000 --open --hot --progress --host localhost --static .",
-    "build": "webpack --config webpack.config_prod.js",
+    "build": "npm run generate-meta-tag && npm run build-app",
+    "build-app": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
