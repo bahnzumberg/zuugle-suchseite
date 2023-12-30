@@ -149,7 +149,9 @@ useEffect(() => {
     axios.get(`tours/provider/${tour.provider}`)
       .then((response) => {
         if (response.status === 200) {
-          console.log("L158 : first response.data", response.data)
+          if(process.env.NODE_ENV != "production"){
+            console.log("L158 : first response.data", response.data)
+          }
           return response.data;
         }
         throw new Error("Network response was not ok.");
@@ -164,7 +166,9 @@ useEffect(() => {
         console.error("Error fetching provider permit status:", error);
       });
   }
-  console.log("L172 : providerPermit", providerPermit)
+  if(process.env.NODE_ENV != "production"){
+    console.log("L172 : providerPermit", providerPermit)
+  }
 }, [tour]);
 
 
@@ -506,10 +510,6 @@ useEffect(() => {
           </span>
         </Button> 
 
-        {/*
-        Specific social media buttons */}
-        {(socialMediaDropDownToggle && console.log("L537 socialMediaDropDownToggle :", socialMediaDropDownToggle)) }
-        {(!!shareLink ? console.log("L538 shareLink :", shareLink != null) : console.log("Falsy shareLink"))}
         {socialMediaDropDownToggle && shareLink !== null && (
           <div>
             <TwitterShareButton

@@ -106,7 +106,6 @@ if(!localStorage.getItem('visited')) {
       <ModalRoot />
     </ThemeProvider>
     </CacheBuster>
-        <button onClick={checkCacheStatus}>Check for new version</button>
   </>
 
   );
