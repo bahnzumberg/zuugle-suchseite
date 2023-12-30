@@ -4,7 +4,7 @@
     "url": "https://github.com/bahnzumberg/zuugle-suchseite/issues/",
     "email": "test@zuugle.at"
   },
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "dependencies": {
     "@alwaysmeticulous/recorder-loader": "^2.79.0",
