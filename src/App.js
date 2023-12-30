@@ -27,6 +27,7 @@ const Privacy = lazy(() => import("./views/Pages/Privacy"));
 
 function App() {
   const isProduction = process.env.NODE_ENV === 'production';
+  console.log("FROM APP.JS: ", isProduction)
   const { checkCacheStatus } = useCacheBuster();
 
 
