@@ -8,7 +8,9 @@ const app = express();
 
 app.set('trust proxy', 1 /* number of proxies between user and server */)
 app.get('/ip', (request, response) => {
-	console.log("L11 Server.js request.ip: ", request.ip);
+	if(process.env.NODE_ENV != "production"){
+		console.log("L11 Server.js request.ip: ", request.ip);
+	}
 	response.send(request.ip)
 	}) 
 
