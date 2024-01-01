@@ -7,6 +7,7 @@ import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
+import logger from '../utils/logger';
 
 const fs = require('fs');
 const path = require('path');
@@ -447,12 +448,10 @@ const listWrapper = async (req, res) => {
             // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
-            //clg
-            if(process.env.NODE_ENV != "production"){
-                console.log("#######################################################")
-                console.log('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
-                console.log("#######################################################")
-            }
+            
+            logger("#######################################################");
+            logger('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
+            logger("#######################################################");
             
             if (result && result.rows) {
                 result = result.rows;
@@ -468,12 +467,11 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        if(process.env.NODE_ENV != "production"){
-            console.log("#######################################################")
-            const sqlQuery = query.toString();
-            console.log("SQL without search phrase :", sqlQuery)
-            console.log("#######################################################")
-        }
+        logger("#######################################################");
+        const sqlQuery = query.toString();
+        logger("SQL without search phrase :", sqlQuery)
+        logger("#######################################################");
+
         result = await query;
         count = await countQuery.first();
     }

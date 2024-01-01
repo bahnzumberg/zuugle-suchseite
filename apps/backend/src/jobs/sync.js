@@ -61,10 +61,8 @@ export async function fixTours(){
 
     // All files, which are older than 30 days, are deleted now. This means they have to be 
     // recreated new and by this we ensure all is updated and unused files are removed.  
-    let proddevPath = '';
-    if(process.env.NODE_ENV == "production"){
-        proddevPath = "../"
-    } else {
+    let proddevPath = "../";
+    if(process.env.NODE_ENV != "production"){
         proddevPath = "../../";
     }
     deleteFilesOlder30days(path.join(__dirname, proddevPath, "public/gpx/"));
