@@ -1,6 +1,6 @@
 //configuration allows a server to accept requests from specific domains ("whitelist") and reject requests from all other domains.
 export const getZuugleCors = () => {
-    const whitelist = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4000', 'https://www.zuugle.at', 'https://www.zuugle.de', 'https://www.zuugle.ch', 'https://www.zuugle.it', 'https://www.zuugle.si', 'https://www.zuugle.fr', 'https://www2.zuugle.at', 'https://www2.zuugle.de', 'https://www2.zuugle.ch', 'https://www2.zuugle.it', 'https://www2.zuugle.si', 'https://www2.zuugle.fr']
+    const whitelist = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4000', 'http://localhost:6060', 'http://localhost', 'https://www.zuugle.at', 'https://www.zuugle.de', 'https://www.zuugle.ch', 'https://www.zuugle.it', 'https://www.zuugle.si', 'https://www.zuugle.fr', 'https://www2.zuugle.at', 'https://www2.zuugle.de', 'https://www2.zuugle.ch', 'https://www2.zuugle.it', 'https://www2.zuugle.si', 'https://www2.zuugle.fr']
     const corsOptions = {
         origin: function (origin, callback) {
             if (origin === undefined || whitelist.indexOf(origin) !== -1) {
