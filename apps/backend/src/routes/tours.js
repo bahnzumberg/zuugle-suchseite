@@ -7,6 +7,7 @@ import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
+import logger from '../utils/logger';
 
 const fs = require('fs');
 const path = require('path');
@@ -118,26 +119,6 @@ const listWrapper = async (req, res) => {
 
     // This determines, if there is a search term given by the user.
     let searchIncluded = !!search && !!search.length > 0;
-
-    // If there is a search term given, but no city is set, we want to check, if the search term
-    // is actually exactly a city_slug. If it is, we will set the city and let the search process
-    // proceed as if the user had selected the city himself. The search term stays as it was inserted.
-    
-    /*
-    I believe we do not need this, as we can manage to do this in Search.js on the frontend
-    // check if city is set
-    if(! (!!city && city.length > 0) ){
-        // if city is not set - check if search term can be found in the city_slugs.
-        let city_exists_Query = knex('city').count('city_slug').where('city_slug', search);
-        count = await city_exists_Query.first();
-        if(count==1) {
-            // if the search term is a unique city_slug, the city is set.
-            city = search
-        }
-    }
-    // Any drop outs from this checking means, that we proceed with the normal search process below.
-    */
-
 
     //construct the array of selected columns 
     let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
@@ -426,8 +407,6 @@ const listWrapper = async (req, res) => {
     let sql_order = "";
     sql_order += `ORDER BY `;
 
-    // Formerly here was checked if(!!orderId && orderId == "relevanz"){
-    // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -467,8 +446,10 @@ const listWrapper = async (req, res) => {
             // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
-            //clg
-            // console.log('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
+            
+            logger("#######################################################");
+            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            logger("#######################################################");
             
             if (result && result.rows) {
                 result = result.rows;
@@ -484,10 +465,11 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        //console.log("#######################################################")
-        // const sqlQuery = query.toString();
-        // console.log("SQL without search phrase :", sqlQuery)
-        // console.log("#######################################################")
+        logger("#######################################################");
+        const sqlQuery = query.toString();
+        logger("SQL without search phrase :" + sqlQuery)
+        logger("#######################################################");
+
         result = await query;
         count = await countQuery.first();
     }
