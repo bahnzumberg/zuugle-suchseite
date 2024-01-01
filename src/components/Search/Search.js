@@ -309,12 +309,6 @@ export function Search({
       ? searchPhrase
       : "";
 
-    if (!!searchParams.get("sort")) {
-      values.sort = searchParams.get("sort");
-    } else {
-      values.sort = "relevanz";
-    }
-
     values.map = searchParams.get("map"); // map related
     values.provider = searchParams.get("p");
     if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");

@@ -11,10 +11,6 @@ import DetailReworked from "./views/Main/DetailReworked";
 import Search from "./components/Search/Search";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
-import CacheBuster, { useCacheBuster } from 'react-cache-buster';
-import packageJson from '../package.json';
-import LoadingVersionCheck from "./components/Loading/LoadingVersionCheck.jsx";
-const { version } = packageJson;
 
 const Main = lazy(() => import("./views/Main/Main"));
 const About = lazy(() => import("./views/Pages/About"));
@@ -26,35 +22,29 @@ const Privacy = lazy(() => import("./views/Pages/Privacy"));
 
 
 function App() {
-  const isProduction = process.env.NODE_ENV === 'production';
-  console.log("FROM APP.JS: ", isProduction)
-  const { checkCacheStatus } = useCacheBuster();
+  //check if first visit and change code to domain language
+  if(!localStorage.getItem('visited')) {
 
+    let domain = getTopLevelDomain();
 
+    //switch to domain language
+    switch (domain) {
+      case 'si':
+        i18next.changeLanguage('sl');
+        break;
+      case 'fr':
+        i18next.changeLanguage('fr');
+        break;
+      case 'it':
+        i18next.changeLanguage('it');
+        break;
+      default:
+        i18next.changeLanguage('de');
+        break;
+    }
 
-//check if first visit and change code to domain language
-if(!localStorage.getItem('visited')) {
-
-  let domain = getTopLevelDomain();
-
-  //switch to domain language
-  switch (domain) {
-    case 'si':
-      i18next.changeLanguage('sl');
-      break;
-    case 'fr':
-      i18next.changeLanguage('fr');
-      break;
-    case 'it':
-      i18next.changeLanguage('it');
-      break;
-    default:
-      i18next.changeLanguage('de');
-      break;
+    localStorage.setItem('visited',true);
   }
-
-  localStorage.setItem('visited',true);
-}
 
   // Matomo tracking
   var _mtm = window._mtm = window._mtm || [];
@@ -70,42 +60,34 @@ if(!localStorage.getItem('visited')) {
 
   return (
     <>
-    <CacheBuster
-      currentVersion={version}
-      isEnabled={isProduction} //If false, the library is disabled.
-      isVerboseMode={false} //If true, the library writes verbose logs to console.
-      metaFileDirectory={'.'} //If public assets are hosted somewhere other than root on your server.
-    >
+      <ThemeProvider theme={theme}>
+        <div className="App">
+          <Suspense
+            fallback={
+              <div style={{ height: "100%", width: "100%", padding: "20px" }}>
+                <CircularProgress />
+              </div>
+            }
+          >
+            <Routes>
+              <Route path="/" element={<Start />} />
+              <Route path="/total" element={<Start />} />
+              <Route path="/suche" element={<Main />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tour" element={<DetailReworked />} />
+              <Route path="/provider/:provider" element={<DetailReworked />} />
+              <Route path="/imprint" element={<Impressum />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/:city" element={<Main />} />
+              <Route path="/searchPhrases" element={<Search />} />
 
-    <ThemeProvider theme={theme}>
-      <div className="App">
-        <Suspense
-          fallback={
-            <div style={{ height: "100%", width: "100%", padding: "20px" }}>
-              <CircularProgress />
-            </div>
-          }
-        >
-          <Routes>
-            <Route path="/" element={<Start />} />
-            <Route path="/total" element={<Start />} />
-            <Route path="/suche" element={<Main />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/tour" element={<DetailReworked />} />
-            <Route path="/provider/:provider" element={<DetailReworked />} />
-            <Route path="/imprint" element={<Impressum />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/:city" element={<Main />} />
-            <Route path="/searchPhrases" element={<Search />} />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </div>
-      <ModalRoot />
-    </ThemeProvider>
-    </CacheBuster>
-  </>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </div>
+        <ModalRoot />
+      </ThemeProvider>
+    </>
 
   );
 }
