@@ -8,7 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
-import { isArrayLike } from "lodash";
+// import { isArrayLike } from "lodash";
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
@@ -75,6 +75,11 @@ export async function fixTours(){
 
 
 const deleteFilesOlder30days = (dirPath) => {
+    // if the directory does not exist, create it
+    if (!fs.existsSync(dirPath)){
+        fs.mkdirSync(dirPath);
+    }
+    
     let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
     // console.log("commandline = ", commandline)
     const { exec } = require('child_process');
@@ -88,21 +93,6 @@ const deleteFilesOlder30days = (dirPath) => {
         console.log(`stdout: ${stdout}`);
         console.log(`stderr: ${stderr}`);
     });
-
-    if(process.env.NODE_ENV != "production"){
-        commandline = "touch .nothing";
-        const { exec } = require('child_process');
-        exec(commandline, (err, stdout, stderr) => {
-            if (err) {
-                // node couldn't execute the command
-                return;
-            }
-
-            // the *entire* stdout and stderr (buffered)
-            console.log(`Only on local environment: stdout: ${stdout}`);
-            console.log(`Only on local environment: stderr: ${stderr}`);
-        });
-    }
 }
 
 
