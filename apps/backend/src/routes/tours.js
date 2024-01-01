@@ -447,9 +447,11 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             
-            logger("#######################################################");
-            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-            logger("#######################################################");
+            if(process.env.NODE_ENV != "production"){
+                logger("#######################################################");
+                logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+                logger("#######################################################");
+            }
             
             if (result && result.rows) {
                 result = result.rows;
@@ -465,10 +467,12 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        logger("#######################################################");
-        const sqlQuery = query.toString();
-        logger("SQL without search phrase :" + sqlQuery)
-        logger("#######################################################");
+        if(process.env.NODE_ENV != "production"){
+            logger("#######################################################");
+            const sqlQuery = query.toString();
+            logger("SQL without search phrase :" + sqlQuery)
+            logger("#######################################################");
+        }
 
         result = await query;
         count = await countQuery.first();
