@@ -1,12 +1,10 @@
 import * as fs from "fs";
+const path = require('path');
 
 export default function(text) {
     let proddevPath = "../";
     if(process.env.NODE_ENV != "production"){
         proddevPath = "../../";
-    }
-    if (!fs.existsSync(path.join(__dirname, proddevPath, "logs"))){
-        fs.mkdirSync(path.join(__dirname, proddevPath, "logs"));
     }
     const filePath = path.join(__dirname, proddevPath, "logs/api.log");
 
@@ -14,3 +12,14 @@ export default function(text) {
         if (err) throw err;
     });
 };
+
+export function create_api_log() {
+    let proddevPath = "../";
+    if(process.env.NODE_ENV != "production"){
+        proddevPath = "../../";
+    }
+    if (!fs.existsSync(path.join(__dirname, proddevPath, "logs"))){
+        fs.mkdirSync(path.join(__dirname, proddevPath, "logs"));
+        fs.createWriteStream(path.join(__dirname, proddevPath, "logs/api.log"));
+    }
+}

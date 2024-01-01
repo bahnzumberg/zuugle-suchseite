@@ -407,8 +407,6 @@ const listWrapper = async (req, res) => {
     let sql_order = "";
     sql_order += `ORDER BY `;
 
-    // Formerly here was checked if(!!orderId && orderId == "relevanz"){
-    // Now there is only one sorting algorithm. This one.
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -450,7 +448,7 @@ const listWrapper = async (req, res) => {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             
             logger("#######################################################");
-            logger('SQL with search phrase: ', sql_select + outer_where + sql_order + sql_limit);
+            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
             logger("#######################################################");
             
             if (result && result.rows) {
@@ -469,7 +467,7 @@ const listWrapper = async (req, res) => {
     }else{
         logger("#######################################################");
         const sqlQuery = query.toString();
-        logger("SQL without search phrase :", sqlQuery)
+        logger("SQL without search phrase :" + sqlQuery)
         logger("#######################################################");
 
         result = await query;
