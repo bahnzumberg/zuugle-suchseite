@@ -396,12 +396,12 @@ export function Search({
     
   const handleGoButton = () =>  {
     search();
-    window.location.reload();
+    // window.location.reload();
   }
     
  
   const getSearchSuggestion = (autoSuggestion) => {
-    if (autoSuggestion == '') {
+    if (autoSuggestion === '') {
       searchParams.delete("search");
       setSearchPhrase("");
       setSearchParams(searchParams);
