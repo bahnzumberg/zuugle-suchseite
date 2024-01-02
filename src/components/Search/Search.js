@@ -141,7 +141,8 @@ export function Search({
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
           writeCityToLocalStorage(search.toLowerCase());
-          searchParams.set("city", search.toLowerCase());
+          // searchParams.set("city", search.toLowerCase());
+          setSearchParams("city", search.toLowerCase());
         }
       }
     }
@@ -161,6 +162,7 @@ export function Search({
       setRegion({ value: type, label: type, type: "type" });
     }
 
+    console.log("searchParams inside Search.js L 164: ", JSON.stringify(searchParams));
     //Remaining code in this useEffect is for Main page only .
     //=======================================================
     if (!!!isMain ) {
