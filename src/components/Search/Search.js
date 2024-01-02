@@ -131,7 +131,7 @@ export function Search({
       setRegion({ value: range, label: range, type: "range" });
     }
     else if (!!search) {
-      setSearchPhrase(search);
+      setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
 
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
@@ -141,8 +141,8 @@ export function Search({
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
           writeCityToLocalStorage(search.toLowerCase());
-          // searchParams.set("city", search.toLowerCase());
-          setSearchParams("city", search.toLowerCase());
+          searchParams.set("city", search.toLowerCase());
+          setSearchParams(searchParams);
         }
       }
     }
@@ -162,7 +162,6 @@ export function Search({
       setRegion({ value: type, label: type, type: "type" });
     }
 
-    console.log("searchParams inside Search.js L 164: ", JSON.stringify(searchParams));
     //Remaining code in this useEffect is for Main page only .
     //=======================================================
     if (!!!isMain ) {
@@ -211,6 +210,8 @@ export function Search({
     searchParams && searchParams.get("range"),
     searchParams && searchParams.get("map"),
     searchParams && searchParams.get("p"),
+    searchParams,
+    setSearchParams
   ]); // end useEffect
 
   // store city in localstorage
@@ -396,7 +397,9 @@ export function Search({
     
   const handleGoButton = () =>  {
     search();
-    // window.location.reload();
+    window.location.reload();
+    // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
+    // window.location.replace(newUrl);
   }
     
  
