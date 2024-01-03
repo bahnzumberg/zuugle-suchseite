@@ -102,7 +102,6 @@ function Start({
         await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
           {
-            sort: "relevanz",
             limit: 10,
             city: !!city ? city : undefined,
             ranges: true,

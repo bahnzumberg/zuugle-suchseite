@@ -434,7 +434,6 @@ export function CityResultList({
               //wenn startseite lade touren
               if (!!_city && !!_city.value) {
                 loadFavouriteTours({
-                  sort: "relevanz",
                   city: _city.value,
                   limit: 10,
                   ranges: true,
