@@ -23,7 +23,7 @@ import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
-import { parseFileName } from "../../utils/globals";
+import { consoleLog, parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -166,10 +166,11 @@ useEffect(() => {
         console.error("Error fetching provider permit status:", error);
       });
   }
-  if(process.env.NODE_ENV != "production"){
-    console.log("L172 : providerPermit", providerPermit)
-  }
-}, [tour]);
+  consoleLog("L172 : providerPermit", providerPermit)
+  // if(process.env.NODE_ENV != "production"){
+  //   console.log("L172 : providerPermit", providerPermit)
+  // }
+}, [tour,providerPermit]);
 
 
   React.useEffect(() => {
