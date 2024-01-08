@@ -150,7 +150,7 @@ useEffect(() => {
       .then((response) => {
         if (response.status === 200) {
           if(process.env.NODE_ENV != "production"){
-            console.log("L158 : first response.data", response.data)
+            consoleLog("L158 : response.data", response.data, true)
           }
           return response.data;
         }
@@ -226,7 +226,7 @@ useEffect(() => {
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
-            console.log("URL redirect :" + "/tour?" + redirectSearchParams.toString())
+            consoleLog('URL redirect : /tour?', redirectSearchParams.toString())
             lazy(navigate("/tour?" + redirectSearchParams.toString()));
           } else {
             city && searchParams.set("city", city);
@@ -286,7 +286,7 @@ useEffect(() => {
   useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
-        console.log("No city L260");
+        consoleLog("No city L289");
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
@@ -437,7 +437,7 @@ useEffect(() => {
   
 
   useEffect(() => {
-  console.log("L464  : share link",shareLink )
+  consoleLog("L464  : share link",shareLink )
   }, [shareLink]);
 
   const actionButtonPart = (
