@@ -1,0 +1,38 @@
+[
+    {
+      "T": "D",
+      "DS": "Stazione di Merano",
+      "DT": "08:16"
+    },
+    {
+      "T": "C",
+      "CD": "01:46",
+      "CN": "REG 17128",
+      "CT": 1
+    },
+    {
+      "T": "A",
+      "AS": "Vipiteno-Val di Vizze",
+      "AT": "10:02"
+    },
+    {
+      "T": "T",
+      "TD": "00:07"
+    },
+    {
+      "T": "D",
+      "DS": "Vipiteno-Val di Vizze",
+      "DT": "10:09"
+    },
+    {
+      "T": "C",
+      "CD": "00:26",
+      "CN": "312",
+      "CT": 2
+    },
+    {
+      "T": "A",
+      "AS": "Gewinges",
+      "AT": "10:35"
+    }
+  ]
