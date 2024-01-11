@@ -28,7 +28,7 @@ if (lineCount < maxAllowed) {
 // call this function whenever the server starts// for now test it on tours.js
 export function create_api_log() {
     // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
-    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../../' : '../';
+    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../../' : '../../';
     const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
 
     // Make sure directory exists
