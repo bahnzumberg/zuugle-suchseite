@@ -150,7 +150,7 @@ useEffect(() => {
       .then((response) => {
         if (response.status === 200) {
           if(process.env.NODE_ENV != "production"){
-            consoleLog("L158 : response.data", response.data, true)
+            // consoleLog("L158 : response.data", response.data, true)
           }
           return response.data;
         }
@@ -166,7 +166,7 @@ useEffect(() => {
         console.error("Error fetching provider permit status:", error);
       });
   }
-  consoleLog("L172 : providerPermit", providerPermit)
+  // consoleLog("L172 : providerPermit", providerPermit)
   // if(process.env.NODE_ENV != "production"){
   //   console.log("L172 : providerPermit", providerPermit)
   // }
@@ -437,7 +437,7 @@ useEffect(() => {
   
 
   useEffect(() => {
-  consoleLog("L464  : share link",shareLink )
+  // consoleLog("L464  : share link",shareLink )
   }, [shareLink]);
 
   const actionButtonPart = (
