@@ -8,7 +8,7 @@ import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
-import logger, { create_api_log } from '../utils/logger_v2';
+import logger, { create_api_log } from '../utils/logger';
 
 const fs = require('fs');
 const path = require('path');
