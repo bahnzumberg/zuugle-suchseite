@@ -73,6 +73,7 @@ export async function fixTours(){
 
 
 const deleteFilesOlder30days = (dirPath) => {
+    !!dirPath && console.log("L76 dirPath = ", dirPath)
     // if the directory does not exist, create it
     if (!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath);
