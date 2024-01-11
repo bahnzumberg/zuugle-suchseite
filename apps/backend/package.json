@@ -40,7 +40,6 @@
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "cron": "^1.8.2",
     "crypto": "^1.0.1",
     "csurf": "^1.11.0",
     "es6-promise-pool": "^2.5.0",
