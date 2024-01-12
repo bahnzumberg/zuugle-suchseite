@@ -192,6 +192,7 @@ useEffect(() => {
           generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
+                      // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
                   } else {
                       console.log("Share link didn't generate as expected.");

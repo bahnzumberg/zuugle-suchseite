@@ -264,13 +264,13 @@ export function generateShareLink(provider, hashedUrl, date, city) {
       city: city,
     })
     .then((res) => {
-      if(process.env.NODE_ENV != "production"){
+      if(process.env.NODE_ENV !== "production"){
         console.log("L281 crudActions / generateShareLink res.data :", res.data);
       }
       return res.data;
     })
     .catch((err) => {
-      if(process.env.NODE_ENV != "production"){
+      if(process.env.NODE_ENV !== "production"){
         console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
       }
       return err.response;

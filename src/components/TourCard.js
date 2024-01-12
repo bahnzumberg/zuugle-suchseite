@@ -18,6 +18,7 @@ import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
 import {tourTypes} from "../utils/language_Utils";
+import { useSearchParams } from 'react-router-dom';
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
@@ -29,6 +30,12 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
+
+    // const searchParams = new URLSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+
+    const tourLink = '/tour?' + searchParams.toString();
 
     // i18next
     const {t} = useTranslation();
@@ -187,15 +194,18 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
       <Card
         className="tour-card cursor-link"
         onClick={() => {
-          onSelectTour(tour);
+        //   onSelectTour(tour);
+        console.log("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
-        <CardMedia
-          component="img"
-          height="140"
-          image={image}
-          style={{ opacity: imageOpacity }}
-        />
+        <a href={tourLink} target='_blank' rel='noreferrer' >
+            <CardMedia
+            component="img"
+            height="140"
+            image={image}
+            style={{ opacity: imageOpacity }}
+            />
+        </a>
         <CardContent>
           <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
           <div className="mt-3">
