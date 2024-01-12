@@ -31,12 +31,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
 
-    // const searchParams = new URLSearchParams();
     const [searchParams, setSearchParams] = useSearchParams();
 
-
-    const tourLink = '/tour?' + searchParams.toString();
-
+    let tourLink = '/tour?'+ searchParams.toString();
+    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
+      
     // i18next
     const {t} = useTranslation();
 
@@ -89,8 +88,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         }
     }, [tour])
 
+    const isMobile = useMediaQuery('(max-width:600px)');
     const shortened_url = () => {
-        const isMobile = useMediaQuery('(max-width:600px)');
         let length = 45;
         if (!!isMobile) { 
             length = 35; 
@@ -122,7 +121,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
         const translateTourType = (type) =>{
             let translatedType = null; 
-            tourTypes.map((typ)=>{
+            tourTypes.forEach((typ)=>{
                 type = type.toLowerCase();
                 if(typ === type){   //correct the small cap so both can be equal
                     // console.log("filter.${type} : ", `filter.${type}`)
@@ -194,7 +193,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
       <Card
         className="tour-card cursor-link"
         onClick={() => {
-        //   onSelectTour(tour);
+          onSelectTour(tour);
         console.log("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
