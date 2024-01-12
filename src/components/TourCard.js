@@ -19,6 +19,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
 import {tourTypes} from "../utils/language_Utils";
 import { useSearchParams } from 'react-router-dom';
+import {consoleLog} from "../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
@@ -191,13 +192,13 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     return (
       <Card
-        className="tour-card cursor-link"
+        className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-        console.log("Card Clicked  !! tourLink -->", tourLink)
+          consoleLog("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
-        <a href={tourLink} target='_blank' rel='noreferrer' >
+        <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
             <CardMedia
             component="img"
             height="140"
@@ -211,12 +212,28 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             <Typography variant="h5">{tour.range}</Typography>
           </div>
           <div className="mt-3">
+
             <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
+          <a 
+            href={tourLink} 
+            target='_blank' 
+            rel='noreferrer'
+            className="custom-h4-link curser-link"
+          >
               {tour.title}
+          </a>
             </Typography>
             <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
+            <a 
+            href={tourLink} 
+            target='_blank' 
+            rel='noreferrer'
+            className="custom-h5-link curser-link"
+          >
               {shortened_url()}
+            </a>
             </Typography>
+
           </div>
           <div className="mt-3" style={{ whiteSpace: "break-space" }}>
             {renderProps()}
