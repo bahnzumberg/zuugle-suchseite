@@ -149,7 +149,7 @@ function Start({
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
-              window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+              // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
             }else{
               window.location.reload();
             }
