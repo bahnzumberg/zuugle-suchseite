@@ -1317,9 +1317,16 @@ const tourPdfWrapper = async (req, res) => {
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
-        console.log("L1320 : tour not found")
+        logger("L1320 : tour not found")
         res.status(404).json({success: false});
         return;
+    }else{
+        logger("-----------------------------------------------")
+        logger(`L1324 : tour with id ${id} found`)
+        logger("-----------------------------------------------")
+        console.log("-----------------------------------------------")
+        console.log(`L1324 : tour with id ${id} found`)
+        console.log("-----------------------------------------------")
     }
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
