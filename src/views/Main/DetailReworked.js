@@ -52,20 +52,10 @@ import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
 
-const setGpxTrack = (url, loadGPX, _function) => {
-  loadGPX(url).then((res) => {
-    if (!!res && !!res.data) {
-      let gpx = new GpxParser(); //Create gpxParser Object
-      gpx.parse(res.data);
-      if (gpx.tracks.length > 0) {
-        const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-        _function(positions);
-      }
-    }
-  });
-};
+
 
 const DetailReworked = (props) => {
+
   const {
     loadTour,
     loadTours,
@@ -82,6 +72,19 @@ const DetailReworked = (props) => {
     showMobileMenu,
     setShowMobileMenu,
   } = props;
+
+  const setGpxTrack = (url, loadGPX, _function) => {
+    loadGPX(url).then((res) => {
+      if (!!res && !!res.data) {
+        let gpx = new GpxParser(); //Create gpxParser Object
+        gpx.parse(res.data);
+        if (gpx.tracks.length > 0) {
+          const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+          _function(positions);
+        }
+      }
+    });
+  };
 
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
