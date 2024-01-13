@@ -184,7 +184,7 @@ try {
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
-              window.open("/tour?" + searchParams.toString());
+              // window.open("/tour?" + searchParams.toString());
             }else{
               goToStartPage();
             }
@@ -216,14 +216,7 @@ try {
  
   return (
     <div>
-      {/* clg */}
-      {/*{console.log("directLink L 230:",directLink) }*/}{" "}
-      {/* {console.log("L280: Main / counter :", counter)} */}
-      {/* {getPageHeader(directLink)} */}
-      {/* {getPageHeader({ header: `Zuugle ${t(`${cityLabel}`)}` })} */}
-      {/* {getPageHeader({ header: `Zuugle ${t(`${getCityLabel(location, allCities)}`)}` })} */}
-
-      <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
+        <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
             <Typography

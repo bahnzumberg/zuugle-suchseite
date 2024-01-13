@@ -45,7 +45,9 @@ const initialState = {
   noToursAvailable: null,
 };
 
-export default (state = initialState, action = {}) => {
+// Keep comment below for Eslint purposes
+// eslint-disable-next-line import/no-anonymous-default-export
+export default ((state = initialState, action = {}) => {
   switch (action.type) {
     case LOAD_TOURS:
       return {
@@ -159,8 +161,6 @@ export default (state = initialState, action = {}) => {
         ...state,
         visibleToursGPX: action.visibleToursGPX,
       };
-    default:
-      return state;
     // cases when NO DATA AVAILABLE or LOAD DATA ERROR
     case NO_DATA_AVAILABLE:
       return {
@@ -180,5 +180,7 @@ export default (state = initialState, action = {}) => {
         ...state,
         error: action.error, // Store the error message for display
       };
+      default:
+        return state;
   }
-};
+})
