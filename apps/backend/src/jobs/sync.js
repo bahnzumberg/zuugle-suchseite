@@ -73,6 +73,7 @@ export async function fixTours(){
 
 
 const deleteFilesOlder30days = (dirPath) => {
+    !!dirPath && console.log("L76 dirPath = ", dirPath)
     // if the directory does not exist, create it
     if (!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath);
@@ -120,6 +121,10 @@ export async function writeKPIs(){
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_provider';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`);
+
+    
+    // Unrelated to the KPIs, but the old disposable links have to be deleted as well
+    await knex.raw(`DELETE FROM disposible WHERE calendar_date < now() - INTERVAL '10 DAY';`);
 }
 
 

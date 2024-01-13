@@ -7,10 +7,15 @@ import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
-import logger from '../utils/logger';
+// import logger from '../utils/logger';
+import logger, { create_api_log } from '../utils/logger';
 
 const fs = require('fs');
 const path = require('path');
+
+//create log file
+create_api_log();
+
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
@@ -1311,6 +1316,20 @@ const tourPdfWrapper = async (req, res) => {
     const tour = await knex('tour').select().where({id: id}).first();
     let connection, connectionReturn, connectionReturns = null;
 
+    if (!tour){
+        logger("L1320 : tour not found")
+        res.status(404).json({success: false});
+        return;
+    }else{
+        if(process.env.NODE_ENV != "production"){
+            logger("-----------------------------------------------")
+            logger(`L1324 : tour with id ${id} found`)
+            logger("-----------------------------------------------")
+            console.log("-----------------------------------------------")
+            console.log(`L1324 : tour with id ${id} found`)
+            console.log("-----------------------------------------------")
+        }
+    }
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }

@@ -1,25 +1,43 @@
-import * as fs from "fs";
-const path = require('path');
+import * as fs from 'fs';
+import path from 'path';
 
-export default function(text) {
-    let proddevPath = "../";
-    if(process.env.NODE_ENV != "production"){
-        proddevPath = "../../";
+let lineCount = 0;
+const maxAllowed = 100;
+
+export default function (text) {
+    // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
+    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
+    const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
+
+    // Ensure the directory exists
+    if (!fs.existsSync(path.dirname(filePath))) {
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
     }
-    const filePath = path.join(__dirname, proddevPath, "logs/api.log");
 
-    fs.appendFileSync(filePath, text + "\n", function (err) {
-        if (err) throw err;
-    });
-};
+if (lineCount < maxAllowed) {
+    // add log entry
+    fs.appendFileSync(filePath, text + '\n');
+    lineCount++;
+} else {
+    // this will erase the current file and add a new "text" line
+    fs.writeFileSync(filePath, text + '\n');
+    lineCount = 1;
+}
+}
 
+// call this function whenever the server starts// for now test it on tours.js
 export function create_api_log() {
-    let proddevPath = "../";
-    if(process.env.NODE_ENV != "production"){
-        proddevPath = "../../";
+    // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
+    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
+    const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
+
+    // Make sure directory exists
+    if (!fs.existsSync(path.dirname(filePath))) {
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
     }
-    if (!fs.existsSync(path.join(__dirname, proddevPath, "logs"))){
-        fs.mkdirSync(path.join(__dirname, proddevPath, "logs"));
-        fs.createWriteStream(path.join(__dirname, proddevPath, "logs/api.log"));
+
+    // Create file when not existent yet
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '');
     }
 }

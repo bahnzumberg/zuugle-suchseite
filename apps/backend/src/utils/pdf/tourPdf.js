@@ -155,14 +155,44 @@ export const createReturnEntries = (entries, connection) => {
         }
 
     }
+    // console.log("L158 toReturn: " + JSON.stringify(toReturn));
     return toReturn;
 }
+//example of variable "entries" 
+//     [
+//     "08:02 Wien Meidling",
+//     "  |  01:03 Std mit Zug REX9 nach",
+//     "09:05 Payerbach-Reichenau Bahnhof",
+//     "  =  00:09 Std Umstiegszeit",
+//     "09:14 Payerbach-Reichenau Bahnhof",
+//     "  |  00:22 Std mit Bus 341 nach",
+//     "09:36 Höllental Abzw. Weichtalhaus",
+//     "  >  00:02 Std Zustiegsdauer zum Touren-Ausgangspunkt",
+//     ""];
+// Below is sample output from : "L158 toReturn"
+// [
+// {"time":"08:14","text":" Baden Bahnhof","firstEntry":true},
+// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_train.svg","text":"  00:51 Std mit Zug REX9 nach","middleEntry":true,"detailEntry":true},
+// {"time":"09:05","text":" Payerbach-Reichenau Bahnhof","middleEntry":true},
+// {"time":"","image":"http://localhost:8080/public/icons/ic_shuffle_black.svg","text":"  00:09 Std Umstiegszeit","middleEntry":true,"detailEntry":true},
+// {"time":"09:14","text":" Payerbach-Reichenau Bahnhof","middleEntry":true},
+// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_bus.svg","text":"  00:22 Std mit Bus 341 nach","middleEntry":true,"detailEntry":true},
+// {"time":"09:36","text":" Höllental Abzw. Weichtalhaus","middleEntry":true},
+// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_walk.svg","text":"  00:02 Std Zustiegsdauer zum Touren-Ausgangspunkt","middleEntry":true,"detailEntry":true},
+// {"time":"00:02","text":" Ankunft bei Tourstart","lastEntry":true}
+// ]
+
+// using the new JSON method described in : 
+// https://github.com/bahnzumberg/hermes/wiki/Connection-and-Return-Description ,
+// check the file /zuugle-api/test_fahrplan.json for a sample of data
+// from jsonb column 'connection_description_json' inside table 'fahrplan'
+
 
 export const createConnectionEntries = (entries, connection) => {
     let toReturn = [];
     if(!!entries && entries.length > 0){
         let _entries = entries.filter(e => !!e && e.length > 0);
-        toReturn.push(getDepartureEntry(_entries[0]));
+        toReturn.push(getDepartureEntry(_entries[0]));  // e.g. "08:02 Wien Meidling" result: ['08:02', 'Wien Meidling']
         for(let i=1; i<_entries.length; i++){
             let entry = _entries[i];
             if((i-1)%2 == 0){
@@ -184,10 +214,12 @@ export const createConnectionEntries = (entries, connection) => {
         }
         toReturn.push(getArrivalEntry(`${newStart} Ankunft bei Tourstart`));
     }
+    // console.log("L197 toReturn: " + JSON.stringify(toReturn));
+
     return toReturn;
 }
 
-const getDepartureEntry = (entry) => {
+const getDepartureEntry = (entry) => { // e.g. entry = "08:02 Wien Meidling"
     return {
         time: getTimeFromConnectionDescriptionEntry(entry),
         text: getTextFromConnectionDescriptionEntry(entry),
@@ -221,7 +253,7 @@ const getStationEntry = (entry) => {
     }
 }
 
-export const getTimeFromConnectionDescriptionEntry = (entry) => {
+export const getTimeFromConnectionDescriptionEntry = (entry) => { // e.g. entry = "08:02 Wien Meidling"
     let _entry = !!entry ? entry.trim() : null;
     if(!!_entry && _entry.length > 5){
         return _entry.substring(0,5);
