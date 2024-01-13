@@ -23,7 +23,7 @@ import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
-import { parseFileName } from "../../utils/globals";
+import { consoleLog, parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -52,20 +52,10 @@ import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
 
-const setGpxTrack = (url, loadGPX, _function) => {
-  loadGPX(url).then((res) => {
-    if (!!res && !!res.data) {
-      let gpx = new GpxParser(); //Create gpxParser Object
-      gpx.parse(res.data);
-      if (gpx.tracks.length > 0) {
-        const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-        _function(positions);
-      }
-    }
-  });
-};
+
 
 const DetailReworked = (props) => {
+
   const {
     loadTour,
     loadTours,
@@ -82,6 +72,19 @@ const DetailReworked = (props) => {
     showMobileMenu,
     setShowMobileMenu,
   } = props;
+
+  const setGpxTrack = (url, loadGPX, _function) => {
+    loadGPX(url).then((res) => {
+      if (!!res && !!res.data) {
+        let gpx = new GpxParser(); //Create gpxParser Object
+        gpx.parse(res.data);
+        if (gpx.tracks.length > 0) {
+          const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+          _function(positions);
+        }
+      }
+    });
+  };
 
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
@@ -150,7 +153,7 @@ useEffect(() => {
       .then((response) => {
         if (response.status === 200) {
           if(process.env.NODE_ENV != "production"){
-            console.log("L158 : first response.data", response.data)
+            // consoleLog("L158 : response.data", response.data, true)
           }
           return response.data;
         }
@@ -166,10 +169,11 @@ useEffect(() => {
         console.error("Error fetching provider permit status:", error);
       });
   }
-  if(process.env.NODE_ENV != "production"){
-    console.log("L172 : providerPermit", providerPermit)
-  }
-}, [tour]);
+  // consoleLog("L172 : providerPermit", providerPermit)
+  // if(process.env.NODE_ENV != "production"){
+  //   console.log("L172 : providerPermit", providerPermit)
+  // }
+}, [tour,providerPermit]);
 
 
   React.useEffect(() => {
@@ -188,6 +192,7 @@ useEffect(() => {
           generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
+                      // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
                   } else {
                       console.log("Share link didn't generate as expected.");
@@ -225,7 +230,7 @@ useEffect(() => {
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
-            console.log("URL redirect :" + "/tour?" + redirectSearchParams.toString())
+            consoleLog('URL redirect : /tour?', redirectSearchParams.toString())
             lazy(navigate("/tour?" + redirectSearchParams.toString()));
           } else {
             city && searchParams.set("city", city);
@@ -285,7 +290,7 @@ useEffect(() => {
   useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
-        console.log("No city L260");
+        consoleLog("No city L289");
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
@@ -436,7 +441,7 @@ useEffect(() => {
   
 
   useEffect(() => {
-  console.log("L464  : share link",shareLink )
+  // consoleLog("L464  : share link",shareLink )
   }, [shareLink]);
 
   const actionButtonPart = (

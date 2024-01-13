@@ -18,6 +18,8 @@ import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
 import {tourTypes} from "../utils/language_Utils";
+import { useSearchParams } from 'react-router-dom';
+import {consoleLog} from "../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
@@ -30,6 +32,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [connections, setConnections] = useState([]);
     const [returns, setReturns] = useState([]);
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    let tourLink = '/tour?'+ searchParams.toString();
+    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
+      
     // i18next
     const {t} = useTranslation();
 
@@ -82,8 +89,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         }
     }, [tour])
 
+    const isMobile = useMediaQuery('(max-width:600px)');
     const shortened_url = () => {
-        const isMobile = useMediaQuery('(max-width:600px)');
         let length = 45;
         if (!!isMobile) { 
             length = 35; 
@@ -115,7 +122,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
         const translateTourType = (type) =>{
             let translatedType = null; 
-            tourTypes.map((typ)=>{
+            tourTypes.forEach((typ)=>{
                 type = type.toLowerCase();
                 if(typ === type){   //correct the small cap so both can be equal
                     // console.log("filter.${type} : ", `filter.${type}`)
@@ -185,29 +192,48 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     return (
       <Card
-        className="tour-card cursor-link"
+        className="tour-card"
         onClick={() => {
           onSelectTour(tour);
+          consoleLog("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
-        <CardMedia
-          component="img"
-          height="140"
-          image={image}
-          style={{ opacity: imageOpacity }}
-        />
+        <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
+            <CardMedia
+            component="img"
+            height="140"
+            image={image}
+            style={{ opacity: imageOpacity }}
+            />
+        </a>
         <CardContent>
           <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
           <div className="mt-3">
             <Typography variant="h5">{tour.range}</Typography>
           </div>
           <div className="mt-3">
+
             <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
+          <a 
+            href={tourLink} 
+            target='_blank' 
+            rel='noreferrer'
+            className="custom-h4-link curser-link"
+          >
               {tour.title}
+          </a>
             </Typography>
             <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
+            <a 
+            href={tourLink} 
+            target='_blank' 
+            rel='noreferrer'
+            className="custom-h5-link curser-link"
+          >
               {shortened_url()}
+            </a>
             </Typography>
+
           </div>
           <div className="mt-3" style={{ whiteSpace: "break-space" }}>
             {renderProps()}
