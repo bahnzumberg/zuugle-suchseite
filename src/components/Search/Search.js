@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -112,7 +113,7 @@ export function Search({
       }
     } else {
       if (!!city && !!allCities) {
-        cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+        cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
@@ -130,17 +131,18 @@ export function Search({
       setRegion({ value: range, label: range, type: "range" });
     }
     else if (!!search) {
-      setSearchPhrase(search);
+      setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
 
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        cityEntry = allCities.find((e) => e.value == search.toLowerCase()); // find the city object in array "allCities"
+        cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
           writeCityToLocalStorage(search.toLowerCase());
-          
+          searchParams.set("city", search.toLowerCase());
+          setSearchParams(searchParams);
         }
       }
     }
@@ -208,6 +210,8 @@ export function Search({
     searchParams && searchParams.get("range"),
     searchParams && searchParams.get("map"),
     searchParams && searchParams.get("p"),
+    searchParams,
+    setSearchParams
   ]); // end useEffect
 
   // store city in localstorage
@@ -309,12 +313,6 @@ export function Search({
       ? searchPhrase
       : "";
 
-    if (!!searchParams.get("sort")) {
-      values.sort = searchParams.get("sort");
-    } else {
-      values.sort = "relevanz";
-    }
-
     values.map = searchParams.get("map"); // map related
     values.provider = searchParams.get("p");
     if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
@@ -400,11 +398,13 @@ export function Search({
   const handleGoButton = () =>  {
     search();
     window.location.reload();
+    // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
+    // window.location.replace(newUrl);
   }
     
  
   const getSearchSuggestion = (autoSuggestion) => {
-    if (autoSuggestion == '') {
+    if (autoSuggestion === '') {
       searchParams.delete("search");
       setSearchPhrase("");
       setSearchParams(searchParams);

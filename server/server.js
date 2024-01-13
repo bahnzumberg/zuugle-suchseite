@@ -1,3 +1,4 @@
+import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 var express = require('express'),
     path = require('path'),
     compression = require('compression'),
@@ -15,7 +16,6 @@ app.get('/ip', (request, response) => {
 	}) 
 
 
-import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 15 minutes

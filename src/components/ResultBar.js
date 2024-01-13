@@ -24,7 +24,6 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
 
     // console.log("Total in ResultBar: " + total);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [order, setOrder] = React.useState("relevanz");
     const [mapView, setMapView] = React.useState(false);
     const [provider, setProvider] = React.useState("provider");
 

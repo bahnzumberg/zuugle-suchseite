@@ -102,7 +102,6 @@ function Start({
         await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
           {
-            sort: "relevanz",
             limit: 10,
             city: !!city ? city : undefined,
             ranges: true,
@@ -150,7 +149,7 @@ function Start({
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
-              window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+              // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
             }else{
               window.location.reload();
             }
