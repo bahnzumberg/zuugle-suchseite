@@ -1,7 +1,7 @@
 import * as React from 'react';
 // import StarRating from "react-svg-star-rating";
 import {Fragment} from "react";
-
+//marked for deletion
 export default function CustomStarRating({ratingValue, ratings}){
 
     return <Fragment></Fragment>;

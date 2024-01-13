@@ -7,11 +7,6 @@ import {formatOnlyTime} from "../utils/globals";
 import {Fragment} from "react";
 import { useTranslation} from 'react-i18next';
 
-//description
-//This is another React component used inside TourCard. It displays information about the return trip options for a tour.
-// The component takes in an array of returns as a prop, which contains information about the different return trip options for the tour.
-// The component first extracts the last return trip option from the returns array and uses it to display the name of the departure and arrival stops for the return trip. It also displays the number of return trip options available and the time of the last possible return trip.
-// If there are no return trip options available, the component returns an empty fragment.
 export default function TourConnectionReturnCardNew({returns}){
 
      // translation related

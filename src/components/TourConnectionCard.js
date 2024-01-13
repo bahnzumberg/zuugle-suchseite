@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
-
+//marked for deletion
 export default function TourConnectionCard({departureStop, datetimeString}){
     return <div className="tour-connection-card">
         <Typography variant="subtitle1" className="station">{departureStop}</Typography>

@@ -286,7 +286,9 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     
 
     const submit = () => {
-        console.log("L288 traverse value : ", traverse)
+        if(process.env.NODE_ENV != "production"){
+            console.log("L288 traverse value : ", traverse)
+        }
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
             coordinatesSouthWest: coordinatesSouthWest,

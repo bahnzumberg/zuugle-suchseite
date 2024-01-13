@@ -1,3 +1,4 @@
+import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 var express = require('express'),
     path = require('path'),
     compression = require('compression'),
@@ -8,12 +9,13 @@ const app = express();
 
 app.set('trust proxy', 1 /* number of proxies between user and server */)
 app.get('/ip', (request, response) => {
-	console.log("L11 Server.js request.ip: ", request.ip);
+	if(process.env.NODE_ENV != "production"){
+		console.log("L11 Server.js request.ip: ", request.ip);
+	}
 	response.send(request.ip)
 	}) 
 
 
-import { rateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 15 minutes

@@ -188,10 +188,7 @@ const secondMenu = [
 	{ id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
 ];
 	const [showDomainMenu, setShowDomainMenu] = React.useState(false);
-	// const [activeDomain, setActiveDomain] = React.useState("");
-// listOfDomains.forEach((domain) => {
-//   console.log(domain.name + " === " + domain.url);
-// });
+
 	return (
 		<Box component={"div"} className="colLeft">
 			<div

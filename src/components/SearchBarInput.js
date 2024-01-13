@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from "@mui/material/InputAdornment";
 import {MyLocation} from "@mui/icons-material";
 
+//marked for deletion
 export default function SearchBarInput({label}){
 
     const CssTextField = styled(TextField)({

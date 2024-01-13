@@ -107,7 +107,7 @@ export const crypt = (salt, text) => {
 
 
 export const getDomainText = () => {
-    const host = location.hostname;
+    const host = window.location.hostname;
     if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
     } else if(host.indexOf('www.zuugle.de') >= 0){
@@ -206,12 +206,7 @@ export const defaultFilterValues = [    //index
     {ranges_length: 62 },               // : 9
 ]
 export const countFilterActive = (searchParams, filter) => {
-    //description:
-    //The function first retrieves the current filter options from the URL search parameters using getFilterFromParams(searchParams).
-    // It initializes a variable called count to 0, which will keep track of the number of active filters.
-    // It then checks each filter option to see if it is different from the default filter option. If it is different, it increments the count variable.
-    // Finally, the function returns the value of count.
-
+    
     let count = 0;
 
     const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
@@ -271,7 +266,9 @@ export const countFilterActive = (searchParams, filter) => {
         count++;
       }
     }
-    console.log("L267 : FINAL count :",count)
+    if(process.env.NODE_ENV != "production"){
+        consoleLog("L267 : FINAL count :",count)
+    }
     return count;
   };
 
@@ -293,4 +290,18 @@ for (const [key, value] of searchParams) {
 return obj;
 }
 
+export function consoleLog(textOutput, varOutput, doubleLine = false) {
+    if(process.env.NODE_ENV !== "production"){
+        if(!!doubleLine){
+            console.log("----------------------------")
+            console.log(textOutput);
+            console.log(varOutput);
+            console.log("=============================")
+        }else{
+            console.log(textOutput, varOutput);
+        }
+        return;
+    }
+    return;
+}
   

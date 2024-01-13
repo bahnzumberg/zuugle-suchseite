@@ -42,9 +42,6 @@ class ModalComponent extends Component {
     }
 }
 
-// ModalComponent.contextTypes = {
-//     router: PropTypes.object.isRequired
-// }
 
 function mapStateToProps(state) {
     return {
