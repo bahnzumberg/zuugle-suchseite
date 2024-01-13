@@ -81,7 +81,7 @@
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-react": "^7.23.3",
     "@svgr/plugin-svgo": "^8.1.0",
-    "@svgr/webpack": "^7.0.0",
+    "@svgr/webpack": "^8.1.0",
     "babel-loader": "^9.1.2",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
