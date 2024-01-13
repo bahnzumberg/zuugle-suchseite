@@ -4,6 +4,7 @@ import {
   NO_DATA_AVAILABLE,
   NO_TOURS_AVAILABLE,
 } from "./types";
+import { consoleLog } from "../utils/globals";
 
 export async function loadFile(
   dispatch,
@@ -29,9 +30,15 @@ export async function loadFile(
     };
   }
   try {
+    //when clicking "pdf" button on detail page.
+    console.log("L 33 crudActions / loadFile : route :", route);//example: "tours/1971/pdf"
+    console.log("L 34 crudActions / loadFile : data :", data, true);//example: {id: 1971, connection_id: 957752, connection_return_id: 957752, connection_return_ids: Array(1), connectionDate: '2024-01-11T00:00:00+01:00'}
+    console.log("L 36 crudActions / loadFile : responseType :", responseType); //'buffer'
+
     let res = await axios.get(route, {
-      data: {},
-      // data: data,
+      // data: {},
+      data: data,
+      // responseType: 'arraybuffer',
       responseType: responseType,
       params: params,
       timeout: 60000,
@@ -257,13 +264,13 @@ export function generateShareLink(provider, hashedUrl, date, city) {
       city: city,
     })
     .then((res) => {
-      if(process.env.NODE_ENV != "production"){
+      if(process.env.NODE_ENV !== "production"){
         console.log("L281 crudActions / generateShareLink res.data :", res.data);
       }
       return res.data;
     })
     .catch((err) => {
-      if(process.env.NODE_ENV != "production"){
+      if(process.env.NODE_ENV !== "production"){
         console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
       }
       return err.response;

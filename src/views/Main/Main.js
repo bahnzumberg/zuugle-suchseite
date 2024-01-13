@@ -184,7 +184,7 @@ try {
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
-              window.open("/tour?" + searchParams.toString());
+              // window.open("/tour?" + searchParams.toString());
             }else{
               goToStartPage();
             }

@@ -5,6 +5,7 @@ export function loadGPX(url, responseType = "buffer") {
         return axios.get(url, {
             data: {},
             timeout: 60000,
+            responseType: responseType,
         }).then(res => {
             return res;
         })

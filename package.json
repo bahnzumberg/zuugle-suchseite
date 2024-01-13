@@ -15,7 +15,7 @@
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mui/icons-material": "^5.14.15",
     "@mui/lab": "^5.0.0-alpha.71",
-    "@mui/material": "^5.4.3",
+    "@mui/material": "^5.15.3",
     "@mui/x-date-pickers": "^6.17.0",
     "@react-leaflet/core": "^2.1.0",
     "@testing-library/jest-dom": "^5.16.2",
@@ -79,7 +79,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
-    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-react": "^7.23.3",
     "@svgr/plugin-svgo": "^8.1.0",
     "@svgr/webpack": "^7.0.0",
     "babel-loader": "^9.1.2",

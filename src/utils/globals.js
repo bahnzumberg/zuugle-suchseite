@@ -107,7 +107,7 @@ export const crypt = (salt, text) => {
 
 
 export const getDomainText = () => {
-    const host = location.hostname;
+    const host = window.location.hostname;
     if(host.indexOf('www.zuugle.at') >= 0) {
         return "Zuugle.at"
     } else if(host.indexOf('www.zuugle.de') >= 0){
@@ -267,7 +267,7 @@ export const countFilterActive = (searchParams, filter) => {
       }
     }
     if(process.env.NODE_ENV != "production"){
-        console.log("L267 : FINAL count :",count)
+        consoleLog("L267 : FINAL count :",count)
     }
     return count;
   };
@@ -290,4 +290,18 @@ for (const [key, value] of searchParams) {
 return obj;
 }
 
+export function consoleLog(textOutput, varOutput, doubleLine = false) {
+    if(process.env.NODE_ENV !== "production"){
+        if(!!doubleLine){
+            console.log("----------------------------")
+            console.log(textOutput);
+            console.log(varOutput);
+            console.log("=============================")
+        }else{
+            console.log(textOutput, varOutput);
+        }
+        return;
+    }
+    return;
+}
   
