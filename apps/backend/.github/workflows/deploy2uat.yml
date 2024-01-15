@@ -12,7 +12,8 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '19.8.1'
+        # node-version: '19.8.1'
+        node-version: '20.3.0'
 
     - name: Cache node_modules
       id: cache-npm
