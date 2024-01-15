@@ -1307,11 +1307,8 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
-    console.log("L1310 : tourPdfWrapper / id value :" + id); 
-    if(process.env.NODE_ENV != "production"){
-        console.log("-----------------------------------------------")
-        console.log("-----------------------------------------------")
-    }
+    logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
+   
     const city = req.query.city;
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
