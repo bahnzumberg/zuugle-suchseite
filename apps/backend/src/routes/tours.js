@@ -1307,14 +1307,16 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
+    logger("L1310 : tourPdfWrapper / id value :", id); 
     const city = req.query.city;
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
-    const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
-    // const tour = await knex('tour').select().where({id: id}).first();
+    // const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
+    const tour = await knex('tour').select().where({id: id}).first();
+    logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
