@@ -21,7 +21,7 @@ export class BrowserService {
 
         this._browser = await puppeteer.launch({
             ...addParam,
-            headless: true,
+            headless: "new",
             args: ['--no-sandbox']
         });
 
