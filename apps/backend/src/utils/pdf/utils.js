@@ -12,6 +12,8 @@ export const writePdf = async (data, TEMPLATE, saveToDisk, fileName, landscape =
     // console.log("L 8 utils.js/ writePdf, param/landscape :", landscape);
     // console.log("L 8 utils.js/ writePdf, param/toSaveFolder :", toSaveFolder);
     let templateHtml = readTemplate(TEMPLATE);
+    logger(`L 15 : templateHtml : ${!!templateHtml}`)// true 
+
     if(templateHtml){
         handlebars.registerHelper('breaklines', function(text) {
             text = handlebars.Utils.escapeExpression(text);
@@ -22,7 +24,7 @@ export const writePdf = async (data, TEMPLATE, saveToDisk, fileName, landscape =
         let template = handlebars.compile(templateHtml);
         let html = template(data);
         //clg
-        //console.log("L 24 : html is :", html) // true 
+        logger(`L 24 : html : ${!!html}`)// true 
         if(html){
             return await new Promise(async (resolve, reject) => {
                 try {

@@ -103,7 +103,9 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         url: tour.url
     };
 
-    // console.log("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
+    logger(`L105 tourPdf data is :, ${JSON.stringify(data)}`) ; // L105 tourPdf data is : object , this works
+    logger(`L105 tourPdf tour.name is :, ${JSON.stringify(tour.name)}`) ; // L105 tourPdf data is : object , this works
+    // logger("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
     // console.log("L106 tourPdf tour.name is :", tour.name); // this is undefined
     return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null); // this call works; see the test inside utils.js/writePdf
 };
