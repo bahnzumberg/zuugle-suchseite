@@ -1360,8 +1360,9 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
+        logger("L1363 : starting to generate pdf ")
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-        // console.log("L1019 tours /tourPdfWrapper / pdf value :", !!pdf); // value : true
+        logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
             console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
