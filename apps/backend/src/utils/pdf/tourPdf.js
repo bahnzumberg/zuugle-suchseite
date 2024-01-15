@@ -5,7 +5,7 @@ import moment from "moment";
 import {convertNumToTime} from "../helper";
 import {createSingleImageFromMap} from "../gpx/gpxUtils";
 import { convertDifficulty, titleCase } from "../dataConversion";
-import {logger} from "../logger";
+import logger from "../logger";
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
     console.log(`L10 , tourPdf.js / tourPdf, value of tour arg.`);

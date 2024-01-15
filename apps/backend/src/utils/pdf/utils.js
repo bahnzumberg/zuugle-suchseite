@@ -1,4 +1,5 @@
 import {BrowserService} from "./BrowserService";
+import logger from "../logger";
 
 const fs = require("fs");
 const path = require("path");
