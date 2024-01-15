@@ -1313,11 +1313,12 @@ const tourPdfWrapper = async (req, res) => {
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
-    const tour = await knex('tour').select().where({id: id}).first();
+    const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
+    // const tour = await knex('tour').select().where({id: id}).first();
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
-        logger("L1320 : tour not found")
+        logger("L1320 : tour not found with id: " + id)
         res.status(404).json({success: false});
         return;
     }else{
