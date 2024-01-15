@@ -53,4 +53,4 @@ jobs:
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
             pm2 restart all
-            /usr/local/zuugle/import-data-files.sh
+            # /usr/local/zuugle/import-data-files.sh
