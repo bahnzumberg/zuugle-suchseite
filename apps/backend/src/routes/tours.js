@@ -815,6 +815,7 @@ const gpxWrapper = async (req, res) => {
 const mapConnectionToFrontend = (connection) => {
     logger(`In mapConnectionToFrontend`)
     if(!!!connection){
+        logger(`In mapConnectionToFrontend return because no connection`)
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
@@ -823,12 +824,14 @@ const mapConnectionToFrontend = (connection) => {
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
+    logger(`In mapConnectionToFrontend return gracefully`)
     return connection;
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
     logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
+        logger(`In mapConnectionReturnToFrontend return because no connection`)
         return connection;
     }
 
@@ -836,6 +839,7 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
+    logger(`In mapConnectionReturnToFrontend return gracefully`)
     return connection;
 }
 
