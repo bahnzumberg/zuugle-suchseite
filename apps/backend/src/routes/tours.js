@@ -1360,7 +1360,7 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
+        // logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
