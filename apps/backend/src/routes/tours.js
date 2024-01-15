@@ -813,6 +813,7 @@ const gpxWrapper = async (req, res) => {
 }
 
 const mapConnectionToFrontend = (connection) => {
+    logger(`In mapConnectionToFrontend`)
     if(!!!connection){
         return connection;
     }
@@ -826,6 +827,7 @@ const mapConnectionToFrontend = (connection) => {
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
+    logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
         return connection;
     }
