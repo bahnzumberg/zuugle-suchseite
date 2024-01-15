@@ -5,9 +5,10 @@ import moment from "moment";
 import {convertNumToTime} from "../helper";
 import {createSingleImageFromMap} from "../gpx/gpxUtils";
 import { convertDifficulty, titleCase } from "../dataConversion";
+import logger from "../logger";
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
-    // console.log("L 10 , tourPdf.js / tourPdf, value of tour arg. : ",tour)
+    logger(`L10 , tourPdf.js / tourPdf, value of tour arg.`);
     const TEMPLATE = "tour-details";
 
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
@@ -103,7 +104,9 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         url: tour.url
     };
 
-    // console.log("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
+    logger(`L105 tourPdf data is : ${JSON.stringify(data)}`) ; // L105 tourPdf data is : object , this works
+    logger(`L105 tourPdf tour.name is : ${JSON.stringify(tour.name)}`) ; // L105 tourPdf data is : object , this works
+    // logger("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
     // console.log("L106 tourPdf tour.name is :", tour.name); // this is undefined
     return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null); // this call works; see the test inside utils.js/writePdf
 };

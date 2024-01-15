@@ -813,7 +813,9 @@ const gpxWrapper = async (req, res) => {
 }
 
 const mapConnectionToFrontend = (connection) => {
+    logger(`In mapConnectionToFrontend`)
     if(!!!connection){
+        logger(`In mapConnectionToFrontend return because no connection`)
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
@@ -822,11 +824,14 @@ const mapConnectionToFrontend = (connection) => {
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
+    logger(`In mapConnectionToFrontend return gracefully`)
     return connection;
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
+    logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
+        logger(`In mapConnectionReturnToFrontend return because no connection`)
         return connection;
     }
 
@@ -834,6 +839,7 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
+    logger(`In mapConnectionReturnToFrontend return gracefully`)
     return connection;
 }
 
@@ -1307,28 +1313,32 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
+    logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
+   
     const city = req.query.city;
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
+    // const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
     const tour = await knex('tour').select().where({id: id}).first();
+    logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
-        logger("L1320 : tour not found")
+        logger("L1320 : tour not found with id: " + id)
         res.status(404).json({success: false});
         return;
     }else{
-        if(process.env.NODE_ENV != "production"){
-            logger("-----------------------------------------------")
-            logger(`L1324 : tour with id ${id} found`)
-            logger("-----------------------------------------------")
-            console.log("-----------------------------------------------")
-            console.log(`L1324 : tour with id ${id} found`)
-            console.log("-----------------------------------------------")
-        }
+        logger(`L1324 : tour with id ${id} found`)
+        // if(process.env.NODE_ENV != "production"){
+        //     logger("-----------------------------------------------")
+        //     logger("-----------------------------------------------")
+        //     console.log("-----------------------------------------------")
+        //     console.log(`L1324 : tour with id ${id} found`)
+        //     console.log("-----------------------------------------------")
+        // }
     }
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
@@ -1356,8 +1366,10 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
+        // logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
+        logger(`L1363 : starting to generate pdf with the arguments:`)
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-        // console.log("L1019 tours /tourPdfWrapper / pdf value :", !!pdf); // value : true
+        logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
             console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });

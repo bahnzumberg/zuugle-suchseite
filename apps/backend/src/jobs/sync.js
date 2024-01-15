@@ -197,6 +197,8 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
+        console.log('sync.js /syncConnectionGPX, filePath : ', filePath);
+
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
 

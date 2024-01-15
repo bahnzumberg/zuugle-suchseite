@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "v19.8.1",
+    "node": "v20.3.0",
     "npm": ">=9.5"
   },
   "bugs": {
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "nodemon --trace-warnings --watch src --exec babel-node -- src/index.js",
-    "build": "babel src -d build",
+    "build": "babel src -d build && cp -r ./templates  ./build/templates",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncData.js",
@@ -59,12 +59,11 @@
     "p-limit": "^5.0.0",
     "path": "^0.12.7",
     "pg": "^8.7.3",
-    
     "puppeteer": "^21.7.0",
     "puppeteer-core": "^21.7.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
-    "sharp": "^0.33.1",
+    "sharp": "^0.33.2",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
   }
