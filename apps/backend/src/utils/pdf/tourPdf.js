@@ -8,7 +8,7 @@ import { convertDifficulty, titleCase } from "../dataConversion";
 import {logger} from "../logger";
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
-    logger(`L10 , tourPdf.js / tourPdf, value of tour arg.`)
+    console.log(`L10 , tourPdf.js / tourPdf, value of tour arg.`);
     const TEMPLATE = "tour-details";
 
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
