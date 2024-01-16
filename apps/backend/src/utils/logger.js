@@ -3,7 +3,7 @@ import path from 'path';
 
 let lineCount = 0;
 const maxAllowed = 100;
-// TESTING DETACHED HEAD STATE *******************
+// TESTING DETACHED HEAD STATE 
 export default function (text) {
 
     // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
