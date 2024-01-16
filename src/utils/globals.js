@@ -137,7 +137,7 @@ export const getDomainText = () => {
     }
 }
 
-export const isResponsive = () => {
+export const useResponsive = () => {
     const matches = useMediaQuery('(max-width:600px)');
     return !!matches;
 }
