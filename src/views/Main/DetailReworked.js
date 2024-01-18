@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import axios from "../../axios";
 import { lazy, useEffect, useState } from "react";
@@ -95,7 +96,7 @@ const DetailReworked = (props) => {
   const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
-  const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
+  // const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
   //Triggers the generating of a new link
   const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -207,19 +208,25 @@ useEffect(() => {
     setSocialMediaDropDownToggle(false);
   }, [dateIndex]);
 
+  //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
-    const city = localStorage.getItem("city");
+    const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
 
-    // console.log("detail page --> shareId :", shareId)
-    // console.log("detail page --> city :", city)
+    !!shareId && consoleLog("detail page --> shareId :", shareId); 
+    //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
+    
+    !!city && consoleLog("detail page --> city :", city); 
+    // detail page --> city : amstetten
 
     //Redirects to according page when it is a share link
     if (shareId !== null) {
       loadShareParams(shareId, city)
         .then((res) => {
+          consoleLog("L221 --> res: ", res, true) ; // output same as in "L252 crudActions" clg
           if (res.success === true) {
             if (res.usedCityOfCookie === false) {
+              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
               setShowDifferentStationUsedWarning(true);
             }
             const redirectSearchParams = new URLSearchParams();
@@ -230,8 +237,10 @@ useEffect(() => {
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
-            consoleLog('URL redirect : /tour?', redirectSearchParams.toString())
-            lazy(navigate("/tour?" + redirectSearchParams.toString()));
+            consoleLog('URL redirect : /tour?', redirectSearchParams.toString()); 
+            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+            navigate("/tour?" + redirectSearchParams.toString());
+            // lazy(navigate("/tour?" + redirectSearchParams.toString()));
           } else {
             city && searchParams.set("city", city);
             goToStartPage();
@@ -245,9 +254,11 @@ useEffect(() => {
     }
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = localStorage.getItem("tourId");
+    // const tourId = localStorage.getItem("tourId");
+    const tourId = !!searchParams.get("tourId") ? searchParams.get("tourId") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null;
 
     if (!!tourId) {
+      localStorage.setItem("tourId", tourId);
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -256,10 +267,10 @@ useEffect(() => {
               !!tourExtracted.data.tour.difficulty &&
               tourExtracted.data.tour.difficulty
               );
-            setTourDifficultyOrig(
-              !!tourExtracted.data.tour.difficulty_orig &&
-              tourExtracted.data.tour.difficulty_orig
-              );
+            // setTourDifficultyOrig(
+            //   !!tourExtracted.data.tour.difficulty_orig &&
+            //   tourExtracted.data.tour.difficulty_orig
+            //   );
           }else{
             console.log("No tour data retrieved")
           }
@@ -280,7 +291,7 @@ useEffect(() => {
     if (tourId && city && !connections) {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-          setConnections(res.data.result);
+          !!res.data.result && setConnections(res.data.result);
         }
       });
     }
@@ -710,14 +721,14 @@ useEffect(() => {
                     <span className="tour-detail-difficulty">
                       {tour && translateDiff(tourDifficulty)}
                     </span>
-                    {!!tourDifficultyOrig &&
+                    {/* {!!tourDifficultyOrig &&
                       !!tourDifficulty &&
                       tourDifficultyOrig.toLowerCase() !==
                         tourDifficulty.toLowerCase() && (
                         <span className="tour-detail-tag tour-detail-tag-gray">
                           {tour && translateDiff(tourDifficultyOrig)}
                         </span>
-                      )}
+                      )} */}
                   </div>
                   <Typography variant="textSmall">{tour?.description}</Typography>
                 </Box>
@@ -743,7 +754,6 @@ useEffect(() => {
                     <div className="tour-detail-img-container">
                       <img
                         src={tour?.image_url}
-                        alt="image"
                         onError={() => {
                           setRenderImage(false);
                         }}
@@ -769,7 +779,6 @@ useEffect(() => {
                   <div className="tour-detail-img-container">
                     <img
                       src={tour?.image_url}
-                      alt="image"
                       onError={() => {
                         setRenderImage(false);
                       }}
