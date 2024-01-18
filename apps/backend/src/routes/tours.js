@@ -452,11 +452,11 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             
-            if(process.env.NODE_ENV != "production"){
-                logger("#######################################################");
-                logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-                logger("#######################################################");
-            }
+            // if(process.env.NODE_ENV != "production"){
+            //     logger("#######################################################");
+            //     logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            //     logger("#######################################################");
+            // }
             
             if (result && result.rows) {
                 result = result.rows;
@@ -472,12 +472,12 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        if(process.env.NODE_ENV != "production"){
-            logger("#######################################################");
-            const sqlQuery = query.toString();
-            logger("SQL without search phrase :" + sqlQuery)
-            logger("#######################################################");
-        }
+        // if(process.env.NODE_ENV != "production"){
+        //     logger("#######################################################");
+        //     const sqlQuery = query.toString();
+        //     logger("SQL without search phrase :" + sqlQuery)
+        //     logger("#######################################################");
+        // }
 
         result = await query;
         count = await countQuery.first();
@@ -813,9 +813,9 @@ const gpxWrapper = async (req, res) => {
 }
 
 const mapConnectionToFrontend = (connection) => {
-    logger(`In mapConnectionToFrontend`)
+    // logger(`In mapConnectionToFrontend`)
     if(!!!connection){
-        logger(`In mapConnectionToFrontend return because no connection`)
+        // logger(`In mapConnectionToFrontend return because no connection`)
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
@@ -824,14 +824,14 @@ const mapConnectionToFrontend = (connection) => {
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    logger(`In mapConnectionToFrontend return gracefully`)
+    // logger(`In mapConnectionToFrontend return gracefully`)
     return connection;
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
-    logger(`In mapConnectionReturnToFrontend`)
+    // logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
-        logger(`In mapConnectionReturnToFrontend return because no connection`)
+        // logger(`In mapConnectionReturnToFrontend return because no connection`)
         return connection;
     }
 
@@ -839,7 +839,7 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    logger(`In mapConnectionReturnToFrontend return gracefully`)
+    // logger(`In mapConnectionReturnToFrontend return gracefully`)
     return connection;
 }
 
