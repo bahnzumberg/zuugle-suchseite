@@ -290,7 +290,7 @@ for (const [key, value] of searchParams) {
 return obj;
 }
 
-export function consoleLog(textOutput, varOutput, doubleLine = false) {
+export function consoleLog(textOutput ="output :", varOutput = null, doubleLine = false) {
     if(process.env.NODE_ENV !== "production"){
         if(!!doubleLine){
             console.log("----------------------------")
@@ -298,7 +298,7 @@ export function consoleLog(textOutput, varOutput, doubleLine = false) {
             console.log(varOutput);
             console.log("=============================")
         }else{
-            console.log(textOutput, varOutput);
+            (textOutput && varOutput) ? console.log(textOutput, varOutput) : textOutput ? console.log(textOutput) : console.log(varOutput);  
         }
         return;
     }
