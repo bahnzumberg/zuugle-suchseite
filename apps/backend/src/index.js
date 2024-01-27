@@ -21,7 +21,7 @@ console.log("process.env.NODE_ENV", process.env.NODE_ENV)
 
 if(process.env.NODE_ENV === "production"){
     if (__dirname.includes("/dev-api/")) {
-        port = 6061;
+        port = 7070;
     }
     else {
         port = 6060;
