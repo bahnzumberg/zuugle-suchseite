@@ -8,16 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         # node-version: '19.8.1'
         node-version: '20.3.0'
 
     - name: Cache node_modules
       id: cache-npm
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
           cache-name: cache-node-modules
       with:
@@ -52,5 +52,5 @@ jobs:
           port: ${{ secrets.UAT_REMOTE_PORT }}
           command_timeout: 60m
           script: |
-            export PATH=$PATH:/root/.nvm/versions/node/v19.8.1/bin
+            export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
             pm2 restart all
