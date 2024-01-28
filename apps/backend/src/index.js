@@ -20,7 +20,7 @@ console.log("__dirname=", __dirname)
 console.log("process.env.NODE_ENV", process.env.NODE_ENV)
 
 if(process.env.NODE_ENV === "production"){
-    if (__dirname.includes("/dev-api/")) {
+    if (__dirname.includes("/dev-api")) {
         port = 7070;
     }
     else {
