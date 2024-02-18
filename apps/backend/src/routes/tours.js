@@ -835,7 +835,7 @@ const mapConnectionReturnToFrontend = (connection) => {
         return connection;
     }
 
-    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60);
+    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
@@ -908,7 +908,7 @@ const getWeekday = (date) => {
 const parseConnectionDescription = (connection) => {
     if(!!connection && !!connection.connection_description_detail){
         let splitted = connection.connection_description_detail.split('|');
-        return splitted;
+        return splitted;    // returns an array of strings e.g. "AB | CD" -> ["AB", "CD"]
     }
     return [];
 }
@@ -916,7 +916,7 @@ const parseConnectionDescription = (connection) => {
 const parseReturnConnectionDescription = (connection) => {
     if(!!connection && !!connection.return_description_detail){
         let splitted = connection.return_description_detail.split('|');
-        return splitted;
+        return splitted;    // returns an array of strings e.g. "AB | CD" -> ["AB", "CD"]
     }
     return [];
 }
