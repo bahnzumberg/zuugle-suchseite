@@ -53,6 +53,7 @@ import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
 import { set } from "lodash";
+import transformToDescriptionDetail from "../../utils/transformJson";
 
 
 
@@ -330,6 +331,15 @@ useEffect(() => {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
           !!res.data.result && setConnections(res.data.result);
+          // !!res.data.result && console.log("L333 res.data.result :",res.data.result);
+          // !!res.data.result && !!res.data.result[0] && console.log("L334 res.data.result :",res.data.result[0]);
+          if(!!res.data.result && !!res.data.result[0] && !!res.data.result[0].connections && res.data.result[0].connections[0].connection_description_json) {
+            let connectJson = res.data.result[0].connections[0].connection_description_json;
+            console.log("L338 connections -> connectJson:",connectJson);
+            let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
+            console.log("L340 text connections -> connectJson:");
+            console.log(textDescription);
+          }
         }
       })
       .finally(() => {
