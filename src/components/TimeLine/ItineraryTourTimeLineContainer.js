@@ -148,15 +148,15 @@ export default function ItineraryTourTimeLineContainer({
     return `${t("Details.rückreise")} ${index + 1}`;
   };
 
-  const get_live_timetable_link_there = () => {
-    let connection = getSingleConnection();
-    return (
-      "https://fahrplan.zuugle.at/?a=" +
-      encodeURI(connection.connection_departure_stop) +
-      "&b=" +
-      encodeURI(connection.connection_arrival_stop)
-    );
-  };
+  // const get_live_timetable_link_there = () => {
+  //   let connection = getSingleConnection();
+  //   return (
+  //     "https://fahrplan.zuugle.at/?a=" +
+  //     encodeURI(connection.connection_departure_stop) +
+  //     "&b=" +
+  //     encodeURI(connection.connection_arrival_stop)
+  //   );
+  // };
 
   const addMoreConnections = () => {
     setGetMore(true);
