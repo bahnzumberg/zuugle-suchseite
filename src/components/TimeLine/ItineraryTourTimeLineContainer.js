@@ -14,10 +14,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
-import {convertNumToTime, parseTourConnectionDescription} from "../../utils/globals";
+import {consoleLog, convertNumToTime, parseTourConnectionDescription} from "../../utils/globals";
 import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
 import {
     createEntries,
     createReturnEntries,
@@ -26,6 +25,7 @@ import {
     getNumberOfTransfers
 } from "./utils";
 import { useTranslation } from 'react-i18next';
+import { jsonToStringArray } from "../../utils/transformJson";
 
 export default function ItineraryTourTimeLineContainer({
   connections,
@@ -68,8 +68,10 @@ export default function ItineraryTourTimeLineContainer({
     }
   }, [duration]);
   
-  //checks if there is a connections and returns it extracted from the connections object
+  //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
+    consoleLog("L73 ITTLC/ getSingleConnection connections", connections, true);
+    consoleLog("L74 ITTLC/ getSingleConnection connections.connections[0]", connections.connections[0], true);
     return !!connections &&
       !!connections.connections &&
       connections.connections.length > 0
@@ -85,14 +87,24 @@ export default function ItineraryTourTimeLineContainer({
       connections.returns.length > 0
     ) {
       let array = connections.returns;
+      consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
         //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
         if (index <= 1) {
-          twoReturns[index] = parseTourConnectionDescription(
+          consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
+          twoReturns[index] = jsonToStringArray(
             array[index],
-            "return_description_detail"
+            "from"
           );
+          consoleLog("L98 ITTLC/ extractReturns twoReturns", twoReturns, true);
         }
+        // if (index <= 1) {
+        //   twoReturns[index] = parseTourConnectionDescription(
+        //     array[index],
+        //     "return_description_detail"
+        //   );
+        //   consoleLog("L98 ITTLC/ extractReturns twoReturns", twoReturns, true);
+        // }
         //when index is > 1 -> fill array remainingReturns
         if (index > 1) {
           remainingReturns[index] = parseTourConnectionDescription(
