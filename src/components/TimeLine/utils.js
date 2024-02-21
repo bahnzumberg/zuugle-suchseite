@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { Typography } from "@mui/material";
 import moment from "moment";
 import {
+  consoleLog,
   convertNumToTime,
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
@@ -105,9 +106,11 @@ export const getIconFromText = (text) => {
 };
 
 export const createReturnEntries = (entries, connection) => {
+  consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
+  consoleLog("L110 : utils.js/ createReturnEntries : connection : ", connection, true);
   let toReturn = [];
   if (!!entries && entries.length > 0) {
-    let _entries = entries.filter((e) => !!e && e.length > 0);
+    let _entries = entries.filter((e) => !!e && e.length > 0); //ensures that only non-empty and truthy elements are included in the filtered array.
     let newStart = "     ";
     if (!!connection.totour_track_duration) {
       newStart = moment(connection.return_departure_datetime).add(
@@ -123,19 +126,19 @@ export const createReturnEntries = (entries, connection) => {
 
     for (let i = 0; i < _entries.length; i++) {
       let entry = _entries[i];
-      if (i % 2 == 0) {
+      if (i % 2 === 0) {
         let _text = entry.trim();
         if (
-          _text.indexOf("|") == 0 ||
-          _text.indexOf("=") == 0 ||
-          _text.indexOf(">") == 0 ||
-          _text.indexOf("<") == 0
+          _text.indexOf("|") === 0 ||
+          _text.indexOf("=") === 0 ||
+          _text.indexOf(">") === 0 ||
+          _text.indexOf("<") === 0
         ) {
           _text = _text.substring(1);
         }
         toReturn.push(getDetailEntry(_text, keys_2[i], _entries.length));
       } else {
-        toReturn.push(getStationEntry(entry, i + 1 == _entries.length, keys_2[i]));
+        toReturn.push(getStationEntry(entry, i + 1 === _entries.length, keys_2[i]));
       }
     }
   }
@@ -149,18 +152,18 @@ export const createEntries = (entries, connection) => {
     toReturn.push(getDepartureEntry(_entries[0]));
     for (let i = 1; i < _entries.length; i++) {
       let entry = _entries[i];
-      if ((i - 1) % 2 == 0) {
+      if ((i - 1) % 2 === 0) {
         let _text = entry.trim();
         if (
-          _text.indexOf("|") == 0 ||
-          _text.indexOf("=") == 0 ||
-          _text.indexOf(">") == 0
+          _text.indexOf("|") === 0 ||
+          _text.indexOf("=") === 0 ||
+          _text.indexOf(">") === 0
         ) {
           _text = _text.substring(1);
         }
         toReturn.push(getDetailEntry(_text, keys_1[i], _entries.length));
       } else {
-        toReturn.push(getStationEntry(entry,i == _entries.length, keys_1[i]));// any number above the max 5 expected entries
+        toReturn.push(getStationEntry(entry,i === _entries.length, keys_1[i]));// any number above the max 5 expected entries
       }
     }
     let newStart = "     ";
@@ -333,7 +336,7 @@ export const getArrivalEntry = (entry) => {
 };
 
 export const getBorder = (index, length) => {
-  if (index == length - 1) {
+  if (index === length - 1) {
     return {
       borderBottom: "1px solid #EAEAEA",
       borderTop: "1px solid #EAEAEA",
@@ -529,3 +532,22 @@ export const getWalkEntry = (
     </TimelineItem>,
   ];
 };
+
+
+// export function formatToHHMM(duration) {
+//   // Parse parameter using moment
+//   const parsedDuration = moment.duration(duration);
+//   const formattedDuration = parsedDuration.format("hh:mm");
+//   // Return formatted duration
+//   return `${formattedDuration} Std`;
+// }
+export function formatToHHMM(durationString) {
+  const parsedDuration = moment.duration(durationString);
+  const formattedDuration = moment.utc(parsedDuration.asMilliseconds()).format("HH:mm");
+  return formattedDuration;
+}
+// Example usage:
+// const originalDuration = "00:25:39 Std";
+// const transformedDuration = toHHMM(originalDuration);
+// console.log(transformedDuration); // Output: "00:25 Std"
+
