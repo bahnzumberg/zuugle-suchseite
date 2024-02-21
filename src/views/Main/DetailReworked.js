@@ -52,7 +52,7 @@ import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
-import { set } from "lodash";
+// import { set } from "lodash";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
 
@@ -303,10 +303,6 @@ useEffect(() => {
               !!tourExtracted.data.tour.difficulty &&
               tourExtracted.data.tour.difficulty
               );
-            // setTourDifficultyOrig(
-            //   !!tourExtracted.data.tour.difficulty_orig &&
-            //   tourExtracted.data.tour.difficulty_orig
-            //   );
           }else{
             setIsTourLoading(false);
             console.log("No tour data retrieved")
@@ -367,7 +363,13 @@ useEffect(() => {
   useEffect(() => {
     let index = dateIndex;
     if (connections) {
-      let date = moment(searchParams.get("datum"));
+      console.log("Inside connections L366");
+      // consoleLog("L368 : date", date, true);
+      consoleLog("L369 : date[0]", connections[0].date);
+      consoleLog("L369 : date[0]", connections[0], true);
+      consoleLog("L370 : connections[6].date", connections[6].date);
+      consoleLog("L370 : connections[6]", connections[6], true);
+      let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
       if (date.isValid()) {
         if (
           moment(date).isBetween(
@@ -505,6 +507,9 @@ useEffect(() => {
   // useEffect(() => {
   // // consoleLog("L464  : share link",shareLink )
   // }, [shareLink]);
+  useEffect(() => {
+    consoleLog("L511  : connections",connections )
+  }, [connections]);
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
@@ -777,14 +782,6 @@ useEffect(() => {
                       <span className="tour-detail-difficulty">
                         {tour && translateDiff(tourDifficulty)}
                       </span>
-                      {/* {!!tourDifficultyOrig &&
-                        !!tourDifficulty &&
-                        tourDifficultyOrig.toLowerCase() !==
-                          tourDifficulty.toLowerCase() && (
-                          <span className="tour-detail-tag tour-detail-tag-gray">
-                            {tour && translateDiff(tourDifficultyOrig)}
-                          </span>
-                        )} */}
                     </div>
                     <Typography variant="textSmall">{tour?.description}</Typography>
                   </Box>
