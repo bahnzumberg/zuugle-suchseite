@@ -50,7 +50,7 @@ export default function CityInput({
     } else if (host.indexOf("zuugle.si") >= 0) {
       return "Ljubljana, Maribor,...";
     } else if (host.indexOf("zuugle.it") >= 0) {
-      return "Bozen, ...";
+      return "Milano, Bozen, ...";
     } else {
       return "Wien, Graz, ...";
     }
