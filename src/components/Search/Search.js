@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -64,7 +65,6 @@ export function Search({
   const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   let suggestion; //variable that stores the text of the selected option
-  //let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
   const [city, setCity] = useState({
@@ -101,17 +101,19 @@ export function Search({
     let filter = searchParams.get("filter");
     let sort = searchParams.get("sort");
     let provider = searchParams.get("p");
+    let cityEntry = null;
+
     if (pageKey === "detail") {
       if (!!city) {
         setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-        writeCityToLocalStorage(city); // store the city NAME in local storage
+        writeCityToLocalStorage(city);
 
         /** load regions initially */
         loadRegions({ city: city });  
       }
     } else {
       if (!!city && !!allCities) {
-        const cityEntry = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+        cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
@@ -122,26 +124,40 @@ export function Search({
         }
       }
     }
+
     //setting searchPhrase to the value of the search parameter
     if (!!range) {
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
-    if (!!search) {
-      setSearchPhrase(search);
+    else if (!!search) {
+      setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
+
+      if (city === null && !search.includes(' ')) {
+        // If a search phrase is given and city is empty and the search term consists only of one word,
+        // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
+        cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
+        if (!!cityEntry) {
+          setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
+          setCity(cityEntry);
+          writeCityToLocalStorage(search.toLowerCase());
+          searchParams.set("city", search.toLowerCase());
+          setSearchParams(searchParams);
+        }
+      }
     }
-    // state might be useful for future enhancement or new feature related to Klimaticket
-    if (!!state) {
+    else if (!!state) {
+      // state might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(state);
       setRegion({ value: state, label: state, type: "state" });
     }
-    // country might be useful for future enhancement or new feature related to Klimaticket
-    if (!!country) {
+    else if (!!country) {
+      // country might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(country);
       setRegion({ value: country, label: country, type: "country" });
     }
-    // type might be useful for future enhancement or new feature related to Klimaticket
-    if (!!type) {
+    else if (!!type) {
+      // type might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
     }
@@ -174,15 +190,14 @@ export function Search({
       type: type, 
       search: search,
       filter: filterValues ? filterValues : filter,  // get this from Filter.js (through Search and Main)
-      // filter: filter,
       sort: sort,
       provider: provider,
       map: searchParams.get("map"),
     });
 
     result.then((resolvedValue) => {
-      //console.log("Search L165 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
-      // console.log("Search L165 result of load Tours", resolvedValue);
+      //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
+      // console.log("Search L183 result of load Tours", resolvedValue);
     });
   }, [
     // useEffect dependencies
@@ -195,6 +210,8 @@ export function Search({
     searchParams && searchParams.get("range"),
     searchParams && searchParams.get("map"),
     searchParams && searchParams.get("p"),
+    searchParams,
+    setSearchParams
   ]); // end useEffect
 
   // store city in localstorage
@@ -224,16 +241,14 @@ export function Search({
     });
   };
 
-  //description
+  //important:
   // state filterValues(from Main) should be set at submission here
   // or be set at at handleResetFilter to null
   // state to be passed then from Main to TourCardContainer
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
-    //clgs
-    // console.log("Search L233 filterValues/Filter.js: ", filterValues)
-    // !!filterValues.traverse && console.log("Search L234 handleFilterSubmit/traverse : ", filterValues.traverse)
+    
     !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
@@ -253,21 +268,13 @@ export function Search({
     }
   };
 
-  // useEffect(() => {
-  //   if (pageKey === "detail") {
-  //     let city = searchParams.get("city");
-  //     // navigate(`/?${!!city ? "city=" + city : ""}`);
-  //   }
-  // }, [city]);
-
-  
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
-    setFilterValues(null);  // Reset the state in parent Main
+    setFilterValues(null);  // reset state in parent Main
     localStorage.removeItem("filterValues");
     localStorage.setItem("filterCount", 0);
   };
@@ -306,12 +313,6 @@ export function Search({
       ? searchPhrase
       : "";
 
-    if (!!searchParams.get("sort")) {
-      values.sort = searchParams.get("sort");
-    } else {
-      values.sort = "relevanz";
-    }
-
     values.map = searchParams.get("map"); // map related
     values.provider = searchParams.get("p");
     if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
@@ -335,7 +336,6 @@ export function Search({
       navigate(goto + "?" + searchParams);
       window.location.reload();
     } else {
-      // console.log(" 333 => values passed to loadTours :", values);
       loadTours(values).then((res) => {
         if(pageKey == "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));
@@ -382,7 +382,6 @@ export function Search({
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
       onSearchSuggestion: getSearchSuggestion,
-      // onSearchPhrase: getSearchPhrase,
       city: city,
       language: language,
       title: "",
@@ -399,11 +398,13 @@ export function Search({
   const handleGoButton = () =>  {
     search();
     window.location.reload();
+    // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
+    // window.location.replace(newUrl);
   }
     
  
   const getSearchSuggestion = (autoSuggestion) => {
-    if (autoSuggestion == '') {
+    if (autoSuggestion === '') {
       searchParams.delete("search");
       setSearchPhrase("");
       setSearchParams(searchParams);
@@ -420,7 +421,7 @@ export function Search({
       <Box
         className="main-search-bar"
         sx={{
-          // width: "100%",
+          width: "100%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -461,7 +462,6 @@ export function Search({
                       textAlign: "left",
                       ml: "14px",
                       color: "#101010",
-                      // backgroundColor: "red",
                       fontFamily: "Open Sans",
                       fontSize: { xs: "14px", sm: "15px" },
                       fontWeight: "500",

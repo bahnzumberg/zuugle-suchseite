@@ -48,7 +48,7 @@ export const localMissingDays = (daysArr, lng) => {
 //LinkText could be used for creating links to pass as object values to the attribute "components" in Trans of i18next
 export const LinkText = (props) => {
 	return (
-		<a href={props.to || "#"} target="_blank" title={props.title || ""}>
+		<a href={props.to || "#"} target="_blank" rel="noreferrer" title={props.title || ""}>
 			{props.children}
 		</a>
 	);

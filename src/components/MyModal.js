@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { useTranslation } from "react-i18next";
 
@@ -11,34 +11,21 @@ import Close from "../icons/Close";
 
 const MyModal = ({ title, size, srhBoxScrollH, page, content, hideModal, onBack, sourceCall}) => {
   const { t } = useTranslation();
-  // console.log("L25 : sourceCall", sourceCall);
-  // const [placeholder, setPlaceholder] = useState(t("start.suche"));
-  // const [cityInput, setCityInput] = useState("");
-  // const [searchPhrase, setSearchPhrase] = useState("");
-  //const [city, setCity] = useState(null);
-  //const [region, setRegion] = useState(null);
-  // const [activeFilter, setActiveFilter] = useState("");
-  // const [searchParams, setSearchParams] = useSearchParams();
-  //let suggestion; //variable that stores the text of the selected option
-  //let autoSearchPhrase; //variable that stores the typed text, in case you don't use any suggestion
-
+  
   const style = {
     overflowY: "scroll",
     overflowX: "hidden",
     display: "block",
     position: "absolute",
-    // top: { xs: "auto", sm: "50%" },
     top: { xs: 0, sm: !title ? (srhBoxScrollH-80) : "50%" },
     bottom: { xs: "0", sm: "auto" },
     left: "50%",
     transform: {
-      // xs: "translate(-50%, 0)", sm: "translate(-50%, -5%)"
       xs: "translate(-50%, 0)", sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)"
     },
     width: "100%",
     maxWidth: "618px",
     minHeight: "484px",
-    // maxHeight: { xs: "560px", sm: "800px" },
     bgcolor: "#fff",
     boxShadow: "0px 2px 15px 0px rgba(0, 0, 0, 0.15)",
     border: "0",

@@ -16,7 +16,7 @@ export default function SearchContainer({
       <Search
         pageKey={pageKey}
         isMain={false}
-        page={page} // 'start' should be var, Search component is also called from the 'detail' page
+        page={page} 
         goto={goto}
         showMobileMenu={showMobileMenu ?? true}
         setShowMobileMenu={setShowMobileMenu ?? true}

@@ -6,8 +6,6 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import { useTranslation} from 'react-i18next';
 
-//description
-//The AboutZuugleContainer.js file is a React component that exports a function component named RegionCard. This component returns a Paper component from Material UI with a dark background color and rounded corners. Inside the Paper, there is a Box component that contains a Grid component. The Grid has two columns, one for an image and the other for some text content. The image is sourced from a placeholder image and has rounded corners. The text content includes a heading, a subheading, a list of bullet points, and a button. The button redirects the user to the About page of the website. The component is intended to be used as a card that provides information about the Zuugle service to users.
 export default function RegionCard({}){
 
     const{t, i18n} = useTranslation();

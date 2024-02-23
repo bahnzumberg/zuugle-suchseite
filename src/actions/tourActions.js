@@ -182,7 +182,9 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
     );
     return response;
   } catch (error) {
-    console.log("L94, tourActions Error: " + error.message);
+    if(process.env.NODE_ENV != "production"){
+      console.log("L94, tourActions Error: " + error.message);
+    }
     throw error;
   }
 };
@@ -198,7 +200,7 @@ export function loadTourGpx(data) {
       data,
       "tours/" + data.id + "/gpx",
       "gpx",
-      "arraybuffer"
+      "buffer"
     );
   };
 }

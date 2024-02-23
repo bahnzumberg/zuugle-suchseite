@@ -182,11 +182,13 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .search-bar--city {
   color: #8b8b8b !important;
+  width: 100%;
 }
 
 .search-bar--searchPhase {
   color: #070000 !important;
   font-weight: 600;
+  width: 100%;
 }
 
 .search-bar--city::first-letter {
@@ -1654,3 +1656,22 @@ top:250px; */
   background-color: #3390b2; 
   border-color: #b29d33; 
 } */
+
+.custom-h4-link {
+  font-size: 22px; /* Equivalent to h4 in Material-UI */
+  font-weight: 600; /* Equivalent to h4 in Material-UI */
+  line-height: 1.235rem; /* Adjust as needed */
+  /* Other styles specific to your use case */
+  text-decoration: none;
+  color: rgb(16, 16, 16);
+  /* Add any other styles that match the h4 variant */
+}
+
+.custom-h5-link {
+  font-size: 14px;
+  color: rgb(73, 146, 255);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  line-height: 1.334;
+}

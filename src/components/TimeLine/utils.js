@@ -25,30 +25,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
-// console.log('Generated keys: 1', keys_1);
-// console.log('Generated keys: 2', keys_2);
-
-// export const getDepartureText = (connection) => {
-//   if (!!!connection) {
-//     return <Fragment></Fragment>;
-//   }
-
-//   if (connection.connection_duration_minutes == 0) {
-//     return (
-//       <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px" }}>
-//         {moment(connection.connection_departure_datetime).format("DD.MM HH:mm")}
-//       </Typography>
-//     );
-//   }
-
-//   return (
-//     <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px" }}>
-//       {moment(connection.connection_departure_datetime).format("DD.MM HH:mm")}{" "}
-//       bis {moment(connection.connection_arrival_datetime).format("HH:mm")} (
-//       {convertNumToTime(connection.connection_duration_minutes / 60)})
-//     </Typography>
-//   );
-// };
 
 export const getDepartureText = (connection) => {
   if (!!!connection) {
@@ -65,31 +41,6 @@ export const getDepartureText = (connection) => {
     </Typography>
   );
 };
-
-// export const getReturnText = (connection) => {
-//   // console.log("connection.return_duration_minutes : " + connection.return_duration_minutes)
-//   //     console.log("connection.return_departure_datetime : " + connection.return_departure_datetime)
-//   // console.log("connection.return_arrival_datetime : " + connection.return_arrival_datetime)
-//   if (!!!connection) {
-//     return <Fragment></Fragment>;
-//   }
-
-//   if (connection.return_duration_minutes == 0) {
-//     return (
-//       <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px" }}>
-//         {moment(connection.return_departure_datetime).format("DD.MM HH:mm")}
-//       </Typography>
-//     );
-//   }
-
-//   return (
-//     <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px" }}>
-//       {moment(connection.return_departure_datetime).format("DD.MM HH:mm")} bis{" "}
-//       {moment(connection.return_arrival_datetime).format("HH:mm")} (
-//       {convertNumToTime(connection.return_duration_minutes / 60)})
-//     </Typography>
-//   );
-// };
 
 export const getReturnText = (connection) => {
   if (!!!connection) {

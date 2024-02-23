@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import axios from "../../axios";
 import { lazy, useEffect, useState } from "react";
@@ -23,10 +24,9 @@ import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
-import { parseFileName } from "../../utils/globals";
+import { consoleLog, parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-// import {Alert} from "@mui/lab";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
@@ -36,8 +36,6 @@ import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
-// import LanguageMenu from "../../components/LanguageMenu";
-// import { SearchFilter } from "../../components/SearchFilter/SearchFilter";
 import { generateShareLink, loadShareParams } from "../../actions/crudActions";
 import {
   EmailShareButton,
@@ -54,22 +52,12 @@ import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
-import {urlSearchParamsToObject} from "../../utils/globals";
+import { set } from "lodash";
 
-const setGpxTrack = (url, loadGPX, _function) => {
-  loadGPX(url).then((res) => {
-    if (!!res && !!res.data) {
-      let gpx = new GpxParser(); //Create gpxParser Object
-      gpx.parse(res.data);
-      if (gpx.tracks.length > 0) {
-        const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-        _function(positions);
-      }
-    }
-  });
-};
+
 
 const DetailReworked = (props) => {
+
   const {
     loadTour,
     loadTours,
@@ -87,6 +75,19 @@ const DetailReworked = (props) => {
     setShowMobileMenu,
   } = props;
 
+  const setGpxTrack = (url, loadGPX, _function) => {
+    loadGPX(url).then((res) => {
+      if (!!res && !!res.data) {
+        let gpx = new GpxParser(); //Create gpxParser Object
+        gpx.parse(res.data);
+        if (gpx.tracks.length > 0) {
+          const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+          _function(positions);
+        }
+      }
+    });
+  };
+
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
   const [activeReturnConnection, setActiveReturnConnection] = useState(null);
@@ -96,7 +97,7 @@ const DetailReworked = (props) => {
   const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
-  const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
+  // const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
   //Triggers the generating of a new link
   const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -108,6 +109,8 @@ const DetailReworked = (props) => {
   //Whether a warning that says that your local trainstation has not been used, should be shown
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
+    const [isTourLoading, setIsTourLoading] = useState(false);
+
 
   // Translation-related
   const { t } = useTranslation();
@@ -138,6 +141,20 @@ const DetailReworked = (props) => {
     window.location.reload();
   };
 
+  const LoadingSpinner = () => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+      }}
+    >
+      <CircularProgress size={50} />
+    </div>
+  );
+
+
 
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
@@ -147,13 +164,16 @@ const DetailReworked = (props) => {
 
 useEffect(() => {
   if (!!tour && tour.provider) {
-    
+    setIsTourLoading(true);
+
     // API call to check the provider's permit
     // axios.get(`tours/provider/mapzssi`)  // test a case with value = 'n'
     axios.get(`tours/provider/${tour.provider}`)
       .then((response) => {
         if (response.status === 200) {
-          console.log("L158 : first response.data", response.data)
+          if(process.env.NODE_ENV !== "production"){
+            // consoleLog("L158 : response.data", response.data, true)
+          }
           return response.data;
         }
         throw new Error("Network response was not ok.");
@@ -162,14 +182,19 @@ useEffect(() => {
         // Check the `allow_gpx_download` value from the API response
         if (data.allow_gpx_download === 'n') {
           setProviderPermit(false); // Set the state accordingly
+          setIsTourLoading(false);
+
         }
       })
       .catch((error) => {
         console.error("Error fetching provider permit status:", error);
+      })
+      .finally(() => {
+        setIsTourLoading(false);
       });
   }
-  console.log("L172 : providerPermit", providerPermit)
-}, [tour]);
+ 
+}, [tour,providerPermit]);
 
 
   React.useEffect(() => {
@@ -188,6 +213,7 @@ useEffect(() => {
           generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
+                      // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
                   } else {
                       console.log("Share link didn't generate as expected.");
@@ -202,64 +228,91 @@ useEffect(() => {
     setSocialMediaDropDownToggle(false);
   }, [dateIndex]);
 
+  //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
-    const city = localStorage.getItem("city");
+    const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
 
-    // console.log("detail page --> shareId :", shareId)
-    // console.log("detail page --> city :", city)
+    !!shareId && consoleLog("detail page --> shareId :", shareId); 
+    //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
+    
+    !!city && consoleLog("detail page --> city :", city); 
+    // detail page --> city : amstetten
 
     //Redirects to according page when it is a share link
     if (shareId !== null) {
+
+      setIsTourLoading(true);
+
       loadShareParams(shareId, city)
         .then((res) => {
+          consoleLog("L221 --> res: ", res, true) ; 
+          // city : "amstetten"
+          // date : "2024-01-16T23:00:00.000Z"
+          // success : true
+          // tourId : 2708
+          // usedCityOfCookie : true
+          setIsTourLoading(false);
           if (res.success === true) {
             if (res.usedCityOfCookie === false) {
+              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
               setShowDifferentStationUsedWarning(true);
             }
             const redirectSearchParams = new URLSearchParams();
             const date = moment(res.date);
-            redirectSearchParams.set("id", res.tourId);
+            // redirectSearchParams.set("id", res.tourId);
             redirectSearchParams.set("city", res.city);
             redirectSearchParams.set(
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
-            console.log("URL redirect :" + "/tour?" + redirectSearchParams.toString())
-            lazy(navigate("/tour?" + redirectSearchParams.toString()));
+
+            localStorage.setItem("tourId", res.tourId);
+
+            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
+            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+            navigate(`/tour?${redirectSearchParams.toString()}`);
+       
           } else {
+            setIsTourLoading(false);
+            consoleLog("L245 --> inside : res.success === false")
             city && searchParams.set("city", city);
             goToStartPage();
           }
         })
         .catch((err) => {
+          setIsTourLoading(false);
           console.log("error: " + err)
           city && searchParams.set("city", city);
           goToStartPage();
         });
     }
+
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = localStorage.getItem("tourId");
+    const tourId = !!searchParams.get("tourId") ? searchParams.get("tourId") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
 
     if (!!tourId) {
+      setIsTourLoading(true);
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            
+            setIsTourLoading(false);
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
               tourExtracted.data.tour.difficulty
               );
-            setTourDifficultyOrig(
-              !!tourExtracted.data.tour.difficulty_orig &&
-              tourExtracted.data.tour.difficulty_orig
-              );
+            // setTourDifficultyOrig(
+            //   !!tourExtracted.data.tour.difficulty_orig &&
+            //   tourExtracted.data.tour.difficulty_orig
+            //   );
           }else{
+            setIsTourLoading(false);
             console.log("No tour data retrieved")
           }
         })
         .catch((error) => {
+          setIsTourLoading(false);
           console.error("Tour not found:", error);
           if (error.response && error.response.status === 404) {
             console.error("Tour not found:", error);
@@ -273,10 +326,14 @@ useEffect(() => {
         });
     }
     if (tourId && city && !connections) {
+      setIsTourLoading(true);
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
-          setConnections(res.data.result);
+          !!res.data.result && setConnections(res.data.result);
         }
+      })
+      .finally(() => {
+        setIsTourLoading(false);
       });
     }
   }, [searchParams]);
@@ -285,7 +342,7 @@ useEffect(() => {
   useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
-        console.log("No city L260");
+        consoleLog("No city L289");
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
@@ -435,9 +492,9 @@ useEffect(() => {
   };
   
 
-  useEffect(() => {
-  console.log("L464  : share link",shareLink )
-  }, [shareLink]);
+  // useEffect(() => {
+  // // consoleLog("L464  : share link",shareLink )
+  // }, [shareLink]);
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
@@ -510,10 +567,6 @@ useEffect(() => {
           </span>
         </Button> 
 
-        {/*
-        Specific social media buttons */}
-        {(socialMediaDropDownToggle && console.log("L537 socialMediaDropDownToggle :", socialMediaDropDownToggle)) }
-        {(!!shareLink ? console.log("L538 shareLink :", shareLink != null) : console.log("Falsy shareLink"))}
         {socialMediaDropDownToggle && shareLink !== null && (
           <div>
             <TwitterShareButton
@@ -614,8 +667,13 @@ useEffect(() => {
   );
 
     return (
+
       <Box sx={{ backgroundColor: "#fff" }}>
-        <Box className="newHeader" sx={{ position: "relative" }}>
+           {isTourLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          <Box className="newHeader" sx={{ position: "relative" }}>
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
@@ -679,70 +737,94 @@ useEffect(() => {
               <SearchContainer pageKey="detail" goto={"/suche"} />
             </Box>
           </Box> 
-        </Box>
-        <Box>
-          <Box className="tour-detail-header">
-            <Box className="mt-3">
-              <Typography variant="title">{tour?.title}</Typography>
-            </Box>
-            <Box className="mt-3">
-              <span className="tour-detail-tag">{tour?.range}</span>
-            </Box>
           </Box>
-          <div>
-            <Box
-              sx={{ width: "100%", position: "relative" }}
-              className="tour-detail-map-container"
-            >
-              <InteractiveMap
-                gpxPositions={!!gpxPositions && gpxPositions}
-                anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-                abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-                scrollWheelZoom={false}
-              />
+          <Box>
+            <Box className="tour-detail-header">
+              <Box className="mt-3">
+                <Typography variant="title">{tour?.title}</Typography>
+              </Box>
+              <Box className="mt-3">
+                <span className="tour-detail-tag">{tour?.range}</span>
+              </Box>
             </Box>
-            <div className="tour-detail-data-container">
-              <Box>
-                <TourDetailProperties tour={tour}></TourDetailProperties>
-                <Box sx={{ textAlign: "left" }}>
-                  <div className="tour-detail-difficulties">
-                    <span className="tour-detail-difficulty">
-                      {tour && translateDiff(tourDifficulty)}
-                    </span>
-                    {!!tourDifficultyOrig &&
-                      !!tourDifficulty &&
-                      tourDifficultyOrig.toLowerCase() !==
-                        tourDifficulty.toLowerCase() && (
-                        <span className="tour-detail-tag tour-detail-tag-gray">
-                          {tour && translateDiff(tourDifficultyOrig)}
-                        </span>
-                      )}
+            <div>
+              <Box
+                sx={{ width: "100%", position: "relative" }}
+                className="tour-detail-map-container"
+              >
+                <InteractiveMap
+                  gpxPositions={!!gpxPositions && gpxPositions}
+                  anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                  abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                  scrollWheelZoom={false}
+                />
+              </Box>
+              <div className="tour-detail-data-container">
+                <Box>
+                  <TourDetailProperties tour={tour}></TourDetailProperties>
+                  <Box sx={{ textAlign: "left" }}>
+                    <div className="tour-detail-difficulties">
+                      <span className="tour-detail-difficulty">
+                        {tour && translateDiff(tourDifficulty)}
+                      </span>
+                      {/* {!!tourDifficultyOrig &&
+                        !!tourDifficulty &&
+                        tourDifficultyOrig.toLowerCase() !==
+                          tourDifficulty.toLowerCase() && (
+                          <span className="tour-detail-tag tour-detail-tag-gray">
+                            {tour && translateDiff(tourDifficultyOrig)}
+                          </span>
+                        )} */}
+                    </div>
+                    <Typography variant="textSmall">{tour?.description}</Typography>
+                  </Box>
+                  <div
+                    className="tour-detail-provider-container"
+                    onClick={() => {
+                      window.open(tour?.url);
+                    }}
+                  >
+                    <div className="tour-detail-provider-icon">
+                      <ProviderLogo provider={tour?.provider} />
+                    </div>
+                    <div className="tour-detail-provider-name-link">
+                      <span className="tour-detail-provider-name">
+                        {tour?.provider_name}
+                      </span>
+                      <span className="tour-detail-provider-link">{tour?.url}</span>
+                    </div>
                   </div>
-                  <Typography variant="textSmall">{tour?.description}</Typography>
-                </Box>
-                <div
-                  className="tour-detail-provider-container"
-                  onClick={() => {
-                    window.open(tour?.url);
-                  }}
-                >
-                  <div className="tour-detail-provider-icon">
-                    <ProviderLogo provider={tour?.provider} />
-                  </div>
-                  <div className="tour-detail-provider-name-link">
-                    <span className="tour-detail-provider-name">
-                      {tour?.provider_name}
-                    </span>
-                    <span className="tour-detail-provider-link">{tour?.url}</span>
-                  </div>
-                </div>
-                {renderImage && (
+                  {renderImage && (
+                    <Box className="tour-detail-conditional-desktop">
+                      <Divider variant="middle" />
+                      <div className="tour-detail-img-container">
+                        <img
+                          src={tour?.image_url}
+                          onError={() => {
+                            setRenderImage(false);
+                          }}
+                        />
+                      </div>
+                    </Box>
+                  )}
                   <Box className="tour-detail-conditional-desktop">
+                    {actionButtonPart}
+                  </Box>
+                </Box>
+                <Box className="tour-detail-itinerary-container">
+                  <Itinerary
+                    connectionData={connections}
+                    dateIndex={dateIndex}
+                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
+                    tour={tour}
+                  ></Itinerary>
+                </Box>
+                {renderImage && (
+                  <Box className="tour-detail-conditional-mobile">
                     <Divider variant="middle" />
                     <div className="tour-detail-img-container">
                       <img
                         src={tour?.image_url}
-                        alt="image"
                         onError={() => {
                           setRenderImage(false);
                         }}
@@ -750,43 +832,19 @@ useEffect(() => {
                     </div>
                   </Box>
                 )}
-                <Box className="tour-detail-conditional-desktop">
-                  {actionButtonPart}
-                </Box>
-              </Box>
-              <Box className="tour-detail-itinerary-container">
-                <Itinerary
-                  connectionData={connections}
-                  dateIndex={dateIndex}
-                  onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
-                  tour={tour}
-                ></Itinerary>
-              </Box>
-              {renderImage && (
-                <Box className="tour-detail-conditional-mobile">
-                  <Divider variant="middle" />
-                  <div className="tour-detail-img-container">
-                    <img
-                      src={tour?.image_url}
-                      alt="image"
-                      onError={() => {
-                        setRenderImage(false);
-                      }}
-                    />
-                  </div>
-                </Box>
-              )}
-              {
-                <Box className="tour-detail-conditional-mobile">
-                  {actionButtonPart}
-                </Box>
-              }
+                {
+                  <Box className="tour-detail-conditional-mobile">
+                    {actionButtonPart}
+                  </Box>
+                }
+              </div>
             </div>
-          </div>
-          <div></div>
-          <Divider variant="middle" />
-        </Box>
-        <Footer></Footer>
+            <div></div>
+            <Divider variant="middle" />
+          </Box>
+          <Footer></Footer>
+        </>
+        )}
       </Box>
     );
   // }

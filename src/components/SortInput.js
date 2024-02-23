@@ -2,6 +2,7 @@ import * as React from 'react';
 import Select from "react-select";
 import { useTranslation } from 'react-i18next';
 
+//marked for deletion  with ResultBar.js
 export default function SortInput({onChange, value, disabled}){
 
     const{t} =useTranslation();
@@ -33,7 +34,6 @@ export default function SortInput({onChange, value, disabled}){
     }
 
     const options = [
-        { value: 'relevanz', label: t('main.relevanz') },
         { value: 'anfahrtszeit', label: t('main.anfahrtszeit') },
         { value: 'tourdistanz', label: t('main.tourdistanz') },
         { value: 'tourdauer', label: t('main.tourdauer') }

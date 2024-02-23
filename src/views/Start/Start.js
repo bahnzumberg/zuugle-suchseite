@@ -23,7 +23,6 @@ import {
   getPageHeader,
   getTranslatedCountryName,
   listAllCityLinks,
-  listAllRangeLinks,
 } from "../../utils/seoPageHelper";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
@@ -65,9 +64,9 @@ function Start({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
@@ -77,6 +76,7 @@ function Start({
 
   useEffect(() => {
     // matomo
+    // eslint-disable-next-line no-undef
     _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
@@ -102,7 +102,6 @@ function Start({
         await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
           {
-            sort: "relevanz",
             limit: 10,
             city: !!city ? city : undefined,
             ranges: true,
@@ -126,6 +125,7 @@ function Start({
       // Cancel any ongoing network request when the component unmounts
       abortController.abort();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalTours]);
 
   const getCity = () => {
@@ -138,9 +138,9 @@ function Start({
     }
   };
 
-  const goToStartPage = () => {
-    navigate(`/?${searchParams.toString()}`);
-  };
+  // const goToStartPage = () => {
+  //   navigate(`/?${searchParams.toString()}`);
+  // };
 
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id ) {
@@ -149,7 +149,7 @@ function Start({
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
               localStorage.setItem("tourId", tour.id);
-              window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+              // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
             }else{
               window.location.reload();
             }
@@ -285,9 +285,6 @@ function Start({
 
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )}
-        {!showMobileMenu && (
-          <FooterLinks links={listAllRangeLinks(allRanges, searchParams)} />
         )}
         {!showMobileMenu && <Footer />}
       </Box>

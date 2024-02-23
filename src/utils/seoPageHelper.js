@@ -96,11 +96,10 @@ export const checkIfSeoPageCity = (location, cities) => {
 
 export const listAllCityLinks = (cities, searchParams = null) => {
 
-  const country = translatedCountry();// currently not displayed due to re-redering issues arrising from i18next translations
+  const country = translatedCountry();
 
   if (!!cities) {
     const entries = cities.map((city, index) => {
-      // console.log("L99 city: ", JSON.stringify(city));
       let link = `${city.value}`;
       if (!!searchParams && !!searchParams.get("p")) { // redundant if we do not use provider anymore
         link = `${link}?p=${searchParams.get("p")}`;
