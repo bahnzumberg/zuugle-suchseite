@@ -71,11 +71,6 @@ const listWrapper = async (req, res) => {
             }
         }
         result = result.filter(entry => entry.range !== "Keine Gebirgsgruppe");
-
-        if(!!removeDuplicates){
-            const ids = result.map(o => o.range)
-            result = result.filter(({range}, index) => !ids.includes(range, index + 1))
-        }
     }
 
     res.status(200).json({success: true, ranges: result});
