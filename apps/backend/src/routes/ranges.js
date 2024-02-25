@@ -7,15 +7,25 @@ router.get('/', (req, res) => listWrapper(req, res));
 
 const listWrapper = async (req, res) => {
     const city = req.query.city;
-    const ignoreLimit = req.query.ignore_limit == "true";
-    const removeDuplicates = req.query.remove_duplicates == "true";
-
     const domain = req.query.domain;
 
+    let sql = "";
     let whereRaw = null;
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`;
+        sql += "SELECT t.range, t.state, t.range_slug, avg(f.best_connection_duration) ";
+        sql += "FROM tour AS t ";
+        sql += "INNER JOIN fahrplan AS f ";
+        sql += "ON t.provider=f.tour_provider ";
+        sql += "AND t.hashed_url=f.hashed_url ";
+        sql += "WHERE f.city_slug='${city}' ";
+        sql += "AND t.range IS NOT NULL ";
+        sql += "AND t.state IS NOT NULL ";
+        sql += "AND t.range_slug IS NOT NULL ";
+        sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') "
+        sql += "GROUP BY t.range, t.state, t.range_slug ";
+        sql += "ORDER BY avg(f.best_connection_duration) ASC ";
+        sql += "LIMIT 10;";
     }
     else {
         let tld = '';
@@ -25,22 +35,23 @@ const listWrapper = async (req, res) => {
         else if (domain.indexOf('zuugle.ch')) { tld='CH' }
         else if (domain.indexOf('zuugle.fr')) { tld='FR' }
         else { tld='AT' }
-        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')  `;
+        
+        sql += "SELECT t.range, t.state, t.range_slug, avg(f.best_connection_duration) ";
+        sql += "FROM tour AS t ";
+        sql += "INNER JOIN fahrplan AS f ";
+        sql += "ON t.provider=f.tour_provider ";
+        sql += "AND t.hashed_url=f.hashed_url ";
+        sql += "WHERE t.range IS NOT NULL ";
+        sql += "AND t.state IS NOT NULL ";
+        sql += "AND t.range_slug IS NOT NULL ";
+        sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') "
+        sql += "GROUP BY t.range, t.state, t.range_slug ";
+        sql += "ORDER BY avg(f.best_connection_duration) ASC ";
+        sql += "LIMIT 10;";
     }
 
-    let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');
+    let result = await knex.raw(sql);
 
-    if(!!whereRaw){
-        query = query.whereRaw(whereRaw);
-    }
-
-    query = query.groupBy(['range', 'range_slug', 'state']).orderBy('range', 'asc');
-
-    if(!!!ignoreLimit){
-        query = query.limit(10);
-    }
-
-    let result = await query;
     if(!!result){
         const hostname = os.hostname();
 
