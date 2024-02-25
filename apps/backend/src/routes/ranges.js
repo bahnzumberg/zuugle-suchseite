@@ -70,7 +70,6 @@ const listWrapper = async (req, res) => {
                 entry.image_url = `${host}/public/range-image/${entry.range}.jpg`;
             }
         }
-        result = result.filter(entry => entry.range !== "Keine Gebirgsgruppe");
     }
 
     res.status(200).json({success: true, ranges: result});
