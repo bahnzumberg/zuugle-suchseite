@@ -31,7 +31,10 @@ export const getDepartureText = (connection) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
-
+  consoleLog("L34 : utils.js/ getDepartureText : connection : ", connection, true);
+  consoleLog("L35 : utils.js/ getDepartureText : connection.connection_duration_minutes : ", connection.connection_duration_minutes, true);
+  consoleLog("L64 : utils.js/ getDepartureText : connection.connection_departure_datetime : ", connection.connection_departure_datetime, true);
+  consoleLog("L37 : utils.js/ getDepartureText : connection.connection_arrival_datetime : ", connection.connection_arrival_datetime, true);
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
     `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} bis ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;

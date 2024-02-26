@@ -48,7 +48,6 @@ export default function ItineraryTourTimeLineContainer({
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
-    // let settingEnt = parseTourConnectionDescription(getSingleConnection());
     let settingEnt = jsonToStringArray(getSingleConnection(), "to");
     consoleLog("L57 ITTLC/ useEffect settingEnt", settingEnt, true);
     setEntries(settingEnt);
@@ -91,6 +90,7 @@ export default function ItineraryTourTimeLineContainer({
       let array = connections.returns;
       consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
+        //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
         //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
         if (index <= 1) {
           consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
