@@ -6,7 +6,7 @@ To install nvm see e.g. https://www.freecodecamp.org/news/node-version-manager-n
 ### Install all modules
 Execute in the project directory:
 
-    nvm install 19.8
+    nvm install 20.3.0
     
     nvm use
 
