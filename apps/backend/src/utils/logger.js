@@ -3,10 +3,12 @@ import path from 'path';
 
 let lineCount = 0;
 const maxAllowed = 100;
-
+// TESTING DETACHED HEAD STATE 
 export default function (text) {
+
     // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
-    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
+    if(process.env.NODE_ENV !== 'production')
+    {const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
     const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
 
     // Ensure the directory exists
@@ -22,7 +24,7 @@ if (lineCount < maxAllowed) {
     // this will erase the current file and add a new "text" line
     fs.writeFileSync(filePath, text + '\n');
     lineCount = 1;
-}
+}}
 }
 
 // call this function whenever the server starts// for now test it on tours.js
