@@ -5,7 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
+  // Button,
   Divider,
   Typography,
 } from "@mui/material";
@@ -48,7 +48,9 @@ export default function ItineraryTourTimeLineContainer({
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
-    let settingEnt = parseTourConnectionDescription(getSingleConnection());
+    // let settingEnt = parseTourConnectionDescription(getSingleConnection());
+    let settingEnt = jsonToStringArray(getSingleConnection(), "to");
+    consoleLog("L57 ITTLC/ useEffect settingEnt", settingEnt, true);
     setEntries(settingEnt);
     setReturnEntries(connections.returns);
     extractReturns();
@@ -96,7 +98,15 @@ export default function ItineraryTourTimeLineContainer({
             array[index],
             "from"
           );
-          consoleLog("L98 ITTLC/ extractReturns twoReturns", twoReturns, true);
+          consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
+        }
+  
+        if (index > 1) {
+          remainingReturns[index] = jsonToStringArray(
+            array[index],
+            "from"
+          );
+          consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
         // if (index <= 1) {
         //   twoReturns[index] = parseTourConnectionDescription(
@@ -106,12 +116,12 @@ export default function ItineraryTourTimeLineContainer({
         //   consoleLog("L98 ITTLC/ extractReturns twoReturns", twoReturns, true);
         // }
         //when index is > 1 -> fill array remainingReturns
-        if (index > 1) {
-          remainingReturns[index] = parseTourConnectionDescription(
-            array[index],
-            "return_description_detail"
-          );
-        }
+        // if (index > 1) {
+        //   remainingReturns[index] = parseTourConnectionDescription(
+        //     array[index],
+        //     "return_description_detail"
+        //   );
+        // }
       }
       return;
     }
@@ -144,7 +154,7 @@ export default function ItineraryTourTimeLineContainer({
     if (!!!connection) {
       return <Fragment></Fragment>;
     }
-    if (connection.connection_duration_minutes == 0) {
+    if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
     } else {
       return t("Details.beste_anreise_kurz");
