@@ -10,22 +10,19 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain;
 
     let sql = "";
-    let whereRaw = null;
+    sql += "SELECT t.range, t.state, t.range_slug, (min(f.best_connection_duration)+avg(f.best_connection_duration))/2 ";
+    sql += "FROM tour AS t ";
+    sql += "INNER JOIN fahrplan AS f ";
+    sql += "ON t.provider=f.tour_provider ";
+    sql += "AND t.hashed_url=f.hashed_url ";
+
     /** city search */
     if(!!city && city.length > 0){
-        sql += "SELECT t.range, t.state, t.range_slug, avg(f.best_connection_duration) ";
-        sql += "FROM tour AS t ";
-        sql += "INNER JOIN fahrplan AS f ";
-        sql += "ON t.provider=f.tour_provider ";
-        sql += "AND t.hashed_url=f.hashed_url ";
         sql += "WHERE f.city_slug='${city}' ";
         sql += "AND t.range IS NOT NULL ";
         sql += "AND t.state IS NOT NULL ";
         sql += "AND t.range_slug IS NOT NULL ";
         sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') "
-        sql += "GROUP BY t.range, t.state, t.range_slug ";
-        sql += "ORDER BY avg(f.best_connection_duration) ASC ";
-        sql += "LIMIT 10;";
     }
     else {
         let tld = '';
@@ -36,19 +33,15 @@ const listWrapper = async (req, res) => {
         else if (domain.indexOf('zuugle.fr')) { tld='FR' }
         else { tld='AT' }
         
-        sql += "SELECT t.range, t.state, t.range_slug, avg(f.best_connection_duration) ";
-        sql += "FROM tour AS t ";
-        sql += "INNER JOIN fahrplan AS f ";
-        sql += "ON t.provider=f.tour_provider ";
-        sql += "AND t.hashed_url=f.hashed_url ";
         sql += "WHERE t.range IS NOT NULL ";
         sql += "AND t.state IS NOT NULL ";
         sql += "AND t.range_slug IS NOT NULL ";
         sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') "
-        sql += "GROUP BY t.range, t.state, t.range_slug ";
-        sql += "ORDER BY avg(f.best_connection_duration) ASC ";
-        sql += "LIMIT 10;";
     }
+
+    sql += "GROUP BY t.range, t.state, t.range_slug ";
+    sql += "ORDER BY (min(f.best_connection_duration)+avg(f.best_connection_duration))/2 ASC ";
+    sql += "LIMIT 10;";
 
     let result = await knex.raw(sql);
 
