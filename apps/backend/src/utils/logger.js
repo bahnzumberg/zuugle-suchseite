@@ -3,9 +3,9 @@ import path from 'path';
 
 // TESTING DETACHED HEAD STATE 
 export default function (text) {
-    $onoffswitch = 'on';
+    const onoffswitch = 'on';
 
-    if($onoffswitch == 'on') {
+    if(onoffswitch == 'on') {
         const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
         const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
 
@@ -23,6 +23,7 @@ export default function (text) {
         let seconds = date_ob.getSeconds();
         let log_date_time = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds + " ";
 
+        console.log(log_date_time)
         // add log entry
         fs.appendFileSync(filePath, log_date_time + text + '\n'); 
     }
