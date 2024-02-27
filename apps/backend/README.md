@@ -41,7 +41,8 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
 ### Execute backend locally
     npm run start
-    Hint: On local environment using the function logger('anytext'); writes to the file api.logs in your zuugle-api/logs directory. This is helpful, when debugging SQL code, etc.
+
+Hint: On local environment using the function logger('anytext'); writes to the file api.logs in your zuugle-api/logs directory. This is helpful, when debugging SQL code, etc.
 
 ## Follow frontend Readme 
 Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite
