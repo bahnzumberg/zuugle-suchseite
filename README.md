@@ -11,7 +11,7 @@ Execute in the project directory:
 and install all dependencies.
 
 
-## Run frontend
+## Run frontend with local backend
 ### Prepare API
 Follow the steps described at https://github.com/bahnzumberg/zuugle-api#zuugleat-api
 
@@ -20,3 +20,9 @@ Follow the steps described at https://github.com/bahnzumberg/zuugle-api#zuugleat
     npm run start
 
 This will run the frontend in a browser on http://localhost:3000
+
+
+## Run frontend with remote backend
+
+    npm run start-remote-api
+
