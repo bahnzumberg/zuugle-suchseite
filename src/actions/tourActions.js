@@ -27,6 +27,7 @@ import {
 } from "./types";
 import { loadFile, loadList, loadOne, loadOneReturnAll } from "./crudActions";
 import i18next from "i18next";
+import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
@@ -108,12 +109,10 @@ export function loadTourConnections(data) {
     data.domain = window.location.host;
     let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
 
-    console.log("data.id: ");
-    console.log(data.id);
-
+    
     returndataPromise.then(returndata => {
-      console.log("returned data: ");
-      console.log(returndata);
+      consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
+      consoleLog("L115 tourActions / loadTourConnections / returned data: ", returndata);
     });
     
     return returndataPromise;
