@@ -75,7 +75,6 @@ export default function transformToDescriptionDetail(descriptionJSON) {
 
     return descriptionDetail;
 }
-//    if(Array.isArray(descriptionJSON) && descriptionJSON.length > 0){
 
 export function jsonToStringArray(connection, toFrom = "to"){
     // consoleLog("L1 : connection : ",connection), get connection as an object
@@ -83,31 +82,34 @@ export function jsonToStringArray(connection, toFrom = "to"){
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
 
     let stringArray = [];
-    let descriptionJSON = toFrom === "to" ? 
-        connection.connection_description_json 
-        : 
-        connection.return_description_json;
+    if(!!connection && !!connection.connection_description_json && !!connection.return_description_json )
 
-    for (let i = 0; i < descriptionJSON.length; i++) {
-        const connection = descriptionJSON[i];
-        const connectionType = getConnectionTypeString(connection.CT);
+    {   let descriptionJSON = toFrom === "to" ? 
+            connection.connection_description_json 
+            : 
+            connection.return_description_json;
 
-        if (connection.T === "D") {
-            stringArray.push(`${connection.DT} ${connection.DS}`);
-        } else if (connection.T === "C") {
-            stringArray.push(`  |  ${connection.CD} Std mit ${connectionType} ${connection.CN} nach`);
-        } else if (connection.T === "T") {
-            // totalTransferTime += getMinutesFromDuration(duration);
-            stringArray.push(`  =  ${connection.TD} Std Umstiegszeit`);
-        } else if (connection.T === "A") {
-            stringArray.push(`${connection.AT} ${connection.AS}`);
+        for (let i = 0; i < descriptionJSON.length; i++) {
+            const connection = descriptionJSON[i];
+            const connectionType = getConnectionTypeString(connection.CT);
+
+            if (connection.T === "D") {
+                stringArray.push(`${connection.DT} ${connection.DS}`);
+            } else if (connection.T === "C") {
+                stringArray.push(`  |  ${connection.CD} Std mit ${connectionType} ${connection.CN} nach`);
+            } else if (connection.T === "T") {
+                // totalTransferTime += getMinutesFromDuration(duration);
+                stringArray.push(`  =  ${connection.TD} Std Umstiegszeit`);
+            } else if (connection.T === "A") {
+                stringArray.push(`${connection.AT} ${connection.AS}`);
+            }
         }
-    }
 
-    if(toFrom === "from"){
-        stringArray.unshift(`  <  ${formatToHHMM(connection.fromtour_track_duration)} Std Rückstiegsdauer vom Touren-Endpunkt`)
-    }else if(toFrom === "to"){
-        stringArray.push(`  >  ${formatToHHMM(connection.fromtour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`)
+        if(toFrom === "from"){
+            stringArray.unshift(`  <  ${formatToHHMM(connection.fromtour_track_duration)} Std Rückstiegsdauer vom Touren-Endpunkt`) // for translation create seperate variables out of ${formatToHHMM(connection.fromtour_track_duration)}
+        }else if(toFrom === "to"){
+            stringArray.push(`  >  ${formatToHHMM(connection.totour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`) // for translation create seperate variables out of ${formatToHHMM(connection.totour_track_duration)}
+        }
     }
 
     return stringArray;
