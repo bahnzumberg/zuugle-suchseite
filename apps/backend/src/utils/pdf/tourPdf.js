@@ -82,7 +82,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
                 logger("L82 tourPdf cr value = connection ? :");
                 logger(typeof(cr)); // contains already the return_description_parsed inserted
                 logger(JSON.stringify(cr));
-                let jsonEntries = jsonToText(cr);
+                let jsonEntries = jsonToText(cr,'from');
                 logger("L85 tourPdf From json array -> connectionReturns :")
                 logger(jsonEntries)
                 connectionReturnEntries = createReturnEntries(entries, cr);
