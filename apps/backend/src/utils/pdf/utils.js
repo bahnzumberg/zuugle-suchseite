@@ -170,7 +170,7 @@ function getConnectionTypeString(CT) {
 
 export function jsonToText(connection, toFrom = "to") {
     logger("L172 jsonToText / connection passed in : ");
-    logger(connection)
+    logger(JSON.stringify(connection))
     
     let descString = '';
 
