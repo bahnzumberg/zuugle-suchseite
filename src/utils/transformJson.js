@@ -106,9 +106,9 @@ export function jsonToStringArray(connection, toFrom = "to"){
         }
 
         if(toFrom === "from"){
-            stringArray.unshift(`  <  ${formatToHHMM(connection.fromtour_track_duration)} Std Rückstiegsdauer vom Touren-Endpunkt`)
+            stringArray.unshift(`  <  ${formatToHHMM(connection.fromtour_track_duration)} Std Rückstiegsdauer vom Touren-Endpunkt`) // for translation create seperate variables out of ${formatToHHMM(connection.fromtour_track_duration)}
         }else if(toFrom === "to"){
-            stringArray.push(`  >  ${formatToHHMM(connection.fromtour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`)
+            stringArray.push(`  >  ${formatToHHMM(connection.totour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`) // for translation create seperate variables out of ${formatToHHMM(connection.totour_track_duration)}
         }
     }
 
