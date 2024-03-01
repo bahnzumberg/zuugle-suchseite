@@ -11,8 +11,8 @@ import { jsonToStringArray, jsonToText } from "./utils"
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
     // logger(`L11 , tourPdf.js / tourPdf, value of JSON.stringify(connection) : `);
     // !!connection ? logger(JSON.stringify(connection)) : logger(' NO CONNECION YET ?');
-    logger(`L13 , tourPdf.js / tourPdf, value of JSON.stringify(connection.connection_description_json) : `);
-    !!connection ? logger(JSON.stringify(connection.connection_description_json)) : logger(' NO connection_description_json');
+    // logger(`L13 , tourPdf.js / tourPdf, value of JSON.stringify(connection.connection_description_json) : `);
+    // !!connection ? logger(JSON.stringify(connection.connection_description_json)) : logger(' NO connection_description_json');
     //logger('L14 connectionReturn :', connectionReturn);
     
 
@@ -62,12 +62,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
    
 
     if(!!connection && !!connection.connection_description_json){
-        
         let entries =  jsonToStringArray(connection);
-        logger("L74 : Is entries an array ?");
-        logger(Array.isArray(entries)); // true
-        logger('L77 : entries based on "connection_description_json" :');
-        logger(entries);
         connectionEntries = createConnectionEntries(entries, connection);
     }
 
@@ -75,16 +70,19 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     if(!!connectionReturns){
         connectionReturns.forEach((cr, index) => {
             let connectionReturnEntries = [];
-            if(!!cr && !!cr.return_description_detail){
-                let entries = cr.return_description_detail.split('\n');
-                logger("L80 tourPdf connectionReturns :")
+            if(!!cr && !!cr.return_description_json){
+                let entries = jsonToStringArray(cr,'from');
+                logger("L80 tourPdf connectionReturns :");
+                Array.isArray(entries) &&  logger(" entries is Array....");
                 logger(entries)
-                logger("L82 tourPdf cr value = connection ? :");
-                logger(typeof(cr)); // contains already the return_description_parsed inserted
-                logger(JSON.stringify(cr));
-                let jsonEntries = jsonToText(cr,'from');
-                logger("L85 tourPdf From json array -> connectionReturns :")
-                logger(jsonEntries)
+                // logger("L82 tourPdf cr value = connection ? :");
+                // logger(typeof(cr)); // contains already the return_description_parsed inserted
+                // logger(JSON.stringify(cr));
+                // let jsonEntries = jsonToText(cr,'from');
+                // let jsonEntries = jsonToStringArray(cr,'from');
+                // logger("L87 tourPdf From json array -> jsonEntries :");
+                // Array.isArray(jsonEntries) &&  logger(" jsonEntries is Array....");
+                // logger(jsonEntries)
                 connectionReturnEntries = createReturnEntries(entries, cr);
                 allReturn.push({
                     connectionReturnEntries: connectionReturnEntries,

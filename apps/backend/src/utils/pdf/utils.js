@@ -168,17 +168,31 @@ function getConnectionTypeString(CT) {
 //     return descriptionDetail;
 // }
 
-export function jsonToText(connection, toFrom = "to") {
-    logger("L172 jsonToText / connection passed in : ");
-    logger(JSON.stringify(connection))
+// export function jsonToText(connection, toFrom = "to") {
     
+//     let descString = '';
+
+//     const strArr = jsonToStringArray(connection, toFrom);
+    
+//     for (let i = 0; i < strArr.length; i++) {
+//         descString =+ strArr[i] + '/n' ;
+//     }
+//     logger("L184 utils/descString");
+//     logger(JSON.stringify(descString));
+
+//     return descString;
+// }
+
+export function jsonToText(connection, toFrom = "to") {
     let descString = '';
 
     const strArr = jsonToStringArray(connection, toFrom);
-    
-    for (let i = 0; i < strArr.length; i++) {
-        descString =+ strArr[i] + '/n' ;
-    }
+
+    // Join the array elements with newline characters
+    descString = strArr.join('\n');
+
+    // logger("L184 utils/descString");
+    // logger(descString);
 
     return descString;
 }
@@ -193,7 +207,10 @@ export function jsonToStringArray(connection, toFrom = "to"){
     // consoleLog("L1 : connection : ",connection), get connection as an object
     // toFrom is "to" or "from" , to use the right text in end or begining of array
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
-
+    // if(!!connection && !!connection.connection_description_json && !!connection.return_description_json ){
+    //  logger("L199 utils/jsonToStringArray connection");
+    //  logger(JSON.stringify(connection.return_description_json));
+    // }
     let stringArray = [];
     if(!!connection && !!connection.connection_description_json && !!connection.return_description_json ){
         let descriptionJSON = toFrom === "to" ? 
@@ -203,6 +220,7 @@ export function jsonToStringArray(connection, toFrom = "to"){
 
         for (let i = 0; i < descriptionJSON.length; i++) {
             const connection = descriptionJSON[i];
+            
             const connectionType = getConnectionTypeString(connection.CT);
 
             if (connection.T === "D") {
@@ -223,7 +241,8 @@ export function jsonToStringArray(connection, toFrom = "to"){
             stringArray.push(`  >  ${formatToHHMM(connection.fromtour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`)
         }
     }
-
+    // logger("L237 utils/stringArray");
+//     logger(JSON.stringify(stringArray));
     return stringArray;   
 }
 // **************

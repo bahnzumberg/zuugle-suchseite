@@ -8,7 +8,8 @@ import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
-import {jsonToText, jsonToStringArray} from '../utils/utils';
+// import {jsonToText, jsonToStringArray} from '../utils/utils';
+import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
 const path = require('path');
@@ -899,20 +900,20 @@ const getWeekday = (date) => {
 }
 
 const parseConnectionDescription = (connection) => {
-    if(!!connection && !!connection.connection_description_detail){
-        let splitted = connection.connection_description_detail.split('|');
-        logger("L903 tours.js / splitted :");
-        logger(splitted);
-        // logger("L905 tours.js / splitted/ from json :");
-        // logger(splitted);
+    if(!!connection && !!connection.connection_description_json){
+        let splitted = jsonToStringArray(connection, 'to');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+
         return splitted;
     }
     return [];
 }
 
 const parseReturnConnectionDescription = (connection) => {
-    if(!!connection && !!connection.return_description_detail){
-        let splitted = connection.return_description_detail.split('|');
+    if(!!connection && !!connection.return_description_json){
+        let splitted = jsonToStringArray(connection, 'from');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+        
         return splitted;
     }
     return [];
