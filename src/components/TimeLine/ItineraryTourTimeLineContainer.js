@@ -90,8 +90,7 @@ export default function ItineraryTourTimeLineContainer({
       let array = connections.returns;
       consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
-        //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
-        //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
+        
         if (index <= 1) {
           consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
           twoReturns[index] = jsonToStringArray(
@@ -108,20 +107,6 @@ export default function ItineraryTourTimeLineContainer({
           );
           consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
-        // if (index <= 1) {
-        //   twoReturns[index] = parseTourConnectionDescription(
-        //     array[index],
-        //     "return_description_detail"
-        //   );
-        //   consoleLog("L98 ITTLC/ extractReturns twoReturns", twoReturns, true);
-        // }
-        //when index is > 1 -> fill array remainingReturns
-        // if (index > 1) {
-        //   remainingReturns[index] = parseTourConnectionDescription(
-        //     array[index],
-        //     "return_description_detail"
-        //   );
-        // }
       }
       return;
     }
