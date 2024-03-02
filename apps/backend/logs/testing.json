@@ -1,0 +1,66 @@
+2024-02-28 13:31:15 L13 , tourPdf.js / tourPdf, value of JSON.stringify(connection.connection_description_json) : 
+2024-02-28 13:31:15 [{"T":"D","DS":"Baden Bahnhof","DT":"05:12"},{"T":"C","CD":"00:14","CN":"REX9","CT":1},{"T":"A","AS":"Wien Meidling","AT":"05:26"},{"T":"T","TD":"00:09"},{"T":"D","DS":"Wien Meidling","DT":"05:35"},{"T":"C","CD":"02:18","CN":"RJX 368","CT":1},{"T":"A","AS":"Salzburg Hauptbahnhof 1","AT":"07:53"},{"T":"T","TD":"00:07"},{"T":"D","DS":"Salzburg Hbf","DT":"08:00"},{"T":"C","CD":"00:24","CN":"62","CT":1},{"T":"A","AS":"Traunstein","AT":"08:24"},{"T":"T","TD":"00:24"},{"T":"D","DS":"Traunstein","DT":"08:48"},{"T":"C","CD":"00:20","CN":"RB53","CT":1},{"T":"A","AS":"Ruhpolding","AT":"09:08"}]
+2024-02-28 13:31:15 L74 : Is entries an array ?
+2024-02-28 13:31:15 true
+2024-02-28 13:31:15 L77 : entries based on "connection_description_json" :
+2024-02-28 13:31:15 
+
+05:12 Baden Bahnhof,  
+  ,  00:14 Std mit Zug REX9 nach,05:26 Wien Meidling,  =  00:09 Std Umstiegszeit,05:35 Wien Meidling,  |  02:18 Std mit Zug RJX 368 nach,07:53 Salzburg Hauptbahnhof 1,  =  00:07 Std Umstiegszeit,08:00 Salzburg Hbf,  |  00:24 Std mit Zug 62 nach,08:24 Traunstein,  =  00:24 Std Umstiegszeit,08:48 Traunstein,  |  00:20 Std mit Zug RB53 nach,09:08 Ruhpolding,  >  00:00 Std Zustiegsdauer zum Touren-Ausgangspunkt
+2024-02-28 13:43:15 L903 tours.js / splitted :
+2024-02-28 13:43:15 
+
+HOW WE NEED IT =========================
+05:12 Baden Bahnhof
+  ,  00:14 Std mit Zug REX9 nach
+05:26 Wien Meidling
+  =  00:09 Std Umstiegszeit
+05:35 Wien Meidling
+  ,  02:18 Std mit Zug RJX 368 nach
+07:53 Salzburg Hauptbahnhof 1
+  =  00:07 Std Umstiegszeit
+08:00 Salzburg Hbf
+  ,  00:24 Std mit Zug 62 nach
+08:24 Traunstein
+  =  00:24 Std Umstiegszeit
+08:48 Traunstein
+  ,  00:20 Std mit Zug RB53 nach
+09:08 Ruhpolding
+  >  00:00 Std Zustiegsdauer zum Touren-Ausgangspunkt
+
+USING transformToDescriptionDetail ==============================
+05:12 Baden Bahnhof
+  |  00:14 Std mit Zug REX9 nach
+05:26 Wien Meidling
+  =  00:09 Std Umstiegszeit
+05:35 Wien Meidling
+  |  02:18 Std mit Zug RJX 368 nach
+07:53 Salzburg Hauptbahnhof 1
+  =  00:07 Std Umstiegszeit
+08:00 Salzburg Hbf
+  |  00:24 Std mit Zug 62 nach
+08:24 Traunstein
+  =  00:24 Std Umstiegszeit
+08:48 Traunstein
+  |  00:20 Std mit Zug RB53 nach
+09:08 Ruhpolding
+MISSING =================================== > >  00:00 Std Zustiegsdauer zum Touren-Ausgangspunkt
+
+
+2024-02-28 13:43:15 L903 tours.js / splitted :
+2024-02-28 13:43:15 05:12 Baden Bahnhof
+  ,  00:14 Std mit Zug REX9 nach
+05:26 Wien Meidling
+  =  00:09 Std Umstiegszeit
+05:35 Wien Meidling
+  ,  02:18 Std mit Zug RJX 368 nach
+07:53 Salzburg Hauptbahnhof 1
+  =  00:07 Std Umstiegszeit
+08:00 Salzburg Hbf
+  ,  00:24 Std mit Zug 62 nach
+08:24 Traunstein
+  =  00:24 Std Umstiegszeit
+08:48 Traunstein
+  ,  00:20 Std mit Zug RB53 nach
+09:08 Ruhpolding
+  >  00:00 Std Zustiegsdauer zum Touren-Ausgangspunkt

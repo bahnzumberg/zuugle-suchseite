@@ -6,9 +6,16 @@ import {convertNumToTime} from "../helper";
 import {createSingleImageFromMap} from "../gpx/gpxUtils";
 import { convertDifficulty, titleCase } from "../dataConversion";
 import logger from "../logger";
+import { jsonToStringArray, jsonToText } from "./utils"
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
-    logger(`L10 , tourPdf.js / tourPdf, value of tour arg.`);
+    // logger(`L11 , tourPdf.js / tourPdf, value of JSON.stringify(connection) : `);
+    // !!connection ? logger(JSON.stringify(connection)) : logger(' NO CONNECION YET ?');
+    // logger(`L13 , tourPdf.js / tourPdf, value of JSON.stringify(connection.connection_description_json) : `);
+    // !!connection ? logger(JSON.stringify(connection.connection_description_json)) : logger(' NO connection_description_json');
+    //logger('L14 connectionReturn :', connectionReturn);
+    
+
     const TEMPLATE = "tour-details";
 
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
@@ -51,19 +58,31 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
 
 
     let connectionEntries = [];
-    if(!!connection && !!connection.connection_description_detail){
-        let entries = connection.connection_description_detail.split('\n');
-        // console.log("L54: tourPdf / entries : " + JSON.stringify(entries)) // works here
+
+   
+
+    if(!!connection && !!connection.connection_description_json){
+        let entries =  jsonToStringArray(connection);
         connectionEntries = createConnectionEntries(entries, connection);
     }
-
 
     let allReturn = [];
     if(!!connectionReturns){
         connectionReturns.forEach((cr, index) => {
             let connectionReturnEntries = [];
-            if(!!cr && !!cr.return_description_detail){
-                let entries = cr.return_description_detail.split('\n');
+            if(!!cr && !!cr.return_description_json){
+                let entries = jsonToStringArray(cr,'from');
+                logger("L80 tourPdf connectionReturns :");
+                Array.isArray(entries) &&  logger(" entries is Array....");
+                logger(entries)
+                // logger("L82 tourPdf cr value = connection ? :");
+                // logger(typeof(cr)); // contains already the return_description_parsed inserted
+                // logger(JSON.stringify(cr));
+                // let jsonEntries = jsonToText(cr,'from');
+                // let jsonEntries = jsonToStringArray(cr,'from');
+                // logger("L87 tourPdf From json array -> jsonEntries :");
+                // Array.isArray(jsonEntries) &&  logger(" jsonEntries is Array....");
+                // logger(jsonEntries)
                 connectionReturnEntries = createReturnEntries(entries, cr);
                 allReturn.push({
                     connectionReturnEntries: connectionReturnEntries,
@@ -104,8 +123,8 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         url: tour.url
     };
 
-    logger(`L105 tourPdf data is : ${JSON.stringify(data)}`) ; // L105 tourPdf data is : object , this works
-    logger(`L105 tourPdf tour.name is : ${JSON.stringify(tour.name)}`) ; // L105 tourPdf data is : object , this works
+    //logger(`L105 tourPdf data is : ${JSON.stringify(data)}`) ; // L105 tourPdf data is : object , this works
+    //logger(`L105 tourPdf tour.name is : ${JSON.stringify(tour.name)}`) ; // L105 tourPdf data is : object , this works
     // logger("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
     // console.log("L106 tourPdf tour.name is :", tour.name); // this is undefined
     return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null); // this call works; see the test inside utils.js/writePdf

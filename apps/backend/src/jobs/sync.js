@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
 // import { isArrayLike } from "lodash";
+import logger from "../utils/logger";
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
@@ -73,14 +74,12 @@ export async function fixTours(){
 
 
 const deleteFilesOlder30days = (dirPath) => {
-    // !!dirPath && console.log("L76 dirPath = ", dirPath)
     // if the directory does not exist, create it
     if (!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath);
     }
     
     let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
-    // console.log("commandline = ", commandline)
     const { exec } = require('child_process');
     exec(commandline, (err, stdout, stderr) => {
         if (err) {
@@ -305,12 +304,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        /*
-        if(process.env.NODE_ENV !== "production"){
-            console.log(`create file [${filePath}]`);
-        }
-        */
-        
+      
         const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
@@ -396,8 +390,6 @@ export async function syncFahrplan(mode='dev'){
     try {
         const query_add_min = knexTourenDb('vw_fplan_to_search').min('trigger_id');
         const query_add_max = knexTourenDb('vw_fplan_to_search').max('trigger_id');
-        // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
-        // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
         trigger_id_min_array = await query_add_min;
         trigger_id_max_array = await query_add_max;
         trigger_id_min = trigger_id_min_array[0]['min(`trigger_id`)']
@@ -421,8 +413,6 @@ export async function syncFahrplan(mode='dev'){
         });
         counter++;
     }
-
-    // console.log('Starting add Inserts');
 
     // remove all indizes from PostgreSQL table "fahrplan" for quicker inserts
     try {
@@ -594,15 +584,13 @@ const readAndInsertFahrplan = async (bundle) => {
                 }
             }   
 
-            // console.log("Insert sql into fahrplan table: ", insert_sql);
             try {
                 await knex.raw(insert_sql);
                 resolve(true);
             } catch (err) {
-                // console.log('error insert into table fahrplan: ', err);
-                console.log('############### Eror with this SQL ###############');
-                console.log("Insert sql into fahrplan table: ", insert_sql);
-                console.log('###############');
+                logger('############### Eror with this SQL ###############');
+                logger("Insert sql into fahrplan table: ", insert_sql);
+                logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
         } else {
@@ -864,7 +852,6 @@ const calcMonthOrder = (entry) => {
  
     const d = new Date();
     let month = d.getMonth();
-    // console.log("month=", month);
 
     let entryScore = 
         [{name: "jan", value: entry.jan},
@@ -996,7 +983,6 @@ const deleteFileModulo30 = (h_url, filePath) => {
         if (today == hash_day) {
             try {
                 fs.unlinkSync(filePath);
-                // console.log('File deleted successfully: ', filePath);
             } catch(err) {
                 console.log(err.message);
             }
