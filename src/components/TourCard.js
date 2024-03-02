@@ -76,7 +76,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             setConnectionLoading(true);
             loadTourConnections({id: tour.id, city: city}).then(res => {
                 //clg
-                // console.log("Line 74 TourCard:",res.data.connections)
+                console.log("Line 79 TourCard:")
+                console.log(res.data.connections[0])
+                console.log("=====================================")
                 // console.log("Line 75 TourCard:",res.data.returns)
                 // console.log("Line 75 TourCard:",res.data)
                 setConnectionLoading(false);

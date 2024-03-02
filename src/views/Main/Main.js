@@ -98,7 +98,11 @@ try {
   const [counter, setCounter] = useState(null); 
 
 
-  const currentParams = new URLSearchParams(location.search);
+  const handleArrowClick = () => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+    currentParams.delete('range');
+    navigate({ search: `?${currentParams.toString()}` });
+  };
 
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
@@ -248,9 +252,9 @@ try {
                 <Link
                   to={{
                     pathname: "/",
-                    search: currentParams.toString(), 
                   }}
                   replace
+                  onClick={handleArrowClick}
                 >
                   <ArrowBefore
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}

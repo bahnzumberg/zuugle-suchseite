@@ -6,7 +6,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 function DomainMenu() {
 
-let host = location.href;
+let host = window.location.href;
 
 let listOfDomains = [];
 let domain = 'www.zuugle.at';
@@ -280,6 +280,7 @@ const secondMenu = [
 					src={`/app_static/img/logo-white.png`}
 					height={"19px"}
 					width={"34px"}
+					alt="logo white"
 				/>
 				<Typography
 					style={{
@@ -313,6 +314,7 @@ const secondMenu = [
 										src={`/app_static/img/logo30.png`}
 										height={"19px"}
 										width={"34px"}
+										alt="logo30"
 										onClick={() => {
 											setShowDomainMenu(false);
 											window.location.replace(item.url);

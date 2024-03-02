@@ -304,4 +304,18 @@ export function consoleLog(textOutput ="output :", varOutput = null, doubleLine 
     }
     return;
 }
+
+export function getMinutesFromDuration(duration) {
+    if(!!duration && typeof duration === "string"){
+        const [hours, minutes] = duration.split(":").map(Number);
+        return hours * 60 + minutes;
+    }
+    return null
+}
+
+export function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}:${remainingMinutes.toString().padStart(2, "0")}`;
+}
   
