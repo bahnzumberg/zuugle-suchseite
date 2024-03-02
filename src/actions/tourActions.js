@@ -2,8 +2,8 @@ import {
   CLEAR_TOURS,
   LOAD_FAVOURITE_TOURS,
   LOAD_FAVOURITE_TOURS_DONE,
-  LOAD_MAP_TOURS,
-  LOAD_MAP_TOURS_DONE,
+  // LOAD_MAP_TOURS,
+  // LOAD_MAP_TOURS_DONE,
   LOAD_TOTAL_TOURS,
   LOAD_TOTAL_TOURS_DONE,
   LOAD_TOUR,
@@ -21,12 +21,13 @@ import {
   LOAD_TOURS,
   LOAD_TOURS_DONE,
   SET_SELECTED_DATE,
-  NO_DATA_AVAILABLE,
-  NO_TOURS_AVAILABLE,
-  LOAD_DATA_ERROR,
+  // NO_DATA_AVAILABLE,
+  // NO_TOURS_AVAILABLE,
+  // LOAD_DATA_ERROR,
 } from "./types";
 import { loadFile, loadList, loadOne, loadOneReturnAll } from "./crudActions";
 import i18next from "i18next";
+import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
@@ -106,19 +107,28 @@ export function loadTourConnections(data) {
 
   return (dispatch, getState) => {
     data.domain = window.location.host;
-    return loadList(
-      dispatch,
-      getState,
-      LOAD_TOUR_CONNECTIONS,
-      LOAD_TOUR_CONNECTIONS_DONE,
-      "tours",
-      data,
-      "tours/" + data.id + "/connections",
-      "connections",
-      false,
-      undefined,
-      language
-    );
+    let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
+
+    
+    returndataPromise.then(returndata => {
+      consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
+      consoleLog("L115 tourActions / loadTourConnections / returned data: ", returndata);
+    });
+    
+    return returndataPromise;
+    // return loadList(
+    //   dispatch,
+    //   getState,
+    //   LOAD_TOUR_CONNECTIONS,
+    //   LOAD_TOUR_CONNECTIONS_DONE,
+    //   "tours",
+    //   data,
+    //   "tours/" + data.id + "/connections",
+    //   "connections",
+    //   false,
+    //   undefined,
+    //   language
+    // );
   };
 }
 
@@ -182,7 +192,7 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
     );
     return response;
   } catch (error) {
-    if(process.env.NODE_ENV != "production"){
+    if(process.env.NODE_ENV !== "production"){
       console.log("L94, tourActions Error: " + error.message);
     }
     throw error;
