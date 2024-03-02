@@ -21,7 +21,7 @@ export class BrowserService {
 
         this._browser = await puppeteer.launch({
             ...addParam,
-            headless: "new",
+            headless: "true", // this new config replaces "true" does not work in my local machine but it does on UAT and PROD
             args: ['--no-sandbox']
         });
 

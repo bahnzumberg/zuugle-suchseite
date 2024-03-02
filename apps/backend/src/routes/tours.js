@@ -7,8 +7,9 @@ import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
-// import logger from '../utils/logger';
 import logger from '../utils/logger';
+// import {jsonToText, jsonToStringArray} from '../utils/utils';
+import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
 const path = require('path');
@@ -466,10 +467,10 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        logger("#######################################################");
-        const sqlQuery = query.toString();
-        logger("SQL without search phrase :" + sqlQuery)
-        logger("#######################################################");
+        // logger("#######################################################");
+        // const sqlQuery = query.toString();
+        // logger("SQL without search phrase :" + sqlQuery)
+        // logger("#######################################################");
 
         result = await query;
         count = await countQuery.first();
@@ -831,7 +832,8 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    // logger(`In mapConnectionReturnToFrontend return gracefully`)
+    logger(`L834 In mapConnectionReturnToFrontend / connection.return_description_parsed`);
+    logger(JSON.stringify(connection.return_description_parsed))
     return connection;
 }
 
@@ -898,16 +900,20 @@ const getWeekday = (date) => {
 }
 
 const parseConnectionDescription = (connection) => {
-    if(!!connection && !!connection.connection_description_detail){
-        let splitted = connection.connection_description_detail.split('|');
+    if(!!connection && !!connection.connection_description_json){
+        let splitted = jsonToStringArray(connection, 'to');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+
         return splitted;
     }
     return [];
 }
 
 const parseReturnConnectionDescription = (connection) => {
-    if(!!connection && !!connection.return_description_detail){
-        let splitted = connection.return_description_detail.split('|');
+    if(!!connection && !!connection.return_description_json){
+        let splitted = jsonToStringArray(connection, 'from');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+        
         return splitted;
     }
     return [];
@@ -1315,7 +1321,7 @@ const tourPdfWrapper = async (req, res) => {
 
     // const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
     const tour = await knex('tour').select().where({id: id}).first();
-    logger("L1319: query is completed")
+    // logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
@@ -1359,9 +1365,11 @@ const tourPdfWrapper = async (req, res) => {
 
     if(!!tour){
         // logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
-        logger(`L1363 : starting to generate pdf with the arguments:`)
+        //logger(`L1363 : starting to generate pdf with the arguments:`)
+        logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
+        logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-        logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
+        //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
             console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
