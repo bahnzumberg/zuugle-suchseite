@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
 // import { isArrayLike } from "lodash";
+import logger from "../utils/logger";
 
 export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
