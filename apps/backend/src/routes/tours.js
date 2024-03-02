@@ -673,11 +673,7 @@ const connectionsWrapper = async (req, res) => {
     }
 
     const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city});
-    /*
-    if(process.env.NODE_ENV != "production"){
-        console.log('query in connectionsWrapper: ', query_con.toQuery());
-    }
-    */
+
     const connections = await query_con;
     let missing_days = getMissingConnectionDays(connections);
     await Promise.all(connections.map(connection => new Promise(resolve => {
@@ -806,9 +802,7 @@ const gpxWrapper = async (req, res) => {
 }
 
 const mapConnectionToFrontend = (connection) => {
-    // logger(`In mapConnectionToFrontend`)
     if(!!!connection){
-        // logger(`In mapConnectionToFrontend return because no connection`)
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
@@ -817,14 +811,11 @@ const mapConnectionToFrontend = (connection) => {
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    // logger(`In mapConnectionToFrontend return gracefully`)
     return connection;
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
-    // logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
-        // logger(`In mapConnectionReturnToFrontend return because no connection`)
         return connection;
     }
 
@@ -832,21 +823,9 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    logger(`L834 In mapConnectionReturnToFrontend / connection.return_description_parsed`);
-    logger(JSON.stringify(connection.return_description_parsed))
     return connection;
 }
 
-const setMomentToCurrentDate = (date) => {
-    let mom = moment(date);
-    let today = moment();
-
-    today.set("hour", mom.get("hour"));
-    today.set("minute", mom.get("minute"));
-    today.set("second", mom.get("second"));
-
-    return today.format();
-}
 
 const setMomentToSpecificDate = (date, _input) => {
     let mom = moment(date);
@@ -1313,7 +1292,6 @@ const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
     logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
    
-    const city = req.query.city;
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
     const connectionReturnId = req.query.connection_return_id;
@@ -1364,8 +1342,6 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        // logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
-        //logger(`L1363 : starting to generate pdf with the arguments:`)
         logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
         logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
@@ -1467,8 +1443,7 @@ const getConnectionsByWeekday = (connections, weekday) => {
 
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
-    // console.log("L1604: prepare tourentry: entry.provider:", entry.provider);
-    // entry.hashed_url ? console.log("L1604: prepare tourentry: entry.hashed_url:", entry.hashed_url) : console.log("entry.hashed_url is falsy")
+    
     entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
     entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
     entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
@@ -1498,11 +1473,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
-        
-        // console.log('entry.difficulty value :',entry.difficulty);
     }
     return entry;
 }
 
 export default router;
-
