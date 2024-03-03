@@ -1448,9 +1448,15 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
     entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
     if(!!addDetails){
-        if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
-            entry.total_tour_duration = entry.cities_object[city].total_tour_duration
-        } else {
+        try {
+            if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
+                entry.total_tour_duration = entry.cities_object[city].total_tour_duration
+            } else {
+                entry.total_tour_duration = entry.duration;
+            }
+        }
+        catch (error) {
+            logger(`Error in prepareTourEntry: ${error}`);
             entry.total_tour_duration = entry.duration;
         }
 

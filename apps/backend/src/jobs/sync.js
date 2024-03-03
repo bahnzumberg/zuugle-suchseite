@@ -12,6 +12,12 @@ import pLimit from 'p-limit';
 import logger from "../utils/logger";
 
 export async function fixTours(){
+    // For the case, that the load of table fahrplan did not work fully and not for every tour
+    // datasets are in table fahrplan available, we delete as a short term solution all
+    // tours, which have no datasets in table fahrplan.
+    await knex.raw(`DELETE tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
+    
+
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
