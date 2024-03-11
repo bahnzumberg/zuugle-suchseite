@@ -19,7 +19,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
-import { IconButton, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import {
   checkIfSeoPageCity,
   // checkIfSeoPageRange,
@@ -31,6 +31,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
+import { consoleLog } from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -97,26 +98,56 @@ try {
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(null); 
 
+  const currentParams = new URLSearchParams(location.search);
+  const [forceUpdate, setForceUpdate] = useState(false);
 
-  const handleArrowClick = () => {
-    const currentParams = new URLSearchParams(searchParams.toString());
-    currentParams.delete('range');
-    navigate({ search: `?${currentParams.toString()}` });
-  };
+  // useEffect(() => {
+
+  // console.log("currentParams:", currentParams.toString());
+  // console.log("Search Parameters:", searchParams.toString());
+
+    
+  //   if(currentParams.has('range') && forceUpdate){
+  //     searchParams.delete('range');
+  //     setSearchParams(searchParams);
+  //   }
+
+  // }, [searchParams])
+  
+  useEffect(() => {
+    // Ensure navigation occurs after component update
+    forceUpdate && navigate(`/?${searchParams.toString()}`, { replace: true });
+  }, [forceUpdate]);
+
+  // const handleArrowClick = () => {
+  //   const currentParamsWoRegion = new URLSearchParams(searchParams.toString());
+  //   currentParamsWoRegion.delete('range');
+
+  //   // Update the search parameters and trigger component re-render
+  //   setSearchParams(currentParamsWoRegion);
+  //   setForceUpdate(prev => !prev);
+  // };
+
+ 
+  
+  // useEffect(() => {
+  //   const currentParamsWoRegion = new URLSearchParams(searchParams.toString());
+  //   currentParamsWoRegion.delete('range');
+  //   setSearchParams(currentParamsWoRegion)
+
+  //   console.log("currentParams:", currentParams.toString());
+  //   console.log("Search Parameters:", searchParams.toString());
+
+  // }, [searchParams]);
+
+
 
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
   let cityLabel ="";
 
-  //describe:
-  // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
-  //details:
-  // code sets up a React useEffect hook that runs only once when the component is mounted. The hook performs several operations:
-  // It calls the loadAllCities function, which loads a list of all cities from table cities , it goes through loadAllCities() in cityActions.js which in turn calls loadList() fcn in crudActions.js, this fcn makes an axios call to the database and sets the store state accordingly.
-  // It calls the loadRanges function with two options: ignore_limit and remove_duplicates, which loads the ranges data into the store state using loadRanges() inside rangeActions.js which in turn uses loadList() fcn in crudActions.js .
-  // It gets the city value from local storage and the city search parameter from the URL query string, if it exists.
-  // If there is a city value in local storage and no city search parameter in the URL query string, it sets the city search parameter in the URL query string to the value in local storage using the setSearchParams state method.
+  
   useEffect(() => {
     loadAllCities();
     loadRanges({ ignore_limit: true, remove_duplicates: true });
@@ -173,7 +204,7 @@ try {
     !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
-    setMapView(searchParams.get("map") == "true");
+    setMapView(searchParams.get("map") === "true");
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
   const goToStartPage = () => {
@@ -249,12 +280,23 @@ try {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                <Link
+                {/* <Link
                   to={{
                     pathname: "/",
                   }}
-                  replace
+                  // replace
                   onClick={handleArrowClick}
+                > */}
+                 <Link
+                  to={{
+                    pathname: "/",
+                    search: searchParams.toString(), 
+                  }}
+                  onClick={(e)=> {
+                    e.preventDefault();
+                    setForceUpdate(prev => !prev)
+                  }}
+                  replace
                 >
                   <ArrowBefore
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
