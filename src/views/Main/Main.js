@@ -98,48 +98,20 @@ try {
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(null); 
 
-  const currentParams = new URLSearchParams(location.search);
+  // const currentParams = new URLSearchParams(location.search);
   const [forceUpdate, setForceUpdate] = useState(false);
 
-  // useEffect(() => {
-
-  // console.log("currentParams:", currentParams.toString());
-  // console.log("Search Parameters:", searchParams.toString());
-
-    
-  //   if(currentParams.has('range') && forceUpdate){
-  //     searchParams.delete('range');
-  //     setSearchParams(searchParams);
-  //   }
-
-  // }, [searchParams])
-  
+  // related to back button "ArrowBefore" : this useEffect is to remove "range" param while maintaining other params 
+  // todo: check if we need to maintain other params when clicking back to start page or just keep city param only
   useEffect(() => {
-    // Ensure navigation occurs after component update
-    forceUpdate && navigate(`/?${searchParams.toString()}`, { replace: true });
+    // navigation occurs after component update
+      if(searchParams.has('range') && forceUpdate){
+        searchParams.delete('range');
+        consoleLog("L121 searchParams", searchParams.toString())
+        setSearchParams(searchParams);
+        navigate(`/?${searchParams.toString()}`, { replace: true });
+      }
   }, [forceUpdate]);
-
-  // const handleArrowClick = () => {
-  //   const currentParamsWoRegion = new URLSearchParams(searchParams.toString());
-  //   currentParamsWoRegion.delete('range');
-
-  //   // Update the search parameters and trigger component re-render
-  //   setSearchParams(currentParamsWoRegion);
-  //   setForceUpdate(prev => !prev);
-  // };
-
- 
-  
-  // useEffect(() => {
-  //   const currentParamsWoRegion = new URLSearchParams(searchParams.toString());
-  //   currentParamsWoRegion.delete('range');
-  //   setSearchParams(currentParamsWoRegion)
-
-  //   console.log("currentParams:", currentParams.toString());
-  //   console.log("Search Parameters:", searchParams.toString());
-
-  // }, [searchParams]);
-
 
 
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
@@ -290,7 +262,6 @@ try {
                  <Link
                   to={{
                     pathname: "/",
-                    search: searchParams.toString(), 
                   }}
                   onClick={(e)=> {
                     e.preventDefault();
