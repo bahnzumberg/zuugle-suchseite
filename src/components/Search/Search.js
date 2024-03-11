@@ -109,7 +109,7 @@ export function Search({
         writeCityToLocalStorage(city);
 
         /** load regions initially */
-        loadRegions({ city: city });  
+        loadRegions({ city: city });  //todo : check why we need this inside detail page ??
       }
     } else {
       if (!!city && !!allCities) {
@@ -126,10 +126,12 @@ export function Search({
     }
 
     //setting searchPhrase to the value of the search parameter
+    //if there is a range selected then set searchPhrase to that range name
     if (!!range) {
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
+    // todo : note that this code here checks if there is a search param ONLY if there is NO range param
     else if (!!search) {
       setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
 
@@ -258,7 +260,7 @@ export function Search({
       !!filterValues && setFilterValues(filterValues)
       localStorage.setItem("filterValues", JSON.stringify(filterValues));
       localStorage.setItem("filterCount", filterCount);
-      window.location.reload();
+      window.location.reload(); 
     } else {
       setActiveFilter(false);
       searchParams.delete("filter");
@@ -325,8 +327,8 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
     // added for issue #208
-    pageKey != "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
-    if(pageKey == "detail") {
+    pageKey !== "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
+    if(pageKey === "detail") {
       resetFilterLocalStorage();
     }
 

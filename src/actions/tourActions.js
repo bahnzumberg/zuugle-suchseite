@@ -41,7 +41,7 @@ export function loadTours(data = {}) {
 export function loadFilter(data = {}) {
 
   const language = i18next.resolvedLanguage;
-
+  // consoleLog("L44 data /tourActions", JSON.stringify(data), true)
   return (dispatch, getState) => {
     return loadList(
       dispatch,
@@ -110,10 +110,10 @@ export function loadTourConnections(data) {
     let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
 
     
-    returndataPromise.then(returndata => {
-      consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
-      consoleLog("L115 tourActions / loadTourConnections / returned data: ", returndata);
-    });
+    // returndataPromise.then(returndata => {
+      // consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
+      // consoleLog("L115 tourActions / loadTourConnections / returned data: ", returndata);
+    // });
     
     return returndataPromise;
     // return loadList(
@@ -152,6 +152,8 @@ export function loadTourConnectionsExtended(data) {
 }
 
 export function loadFavouriteTours(data = {}) {
+  // data && consoleLog("L155 -> data passed to loadFavouriteTours :")
+  // data && consoleLog(data)
   const language = i18next.resolvedLanguage;
   return (dispatch, getState) => {
     data.domain = window.location.host;
