@@ -110,6 +110,8 @@ try {
         consoleLog("L121 searchParams", searchParams.toString())
         setSearchParams(searchParams);
         navigate(`/?${searchParams.toString()}`, { replace: true });
+      }else if(forceUpdate){
+        navigate(`/?${searchParams.toString()}`, { replace: true });
       }
   }, [forceUpdate]);
 
