@@ -10,6 +10,7 @@ import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
 // import {jsonToText, jsonToStringArray} from '../utils/utils';
 import { jsonToStringArray } from '../utils/pdf/utils';
+import { isArray } from 'lodash';
 
 const fs = require('fs');
 const path = require('path');
@@ -111,11 +112,12 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain; 
     const provider = req.query.provider;
     const language = req.query.language; 
+
     const coordinatesNorthEast = req.query.filter && req.query.filter.coordinatesNorthEast ? req.query.filter.coordinatesNorthEast : null;
     const coordinatesSouthWest = req.query.filter && req.query.filter.coordinatesSouthWest ? req.query.filter.coordinatesSouthWest : null;
 
     // variables initialized depending on availability of 'map' in the request
-    const map = req.query.map == "true";
+    const map = req && req.query && req.query.map === "true"; // add optional chaining
     let useLimit = !!!map;  // initialise with true
     let addDetails = !!!map; // initialise with true
 
@@ -147,7 +149,7 @@ const listWrapper = async (req, res) => {
     let whereRaw = null;
     
     /** city search */
-    //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
+    
     if(!!city && city.length > 0){
         whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
@@ -209,11 +211,7 @@ const listWrapper = async (req, res) => {
 // *******************************************************************
 // MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
 // *******************************************************************
-    //Build "where" object
-    //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
-    // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
-    // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
-    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input.
+  
     if(!!where && Object.keys(where).length > 0){
         query = query.where(where);
         countQuery = countQuery.where(where);
@@ -515,9 +513,8 @@ const listWrapper = async (req, res) => {
     if(!!showRanges){    
         //describe:
         //query 'rangeQuery' is modified to restrict the selection to a particular city.
-        //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
+        
         if(!!city && city.length > 0){
-            // rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
             rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
             // console.log("rangeQuery=", rangeQuery.toSQL().toNative())
         }
@@ -1038,102 +1035,102 @@ const buildFilterResult = (result, city, params) => {
 const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
-    //clg: params/* 
-    // console.log('L1078 , params : ')
-    // console.log(params)
-
-    //clg: params.filter
-    // if(params.filter){
-        // console.log("L774 params.singleDayTour :", params.filter.singleDayTour);     
-        // console.log("L774 params.multipleDayTour :", params.filter.multipleDayTour);     
-        // console.log("L774 params.children :", params.filter.children);     
-        // console.log("L774 params.traverse :", params.filter.traverse);     
-    // }
     //clg: query
-    // console.log("L1137 query at entry to buildWhereFromFilter :");
-    // console.log(query.toSQL().sql) */
+    logger("L1137 query at entry to buildWhereFromFilter :");
+    logger(query.toSQL().sql) 
     
-    if(!!!params.filter ) return query;
-    
+   
     // Description:
-    // check if params.filter contains ONLY a key/value pair {ignore_filter : 'true'}
-    let filterIgnored = Object.keys(params.filter).length === 1 && params.filter['ignore_filter'] === 'true'
-    //clg:
-    // console.log("L911: filterIgnored :", filterIgnored)
+    // if params.filter contains ONLY {ignore_filter : 'true'} OR if params.filter does not exist return.
+    if (!!params.filter) {
+        const parsedFilter = JSON.parse(params.filter);
+        let filterIgnored = (() => {
+            if (
+                !!parsedFilter &&
+                typeof(parsedFilter) === 'object' &&  // Fixed this line
+                Object.keys(parsedFilter).length === 1 &&
+                parsedFilter.hasOwnProperty('ignore_filter') &&
+                parsedFilter['ignore_filter'] === 'true'
+            ) {
+                // console.log("L1089: filterIgnored : TRUE");
+                return true; 
+            } else {
+                // console.log("L1091: filterIgnored : FALSE");
+                return false; 
+            }
+        })();  // filterIgnored() is a self-invocked function
+        if (filterIgnored) return query;
 
-    if(filterIgnored ) return query;
+    }else return query;
+    
 
+
+    // logger("Before L1087 !")
+    
+    // logger("After L1087 !")
     // ****************************************************************
-    // !!query && console.log("L848 query still with us not returned yet")
 
     let filter ;
     if(typeof(params.filter) === 'string') {
         filter = JSON.parse(params.filter) ;
-        //clg
-        // console.log('Filter is string : ')
-        // console.log(filter)
     }else if(typeof(params.filter) === 'object'){
         filter = params.filter;
-        //clg
-        // console.log('Filter is object : ')
-        // console.log(filter)
     }else{
         filter={};
     }
 
-
-      const {
-          singleDayTour,
-          multipleDayTour,
-          summerSeason,
-          winterSeason,
-          traverse,
-          difficulty,
-          minAscent,
-          maxAscent,
-          minDescent,
-          maxDescent,
-          minTransportDuration,
-          maxTransportDuration,
-          minDistance,
-          maxDistance,
-          ranges,
-          types,
-          languages // includes languages in the filter
+    const {
+        singleDayTour,
+        multipleDayTour,
+        summerSeason,
+        winterSeason,
+        traverse,
+        difficulty,
+        minAscent,
+        maxAscent,
+        minDescent,
+        maxDescent,
+        minTransportDuration,
+        maxTransportDuration,
+        minDistance,
+        maxDistance,
+        ranges,
+        types,
+        languages // includes languages in the filter
       } = filter;
 
-    
-
+ 
     //** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
-    if(summerSeason === 'true' && winterSeason === 'true'){
+    if(summerSeason === true && winterSeason === true){
         query = query.whereIn('season', ['g', 's', 'w']);
-    } else if(summerSeason === 'true'){
+    } else if(summerSeason === true && winterSeason === false){
         query = query.whereIn('season', ['g', 's']);
-    } else if(winterSeason === 'true'){
+    } else if(winterSeason === true && summerSeason === false){
         query = query.whereIn('season', ['g', 'w']);
-    } else if(summerSeason === 'false' && winterSeason === 'false'){
+    } else if(summerSeason === false && winterSeason === false){
         query = query.whereIn('season', ['x']);
     }
     //clg
-    // console.log("................................................................")
-    // console.log("L1222 query / after season:");
-    // console.log(query.toSQL().sql)
+    logger("................................................................")
+    logger("L1222 query / after season:");
+    logger(query.toSQL().sql)
+
 
 
     /** Eintagestouren bzw. Mehrtagestouren */
-    if(singleDayTour === 'true' && multipleDayTour === 'true'){
+    if(singleDayTour === true && multipleDayTour === true){
 
-    } else if(singleDayTour === 'true'){
+    } else if(singleDayTour === true && multipleDayTour === false){
         query = query.where({number_of_days: 1});
-    } else if(multipleDayTour === 'true'){
+    } else if(singleDayTour === false && multipleDayTour === true){
         query = query.whereRaw('number_of_days > 1 ')
-    } else if(singleDayTour === 'false' && multipleDayTour === 'false'){
+    } else if(singleDayTour === false && multipleDayTour === false){
         query = query.whereRaw('number_of_days = -1 ')
     }
     // clgs
-    // console.log("................................................................")
-    // console.log("L1239 query / after number_of_days:");
-    // console.log(query.toSQL().sql)
+    logger("................................................................")
+    logger("L1239 query / after number_of_days:");
+    logger(query.toSQL().sql)
 
     /** Überschreitung */
     if (!!(traverse)) {
