@@ -116,7 +116,8 @@
         "maximale_hoehe": "Quota massima",
         "stop2stop": "Fermarsi per fermarsi",
         "oeffi_bergtouren_fuer_cityname": "Itinerari raggiungibili da {{city.label}}",
-        "alle_bergtouren_von_cityname": "Itinerari raggiungibili in treno e autobus da {{city.label}}"
+        "alle_bergtouren_von_cityname": "Itinerari raggiungibili in treno e autobus da {{city.label}}",
+        "tour":"Percorrenza"
     },
     "privacy": {
         "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",

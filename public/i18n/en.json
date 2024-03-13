@@ -116,7 +116,8 @@
         "maximale_hoehe": "Max. elevation",
         "stop2stop": "Stop to stop",
         "oeffi_bergtouren_fuer_cityname": "Hikes reachable from {{city.label}}",
-        "alle_bergtouren_von_cityname": "All hikes reachable via public transport from {{city.label}}"
+        "alle_bergtouren_von_cityname": "All hikes reachable via public transport from {{city.label}}",
+        "tour":"Tour"
     },
     "privacy": {
         "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",

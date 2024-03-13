@@ -139,7 +139,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         if(!!tour){
             values.push({
                 icon: <Clock style={{fill: "transparent"}}/>,
-                text: "Tour: " + ((!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ' Tage') : convertNumToTime(tour.total_tour_duration)),
+                text: `${t("main.tour")}: ` + ((!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ` ${t("details.tage")}`) : convertNumToTime(tour.total_tour_duration)),
             });
             values.push({
                 icon: <Intensity style={{fill: "transparent"}} />,
@@ -197,7 +197,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-          consoleLog("Card Clicked  !! tourLink -->", tourLink)
+        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
