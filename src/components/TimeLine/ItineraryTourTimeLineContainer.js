@@ -398,7 +398,7 @@ export default function ItineraryTourTimeLineContainer({
               </AccordionSummary>
               <AccordionDetails>
                 <Timeline>
-                  {createReturnEntries(twoReturns[index], retObj)}
+                  {createReturnEntries(twoReturns[index], retObj,t)}
                 </Timeline>
               </AccordionDetails>
             </Accordion>
@@ -486,7 +486,7 @@ export default function ItineraryTourTimeLineContainer({
                 </AccordionSummary>
                 <AccordionDetails>
                   <Timeline>
-                    {createReturnEntries(remainingReturns[index+2], retObj )}
+                    {createReturnEntries(remainingReturns[index+2], retObj, t )}
                   </Timeline>
                 </AccordionDetails>
               </Accordion>

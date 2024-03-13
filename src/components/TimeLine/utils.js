@@ -110,7 +110,7 @@ export const getIconFromText = (text) => {
   }
 };
 
-export const createReturnEntries = (entries, connection) => {
+export const createReturnEntries = (entries, connection, t) => {
   consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
   consoleLog("L110 : utils.js/ createReturnEntries : connection : ", connection, true);
   let toReturn = [];
@@ -127,7 +127,7 @@ export const createReturnEntries = (entries, connection) => {
         newStart = newStart.format("HH:mm");
       }
     }
-    toReturn.push(getDepartureEntry(`${newStart} Ankunft bei Tourende`));
+    toReturn.push(getDepartureEntry(`${newStart} ${t('details.ankunft_bei_tourende')}`));
 
     for (let i = 0; i < _entries.length; i++) {
       let entry = _entries[i];

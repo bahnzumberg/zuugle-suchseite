@@ -77,7 +77,6 @@ export function jsonToStringArray(connection, toFrom = "to", t){
         if(toFrom === "from"){
             stringArray.unshift(`  <  ${t('details.std_rueckstiegsdauer_vom_touren_endpunkt', {from_tour_track_duration: formatToHHMM(connection.fromtour_track_duration)})}`) 
         }else if(toFrom === "to"){
-            // stringArray.push(`  >  ${formatToHHMM(connection.totour_track_duration)} Std Zustiegsdauer zum Touren-Ausgangspunkt`) 
             stringArray.push(`  >  ${t('details.std_zustiegsdauer_zum_touren_ausgangspunkt', {totour_track_duration : formatToHHMM(connection.totour_track_duration) })}`) 
         }
     }
