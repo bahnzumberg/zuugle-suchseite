@@ -27,7 +27,7 @@ import { v4 as uuidv4 } from 'uuid';
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 
-export const getDepartureText = (connection) => {
+export const getDepartureText = (connection, t) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
@@ -35,10 +35,12 @@ export const getDepartureText = (connection) => {
   consoleLog("L35 : utils.js/ getDepartureText : connection.connection_duration_minutes : ", connection.connection_duration_minutes, true);
   consoleLog("L64 : utils.js/ getDepartureText : connection.connection_departure_datetime : ", connection.connection_departure_datetime, true);
   consoleLog("L37 : utils.js/ getDepartureText : connection.connection_arrival_datetime : ", connection.connection_arrival_datetime, true);
+
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} bis ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;
+    `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;
 
+    consoleLog("L44 : utils.js/ getDepartureText : : ", departureText, true);
   return (
     <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
       {departureText}
@@ -46,14 +48,14 @@ export const getDepartureText = (connection) => {
   );
 };
 
-export const getReturnText = (connection) => {
+export const getReturnText = (connection, t) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
 
   const returnText = connection.return_duration_minutes === 0 ? 
     moment(connection.return_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.return_departure_datetime).format("DD.MM HH:mm")} bis ${moment(connection.return_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.return_duration_minutes / 60)})`;
+    `${moment(connection.return_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.return_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.return_duration_minutes / 60)})`;
 
   return (
     <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
@@ -148,7 +150,7 @@ export const createReturnEntries = (entries, connection) => {
   return toReturn;
 };
 
-export const createEntries = (entries, connection) => {
+export const createEntries = (entries, connection, t) => {
   let toReturn = [];
   if (!!entries && entries.length > 0) {
     let _entries = entries.filter((e) => !!e && e.length > 0);
@@ -178,8 +180,9 @@ export const createEntries = (entries, connection) => {
       if (!!newStart) {
         newStart = newStart.format("HH:mm");
       }
+      //console.log("L183 : newStart :", newStart) ; //e.g. 10:09
     }
-    toReturn.push(getArrivalEntry(`${newStart} Ankunft bei Tourstart`));
+    toReturn.push(getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`));
   }
   return toReturn;
 };

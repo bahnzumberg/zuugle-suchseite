@@ -14,7 +14,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
-import {consoleLog, convertNumToTime, parseTourConnectionDescription} from "../../utils/globals";
+import {consoleLog, convertNumToTime} from "../../utils/globals";
 import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -48,7 +48,7 @@ export default function ItineraryTourTimeLineContainer({
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
-    let settingEnt = jsonToStringArray(getSingleConnection(), "to");
+    let settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
     consoleLog("L57 ITTLC/ useEffect settingEnt", settingEnt, true);
     setEntries(settingEnt);
     setReturnEntries(connections.returns);
@@ -71,8 +71,8 @@ export default function ItineraryTourTimeLineContainer({
   
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
-    consoleLog("L73 ITTLC/ getSingleConnection connections", connections, true);
-    consoleLog("L74 ITTLC/ getSingleConnection connections.connections[0]", connections.connections[0], true);
+    // consoleLog("L73 ITTLC/ getSingleConnection connections", connections, true);
+    // consoleLog("L74 ITTLC/ getSingleConnection connections.connections[0]", connections.connections[0], true);
     return !!connections &&
       !!connections.connections &&
       connections.connections.length > 0
@@ -95,7 +95,8 @@ export default function ItineraryTourTimeLineContainer({
           consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
           twoReturns[index] = jsonToStringArray(
             array[index],
-            "from"
+            "from",
+            t
           );
           consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
         }
@@ -103,7 +104,8 @@ export default function ItineraryTourTimeLineContainer({
         if (index > 1) {
           remainingReturns[index] = jsonToStringArray(
             array[index],
-            "from"
+            "from",
+            t
           );
           consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
@@ -223,7 +225,7 @@ export default function ItineraryTourTimeLineContainer({
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                     {_getDepartureText()}
                   </Typography>
-                  {getDepartureText(getSingleConnection())}
+                  {getDepartureText(getSingleConnection(), t)}
                 </Box>
                 <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                   <Shuffle
@@ -252,7 +254,7 @@ export default function ItineraryTourTimeLineContainer({
             </AccordionSummary>
             <AccordionDetails>
               <Timeline>
-                {createEntries(entries, getSingleConnection())}
+                {createEntries(entries, getSingleConnection(), t )}
               </Timeline>
             </AccordionDetails>
           </Accordion>
@@ -362,7 +364,7 @@ export default function ItineraryTourTimeLineContainer({
                     <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                       {_getReturnText(index)}
                     </Typography>
-                    {getReturnText(retObj)}
+                    {getReturnText(retObj, t)}
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                     <Shuffle
@@ -450,7 +452,7 @@ export default function ItineraryTourTimeLineContainer({
                       <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                         {_getReturnText(index+2)}
                       </Typography>
-                      {getReturnText(retObj)}
+                      {getReturnText(retObj, t )}
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                       <Shuffle
