@@ -154,10 +154,6 @@ function Start({
               window.location.reload();
             }
           })
-      // }else{
-      //   localStorage.setItem("tourId", tour.id);
-      //   window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-      // }
     }else{
       window.location.reload()
     }
