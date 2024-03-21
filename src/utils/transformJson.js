@@ -50,8 +50,7 @@ export function jsonToStringArray(connection, toFrom = "to", t){
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
 
     let stringArray = [];
-    if(!!connection && !!connection.connection_description_json && !!connection.return_description_json )
-
+    if (connection?.connection_description_json && connection?.return_description_json) 
     {   let descriptionJSON = toFrom === "to" ? 
             connection.connection_description_json 
             : 
