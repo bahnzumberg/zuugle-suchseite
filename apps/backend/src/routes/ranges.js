@@ -13,8 +13,7 @@ const listWrapper = async (req, res) => {
     sql += "SELECT t.range, t.state, t.range_slug, (min(f.best_connection_duration)+avg(f.best_connection_duration))/2 ";
     sql += "FROM tour AS t ";
     sql += "INNER JOIN fahrplan AS f ";
-    sql += "ON t.provider=f.tour_provider ";
-    sql += "AND t.hashed_url=f.hashed_url ";
+    sql += "ON t.hashed_url=f.hashed_url ";
 
     /** city search */
     if(!!city && city.length > 0){

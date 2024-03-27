@@ -669,7 +669,7 @@ const connectionsWrapper = async (req, res) => {
         return;
     }
 
-    const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city});
+    const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
 
     const connections = await query_con;
     let missing_days = getMissingConnectionDays(connections);
@@ -722,7 +722,7 @@ const connectionsExtendedWrapper = async (req, res) => {
         return;
     }
 
-    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city}).orderBy('return_row', 'asc');
+    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city}).orderBy('return_row', 'asc');
 
     const today = moment().set('hour', 0).set('minute', 0).set('second', 0);
     let end = moment().add(7, 'day');
@@ -1294,13 +1294,11 @@ const tourPdfWrapper = async (req, res) => {
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
-    // const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
     const tour = await knex('tour').select().where({id: id}).first();
     // logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
-        logger("L1320 : tour not found with id: " + id)
         res.status(404).json({success: false});
         return;
     }else{
@@ -1366,7 +1364,8 @@ const tourGpxWrapper = async (req, res) => {
     try {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
-            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
+            // let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
+            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${keyAbreise}.gpx`));
             let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour_track_${keyAnreise}.gpx`));
 
@@ -1378,7 +1377,8 @@ const tourGpxWrapper = async (req, res) => {
             }
 
         } else {
-            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`);
+            // let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`);
+            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`);
             if(type == "abreise" && !!key){
                 filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${key}.gpx`);
             } else if(type == "anreise" && !!key){
@@ -1441,9 +1441,12 @@ const getConnectionsByWeekday = (connections, weekday) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
     
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
-    entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
-    entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
+    // entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
+    // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
+    // entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
+    entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.hashed_url}.gpx`;
+    entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx.jpg`;
+    entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx_small.jpg`;
     if(!!addDetails){
         try {
             if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
@@ -1458,9 +1461,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         }
 
         if(!!city){
-            // !!domain && console.log("tours.js L1046, domain:",domain);
-            const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('totour_track_key').first();
-            const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('fromtour_track_key').first();
+            const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('totour_track_key').first();
+            const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
             if(!!toTour && !!toTour.totour_track_key){
                 entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${toTour.totour_track_key}.gpx`;

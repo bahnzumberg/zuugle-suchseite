@@ -1,6 +1,5 @@
 import {getLogoBase64, writePdf} from "./utils";
 import {get_image_base64} from "../fileFunctions";
-// import {formatTime} from "../utils";
 import moment from "moment";
 import {convertNumToTime} from "../helper";
 import {createSingleImageFromMap} from "../gpx/gpxUtils";
@@ -21,7 +20,6 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
     tour.difficulty_orig = titleCase(tour.difficulty_orig)
     let properties = [
-        // {title: "Schwierigkeit", value: `${tour.difficulty}/10`}, 
         {title: "Schwierigkeit Zuugle", value: `${tour.difficulty}`}, 
         {title: "Schwierigkeit original", value: `${tour.difficulty_orig}`}, 
         {title: "Sportart", value: `${tour.type}`},
@@ -29,7 +27,6 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         {title: "Dauer", value: ((!!tour.number_of_days && tour.number_of_days > 1) ? `${tour.number_of_days} Tage` : `${convertNumToTime(tour.duration)}`)},
         {title: "Abstieg", value: `${tour.ascent} hm` },
         {title: "Aufstieg", value: `${tour.descent} hm`},
-        // {title: "Kinderfreundlich", value: !!tour.children ? "Ja" : "Nein"},
         {title: "Überschreitung", value: !!tour.traverse ? "Ja" : "Nein"},
     ];
 
@@ -38,18 +35,23 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     let _imageConnection = null;
     let _imageReturn = null;
 
-    let file = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_gpx.jpg";
-    let fileConnection = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
-    let fileReturn = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
+    // let file = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_gpx.jpg";
+    // let fileConnection = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
+    // let fileReturn = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
+    let file = "public/gpx-image/" + tour.hashed_url + "_gpx.jpg";
+    let fileConnection = "public/gpx-image/" + tour.hashed_url + "_without_tour_gpx.jpg";
+    let fileReturn = "public/gpx-image/" + tour.hashed_url + "_without_tour_gpx.jpg";
 
  
 
     if(!!connection && !!connection.totour_track_key){
-        fileConnection = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
+        // fileConnection = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
+        fileConnection = await createSingleImageFromMap(tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
     }
 
     if(!!connectionReturn && !!connectionReturn.fromtour_track_key){
-        fileReturn = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, connectionReturn.fromtour_track_key, null, "fromTour.html", "_without_tour", false);
+        // fileReturn = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, connectionReturn.fromtour_track_key, null, "fromTour.html", "_without_tour", false);
+        fileReturn = await createSingleImageFromMap(tour.hashed_url, connectionReturn.fromtour_track_key, null, "fromTour.html", "_without_tour", false);
     }
 
     _image = await parseImageToValidBase64(file);
