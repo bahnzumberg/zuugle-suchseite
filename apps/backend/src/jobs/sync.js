@@ -15,7 +15,8 @@ export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
-    await knex.raw(`DELETE FROM tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
+    // await knex.raw(`DELETE FROM tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
+    await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
 
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
@@ -41,8 +42,7 @@ export async function fixTours(){
                     INNER JOIN fahrplan
                     ON fahrplan.city_slug=city.city_slug
                     INNER JOIN tour
-                    ON tour.provider=fahrplan.tour_provider
-                    AND tour.hashed_url=fahrplan.hashed_url
+                    ON tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
 
     await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
@@ -56,8 +56,7 @@ export async function fixTours(){
                     WHERE f.city_any_connection='yes'
                     GROUP BY f.tour_provider, f.hashed_url, f.city_slug
                     ) AS i
-                    WHERE i.provider=c.provider
-                    AND i.hashed_url=c.hashed_url
+                    WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
                              
                     
@@ -111,8 +110,7 @@ export async function writeKPIs(){
                                     COUNT(DISTINCT t.id) AS VALUE
                                     FROM fahrplan AS f
                                     INNER JOIN tour AS t
-                                    ON f.tour_provider=t.provider 
-                                    AND f.hashed_url=t.hashed_url
+                                    ON f.hashed_url=t.hashed_url
                                     GROUP BY f.city_slug;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
@@ -263,7 +261,8 @@ export async function syncGPX(){
 }
 
 export async function syncGPXImage(){
-    let allHashedUrls = await knex.raw("SELECT CONCAT(provider,'_',hashed_url) as hashed_url FROM tour;");
+    // let allHashedUrls = await knex.raw("SELECT CONCAT(provider,'_',hashed_url) as hashed_url FROM tour;");
+    let allHashedUrls = await knex.raw("SELECT hashed_url FROM tour;");
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];
@@ -285,17 +284,17 @@ export async function syncGPXImage(){
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
         try {
-            let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
+            // let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
+            let fileName = 'public/gpx/' + h_url + '.gpx';
             let filePath = '';
             if(process.env.NODE_ENV == "production"){
                 filePath = path.join(__dirname, "../", fileName);
             } else {
                 filePath = path.join(__dirname, "../../", fileName);
             }
-            // deleteFileModulo30(h_url, filePath);
 
             if (!!!fs.existsSync(filePath)) {
-                const waypoints = await knex('gpx').select().where({hashed_url: h_url, provider: prov}).orderBy('waypoint');
+                const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
                 if(!!waypoints && waypoints.length > 0 && !!filePath){
                     await createFileFromGpx(waypoints, filePath, title);
                 }
@@ -753,19 +752,19 @@ export async function syncTours(){
 
 export async function mergeToursWithFahrplan(){
     const cities = await knex('city').select();
-    const tours = await knex('tour').select(['hashed_url', 'provider', 'duration']);
+    const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
 
         for(let i=0;i<tours.length;i++){
 
             let entry = tours[i];
-            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, tour_provider: entry.provider}).groupBy('city_slug');
+            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url}).groupBy('city_slug');
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
@@ -776,7 +775,7 @@ export async function mergeToursWithFahrplan(){
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
                         .min('best_connection_duration as min_best_connection_duration')
-                        .where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug})
+                        .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
                         .andWhereNot('fromtour_track_duration', null)
                         .andWhereNot('totour_track_duration', null)
@@ -806,7 +805,7 @@ export async function mergeToursWithFahrplan(){
                     cities: JSON.stringify(fahrplan),
                     cities_object: JSON.stringify(fahrplanObject)
                 })
-                .where({hashed_url: entry.hashed_url, provider: entry.provider});
+                .where({hashed_url: entry.hashed_url});
 
             }
         }
@@ -978,20 +977,5 @@ const bulk_insert_tours = async (entries) => {
     } catch(err){
         console.log('error: ', err)
         return false;
-    }
-}
-
-const deleteFileModulo30 = (h_url, filePath) => {
-    if (!!fs.existsSync(filePath)) {
-        const today = moment().format('D');
-        const hash_day = hashString(h_url) % 30 + 1;
-        
-        if (today == hash_day) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch(err) {
-                console.log(err.message);
-            }
-        }
     }
 }

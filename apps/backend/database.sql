@@ -58,7 +58,6 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 
-CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
 CREATE INDEX ON tour (cities);
@@ -136,8 +135,8 @@ CREATE TABLE fahrplan (
 );
 
 
-CREATE INDEX ON fahrplan (hashed_url, tour_provider);
-CREATE INDEX ON fahrplan (hashed_url, tour_provider, city_slug);
+CREATE INDEX ON fahrplan (hashed_url);
+CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
 CREATE INDEX ON fahrplan (connection_duration);
@@ -188,7 +187,6 @@ CREATE TABLE disposible (
       city_slug varchar(100) NOT NULL
 );
 
-CREATE INDEX ON disposible (provider);
 CREATE INDEX ON disposible (hashed_url);
 CREATE INDEX ON disposible (link);
 CREATE INDEX ON disposible (city_slug);
@@ -202,7 +200,7 @@ CREATE TABLE gpx (
       lat decimal(12,9) DEFAULT NULL,
       lon decimal(12,9) DEFAULT NULL,
       ele decimal(12,8) DEFAULT NULL,
-      PRIMARY KEY (provider, hashed_url, waypoint)
+      PRIMARY KEY (hashed_url, waypoint)
 );
 
 CREATE INDEX ON gpx (provider);
