@@ -99,8 +99,6 @@ CREATE TABLE fahrplan (
      connection_departure_datetime timestamp DEFAULT NULL,
      connection_duration time DEFAULT NULL,
      connection_no_of_transfers int DEFAULT NULL,
-     connection_description varchar(2441) DEFAULT NULL,
-     connection_description_detail varchar(4000) DEFAULT NULL,
      connection_departure_stop varchar(250) DEFAULT NULL,
      connection_departure_stop_lon decimal(12,9) DEFAULT NULL,
      connection_departure_stop_lat decimal(12,9) DEFAULT NULL,
@@ -119,8 +117,6 @@ CREATE TABLE fahrplan (
      return_departure_datetime timestamp DEFAULT NULL,
      return_duration time DEFAULT NULL,
      return_no_of_transfers int DEFAULT NULL,
-     return_description varchar(2441) DEFAULT NULL,
-     return_description_detail varchar(4000) DEFAULT NULL,
      return_departure_stop_lon decimal(12,9) DEFAULT NULL,
      return_departure_stop_lat decimal(12,9) DEFAULT NULL,
      return_arrival_stop varchar(250) DEFAULT NULL,
@@ -244,3 +240,11 @@ INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
 INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
 INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
 INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
+
+
+-- 30.03.2024 run this drop columns if you have an existing database
+ALTER TABLE fahrplan
+DROP COLUMN IF EXISTS connection_description,
+DROP COLUMN IF EXISTS connection_description_detail,
+DROP COLUMN IF EXISTS return_description,
+DROP COLUMN IF EXISTS return_description_detail;
