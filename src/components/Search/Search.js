@@ -328,20 +328,20 @@ export function Search({
 
     // added for issue #208
     pageKey !== "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
-    if(pageKey === "detail") {
-      resetFilterLocalStorage();
-    }
+    // if(pageKey === "detail") {
+    //   resetFilterLocalStorage();
+    // }
 
     setSearchParams(searchParams);
     
-    if (!!goto) {
-      navigate(goto + "?" + searchParams);
+    if (!!goto) { // "/suche" to be true only when coming from Start->Header->SearchContainer->Search->search()
+      navigate(`${goto}?${searchParams.toString()}`);
       window.location.reload();
-    } else {
-      loadTours(values).then((res) => {
-        if(pageKey == "detail") {
+    } else { // coming in from Main filter submit or 
+      await loadTours(values).then((res) => {
+        if(pageKey === "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));
-          navigate("/suche" + "?" + searchParams);
+          navigate(`/suche?${searchParams.toString()}`);
         }
         window.location.reload();
         setScrollToTop(true);
@@ -359,7 +359,7 @@ export function Search({
         hideModal();
         if (!!city) {
           setCityInput(city.label);
-          await setCity(city);
+          setCity(city);
           pageKey=="start" && updateCapCity(city.label);
           pageKey=="detail" && window.location.reload();
 

@@ -17,7 +17,6 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
-import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
 import { Typography } from "@mui/material";
 import {
@@ -31,19 +30,13 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog } from "../../utils/globals";
+import { consoleLog, setOrRemoveSearchParam } from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-
-function Fragment(props) {
-  return null;
-}
-
-Fragment.propTypes = { children: PropTypes.node };
 
 export function Main({
   loadTours,
@@ -100,27 +93,97 @@ try {
 
   // const currentParams = new URLSearchParams(location.search);
   const [forceUpdate, setForceUpdate] = useState(false);
+  const [scrollToTop, setScrollToTop] = useState(false);
 
-  // related to back button "ArrowBefore" : this useEffect is to remove "range" param while maintaining other params 
-  // todo: check if we need to maintain other params when clicking back to start page or just keep city param only
+
+  // related to back button "ArrowBefore" back-button to Start page: 
+  // this useEffect is to remove "range" param while maintaining other params 
   useEffect(() => {
     // navigation occurs after component update
-      if(searchParams.has('range') && forceUpdate){
-        searchParams.delete('range');
-        consoleLog("L121 searchParams", searchParams.toString())
-        setSearchParams(searchParams);
-        navigate(`/?${searchParams.toString()}`, { replace: true });
-      }else if(forceUpdate){
-        navigate(`/?${searchParams.toString()}`, { replace: true });
-      }
+    if(searchParams.has('range') && forceUpdate){
+      searchParams.delete('range');
+      setSearchParams(searchParams);
+      goToStartPage();
+    }else if(forceUpdate){
+      goToStartPage();
+    }
   }, [forceUpdate]);
 
 
+  // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
-
+  
+  // filter values in params:
+  
+  
   let cityLabel ="";
+  
+  useEffect(() => {
+    let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
+    if(!!filterFromParams){
+      //extract values and add to one data variable
+      let city = searchParams.get("city");
+      let range = searchParams.get("range"); 
+      let state = searchParams.get("state"); 
+      let country = searchParams.get("country"); 
+      let type = searchParams.get("type"); 
+      let search = searchParams.get("search");
+      let filter = searchParams.get("filter");
+      let sort = searchParams.get("sort");
+      let provider = searchParams.get("p");
+      let map = searchParams.get("map");
 
+      let values = {};
+
+      if (!!city ) {
+        values.city = city;
+      }
+      if (!!range) {
+        values.range = range;
+      }
+      if (!!search) {
+        values.search = search;
+      }
+      if (!!state) {
+        values.state = state;
+      }
+      if (!!country) {
+        values.country = country;
+      }
+      if (!!type) {
+        values.type = type;
+      }
+      if (!!provider) {
+        values.provider = provider;
+      }
+      if (!!sort) {
+        values.sort = sort;
+      }
+      if (!!map) {
+        values.map = map;
+      }
+  
+      if(filter) values.filter = filter;
+
+      //make the loadTours() call with the data
+        
+      loadTours(values).then((res) => {
+        // set 'filterValues' in localStorage
+        if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
+      });
+      
+    }
+  
+
+  }, []);
+
+  useEffect(() => {
+    if (scrollToTop) {
+      window.scrollTo({ top: 0 , behavior: 'smooth'});
+    }
+  }, [scrollToTop]);
+  
   
   useEffect(() => {
     loadAllCities();
@@ -182,7 +245,7 @@ try {
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
   const goToStartPage = () => {
-    navigate(`/?${searchParams.toString()}`);
+    navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
   const onSelectTour = (tour) => {
@@ -267,7 +330,7 @@ try {
                   }}
                   onClick={(e)=> {
                     e.preventDefault();
-                    setForceUpdate(prev => !prev)
+                    setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
                   }}
                   replace
                 >
