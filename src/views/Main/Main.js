@@ -17,7 +17,6 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
-import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
 import { Typography } from "@mui/material";
 import {
@@ -38,12 +37,6 @@ const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-
-function Fragment(props) {
-  return null;
-}
-
-Fragment.propTypes = { children: PropTypes.node };
 
 export function Main({
   loadTours,
@@ -122,77 +115,65 @@ try {
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
   
   // filter values in params:
-  let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
-
+  
   
   let cityLabel ="";
-
+  
   useEffect(() => {
+    let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams){
       //extract values and add to one data variable
-    let city = searchParams.get("city");
-    let range = searchParams.get("range"); 
-    let state = searchParams.get("state"); 
-    let country = searchParams.get("country"); 
-    let type = searchParams.get("type"); 
-    let search = searchParams.get("search");
-    let filter = searchParams.get("filter");
-    let sort = searchParams.get("sort");
-    let provider = searchParams.get("p");
-    let map = searchParams.get("map");
-      //make the loadTours() call with the data
-    let values = {};
+      let city = searchParams.get("city");
+      let range = searchParams.get("range"); 
+      let state = searchParams.get("state"); 
+      let country = searchParams.get("country"); 
+      let type = searchParams.get("type"); 
+      let search = searchParams.get("search");
+      let filter = searchParams.get("filter");
+      let sort = searchParams.get("sort");
+      let provider = searchParams.get("p");
+      let map = searchParams.get("map");
 
-    if (!!city ) {
-      values.city = city;
-    }
-    if (!!range) {
-      values.range = range;
-    }
-    if (!!search) {
-      values.search = search;
-    }
-    if (!!state) {
-      values.state = state;
-    }
-    if (!!country) {
-      values.country = country;
-    }
-    if (!!type) {
-      values.type = type;
-    }
-    if (!!provider) {
-      values.provider = provider;
-    }
-    if (!!sort) {
-      values.sort = sort;
-    }
-    if (!!map) {
-      values.map = map;
-    }
- 
-    if(filter) values.filter = filter;
+      let values = {};
 
-    setOrRemoveSearchParam(searchParams, "city", values.city);
-    setOrRemoveSearchParam(searchParams, "range", values.range);
-    setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "state", values.state);
-    setOrRemoveSearchParam(searchParams, "country", values.country);
-    setOrRemoveSearchParam(searchParams, "type", values.type);
-    setOrRemoveSearchParam(searchParams, "provider", values.provider);
-    setOrRemoveSearchParam(searchParams, "sort", values.sort);
-    setOrRemoveSearchParam(searchParams, "map", values.map);
-
+      if (!!city ) {
+        values.city = city;
+      }
+      if (!!range) {
+        values.range = range;
+      }
+      if (!!search) {
+        values.search = search;
+      }
+      if (!!state) {
+        values.state = state;
+      }
+      if (!!country) {
+        values.country = country;
+      }
+      if (!!type) {
+        values.type = type;
+      }
+      if (!!provider) {
+        values.provider = provider;
+      }
+      if (!!sort) {
+        values.sort = sort;
+      }
+      if (!!map) {
+        values.map = map;
+      }
   
-    setSearchParams(searchParams);
-    
-   
-    loadTours(values).then((res) => {
-      window.location.reload();
-      setScrollToTop(true);
-    });
-    
-  }
+      if(filter) values.filter = filter;
+
+      //make the loadTours() call with the data
+        
+      loadTours(values).then((res) => {
+        // set 'filterValues' in localStorage
+        if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
+      });
+      
+    }
   
 
   }, []);
