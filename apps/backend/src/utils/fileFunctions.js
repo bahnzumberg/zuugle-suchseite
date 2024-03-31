@@ -98,11 +98,11 @@ export const getStorage = (folder) => {
     })
 }
 
-export const update_file = (file_id, sort = null, title = null) => {
+export const update_file = async (file_id, sort = null, title = null) => {
     const timestamp = moment().format();
     var file_new = {};
 
-    return knex.select()
+    return await knex.select()
         .from('file')
         .where('id', file_id)
         .first()
@@ -206,7 +206,7 @@ export const get_files_new = async (ref_id, ref_type, status = undefined, doc_ty
     };
 }
 
-export const get_files = (type, status = undefined, sort = undefined, doc_type = undefined) => {
+export const get_files = async (type, status = undefined, sort = undefined, doc_type = undefined) => {
     var whereClauses = {
         'status': 0,
         'sort': sort,
@@ -239,7 +239,7 @@ export const get_files = (type, status = undefined, sort = undefined, doc_type =
         delete whereClauses['doc_type']
     }
 
-    let query = knex.select()
+    let query = await knex.select()
         .from('file')
         .where(whereClauses)
         .orderBy('sort', 'asc')
@@ -248,8 +248,8 @@ export const get_files = (type, status = undefined, sort = undefined, doc_type =
     return query;
 }
 
-export const get_file_by_type = (type) => {
-    return knex.select()
+export const get_file_by_type = async (type) => {
+    return await knex.select()
         .from('file')
         .where({
             type
