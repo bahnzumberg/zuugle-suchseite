@@ -11,12 +11,15 @@ const TourDetailProperties = ({tour}) => {
 
     const translateTourType = (type) =>{
         let translatedType = null; 
-        tourTypes.map((typ)=>{
+        tourTypes.map((typ) => {
             type = type.toLowerCase();
+            typ = typ.toLowerCase();
+            if(type === "bike & hike") type = type.replace(/\s*&\s*/g, "_");
             if(typ === type){ 
-                translatedType = t(`filter.${type}`)
+                translatedType = t(`filter.${typ}`)
             }
         })
+
         return translatedType;
     };
 

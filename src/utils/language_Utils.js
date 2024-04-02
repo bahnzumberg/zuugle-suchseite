@@ -8,7 +8,7 @@ export const tourTypes = [
 	"schneeschuh",
 	"skitour",
 	"langlaufen",
-	"bike & Hike",
+	"bike_hike",
 	"klettern",
 	"klettersteig",
 	"rodeln",
