@@ -12,22 +12,25 @@ import {useSearchParams} from "react-router-dom";
 import debounce from "lodash/debounce";
 
 function TourMapContainer({
-                              tours,
-                              onSelectTour,
-                              loadTourConnections,
-                              city,
-                              loadTours,
-                              totalTours,
-                              pageTours,
-                              loading,
-                              total,
-                              loadGPX,
-                              setTourID,
-                              scrollWheelZoom = true,
-                              filter,
-                              filterVisibleToursGPX,
-                              doSubmit,
-                          }) {
+    tours,
+    onSelectTour,
+    scrollWheelZoom = false,
+    filter,
+    loadGPX,
+    setTourID,
+    //   loadTourConnections,
+    //   city,
+    //   loadTours,
+    //   totalTours,
+    //   pageTours,
+    //   loading,
+    //   total,
+    //   tourID,
+    //   filterVisibleToursGPX,
+    //   doSubmit,
+    }) {
+
+                        
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
         shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
@@ -42,13 +45,14 @@ function TourMapContainer({
     const [searchParams, setSearchParams] = useSearchParams();
 
     //checks if page is reloaded
-    const pageAccessedByReload = (
-        (window.performance.navigation && window.performance.navigation.type === 1) ||
-        window.performance
-            .getEntriesByType('navigation')
-            .map((nav) => nav.type)
-            .includes('reload')
-    );
+    const pageAccessedByReload =
+      // (window.performance.navigation && window.performance.navigation.type === 1) ||
+      (window.performance.getEntriesByType("navigation")[0] &&
+        window.performance.getEntriesByType("navigation")[0].type === 1) ||
+      window.performance
+        .getEntriesByType("navigation")
+        .map((nav) => nav.type)
+        .includes("reload");
 
     useEffect(() => {
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
@@ -56,10 +60,10 @@ function TourMapContainer({
 
         //states if the toggle button is was clicked
         var onToggle = localStorage.getItem('MapToggle');
-
+        console.log("L60 onToggle :", onToggle)
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
         //all items are removed and updateBounds() is called in order to reset the map
-        if (pageAccessedByReload && onToggle != "true") {
+        if (pageAccessedByReload && onToggle !== "true") {
             localStorage.removeItem('MapPositionLatNE');
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
@@ -222,7 +226,7 @@ function TourMapContainer({
             />
 
             {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
-                pathOptions={{fillColor: 'red', color: 'red'}}
+                pathOptions={{fillColor: 'green', color: 'green'}}
                 positions={gpxTrack}
             />]}
 
