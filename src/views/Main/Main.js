@@ -115,10 +115,7 @@ try {
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
   
   // filter values in params:
-  
-  
-  let cityLabel ="";
-  
+    
   useEffect(() => {
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams){
@@ -177,6 +174,7 @@ try {
   
 
   }, []);
+  
 
   useEffect(() => {
     if (scrollToTop) {
@@ -198,7 +196,7 @@ try {
 
   useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
-      cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
+      const cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
   },[allCities,location])
@@ -276,11 +274,12 @@ try {
     return (
       <TourMapContainer
         tours={tours}
-        loadGPX={loadGPX}
+        // loadGPX={loadGPX}
         onSelectTour={onSelectTourById}
-        loading={loading}
+        // loading={loading}
         setTourID={setTourID}
-        tourID={tourID}
+        // tourID={tourID}
+        filter={filter}
       />
     );
   }, tourID);
@@ -317,13 +316,6 @@ try {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                {/* <Link
-                  to={{
-                    pathname: "/",
-                  }}
-                  // replace
-                  onClick={handleArrowClick}
-                > */}
                  <Link
                   to={{
                     pathname: "/",
@@ -395,7 +387,7 @@ try {
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {Number(totalTours).toLocaleString()}{" "}
-              {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {(!!filterCountLocal && filterCountLocal > 0)  
             && (
@@ -424,7 +416,7 @@ try {
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
-          {!!mapView ? (
+          {!!!mapView ? (
             <Box className={"map-container"}>{memoTourMapContainer}</Box>
           ) : (
             <Box
@@ -468,7 +460,7 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTourConnectionsExtended,
   loadFilter,
-  loadGPX,
+  // loadGPX,
   loadTour,
   clearTours,
   loadRanges,
