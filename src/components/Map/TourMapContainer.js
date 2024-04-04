@@ -42,7 +42,6 @@ function TourMapContainer({
     const mapRef = useRef();
     const clusterRef = useRef();
     const [gpxTrack, setGpxTrack] = useState([]);
-    const [mapLoading, setMapLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
 
     //checks if page is reloaded
@@ -69,12 +68,15 @@ function TourMapContainer({
         //all items are removed and updateBounds() is called in order to reset the map
         console.log("L70 pageAccessedByReload value :", pageAccessedByReload);
         console.log("L71 onToggle value :", onToggle);
+        console.log("L72 filter value :", filter);
 
         if (pageAccessedByReload && onToggle !== "true") {
             localStorage.removeItem('MapPositionLatNE');
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
+            setMapPosition(null); // set the localStorage to default values
+            console.log("L78 / local storage is set")
             updateBounds();
         } else {
             if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
@@ -103,10 +105,10 @@ function TourMapContainer({
 
     //saves the bounds on localStorage
     const setMapPosition = (position) => {
-        localStorage.setItem('MapPositionLatNE', position._northEast?.lat || 47.97659313367704);
-        localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 13.491897583007814);
-        localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 47.609403608607785);
-        localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 12.715988159179688);
+        localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || 47.97659313367704);
+        localStorage.setItem('MapPositionLngNE', position?._northEast?.lng || 13.491897583007814);
+        localStorage.setItem('MapPositionLatSW', position?._southWest?.lat || 47.609403608607785);
+        localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || 12.715988159179688);
     }
 
     const updateBounds = () => {
@@ -125,7 +127,7 @@ function TourMapContainer({
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
                 console.log("L124 : data is ", data)
                 if (!!data) {
-                    console.log("L125 : data is true")
+                    console.log("L125 : !!data is true")
                     return (
                         <Marker
                             key={index}
@@ -151,6 +153,7 @@ function TourMapContainer({
     const setCurrentGpxTrack = (url) => {
         loadGPX(url).then(res => {
             if (!!res && !!res.data) {
+                console.log("L154 res.data :", res.data)
                 let gpx = new gpxParser(); //Create gpxParser Object
                 gpx.parse(res.data);
                 if (gpx.tracks.length > 0) {
@@ -175,7 +178,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
-                console.log("L168 position value :", position)
+                console.log("L168 position changed -> value :", position)
                 setMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
@@ -199,6 +202,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
+        console.log("L205 bounds value", bounds);  // seems to give the rights values when zoom in or out
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -223,6 +227,7 @@ function TourMapContainer({
             searchParams.delete("filter");
         } else {
             searchParams.set("filter", JSON.stringify(filterValues));
+            console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
@@ -258,7 +263,8 @@ function TourMapContainer({
             >
                 {markerComponents}
             </MarkerClusterGroup>
-            <MyComponent></MyComponent>
+            <MyComponent/>
+            {/* <MyComponent></MyComponent> */}
         </MapContainer>
     </Box>
 }
