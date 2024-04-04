@@ -10,13 +10,14 @@ import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
 import debounce from "lodash/debounce";
+import { loadGPX } from '../../actions/fileActions';
 
 function TourMapContainer({
     tours,
     onSelectTour,
     scrollWheelZoom = false,
     filter,
-    loadGPX,
+    // loadGPX,
     setTourID,
     //   loadTourConnections,
     //   city,
@@ -54,15 +55,21 @@ function TourMapContainer({
         .map((nav) => nav.type)
         .includes("reload");
 
-    useEffect(() => {
+        
+        
+        useEffect(() => {
+        //console.log("L61 TMC / tours is : ", tours) //we do get array of tours here
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
         //states if the toggle button is was clicked
         var onToggle = localStorage.getItem('MapToggle');
-        console.log("L60 onToggle :", onToggle)
+        // console.log("L60 onToggle :", onToggle);
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
         //all items are removed and updateBounds() is called in order to reset the map
+        console.log("L70 pageAccessedByReload value :", pageAccessedByReload);
+        console.log("L71 onToggle value :", onToggle);
+
         if (pageAccessedByReload && onToggle !== "true") {
             localStorage.removeItem('MapPositionLatNE');
             localStorage.removeItem('MapPositionLngNE');
@@ -72,16 +79,22 @@ function TourMapContainer({
         } else {
             if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
                 && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+
                 var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
+
                 var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
                 //creating a latLngBounds-Object for the fitBounds()-Method
                 var bounds = L.latLngBounds(corner1, corner2);
+
+                console.log("L89 bounds :", bounds);
+
 
                 //the map's current position is set to the last position where the user has been
                 if (!!bounds && !!mapRef && !!mapRef.current) {
                     mapRef.current?.fitBounds(bounds);
                 }
             } else {
+                console.log("L97 you are at L97 next step is updateBounds()")
                 //the map is aligned to the marker/cluster
                 updateBounds();
             }
@@ -98,6 +111,7 @@ function TourMapContainer({
 
     const updateBounds = () => {
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
+            console.log("L114 at updateBounds ")
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
             }
@@ -107,8 +121,11 @@ function TourMapContainer({
     const markerComponents = useMemo(() => {
         if (!!tours) {
             return tours.map((tour, index) => {
+                console.log("L123 : tour", tour)
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
+                console.log("L124 : data is ", data)
                 if (!!data) {
+                    console.log("L125 : data is true")
                     return (
                         <Marker
                             key={index}
@@ -158,6 +175,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
+                console.log("L168 position value :", position)
                 setMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
