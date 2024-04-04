@@ -103,17 +103,21 @@ export function Search({
     let provider = searchParams.get("p");
     let cityEntry = null;
 
-    if (pageKey === "detail") {
-      if (!!city) {
-        setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-        writeCityToLocalStorage(city);
+    if (!!city && !!allCities) {
+      cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
+    }
 
-        /** load regions initially */
-        loadRegions({ city: city });  //todo : check why we need this inside detail page ??
-      }
-    } else {
+    // if (pageKey === "detail") {
+    //   if (!!city && !!cityEntry) {
+    //     setCityInput(cityEntry.label); 
+    //     setCity(cityEntry);
+    //     writeCityToLocalStorage(city);
+
+    //     /** load regions initially */
+    //     loadRegions({ city: city });  //todo : check why we need this inside detail page ??
+    //   }
+    // } else {
       if (!!city && !!allCities) {
-        cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
@@ -123,7 +127,7 @@ export function Search({
           loadRegions({ city: city });
         }
       }
-    }
+    // }
 
     //setting searchPhrase to the value of the search parameter
     //if there is a range selected then set searchPhrase to that range name
@@ -138,7 +142,7 @@ export function Search({
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
+        let cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
