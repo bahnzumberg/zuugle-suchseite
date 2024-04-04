@@ -364,12 +364,12 @@ useEffect(() => {
   useEffect(() => {
     let index = dateIndex;
     if (connections) {
-      console.log("Inside connections L366");
+      // console.log("Inside connections L366");
       // consoleLog("L368 : date", date, true);
-      consoleLog("L369 : date[0]", connections[0].date);
-      consoleLog("L369 : date[0]", connections[0], true);
-      consoleLog("L370 : connections[6].date", connections[6].date);
-      consoleLog("L370 : connections[6]", connections[6], true);
+      // consoleLog("L369 : date[0]", connections[0].date);
+      // consoleLog("L369 : date[0]", connections[0], true);
+      // consoleLog("L370 : connections[6].date", connections[6].date);
+      // consoleLog("L370 : connections[6]", connections[6], true);
       let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
       if (date.isValid()) {
         if (
@@ -508,9 +508,9 @@ useEffect(() => {
   // useEffect(() => {
   // // consoleLog("L464  : share link",shareLink )
   // }, [shareLink]);
-  useEffect(() => {
-    consoleLog("L511  : connections",connections )
-  }, [connections]);
+  // useEffect(() => {
+  //   consoleLog("L511  : connections",connections )
+  // }, [connections]);
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
