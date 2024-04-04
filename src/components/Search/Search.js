@@ -107,27 +107,16 @@ export function Search({
       cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
     }
 
-    // if (pageKey === "detail") {
-    //   if (!!city && !!cityEntry) {
-    //     setCityInput(cityEntry.label); 
-    //     setCity(cityEntry);
-    //     writeCityToLocalStorage(city);
+    if (!!city && !!allCities) {
+      if (!!cityEntry) {
+        setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
+        setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
+        writeCityToLocalStorage(city); // store the city NAME in local storage
 
-    //     /** load regions initially */
-    //     loadRegions({ city: city });  //todo : check why we need this inside detail page ??
-    //   }
-    // } else {
-      if (!!city && !!allCities) {
-        if (!!cityEntry) {
-          setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
-          setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-          writeCityToLocalStorage(city); // store the city NAME in local storage
-
-          /** load regions initially */
-          loadRegions({ city: city });
-        }
+        /** load regions initially */
+        loadRegions({ city: city });
       }
-    // }
+    }
 
     //setting searchPhrase to the value of the search parameter
     //if there is a range selected then set searchPhrase to that range name
