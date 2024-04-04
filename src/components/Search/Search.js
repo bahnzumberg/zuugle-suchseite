@@ -353,8 +353,8 @@ export function Search({
         if (!!city) {
           setCityInput(city.label);
           setCity(city);
-          pageKey=="start" && updateCapCity(city.label);
-          pageKey=="detail" && window.location.reload();
+          pageKey==="start" && updateCapCity(city.label);
+          // pageKey=="detail" && window.location.reload();
 
         }
       },
