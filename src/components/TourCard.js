@@ -40,6 +40,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     // i18next
     const {t} = useTranslation();
 
+    const hm = t("details.hm_hoehenmeter");
+    const km = t("details.km_kilometer");
+
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
     useEffect(() => {
@@ -113,9 +116,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
     const renderProps = () => {
-        const hm = t("details.hm_hoehenmeter");
-        const km = t("details.km_kilometer");
-
+       
         const translateDiff = (diff) =>{
             if(diff === "Leicht"){
                 return t('start.leicht');
