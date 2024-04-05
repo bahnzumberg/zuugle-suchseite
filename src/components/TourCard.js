@@ -113,6 +113,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
     const renderProps = () => {
+        const hm = t("details.hm_hoehenmeter");
+        const km = t("details.km_kilometer");
 
         const translateDiff = (diff) =>{
             if(diff === "Leicht"){
@@ -153,11 +155,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             })
             values.push({
                 icon: <ArrowVertical style={{fill: "transparent"}} />,
-                text: tour.ascent + " / "+  tour.descent + " hm",
+                text: tour.ascent + " / "+  tour.descent + " " + hm,
             })
             values.push({
                 icon: <ArrowHorizontal style={{fill: "transparent"}} />,
-                text: formatNumber(tour.distance, " km"),
+                text: formatNumber(tour.distance, " " + km),
             });
         }
 
@@ -261,24 +263,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
                     </div>
                 </Fragment>
             )
-            // : ( <Fragment>
-            //     <div className="bottom-container">
-            //         <CardContent>
-            //             <Box
-            //                 display="flex"
-            //                 alignItems="center"
-            //                 justifyContent="center"
-            //             >
-            //                 <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
-            //                     {/* {t('start.keine_tour_gefunden')} */}
-            //                     Diese Tour ist derzeit nicht verfügbar
-            //                 </Typography>
-            //             </Box>
-            //         </CardContent>
-            //     </div>
-            // </Fragment>)
         }
-        
       </Card>
     );
 }

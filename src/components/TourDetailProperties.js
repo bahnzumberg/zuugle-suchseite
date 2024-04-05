@@ -9,6 +9,11 @@ const TourDetailProperties = ({tour}) => {
 
     const {t} = useTranslation();
 
+    const m = t('details.m_meter');
+    const km = t('details.km_kilometer');
+    const hm = t('details.hm_hoehenmeter');
+
+
     const translateTourType = (type) =>{
         let translatedType = null; 
         tourTypes.map((typ) => {
@@ -36,19 +41,19 @@ const TourDetailProperties = ({tour}) => {
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}>{t('main.distanz')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.distance) + ' km'}</Typography>
+                <Typography variant={"h5alt"}>{formatNumber(tour?.distance) + ' ' + km }</Typography>
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}> {t('main.maximale_hoehe')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{tour?.max_ele ? formatNumber(tour.max_ele) + ' m' : "-"}</Typography>
+                <Typography variant={"h5alt"}>{tour?.max_ele ? formatNumber(tour.max_ele) + ' ' + m : "-"}</Typography>
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}>{t('main.aufstieg')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.ascent, ' hm')}</Typography>
+                <Typography variant={"h5alt"}>{formatNumber(tour?.ascent, ' ' + hm)}</Typography>
             </div>
             <div className="tour-detail-properties-el">
                 <Typography variant={"infoKey"}>{t('main.abstieg')}{" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.descent, ' hm')}</Typography>
+                <Typography variant={"h5alt"}>{formatNumber(tour?.descent, ' ' + hm)}</Typography>
             </div>
         </div>}
     </>;
