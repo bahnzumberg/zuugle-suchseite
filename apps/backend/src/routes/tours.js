@@ -117,26 +117,27 @@ const listWrapper = async (req, res) => {
     const coordinatesSouthWest = req.query.filter && req.query.filter.coordinatesSouthWest ? req.query.filter.coordinatesSouthWest : null;
 
     // variables initialized depending on availability of 'map' in the request
-    const map = req && req.query && req.query.map === "true"; // add optional chaining
-    let useLimit = !!!map;  // initialise with true
-    let addDetails = !!!map; // initialise with true
+    //const map = req && req.query && req.query.map === "true"; // add optional chaining
+    //let useLimit = !!!map;  // initialise with true
+    //let addDetails = !!!map; // initialise with true
+    let addDetails = true; 
 
     // This determines, if there is a search term given by the user.
     let searchIncluded = !!search && !!search.length > 0;
 
     //construct the array of selected columns 
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
     // CASE OF SEARCH
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,'gpx_data',  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
    
 
     let where = {};
     // This map check is not needed when we move to the new detail page design, map shows only in detail then
-    if(!!map){
-        selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
-        sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
-    }
+    // if(!!map){
+    //     selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
+    //     sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
+    // }
     //********************************************************************++*/
     // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
@@ -425,13 +426,13 @@ const listWrapper = async (req, res) => {
    /** set limit to query */
     // a limit and offset are applied to the query if the useLimit flag is set to true/ in case (i.e.  map != true ). The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
     let sql_limit = "";
-    if(!!useLimit){
+    // if(!!useLimit){
         if(searchIncluded){
             sql_limit += `LIMIT 9 OFFSET ${9 * (page - 1)}`; // Add limit to string query
         }else{
             query = query.limit(9).offset(9 * (page - 1));
         }
-    }
+    // }
 
     let outer_where = "WHERE 1=1 ";
 
@@ -498,7 +499,7 @@ const listWrapper = async (req, res) => {
     if(result){
         await Promise.all(result.map(entry => new Promise(async resolve => {
             entry = await prepareTourEntry(entry, city, domain, addDetails);
-            entry.is_map_entry = !!map;
+            // entry.is_map_entry = !!map;
             resolve(entry);
         })));
     }
