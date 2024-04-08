@@ -262,7 +262,7 @@ export async function syncGPX(){
 
 export async function syncGPXImage(){
     // let allHashedUrls = await knex.raw("SELECT CONCAT(provider,'_',hashed_url) as hashed_url FROM tour;");
-    let allHashedUrls = await knex.raw("SELECT hashed_url FROM tour;");
+    let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];
