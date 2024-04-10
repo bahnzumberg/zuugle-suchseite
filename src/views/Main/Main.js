@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState, useMemo } from "react";
+import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -264,25 +264,21 @@ try {
     }
   };
 
-  //description:
-  //This is a callback function that selects a tour with a specific id
-  const onSelectTourById = (id) => {
-    onSelectTour({ id: id });
-  };
+ //Map-related : a callback function that selects a tour with a specific id
+ const onSelectTourById = useCallback((id) => {
+  onSelectTour({ id: id });
+}, []);
 
   const memoTourMapContainer = useMemo(() => {
     return (
       <TourMapContainer
         tours={tours}
-        // loadGPX={loadGPX}
         onSelectTour={onSelectTourById}
-        // loading={loading}
         setTourID={setTourID}
-        // tourID={tourID}
         filter={filter}
       />
     );
-  }, tourID);
+  }, [filter,onSelectTourById,setTourID,tours]);
 
  
   return (
@@ -408,15 +404,15 @@ try {
           </Box>
         </Box>
       </Box>
-      {!!loading && !!!mapView && (
+      {/* {!!loading && !!!mapView && (
         <Box sx={{ textAlign: "center", padding: "30px" }}>
           <CircularProgress />
         </Box>
-      )}
+      )} */}
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
-          {!!!mapView ? (
+          {!!mapView ? (
             <Box className={"map-container"}>{memoTourMapContainer}</Box>
           ) : (
             <Box

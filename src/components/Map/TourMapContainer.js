@@ -9,13 +9,14 @@ import gpxParser from "gpxparser";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
-import debounce from "lodash/debounce";
+// import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions';
+import { useDispatch, useSelector } from 'react-redux';
 
 function TourMapContainer({
     tours,
     onSelectTour,
-    scrollWheelZoom = false,
+    scrollWheelZoom = true,
     filter,
     // loadGPX,
     setTourID,
@@ -32,6 +33,9 @@ function TourMapContainer({
     }) {
 
                         
+    const dispatch = useDispatch(); // Get dispatch function from Redux
+    const getState = useSelector(state => state); // Get state from Redux
+
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
         shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
@@ -41,8 +45,11 @@ function TourMapContainer({
 
     const mapRef = useRef();
     const clusterRef = useRef();
+    const markerRef = useRef(null)
+
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
+    // create a bounds state 
 
     //checks if page is reloaded
     const pageAccessedByReload =
@@ -120,6 +127,35 @@ function TourMapContainer({
         }
     }
 
+    const setCurrentGpxTrack = async (url) => {
+        console.log("L153 url : ", url);
+
+        if (!!url) {
+            try {
+                const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+                const res = await loadGpxFunction(dispatch, getState); // Execute the inner function with dispatch and getState
+                if (!!res && !!res.data) {
+                    console.log("L154 IF res.data is true :", !!res.data )
+                    let gpx = new gpxParser(); //Create gpxParser Object
+                    gpx.parse(res.data);
+                    if (gpx.tracks.length > 0) {
+                        // console.log("L190 gpx.tracks[0].points : ")
+                        // console.log(gpx.tracks[0])
+                        let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
+                        console.log("L193 track[0][0] : ")
+                        console.log(track[0][0]) //  [47.639424, 15.830512] 
+                        setGpxTrack(track);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading GPX:', error);
+                setGpxTrack([]);
+            }
+        } else {
+            setGpxTrack([]);
+        }
+    }
+
     const markerComponents = useMemo(() => {
         if (!!tours) {
             return tours.map((tour, index) => {
@@ -127,10 +163,10 @@ function TourMapContainer({
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
                 console.log("L124 : data is ", data)
                 if (!!data) {
-                    console.log("L125 : !!data is true")
                     return (
                         <Marker
                             key={index}
+                            ref={markerRef}
                             position={[data.lat, data.lon]}
                             title={tour.title}
                             icon={StartIcon}
@@ -148,25 +184,31 @@ function TourMapContainer({
             });
         }
         return null;
-    }, [tours]);
+    }, [tours,onSelectTour,setTourID,StartIcon]);
 
-    const setCurrentGpxTrack = (url) => {
-        loadGPX(url).then(res => {
-            if (!!res && !!res.data) {
-                console.log("L154 res.data :", res.data)
-                let gpx = new gpxParser(); //Create gpxParser Object
-                gpx.parse(res.data);
-                if (gpx.tracks.length > 0) {
-                    let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
-                    setGpxTrack(track);
-                }
-            }
-        }).catch(error => {
-            console.error('Error loading GPX:', error);
-            setGpxTrack([]);
-        });
-    }
+    // const setCurrentGpxTrack = async (url ) => {
+    //     console.log("L153 url : ", url) ;//http://localhost:8080/public/gpx/bahnzumberg_14877.gpx
+    //     if(!!url){
+    //         await loadGPX(url).then(res => {
+    //             if (!!res && !!res.data) {
+    //                 console.log("L154 res.data :", res.data)
+    //                 let gpx = new gpxParser(); //Create gpxParser Object
+    //                 gpx.parse(res.data);
+    //                 if (gpx.tracks.length > 0) {
+    //                     let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
+    //                     setGpxTrack(track);
+    //                 }
+    //             }
+    //         }).catch(error => {
+    //             console.error('Error loading GPX:', error);
+    //             setGpxTrack([]);
+    //         });
+    //     }else {
+    //         setGpxTrack([]);
+    //     }   
+    // }
 
+    
     const createClusterCustomIcon = function (cluster) {
         return L.divIcon({
             html: `<span>${cluster.getChildCount()}</span>`,
@@ -231,6 +273,7 @@ function TourMapContainer({
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
+        // check : how & where is the call made ??  inside main? when searchParams change?
     };
 
     return <Box
@@ -239,7 +282,7 @@ function TourMapContainer({
         <MapContainer
             ref={mapRef}
             scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
-            maxZoom={15}                    //how many times you can zoom
+            maxZoom={25}                    //how many times you can zoom
             center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
             style={{height: "100%", width: "100%"}} //Size of the map
