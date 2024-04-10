@@ -280,6 +280,36 @@ try {
     );
   }, [filter,onSelectTourById,setTourID,tours]);
 
+  const renderCardContainer = ()=> (
+    <Box
+      className={
+        "cards-container" +
+        (!!directLink && !!directLink.header ? " seo-page" : "")
+      }
+      sx={{
+        marginTop: {
+          xs: "20px",
+          md: "250px",
+        },
+      }}
+    >
+      {console.log("renderCardContainer called")} 
+      <TourCardContainer
+        onSelectTour={onSelectTour}
+        tours={tours}
+        loadTourConnections={loadTourConnections}
+        city={searchParams.get("city")}
+        loadTours={loadTours}
+        totalTours={totalTours}
+        pageTours={pageTours}
+        loading={loading}
+        total={totalTours}
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+      />
+    </Box>
+  )
+
  
   return (
     <div>
@@ -404,44 +434,22 @@ try {
           </Box>
         </Box>
       </Box>
-      {/* {!!loading && !!!mapView && (
-        <Box sx={{ textAlign: "center", padding: "30px" }}>
-          <CircularProgress />
-        </Box>
-      )} */}
+ 
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
           {!!mapView ? (
-            <Box className={"map-container"}>{memoTourMapContainer}</Box>
-          ) : (
-            <Box
-              className={
-                "cards-container" +
-                (!!directLink && !!directLink.header ? " seo-page" : "")
-              }
-              sx={{
-                marginTop: {
-                  xs: "20px",
-                  md: "250px",
-                },
-              }}
-            >
-              <TourCardContainer
-                onSelectTour={onSelectTour}
-                tours={tours}
-                loadTourConnections={loadTourConnections}
-                city={searchParams.get("city")}
-                loadTours={loadTours}
-                totalTours={totalTours}
-                pageTours={pageTours}
-                loading={loading}
-                total={totalTours}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            </Box>
-          )}
+            <>
+              <Box className={"map-container"}>
+                {memoTourMapContainer}
+              </Box>
+              {renderCardContainer()}
+              
+            </>
+          ) : 
+            renderCardContainer()
+          
+          }
         </>
       )}
     </div>
