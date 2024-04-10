@@ -508,9 +508,9 @@ useEffect(() => {
   // useEffect(() => {
   // // consoleLog("L464  : share link",shareLink )
   // }, [shareLink]);
-  useEffect(() => {
-    consoleLog("L511  : connections",connections )
-  }, [connections]);
+  // useEffect(() => {
+  //   consoleLog("L511  : connections",connections )
+  // }, [connections]);
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
