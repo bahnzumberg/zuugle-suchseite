@@ -17,7 +17,7 @@ export default function RegionCard({}){
         <Box sx={{padding: '20px'}}>
            <Grid container className={'about-zuugle-grid'}>
                <Grid item sm={6}>
-                    <img src={`app_static/img/start_placeholder.webp`} style={{borderRadius: '24px'}} className={"image"} loading="lazy"/>
+                    <img src={`app_static/img/start_placeholder.webp`} style={{borderRadius: '24px'}} className={"image"} loading="lazy" alt='image_about_section'/>
                </Grid>
                <Grid item sm={6}>
                    <Box sx={{textAlign: 'left'}}>

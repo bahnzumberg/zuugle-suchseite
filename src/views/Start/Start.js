@@ -24,6 +24,7 @@ import {
   getTranslatedCountryName,
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
+import MapBtn from "../../components/Search/MapBtn";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
 );
@@ -181,6 +182,14 @@ function Start({
     }
   };
 
+  const onClickMap = ()=>{
+    if( !searchParams.get('map') ) {
+      searchParams.set('map', true);
+    }
+    setSearchParams(searchParams);
+    navigate(`suche?${searchParams.toString()}`);
+  }
+
 
   const country = getTranslatedCountryName();
 
@@ -278,6 +287,14 @@ function Start({
             </Box>
           </Box>
         )}
+
+        {!showMobileMenu && (
+          <MapBtn onClick={onClickMap}>
+            {/* {t("start.show-map")}  */}
+            Show Map
+          </MapBtn>
+        )}
+
 
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
