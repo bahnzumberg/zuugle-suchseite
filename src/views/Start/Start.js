@@ -182,6 +182,14 @@ function Start({
     }
   };
 
+  const onClickMap = ()=>{
+    if( !searchParams.get('map') ) {
+      searchParams.set('map', true);
+    }
+    setSearchParams(searchParams);
+    navigate(`suche?${searchParams.toString()}`);
+  }
+
 
   const country = getTranslatedCountryName();
 
@@ -281,7 +289,7 @@ function Start({
         )}
 
         {!showMobileMenu && (
-          <MapBtn >
+          <MapBtn onClick={onClickMap}>
             {/* {t("start.show-map")}  */}
             Show Map
           </MapBtn>
