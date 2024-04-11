@@ -58,7 +58,6 @@ ALTER TABLE tour ADD COLUMN search_column tsvector;
 ALTER TABLE tour ADD COLUMN separator smallint;
 ALTER TABLE tour ADD COLUMN gpx_data JSONB;
 
-CREATE INDEX ON tour (provider, hashed_url);
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
 CREATE INDEX ON tour (cities);
@@ -100,8 +99,6 @@ CREATE TABLE fahrplan (
      connection_departure_datetime timestamp DEFAULT NULL,
      connection_duration time DEFAULT NULL,
      connection_no_of_transfers int DEFAULT NULL,
-     connection_description varchar(2441) DEFAULT NULL,
-     connection_description_detail varchar(4000) DEFAULT NULL,
      connection_departure_stop varchar(250) DEFAULT NULL,
      connection_departure_stop_lon decimal(12,9) DEFAULT NULL,
      connection_departure_stop_lat decimal(12,9) DEFAULT NULL,
@@ -120,8 +117,6 @@ CREATE TABLE fahrplan (
      return_departure_datetime timestamp DEFAULT NULL,
      return_duration time DEFAULT NULL,
      return_no_of_transfers int DEFAULT NULL,
-     return_description varchar(2441) DEFAULT NULL,
-     return_description_detail varchar(4000) DEFAULT NULL,
      return_departure_stop_lon decimal(12,9) DEFAULT NULL,
      return_departure_stop_lat decimal(12,9) DEFAULT NULL,
      return_arrival_stop varchar(250) DEFAULT NULL,
@@ -136,8 +131,8 @@ CREATE TABLE fahrplan (
 );
 
 
-CREATE INDEX ON fahrplan (hashed_url, tour_provider);
-CREATE INDEX ON fahrplan (hashed_url, tour_provider, city_slug);
+CREATE INDEX ON fahrplan (hashed_url);
+CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
 CREATE INDEX ON fahrplan (connection_duration);
@@ -188,7 +183,6 @@ CREATE TABLE disposible (
       city_slug varchar(100) NOT NULL
 );
 
-CREATE INDEX ON disposible (provider);
 CREATE INDEX ON disposible (hashed_url);
 CREATE INDEX ON disposible (link);
 CREATE INDEX ON disposible (city_slug);
@@ -202,7 +196,7 @@ CREATE TABLE gpx (
       lat decimal(12,9) DEFAULT NULL,
       lon decimal(12,9) DEFAULT NULL,
       ele decimal(12,8) DEFAULT NULL,
-      PRIMARY KEY (provider, hashed_url, waypoint)
+      PRIMARY KEY (hashed_url, waypoint)
 );
 
 CREATE INDEX ON gpx (provider);
@@ -246,3 +240,11 @@ INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
 INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
 INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
 INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
+
+
+-- 30.03.2024 run this drop columns if you have an existing database
+ALTER TABLE fahrplan
+DROP COLUMN IF EXISTS connection_description,
+DROP COLUMN IF EXISTS connection_description_detail,
+DROP COLUMN IF EXISTS return_description,
+DROP COLUMN IF EXISTS return_description_detail;

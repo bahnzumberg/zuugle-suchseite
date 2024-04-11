@@ -6,6 +6,7 @@ const convertXML = require('xml-js');
 const { create, builder } = require('xmlbuilder2');
 import moment from "moment";
 import {hashString, minutesFromMoment} from "../../utils/helper";
+import {setTimeout} from "node:timers/promises";
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -209,10 +210,12 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
 
         if(!!filePath){
             const page = await browser.newPage();
+
             await page.emulateMediaType('print');
             await page.setCacheEnabled(false);
             await page.goto(url, { timeout: 1000000, waitUntil: 'networkidle0' });
-            await page.waitForTimeout(20);
+            // await page.waitForTimeout(20);
+            await setTimeout(20);
             await page.bringToFront();
             await page.screenshot({path: filePath, type: "jpeg", quality: 90});
             await page.close();

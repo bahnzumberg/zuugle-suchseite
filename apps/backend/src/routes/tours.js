@@ -7,15 +7,13 @@ import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
-// import logger from '../utils/logger';
-import logger, { create_api_log } from '../utils/logger';
+import logger from '../utils/logger';
+// import {jsonToText, jsonToStringArray} from '../utils/utils';
+import { jsonToStringArray } from '../utils/pdf/utils';
+import { isArray } from 'lodash';
 
 const fs = require('fs');
 const path = require('path');
-
-//create log file
-create_api_log();
-
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
@@ -114,30 +112,32 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain; 
     const provider = req.query.provider;
     const language = req.query.language; 
+
     const coordinatesNorthEast = req.query.filter && req.query.filter.coordinatesNorthEast ? req.query.filter.coordinatesNorthEast : null;
     const coordinatesSouthWest = req.query.filter && req.query.filter.coordinatesSouthWest ? req.query.filter.coordinatesSouthWest : null;
 
     // variables initialized depending on availability of 'map' in the request
-    const map = req.query.map == "true";
-    let useLimit = !!!map;  // initialise with true
-    let addDetails = !!!map; // initialise with true
+    //const map = req && req.query && req.query.map === "true"; // add optional chaining
+    //let useLimit = !!!map;  // initialise with true
+    //let addDetails = !!!map; // initialise with true
+    let addDetails = true; 
 
     // This determines, if there is a search term given by the user.
     let searchIncluded = !!search && !!search.length > 0;
 
     //construct the array of selected columns 
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
 
     // CASE OF SEARCH
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,'gpx_data',  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
    
 
     let where = {};
     // This map check is not needed when we move to the new detail page design, map shows only in detail then
-    if(!!map){
-        selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
-        sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
-    }
+    // if(!!map){
+    //     selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
+    //     sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
+    // }
     //********************************************************************++*/
     // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
@@ -150,7 +150,7 @@ const listWrapper = async (req, res) => {
     let whereRaw = null;
     
     /** city search */
-    //If the user has entered a value for city, the code sets the whereRaw variable to an SQL clause that searches for a JSONB array column called 'cities' that contains a JSON object with a property 'city_slug' matching the user input.
+    
     if(!!city && city.length > 0){
         whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
@@ -212,11 +212,7 @@ const listWrapper = async (req, res) => {
 // *******************************************************************
 // MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
 // *******************************************************************
-    //Build "where" object
-    //After building up the where and whereRaw conditions based on the user's search input, the next 2 if statments then checks if there are any conditions to be added to the query.
-    // First, it checks if there are any conditions in the 'where' object, which was built up earlier in the code. If there are, it adds these conditions to the query object and to the countQuery object using the where method.
-    // Next, it checks if there are any conditions in the whereRaw string. If there are, it adds these conditions to the query object and to the countQuery object using the andWhereRaw method.
-    // These methods allow the conditions to be added to the SQL query that will be executed. By chaining the where and WhereRaw methods onto the query and countQuery objects, the code is able to build up a complex SQL query with multiple conditions, based on the user's search input.
+  
     if(!!where && Object.keys(where).length > 0){
         query = query.where(where);
         countQuery = countQuery.where(where);
@@ -430,13 +426,13 @@ const listWrapper = async (req, res) => {
    /** set limit to query */
     // a limit and offset are applied to the query if the useLimit flag is set to true/ in case (i.e.  map != true ). The query is then executed to get the result set, and a count is retrieved from the countQuery. The result and count are then returned.
     let sql_limit = "";
-    if(!!useLimit){
+    // if(!!useLimit){
         if(searchIncluded){
             sql_limit += `LIMIT 9 OFFSET ${9 * (page - 1)}`; // Add limit to string query
         }else{
             query = query.limit(9).offset(9 * (page - 1));
         }
-    }
+    // }
 
     let outer_where = "WHERE 1=1 ";
 
@@ -452,11 +448,9 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             
-            // if(process.env.NODE_ENV != "production"){
-            //     logger("#######################################################");
-            //     logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-            //     logger("#######################################################");
-            // }
+            logger("#######################################################");
+            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            logger("#######################################################");
             
             if (result && result.rows) {
                 result = result.rows;
@@ -472,12 +466,10 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        // if(process.env.NODE_ENV != "production"){
-        //     logger("#######################################################");
-        //     const sqlQuery = query.toString();
-        //     logger("SQL without search phrase :" + sqlQuery)
-        //     logger("#######################################################");
-        // }
+        // logger("#######################################################");
+        // const sqlQuery = query.toString();
+        // logger("SQL without search phrase :" + sqlQuery)
+        // logger("#######################################################");
 
         result = await query;
         count = await countQuery.first();
@@ -507,7 +499,7 @@ const listWrapper = async (req, res) => {
     if(result){
         await Promise.all(result.map(entry => new Promise(async resolve => {
             entry = await prepareTourEntry(entry, city, domain, addDetails);
-            entry.is_map_entry = !!map;
+            // entry.is_map_entry = !!map;
             resolve(entry);
         })));
     }
@@ -522,9 +514,8 @@ const listWrapper = async (req, res) => {
     if(!!showRanges){    
         //describe:
         //query 'rangeQuery' is modified to restrict the selection to a particular city.
-        //the whereRaw method is called with an SQL expression that checks if the cities column (which is a JSONB data type) contains a JSON object with a city_slug property equal to the city parameter value.
+        
         if(!!city && city.length > 0){
-            // rangeQuery = rangeQuery.whereRaw(`cities @> '[{"city_slug": "${city}"}]'::jsonb`);
             rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
             // console.log("rangeQuery=", rangeQuery.toSQL().toNative())
         }
@@ -679,12 +670,8 @@ const connectionsWrapper = async (req, res) => {
         return;
     }
 
-    const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city});
-    /*
-    if(process.env.NODE_ENV != "production"){
-        console.log('query in connectionsWrapper: ', query_con.toQuery());
-    }
-    */
+    const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
+
     const connections = await query_con;
     let missing_days = getMissingConnectionDays(connections);
     await Promise.all(connections.map(connection => new Promise(resolve => {
@@ -736,7 +723,7 @@ const connectionsExtendedWrapper = async (req, res) => {
         return;
     }
 
-    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, tour_provider: tour.provider, city_slug: city}).orderBy('return_row', 'asc');
+    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city}).orderBy('return_row', 'asc');
 
     const today = moment().set('hour', 0).set('minute', 0).set('second', 0);
     let end = moment().add(7, 'day');
@@ -813,9 +800,7 @@ const gpxWrapper = async (req, res) => {
 }
 
 const mapConnectionToFrontend = (connection) => {
-    // logger(`In mapConnectionToFrontend`)
     if(!!!connection){
-        // logger(`In mapConnectionToFrontend return because no connection`)
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
@@ -824,14 +809,11 @@ const mapConnectionToFrontend = (connection) => {
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    // logger(`In mapConnectionToFrontend return gracefully`)
     return connection;
 }
 
 const mapConnectionReturnToFrontend = (connection) => {
-    // logger(`In mapConnectionReturnToFrontend`)
     if(!!!connection){
-        // logger(`In mapConnectionReturnToFrontend return because no connection`)
         return connection;
     }
 
@@ -839,20 +821,9 @@ const mapConnectionReturnToFrontend = (connection) => {
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
-    // logger(`In mapConnectionReturnToFrontend return gracefully`)
     return connection;
 }
 
-const setMomentToCurrentDate = (date) => {
-    let mom = moment(date);
-    let today = moment();
-
-    today.set("hour", mom.get("hour"));
-    today.set("minute", mom.get("minute"));
-    today.set("second", mom.get("second"));
-
-    return today.format();
-}
 
 const setMomentToSpecificDate = (date, _input) => {
     let mom = moment(date);
@@ -906,17 +877,21 @@ const getWeekday = (date) => {
 }
 
 const parseConnectionDescription = (connection) => {
-    if(!!connection && !!connection.connection_description_detail){
-        let splitted = connection.connection_description_detail.split('|');
-        return splitted;    // returns an array of strings e.g. "AB | CD" -> ["AB", "CD"]
+    if(!!connection && !!connection.connection_description_json){
+        let splitted = jsonToStringArray(connection, 'to');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+
+        return splitted;
     }
     return [];
 }
 
 const parseReturnConnectionDescription = (connection) => {
-    if(!!connection && !!connection.return_description_detail){
-        let splitted = connection.return_description_detail.split('|');
-        return splitted;    // returns an array of strings e.g. "AB | CD" -> ["AB", "CD"]
+    if(!!connection && !!connection.return_description_json){
+        let splitted = jsonToStringArray(connection, 'from');  
+        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+        
+        return splitted;
     }
     return [];
 }
@@ -1061,102 +1036,102 @@ const buildFilterResult = (result, city, params) => {
 const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
-    //clg: params/* 
-    // console.log('L1078 , params : ')
-    // console.log(params)
-
-    //clg: params.filter
-    // if(params.filter){
-        // console.log("L774 params.singleDayTour :", params.filter.singleDayTour);     
-        // console.log("L774 params.multipleDayTour :", params.filter.multipleDayTour);     
-        // console.log("L774 params.children :", params.filter.children);     
-        // console.log("L774 params.traverse :", params.filter.traverse);     
-    // }
     //clg: query
-    // console.log("L1137 query at entry to buildWhereFromFilter :");
-    // console.log(query.toSQL().sql) */
+    logger("L1137 query at entry to buildWhereFromFilter :");
+    logger(query.toSQL().sql) 
     
-    if(!!!params.filter ) return query;
-    
+   
     // Description:
-    // check if params.filter contains ONLY a key/value pair {ignore_filter : 'true'}
-    let filterIgnored = Object.keys(params.filter).length === 1 && params.filter['ignore_filter'] === 'true'
-    //clg:
-    // console.log("L911: filterIgnored :", filterIgnored)
+    // if params.filter contains ONLY {ignore_filter : 'true'} OR if params.filter does not exist return.
+    if (!!params.filter) {
+        const parsedFilter = JSON.parse(params.filter);
+        let filterIgnored = (() => {
+            if (
+                !!parsedFilter &&
+                typeof(parsedFilter) === 'object' &&  // Fixed this line
+                Object.keys(parsedFilter).length === 1 &&
+                parsedFilter.hasOwnProperty('ignore_filter') &&
+                parsedFilter['ignore_filter'] === 'true'
+            ) {
+                // console.log("L1089: filterIgnored : TRUE");
+                return true; 
+            } else {
+                // console.log("L1091: filterIgnored : FALSE");
+                return false; 
+            }
+        })();  // filterIgnored() is a self-invocked function
+        if (filterIgnored) return query;
 
-    if(filterIgnored ) return query;
+    }else return query;
+    
 
+
+    // logger("Before L1087 !")
+    
+    // logger("After L1087 !")
     // ****************************************************************
-    // !!query && console.log("L848 query still with us not returned yet")
 
     let filter ;
     if(typeof(params.filter) === 'string') {
         filter = JSON.parse(params.filter) ;
-        //clg
-        // console.log('Filter is string : ')
-        // console.log(filter)
     }else if(typeof(params.filter) === 'object'){
         filter = params.filter;
-        //clg
-        // console.log('Filter is object : ')
-        // console.log(filter)
     }else{
         filter={};
     }
 
-
-      const {
-          singleDayTour,
-          multipleDayTour,
-          summerSeason,
-          winterSeason,
-          traverse,
-          difficulty,
-          minAscent,
-          maxAscent,
-          minDescent,
-          maxDescent,
-          minTransportDuration,
-          maxTransportDuration,
-          minDistance,
-          maxDistance,
-          ranges,
-          types,
-          languages // includes languages in the filter
+    const {
+        singleDayTour,
+        multipleDayTour,
+        summerSeason,
+        winterSeason,
+        traverse,
+        difficulty,
+        minAscent,
+        maxAscent,
+        minDescent,
+        maxDescent,
+        minTransportDuration,
+        maxTransportDuration,
+        minDistance,
+        maxDistance,
+        ranges,
+        types,
+        languages // includes languages in the filter
       } = filter;
 
-    
-
+ 
     //** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
-    if(summerSeason === 'true' && winterSeason === 'true'){
+    if(summerSeason === true && winterSeason === true){
         query = query.whereIn('season', ['g', 's', 'w']);
-    } else if(summerSeason === 'true'){
+    } else if(summerSeason === true && winterSeason === false){
         query = query.whereIn('season', ['g', 's']);
-    } else if(winterSeason === 'true'){
+    } else if(winterSeason === true && summerSeason === false){
         query = query.whereIn('season', ['g', 'w']);
-    } else if(summerSeason === 'false' && winterSeason === 'false'){
+    } else if(summerSeason === false && winterSeason === false){
         query = query.whereIn('season', ['x']);
     }
     //clg
-    // console.log("................................................................")
-    // console.log("L1222 query / after season:");
-    // console.log(query.toSQL().sql)
+    logger("................................................................")
+    logger("L1222 query / after season:");
+    logger(query.toSQL().sql)
+
 
 
     /** Eintagestouren bzw. Mehrtagestouren */
-    if(singleDayTour === 'true' && multipleDayTour === 'true'){
+    if(singleDayTour === true && multipleDayTour === true){
 
-    } else if(singleDayTour === 'true'){
+    } else if(singleDayTour === true && multipleDayTour === false){
         query = query.where({number_of_days: 1});
-    } else if(multipleDayTour === 'true'){
+    } else if(singleDayTour === false && multipleDayTour === true){
         query = query.whereRaw('number_of_days > 1 ')
-    } else if(singleDayTour === 'false' && multipleDayTour === 'false'){
+    } else if(singleDayTour === false && multipleDayTour === false){
         query = query.whereRaw('number_of_days = -1 ')
     }
     // clgs
-    // console.log("................................................................")
-    // console.log("L1239 query / after number_of_days:");
-    // console.log(query.toSQL().sql)
+    logger("................................................................")
+    logger("L1239 query / after number_of_days:");
+    logger(query.toSQL().sql)
 
     /** Überschreitung */
     if (!!(traverse)) {
@@ -1315,19 +1290,16 @@ const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
     logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
    
-    const city = req.query.city;
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
-    // const tour = await knex.raw(`SELECT * FROM tour WHERE id = ${id} LIMIT 1`);
     const tour = await knex('tour').select().where({id: id}).first();
-    logger("L1319: query is completed")
+    // logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
-        logger("L1320 : tour not found with id: " + id)
         res.status(404).json({success: false});
         return;
     }else{
@@ -1366,10 +1338,10 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        // logger(`L1363 : starting to generate pdf with the arguments: ${JSON.stringify(tour)}, ${JSON.stringify(connection)}, ${JSON.stringify(connectionReturn)}, ${JSON.stringify(datum)}, ${JSON.stringify(connectionReturns)}`)
-        logger(`L1363 : starting to generate pdf with the arguments:`)
+        logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
+        logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-        logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
+        //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
             console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
@@ -1393,7 +1365,8 @@ const tourGpxWrapper = async (req, res) => {
     try {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
-            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
+            // let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
+            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${keyAbreise}.gpx`));
             let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour_track_${keyAnreise}.gpx`));
 
@@ -1405,7 +1378,8 @@ const tourGpxWrapper = async (req, res) => {
             }
 
         } else {
-            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`);
+            // let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`);
+            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`);
             if(type == "abreise" && !!key){
                 filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${key}.gpx`);
             } else if(type == "anreise" && !!key){
@@ -1467,22 +1441,29 @@ const getConnectionsByWeekday = (connections, weekday) => {
 
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
-    // console.log("L1604: prepare tourentry: entry.provider:", entry.provider);
-    // entry.hashed_url ? console.log("L1604: prepare tourentry: entry.hashed_url:", entry.hashed_url) : console.log("entry.hashed_url is falsy")
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
-    entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
-    entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
+    
+    // entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
+    // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
+    // entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
+    entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.hashed_url}.gpx`;
+    entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx.jpg`;
+    entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx_small.jpg`;
     if(!!addDetails){
-        if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
-            entry.total_tour_duration = entry.cities_object[city].total_tour_duration
-        } else {
+        try {
+            if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
+                entry.total_tour_duration = entry.cities_object[city].total_tour_duration
+            } else {
+                entry.total_tour_duration = entry.duration;
+            }
+        }
+        catch (error) {
+            logger(`Error in prepareTourEntry: ${error}`);
             entry.total_tour_duration = entry.duration;
         }
 
         if(!!city){
-            // !!domain && console.log("tours.js L1046, domain:",domain);
-            const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('totour_track_key').first();
-            const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: city}).whereNotNull('fromtour_track_key').first();
+            const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('totour_track_key').first();
+            const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
             if(!!toTour && !!toTour.totour_track_key){
                 entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${toTour.totour_track_key}.gpx`;
@@ -1498,11 +1479,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
-        
-        // console.log('entry.difficulty value :',entry.difficulty);
     }
     return entry;
 }
 
 export default router;
-

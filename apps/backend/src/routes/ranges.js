@@ -7,15 +7,21 @@ router.get('/', (req, res) => listWrapper(req, res));
 
 const listWrapper = async (req, res) => {
     const city = req.query.city;
-    const ignoreLimit = req.query.ignore_limit == "true";
-    const removeDuplicates = req.query.remove_duplicates == "true";
-
     const domain = req.query.domain;
 
-    let whereRaw = null;
+    let sql = "";
+    sql += "SELECT t.range, t.state, t.range_slug, (min(f.best_connection_duration)+avg(f.best_connection_duration))/2 ";
+    sql += "FROM tour AS t ";
+    sql += "INNER JOIN fahrplan AS f ";
+    sql += "ON t.hashed_url=f.hashed_url ";
+
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = `id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}')`;
+        sql += "WHERE f.city_slug='${city}' ";
+        sql += "AND t.range IS NOT NULL ";
+        sql += "AND t.state IS NOT NULL ";
+        sql += "AND t.range_slug IS NOT NULL ";
+        sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') "
     }
     else {
         let tld = '';
@@ -25,22 +31,19 @@ const listWrapper = async (req, res) => {
         else if (domain.indexOf('zuugle.ch')) { tld='CH' }
         else if (domain.indexOf('zuugle.fr')) { tld='FR' }
         else { tld='AT' }
-        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}')  `;
+        
+        sql += "WHERE t.range IS NOT NULL ";
+        sql += "AND t.state IS NOT NULL ";
+        sql += "AND t.range_slug IS NOT NULL ";
+        sql += "AND t.id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') "
     }
 
-    let query = knex('tour').select(['range', 'state', 'range_slug']).max('quality_rating as qr').whereNotNull('range').whereNotNull('state');
+    sql += "GROUP BY t.range, t.state, t.range_slug ";
+    sql += "ORDER BY (min(f.best_connection_duration)+avg(f.best_connection_duration))/2 ASC ";
+    sql += "LIMIT 10;";
 
-    if(!!whereRaw){
-        query = query.whereRaw(whereRaw);
-    }
+    let result = await knex.raw(sql);
 
-    query = query.groupBy(['range', 'range_slug', 'state']).orderBy('range', 'asc');
-
-    if(!!!ignoreLimit){
-        query = query.limit(10);
-    }
-
-    let result = await query;
     if(!!result){
         const hostname = os.hostname();
 
@@ -58,12 +61,6 @@ const listWrapper = async (req, res) => {
             if(!!entry){
                 entry.image_url = `${host}/public/range-image/${entry.range}.jpg`;
             }
-        }
-        result = result.filter(entry => entry.range !== "Keine Gebirgsgruppe");
-
-        if(!!removeDuplicates){
-            const ids = result.map(o => o.range)
-            result = result.filter(({range}, index) => !ids.includes(range, index + 1))
         }
     }
 

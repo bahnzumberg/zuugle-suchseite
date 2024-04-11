@@ -9,8 +9,16 @@ const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
 // import { isArrayLike } from "lodash";
+import logger from "../utils/logger";
 
 export async function fixTours(){
+    // For the case, that the load of table fahrplan did not work fully and not for every tour
+    // datasets are in table fahrplan available, we delete as a short term solution all
+    // tours, which have no datasets in table fahrplan.
+    // await knex.raw(`DELETE FROM tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
+    await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
+    
+
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
@@ -34,8 +42,7 @@ export async function fixTours(){
                     INNER JOIN fahrplan
                     ON fahrplan.city_slug=city.city_slug
                     INNER JOIN tour
-                    ON tour.provider=fahrplan.tour_provider
-                    AND tour.hashed_url=fahrplan.hashed_url
+                    ON tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
 
     await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
@@ -49,8 +56,7 @@ export async function fixTours(){
                     WHERE f.city_any_connection='yes'
                     GROUP BY f.tour_provider, f.hashed_url, f.city_slug
                     ) AS i
-                    WHERE i.provider=c.provider
-                    AND i.hashed_url=c.hashed_url
+                    WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
                              
                     
@@ -73,14 +79,12 @@ export async function fixTours(){
 
 
 const deleteFilesOlder30days = (dirPath) => {
-    // !!dirPath && console.log("L76 dirPath = ", dirPath)
     // if the directory does not exist, create it
     if (!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath);
     }
     
     let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
-    // console.log("commandline = ", commandline)
     const { exec } = require('child_process');
     exec(commandline, (err, stdout, stderr) => {
         if (err) {
@@ -106,8 +110,7 @@ export async function writeKPIs(){
                                     COUNT(DISTINCT t.id) AS VALUE
                                     FROM fahrplan AS f
                                     INNER JOIN tour AS t
-                                    ON f.tour_provider=t.provider 
-                                    AND f.hashed_url=t.hashed_url
+                                    ON f.hashed_url=t.hashed_url
                                     GROUP BY f.city_slug;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
@@ -258,7 +261,8 @@ export async function syncGPX(){
 }
 
 export async function syncGPXImage(){
-    let allHashedUrls = await knex.raw("SELECT CONCAT(provider,'_',hashed_url) as hashed_url FROM tour;");
+    // let allHashedUrls = await knex.raw("SELECT CONCAT(provider,'_',hashed_url) as hashed_url FROM tour;");
+    let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];
@@ -280,17 +284,17 @@ export async function syncGPXImage(){
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
         try {
-            let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
+            // let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
+            let fileName = 'public/gpx/' + h_url + '.gpx';
             let filePath = '';
             if(process.env.NODE_ENV == "production"){
                 filePath = path.join(__dirname, "../", fileName);
             } else {
                 filePath = path.join(__dirname, "../../", fileName);
             }
-            // deleteFileModulo30(h_url, filePath);
 
             if (!!!fs.existsSync(filePath)) {
-                const waypoints = await knex('gpx').select().where({hashed_url: h_url, provider: prov}).orderBy('waypoint');
+                const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
                 if(!!waypoints && waypoints.length > 0 && !!filePath){
                     await createFileFromGpx(waypoints, filePath, title);
                 }
@@ -305,12 +309,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        /*
-        if(process.env.NODE_ENV !== "production"){
-            console.log(`create file [${filePath}]`);
-        }
-        */
-        
+      
         const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
@@ -396,8 +395,6 @@ export async function syncFahrplan(mode='dev'){
     try {
         const query_add_min = knexTourenDb('vw_fplan_to_search').min('trigger_id');
         const query_add_max = knexTourenDb('vw_fplan_to_search').max('trigger_id');
-        // console.log('syncFahrplan query add min: ', query_add_min.toQuery());
-        // console.log('syncFahrplan query add max: ', query_add_max.toQuery());
         trigger_id_min_array = await query_add_min;
         trigger_id_max_array = await query_add_max;
         trigger_id_min = trigger_id_min_array[0]['min(`trigger_id`)']
@@ -421,8 +418,6 @@ export async function syncFahrplan(mode='dev'){
         });
         counter++;
     }
-
-    // console.log('Starting add Inserts');
 
     // remove all indizes from PostgreSQL table "fahrplan" for quicker inserts
     try {
@@ -483,35 +478,31 @@ const readAndInsertFahrplan = async (bundle) => {
                                                 city_any_connection, 
                                                 best_connection_duration,
                                                 connection_rank, 
-                                                CONCAT(DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_departure_datetime, 
+                                                DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d %H:%i:%s') as connection_departure_datetime, 
                                                 connection_duration, 
-                                                connection_no_of_transfers, 
-                                                REPLACE(connection_description, "'", "´") as connection_description, 
-                                                REPLACE(connection_description_detail, "'", "´") as connection_description_detail,
+                                                connection_no_of_transfers,
                                                 connection_departure_stop, 
                                                 connection_departure_stop_lon, 
                                                 connection_departure_stop_lat, 
                                                 connection_arrival_stop, 
                                                 connection_arrival_stop_lon, 
                                                 connection_arrival_stop_lat, 
-                                                CONCAT(DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_arrival_datetime,
+                                                DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
                                                 connection_returns_departure_stop, connection_returns_trips_back, 
                                                 connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
                                                 connection_returns_warning_level, 
                                                 connection_returns_warning,  
                                                 return_row, 
                                                 return_waiting_duration, 
-                                                CONCAT(DATE_FORMAT(return_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as return_departure_datetime, 
+                                                DATE_FORMAT(return_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_departure_datetime, 
                                                 return_duration,
                                                 return_no_of_transfers,
-                                                REPLACE(return_description, "'", "´") as return_description, 
-                                                REPLACE(return_description_detail, "'", "´") as return_description_detail,
                                                 return_departure_stop_lon, 
                                                 return_departure_stop_lat,
                                                 return_arrival_stop,
                                                 return_arrival_stop_lon, 
                                                 return_arrival_stop_lat,
-                                                CONCAT(DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as return_arrival_datetime, 
+                                                DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d %H:%i:%s') as return_arrival_datetime, 
                                                 totour_track_key, totour_track_duration,  
                                                 fromtour_track_key,
                                                 fromtour_track_duration, 
@@ -519,12 +510,12 @@ const readAndInsertFahrplan = async (bundle) => {
                                                 connection_lastregular_arrival_stop, 
                                                 connection_lastregular_arrival_stop_lon, 
                                                 connection_lastregular_arrival_stop_lat, 
-                                                CONCAT(DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d'), ' 00:00:00') as connection_lastregular_arrival_datetime, 
+                                                DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
                                                 REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
                                                 return_firstregular_departure_stop, 
                                                 return_firstregular_departure_stop_lon, 
                                                 return_firstregular_departure_stop_lat, 
-                                                CONCAT(DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d'), ' 00:00:00') as return_firstregular_departure_datetime
+                                                DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
                                                 FROM vw_fplan_to_search 
                                                 WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE
         `);
@@ -537,8 +528,7 @@ const readAndInsertFahrplan = async (bundle) => {
                                             valid_thru, weekday, weekday_type, date_any_connection,
                                             city_slug, city_name, city_any_connection, best_connection_duration,
                                             connection_rank, connection_departure_datetime, connection_duration, 
-                                            connection_no_of_transfers, connection_description, 
-                                            connection_description_detail, connection_departure_stop, 
+                                            connection_no_of_transfers, connection_departure_stop, 
                                             connection_departure_stop_lon, connection_departure_stop_lat,
                                             connection_arrival_stop, connection_arrival_stop_lon, 
                                             connection_arrival_stop_lat, connection_arrival_datetime,
@@ -547,8 +537,7 @@ const readAndInsertFahrplan = async (bundle) => {
                                             connection_returns_max_waiting_duration,
                                             connection_returns_warning_level, connection_returns_warning, 
                                             return_row, return_waiting_duration, return_departure_datetime,
-                                            return_duration, return_no_of_transfers, return_description,
-                                            return_description_detail, return_departure_stop_lon,
+                                            return_duration, return_no_of_transfers, return_departure_stop_lon,
                                             return_departure_stop_lat, return_arrival_stop, return_arrival_stop_lon,
                                             return_arrival_stop_lat, return_arrival_datetime,
                                             totour_track_key, totour_track_duration, 
@@ -594,15 +583,13 @@ const readAndInsertFahrplan = async (bundle) => {
                 }
             }   
 
-            // console.log("Insert sql into fahrplan table: ", insert_sql);
             try {
                 await knex.raw(insert_sql);
                 resolve(true);
             } catch (err) {
-                // console.log('error insert into table fahrplan: ', err);
-                console.log('############### Eror with this SQL ###############');
-                console.log("Insert sql into fahrplan table: ", insert_sql);
-                console.log('###############');
+                logger('############### Eror with this SQL ###############');
+                logger("Insert sql into fahrplan table: ", insert_sql);
+                logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
         } else {
@@ -759,19 +746,19 @@ export async function syncTours(){
 
 export async function mergeToursWithFahrplan(){
     const cities = await knex('city').select();
-    const tours = await knex('tour').select(['hashed_url', 'provider', 'duration']);
+    const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
 
         for(let i=0;i<tours.length;i++){
 
             let entry = tours[i];
-            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url, tour_provider: entry.provider}).groupBy('city_slug');
+            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url}).groupBy('city_slug');
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
@@ -782,7 +769,7 @@ export async function mergeToursWithFahrplan(){
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
                         .min('best_connection_duration as min_best_connection_duration')
-                        .where({hashed_url: entry.hashed_url, tour_provider: entry.provider, city_slug: fp.city_slug})
+                        .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
                         .andWhereNot('fromtour_track_duration', null)
                         .andWhereNot('totour_track_duration', null)
@@ -812,7 +799,7 @@ export async function mergeToursWithFahrplan(){
                     cities: JSON.stringify(fahrplan),
                     cities_object: JSON.stringify(fahrplanObject)
                 })
-                .where({hashed_url: entry.hashed_url, provider: entry.provider});
+                .where({hashed_url: entry.hashed_url});
 
             }
         }
@@ -864,7 +851,6 @@ const calcMonthOrder = (entry) => {
  
     const d = new Date();
     let month = d.getMonth();
-    // console.log("month=", month);
 
     let entryScore = 
         [{name: "jan", value: entry.jan},
@@ -985,21 +971,5 @@ const bulk_insert_tours = async (entries) => {
     } catch(err){
         console.log('error: ', err)
         return false;
-    }
-}
-
-const deleteFileModulo30 = (h_url, filePath) => {
-    if (!!fs.existsSync(filePath)) {
-        const today = moment().format('D');
-        const hash_day = hashString(h_url) % 30 + 1;
-        
-        if (today == hash_day) {
-            try {
-                fs.unlinkSync(filePath);
-                // console.log('File deleted successfully: ', filePath);
-            } catch(err) {
-                console.log(err.message);
-            }
-        }
     }
 }

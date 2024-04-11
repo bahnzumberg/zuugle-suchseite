@@ -1,45 +1,36 @@
 import * as fs from 'fs';
 import path from 'path';
 
-let lineCount = 0;
-const maxAllowed = 100;
 // TESTING DETACHED HEAD STATE 
 export default function (text) {
+    const onoffswitch = 'off';  // values: on / off
 
-    // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
-    if(process.env.NODE_ENV !== 'production')
-    {const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
-    const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
+    if(onoffswitch == 'on' || process.env.NODE_ENV !== 'production') {
+        // Either onoffswitch is set to 'on' or we are not on prod or uat
 
-    // Ensure the directory exists
-    if (!fs.existsSync(path.dirname(filePath))) {
-        fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    }
+        const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
+        const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
 
-if (lineCount < maxAllowed) {
-    // add log entry
-    fs.appendFileSync(filePath, text + '\n');
-    lineCount++;
-} else {
-    // this will erase the current file and add a new "text" line
-    fs.writeFileSync(filePath, text + '\n');
-    lineCount = 1;
-}}
-}
+        // Ensure the directory exists
+        if (!fs.existsSync(path.dirname(filePath))) {
+            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        }
 
-// call this function whenever the server starts// for now test it on tours.js
-export function create_api_log() {
-    // const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../';
-    const proddevPath = process.env.NODE_ENV !== 'production' ? '../../' : '../../';
-    const filePath = path.join(__dirname, proddevPath, 'logs/api.log');
+        // Create file when not existent yet
+        if (!fs.existsSync(filePath)) {
+            fs.writeFileSync(filePath, '');
+        }
 
-    // Make sure directory exists
-    if (!fs.existsSync(path.dirname(filePath))) {
-        fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    }
+        let date_ob = new Date();
+        let day = ("0" + date_ob.getDate()).slice(-2);
+        let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+        let year = date_ob.getFullYear();
+        let hours = date_ob.getHours();
+        let minutes = date_ob.getMinutes();
+        let seconds = date_ob.getSeconds();
+        let log_date_time = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds + " ";
 
-    // Create file when not existent yet
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '');
+        // add log entry
+        fs.appendFileSync(filePath, log_date_time + text + '\n'); 
     }
 }

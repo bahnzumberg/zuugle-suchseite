@@ -6,7 +6,7 @@ To install nvm see e.g. https://www.freecodecamp.org/news/node-version-manager-n
 ### Install all modules
 Execute in the project directory:
 
-    nvm install 19.8
+    nvm install 20.3.0
     
     nvm use
 
@@ -31,9 +31,6 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
 
 ## Load data and run backend
-### Execute backend locally
-    npm run start
-
 ### Import data locally
 
     npm run build
@@ -42,6 +39,10 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
     npm run import-files
 
+### Execute backend locally
+    npm run start
+
+Hint: On local environment using the function logger('anytext'); writes to the file api.logs in your zuugle-api/logs directory. This is helpful, when debugging SQL code, etc.
 
 ## Follow frontend Readme 
 Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite
