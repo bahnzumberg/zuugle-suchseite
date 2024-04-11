@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState, useMemo } from "react";
+import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -30,7 +30,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog, setOrRemoveSearchParam } from "../../utils/globals";
+import { consoleLog } from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -115,10 +115,7 @@ try {
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
   
   // filter values in params:
-  
-  
-  let cityLabel ="";
-  
+    
   useEffect(() => {
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams){
@@ -177,6 +174,7 @@ try {
   
 
   }, []);
+  
 
   useEffect(() => {
     if (scrollToTop) {
@@ -198,7 +196,7 @@ try {
 
   useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
-      cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
+      const cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
   },[allCities,location])
@@ -266,24 +264,51 @@ try {
     }
   };
 
-  //description:
-  //This is a callback function that selects a tour with a specific id
-  const onSelectTourById = (id) => {
-    onSelectTour({ id: id });
-  };
+ //Map-related : a callback function that selects a tour with a specific id
+ const onSelectTourById = useCallback((id) => {
+  onSelectTour({ id: id });
+}, []);
 
   const memoTourMapContainer = useMemo(() => {
     return (
       <TourMapContainer
         tours={tours}
-        loadGPX={loadGPX}
         onSelectTour={onSelectTourById}
-        loading={loading}
         setTourID={setTourID}
-        tourID={tourID}
+        filter={filter}
       />
     );
-  }, tourID);
+  }, [filter,onSelectTourById,setTourID,tours]);
+
+  const renderCardContainer = ()=> (
+    <Box
+      className={
+        "cards-container" +
+        (!!directLink && !!directLink.header ? " seo-page" : "")
+      }
+      sx={{
+        marginTop: {
+          xs: "20px",
+          md: "250px",
+        },
+      }}
+    >
+      {console.log("renderCardContainer called")} 
+      <TourCardContainer
+        onSelectTour={onSelectTour}
+        tours={tours}
+        loadTourConnections={loadTourConnections}
+        city={searchParams.get("city")}
+        loadTours={loadTours}
+        totalTours={totalTours}
+        pageTours={pageTours}
+        loading={loading}
+        total={totalTours}
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+      />
+    </Box>
+  )
 
  
   return (
@@ -317,13 +342,6 @@ try {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                {/* <Link
-                  to={{
-                    pathname: "/",
-                  }}
-                  // replace
-                  onClick={handleArrowClick}
-                > */}
                  <Link
                   to={{
                     pathname: "/",
@@ -395,7 +413,7 @@ try {
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {Number(totalTours).toLocaleString()}{" "}
-              {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {(!!filterCountLocal && filterCountLocal > 0)  
             && (
@@ -416,44 +434,22 @@ try {
           </Box>
         </Box>
       </Box>
-      {!!loading && !!!mapView && (
-        <Box sx={{ textAlign: "center", padding: "30px" }}>
-          <CircularProgress />
-        </Box>
-      )}
+ 
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
           {!!mapView ? (
-            <Box className={"map-container"}>{memoTourMapContainer}</Box>
-          ) : (
-            <Box
-              className={
-                "cards-container" +
-                (!!directLink && !!directLink.header ? " seo-page" : "")
-              }
-              sx={{
-                marginTop: {
-                  xs: "20px",
-                  md: "250px",
-                },
-              }}
-            >
-              <TourCardContainer
-                onSelectTour={onSelectTour}
-                tours={tours}
-                loadTourConnections={loadTourConnections}
-                city={searchParams.get("city")}
-                loadTours={loadTours}
-                totalTours={totalTours}
-                pageTours={pageTours}
-                loading={loading}
-                total={totalTours}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            </Box>
-          )}
+            <>
+              <Box className={"map-container"}>
+                {memoTourMapContainer}
+              </Box>
+              {renderCardContainer()}
+              
+            </>
+          ) : 
+            renderCardContainer()
+          
+          }
         </>
       )}
     </div>
@@ -468,7 +464,7 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTourConnectionsExtended,
   loadFilter,
-  loadGPX,
+  // loadGPX,
   loadTour,
   clearTours,
   loadRanges,
