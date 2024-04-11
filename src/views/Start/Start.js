@@ -290,8 +290,7 @@ function Start({
 
         {!showMobileMenu && (
           <MapBtn onClick={onClickMap}>
-            {/* {t("start.show-map")}  */}
-            Show Map
+            {t("start.zur_kartenansicht")} 
           </MapBtn>
         )}
 
