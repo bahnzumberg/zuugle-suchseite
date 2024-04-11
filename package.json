@@ -65,6 +65,7 @@
   "scripts": {
     "generate-meta-tag": "node ./node_modules/react-cache-buster/dist/generate-meta-tag.js",
     "start": "webpack serve --mode development --port 3000 --open --hot --progress --host localhost --static .",
+    "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
     "build": "npm run generate-meta-tag && npm run build-app",
     "build-app": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",

@@ -24,6 +24,7 @@ import {
   getTranslatedCountryName,
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
+import MapBtn from "../../components/Search/MapBtn";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
 );
@@ -154,10 +155,6 @@ function Start({
               window.location.reload();
             }
           })
-      // }else{
-      //   localStorage.setItem("tourId", tour.id);
-      //   window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-      // }
     }else{
       window.location.reload()
     }
@@ -184,6 +181,14 @@ function Start({
       return t("start.beliebte_bergtouren");
     }
   };
+
+  const onClickMap = ()=>{
+    if( !searchParams.get('map') ) {
+      searchParams.set('map', true);
+    }
+    setSearchParams(searchParams);
+    navigate(`suche?${searchParams.toString()}`);
+  }
 
 
   const country = getTranslatedCountryName();
@@ -282,6 +287,14 @@ function Start({
             </Box>
           </Box>
         )}
+
+        {!showMobileMenu && (
+          <MapBtn onClick={onClickMap}>
+            {/* {t("start.show-map")}  */}
+            Show Map
+          </MapBtn>
+        )}
+
 
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />

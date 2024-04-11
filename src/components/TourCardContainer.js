@@ -42,8 +42,8 @@ export default function TourCardContainer({
   
   const _loadTours = async () => {
     if(process.env.NODE_ENV != "production"){
-      console.log("L67 ====//////   filterValues :", filterValues);
-      console.log("L68 ====//////   filterValues :", _filter);
+      // console.log("L67 ====//////   filterValues :", filterValues);
+      // console.log("L68 ====//////   filterValues :", _filter);
     }
     let city = searchParams.get("city");
     let range = searchParams.get("range");
@@ -74,7 +74,7 @@ export default function TourCardContainer({
       page: !!pageTours ? Number(pageTours) + 1 : 2,
     }).then((res) => {
       if(process.env.NODE_ENV != "production"){
-        console.log("L116 >>>> results :",(res));
+        // console.log("L116 >>>> results :",(res));
       }
       let retrievedTours = res.data.tours;
       if (retrievedTours.length === 0 || retrievedTours.length < 9) {

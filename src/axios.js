@@ -2,7 +2,7 @@ var axios = require("axios");
 export const baseURL =
   // "https://www2.zuugle.at/api";
   window.location.host.indexOf("localhost") >= 0
-    ? "http://localhost:8080/api"
+    ? process.env.REACT_APP_API_URL
     : `${window.location.protocol}//${window.location.host}/api`;
 
 let axiosInstance = axios.create({

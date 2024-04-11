@@ -84,6 +84,10 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const minimum_label = t('filter.minimum');
     const maximum_label = t('filter.maximum');
 
+    const hm = t('details.hm_hoehenmeter');
+    const km = t('details.km_kilometer');
+    const h = t('details.h_hour');
+
     let sportTypesArray = [
         {"Bike & Hike": t('filter.bike_hike')},
         {"Hochtour": t('filter.hochtour')},
@@ -514,7 +518,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Grid container>
                             <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
-                                <Typography>{anstieg_label} (hm)</Typography>
+                                <Typography>{anstieg_label} ({hm})</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
                                     step={100}
@@ -552,7 +556,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 {maxAscent === 3000 && <div style={{ fontSize: "12px", width: "100%", textAlign: "right", paddingTop: "5px", color: "#8B8B8B" }}>3000+ {hoehenmeter_label}</div>}
                             </Grid>
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
-                                <Typography>{abstieg_label} (hm)</Typography>
+                                <Typography>{abstieg_label} ({hm})</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
                                     step={100}
@@ -593,7 +597,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                         <Grid container>
                             <Grid item xs={6} sx={{ borderRight: "1px solid #EAEAEA", paddingRight: "24px" }} className={"toggle-container-left"}>
-                                <Typography>{anfahrtszeit_label} (h)</Typography>
+                                <Typography>{anfahrtszeit_label} ({h})</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
                                     step={0.50}
@@ -630,7 +634,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                 </Box>
                             </Grid>
                             <Grid item xs={6} sx={{ paddingLeft: "24px" }} className={"toggle-container-right"}>
-                                <Typography>{gehdistanz_label} (km)</Typography>
+                                <Typography>{gehdistanz_label} ({km})</Typography>
                                 <GeneralSlider
                                     containerSx={{ marginRight: '10px' }}
                                     step={2}
@@ -661,7 +665,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                                                 endAdormentLabel={null}
                                                 value={maxDistance}
                                             />
-                                            {maxDistance === 80 && <div style={{ fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B" }}>80+ km</div>}
+                                            {maxDistance === 80 && <div style={{ fontSize: "12px", width: "100%", textAlign: "left", paddingTop: "5px", color: "#8B8B8B" }}>80+ {km}</div>}
                                         </Grid>
                                     </Grid>
                                 </Box>

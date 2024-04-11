@@ -5,7 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
+  // Button,
   Divider,
   Typography,
 } from "@mui/material";
@@ -14,10 +14,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
-import {convertNumToTime, parseTourConnectionDescription} from "../../utils/globals";
+import {consoleLog, convertNumToTime} from "../../utils/globals";
 import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
 import {
     createEntries,
     createReturnEntries,
@@ -26,6 +25,7 @@ import {
     getNumberOfTransfers
 } from "./utils";
 import { useTranslation } from 'react-i18next';
+import { jsonToStringArray } from "../../utils/transformJson";
 
 export default function ItineraryTourTimeLineContainer({
   connections,
@@ -48,7 +48,8 @@ export default function ItineraryTourTimeLineContainer({
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
-    let settingEnt = parseTourConnectionDescription(getSingleConnection());
+    let settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
+    consoleLog("L57 ITTLC/ useEffect settingEnt", settingEnt, true);
     setEntries(settingEnt);
     setReturnEntries(connections.returns);
     extractReturns();
@@ -68,8 +69,10 @@ export default function ItineraryTourTimeLineContainer({
     }
   }, [duration]);
   
-  //checks if there is a connections and returns it extracted from the connections object
+  //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
+    // consoleLog("L73 ITTLC/ getSingleConnection connections", connections, true);
+    // consoleLog("L74 ITTLC/ getSingleConnection connections.connections[0]", connections.connections[0], true);
     return !!connections &&
       !!connections.connections &&
       connections.connections.length > 0
@@ -85,20 +88,26 @@ export default function ItineraryTourTimeLineContainer({
       connections.returns.length > 0
     ) {
       let array = connections.returns;
+      consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
-        //when index is 0 or 1 -> fill array twoReturns BUT use  parseTourConnectionDescription
+        
         if (index <= 1) {
-          twoReturns[index] = parseTourConnectionDescription(
+          consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
+          twoReturns[index] = jsonToStringArray(
             array[index],
-            "return_description_detail"
+            "from",
+            t
           );
+          consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
         }
-        //when index is > 1 -> fill array remainingReturns
+  
         if (index > 1) {
-          remainingReturns[index] = parseTourConnectionDescription(
+          remainingReturns[index] = jsonToStringArray(
             array[index],
-            "return_description_detail"
+            "from",
+            t
           );
+          consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
       }
       return;
@@ -132,7 +141,7 @@ export default function ItineraryTourTimeLineContainer({
     if (!!!connection) {
       return <Fragment></Fragment>;
     }
-    if (connection.connection_duration_minutes == 0) {
+    if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
     } else {
       return t("Details.beste_anreise_kurz");
@@ -148,15 +157,15 @@ export default function ItineraryTourTimeLineContainer({
     return `${t("Details.rückreise")} ${index + 1}`;
   };
 
-  const get_live_timetable_link_there = () => {
-    let connection = getSingleConnection();
-    return (
-      "https://fahrplan.zuugle.at/?a=" +
-      encodeURI(connection.connection_departure_stop) +
-      "&b=" +
-      encodeURI(connection.connection_arrival_stop)
-    );
-  };
+  // const get_live_timetable_link_there = () => {
+  //   let connection = getSingleConnection();
+  //   return (
+  //     "https://fahrplan.zuugle.at/?a=" +
+  //     encodeURI(connection.connection_departure_stop) +
+  //     "&b=" +
+  //     encodeURI(connection.connection_arrival_stop)
+  //   );
+  // };
 
   const addMoreConnections = () => {
     setGetMore(true);
@@ -216,7 +225,7 @@ export default function ItineraryTourTimeLineContainer({
                   <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                     {_getDepartureText()}
                   </Typography>
-                  {getDepartureText(getSingleConnection())}
+                  {getDepartureText(getSingleConnection(), t)}
                 </Box>
                 <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                   <Shuffle
@@ -245,7 +254,7 @@ export default function ItineraryTourTimeLineContainer({
             </AccordionSummary>
             <AccordionDetails>
               <Timeline>
-                {createEntries(entries, getSingleConnection())}
+                {createEntries(entries, getSingleConnection(), t )}
               </Timeline>
             </AccordionDetails>
           </Accordion>
@@ -355,7 +364,7 @@ export default function ItineraryTourTimeLineContainer({
                     <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                       {_getReturnText(index)}
                     </Typography>
-                    {getReturnText(retObj)}
+                    {getReturnText(retObj, t)}
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                     <Shuffle
@@ -389,7 +398,7 @@ export default function ItineraryTourTimeLineContainer({
               </AccordionSummary>
               <AccordionDetails>
                 <Timeline>
-                  {createReturnEntries(twoReturns[index], retObj)}
+                  {createReturnEntries(twoReturns[index], retObj,t)}
                 </Timeline>
               </AccordionDetails>
             </Accordion>
@@ -443,7 +452,7 @@ export default function ItineraryTourTimeLineContainer({
                       <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                         {_getReturnText(index+2)}
                       </Typography>
-                      {getReturnText(retObj)}
+                      {getReturnText(retObj, t )}
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                       <Shuffle
@@ -477,7 +486,7 @@ export default function ItineraryTourTimeLineContainer({
                 </AccordionSummary>
                 <AccordionDetails>
                   <Timeline>
-                    {createReturnEntries(remainingReturns[index+2], retObj )}
+                    {createReturnEntries(remainingReturns[index+2], retObj, t )}
                   </Timeline>
                 </AccordionDetails>
               </Accordion>

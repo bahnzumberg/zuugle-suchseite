@@ -61,15 +61,15 @@ export async function loadFile(
 
 export function loadList(
   dispatch,
-  getState,
-  typeBefore,
-  typeDone,
-  stateName,
-  data,
-  route,
-  entityName,
+  getState, //returns the current state of the Redux store.
+  typeBefore, // load-action type
+  typeDone, // done-action type
+  stateName, //redux store-key
+  data,   // to be passed to the backend
+  route, //endpoint URL for the API request
+  entityName,  //key-name used to extract the relevant data from the API response.
   usePagination = true,
-  useState = true,
+  useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
   
@@ -261,12 +261,12 @@ export function loadShareParams(shareId, city) {
 
 //generateShareLink generates a new sharing link to the corresponding tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
 export function generateShareLink(provider, hashedUrl, date, city) {
-  consoleLog("From inside generateShareLink", null , false)
-  consoleLog("provider :", provider)
-  consoleLog("hashedUrl :", hashedUrl)
-  consoleLog("date :", date)
-  consoleLog("city :", city)
-  consoleLog("=====================================", null , false)
+  // consoleLog("From inside generateShareLink", null , false)
+  // consoleLog("provider :", provider)
+  // consoleLog("hashedUrl :", hashedUrl)
+  // consoleLog("date :", date)
+  // consoleLog("city :", city)
+  // consoleLog("=====================================", null , false)
   return axios
     .post("/shares", {
       provider: provider,

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState, useMemo } from "react";
+import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -17,9 +17,8 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
-import * as PropTypes from "prop-types";
 import { loadGPX } from "../../actions/fileActions";
-import { IconButton, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import {
   checkIfSeoPageCity,
   // checkIfSeoPageRange,
@@ -31,18 +30,13 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
+import { consoleLog } from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
 
-
-function Fragment(props) {
-  return null;
-}
-
-Fragment.propTypes = { children: PropTypes.node };
 
 export function Main({
   loadTours,
@@ -97,22 +91,98 @@ try {
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(null); 
 
+  // const currentParams = new URLSearchParams(location.search);
+  const [forceUpdate, setForceUpdate] = useState(false);
+  const [scrollToTop, setScrollToTop] = useState(false);
 
-  const currentParams = new URLSearchParams(location.search);
 
+  // related to back button "ArrowBefore" back-button to Start page: 
+  // this useEffect is to remove "range" param while maintaining other params 
+  useEffect(() => {
+    // navigation occurs after component update
+    if(searchParams.has('range') && forceUpdate){
+      searchParams.delete('range');
+      setSearchParams(searchParams);
+      goToStartPage();
+    }else if(forceUpdate){
+      goToStartPage();
+    }
+  }, [forceUpdate]);
+
+
+  // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
+  
+  // filter values in params:
+    
+  useEffect(() => {
+    let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
+    if(!!filterFromParams){
+      //extract values and add to one data variable
+      let city = searchParams.get("city");
+      let range = searchParams.get("range"); 
+      let state = searchParams.get("state"); 
+      let country = searchParams.get("country"); 
+      let type = searchParams.get("type"); 
+      let search = searchParams.get("search");
+      let filter = searchParams.get("filter");
+      let sort = searchParams.get("sort");
+      let provider = searchParams.get("p");
+      let map = searchParams.get("map");
 
-  let cityLabel ="";
+      let values = {};
 
-  //describe:
-  // this useEffect sets up the initial state for the component by loading cities and ranges data and setting up search param in local state (searchParams)
-  //details:
-  // code sets up a React useEffect hook that runs only once when the component is mounted. The hook performs several operations:
-  // It calls the loadAllCities function, which loads a list of all cities from table cities , it goes through loadAllCities() in cityActions.js which in turn calls loadList() fcn in crudActions.js, this fcn makes an axios call to the database and sets the store state accordingly.
-  // It calls the loadRanges function with two options: ignore_limit and remove_duplicates, which loads the ranges data into the store state using loadRanges() inside rangeActions.js which in turn uses loadList() fcn in crudActions.js .
-  // It gets the city value from local storage and the city search parameter from the URL query string, if it exists.
-  // If there is a city value in local storage and no city search parameter in the URL query string, it sets the city search parameter in the URL query string to the value in local storage using the setSearchParams state method.
+      if (!!city ) {
+        values.city = city;
+      }
+      if (!!range) {
+        values.range = range;
+      }
+      if (!!search) {
+        values.search = search;
+      }
+      if (!!state) {
+        values.state = state;
+      }
+      if (!!country) {
+        values.country = country;
+      }
+      if (!!type) {
+        values.type = type;
+      }
+      if (!!provider) {
+        values.provider = provider;
+      }
+      if (!!sort) {
+        values.sort = sort;
+      }
+      if (!!map) {
+        values.map = map;
+      }
+  
+      if(filter) values.filter = filter;
+
+      //make the loadTours() call with the data
+        
+      loadTours(values).then((res) => {
+        // set 'filterValues' in localStorage
+        if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
+      });
+      
+    }
+  
+
+  }, []);
+  
+
+  useEffect(() => {
+    if (scrollToTop) {
+      window.scrollTo({ top: 0 , behavior: 'smooth'});
+    }
+  }, [scrollToTop]);
+  
+  
   useEffect(() => {
     loadAllCities();
     loadRanges({ ignore_limit: true, remove_duplicates: true });
@@ -126,7 +196,7 @@ try {
 
   useEffect(() => {
     if(!!location && !!allCities && allCities.length > 0){
-      cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
+      const cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
   },[allCities,location])
@@ -169,11 +239,11 @@ try {
     !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
-    setMapView(searchParams.get("map") == "true");
+    setMapView(searchParams.get("map") === "true");
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
   const goToStartPage = () => {
-    navigate(`/?${searchParams.toString()}`);
+    navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
   const onSelectTour = (tour) => {
@@ -194,24 +264,51 @@ try {
     }
   };
 
-  //description:
-  //This is a callback function that selects a tour with a specific id
-  const onSelectTourById = (id) => {
-    onSelectTour({ id: id });
-  };
+ //Map-related : a callback function that selects a tour with a specific id
+ const onSelectTourById = useCallback((id) => {
+  onSelectTour({ id: id });
+}, []);
 
   const memoTourMapContainer = useMemo(() => {
     return (
       <TourMapContainer
         tours={tours}
-        loadGPX={loadGPX}
         onSelectTour={onSelectTourById}
-        loading={loading}
         setTourID={setTourID}
-        tourID={tourID}
+        filter={filter}
       />
     );
-  }, tourID);
+  }, [filter,onSelectTourById,setTourID,tours]);
+
+  const renderCardContainer = ()=> (
+    <Box
+      className={
+        "cards-container" +
+        (!!directLink && !!directLink.header ? " seo-page" : "")
+      }
+      sx={{
+        marginTop: {
+          xs: "20px",
+          md: "250px",
+        },
+      }}
+    >
+      {console.log("renderCardContainer called")} 
+      <TourCardContainer
+        onSelectTour={onSelectTour}
+        tours={tours}
+        loadTourConnections={loadTourConnections}
+        city={searchParams.get("city")}
+        loadTours={loadTours}
+        totalTours={totalTours}
+        pageTours={pageTours}
+        loading={loading}
+        total={totalTours}
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+      />
+    </Box>
+  )
 
  
   return (
@@ -245,10 +342,13 @@ try {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                <Link
+                 <Link
                   to={{
                     pathname: "/",
-                    search: currentParams.toString(), 
+                  }}
+                  onClick={(e)=> {
+                    e.preventDefault();
+                    setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
                   }}
                   replace
                 >
@@ -313,7 +413,7 @@ try {
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
               {Number(totalTours).toLocaleString()}{" "}
-              {totalTours == 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {(!!filterCountLocal && filterCountLocal > 0)  
             && (
@@ -334,44 +434,22 @@ try {
           </Box>
         </Box>
       </Box>
-      {!!loading && !!!mapView && (
-        <Box sx={{ textAlign: "center", padding: "30px" }}>
-          <CircularProgress />
-        </Box>
-      )}
+ 
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
           {!!mapView ? (
-            <Box className={"map-container"}>{memoTourMapContainer}</Box>
-          ) : (
-            <Box
-              className={
-                "cards-container" +
-                (!!directLink && !!directLink.header ? " seo-page" : "")
-              }
-              sx={{
-                marginTop: {
-                  xs: "20px",
-                  md: "250px",
-                },
-              }}
-            >
-              <TourCardContainer
-                onSelectTour={onSelectTour}
-                tours={tours}
-                loadTourConnections={loadTourConnections}
-                city={searchParams.get("city")}
-                loadTours={loadTours}
-                totalTours={totalTours}
-                pageTours={pageTours}
-                loading={loading}
-                total={totalTours}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            </Box>
-          )}
+            <>
+              <Box className={"map-container"}>
+                {memoTourMapContainer}
+              </Box>
+              {renderCardContainer()}
+              
+            </>
+          ) : 
+            renderCardContainer()
+          
+          }
         </>
       )}
     </div>
@@ -386,7 +464,7 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTourConnectionsExtended,
   loadFilter,
-  loadGPX,
+  // loadGPX,
   loadTour,
   clearTours,
   loadRanges,
