@@ -24,6 +24,7 @@ import {
   getTranslatedCountryName,
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
+import MapBtn from "../../components/Search/MapBtn";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
 );
@@ -278,6 +279,14 @@ function Start({
             </Box>
           </Box>
         )}
+
+        {!showMobileMenu && (
+          <MapBtn >
+            {/* {t("start.show-map")}  */}
+            Show Map
+          </MapBtn>
+        )}
+
 
         {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />

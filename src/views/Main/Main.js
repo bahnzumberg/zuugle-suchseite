@@ -30,7 +30,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog, setOrRemoveSearchParam } from "../../utils/globals";
+import { consoleLog } from "../../utils/globals";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
