@@ -186,27 +186,6 @@ function TourMapContainer({
         return null;
     }, [tours,onSelectTour,setTourID,StartIcon]);
 
-    // const setCurrentGpxTrack = async (url ) => {
-    //     console.log("L153 url : ", url) ;//http://localhost:8080/public/gpx/bahnzumberg_14877.gpx
-    //     if(!!url){
-    //         await loadGPX(url).then(res => {
-    //             if (!!res && !!res.data) {
-    //                 console.log("L154 res.data :", res.data)
-    //                 let gpx = new gpxParser(); //Create gpxParser Object
-    //                 gpx.parse(res.data);
-    //                 if (gpx.tracks.length > 0) {
-    //                     let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
-    //                     setGpxTrack(track);
-    //                 }
-    //             }
-    //         }).catch(error => {
-    //             console.error('Error loading GPX:', error);
-    //             setGpxTrack([]);
-    //         });
-    //     }else {
-    //         setGpxTrack([]);
-    //     }   
-    // }
 
     
     const createClusterCustomIcon = function (cluster) {
@@ -277,7 +256,13 @@ function TourMapContainer({
     };
 
     return <Box
-        style={{height: "calc(100vh - 165px)", width: "100%", position: "relative"}}>
+        style={{
+            height: "500px", 
+            // height: "calc(100vh - 50px)", 
+            width: "100%", 
+            position: "relative",
+            overflow: "hidden"
+            }}>
 
         <MapContainer
             ref={mapRef}
@@ -285,7 +270,7 @@ function TourMapContainer({
             maxZoom={25}                    //how many times you can zoom
             center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
-            style={{height: "100%", width: "100%"}} //Size of the map
+            style={{height: "110%", width: "100%"}} //Size of the map
         >
             <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
