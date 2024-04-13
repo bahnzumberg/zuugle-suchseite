@@ -82,7 +82,7 @@ function TourMapContainer({
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
-            setMapPosition(null); // set the localStorage to default values
+            setMapPosition(null); // set the map positions in localStorage to default values
             console.log("L78 / local storage is set")
             updateBounds();
         } else {
@@ -252,7 +252,6 @@ function TourMapContainer({
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
-        // check : how & where is the call made ??  inside main? when searchParams change?
     };
 
     return <Box
