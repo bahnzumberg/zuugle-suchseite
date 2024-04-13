@@ -587,7 +587,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 await knex.raw(insert_sql);
                 resolve(true);
             } catch (err) {
-                logger('############### Eror with this SQL ###############');
+                logger('############### Error with this SQL ###############');
                 logger("Insert sql into fahrplan table: ", insert_sql);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
@@ -692,6 +692,7 @@ export async function syncTours(){
 
     while((counter *  limit) <= count){
         const query = knexTourenDb.raw(`SELECT
+                                        t.id,
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
@@ -921,6 +922,7 @@ const bulk_insert_tours = async (entries) => {
         entry.gpx_data = JSON.stringify(gpxData);
 
         queries.push({
+            id: id,
             url: entry.url,
             provider: entry.provider,
             hashed_url: entry.hashed_url,

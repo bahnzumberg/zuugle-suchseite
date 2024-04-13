@@ -571,9 +571,6 @@ const listWrapper = async (req, res) => {
 }
 
 const filterWrapper = async (req, res) => {
-    // const timer_start= Date. now();
-    // console.log("Start filterWrapper: ", timer_start);
-
     const search = req.query.search;
     const city = req.query.city;
     const range = req.query.range;
@@ -591,7 +588,6 @@ const filterWrapper = async (req, res) => {
 
     /** city search */
     if(!!city && city.length > 0){
-        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
         whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
     else {
