@@ -14,10 +14,10 @@ export default function TourCardContainer({
   loadTourConnections,
   city,
   loadTours,
-  totalTours,
+  // totalTours,
   pageTours,
   loading,
-  total,
+  // total,
   filterValues,
   setFilterValues,
 }) {
@@ -37,7 +37,7 @@ export default function TourCardContainer({
     } else if(!!!hasMore || !!!filterValues){
         filterRef.current = !!searchParams && searchParams.get('filter');
     }
-  }, [hasMore,filterValues])
+  }, [hasMore,filterValues,searchParams])
 
 
   
@@ -73,7 +73,7 @@ export default function TourCardContainer({
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
     }).then((res) => {
-      if(process.env.NODE_ENV != "production"){
+      if(process.env.NODE_ENV !== "production"){
         // console.log("L116 >>>> results :",(res));
       }
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
