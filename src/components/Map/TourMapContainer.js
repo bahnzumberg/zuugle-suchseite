@@ -82,7 +82,7 @@ function TourMapContainer({
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
-            setMapPosition(null); // set the map positions in localStorage to default values
+            setMapPosition(null); // set the localStorage to default values
             console.log("L78 / local storage is set")
             updateBounds();
         } else {

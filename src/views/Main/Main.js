@@ -31,6 +31,7 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import { consoleLog } from "../../utils/globals";
+import MapBtn from '../../components/Search/MapBtn'
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -285,6 +286,16 @@ try {
     );
   }, [filter,onSelectTourById,setTourID,tours]);
 
+  const toggleMapHandler = ()=> {
+    if(!!mapView){
+      searchParams.delete('map')
+      setSearchParams(searchParams)
+    }else {
+      searchParams.set('map', true)
+      setSearchParams(searchParams)
+    }
+  }
+
   const renderCardContainer = ()=> (
     <Box
       className={
@@ -298,7 +309,6 @@ try {
         },
       }}
     >
-      {console.log("renderCardContainer called")} 
       <TourCardContainer
         onSelectTour={onSelectTour}
         tours={tours}
@@ -455,6 +465,11 @@ try {
             renderCardContainer()
           
           }
+          (
+          <MapBtn onClick={toggleMapHandler}>
+            {t("start.zur_kartenansicht")} 
+          </MapBtn>
+       
         </>
       )}
     </div>
