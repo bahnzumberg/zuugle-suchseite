@@ -922,7 +922,7 @@ const bulk_insert_tours = async (entries) => {
         entry.gpx_data = JSON.stringify(gpxData);
 
         queries.push({
-            id: id,
+            id: entry.id,
             url: entry.url,
             provider: entry.provider,
             hashed_url: entry.hashed_url,
