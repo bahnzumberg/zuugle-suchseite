@@ -129,7 +129,7 @@ try {
       let filter = searchParams.get("filter");
       let sort = searchParams.get("sort");
       let provider = searchParams.get("p");
-      let map = searchParams.get("map");
+      let map = searchParams.get("map"); // this value should contain the cooridinates ? 
 
       let values = {};
 
@@ -239,8 +239,13 @@ try {
     !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
+    // setMapView(searchParams.get("map") === "true");
+  }, [filterCountLocal,filterValuesLocal]);
+
+  useEffect(() => {
     setMapView(searchParams.get("map") === "true");
-  }, [filterCountLocal,filterValuesLocal, searchParams]);
+  }, [setMapView, searchParams])
+  
 
   const goToStartPage = () => {
     navigate(`/?${searchParams.toString()}`, { replace: true });
@@ -300,10 +305,10 @@ try {
         loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
         loadTours={loadTours}
-        totalTours={totalTours}
+        // totalTours={totalTours}
         pageTours={pageTours}
         loading={loading}
-        total={totalTours}
+        // total={totalTours}
         filterValues={filterValues}
         setFilterValues={setFilterValues}
       />
