@@ -95,7 +95,7 @@ const transportIcons = {
   transfer_key: <ShuffleBlack style={{ strokeWidth: 0.8 }} />,
   walk: <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
 };
-
+// array of arrays contains all the defined transport-type arrays 
 const transportNameArrays = [train_key, metro_key,tram_key,bus_key, car_key ,cableCar_key,transfer_key];
 
 // function getTransportIcon(text) {
@@ -130,45 +130,6 @@ function getIconFromText(text) {
   // If no match found, return a default icon
   return transportIcons["walk"]; 
 }
-
-// export const getIconFromText = (text) => {
-//   consoleLog("L127  / text value:", text, true);
-//   consoleLog("L128  / text value:", JSON.stringify(getTransportIcon(text)), true);
-  
-//   if (!!text && (text.indexOf(" Zug ") >= 0 || text.indexOf(" U Bahn ") >= 0)) {
-//     return <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-//   } else if (!!text && text.indexOf(" Straßenbahn ") >= 0) {
-//     return <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-//   } else if (!!text && text.indexOf(" Bus ") >= 0) {
-//     return <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-//   } else if (!!text && text.indexOf(" Taxi ") >= 0) {
-//     return (
-//       <Car
-//         style={{
-//           strokeWidth: 2,
-//           stroke: "#4992FF",
-//           width: "24px",
-//           height: "24px",
-//         }}
-//       />
-//     );
-//   } else if (!!text && text.indexOf("Umstiegszeit") >= 0) {
-//     return <ShuffleBlack style={{ strokeWidth: 0.8 }} />;
-//   } else if (!!text && text.toLowerCase().indexOf("seilbahn") >= 0) {
-//     return (
-//       <Seilbahn
-//         style={{
-//           strokeWidth: 2,
-//           stroke: "#4992FF",
-//           width: "24px",
-//           height: "24px",
-//         }}
-//       />
-//     );
-//   } else {
-//     return <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-//   }
-// };
 
 export const createReturnEntries = (entries, connection, t) => {
   // consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
