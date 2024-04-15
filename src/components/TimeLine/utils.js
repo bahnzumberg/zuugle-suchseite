@@ -74,45 +74,105 @@ export const getNumberOfTransfers = (
   return connection[field];
 };
 
-export const getIconFromText = (text) => {
-  if (!!text && (text.indexOf(" Zug ") >= 0 || text.indexOf(" U-Bahn ") >= 0)) {
-    return <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-  } else if (!!text && text.indexOf(" Straßenbahn ") >= 0) {
-    return <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-  } else if (!!text && text.indexOf(" Bus ") >= 0) {
-    return <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-  } else if (!!text && text.indexOf(" Taxi ") >= 0) {
-    return (
-      <Car
-        style={{
-          strokeWidth: 2,
-          stroke: "#4992FF",
-          width: "24px",
-          height: "24px",
-        }}
-      />
-    );
-  } else if (!!text && text.indexOf("Umstiegszeit") >= 0) {
-    return <ShuffleBlack style={{ strokeWidth: 0.8 }} />;
-  } else if (!!text && text.toLowerCase().indexOf("seilbahn") >= 0) {
-    return (
-      <Seilbahn
-        style={{
-          strokeWidth: 2,
-          stroke: "#4992FF",
-          width: "24px",
-          height: "24px",
-        }}
-      />
-    );
-  } else {
-    return <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
-  }
+// Preparaing for getIconFromText
+// transport-type arrays
+let train_key = ['train_key','Zug','Train','le train','Treno','Vlak'];
+let metro_key = ['metro_key','U Bahn','Underground','le métro','Metropolitana','Podzemna železnica'];
+let tram_key = ['tram_key','Strassenbahn','Tram','le tramway','Tram','Tramvaj'];
+let bus_key = ['bus_key','Bus','Bus','le bus','Autobus','Avtobus'];
+let car_key = ['car_key','Taxi','Taxi','le taxi','Taxi','Taxi'];
+let transfer_key = ['transfer_key','Umstiegszeit','transfer time','temps de transfert','tempo di trasferimento','čas prestopa'];
+let cableCar_key = ['cableCar_key','Seilbahn','Cable car','le téléphérique','Funivia','Žičnica'];
+
+// crucial : key values for this object are the same names of transport-type arrays above. (walk is default)
+const transportIcons = {
+  train_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
+  metro_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
+  tram_key: <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />, 
+  bus_key: <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
+  car_key: <Car style={{strokeWidth: 2,stroke: "#4992FF",width: "24px",height: "24px"}}/>,
+  cableCar_key: <Seilbahn style={{strokeWidth: 2,stroke: "#4992FF",width: "24px",height: "24px"}}/>,
+  transfer_key: <ShuffleBlack style={{ strokeWidth: 0.8 }} />,
+  walk: <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
 };
 
+const transportNameArrays = [train_key, metro_key,tram_key,bus_key, car_key ,cableCar_key,transfer_key];
+
+// function getTransportIcon(text) {
+function getIconFromText(text) {
+  if (!text) return null; // Handle empty text case
+
+  // for (const transportArray of transportNameArrays) {
+  //   console.log("L106 transportName: ", transportArray); //['train_key', 'Zug', 'Train', 'le train', 'Treno'..
+  
+  //   for (let i = 1; i < transportArray.length; i++) {
+  //     console.log(`L116 transportArray[${i}] : ${transportArray[i]}`) ;  // Zug
+  //     let transportType = transportArray[0];
+  //     console.log("L110/3  transportType :",  transportType); // e.g. "train_key"
+  //     if (text.indexOf(`${transportArray[i]}`) >= 0) {
+  //       console.log("L113 transportType :", transportType);
+  //       return transportIcons[transportType];
+  //     }        
+  //   }
+  //   // If no match found, return a default icon
+  //   return transportIcons["walk"]
+  // }
+  for (const transportArray of transportNameArrays) {    
+    const transportType = transportArray[0]; // Assuming the first element is the key
+
+    for (const transportName of transportArray.slice(1)) { // Iterate from 2nd element/ first element being the key
+      if (text.indexOf(`${transportName}`) >= 0) {
+        return transportIcons[transportType];
+      }
+    }
+  }
+
+  // If no match found, return a default icon
+  return transportIcons["walk"]; 
+}
+
+// export const getIconFromText = (text) => {
+//   consoleLog("L127  / text value:", text, true);
+//   consoleLog("L128  / text value:", JSON.stringify(getTransportIcon(text)), true);
+  
+//   if (!!text && (text.indexOf(" Zug ") >= 0 || text.indexOf(" U Bahn ") >= 0)) {
+//     return <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
+//   } else if (!!text && text.indexOf(" Straßenbahn ") >= 0) {
+//     return <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
+//   } else if (!!text && text.indexOf(" Bus ") >= 0) {
+//     return <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
+//   } else if (!!text && text.indexOf(" Taxi ") >= 0) {
+//     return (
+//       <Car
+//         style={{
+//           strokeWidth: 2,
+//           stroke: "#4992FF",
+//           width: "24px",
+//           height: "24px",
+//         }}
+//       />
+//     );
+//   } else if (!!text && text.indexOf("Umstiegszeit") >= 0) {
+//     return <ShuffleBlack style={{ strokeWidth: 0.8 }} />;
+//   } else if (!!text && text.toLowerCase().indexOf("seilbahn") >= 0) {
+//     return (
+//       <Seilbahn
+//         style={{
+//           strokeWidth: 2,
+//           stroke: "#4992FF",
+//           width: "24px",
+//           height: "24px",
+//         }}
+//       />
+//     );
+//   } else {
+//     return <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />;
+//   }
+// };
+
 export const createReturnEntries = (entries, connection, t) => {
-  consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
-  consoleLog("L110 : utils.js/ createReturnEntries : connection : ", connection, true);
+  // consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
+  // consoleLog("L110 : utils.js/ createReturnEntries : connection : ", connection, true);
   let toReturn = [];
   if (!!entries && entries.length > 0) {
     let _entries = entries.filter((e) => !!e && e.length > 0); //ensures that only non-empty and truthy elements are included in the filtered array.
