@@ -96,6 +96,10 @@ try {
   const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
+  // const [mapBtnext,setMapBtnText] = useState(`${t("start.zur_kartenansicht")}`);
+  const [mapBtnext,setMapBtnText] = useState(`Remove `);
+  const [showMap, setShowMap] = useState(true);
+
 
   // related to back button "ArrowBefore" back-button to Start page: 
   // this useEffect is to remove "range" param while maintaining other params 
@@ -249,6 +253,7 @@ try {
   
 
   const goToStartPage = () => {
+    //remove map param here 
     navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
@@ -286,14 +291,32 @@ try {
     );
   }, [filter,onSelectTourById,setTourID,tours]);
 
+  // const toggleMapHandler = ()=> {
+  //   if(!!mapView){
+  //     searchParams.delete('map');
+  //     setSearchParams(searchParams);
+  //     // setMapBtnText(`${t("start.kartenansicht_entfernen")}`)
+  //     // setMapBtnText(`Remove it!`)
+  //     setMapBtnText(`${t("start.zur_kartenansicht")}`)
+  //   }else {
+  //     searchParams.set('map', true)
+  //     setSearchParams(searchParams)
+  //     // setMapBtnText(`${t("start.zur_kartenansicht")}`)
+  //     setMapBtnText(`Remove it!`)
+  //   }
+  // }
+
   const toggleMapHandler = ()=> {
-    if(!!mapView){
-      searchParams.delete('map')
-      setSearchParams(searchParams)
-    }else {
-      searchParams.set('map', true)
-      setSearchParams(searchParams)
-    }
+      if(showMap){
+        searchParams.delete('map');
+      setSearchParams(searchParams);
+      setMapBtnText(`${t("start.zur_kartenansicht")}`)
+      }else{
+        searchParams.set('map', true)
+        setSearchParams(searchParams)
+        setMapBtnText('Remove it !')
+      }
+      setShowMap(!showMap)
   }
 
   const renderCardContainer = ()=> (
@@ -466,8 +489,8 @@ try {
           
           }
           (
-          <MapBtn onClick={toggleMapHandler}>
-            {t("start.zur_kartenansicht")} 
+          <MapBtn mapBtnext={mapBtnext} onClick={toggleMapHandler}>
+            
           </MapBtn>
        
         </>

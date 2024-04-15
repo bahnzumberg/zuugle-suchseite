@@ -2,7 +2,7 @@ import * as React from "react";
 import Button from '@mui/material/Button';
 import MapIcon from "../../icons/Map";
 
-const MapBtn = ({ children, onClick }) => {
+const MapBtn = ({ children, onClick , mapBtnext}) => {
   return (
     <Button
       sx={{
@@ -28,6 +28,7 @@ const MapBtn = ({ children, onClick }) => {
     >
       <span style={{ paddingLeft: "10px" }}>
         {children}
+        {mapBtnext}
       </span> 
     </Button>
   );

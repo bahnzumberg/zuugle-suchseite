@@ -185,8 +185,9 @@ function Start({
   const onClickMap = ()=>{
     if( !searchParams.get('map') ) {
       searchParams.set('map', true);
-    }
-    setSearchParams(searchParams);
+      setSearchParams(searchParams);
+    };
+    console.log(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
   }
 
@@ -289,8 +290,11 @@ function Start({
         )}
 
         {!showMobileMenu && (
-          <MapBtn onClick={onClickMap}>
-            {t("start.zur_kartenansicht")} 
+          <MapBtn 
+            onClick={onClickMap}
+            mapBtnext={t("start.zur_kartenansicht")} 
+            >
+            
           </MapBtn>
         )}
 
