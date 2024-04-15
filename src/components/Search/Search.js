@@ -310,7 +310,7 @@ export function Search({
 
     values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
     values.provider = searchParams.get("p");
-    if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
+    values.filter = !!searchParams.get("filter") ?  searchParams.get("filter") : null;
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
     setOrRemoveSearchParam(searchParams, "range", values.range);
