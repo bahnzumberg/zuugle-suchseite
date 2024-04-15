@@ -308,7 +308,7 @@ export function Search({
       ? searchPhrase
       : "";
 
-    values.map = searchParams.get("map"); // map related
+    values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
     values.provider = searchParams.get("p");
     if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
 
@@ -329,7 +329,7 @@ export function Search({
     
     if (!!goto) { // "/suche" to be true only when coming from Start->Header->SearchContainer->Search->search()
       navigate(`${goto}?${searchParams.toString()}`);
-      window.location.reload();
+      // window.location.reload();
     } else { // coming in from Main filter submit or 
       await loadTours(values).then((res) => {
         if(pageKey === "detail") {
