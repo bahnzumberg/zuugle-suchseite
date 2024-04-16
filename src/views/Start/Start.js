@@ -288,11 +288,11 @@ function Start({
           </Box>
         )}
 
-        {!showMobileMenu && (
+        {/* {!showMobileMenu && (
           <MapBtn onClick={onClickMap}>
             {t("start.zur_kartenansicht")} 
           </MapBtn>
-        )}
+        )} */}
 
 
         {!showMobileMenu && (
