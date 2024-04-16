@@ -188,6 +188,7 @@ body ::-webkit-scrollbar-thumb:hover {
 .search-bar--searchPhase {
   color: #070000 !important;
   font-weight: 600;
+  text-align: left;
   width: 100%;
 }
 
