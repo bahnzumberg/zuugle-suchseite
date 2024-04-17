@@ -12,9 +12,11 @@ import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions';
 import { useDispatch, useSelector } from 'react-redux';
+import {consoleLog} from '../../utils/globals';
 
 function TourMapContainer({
     tours,
+    totalTours,
     onSelectTour,
     scrollWheelZoom = true,
     filter,
@@ -64,18 +66,19 @@ function TourMapContainer({
         
         
         useEffect(() => {
-        //console.log("L61 TMC / tours is : ", tours) //we do get array of tours here
+        consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
         //states if the toggle button is was clicked
         var onToggle = localStorage.getItem('MapToggle');
-        // console.log("L60 onToggle :", onToggle);
+        // consoleLog("L60 onToggle :", onToggle);
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
         //all items are removed and updateBounds() is called in order to reset the map
-        console.log("L70 pageAccessedByReload value :", pageAccessedByReload);
-        console.log("L71 onToggle value :", onToggle);
-        console.log("L72 filter value :", filter);
+        consoleLog("L70 pageAccessedByReload value :", pageAccessedByReload);
+        consoleLog("L71 onToggle value :", onToggle);
+        consoleLog("L72 filter value :", filter);
+        consoleLog("L73 totalTours value :", totalTours);
 
         if (pageAccessedByReload && onToggle !== "true") {
             localStorage.removeItem('MapPositionLatNE');
@@ -83,7 +86,7 @@ function TourMapContainer({
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
             setMapPosition(null); // set the localStorage to default values
-            console.log("L78 / local storage is set")
+            consoleLog("L78 / local storage is set")
             updateBounds();
         } else {
             if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
@@ -95,7 +98,7 @@ function TourMapContainer({
                 //creating a latLngBounds-Object for the fitBounds()-Method
                 var bounds = L.latLngBounds(corner1, corner2);
 
-                console.log("L89 bounds :", bounds);
+                consoleLog("L89 bounds :", bounds);
 
 
                 //the map's current position is set to the last position where the user has been
@@ -103,7 +106,7 @@ function TourMapContainer({
                     mapRef.current?.fitBounds(bounds);
                 }
             } else {
-                console.log("L97 you are at L97 next step is updateBounds()")
+                consoleLog("L97 you are at L97 next step is updateBounds()")
                 //the map is aligned to the marker/cluster
                 updateBounds();
             }
@@ -120,7 +123,7 @@ function TourMapContainer({
 
     const updateBounds = () => {
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
-            console.log("L114 at updateBounds ")
+            consoleLog("L114 at updateBounds ")
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
             }
@@ -128,22 +131,22 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-        console.log("L153 url : ", url);
+        consoleLog("L153 url : ", url);
 
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
                 const res = await loadGpxFunction(dispatch, getState); // Execute the inner function with dispatch and getState
                 if (!!res && !!res.data) {
-                    console.log("L154 IF res.data is true :", !!res.data )
+                    consoleLog("L154 IF res.data is true :", !!res.data )
                     let gpx = new gpxParser(); //Create gpxParser Object
                     gpx.parse(res.data);
                     if (gpx.tracks.length > 0) {
-                        // console.log("L190 gpx.tracks[0].points : ")
-                        // console.log(gpx.tracks[0])
+                        // consoleLog("L190 gpx.tracks[0].points : ")
+                        // consoleLog(gpx.tracks[0])
                         let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
-                        console.log("L193 track[0][0] : ")
-                        console.log(track[0][0]) //  [47.639424, 15.830512] 
+                        consoleLog("L193 track[0][0] : ")
+                        consoleLog(track[0][0]) //  [47.639424, 15.830512] 
                         setGpxTrack(track);
                     }
                 }
@@ -159,9 +162,9 @@ function TourMapContainer({
     const markerComponents = useMemo(() => {
         if (!!tours) {
             return tours.map((tour, index) => {
-                console.log("L123 : tour", tour)
+                consoleLog("L123 : tour", tour)
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
-                console.log("L124 : data is ", data)
+                // consoleLog("L124 : data is ", data)
                 if (!!data) {
                     return (
                         <Marker
@@ -199,7 +202,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
-                console.log("L168 position changed -> value :", position)
+                consoleLog("L168 position changed -> value :", position)
                 setMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
@@ -223,7 +226,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        console.log("L205 bounds value", bounds);  // seems to give the rights values when zoom in or out
+        consoleLog("L205 bounds value", bounds);  // seems to give the rights values when zoom in or out
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -248,7 +251,7 @@ function TourMapContainer({
             searchParams.delete("filter");
         } else {
             searchParams.set("filter", JSON.stringify(filterValues));
-            console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
+            consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
@@ -291,7 +294,6 @@ function TourMapContainer({
                 {markerComponents}
             </MarkerClusterGroup>
             <MyComponent/>
-            {/* <MyComponent></MyComponent> */}
         </MapContainer>
     </Box>
 }

@@ -84,7 +84,7 @@ try {
   const { t }    = useTranslation();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [mapView, setMapView]           = useState(false);
+  // const [mapView, setMapView]           = useState(false);
   const [directLink, setDirectLink]     = useState(null);
   const [tourID, setTourID]             = useState(null);
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
@@ -96,10 +96,11 @@ try {
   const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
-  // const [mapBtnext,setMapBtnText] = useState(`${t("start.zur_kartenansicht")}`);
-  const [mapBtnext,setMapBtnText] = useState(`Remove `);
-  const [showMap, setShowMap] = useState(true);
-
+  const mapValue = (searchParams.get('map')) === "true" ? true : false ;
+  const [showMap, setShowMap] = useState(mapValue);
+  
+  const initBtnText = (searchParams.get('map')) === "true" ? 'Remove' : `${t("start.zur_kartenansicht")}` ;
+  const [mapBtnext,setMapBtnText] = useState(initBtnText);
 
   // related to back button "ArrowBefore" back-button to Start page: 
   // this useEffect is to remove "range" param while maintaining other params 
@@ -134,7 +135,7 @@ try {
       let filter = searchParams.get("filter");
       let sort = searchParams.get("sort");
       let provider = searchParams.get("p");
-      let map = searchParams.get("map"); // this value should contain the cooridinates ? 
+      let map = searchParams.get("map");
 
       let values = {};
 
@@ -247,9 +248,6 @@ try {
     // setMapView(searchParams.get("map") === "true");
   }, [filterCountLocal,filterValuesLocal]);
 
-  useEffect(() => {
-    setMapView(searchParams.get("map") === "true");
-  }, [setMapView, searchParams])
   
 
   const goToStartPage = () => {
@@ -287,36 +285,24 @@ try {
         onSelectTour={onSelectTourById}
         setTourID={setTourID}
         filter={filter}
+        totalTours={totalTours}
       />
     );
-  }, [filter,onSelectTourById,setTourID,tours]);
+  }, [filter,onSelectTourById,setTourID,tours, totalTours]);
 
-  // const toggleMapHandler = ()=> {
-  //   if(!!mapView){
-  //     searchParams.delete('map');
-  //     setSearchParams(searchParams);
-  //     // setMapBtnText(`${t("start.kartenansicht_entfernen")}`)
-  //     // setMapBtnText(`Remove it!`)
-  //     setMapBtnText(`${t("start.zur_kartenansicht")}`)
-  //   }else {
-  //     searchParams.set('map', true)
-  //     setSearchParams(searchParams)
-  //     // setMapBtnText(`${t("start.zur_kartenansicht")}`)
-  //     setMapBtnText(`Remove it!`)
-  //   }
-  // }
-
+  
   const toggleMapHandler = ()=> {
-      if(showMap){
-        searchParams.delete('map');
-      setSearchParams(searchParams);
-      setMapBtnText(`${t("start.zur_kartenansicht")}`)
-      }else{
-        searchParams.set('map', true)
-        setSearchParams(searchParams)
-        setMapBtnText('Remove it !')
-      }
-      setShowMap(!showMap)
+    if (searchParams.has('map') && (searchParams.get('map') === 'true')) {
+      searchParams.delete('map');
+      setSearchParams(searchParams)
+      setMapBtnText(`${t("start.zur_kartenansicht")}`);
+      setShowMap(false);
+    }else{
+      searchParams.set('map', true)
+      setSearchParams(searchParams)
+      setMapBtnText('Remove it !')
+      setShowMap(true)
+    }
   }
 
   const renderCardContainer = ()=> (
@@ -386,6 +372,8 @@ try {
                   }}
                   onClick={(e)=> {
                     e.preventDefault();
+                    searchParams.delete('map');
+                    setSearchParams(searchParams);
                     setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
                   }}
                   replace
@@ -476,7 +464,7 @@ try {
       {!!tours && tours.length > 0 && (
         <>
           {/* //either display 100% size map or display the TourCardContainer */}
-          {!!mapView ? (
+          {!!showMap ? (
             <>
               <Box className={"map-container"}>
                 {memoTourMapContainer}
