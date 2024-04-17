@@ -1,7 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useState, useRef } from "react";
 import {
   loadTour,
   loadFavouriteTours,
@@ -25,6 +25,7 @@ import {
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
+import { consoleLog } from "../../utils/globals";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
 );
@@ -74,6 +75,7 @@ function Start({
   let city = "";
 
   let _city = searchParams.get("city");
+  let totalTourRef = useRef(0) ;
 
   useEffect(() => {
     // matomo
@@ -87,7 +89,9 @@ function Start({
     // Async function to load data and handle requests
     const loadData = async () => {
       try {
-        await loadTotalTours(requestConfig);
+        totalTourRef.current = await loadTotalTours(requestConfig);
+        // consoleLog(`L92 : ${JSON.stringify(totalTourRef.current.data['total_tours'])}`)
+        consoleLog(`L92 : ${totalTourRef.current.data['total_tours']}`)
         await loadAllCities(requestConfig);
         await loadRanges(
           { ignore_limit: true, remove_duplicates: true },
@@ -112,7 +116,7 @@ function Start({
         );
       } catch (error) {
         if (error.name === "AbortError") {
-          console.log("Request was canceled:", error.message);
+          consoleLog("Request was canceled:", error.message);
         } else {
           console.error("Error loading data:", error);
         }
@@ -187,7 +191,7 @@ function Start({
       searchParams.set('map', true);
       setSearchParams(searchParams);
     };
-    console.log(`L190 : suche?${searchParams.toString()}`)
+    consoleLog(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
   }
 
