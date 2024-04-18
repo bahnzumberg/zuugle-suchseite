@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState, useMemo} from "react";
+import {useEffect, useRef, useState, useMemo,useLayoutEffect} from "react";
 import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
@@ -203,42 +203,34 @@ function TourMapContainer({
             iconSize: L.point(33, 33, true),
         })
     }
-    // const MyComponent = () => {
-    //     const handleMapChange = () => {
-    //       const position = map.getBounds();
-    //       consoleLog("L209 position changed -> value :", position);
-    //       setMapPosition(position);
-    //       initiateFilter(position); // Call initiateFilter here with arguments
-    //     };
-      
-    //     const debouncedFilter = useDebouncedCallback(handleMapChange, 300);
-      
-    //     const map = useMapEvents({
-    //       moveend: debouncedFilter // Pass the debounced function directly
-    //     });
-      
-    //     return null;
-    //   };
-      
+
+            
+    //********* Works BUT with returned empty function
     const MyComponent = () => {
+
+        const handleMapChange = () => {
+            const position = map.getBounds();
+            consoleLog("L168 position changed -> value :", position);
+            setMapPosition(position); 
+            initiateFilter(position);       
+          };
+          
+          const {debouncedFunction, debouncedValue} = useDebouncedCallback(handleMapChange, 300);
+          console.log("L216 : typeof debouncedFunction", typeof debouncedFunction)
+          console.log("L216 : debouncedFunction", JSON.stringify(debouncedFunction))
+
         const map = useMapEvents({
-            moveend: () => handleMapChange // Pass the callback function directly
+            moveend: debouncedFunction
         });
         
-        const debouncedFilter = useDebouncedCallback(()=>initiateFilter(map.getBounds()), 300);
-        const handleMapChange = () => {
-          const position = map.getBounds();
-          consoleLog("L168 position changed -> value :", position);
-          setMapPosition(position);        
-        };
-      
-        // const debouncedFilter = useDebouncedCallback(handleMapChange, 300);
-        console.log("L216 : typeof debouncedFilter", typeof debouncedFilter)
-        console.log("L216 : debouncedFilter", JSON.stringify(debouncedFilter))
+        console.log("217 : typeof debouncedValue", typeof debouncedValue)
+        console.log("217 : debouncedValue", JSON.stringify(debouncedValue))
                 
         return null;
       };
-      
+    
+    
+    //legacy code (the Diploma )
     //   const MyComponent = () => {
     //     const map = useMapEvents({
     //         moveend: () => { //Throws an event whenever the bounds of the map change
