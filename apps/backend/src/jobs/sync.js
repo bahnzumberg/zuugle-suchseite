@@ -93,8 +93,8 @@ const deleteFilesOlder30days = (dirPath) => {
         }
 
         // the *entire* stdout and stderr (buffered)
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+        logger(`deleteFilesOlder30days stdout: ${stdout}`);
+        logger(`deleteFilesOlder30days stderr: ${stderr}`);
     });
 }
 
@@ -200,7 +200,7 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        console.log('sync.js /syncConnectionGPX, filePath : ', filePath);
+        logger('sync.js /syncConnectionGPX, filePath : ', filePath);
 
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
