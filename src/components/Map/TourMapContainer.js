@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {useEffect, useRef, useState, useMemo,useLayoutEffect} from "react";
-import {MapContainer, TileLayer, Marker, Polyline, useMapEvents} from "react-leaflet";
+import {useEffect, useRef, useState, useMemo} from "react";
+import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, ZoomControl} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import Box from "@mui/material/Box";
@@ -54,10 +54,7 @@ function TourMapContainer({
     const [searchParams, setSearchParams] = useSearchParams();
     // create a bounds state ?
 
-
-    // const debouncedFilter = useDebouncedCallback(() => initiateFilter(), 300);
-
-
+    
     //checks if page is reloaded
     const pageAccessedByReload =
       // (window.performance.navigation && window.performance.navigation.type === 1) ||
@@ -90,7 +87,7 @@ function TourMapContainer({
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
-            setMapPosition(null); // set the localStorage to default values
+            assignNewMapPosition(null); // set the localStorage to default values
             consoleLog("L78 / local storage is set")
             updateBounds();
         } else {
@@ -119,7 +116,7 @@ function TourMapContainer({
     }, [tours])
 
     //saves the bounds on localStorage
-    const setMapPosition = (position) => {
+    const assignNewMapPosition = (position) => {
         localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || 47.97659313367704);
         localStorage.setItem('MapPositionLngNE', position?._northEast?.lng || 13.491897583007814);
         localStorage.setItem('MapPositionLatSW', position?._southWest?.lat || 47.609403608607785);
@@ -192,6 +189,7 @@ function TourMapContainer({
             });
         }
         return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tours,onSelectTour,setTourID,StartIcon]);
 
 
@@ -211,7 +209,7 @@ function TourMapContainer({
     //     const handleMapChange = () => {
     //         const position = map.getBounds();
     //         consoleLog("L168 position changed -> value :", position);
-    //         setMapPosition(position); 
+    //         assignNewMapPosition(position); 
     //         initiateFilter(position);       
     //       };
           
@@ -236,7 +234,7 @@ function TourMapContainer({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
                 console.log("L168 position changed -> value :", position)
-                setMapPosition(position);
+                assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
         })
@@ -303,11 +301,12 @@ function TourMapContainer({
         <MapContainer
             className='leaflet-container'
             ref={mapRef}
-            scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
+            scrollWheelZoom={false} //if you can zoom with you mouse wheel
             maxZoom={25}                    //how many times you can zoom
             center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
-            style={{height: "110%", width: "100%"}} //Size of the map
+            style={{height: "80%", width: "100%"}} //Size of the map
+            zoomControl={false}
         >
             <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
@@ -329,6 +328,7 @@ function TourMapContainer({
                 {markerComponents}
             </MarkerClusterGroup>
             <MyComponent/>
+            <ZoomControl position="bottomright" />
         </MapContainer>
     </Box>
 }
