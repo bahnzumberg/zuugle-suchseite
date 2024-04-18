@@ -372,8 +372,10 @@ try {
                   }}
                   onClick={(e)=> {
                     e.preventDefault();
-                    searchParams.delete('map');
-                    setSearchParams(searchParams);
+                    if(!!searchParams.get('map')) {
+                      searchParams.delete('map');
+                      setSearchParams(new useSearchParams(searchParams));
+                    }
                     setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
                   }}
                   replace
