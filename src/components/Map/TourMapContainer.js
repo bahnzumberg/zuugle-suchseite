@@ -206,56 +206,56 @@ function TourMapContainer({
 
             
     //********* Works BUT with returned empty function
-    const MyComponent = () => {
+    // const MyComponent = () => {
 
-        const handleMapChange = () => {
-            const position = map.getBounds();
-            consoleLog("L168 position changed -> value :", position);
-            setMapPosition(position); 
-            initiateFilter(position);       
-          };
+    //     const handleMapChange = () => {
+    //         const position = map.getBounds();
+    //         consoleLog("L168 position changed -> value :", position);
+    //         setMapPosition(position); 
+    //         initiateFilter(position);       
+    //       };
           
-          const {debouncedFunction, debouncedValue} = useDebouncedCallback(handleMapChange, 300);
-          console.log("L216 : typeof debouncedFunction", typeof debouncedFunction)
-          console.log("L216 : debouncedFunction", JSON.stringify(debouncedFunction))
+    //       const {debouncedFunction, debouncedValue} = useDebouncedCallback(handleMapChange, 300);
+    //       console.log("L216 : typeof debouncedFunction", typeof debouncedFunction)
+    //       console.log("L216 : debouncedFunction", JSON.stringify(debouncedFunction))
 
-        const map = useMapEvents({
-            moveend: debouncedFunction
-        });
+    //     const map = useMapEvents({
+    //         moveend: debouncedFunction
+    //     });
         
-        console.log("217 : typeof debouncedValue", typeof debouncedValue)
-        console.log("217 : debouncedValue", JSON.stringify(debouncedValue))
+    //     console.log("217 : typeof debouncedValue", typeof debouncedValue)
+    //     console.log("217 : debouncedValue", JSON.stringify(debouncedValue))
                 
-        return null;
-      };
+    //     return null;
+    //   };
     
     
     //legacy code (the Diploma )
-    //   const MyComponent = () => {
-    //     const map = useMapEvents({
-    //         moveend: () => { //Throws an event whenever the bounds of the map change
-    //             const position = map.getBounds();  //after moving the map, a position is set and saved
-    //             console.log("L168 position changed -> value :", position)
-    //             setMapPosition(position);
-    //             debouncedStoppedMoving(map.getBounds());
-    //         }
-    //     })
-    //     return null
-    // }
+      const MyComponent = () => {
+        const map = useMapEvents({
+            moveend: () => { //Throws an event whenever the bounds of the map change
+                const position = map.getBounds();  //after moving the map, a position is set and saved
+                console.log("L168 position changed -> value :", position)
+                setMapPosition(position);
+                debouncedStoppedMoving(map.getBounds());
+            }
+        })
+        return null
+    }
 
-    // function makeDebounced(func, timeout) { //Function for the actual debounce
-    //     let timer;
-    //     return (...args) => {
-    //         clearTimeout(timer) //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
-    //         timer = setTimeout(() => func(...args), timeout);
-    //     };
-    // }
+    function makeDebounced(func, timeout) { //Function for the actual debounce
+        let timer;
+        return (...args) => {
+            clearTimeout(timer) //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
+            timer = setTimeout(() => func(...args), timeout);
+        };
+    }
 
-    // function stoppedMoving(bounds) { //funciton used to call initiate Filter
-    //     initiateFilter(bounds)
-    // }
+    function stoppedMoving(bounds) { //funciton used to call initiate Filter
+        initiateFilter(bounds)
+    }
 
-    // const debouncedStoppedMoving = useDebounce(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
+    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
