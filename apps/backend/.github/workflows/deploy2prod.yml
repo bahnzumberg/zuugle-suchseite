@@ -40,8 +40,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
-            rm -r /root/suchseite/api-backup/
-            cp -r /root/suchseite/api/ /root/suchseite/api-backup/
+            rm /root/suchseite/backup/api.tar.gz
+            tar -zcvf /root/suchseite/backup/api.tar.gz /root/suchseite/api/
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
