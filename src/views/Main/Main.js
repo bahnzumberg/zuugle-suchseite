@@ -374,7 +374,7 @@ try {
                     e.preventDefault();
                     if(!!searchParams.get('map')) {
                       searchParams.delete('map');
-                      setSearchParams(new useSearchParams(searchParams));
+                      setSearchParams(searchParams);
                     }
                     setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
                   }}
