@@ -270,8 +270,7 @@ export function Search({
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
     setFilterValues(null);  // reset state in parent Main
-    localStorage.removeItem("filterValues");
-    localStorage.setItem("filterCount", 0);
+    resetFilterLocalStorage()
   };
 
   const handleFilterChange = (entry) => {
@@ -283,7 +282,7 @@ export function Search({
       searchParams.set("filter", JSON.stringify(entry));
       localStorage.setItem("filterValues", JSON.stringify(entry));
     }
-    setSearchParams(searchParams);
+    setSearchParams(new URLSearchParams(searchParams));
   };
 
   // search handling function
