@@ -13,6 +13,7 @@ import {useSearchParams} from "react-router-dom";
 import { loadGPX } from '../../actions/fileActions';
 import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
+import useDebouncedCallback from '../../utils/useDebouncedCallback';
 
 function TourMapContainer({
     tours,
@@ -51,7 +52,11 @@ function TourMapContainer({
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
-    // create a bounds state 
+    // create a bounds state ?
+
+
+    // const debouncedFilter = useDebouncedCallback(() => initiateFilter(), 300);
+
 
     //checks if page is reloaded
     const pageAccessedByReload =
@@ -198,31 +203,67 @@ function TourMapContainer({
             iconSize: L.point(33, 33, true),
         })
     }
+    // const MyComponent = () => {
+    //     const handleMapChange = () => {
+    //       const position = map.getBounds();
+    //       consoleLog("L209 position changed -> value :", position);
+    //       setMapPosition(position);
+    //       initiateFilter(position); // Call initiateFilter here with arguments
+    //     };
+      
+    //     const debouncedFilter = useDebouncedCallback(handleMapChange, 300);
+      
+    //     const map = useMapEvents({
+    //       moveend: debouncedFilter // Pass the debounced function directly
+    //     });
+      
+    //     return null;
+    //   };
+      
     const MyComponent = () => {
         const map = useMapEvents({
-            moveend: () => { //Throws an event whenever the bounds of the map change
-                const position = map.getBounds();  //after moving the map, a position is set and saved
-                consoleLog("L168 position changed -> value :", position)
-                setMapPosition(position);
-                debouncedStoppedMoving(map.getBounds());
-            }
-        })
-        return null
-    }
-
-    function makeDebounced(func, timeout) { //Function for the actual debounce
-        let timer;
-        return (...args) => {
-            clearTimeout(timer) //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
-            timer = setTimeout(() => func(...args), timeout);
+            moveend: () => handleMapChange // Pass the callback function directly
+        });
+        
+        const debouncedFilter = useDebouncedCallback(()=>initiateFilter(map.getBounds()), 300);
+        const handleMapChange = () => {
+          const position = map.getBounds();
+          consoleLog("L168 position changed -> value :", position);
+          setMapPosition(position);        
         };
-    }
+      
+        // const debouncedFilter = useDebouncedCallback(handleMapChange, 300);
+        console.log("L216 : typeof debouncedFilter", typeof debouncedFilter)
+        console.log("L216 : debouncedFilter", JSON.stringify(debouncedFilter))
+                
+        return null;
+      };
+      
+    //   const MyComponent = () => {
+    //     const map = useMapEvents({
+    //         moveend: () => { //Throws an event whenever the bounds of the map change
+    //             const position = map.getBounds();  //after moving the map, a position is set and saved
+    //             console.log("L168 position changed -> value :", position)
+    //             setMapPosition(position);
+    //             debouncedStoppedMoving(map.getBounds());
+    //         }
+    //     })
+    //     return null
+    // }
 
-    function stoppedMoving(bounds) { //funciton used to call initiate Filter
-        initiateFilter(bounds)
-    }
+    // function makeDebounced(func, timeout) { //Function for the actual debounce
+    //     let timer;
+    //     return (...args) => {
+    //         clearTimeout(timer) //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
+    //         timer = setTimeout(() => func(...args), timeout);
+    //     };
+    // }
 
-    const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
+    // function stoppedMoving(bounds) { //funciton used to call initiate Filter
+    //     initiateFilter(bounds)
+    // }
+
+    // const debouncedStoppedMoving = useDebounce(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
@@ -251,6 +292,7 @@ function TourMapContainer({
             searchParams.delete("filter");
         } else {
             searchParams.set("filter", JSON.stringify(filterValues));
+            setSearchParams(searchParams);
             consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
@@ -267,6 +309,7 @@ function TourMapContainer({
             }}>
 
         <MapContainer
+            className='leaflet-container'
             ref={mapRef}
             scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
             maxZoom={25}                    //how many times you can zoom
