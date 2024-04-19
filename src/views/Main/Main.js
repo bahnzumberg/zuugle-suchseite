@@ -104,16 +104,18 @@ try {
 
   // related to back button "ArrowBefore" back-button to Start page: 
   // this useEffect is to remove "range" param while maintaining other params 
-  useEffect(() => {
-    // navigation occurs after component update
-    if(searchParams.has('range') && forceUpdate){
-      searchParams.delete('range');
-      setSearchParams(searchParams);
-      goToStartPage();
-    }else if(forceUpdate){
-      goToStartPage();
-    }
-  }, [forceUpdate]);
+  // useEffect(() => {
+  //   // navigation occurs after component update
+  //   if(searchParams.has('range') && forceUpdate){
+  //     searchParams.delete('range');
+  //     setSearchParams(searchParams);
+  //     goToStartPage();
+  //   }else if(forceUpdate){
+  //     goToStartPage();
+  //   }
+  // }, [forceUpdate]);
+
+
 
 
   // filter values in localStorage:
@@ -248,7 +250,17 @@ try {
     // setMapView(searchParams.get("map") === "true");
   }, [filterCountLocal,filterValuesLocal]);
 
-  
+  const backBtnHandler = (e)=> {
+    e.preventDefault();
+    if(!!searchParams.get('map')) {
+      searchParams.delete('map');
+    }
+    if(searchParams.get('range')){
+      searchParams.delete('range');
+    }
+    setSearchParams(searchParams);
+    goToStartPage();
+  }
 
   const goToStartPage = () => {
     //remove map param here 
@@ -370,14 +382,7 @@ try {
                   to={{
                     pathname: "/",
                   }}
-                  onClick={(e)=> {
-                    e.preventDefault();
-                    if(!!searchParams.get('map')) {
-                      searchParams.delete('map');
-                      setSearchParams(searchParams);
-                    }
-                    setForceUpdate(prev => !prev) // triggers useEffect where 'forceUpdate' is monitored
-                  }}
+                  onClick={backBtnHandler}
                   replace
                 >
                   <ArrowBefore
