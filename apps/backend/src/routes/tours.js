@@ -17,6 +17,7 @@ const path = require('path');
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
+router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
@@ -41,6 +42,7 @@ const providerWrapper = async (req, res) => {
 const totalWrapper = async (req, res) => {
 
     const city = req.query.city;
+    // console.log("L44", req.query)
     const total = await knex.raw(`SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
@@ -448,9 +450,9 @@ const listWrapper = async (req, res) => {
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
             
-            logger("#######################################################");
-            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-            logger("#######################################################");
+            // logger("#######################################################");
+            // logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            // logger("#######################################################");
             
             if (result && result.rows) {
                 result = result.rows;
@@ -652,7 +654,6 @@ const filterWrapper = async (req, res) => {
 
     /** load full result for filter */
     let filterResultList = await queryForFilter;
-
 
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
@@ -1037,8 +1038,8 @@ const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
     //clg: query
-    logger("L1137 query at entry to buildWhereFromFilter :");
-    logger(query.toSQL().sql) 
+    // logger("L1137 query at entry to buildWhereFromFilter :");
+    // logger(query.toSQL().sql) 
     
    
     // Description:
@@ -1112,9 +1113,9 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereIn('season', ['x']);
     }
     //clg
-    logger("................................................................")
-    logger("L1222 query / after season:");
-    logger(query.toSQL().sql)
+    // logger("................................................................")
+    // logger("L1222 query / after season:");
+    // logger(query.toSQL().sql)
 
 
 
@@ -1129,9 +1130,9 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereRaw('number_of_days = -1 ')
     }
     // clgs
-    logger("................................................................")
-    logger("L1239 query / after number_of_days:");
-    logger(query.toSQL().sql)
+    // logger("................................................................")
+    // logger("L1239 query / after number_of_days:");
+    // logger(query.toSQL().sql)
 
     /** Überschreitung */
     if (!!(traverse)) {
@@ -1288,7 +1289,7 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
-    logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
+    // logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
@@ -1303,7 +1304,7 @@ const tourPdfWrapper = async (req, res) => {
         res.status(404).json({success: false});
         return;
     }else{
-        logger(`L1324 : tour with id ${id} found`)
+        // logger(`L1324 : tour with id ${id} found`)
         // if(process.env.NODE_ENV != "production"){
         //     logger("-----------------------------------------------")
         //     logger("-----------------------------------------------")
@@ -1338,8 +1339,8 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
-        logger(mapConnectionToFrontend(connection, datum))
+        // logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
+        // logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
@@ -1482,5 +1483,38 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     }
     return entry;
 }
+
+//************ BAUSTELLE **************/
+
+const mapWrapper = async (req, res) => {
+    // const tld = req.query.tld;
+  
+    // 1. pull all param values in FE and add it to req.query over there 
+    // 2. req.query or req.params which should be used ?
+    // 3. below in the knex call , let where be escaped and filters tours by coordinates see below
+  
+    // const { city, range, state, country, type, search, filter, sort, provider, map } = req.params;
+    console.log("req.query is : ", req.query)
+  
+  
+    let selects = ['id', 'gpx_data','gpx_file']; // id,gpx_data, gpx_file (last one can be pulled up later when clicked on map)
+    let where = {} 
+  
+    try {
+      // const result = await knex('tour')   //tour table
+      //     .select(selects)  
+      //     .count('* as count') // is it useful ? => Count all rows as 'count'
+      //     .where('country_code', tld) // see point 3 above
+      //     .groupBy('menu_lang')
+      //     .orderBy('count', 'desc') // Order by id ?
+      //     .limit(1);  // limit is what ? 10000 ?
+  
+  
+      res.status(200).json({ success: true , data_received : true});
+    } catch (error) {
+      console.error('Error retrieving map data:', error);
+      res.status(500).json({ success: false, error: 'Failed to retrieve map data' });
+    }
+  };
 
 export default router;
