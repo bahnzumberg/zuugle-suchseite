@@ -25,7 +25,7 @@ const initialState = {
   loading: false,
   saving: false,
   page: 1,
-  pageSize: 10,
+  pageSize: 100,
   total: "",
   orderId: "created_at",
   orderDesc: true,

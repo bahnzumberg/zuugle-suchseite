@@ -282,7 +282,7 @@ export function Search({
       searchParams.set("filter", JSON.stringify(entry));
       localStorage.setItem("filterValues", JSON.stringify(entry));
     }
-    setSearchParams(new URLSearchParams(searchParams));
+    setSearchParams(searchParams);
   };
 
   // search handling function

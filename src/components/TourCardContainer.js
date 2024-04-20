@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import {useSearchParams} from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from './EndOfList';
+import {consoleLog} from '../utils/globals'
 
 export default function TourCardContainer({
   tours,
@@ -42,10 +43,8 @@ export default function TourCardContainer({
 
   
   const _loadTours = async () => {
-    if(process.env.NODE_ENV !== "production"){
-      // console.log("L67 ====//////   filterValues :", filterValues);
-      // console.log("L68 ====//////   filterValues :", _filter);
-    }
+      // consoleLog("L67 ====//////   filterValues :", filterValues);
+      // consoleLog("L68 ====//////   filterValues :", _filter);
     let city = searchParams.get("city");
     let range = searchParams.get("range");
     let state = searchParams.get("state");
@@ -73,9 +72,8 @@ export default function TourCardContainer({
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
     }).then((res) => {
-      if(process.env.NODE_ENV !== "production"){
-        // console.log("L116 >>>> results :",(res));
-      }
+      // consoleLog("L116 >>>> results :",(res));
+
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
       if (retrievedTours.length === 0 || retrievedTours.length < 9) {
         setHasMore(false);        

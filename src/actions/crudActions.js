@@ -72,7 +72,8 @@ export function loadList(
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
-  
+  // console.log("L75 -> route :", route)
+
   // initialize language param
   const langPassed =
     language &&
@@ -84,6 +85,7 @@ export function loadList(
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
+  // console.log(`L87 : state : ${JSON.stringify(state)} and stateName :${stateName}`)
 
   let params = {};
   if (state) {
@@ -300,3 +302,13 @@ export const getTotalCityTours = (city) => {
       return res.data;
     });
 };
+
+export const getMapData = (data)=>{
+  return axios.get('tours/map/', {
+    params: data
+  }).then((res)=>{
+    console.log("L311 res.data /crudActions  :", res.data)
+    return res.data
+  })
+
+}

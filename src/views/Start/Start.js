@@ -131,7 +131,7 @@ function Start({
       abortController.abort();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalTours]);
+  }, []);
 
   const getCity = () => {
     searchParamCity = searchParams.get("city");

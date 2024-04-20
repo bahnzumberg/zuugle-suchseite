@@ -31,7 +31,8 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import { consoleLog } from "../../utils/globals";
-import MapBtn from '../../components/Search/MapBtn'
+import MapBtn from '../../components/Search/MapBtn';
+import {getMapData} from '../../actions/crudActions'
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -93,7 +94,7 @@ try {
   const [counter, setCounter] = useState(null); 
 
   // const currentParams = new URLSearchParams(location.search);
-  const [forceUpdate, setForceUpdate] = useState(false);
+  // const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
   const mapValue = (searchParams.get('map')) === "true" ? true : false ;
@@ -102,27 +103,12 @@ try {
   const initBtnText = (searchParams.get('map')) === "true" ? 'Remove' : `${t("start.zur_kartenansicht")}` ;
   const [mapBtnext,setMapBtnText] = useState(initBtnText);
 
-  // related to back button "ArrowBefore" back-button to Start page: 
-  // this useEffect is to remove "range" param while maintaining other params 
-  // useEffect(() => {
-  //   // navigation occurs after component update
-  //   if(searchParams.has('range') && forceUpdate){
-  //     searchParams.delete('range');
-  //     setSearchParams(searchParams);
-  //     goToStartPage();
-  //   }else if(forceUpdate){
-  //     goToStartPage();
-  //   }
-  // }, [forceUpdate]);
-
-
-
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
   
-  // filter values in params:
+
     
   useEffect(() => {
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
@@ -171,18 +157,21 @@ try {
   
       if(filter) values.filter = filter;
 
+      if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
+
       //make the loadTours() call with the data
-        
-      loadTours(values).then((res) => {
+      loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
         // set 'filterValues' in localStorage
-        if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
+      });
+      !!values && console.log("values : ", values)
+      getMapData(values).then((res)=>{
+        res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
+        res?.data && console.log("L167 res.data/ Map data :", res.data)
       });
       
     }
-  
-
-  }, []);
-  
+  }, [searchParams]); 
+  // passing the dependency "serachParams" means that no matter the cause of change in the url; be it change in the filter-modal or in the map the url params change and useEffect causes a re-render and backend calls so both the map and card container will reflect this change, this way both become synchronous in cards they display.
 
   useEffect(() => {
     if (scrollToTop) {
@@ -252,9 +241,9 @@ try {
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
-    if(!!searchParams.get('map')) {
-      searchParams.delete('map');
-    }
+    // if(!!searchParams.get('map')) {
+    //   searchParams.delete('map');
+    // }
     if(searchParams.get('range')){
       searchParams.delete('range');
     }

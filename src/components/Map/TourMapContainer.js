@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect, useRef, useState, useMemo} from "react";
-import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, ZoomControl} from "react-leaflet";
+import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, ZoomControl, Popup} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import Box from "@mui/material/Box";
@@ -11,15 +11,15 @@ import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
-import useDebouncedCallback from '../../utils/useDebouncedCallback';
+// import useDebouncedCallback from '../../utils/useDebouncedCallback';
 
 function TourMapContainer({
     tours,
     totalTours,
     onSelectTour,
-    scrollWheelZoom = true,
+    // scrollWheelZoom = true,
     filter,
     // loadGPX,
     setTourID,
@@ -37,7 +37,9 @@ function TourMapContainer({
 
                         
     const dispatch = useDispatch(); // Get dispatch function from Redux
-    const getState = useSelector(state => state); // Get state from Redux
+    // const getState = useSelector(state => state); // Get state from Redux
+
+    const [popupOpen, setPopupOpen] = useState({});
 
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
@@ -48,7 +50,8 @@ function TourMapContainer({
 
     const mapRef = useRef();
     const clusterRef = useRef();
-    const markerRef = useRef(null)
+    const markerRef = useRef(null);
+    const initialTours = useRef(tours);
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -65,9 +68,40 @@ function TourMapContainer({
         .map((nav) => nav.type)
         .includes("reload");
 
-        
-        
         useEffect(() => {
+            if (initialTours.current) {
+                const initialPopupOpenState = {};
+                const uniqueTourIds = new Set(); // Use a Set to store unique tour IDs
+                initialTours.current.forEach(tour => {
+                    if (!uniqueTourIds.has(tour.id)) { // Check if tour ID is unique
+                        initialPopupOpenState[tour.id] = false;
+                        uniqueTourIds.add(tour.id); // Add tour ID to the Set
+                    } else {
+                        console.log(`Duplicate tour ID found: ${tour.id}`); // Log a warning for duplicate IDs
+                    }
+                });
+                setPopupOpen(initialPopupOpenState);
+            }
+        }, [initialTours]);
+
+        useEffect(() => {
+            consoleLog("L88 Tours:", tours, true);
+        }, [tours]);
+        
+        
+        
+  
+    useEffect(()=>{
+        // if(!!popupOpen && Array.isArray(popupOpen)){
+        if(!!popupOpen){
+            // for (let i = 0; i < popupOpen.length; i++) {
+            //     consoleLog(`poopUp${i} : ${popupOpen[i]}`);
+            // }
+            consoleLog("L100 popupOpen:", popupOpen);
+        }
+    },[popupOpen]);
+        
+    useEffect(() => {
         consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
@@ -113,7 +147,17 @@ function TourMapContainer({
                 updateBounds();
             }
         }
-    }, [tours])
+    }, [tours]);
+
+    const handleMarkerClick = (tourId) => {
+        console.log('Previous popupOpen state:', popupOpen);
+        setPopupOpen(prevState => ({
+            ...prevState,
+            [tourId]: !prevState[tourId] // Toggle the state of the clicked marker with popup
+        }));
+        console.log('New popupOpen state:', popupOpen);
+
+    }
 
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
@@ -138,7 +182,7 @@ function TourMapContainer({
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-                const res = await loadGpxFunction(dispatch, getState); // Execute the inner function with dispatch and getState
+                const res = await loadGpxFunction(dispatch); // Execute the inner function with dispatch 
                 if (!!res && !!res.data) {
                     consoleLog("L154 IF res.data is true :", !!res.data )
                     let gpx = new gpxParser(); //Create gpxParser Object
@@ -162,27 +206,41 @@ function TourMapContainer({
     }
 
     const markerComponents = useMemo(() => {
-        if (!!tours) {
-            return tours.map((tour, index) => {
-                consoleLog("L123 : tour", tour)
+        // if (!!tours) {
+        if (!!initialTours) {
+            return initialTours.current.map((tour) => {
+            // return tours.map((tour) => {
+                // consoleLog("L123 : tour", tour)
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
                 // consoleLog("L124 : data is ", data)
                 if (!!data) {
+                    // markerRef.bindPopup("<div>Popup here !</div>").openPopup();
                     return (
                         <Marker
-                            key={index}
+                            key={tour.id}
                             ref={markerRef}
                             position={[data.lat, data.lon]}
                             title={tour.title}
                             icon={StartIcon}
                             eventHandlers={{
+                                // click: () => handleMarkerClick(tour.id)
+                                // ,
                                 click: () => {
                                     setTourID(tour.id);
                                     setCurrentGpxTrack(tour.gpx_file);
                                     onSelectTour(tour.id);
+                                    handleMarkerClick(tour.id);
+                                    // setPopupOpen(!popupOpen)
                                 },
                             }}
-                        ></Marker>
+                        >
+                            {/* {popupOpen[tour.id] && ( */}
+                            <Popup>
+                                {/* <div>{`${tour.id} is open!`}</div> */}
+                                <div>Popup here !</div>
+                            </Popup>
+                        {/* )} */}
+                        </Marker>
                     );
                 }
                 return null;
@@ -203,30 +261,6 @@ function TourMapContainer({
     }
 
             
-    //********* Works BUT with returned empty function
-    // const MyComponent = () => {
-
-    //     const handleMapChange = () => {
-    //         const position = map.getBounds();
-    //         consoleLog("L168 position changed -> value :", position);
-    //         assignNewMapPosition(position); 
-    //         initiateFilter(position);       
-    //       };
-          
-    //       const {debouncedFunction, debouncedValue} = useDebouncedCallback(handleMapChange, 300);
-    //       console.log("L216 : typeof debouncedFunction", typeof debouncedFunction)
-    //       console.log("L216 : debouncedFunction", JSON.stringify(debouncedFunction))
-
-    //     const map = useMapEvents({
-    //         moveend: debouncedFunction
-    //     });
-        
-    //     console.log("217 : typeof debouncedValue", typeof debouncedValue)
-    //     console.log("217 : debouncedValue", JSON.stringify(debouncedValue))
-                
-    //     return null;
-    //   };
-    
     
     //legacy code (the Diploma )
       const MyComponent = () => {
@@ -302,11 +336,15 @@ function TourMapContainer({
             className='leaflet-container'
             ref={mapRef}
             scrollWheelZoom={false} //if you can zoom with you mouse wheel
-            maxZoom={25}                    //how many times you can zoom
+            zoomSnap={1}
+            maxZoom={15}                    //how many times you can zoom
             center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
-            style={{height: "80%", width: "100%"}} //Size of the map
+            style={{height: "100%", width: "100%"}} //Size of the map
             zoomControl={false}
+            bounds={() => {
+                updateBounds(); 
+            }}
         >
             <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
