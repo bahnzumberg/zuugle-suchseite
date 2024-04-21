@@ -1347,7 +1347,7 @@ const tourPdfWrapper = async (req, res) => {
     res.status(500).json({ success: false });
 }
 
-async function last_two_characters(h_url) {
+function last_two_characters(h_url) {
     const hashed_url = h_url.toString();
     if (hashed_url.length >= 2) {
         return hashed_url.substr(hashed_url.length - 2).toString();
