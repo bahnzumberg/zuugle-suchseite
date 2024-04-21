@@ -282,7 +282,7 @@ export async function syncGPXImage(){
 async function last_two_characters(h_url) {
     const hashed_url = h_url.toString();
     if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2);
+        return hashed_url.substr(hashed_url.length - 2).toString();
     }
     else {
         return "undefined";
@@ -299,6 +299,7 @@ async function _syncGPX(prov, h_url, title){
             } else {
                 filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(h_url), "/");
             }
+
             if (!fs.existsSync(filePath)){
                 fs.mkdirSync(filePath);
             }
