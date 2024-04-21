@@ -127,8 +127,26 @@ CREATE TABLE fahrplan (
      totour_track_duration time DEFAULT NULL,
      fromtour_track_key int default null,
      fromtour_track_duration time DEFAULT NULL,
+	 connection_description_json JSONB DEFAULT NULL,
+	 connection_lastregular_arrival_stop varchar(250) DEFAULT NULL,
+	 connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL,
+	 connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL,
+	 connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
+	 return_description_json JSONB DEFAULT NULL,
+	 return_firstregular_departure_stop varchar(250) DEFAULT NULL,
+	 return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL,
+	 return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL,
+	 return_firstregular_departure_datetime timestamp DEFAULT NULL,
      PRIMARY KEY (id)
 );
+
+-- 30.03.2024 run this drop columns if you have an existing database
+ALTER TABLE fahrplan
+DROP COLUMN IF EXISTS connection_description,
+DROP COLUMN IF EXISTS connection_description_detail,
+DROP COLUMN IF EXISTS return_description,
+DROP COLUMN IF EXISTS return_description_detail;
+
 
 
 CREATE INDEX ON fahrplan (hashed_url);
@@ -223,17 +241,6 @@ CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
 
 
-ALTER TABLE fahrplan ADD COLUMN connection_description_json JSONB DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop varchar(250) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN connection_lastregular_arrival_datetime timestamp DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN return_description_json JSONB DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop varchar(250) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL;
-ALTER TABLE fahrplan ADD COLUMN return_firstregular_departure_datetime timestamp DEFAULT NULL;
-
 INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;
 INSERT INTO kpi SELECT CONCAT('total_tours_', f.city_slug) AS NAME, COUNT(DISTINCT t.id) AS VALUE FROM fahrplan AS f INNER JOIN tour AS t ON f.tour_provider=t.provider AND f.hashed_url=t.hashed_url GROUP BY f.city_slug;
 INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
@@ -242,9 +249,3 @@ INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
 INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
 
 
--- 30.03.2024 run this drop columns if you have an existing database
-ALTER TABLE fahrplan
-DROP COLUMN IF EXISTS connection_description,
-DROP COLUMN IF EXISTS connection_description_detail,
-DROP COLUMN IF EXISTS return_description,
-DROP COLUMN IF EXISTS return_description_detail;
