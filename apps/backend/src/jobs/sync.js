@@ -8,7 +8,6 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
-// import { isArrayLike } from "lodash";
 import logger from "../utils/logger";
 
 export async function fixTours(){
@@ -84,7 +83,7 @@ const deleteFilesOlder30days = (dirPath) => {
         fs.mkdirSync(dirPath);
     }
     
-    let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
+    let commandline = "find "+ dirPath + " -maxdepth 2 -mtime +30 -type f -delete";
     const { exec } = require('child_process');
     exec(commandline, (err, stdout, stderr) => {
         if (err) {
@@ -280,23 +279,36 @@ export async function syncGPXImage(){
 
 }
 
+function last_two_characters(h_url) {
+    const hashed_url = h_url.toString();
+    if (hashed_url.length >= 2) {
+        return hashed_url.substr(hashed_url.length - 2).toString();
+    }
+    else {
+        return "undefined";
+    }
+}
 
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
         try {
-            // let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
-            let fileName = 'public/gpx/' + h_url + '.gpx';
+            let fileName = h_url + '.gpx';
             let filePath = '';
             if(process.env.NODE_ENV == "production"){
-                filePath = path.join(__dirname, "../", fileName);
+                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(h_url), "/");
             } else {
-                filePath = path.join(__dirname, "../../", fileName);
+                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(h_url), "/");
             }
 
-            if (!!!fs.existsSync(filePath)) {
+            if (!fs.existsSync(filePath)){
+                fs.mkdirSync(filePath);
+            }
+
+            let filePathName = filePath + fileName;
+            if (!!!fs.existsSync(filePathName)) {
                 const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
-                if(!!waypoints && waypoints.length > 0 && !!filePath){
-                    await createFileFromGpx(waypoints, filePath, title);
+                if(!!waypoints && waypoints.length > 0 && !!filePathName){
+                    await createFileFromGpx(waypoints, filePathName, title);
                 }
             } 
         } catch(err) {
