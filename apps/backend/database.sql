@@ -248,3 +248,13 @@ CREATE TABLE city2tour (
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
+
+
+CREATE TABLE tracks (
+	   track_key INTEGER NOT NULL,
+	   track_point_sequence INTEGER NOT NULL,
+	   track_point_lon decimal(12,9) DEFAULT NULL,
+	   track_point_lat decimal(12,9) DEFAULT NULL,
+	   track_point_elevation decimal(12,8) DEFAULT NULL,
+	   PRIMARY KEY (track_key)
+);
