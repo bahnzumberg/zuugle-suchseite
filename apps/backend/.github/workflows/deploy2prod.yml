@@ -50,5 +50,5 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
-            export PATH=$PATH:/root/.nvm/versions/node/v20.5.0/bin
+            export PATH=$PATH:/root/.nvm/versions/node/v20.5.0/bin:/root/.nvm/versions/node/v20.3.0/bin
             pm2 restart all
