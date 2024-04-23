@@ -120,7 +120,6 @@ function TourMapContainer({
 
     const updateBounds = () => {
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
-            console.log("L114 at updateBounds ")
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
             }
@@ -128,8 +127,6 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-        console.log("L153 url : ", url);
-
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -186,29 +183,6 @@ function TourMapContainer({
         return null;
     }, [tours,onSelectTour,setTourID,StartIcon]);
 
-    // const setCurrentGpxTrack = async (url ) => {
-    //     console.log("L153 url : ", url) ;//http://localhost:8080/public/gpx/bahnzumberg_14877.gpx
-    //     if(!!url){
-    //         await loadGPX(url).then(res => {
-    //             if (!!res && !!res.data) {
-    //                 console.log("L154 res.data :", res.data)
-    //                 let gpx = new gpxParser(); //Create gpxParser Object
-    //                 gpx.parse(res.data);
-    //                 if (gpx.tracks.length > 0) {
-    //                     let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
-    //                     setGpxTrack(track);
-    //                 }
-    //             }
-    //         }).catch(error => {
-    //             console.error('Error loading GPX:', error);
-    //             setGpxTrack([]);
-    //         });
-    //     }else {
-    //         setGpxTrack([]);
-    //     }   
-    // }
-
-    
     const createClusterCustomIcon = function (cluster) {
         return L.divIcon({
             html: `<span>${cluster.getChildCount()}</span>`,
