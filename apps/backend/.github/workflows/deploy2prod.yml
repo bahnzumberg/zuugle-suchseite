@@ -41,7 +41,7 @@ jobs:
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
             rm /root/suchseite/backup/api.tar.gz
-            tar -zcvf --exclude='gpx-image' --exclude='gpx' --exclude='gpx-track' /root/suchseite/backup/api.tar.gz /root/suchseite/api/
+            tar -zcvf --exclude='${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx-image/' --exclude='${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx/' --exclude='${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx-track/' /root/suchseite/backup/api.tar.gz ${{ secrets.PROD_REMOTE_TARGET_API }}
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
@@ -60,5 +60,5 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
-            export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
+            export PATH=$PATH:/root/.nvm/versions/node/v20.5.0/bin
             pm2 restart all
