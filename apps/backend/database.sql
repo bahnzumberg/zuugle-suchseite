@@ -49,14 +49,18 @@ CREATE TABLE tour (
       user_rating_avg decimal(6,2) DEFAULT NULL,
       cities JSONB DEFAULT NULL,
       cities_object JSONB DEFAULT NULL,
-
+	  full_text TEXT,
+	  search_column tsvector,
+	  separator smallint,
+	  gpx_data JSONB,
+	  max_ele INT default 0,
+	  text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
 );
 
-ALTER TABLE tour ADD COLUMN full_text TEXT;
-ALTER TABLE tour ADD COLUMN search_column tsvector;
-ALTER TABLE tour ADD COLUMN separator smallint;
-ALTER TABLE tour ADD COLUMN gpx_data JSONB;
+
+
+
 
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
@@ -81,6 +85,7 @@ CREATE TABLE city (
 );
 
 CREATE INDEX ON city (city_slug);
+
 
 CREATE TABLE fahrplan (
      id SERIAL,
@@ -147,8 +152,6 @@ DROP COLUMN IF EXISTS connection_description_detail,
 DROP COLUMN IF EXISTS return_description,
 DROP COLUMN IF EXISTS return_description_detail;
 
-
-
 CREATE INDEX ON fahrplan (hashed_url);
 CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (totour_track_key);
@@ -163,16 +166,24 @@ CREATE INDEX ON fahrplan (weekday_type);
 
 
 CREATE TABLE kpi (
-      name varchar(30) NOT NULL,
+      name varchar(150) NOT NULL,
       value int DEFAULT 0,
       PRIMARY KEY (name)
 );
+
 INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
 INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
+INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;
+INSERT INTO kpi SELECT CONCAT('total_tours_', f.city_slug) AS NAME, COUNT(DISTINCT t.id) AS VALUE FROM fahrplan AS f INNER JOIN tour AS t ON f.tour_provider=t.provider AND f.hashed_url=t.hashed_url GROUP BY f.city_slug;
+INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
+INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
+
+
 
 CREATE TABLE provider (
       provider varchar(30) NOT NULL,
       provider_name varchar(150) NOT NULL,
+	  allow_gpx_download varchar(1) default 'y',
       PRIMARY KEY (provider)
 );
 
@@ -183,14 +194,13 @@ CREATE TABLE logsearchphrase (
      num_results int DEFAULT 0,
      city_slug varchar(64) NOT NULL,
      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
+	 menu_lang VARCHAR(2) default NULL,
+	 country_code VARCHAR(2) default NULL,
      PRIMARY KEY (id)
 );
-ALTER TABLE logsearchphrase ADD COLUMN menu_lang VARCHAR(2) default NULL;
-ALTER TABLE logsearchphrase ADD COLUMN country_code VARCHAR(2) default NULL;
 
 
-ALTER TABLE tour ADD COLUMN max_ele INT default 0;
-ALTER TABLE tour ADD COLUMN text_lang VARCHAR(2) default 'de';
+
 
 
 CREATE TABLE disposible (
@@ -224,9 +234,8 @@ CREATE INDEX ON gpx (waypoint);
 CREATE INDEX ON gpx (lat);
 CREATE INDEX ON gpx (lon);
 
-ALTER TABLE provider ADD COLUMN allow_gpx_download varchar(1) default 'y';
 
-ALTER TABLE kpi ALTER COLUMN name TYPE varchar(150);
+
 
 CREATE TABLE city2tour (
       tour_id SERIAL,
@@ -239,13 +248,3 @@ CREATE TABLE city2tour (
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
-
-
-INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;
-INSERT INTO kpi SELECT CONCAT('total_tours_', f.city_slug) AS NAME, COUNT(DISTINCT t.id) AS VALUE FROM fahrplan AS f INNER JOIN tour AS t ON f.tour_provider=t.provider AND f.hashed_url=t.hashed_url GROUP BY f.city_slug;
-INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;
-INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;
-INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;
-INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
-
-
