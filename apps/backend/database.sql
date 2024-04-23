@@ -256,5 +256,5 @@ CREATE TABLE tracks (
 	   track_point_lon decimal(12,9) DEFAULT NULL,
 	   track_point_lat decimal(12,9) DEFAULT NULL,
 	   track_point_elevation decimal(12,8) DEFAULT NULL,
-	   PRIMARY KEY (track_key)
+	   PRIMARY KEY (track_key, track_point_sequence)
 );
