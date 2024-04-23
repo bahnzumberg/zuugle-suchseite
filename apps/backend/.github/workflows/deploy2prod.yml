@@ -41,7 +41,7 @@ jobs:
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
             rm /root/suchseite/backup/api.tar.gz
-            tar -zcvf /root/suchseite/backup/api.tar.gz /root/suchseite/api/
+            tar -zcvf --exclude='gpx-image' --exclude='gpx' --exclude='gpx-track' /root/suchseite/backup/api.tar.gz /root/suchseite/api/
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
