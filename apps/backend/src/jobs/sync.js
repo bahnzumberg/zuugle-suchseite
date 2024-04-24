@@ -58,7 +58,32 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
                              
-                    
+
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+                    SET connection_arrival_stop_lat = a.connection_arrival_stop_lat,
+                    connection_arrival_stop_lon = a.connection_arrival_stop_lon
+                    FROM (
+                        SELECT 
+                        f.hashed_url,
+                        f.connection_arrival_stop_lat,
+                        f.connection_arrival_stop_lon,
+                        ROW_NUMBER () OVER ( PARTITION BY f.hashed_url ORDER BY f.hashed_url, f.count_num DESC )
+                        FROM (
+                            SELECT 
+                            hashed_url,
+                            connection_arrival_stop_lat,
+                            connection_arrival_stop_lon,
+                            COUNT(*) AS count_num
+                            FROM fahrplan 
+                            GROUP BY hashed_url, connection_arrival_stop_lat, connection_arrival_stop_lon
+                            ) AS f
+                        INNER JOIN tour AS t
+                        ON t.hashed_url=f.hashed_url
+                        GROUP BY f.hashed_url, f.connection_arrival_stop_lat, f.connection_arrival_stop_lon, f.count_num
+                        ) AS a
+                    WHERE a.ROW_NUMBER=1
+                    AND t.hashed_url=a.hashed_url`);
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -457,16 +482,13 @@ export async function syncFahrplan(mode='dev'){
 
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (best_connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (city_slug);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (weekday_type);`);
     } catch(err){
         console.log('error: ', err);
     }

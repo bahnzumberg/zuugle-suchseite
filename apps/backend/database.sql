@@ -61,9 +61,6 @@ CREATE TABLE tour (
 );
 
 
-
-
-
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
 CREATE INDEX ON tour (cities);
@@ -154,15 +151,15 @@ DROP COLUMN IF EXISTS return_description,
 DROP COLUMN IF EXISTS return_description_detail;
 
 CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
-CREATE INDEX ON fahrplan (connection_duration);
 CREATE INDEX ON fahrplan (best_connection_duration);
 CREATE INDEX ON fahrplan (totour_track_duration);
 CREATE INDEX ON fahrplan (fromtour_track_duration);
 CREATE INDEX ON fahrplan (city_slug);
-CREATE INDEX ON fahrplan (weekday_type);
+-- CREATE INDEX ON fahrplan (connection_duration);
+-- CREATE INDEX ON fahrplan (tour_provider);
+-- CREATE INDEX ON fahrplan (weekday_type);
 
 
 
