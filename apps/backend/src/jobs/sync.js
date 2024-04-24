@@ -953,7 +953,6 @@ const bulk_insert_tours = async (entries) => {
             range_slug: entry.range_slug,
             range: entry.range_name,
             season: entry.season,
-            // children: entry.children,
             number_of_days: entry.number_of_days,
             jan: entry.jan,
             feb: entry.feb,

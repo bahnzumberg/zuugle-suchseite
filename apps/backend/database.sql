@@ -49,12 +49,14 @@ CREATE TABLE tour (
       user_rating_avg decimal(6,2) DEFAULT NULL,
       cities JSONB DEFAULT NULL,
       cities_object JSONB DEFAULT NULL,
-	  full_text TEXT,
-	  search_column tsvector,
-	  separator smallint,
-	  gpx_data JSONB,
-	  max_ele INT default 0,
-	  text_lang VARCHAR(2) default 'de',
+      full_text TEXT,
+	search_column tsvector,
+	separator smallint,
+	gpx_data JSONB,
+	max_ele INT default 0,
+	text_lang VARCHAR(2) default 'de',
+      connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
+      connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
       PRIMARY KEY (id)
 );
 
@@ -71,7 +73,6 @@ CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
 CREATE INDEX search_column_idx ON tour USING GIN (search_column);
-CREATE INDEX ON tour (separator);
 
 
 -- weekday types
@@ -132,16 +133,16 @@ CREATE TABLE fahrplan (
      totour_track_duration time DEFAULT NULL,
      fromtour_track_key int default null,
      fromtour_track_duration time DEFAULT NULL,
-	 connection_description_json JSONB DEFAULT NULL,
-	 connection_lastregular_arrival_stop varchar(250) DEFAULT NULL,
-	 connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-	 connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL,
-	 connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
-	 return_description_json JSONB DEFAULT NULL,
-	 return_firstregular_departure_stop varchar(250) DEFAULT NULL,
-	 return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL,
-	 return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL,
-	 return_firstregular_departure_datetime timestamp DEFAULT NULL,
+     connection_description_json JSONB DEFAULT NULL,
+     connection_lastregular_arrival_stop varchar(250) DEFAULT NULL,
+     connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL,
+     connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL,
+     connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
+     return_description_json JSONB DEFAULT NULL,
+     return_firstregular_departure_stop varchar(250) DEFAULT NULL,
+     return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL,
+     return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL,
+     return_firstregular_departure_datetime timestamp DEFAULT NULL,
      PRIMARY KEY (id)
 );
 
