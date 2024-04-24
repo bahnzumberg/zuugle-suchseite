@@ -87,7 +87,7 @@ export const createImagesFromMap = async (ids) => {
                     }
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
-                        await createImageFromMap(browser, filePath, url + last_two_characters(providerhashedUrl) + "/" + ch + ".gpx", 80);
+                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
                         try {
                             await sharp(filePath).resize({
