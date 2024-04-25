@@ -1048,45 +1048,52 @@ const buildWhereFromFilter = (params, query, print = false) => {
     // logger("L1137 query at entry to buildWhereFromFilter :");
     // logger(query.toSQL().sql) 
     
-   
     // Description:
     // if params.filter contains ONLY {ignore_filter : 'true'} OR if params.filter does not exist return.
-    if (!!params.filter) {
-        const parsedFilter = JSON.parse(params.filter);
-        let filterIgnored = (() => {
-            if (
-                !!parsedFilter &&
-                typeof(parsedFilter) === 'object' &&  // Fixed this line
-                Object.keys(parsedFilter).length === 1 &&
-                parsedFilter.hasOwnProperty('ignore_filter') &&
-                parsedFilter['ignore_filter'] === 'true'
-            ) {
-                // console.log("L1089: filterIgnored : TRUE");
-                return true; 
-            } else {
-                // console.log("L1091: filterIgnored : FALSE");
-                return false; 
-            }
-        })();  // filterIgnored() is a self-invocked function
-        if (filterIgnored) return query;
-
-    }else return query;
     
-
-
-    // logger("Before L1087 !")
+    if (!!params.filter && typeof params.filter === 'string') {
+        try {
+            const parsedFilter = JSON.parse(params.filter);
+            //check if flter is ignored
+            let filterIgnored = (() => {
+                if (
+                    !!parsedFilter &&
+                    typeof(parsedFilter) === 'object' &&  // Fixed this line
+                    Object.keys(parsedFilter).length === 1 &&
+                    parsedFilter.hasOwnProperty('ignore_filter') &&
+                    parsedFilter['ignore_filter'] === 'true'
+                ) {
+                    // console.log("L1089: filterIgnored : TRUE");
+                    return true; 
+                } else {
+                    // console.log("L1091: filterIgnored : FALSE");
+                    return false; 
+                }
+            })();  // filterIgnored() is a self-invocked function
+            if (filterIgnored) return query;
+            
+        } catch (error) {
+            console.error("Error parsing filter:", error.message);
+            return query
+        }
+    }else {
+        // console.log("params.filter is not a string");
+        return query
+    };
     
-    // logger("After L1087 !")
-    // ****************************************************************
 
     let filter ;
     if(typeof(params.filter) === 'string') {
+        // console.log("params.filter is a string");        
         filter = JSON.parse(params.filter) ;
     }else if(typeof(params.filter) === 'object'){
+        // console.log("params.filter is an object");        
         filter = params.filter;
     }else{
+        // console.log("params.filter is neither");
         filter={};
     }
+    // console.log("L1101 filter.singleDayTour :", filter.singleDayTour)
 
     const {
         singleDayTour,
