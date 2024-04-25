@@ -506,7 +506,7 @@ const readAndInsertFahrplan = async (bundle) => {
                                                 hashed_url, 
                                                 CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
                                                 CONCAT(DATE_FORMAT(valid_thru, '%Y-%m-%d'), ' 00:00:00') as  valid_thru,
-                                                weekday, weekday_type, date_any_connection,
+                                                weekday, date_any_connection,
                                                 city_slug, 
                                                 city_name, 
                                                 city_any_connection, 
@@ -559,7 +559,7 @@ const readAndInsertFahrplan = async (bundle) => {
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider, hashed_url, calendar_date, 
-                                            valid_thru, weekday, weekday_type, date_any_connection,
+                                            valid_thru, weekday, date_any_connection,
                                             city_slug, city_name, city_any_connection, best_connection_duration,
                                             connection_rank, connection_departure_datetime, connection_duration, 
                                             connection_no_of_transfers, connection_departure_stop, 
@@ -793,7 +793,8 @@ export async function mergeToursWithFahrplan(){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug} AND connection_duration IS NOT NULL GROUP BY 2")
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
