@@ -505,7 +505,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                                 provider,
                                                 hashed_url, 
                                                 CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
-                                                CONCAT(DATE_FORMAT(valid_thru, '%Y-%m-%d'), ' 00:00:00') as  valid_thru,
                                                 weekday, date_any_connection,
                                                 city_slug, 
                                                 city_name, 
@@ -559,7 +558,7 @@ const readAndInsertFahrplan = async (bundle) => {
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider, hashed_url, calendar_date, 
-                                            valid_thru, weekday, date_any_connection,
+                                            weekday, date_any_connection,
                                             city_slug, city_name, city_any_connection, best_connection_duration,
                                             connection_rank, connection_departure_datetime, connection_duration, 
                                             connection_no_of_transfers, connection_departure_stop, 
