@@ -581,9 +581,6 @@ const listWrapper = async (req, res) => {
 }
 
 const filterWrapper = async (req, res) => {
-    // const timer_start= Date. now();
-    // console.log("Start filterWrapper: ", timer_start);
-
     const search = req.query.search;
     const city = req.query.city;
     const range = req.query.range;
@@ -601,7 +598,6 @@ const filterWrapper = async (req, res) => {
 
     /** city search */
     if(!!city && city.length > 0){
-        // whereRaw = `cities @> '[{"city_slug": "${city}"}]'::jsonb`;
         whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
     }
     else {
@@ -749,7 +745,8 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
             e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
 
-            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
                 e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
@@ -794,7 +791,9 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
-        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+        // if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+
+        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
@@ -1360,6 +1359,16 @@ const tourPdfWrapper = async (req, res) => {
     res.status(500).json({ success: false });
 }
 
+function last_two_characters(h_url) {
+    const hashed_url = h_url.toString();
+    if (hashed_url.length >= 2) {
+        return hashed_url.substr(hashed_url.length - 2).toString();
+    }
+    else {
+        return "undefined";
+    }
+}
+
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
     const type = !!req.query.type ? req.query.type : "gpx";
@@ -1374,8 +1383,7 @@ const tourGpxWrapper = async (req, res) => {
     try {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
-            // let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`));
-            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`));
+            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${keyAbreise}.gpx`));
             let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour_track_${keyAnreise}.gpx`));
 
@@ -1387,8 +1395,7 @@ const tourGpxWrapper = async (req, res) => {
             }
 
         } else {
-            // let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`);
-            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${entry.hashed_url}.gpx`);
+            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`);
             if(type == "abreise" && !!key){
                 filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track_${key}.gpx`);
             } else if(type == "anreise" && !!key){
@@ -1450,11 +1457,8 @@ const getConnectionsByWeekday = (connections, weekday) => {
 
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
-    
-    // entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.provider}_${entry.hashed_url}.gpx`;
-    // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx.jpg`;
-    // entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.provider}_${entry.hashed_url}_gpx_small.jpg`;
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${entry.hashed_url}.gpx`;
+
+    entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
     entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx.jpg`;
     entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${entry.hashed_url}_gpx_small.jpg`;
     if(!!addDetails){

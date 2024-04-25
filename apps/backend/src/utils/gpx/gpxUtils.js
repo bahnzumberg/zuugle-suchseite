@@ -86,26 +86,8 @@ export const createImagesFromMap = async (ids) => {
                         filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+ch+"_gpx_small.jpg");
                     }
 
-                    const today = moment().format('D');
-                    const hash_day = hashString(ch) % 30 + 1;
-                    if (today == hash_day) {
-                        try {
-                            fs.unlinkSync(filePath);
-                        } catch(err) {
-                            // console.log("createImagesFromMap unlinkSync filePath: " + err.message);
-                        }
-                        try {
-                            fs.unlinkSync(filePathSmall);
-                        } catch(err) {
-                            // console.log("createImagesFromMap unlinkSync filePathSmall: " + err.message);
-                        }
-                    }
-                    
                     if (!!filePath && !!!fs.existsSync(filePath)) {
-                        await createImageFromMap(browser, filePath, url + ch + ".gpx", 80);
-                        if(process.env.NODE_ENV !== "production"){
-                            // console.log('Big generated successfully: ', filePath);
-                        }
+                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
                         try {
                             await sharp(filePath).resize({
@@ -113,9 +95,6 @@ export const createImagesFromMap = async (ids) => {
                                 height: 400,
                                 fit: "inside"
                             }).jpeg({quality: 30}).toFile(filePathSmall);
-                            if(process.env.NODE_ENV !== "production"){
-                                // console.log('Small generated successfully: ', filePathSmall);
-                            }
                         } catch(e){
                             if(process.env.NODE_ENV !== "production"){
                                 console.error("Line 96: gpxUtils error :",e);
@@ -128,7 +107,7 @@ export const createImagesFromMap = async (ids) => {
                 })));
             }
         } catch (err) {
-            console.log("Error Line 105 -->",err.message);
+            console.log("Error in createImagesFromMap --> ",err.message);
         } finally {
             if (browser) {
                 await browser.close();
@@ -143,9 +122,6 @@ export const createImagesFromMap = async (ids) => {
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
-            if(process.env.NODE_ENV !== "production"){
-                console.log('createImageFromMap , L127 gpxUtils, filePath :', filePath, ' URL : ', url, ' picquality :', picquality);
-            }
             const page = await browser.newPage();
             await page.emulateMediaType('print'); 
             await page.setCacheEnabled(false);
@@ -160,6 +136,15 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
     }
 }
 
+function last_two_characters(h_url) {
+    const hashed_url = h_url.toString();
+    if (hashed_url.length >= 2) {
+        return hashed_url.substr(hashed_url.length - 2).toString();
+    }
+    else {
+        return "undefined";
+    }
+}
 
 export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackKey, toTourTrackKey, template = "index.html", fileNamePostfix = "", addBaseGpx = true) => {
     let browser = null;
@@ -176,7 +161,7 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
 
         let url = "";
 
-        url = LEAFLET_BASE + (!!addBaseGpx ? "?gpx=" + BASE_GPX_URL + providerhashedUrl + ".gpx" : "");
+        url = LEAFLET_BASE + (!!addBaseGpx ? "?gpx=" + BASE_GPX_URL + last_two_characters(providerhashedUrl) + "/" + providerhashedUrl + ".gpx" : "");
 
         if(!!fromTourTrackKey){
             url = url + (!!addBaseGpx ? "&" : "?") + "gpx1=" + BASE_GPX_TRACK_URL + "fromtour_track_" + fromTourTrackKey + ".gpx";

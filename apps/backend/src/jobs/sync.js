@@ -8,7 +8,6 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import pLimit from 'p-limit';
-// import { isArrayLike } from "lodash";
 import logger from "../utils/logger";
 
 export async function fixTours(){
@@ -59,7 +58,32 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
                              
-                    
+
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+                    SET connection_arrival_stop_lat = a.connection_arrival_stop_lat,
+                    connection_arrival_stop_lon = a.connection_arrival_stop_lon
+                    FROM (
+                        SELECT 
+                        f.hashed_url,
+                        f.connection_arrival_stop_lat,
+                        f.connection_arrival_stop_lon,
+                        ROW_NUMBER () OVER ( PARTITION BY f.hashed_url ORDER BY f.hashed_url, f.count_num DESC )
+                        FROM (
+                            SELECT 
+                            hashed_url,
+                            connection_arrival_stop_lat,
+                            connection_arrival_stop_lon,
+                            COUNT(*) AS count_num
+                            FROM fahrplan 
+                            GROUP BY hashed_url, connection_arrival_stop_lat, connection_arrival_stop_lon
+                            ) AS f
+                        INNER JOIN tour AS t
+                        ON t.hashed_url=f.hashed_url
+                        GROUP BY f.hashed_url, f.connection_arrival_stop_lat, f.connection_arrival_stop_lon, f.count_num
+                        ) AS a
+                    WHERE a.ROW_NUMBER=1
+                    AND t.hashed_url=a.hashed_url`);
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -84,7 +108,7 @@ const deleteFilesOlder30days = (dirPath) => {
         fs.mkdirSync(dirPath);
     }
     
-    let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
+    let commandline = "find "+ dirPath + " -maxdepth 2 -mtime +30 -type f -delete";
     const { exec } = require('child_process');
     exec(commandline, (err, stdout, stderr) => {
         if (err) {
@@ -93,8 +117,8 @@ const deleteFilesOlder30days = (dirPath) => {
         }
 
         // the *entire* stdout and stderr (buffered)
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+        logger(`deleteFilesOlder30days stdout: ${stdout}`);
+        logger(`deleteFilesOlder30days stderr: ${stderr}`);
     });
 }
 
@@ -200,7 +224,7 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        console.log('sync.js /syncConnectionGPX, filePath : ', filePath);
+        logger('sync.js /syncConnectionGPX, filePath : ', filePath);
 
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
@@ -280,23 +304,36 @@ export async function syncGPXImage(){
 
 }
 
+function last_two_characters(h_url) {
+    const hashed_url = h_url.toString();
+    if (hashed_url.length >= 2) {
+        return hashed_url.substr(hashed_url.length - 2).toString();
+    }
+    else {
+        return "undefined";
+    }
+}
 
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
         try {
-            // let fileName = 'public/gpx/' + prov + '_' + h_url + '.gpx';
-            let fileName = 'public/gpx/' + h_url + '.gpx';
+            let fileName = h_url + '.gpx';
             let filePath = '';
             if(process.env.NODE_ENV == "production"){
-                filePath = path.join(__dirname, "../", fileName);
+                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(h_url), "/");
             } else {
-                filePath = path.join(__dirname, "../../", fileName);
+                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(h_url), "/");
             }
 
-            if (!!!fs.existsSync(filePath)) {
+            if (!fs.existsSync(filePath)){
+                fs.mkdirSync(filePath);
+            }
+
+            let filePathName = filePath + fileName;
+            if (!!!fs.existsSync(filePathName)) {
                 const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
-                if(!!waypoints && waypoints.length > 0 && !!filePath){
-                    await createFileFromGpx(waypoints, filePath, title);
+                if(!!waypoints && waypoints.length > 0 && !!filePathName){
+                    await createFileFromGpx(waypoints, filePathName, title);
                 }
             } 
         } catch(err) {
@@ -445,16 +482,13 @@ export async function syncFahrplan(mode='dev'){
 
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (best_connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (city_slug);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (weekday_type);`);
     } catch(err){
         console.log('error: ', err);
     }
@@ -472,7 +506,7 @@ const readAndInsertFahrplan = async (bundle) => {
                                                 hashed_url, 
                                                 CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
                                                 CONCAT(DATE_FORMAT(valid_thru, '%Y-%m-%d'), ' 00:00:00') as  valid_thru,
-                                                weekday, weekday_type, date_any_connection,
+                                                weekday, date_any_connection,
                                                 city_slug, 
                                                 city_name, 
                                                 city_any_connection, 
@@ -525,7 +559,7 @@ const readAndInsertFahrplan = async (bundle) => {
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider, hashed_url, calendar_date, 
-                                            valid_thru, weekday, weekday_type, date_any_connection,
+                                            valid_thru, weekday, date_any_connection,
                                             city_slug, city_name, city_any_connection, best_connection_duration,
                                             connection_rank, connection_departure_datetime, connection_duration, 
                                             connection_no_of_transfers, connection_departure_stop, 
@@ -587,7 +621,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 await knex.raw(insert_sql);
                 resolve(true);
             } catch (err) {
-                logger('############### Eror with this SQL ###############');
+                logger('############### Error with this SQL ###############');
                 logger("Insert sql into fahrplan table: ", insert_sql);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
@@ -692,6 +726,7 @@ export async function syncTours(){
 
     while((counter *  limit) <= count){
         const query = knexTourenDb.raw(`SELECT
+                                        t.id,
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
@@ -758,7 +793,8 @@ export async function mergeToursWithFahrplan(){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
@@ -921,6 +957,7 @@ const bulk_insert_tours = async (entries) => {
         entry.gpx_data = JSON.stringify(gpxData);
 
         queries.push({
+            id: entry.id,
             url: entry.url,
             provider: entry.provider,
             hashed_url: entry.hashed_url,
@@ -939,7 +976,6 @@ const bulk_insert_tours = async (entries) => {
             range_slug: entry.range_slug,
             range: entry.range_name,
             season: entry.season,
-            // children: entry.children,
             number_of_days: entry.number_of_days,
             jan: entry.jan,
             feb: entry.feb,

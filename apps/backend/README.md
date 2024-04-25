@@ -6,7 +6,7 @@ To install nvm see e.g. https://www.freecodecamp.org/news/node-version-manager-n
 ### Install all modules
 Execute in the project directory:
 
-    nvm install 20.3.0
+    nvm install 20.5.0
     
     nvm use
 
@@ -14,7 +14,7 @@ Execute in the project directory:
 
 and install all dependencies.
 
-### Setup database PostgreSQL 13.9
+### Setup database PostgreSQL 16
 1. Install (https://www.docker.com/) on your local machine
 2. Execute these two commands: 
 

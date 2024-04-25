@@ -11,31 +11,31 @@ import {
 } from "./sync";
 import moment from "moment";
 
-console.log('FULL LOAD: ', moment().format('HH:mm:ss'));
-console.log('START SYNC TOURS: ', moment().format('HH:mm:ss'));
+console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' FULL LOAD');
+console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START SYNC TOURS');
 syncTours().then(res => {
-    console.log('DONE SYNC TOURS: ', moment().format('HH:mm:ss'));
-    console.log('START SYNC FAHRPLAN 4: ', moment().format('HH:mm:ss'));
+    console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE SYNC TOURS');
+    console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START SYNC FAHRPLAN');
     syncFahrplan('prod').then(res1 => {
-        console.log('DONE SYNC FAHRPLAN 4: ', moment().format('HH:mm:ss'));
-        console.log('START SYNC CITIES: ', moment().format('HH:mm:ss'));
+        console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE SYNC FAHRPLAN');
+        console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START SYNC CITIES');
         syncCities().then(res2 => {
-            console.log('DONE SYNC CITIES: ', moment().format('HH:mm:ss'));
-            console.log('START MERGE FAHRPLAN: ', moment().format('HH:mm:ss'));
+            console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE SYNC CITIES');
+            console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START MERGE FAHRPLAN');
             mergeToursWithFahrplan().then(res3 => {
-                console.log('DONE MERGE FAHRPLAN: ', moment().format('HH:mm:ss'));
-                console.log('START FIX TOURS: ', moment().format('HH:mm:ss'));
+                console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE MERGE FAHRPLAN');
+                console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START FIX TOURS');
                 fixTours().then(res4 => {
-                    console.log('DONE FIX TOURS: ', moment().format('HH:mm:ss'));
-                    console.log('START WRITE KPIs: ', moment().format('HH:mm:ss'));
+                    console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE FIX TOURS');
+                    console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START WRITE KPIs');
                     writeKPIs().then(res5 => {
-                        console.log('DONE WRITING KPIs: ', moment().format('HH:mm:ss'));
-                        console.log('START FETCH PROVIDER: ', moment().format('HH:mm:ss'));
+                        console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' DONE WRITING KPIs');
+                        console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START FETCH PROVIDER');
                         getProvider().then(res6 => {
-                            console.log('FETCHED PROVIDER: ', moment().format('HH:mm:ss'));
-                            console.log('START FETCH GPX DATA: ', moment().format('HH:mm:ss'));
+                            console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' FETCHED PROVIDER');
+                            console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' START FETCH GPX DATA');
                             syncGPXdata('prod').then(res7 => {
-                                console.log('FETCHED GPX DATA: ', moment().format('HH:mm:ss'));
+                                console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' FETCHED GPX DATA');
                                 process.exit();
                             });
                         });
