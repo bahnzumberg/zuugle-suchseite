@@ -420,6 +420,10 @@ const listWrapper = async (req, res) => {
         sql_order += `${order_by_rank} month_order ASC `; //3)
     }
 
+    //map-related is included then:
+    let map_select =  ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
+    let map_query = query;
+    // the map_query could be later re-assigned if(searchIncluded) below 
 
 
     // ****************************************************************
@@ -449,9 +453,11 @@ const listWrapper = async (req, res) => {
             // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
+            // result_map = await knex.raw(map_select + outer_where);// remove sql_limit and replaced the sql_select with map_select 
             
             // logger("#######################################################");
             // logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            // logger('SQL with search phrase: ' + sql_select );
             // logger("#######################################################");
             
             if (result && result.rows) {
@@ -476,6 +482,8 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
     }
+
+    
 
 
     //logsearchphrase
@@ -1484,7 +1492,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     return entry;
 }
 
-//************ BAUSTELLE **************/
+//************ TESTING AREA / BAUSTELLE **************/
 
 const mapWrapper = async (req, res) => {
     // const tld = req.query.tld;
@@ -1493,28 +1501,58 @@ const mapWrapper = async (req, res) => {
     // 2. req.query or req.params which should be used ?
     // 3. below in the knex call , let where be escaped and filters tours by coordinates see below
   
-    // const { city, range, state, country, type, search, filter, sort, provider, map } = req.params;
-    console.log("req.query is : ", req.query)
+    // console.log("req.query is : ", req.query)
+    // console.log("req.query.filter is : ", req.query.filter);
+
+    if (req.query.filter) {
+        try {
+            const filterObject = JSON.parse(req.query.filter);
+            // console.log("req.query.filter parsed into object is : ", filterObject);
+    
+            // Now you can access nested properties
+            if (filterObject && filterObject.coordinatesNorthEast && filterObject.coordinatesSouthWest) {
+                const latNE = filterObject.coordinatesNorthEast.lat;
+                const lngNE = filterObject.coordinatesNorthEast.lng;
+                const latSW = filterObject.coordinatesSouthWest.lat;
+                const lngSW = filterObject.coordinatesSouthWest.lng;
+                // console.log("Latitude from coordinatesNorthEast:", latNE.toString());
+                // whereRaw += whereRaw ? ' AND ' : '';
+                // whereRaw += `id IN (SELECT id
+                // FROM tour,
+                // jsonb_array_elements(tour.gpx_data) as tour_data
+                // WHERE (tour_data->>'typ') = 'first'
+                // AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
+                // AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
+            } else {
+                console.error("coordinatesNorthEast not found in filter object");
+            }
+        } catch (error) {
+            console.error("Error parsing filter object:", error);
+        }
+    } else {
+        console.error("No filter parameter found in req.query");
+    }
+    
   
-  
-    let selects = ['id', 'gpx_data','gpx_file']; // id,gpx_data, gpx_file (last one can be pulled up later when clicked on map)
-    let where = {} 
+    let selects = ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
   
     try {
-      // const result = await knex('tour')   //tour table
-      //     .select(selects)  
-      //     .count('* as count') // is it useful ? => Count all rows as 'count'
-      //     .where('country_code', tld) // see point 3 above
-      //     .groupBy('menu_lang')
-      //     .orderBy('count', 'desc') // Order by id ?
-      //     .limit(1);  // limit is what ? 10000 ?
+    //   await knex('tour')   //tour table
+    //       .select(selects)  
+    //       .count('* as count') // is it useful ? => Count all rows as 'count'
+    //     //   .where('country_code', tld) // see point 3 above
+    //     //   .groupBy('menu_lang')
+    //     //   .orderBy('count', 'desc') // Order by id ?
+    //     //   .limit(1);  // limit is what ? 10000 ?
   
   
-      res.status(200).json({ success: true , data_received : true});
+      res.status(200).json({ success: true , data_received : "yes sir !"});
     } catch (error) {
       console.error('Error retrieving map data:', error);
       res.status(500).json({ success: false, error: 'Failed to retrieve map data' });
     }
   };
+  //************ END OF TESTING AREA **************/
+
 
 export default router;
