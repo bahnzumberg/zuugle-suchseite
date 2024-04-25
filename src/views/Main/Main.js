@@ -30,9 +30,10 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog } from "../../utils/globals";
+import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from '../../components/Search/MapBtn';
-import {getMapData} from '../../actions/crudActions'
+import {getMapData} from '../../actions/crudActions';
+import { checkOnlyMapParams } from "../../utils/map_utils";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -45,17 +46,17 @@ export function Main({
   loadTour,
   loadAllCities,
   tours,
-  showModal,
-  hideModal,
   totalTours,
   loadTourConnections,
   filter,
   pageTours,
   loading,
   allCities,
-  clearTours,
-  allRanges,
   loadRanges,
+  // clearTours,
+  // allRanges,
+  // showModal,
+  // hideModal,
   // loadFilter,
   // isLoadingFilter,
   // loadGPX,
@@ -64,20 +65,20 @@ export function Main({
 }) {
 
 
-try {
-  if (typeof filter === "string" && filter.length > 0) {
-    filter = JSON.parse(filter);
-    // Valid JSON data
-  } else if (typeof filter === "object") {
-    // Object is already valid --> do nothing
-  } else {
-    filter = {};
-  }
-} catch (error) {
-  // case of JSON parsing error
-  console.error(" Main : Error parsing JSON:", error);
-  filter = {}; 
-}
+// try {
+//   if (typeof filter === "string" && filter.length > 0) {
+//     filter = JSON.parse(filter);
+//     // Valid JSON data
+//   } else if (typeof filter === "object") {
+//     // Object is already valid --> do nothing
+//   } else {
+//     filter = {};
+//   }
+// } catch (error) {
+//   // case of JSON parsing error
+//   console.error(" Main : Error parsing JSON:", error);
+//   filter = {}; 
+// }
 
 
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ try {
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
  
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
-  const [counter, setCounter] = useState(null); 
+  const [counter, setCounter] = useState(0); 
 
   // const currentParams = new URLSearchParams(location.search);
   // const [forceUpdate, setForceUpdate] = useState(false);
@@ -108,75 +109,54 @@ try {
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
   
+  //is true if params contains "filter" and has only 2 params specific to coordinate values
+  const onlyMapParams = checkOnlyMapParams(searchParams.get('filter'));
 
-    
+  if(!!tours){
+    tours.map((tour) => {
+      console.log("L117 / id :", tour.id)
+      console.log("L118 / connection_arrival_stop_lat :", tour.connection_arrival_stop_lat)
+      console.log("L119 / connection_arrival_stop_lon :", tour.connection_arrival_stop_lon)
+      return tour
+    })
+  }
   useEffect(() => {
+    // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
-    if(!!filterFromParams){
-      //extract values and add to one data variable
-      let city = searchParams.get("city");
-      let range = searchParams.get("range"); 
-      let state = searchParams.get("state"); 
-      let country = searchParams.get("country"); 
-      let type = searchParams.get("type"); 
-      let search = searchParams.get("search");
-      let filter = searchParams.get("filter");
-      let sort = searchParams.get("sort");
-      let provider = searchParams.get("p");
-      let map = searchParams.get("map");
+    if(!!filterFromParams) {
 
-      let values = {};
+      let values = getValuesFromParams(searchParams);
+      !!values && console.log("L128 loadTours call / values : ", values); 
 
-      if (!!city ) {
-        values.city = city;
-      }
-      if (!!range) {
-        values.range = range;
-      }
-      if (!!search) {
-        values.search = search;
-      }
-      if (!!state) {
-        values.state = state;
-      }
-      if (!!country) {
-        values.country = country;
-      }
-      if (!!type) {
-        values.type = type;
-      }
-      if (!!provider) {
-        values.provider = provider;
-      }
-      if (!!sort) {
-        values.sort = sort;
-      }
-      if (!!map) {
-        values.map = map;
-      }
-  
-      if(filter) values.filter = filter;
-
-      if (!localStorage.getItem('filterValues')) localStorage.setItem('filterValues', filter)
-
-      //make the loadTours() call with the data
-      loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
-        // set 'filterValues' in localStorage
-      });
-      !!values && console.log("values : ", values)
-      getMapData(values).then((res)=>{
-        res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
-        res?.data && console.log("L167 res.data/ Map data :", res.data)
-      });
+//  should values be prepared after they arrive from getValuesFromParameters() ???
       
+//TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
+      
+      // getMapData(values).then((res)=>{
+      //   res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
+      //   res?.data && console.log("L167 res.data/ Map data :", res.data)
+      // });
+      // console.log("Main.1")
     }
   }, [searchParams]); 
-  // passing the dependency "serachParams" means that no matter the cause of change in the url; be it change in the filter-modal or in the map the url params change and useEffect causes a re-render and backend calls so both the map and card container will reflect this change, this way both become synchronous in cards they display.
+
+  useEffect(() => {
+    // should be run at the begining only
+  
+    let values = getValuesFromParams();
+    !!values && console.log("L128 loadTours call / values : ", values);
+    
+    loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
+      // set 'filterValues' in localStorage ?
+    });
+    console.log("Main.2")
+  }, []); 
 
   useEffect(() => {
     if (scrollToTop) {
       window.scrollTo({ top: 0 , behavior: 'smooth'});
     }
+    console.log("Main.3")
   }, [scrollToTop]);
   
   
@@ -189,6 +169,7 @@ try {
       searchParams.set("city", city);
       setSearchParams(searchParams);
     }
+    console.log("Main.4")
   }, []);
 
   useEffect(() => {
@@ -229,15 +210,20 @@ try {
     // if (location && location.pathname !== "/suche") {
     //   navigate("/");
     // }
+    console.log("Main.5")
   }, [allCities]);
 
   //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    !!filterCountLocal && filterCountLocal > 0 ? setActiveFilter(true) : setActiveFilter(false);
+    //when onlyMapParams = true : map positions inside "filter" param is the only one set, means proper filter modal was not submitted/ set, therefore we setActiveFilter should be set to false. 
+    // (!!filterCountLocal && filterCountLocal > 0) || !onlyMapParams ? 
+    (!!filterCountLocal && filterCountLocal > 0) ? 
+    setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     // setMapView(searchParams.get("map") === "true");
-  }, [filterCountLocal,filterValuesLocal]);
+    console.log("Main.6")
+  }, [filterCountLocal,filterValuesLocal, searchParams]);
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
@@ -293,16 +279,23 @@ try {
 
   
   const toggleMapHandler = ()=> {
+    console.log("L303 searchParams ", searchParams.toString())
     if (searchParams.has('map') && (searchParams.get('map') === 'true')) {
+      // removeMapParam
       searchParams.delete('map');
+      //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setMapBtnText(`${t("start.zur_kartenansicht")}`);
       setShowMap(false);
+      console.log("Main.7")
     }else{
+      console.log("L310 searchParams ", searchParams.toString())
       searchParams.set('map', true)
+      //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setMapBtnText('Remove it !')
       setShowMap(true)
+      console.log("Main.8")
     }
   }
 
@@ -437,7 +430,8 @@ try {
               {Number(totalTours).toLocaleString()}{" "}
               {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {(!!filterCountLocal && filterCountLocal > 0)  
+            {(!!filterCountLocal && filterCountLocal > 0 )   
+            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
             && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;
