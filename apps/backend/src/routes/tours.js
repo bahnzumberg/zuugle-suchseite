@@ -736,7 +736,8 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
             e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
 
-            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
                 e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
@@ -781,7 +782,9 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
-        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+        // if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+
+        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
