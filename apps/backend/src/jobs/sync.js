@@ -224,7 +224,7 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        logger('sync.js /syncConnectionGPX, filePath : ', filePath);
+        logger('sync.js /syncConnectionGPX, filePath : ${filePath}');
 
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
@@ -554,9 +554,9 @@ const readAndInsertFahrplan = async (bundle) => {
                         WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
 
         logger('############### Error with this SQL ###############');
-        logger("Chunksizer: ", bundle.chunksizer)
-        logger("Leftover: ", bundle.leftover)
-        logger("Query sql from MySQL fahrplan table: ", mysql_sql);
+        logger("Chunksizer: ${bundle.chunksizer}")
+        logger("Leftover: ${bundle.leftover}")
+        logger("Query sql from MySQL fahrplan table: ${mysql_sql}");
         logger('############### End of error with this SQL ###############');
 
         const result_query = knexTourenDb.raw(mysql_sql);
@@ -627,12 +627,12 @@ const readAndInsertFahrplan = async (bundle) => {
             try {
                 // await knex.raw(insert_sql);
                 logger('############### Error with this SQL ###############');
-                logger("Insert sql into fahrplan table: ", insert_sql);
+                logger("Insert sql into fahrplan table: ${insert_sql}");
                 logger('############### End of error with this SQL ###############');
                 resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
-                logger("Insert sql into fahrplan table: ", insert_sql);
+                logger("Insert sql into fahrplan table: ${insert_sql}");
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
