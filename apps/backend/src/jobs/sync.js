@@ -554,6 +554,8 @@ const readAndInsertFahrplan = async (bundle) => {
                         WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
 
         logger('############### Error with this SQL ###############');
+        logger("Chunksizer: ", bundle.chunksizer)
+        logger("Leftover: ", bundle.leftover)
         logger("Query sql from MySQL fahrplan table: ", mysql_sql);
         logger('############### End of error with this SQL ###############');
 
