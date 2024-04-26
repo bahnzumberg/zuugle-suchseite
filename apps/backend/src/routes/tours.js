@@ -17,6 +17,7 @@ const path = require('path');
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
+router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
@@ -41,6 +42,7 @@ const providerWrapper = async (req, res) => {
 const totalWrapper = async (req, res) => {
 
     const city = req.query.city;
+    // console.log("L44", req.query)
     const total = await knex.raw(`SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
@@ -418,6 +420,10 @@ const listWrapper = async (req, res) => {
         sql_order += `${order_by_rank} month_order ASC `; //3)
     }
 
+    //map-related is included then:
+    let map_select =  ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
+    let map_query = query;
+    // the map_query could be later re-assigned if(searchIncluded) below 
 
 
     // ****************************************************************
@@ -447,10 +453,12 @@ const listWrapper = async (req, res) => {
             // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
+            // result_map = await knex.raw(map_select + outer_where);// remove sql_limit and replaced the sql_select with map_select 
             
-            logger("#######################################################");
-            logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-            logger("#######################################################");
+            // logger("#######################################################");
+            // logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
+            // logger('SQL with search phrase: ' + sql_select );
+            // logger("#######################################################");
             
             if (result && result.rows) {
                 result = result.rows;
@@ -474,6 +482,8 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
     }
+
+    
 
 
     //logsearchphrase
@@ -649,7 +659,6 @@ const filterWrapper = async (req, res) => {
     /** load full result for filter */
     let filterResultList = await queryForFilter;
 
-
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
 
@@ -675,8 +684,8 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
         connection.return_duration_minutes = minutesFromMoment(moment(connection.return_duration, 'HH:mm:ss'));
         connection.missing_days = missing_days;
-        /* connection.connection_arrival_stop = connection_arrival_stop;
-        connection.connection_returns_departure_stop = connection_returns_departure_stop; */
+        connection.connection_departure_stop = 'XX departure_stop XX'
+        connection.connection_arrival_stop = 'YY arrival_stop YY'
         resolve(connection);
     })));
 
@@ -736,7 +745,8 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
             e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
 
-            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+            if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
                 e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
@@ -781,7 +791,9 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
-        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+        // if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
+
+        if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
@@ -813,7 +825,7 @@ const mapConnectionReturnToFrontend = (connection) => {
         return connection;
     }
 
-    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60);
+    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
@@ -847,16 +859,6 @@ const compareConnectionReturns = (conn1, conn2) => {
         && conn1.return_arrival_stop == conn2.return_arrival_stop;
 }
 
-const getWeekdayType = (date) => {
-    const day = moment(date).day();
-    if(day == 6){
-        return "saturday";
-    } else if(day == 0){
-        return "sunday";
-    } else {
-        return "businessday";
-    }
-}
 
 const getWeekday = (date) => {
     const day = moment(date).day();
@@ -1033,48 +1035,55 @@ const buildWhereFromFilter = (params, query, print = false) => {
   try {
 
     //clg: query
-    logger("L1137 query at entry to buildWhereFromFilter :");
-    logger(query.toSQL().sql) 
+    // logger("L1137 query at entry to buildWhereFromFilter :");
+    // logger(query.toSQL().sql) 
     
-   
     // Description:
     // if params.filter contains ONLY {ignore_filter : 'true'} OR if params.filter does not exist return.
-    if (!!params.filter) {
-        const parsedFilter = JSON.parse(params.filter);
-        let filterIgnored = (() => {
-            if (
-                !!parsedFilter &&
-                typeof(parsedFilter) === 'object' &&  // Fixed this line
-                Object.keys(parsedFilter).length === 1 &&
-                parsedFilter.hasOwnProperty('ignore_filter') &&
-                parsedFilter['ignore_filter'] === 'true'
-            ) {
-                // console.log("L1089: filterIgnored : TRUE");
-                return true; 
-            } else {
-                // console.log("L1091: filterIgnored : FALSE");
-                return false; 
-            }
-        })();  // filterIgnored() is a self-invocked function
-        if (filterIgnored) return query;
-
-    }else return query;
     
-
-
-    // logger("Before L1087 !")
+    if (!!params.filter && typeof params.filter === 'string') {
+        try {
+            const parsedFilter = JSON.parse(params.filter);
+            //check if flter is ignored
+            let filterIgnored = (() => {
+                if (
+                    !!parsedFilter &&
+                    typeof(parsedFilter) === 'object' &&  // Fixed this line
+                    Object.keys(parsedFilter).length === 1 &&
+                    parsedFilter.hasOwnProperty('ignore_filter') &&
+                    parsedFilter['ignore_filter'] === 'true'
+                ) {
+                    // console.log("L1089: filterIgnored : TRUE");
+                    return true; 
+                } else {
+                    // console.log("L1091: filterIgnored : FALSE");
+                    return false; 
+                }
+            })();  // filterIgnored() is a self-invocked function
+            if (filterIgnored) return query;
+            
+        } catch (error) {
+            console.error("Error parsing filter:", error.message);
+            return query
+        }
+    }else {
+        // console.log("params.filter is not a string");
+        return query
+    };
     
-    // logger("After L1087 !")
-    // ****************************************************************
 
     let filter ;
     if(typeof(params.filter) === 'string') {
+        // console.log("params.filter is a string");        
         filter = JSON.parse(params.filter) ;
     }else if(typeof(params.filter) === 'object'){
+        // console.log("params.filter is an object");        
         filter = params.filter;
     }else{
+        // console.log("params.filter is neither");
         filter={};
     }
+    // console.log("L1101 filter.singleDayTour :", filter.singleDayTour)
 
     const {
         singleDayTour,
@@ -1108,9 +1117,9 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereIn('season', ['x']);
     }
     //clg
-    logger("................................................................")
-    logger("L1222 query / after season:");
-    logger(query.toSQL().sql)
+    // logger("................................................................")
+    // logger("L1222 query / after season:");
+    // logger(query.toSQL().sql)
 
 
 
@@ -1125,9 +1134,9 @@ const buildWhereFromFilter = (params, query, print = false) => {
         query = query.whereRaw('number_of_days = -1 ')
     }
     // clgs
-    logger("................................................................")
-    logger("L1239 query / after number_of_days:");
-    logger(query.toSQL().sql)
+    // logger("................................................................")
+    // logger("L1239 query / after number_of_days:");
+    // logger(query.toSQL().sql)
 
     /** Überschreitung */
     if (!!(traverse)) {
@@ -1284,7 +1293,7 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
-    logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
+    // logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
@@ -1299,7 +1308,7 @@ const tourPdfWrapper = async (req, res) => {
         res.status(404).json({success: false});
         return;
     }else{
-        logger(`L1324 : tour with id ${id} found`)
+        // logger(`L1324 : tour with id ${id} found`)
         // if(process.env.NODE_ENV != "production"){
         //     logger("-----------------------------------------------")
         //     logger("-----------------------------------------------")
@@ -1334,8 +1343,8 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
-        logger(mapConnectionToFrontend(connection, datum))
+        // logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
+        // logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
@@ -1483,5 +1492,68 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     }
     return entry;
 }
+
+//************ TESTING AREA / BAUSTELLE **************/
+
+const mapWrapper = async (req, res) => {
+    // const tld = req.query.tld;
+  
+    // 1. pull all param values in FE and add it to req.query over there 
+    // 2. req.query or req.params which should be used ?
+    // 3. below in the knex call , let where be escaped and filters tours by coordinates see below
+  
+    // console.log("req.query is : ", req.query)
+    // console.log("req.query.filter is : ", req.query.filter);
+
+    if (req.query.filter) {
+        try {
+            const filterObject = JSON.parse(req.query.filter);
+            // console.log("req.query.filter parsed into object is : ", filterObject);
+    
+            // Now you can access nested properties
+            if (filterObject && filterObject.coordinatesNorthEast && filterObject.coordinatesSouthWest) {
+                const latNE = filterObject.coordinatesNorthEast.lat;
+                const lngNE = filterObject.coordinatesNorthEast.lng;
+                const latSW = filterObject.coordinatesSouthWest.lat;
+                const lngSW = filterObject.coordinatesSouthWest.lng;
+                // console.log("Latitude from coordinatesNorthEast:", latNE.toString());
+                // whereRaw += whereRaw ? ' AND ' : '';
+                // whereRaw += `id IN (SELECT id
+                // FROM tour,
+                // jsonb_array_elements(tour.gpx_data) as tour_data
+                // WHERE (tour_data->>'typ') = 'first'
+                // AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
+                // AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
+            } else {
+                console.error("coordinatesNorthEast not found in filter object");
+            }
+        } catch (error) {
+            console.error("Error parsing filter object:", error);
+        }
+    } else {
+        console.error("No filter parameter found in req.query");
+    }
+    
+  
+    let selects = ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
+  
+    try {
+    //   await knex('tour')   //tour table
+    //       .select(selects)  
+    //       .count('* as count') // is it useful ? => Count all rows as 'count'
+    //     //   .where('country_code', tld) // see point 3 above
+    //     //   .groupBy('menu_lang')
+    //     //   .orderBy('count', 'desc') // Order by id ?
+    //     //   .limit(1);  // limit is what ? 10000 ?
+  
+  
+      res.status(200).json({ success: true , data_received : "yes sir !"});
+    } catch (error) {
+      console.error('Error retrieving map data:', error);
+      res.status(500).json({ success: false, error: 'Failed to retrieve map data' });
+    }
+  };
+  //************ END OF TESTING AREA **************/
+
 
 export default router;

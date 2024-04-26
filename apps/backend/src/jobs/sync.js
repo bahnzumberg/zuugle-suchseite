@@ -58,7 +58,32 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
                              
-                    
+
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+                    SET connection_arrival_stop_lat = a.lat,
+                    connection_arrival_stop_lon = a.lon
+                    FROM (SELECT
+                        f.id,
+                        f.lon,
+                        f.lat,
+                        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
+                        FROM
+                            (SELECT 
+                            tour.id,
+                            t.track_point_lon AS lon,
+                            t.track_point_lat AS lat,
+                            COUNT(*) AS count_num
+                            FROM tour
+                            INNER JOIN fahrplan AS f
+                            ON f.hashed_url=tour.hashed_url
+                            INNER JOIN tracks AS t
+                            ON f.totour_track_key=t.track_key
+                            AND t.track_point_sequence=1
+                            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
+                        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
+                    WHERE a.row_number=1
+                    AND a.id=t.id`);
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -92,8 +117,8 @@ const deleteFilesOlder30days = (dirPath) => {
         }
 
         // the *entire* stdout and stderr (buffered)
-        logger(`deleteFilesOlder30days stdout: ${stdout}`);
-        logger(`deleteFilesOlder30days stderr: ${stderr}`);
+        // logger(`deleteFilesOlder30days stdout: ${stdout}`);
+        // logger(`deleteFilesOlder30days stderr: ${stderr}`);
     });
 }
 
@@ -199,7 +224,7 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        logger('sync.js /syncConnectionGPX, filePath : ', filePath);
+        logger(`sync.js /syncConnectionGPX, filePath : ${filePath}`);
 
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
@@ -457,16 +482,13 @@ export async function syncFahrplan(mode='dev'){
 
     // set all indizes on PostgreSQL table "fahrplan" again
     try{
-        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url, tour_provider);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (tour_provider, hashed_url, city_slug);`);
+        await knex.raw(`CREATE INDEX ON fahrplan (hashed_url);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_key);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_key);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (best_connection_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (totour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (fromtour_track_duration);`);
         await knex.raw(`CREATE INDEX ON fahrplan (city_slug);`);
-        await knex.raw(`CREATE INDEX ON fahrplan (weekday_type);`);
     } catch(err){
         console.log('error: ', err);
     }
@@ -477,92 +499,81 @@ export async function syncFahrplan(mode='dev'){
 
 const readAndInsertFahrplan = async (bundle) => {
     let insert_sql = '';
+    let mysql_sql = '';
 
     return new Promise(async resolve => {
-        const result_query = knexTourenDb.raw(`select 
-                                                provider,
-                                                hashed_url, 
-                                                CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
-                                                CONCAT(DATE_FORMAT(valid_thru, '%Y-%m-%d'), ' 00:00:00') as  valid_thru,
-                                                weekday, weekday_type, date_any_connection,
-                                                city_slug, 
-                                                city_name, 
-                                                city_any_connection, 
-                                                best_connection_duration,
-                                                connection_rank, 
-                                                DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d %H:%i:%s') as connection_departure_datetime, 
-                                                connection_duration, 
-                                                connection_no_of_transfers,
-                                                connection_departure_stop, 
-                                                connection_departure_stop_lon, 
-                                                connection_departure_stop_lat, 
-                                                connection_arrival_stop, 
-                                                connection_arrival_stop_lon, 
-                                                connection_arrival_stop_lat, 
-                                                DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
-                                                connection_returns_departure_stop, connection_returns_trips_back, 
-                                                connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
-                                                connection_returns_warning_level, 
-                                                connection_returns_warning,  
-                                                return_row, 
-                                                return_waiting_duration, 
-                                                DATE_FORMAT(return_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_departure_datetime, 
-                                                return_duration,
-                                                return_no_of_transfers,
-                                                return_departure_stop_lon, 
-                                                return_departure_stop_lat,
-                                                return_arrival_stop,
-                                                return_arrival_stop_lon, 
-                                                return_arrival_stop_lat,
-                                                DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d %H:%i:%s') as return_arrival_datetime, 
-                                                totour_track_key, totour_track_duration,  
-                                                fromtour_track_key,
-                                                fromtour_track_duration, 
-                                                REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
-                                                connection_lastregular_arrival_stop, 
-                                                connection_lastregular_arrival_stop_lon, 
-                                                connection_lastregular_arrival_stop_lat, 
-                                                DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
-                                                REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
-                                                return_firstregular_departure_stop, 
-                                                return_firstregular_departure_stop_lon, 
-                                                return_firstregular_departure_stop_lat, 
-                                                DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
-                                                FROM vw_fplan_to_search 
-                                                WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE
-        `);
+        mysql_sql = `select 
+                        provider,
+                        hashed_url, 
+                        CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
+                        weekday, date_any_connection,
+                        city_slug, 
+                        city_name, 
+                        city_any_connection, 
+                        best_connection_duration,
+                        connection_rank, 
+                        DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d %H:%i:%s') as connection_departure_datetime, 
+                        connection_duration, 
+                        connection_no_of_transfers,
+                        DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
+                        connection_returns_trips_back, 
+                        connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
+                        connection_returns_warning_level, 
+                        connection_returns_warning,  
+                        return_row, 
+                        return_waiting_duration, 
+                        DATE_FORMAT(return_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_departure_datetime, 
+                        return_duration,
+                        return_no_of_transfers,
+                        DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d %H:%i:%s') as return_arrival_datetime, 
+                        totour_track_key, totour_track_duration,  
+                        fromtour_track_key,
+                        fromtour_track_duration, 
+                        REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
+                        DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
+                        REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
+                        DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
+                        FROM vw_fplan_to_search 
+                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
+
+        const result_query = knexTourenDb.raw(mysql_sql);
         const result = await result_query;
 
         let data = result[0].map(row => ({ ...row }));
         
         if (!!data && Array.isArray(data) && data.length > 0) {
-            insert_sql = `INSERT INTO fahrplan (tour_provider, hashed_url, calendar_date, 
-                                            valid_thru, weekday, weekday_type, date_any_connection,
-                                            city_slug, city_name, city_any_connection, best_connection_duration,
-                                            connection_rank, connection_departure_datetime, connection_duration, 
-                                            connection_no_of_transfers, connection_departure_stop, 
-                                            connection_departure_stop_lon, connection_departure_stop_lat,
-                                            connection_arrival_stop, connection_arrival_stop_lon, 
-                                            connection_arrival_stop_lat, connection_arrival_datetime,
-                                            connection_returns_departure_stop, connection_returns_trips_back,
+            insert_sql = `INSERT INTO fahrplan (tour_provider,
+                                            hashed_url,
+                                            calendar_date, 
+                                            weekday, 
+                                            date_any_connection,
+                                            city_slug, 
+                                            city_name, 
+                                            city_any_connection, 
+                                            best_connection_duration,
+                                            connection_rank, 
+                                            connection_departure_datetime,
+                                            connection_duration, 
+                                            connection_no_of_transfers,
+                                            connection_arrival_datetime,
+                                            connection_returns_trips_back,
                                             connection_returns_min_waiting_duration, 
                                             connection_returns_max_waiting_duration,
-                                            connection_returns_warning_level, connection_returns_warning, 
-                                            return_row, return_waiting_duration, return_departure_datetime,
-                                            return_duration, return_no_of_transfers, return_departure_stop_lon,
-                                            return_departure_stop_lat, return_arrival_stop, return_arrival_stop_lon,
-                                            return_arrival_stop_lat, return_arrival_datetime,
-                                            totour_track_key, totour_track_duration, 
-                                            fromtour_track_key, fromtour_track_duration,
+                                            connection_returns_warning_level,
+                                            connection_returns_warning, 
+                                            return_row,
+                                            return_waiting_duration,
+                                            return_departure_datetime,
+                                            return_duration,
+                                            return_no_of_transfers,
+                                            return_arrival_datetime,
+                                            totour_track_key,
+                                            totour_track_duration, 
+                                            fromtour_track_key,
+                                            fromtour_track_duration,
                                             connection_description_json,
-                                            connection_lastregular_arrival_stop,
-                                            connection_lastregular_arrival_stop_lon,
-                                            connection_lastregular_arrival_stop_lat,
                                             connection_lastregular_arrival_datetime,
                                             return_description_json,
-                                            return_firstregular_departure_stop,
-                                            return_firstregular_departure_stop_lon,
-                                            return_firstregular_departure_stop_lat,
                                             return_firstregular_departure_datetime) VALUES `;
  
 
@@ -600,7 +611,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
-                logger("Insert sql into fahrplan table: ", insert_sql);
+                logger(`Insert sql into fahrplan table: ${insert_sql}`);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
@@ -771,7 +782,8 @@ export async function mergeToursWithFahrplan(){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     let durations = {};
-                    let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
+                    let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
                     if(!!connections && connections.length > 0){
                         connections.forEach(con => {
                             durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))

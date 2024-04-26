@@ -16,9 +16,12 @@ process.env.TZ = 'Europe/Berlin';
 
 /* start api */
 let port = 8080;
+console.log("__dirname=", __dirname)
+console.log("process.env.NODE_ENV", process.env.NODE_ENV)
+
 if(process.env.NODE_ENV === "production"){
-    if(!!process.env.NODE_PORT){
-        port = 8080;
+    if (__dirname.includes("/dev-api")) {
+        port = 7070;
     }
     else {
         port = 6060;

@@ -61,9 +61,6 @@ CREATE TABLE tour (
 );
 
 
-
-
-
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
 CREATE INDEX ON tour (cities);
@@ -93,9 +90,7 @@ CREATE TABLE fahrplan (
      tour_provider varchar(30)  NOT NULL,
      hashed_url varchar(100) NOT NULL,
      calendar_date timestamp NOT NULL,
-     valid_thru timestamp NOT NULL,
-     weekday varchar(3)  DEFAULT NULL,
-     weekday_type varchar(11)  DEFAULT NULL,
+     weekday char(3)  DEFAULT NULL,
      date_any_connection varchar(3)  NOT NULL,
      city_slug varchar(100)  NOT NULL,
      city_name varchar(100)  NOT NULL,
@@ -105,14 +100,7 @@ CREATE TABLE fahrplan (
      connection_departure_datetime timestamp DEFAULT NULL,
      connection_duration time DEFAULT NULL,
      connection_no_of_transfers int DEFAULT NULL,
-     connection_departure_stop varchar(250) DEFAULT NULL,
-     connection_departure_stop_lon decimal(12,9) DEFAULT NULL,
-     connection_departure_stop_lat decimal(12,9) DEFAULT NULL,
-     connection_arrival_stop varchar(250) DEFAULT NULL,
-     connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-     connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
      connection_arrival_datetime timestamp DEFAULT NULL,
-     connection_returns_departure_stop varchar(250) DEFAULT NULL,
      connection_returns_trips_back int DEFAULT NULL,
      connection_returns_min_waiting_duration time DEFAULT NULL,
      connection_returns_max_waiting_duration time DEFAULT NULL,
@@ -123,46 +111,26 @@ CREATE TABLE fahrplan (
      return_departure_datetime timestamp DEFAULT NULL,
      return_duration time DEFAULT NULL,
      return_no_of_transfers int DEFAULT NULL,
-     return_departure_stop_lon decimal(12,9) DEFAULT NULL,
-     return_departure_stop_lat decimal(12,9) DEFAULT NULL,
-     return_arrival_stop varchar(250) DEFAULT NULL,
-     return_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-     return_arrival_stop_lat decimal(12,9) DEFAULT NULL,
      return_arrival_datetime timestamp DEFAULT NULL,
      totour_track_key int default null,
      totour_track_duration time DEFAULT NULL,
      fromtour_track_key int default null,
      fromtour_track_duration time DEFAULT NULL,
      connection_description_json JSONB DEFAULT NULL,
-     connection_lastregular_arrival_stop varchar(250) DEFAULT NULL,
-     connection_lastregular_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-     connection_lastregular_arrival_stop_lat decimal(12,9) DEFAULT NULL,
      connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
      return_description_json JSONB DEFAULT NULL,
-     return_firstregular_departure_stop varchar(250) DEFAULT NULL,
-     return_firstregular_departure_stop_lon decimal(12,9) DEFAULT NULL,
-     return_firstregular_departure_stop_lat decimal(12,9) DEFAULT NULL,
      return_firstregular_departure_datetime timestamp DEFAULT NULL,
      PRIMARY KEY (id)
 );
 
--- 30.03.2024 run this drop columns if you have an existing database
-ALTER TABLE fahrplan
-DROP COLUMN IF EXISTS connection_description,
-DROP COLUMN IF EXISTS connection_description_detail,
-DROP COLUMN IF EXISTS return_description,
-DROP COLUMN IF EXISTS return_description_detail;
 
 CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (tour_provider);
 CREATE INDEX ON fahrplan (totour_track_key);
 CREATE INDEX ON fahrplan (fromtour_track_key);
-CREATE INDEX ON fahrplan (connection_duration);
 CREATE INDEX ON fahrplan (best_connection_duration);
 CREATE INDEX ON fahrplan (totour_track_duration);
 CREATE INDEX ON fahrplan (fromtour_track_duration);
 CREATE INDEX ON fahrplan (city_slug);
-CREATE INDEX ON fahrplan (weekday_type);
 
 
 
@@ -259,3 +227,31 @@ CREATE TABLE tracks (
 	   track_point_elevation decimal(12,8) DEFAULT NULL,
 	   PRIMARY KEY (track_key, track_point_sequence)
 );
+
+
+
+
+-- 30.03.2024 & 26.04.2024 run this drop columns if you have an existing database
+ALTER TABLE fahrplan
+DROP COLUMN IF EXISTS connection_description,
+DROP COLUMN IF EXISTS connection_description_detail,
+DROP COLUMN IF EXISTS return_description,
+DROP COLUMN IF EXISTS return_description_detail,
+DROP COLUMN IF EXISTS connection_lastregular_arrival_stop,
+DROP COLUMN IF EXISTS connection_lastregular_arrival_stop_lon,
+DROP COLUMN IF EXISTS connection_lastregular_arrival_stop_lat,
+DROP COLUMN IF EXISTS connection_departure_stop,
+DROP COLUMN IF EXISTS connection_departure_stop_lon,
+DROP COLUMN IF EXISTS connection_departure_stop_lat,
+DROP COLUMN IF EXISTS connection_arrival_stop,
+DROP COLUMN IF EXISTS connection_arrival_stop_lon,
+DROP COLUMN IF EXISTS connection_arrival_stop_lat,
+DROP COLUMN IF EXISTS connection_returns_departure_stop,
+DROP COLUMN IF EXISTS return_departure_stop_lon,
+DROP COLUMN IF EXISTS return_departure_stop_lat,
+DROP COLUMN IF EXISTS return_firstregular_departure_stop,
+DROP COLUMN IF EXISTS return_firstregular_departure_stop_lon,
+DROP COLUMN IF EXISTS return_firstregular_departure_stop_lat,
+DROP COLUMN IF EXISTS return_arrival_stop,
+DROP COLUMN IF EXISTS return_arrival_stop_lon,
+DROP COLUMN IF EXISTS return_arrival_stop_lat;

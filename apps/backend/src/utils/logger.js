@@ -3,7 +3,7 @@ import path from 'path';
 
 // TESTING DETACHED HEAD STATE 
 export default function (text) {
-    const onoffswitch = 'off';  // values: on / off
+    const onoffswitch = 'on';  // values: on / off
 
     if(onoffswitch == 'on' || process.env.NODE_ENV !== 'production') {
         // Either onoffswitch is set to 'on' or we are not on prod or uat
