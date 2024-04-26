@@ -690,7 +690,7 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_description_parsed = parseConnectionDescription(connection);
         let splittext = connection.connection_description_parsed.split(',')
 
-        logger("connection.connection_description_parsed="+splittext[0]+ " Länge="+splittext.length() )
+        logger("connection.connection_description_parsed="+splittext[0] )
 
         resolve(connection);
     })));
