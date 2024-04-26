@@ -91,7 +91,7 @@ CREATE TABLE fahrplan (
      hashed_url varchar(100) NOT NULL,
      calendar_date timestamp NOT NULL,
      valid_thru timestamp NOT NULL,
-     weekday varchar(3)  DEFAULT NULL,
+     weekday char(3)  DEFAULT NULL,
      weekday_type varchar(11)  DEFAULT NULL,
      date_any_connection varchar(3)  NOT NULL,
      city_slug varchar(100)  NOT NULL,
