@@ -687,7 +687,7 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_departure_stop = 'XX departure_stop XX'
         connection.connection_arrival_stop = 'YY arrival_stop YY'
 
-        console.log(connection.connection_description_parsed)
+        logger("connection.connection_description_parsed"+connection.connection_description_parsed)
 
         resolve(connection);
     })));
