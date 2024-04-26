@@ -499,9 +499,10 @@ export async function syncFahrplan(mode='dev'){
 
 const readAndInsertFahrplan = async (bundle) => {
     let insert_sql = '';
+    let mysql_sql = '';
 
     return new Promise(async resolve => {
-        const mysql_sql = `select 
+        mysql_sql = `select 
                         provider,
                         hashed_url, 
                         CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
