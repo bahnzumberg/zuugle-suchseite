@@ -686,12 +686,6 @@ const connectionsWrapper = async (req, res) => {
         connection.missing_days = missing_days;
         connection.connection_departure_stop = 'XX departure_stop XX'
         connection.connection_arrival_stop = 'YY arrival_stop YY'
-
-        connection.connection_description_parsed = parseConnectionDescription(connection);
-        let splittext = connection.connection_description_parsed.split(',')
-
-        logger("connection.connection_description_parsed="+splittext[0] )
-
         resolve(connection);
     })));
 
