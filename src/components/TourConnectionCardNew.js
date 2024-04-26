@@ -28,20 +28,47 @@ export default function TourConnectionCardNew({connection}){
         translatedMissingDate();
     }, [i18n.language]);
 
-    const translatedmissingdates = missingDays.join(', ')
+    const translatedmissingdates = missingDays.join(', ');
+
+    function extractTourStops(connection) {
+        let departureStop = '';
+        let arrivalStop = '';
+        if (connection?.connection_description_json && connection?.return_description_json){
+            departureStop = connection.connection_description_json.find(
+              (item) => item.T === "D"
+            )?.DS;
+            arrivalStop = connection.connection_description_json.find(
+              (item) => item.T === "A"
+            )?.AS;
+        }
+        return [departureStop , arrivalStop];
+    }
+    
+    const [departureStop, arrivalStop] = extractTourStops(connection);
+
+    
 
     //connection related functions
     const from_to = () => {
-        if (connection.connection_departure_stop === connection.connection_arrival_stop) {
-            return connection.connection_departure_stop;
+        if (departureStop === arrivalStop) {
+            return departureStop;
         }
         else {
-            return connection.connection_departure_stop + ' - ' + connection.connection_arrival_stop;
+            return departureStop + ' - ' + arrivalStop;
         }
     }
+    // const from_to = () => {
+    //     if (connection.connection_departure_stop === connection.connection_arrival_stop) {
+    //         return connection.connection_departure_stop;
+    //     }
+    //     else {
+    //         return connection.connection_departure_stop + ' - ' + connection.connection_arrival_stop;
+    //     }
+    // }
 
     const duration_and_transfers = () => {
-        if (connection.connection_departure_stop === connection.connection_arrival_stop) {
+        // if (connection.connection_departure_stop === connection.connection_arrival_stop) {
+        if ( departureStop === arrivalStop) {
             return t('main.direkt_bei_der_haltestelle');
         }
         else {

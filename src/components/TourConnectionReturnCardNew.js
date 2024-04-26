@@ -13,22 +13,42 @@ export default function TourConnectionReturnCardNew({returns}){
      const {t, i18n} =useTranslation();
 
      const [retOptions, setRetOptions] = useState([]);
+
+     const lastReturn = returns[returns.length - 1];
  
      useEffect(() => {
          // call the function to update the retOptions state
           setRetOptions(returnOptions());
         }, [i18n.language]);
- 
+
+    // function to pull stops names from connection/return_description_json   
+    function extractTourReturnStops(connection) {
+      let departureStop = "";
+      let arrivalStop = "";
+      if (
+        connection?.connection_description_json &&
+        connection?.return_description_json
+      ) {
+        departureStop = connection.return_description_json.find(
+          (item) => item.T === "D"
+        )?.DS;
+        arrivalStop = connection.return_description_json.find(
+          (item) => item.T === "A"
+        )?.AS;
+      }
+      return [departureStop, arrivalStop];
+    }
+    
+    const [returnDepartureStop, returnArrivalStop] = extractTourReturnStops(lastReturn);
+
     const from_to_back = () => {
-        if (lastReturn.connection_returns_departure_stop === lastReturn.return_arrival_stop) {
-            return lastReturn.connection_returns_departure_stop;
+        if (returnDepartureStop === returnArrivalStop) {
+            return returnDepartureStop;
         }
         else {
-            return lastReturn.connection_returns_departure_stop + ' - ' + lastReturn.return_arrival_stop;
+            return returnDepartureStop + ' - ' + returnArrivalStop;
         }
     }
-
-    const lastReturn = returns[returns.length - 1];
     
     const returnOptions = () => { 
         if (!!returns && returns.length > 0) {
@@ -45,7 +65,7 @@ export default function TourConnectionReturnCardNew({returns}){
     }
 
     const lastReturn_datetime = () => {
-        if (lastReturn.connection_returns_departure_stop === lastReturn.return_arrival_stop) {
+        if (returnDepartureStop === returnArrivalStop) {
             return 'Ende direkt bei Haltestelle';
         }
         else {
