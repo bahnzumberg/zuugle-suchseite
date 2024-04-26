@@ -117,8 +117,8 @@ const deleteFilesOlder30days = (dirPath) => {
         }
 
         // the *entire* stdout and stderr (buffered)
-        logger(`deleteFilesOlder30days stdout: ${stdout}`);
-        logger(`deleteFilesOlder30days stderr: ${stderr}`);
+        // logger(`deleteFilesOlder30days stdout: ${stdout}`);
+        // logger(`deleteFilesOlder30days stderr: ${stderr}`);
     });
 }
 
@@ -553,12 +553,6 @@ const readAndInsertFahrplan = async (bundle) => {
                         FROM vw_fplan_to_search 
                         WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
 
-        logger('############### Error with this SQL ###############');
-        logger(`Chunksizer: ${bundle.chunksizer}`)
-        logger(`Leftover: ${bundle.leftover}`)
-        logger(`Query sql from MySQL fahrplan table: ${mysql_sql}`);
-        logger('############### End of error with this SQL ###############');
-
         const result_query = knexTourenDb.raw(mysql_sql);
         const result = await result_query;
 
@@ -649,9 +643,6 @@ const readAndInsertFahrplan = async (bundle) => {
 
             try {
                 await knex.raw(insert_sql);
-                logger('############### Error with this SQL ###############');
-                logger(`Insert sql into fahrplan table: ${insert_sql}`);
-                logger('############### End of error with this SQL ###############');
                 resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
