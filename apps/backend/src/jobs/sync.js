@@ -516,7 +516,7 @@ const readAndInsertFahrplan = async (bundle) => {
                         connection_duration, 
                         connection_no_of_transfers,
                         DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
-                        connection_returns_departure_stop, connection_returns_trips_back, 
+                        connection_returns_trips_back, 
                         connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
                         connection_returns_warning_level, 
                         connection_returns_warning,  
@@ -525,11 +525,6 @@ const readAndInsertFahrplan = async (bundle) => {
                         DATE_FORMAT(return_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_departure_datetime, 
                         return_duration,
                         return_no_of_transfers,
-                        return_departure_stop_lon, 
-                        return_departure_stop_lat,
-                        return_arrival_stop,
-                        return_arrival_stop_lon, 
-                        return_arrival_stop_lat,
                         DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d %H:%i:%s') as return_arrival_datetime, 
                         totour_track_key, totour_track_duration,  
                         fromtour_track_key,
@@ -537,9 +532,6 @@ const readAndInsertFahrplan = async (bundle) => {
                         REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
                         DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
                         REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
-                        return_firstregular_departure_stop, 
-                        return_firstregular_departure_stop_lon, 
-                        return_firstregular_departure_stop_lat, 
                         DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
                         FROM vw_fplan_to_search 
                         WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
@@ -564,7 +556,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                             connection_duration, 
                                             connection_no_of_transfers,
                                             connection_arrival_datetime,
-                                            connection_returns_departure_stop,
                                             connection_returns_trips_back,
                                             connection_returns_min_waiting_duration, 
                                             connection_returns_max_waiting_duration,
@@ -575,11 +566,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                             return_departure_datetime,
                                             return_duration,
                                             return_no_of_transfers,
-                                            return_departure_stop_lon,
-                                            return_departure_stop_lat,
-                                            return_arrival_stop,
-                                            return_arrival_stop_lon,
-                                            return_arrival_stop_lat,
                                             return_arrival_datetime,
                                             totour_track_key,
                                             totour_track_duration, 
@@ -588,9 +574,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                             connection_description_json,
                                             connection_lastregular_arrival_datetime,
                                             return_description_json,
-                                            return_firstregular_departure_stop,
-                                            return_firstregular_departure_stop_lon,
-                                            return_firstregular_departure_stop_lat,
                                             return_firstregular_departure_datetime) VALUES `;
  
 

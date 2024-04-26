@@ -684,8 +684,8 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
         connection.return_duration_minutes = minutesFromMoment(moment(connection.return_duration, 'HH:mm:ss'));
         connection.missing_days = missing_days;
-        /* connection.connection_arrival_stop = connection_arrival_stop;
-        connection.connection_returns_departure_stop = connection_returns_departure_stop; */
+        connection.connection_departure_stop = ''
+        connection.connection_arrival_stop = ''
         resolve(connection);
     })));
 
