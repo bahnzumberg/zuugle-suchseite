@@ -61,29 +61,29 @@ export async function fixTours(){
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
     await knex.raw(`UPDATE tour AS t
-                    SET connection_arrival_stop_lat = a.connection_arrival_stop_lat,
-                    connection_arrival_stop_lon = a.connection_arrival_stop_lon
-                    FROM (
-                        SELECT 
-                        f.hashed_url,
-                        f.connection_arrival_stop_lat,
-                        f.connection_arrival_stop_lon,
-                        ROW_NUMBER () OVER ( PARTITION BY f.hashed_url ORDER BY f.hashed_url, f.count_num DESC )
-                        FROM (
-                            SELECT 
-                            hashed_url,
-                            connection_arrival_stop_lat,
-                            connection_arrival_stop_lon,
+                    SET connection_arrival_stop_lat = a.lat,
+                    connection_arrival_stop_lon = a.lon
+                    FROM (SELECT
+                        f.id,
+                        f.lon,
+                        f.lat,
+                        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
+                        FROM
+                            (SELECT 
+                            tour.id,
+                            t.track_point_lon AS lon,
+                            t.track_point_lat AS lat,
                             COUNT(*) AS count_num
-                            FROM fahrplan 
-                            GROUP BY hashed_url, connection_arrival_stop_lat, connection_arrival_stop_lon
-                            ) AS f
-                        INNER JOIN tour AS t
-                        ON t.hashed_url=f.hashed_url
-                        GROUP BY f.hashed_url, f.connection_arrival_stop_lat, f.connection_arrival_stop_lon, f.count_num
-                        ) AS a
-                    WHERE a.ROW_NUMBER=1
-                    AND t.hashed_url=a.hashed_url`);
+                            FROM tour
+                            INNER JOIN fahrplan AS f
+                            ON f.hashed_url=tour.hashed_url
+                            INNER JOIN tracks AS t
+                            ON f.totour_track_key=t.track_key
+                            AND t.track_point_sequence=1
+                            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
+                        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
+                    WHERE a.row_number=1
+                    AND a.id=t.id`);
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -515,12 +515,6 @@ const readAndInsertFahrplan = async (bundle) => {
                         DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d %H:%i:%s') as connection_departure_datetime, 
                         connection_duration, 
                         connection_no_of_transfers,
-                        connection_departure_stop, 
-                        connection_departure_stop_lon, 
-                        connection_departure_stop_lat, 
-                        connection_arrival_stop, 
-                        connection_arrival_stop_lon, 
-                        connection_arrival_stop_lat, 
                         DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
                         connection_returns_departure_stop, connection_returns_trips_back, 
                         connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
@@ -541,9 +535,6 @@ const readAndInsertFahrplan = async (bundle) => {
                         fromtour_track_key,
                         fromtour_track_duration, 
                         REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
-                        connection_lastregular_arrival_stop, 
-                        connection_lastregular_arrival_stop_lon, 
-                        connection_lastregular_arrival_stop_lat, 
                         DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
                         REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
                         return_firstregular_departure_stop, 
@@ -572,12 +563,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                             connection_departure_datetime,
                                             connection_duration, 
                                             connection_no_of_transfers,
-                                            connection_departure_stop, 
-                                            connection_departure_stop_lon,
-                                            connection_departure_stop_lat,
-                                            connection_arrival_stop,
-                                            connection_arrival_stop_lon, 
-                                            connection_arrival_stop_lat,
                                             connection_arrival_datetime,
                                             connection_returns_departure_stop,
                                             connection_returns_trips_back,
@@ -601,9 +586,6 @@ const readAndInsertFahrplan = async (bundle) => {
                                             fromtour_track_key,
                                             fromtour_track_duration,
                                             connection_description_json,
-                                            connection_lastregular_arrival_stop,
-                                            connection_lastregular_arrival_stop_lon,
-                                            connection_lastregular_arrival_stop_lat,
                                             connection_lastregular_arrival_datetime,
                                             return_description_json,
                                             return_firstregular_departure_stop,
