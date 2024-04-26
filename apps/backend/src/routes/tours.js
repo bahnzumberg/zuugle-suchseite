@@ -686,6 +686,9 @@ const connectionsWrapper = async (req, res) => {
         connection.missing_days = missing_days;
         connection.connection_departure_stop = 'XX departure_stop XX'
         connection.connection_arrival_stop = 'YY arrival_stop YY'
+
+        console.log(connection.connection_description_parsed)
+
         resolve(connection);
     })));
 
@@ -859,16 +862,6 @@ const compareConnectionReturns = (conn1, conn2) => {
         && conn1.return_arrival_stop == conn2.return_arrival_stop;
 }
 
-const getWeekdayType = (date) => {
-    const day = moment(date).day();
-    if(day == 6){
-        return "saturday";
-    } else if(day == 0){
-        return "sunday";
-    } else {
-        return "businessday";
-    }
-}
 
 const getWeekday = (date) => {
     const day = moment(date).day();
