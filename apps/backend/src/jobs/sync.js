@@ -241,13 +241,13 @@ async function _syncConnectionGPX(key, fileName, title){
                     trackPoints.forEach(row => {
                         if(row.track_point_sequence === 1){
 
-                        knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
-                            (${row.track_key}, 
-                            ${row.track_point_sequence}, 
-                            ${row.track_point_lon},  
-                            ${row.track_point_lat},  
-                            ${row.track_point_elevation})
-                            `)
+                            knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
+                                (${row.track_key}, 
+                                ${row.track_point_sequence}, 
+                                ${row.track_point_lon},  
+                                ${row.track_point_lat},  
+                                ${row.track_point_elevation})
+                                `)
                         }
                     });
                 
