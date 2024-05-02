@@ -230,6 +230,8 @@ async function _syncConnectionGPX(key, fileName, title){
             // deleteFileModulo30(fileName, filePath);
 
             let trackPoints = null;
+            let count_tracks = await knex.raw(`SELECT COUNT(*) as anzahl FROM tracks;`);
+            
             if(process.env.NODE_ENV == "production"){
                 if (!!!fs.existsSync(filePath)) {
                     // On production the table tracks will be already updated in the PostgreSQL database.
