@@ -215,7 +215,7 @@ export async function generateTestdata(){
 
 
 
-async function _syncConnectionGPX(key, fileName, title){
+async function _syncConnectionGPX(key, fileName, title, mod=null){
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
@@ -224,22 +224,22 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        logger(`sync.js /syncConnectionGPX, filePath : ${filePath}`);
-
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
 
             let trackPoints = null;
-            let count_tracks = await knex.raw(`SELECT COUNT(*) as anzahl FROM tracks;`);
-            
-            if(process.env.NODE_ENV == "production"){
+            if(mod == "prod"){
                 if (!!!fs.existsSync(filePath)) {
                     // On production the table tracks will be already updated in the PostgreSQL database.
                     trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    
+                    if(!!trackPoints && trackPoints.length > 0){
+                        await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                    }
                 }
             }
             else {
-                 // On UAT we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                 // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                 trackPoints.forEach(row => {
                     if(row.track_point_sequence == 1){
@@ -252,11 +252,8 @@ async function _syncConnectionGPX(key, fileName, title){
                             `)
                     }
                 });
-                
-                if (!!!fs.existsSync(filePath)) {
-                    if(!!trackPoints && trackPoints.length > 0){
-                        await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
-                    }
+                if(!!trackPoints && trackPoints.length > 0){
+                    await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
             }
         }
@@ -265,13 +262,13 @@ async function _syncConnectionGPX(key, fileName, title){
     })
 }
 
-export async function syncConnectionGPX(){
+export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
-            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour'))
+            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour', mod))
         });
         await Promise.all(promises);
     }
@@ -279,7 +276,7 @@ export async function syncConnectionGPX(){
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
-            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station'))
+            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station', mod))
         });
         await Promise.all(promises);
     }

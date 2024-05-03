@@ -7,7 +7,7 @@ console.log('START CREATE GPX FILES: ', moment().format('HH:mm:ss'));
 syncGPX().then(res => {
     console.log('END CREATE GPX FILES: ', moment().format('HH:mm:ss'));
     console.log('START CREATE GPX ANREISE/ABREISE FILES: ', moment().format('HH:mm:ss'));
-    syncConnectionGPX('dev').then(res1 => {
+    syncConnectionGPX('prod').then(res1 => {
         console.log('END CREATE GPX ANREISE/ABREISE FILES: ', moment().format('HH:mm:ss'));
         console.log('START CREATE GPX IMAGE FILES: ', moment().format('HH:mm:ss'));
         syncGPXImage().then(res2 => {
