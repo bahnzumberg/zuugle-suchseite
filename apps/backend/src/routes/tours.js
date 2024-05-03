@@ -231,6 +231,21 @@ const listWrapper = async (req, res) => {
     query = buildWhereFromFilter(req.query, query, true);
     countQuery = buildWhereFromFilter(req.query, countQuery);
 
+
+    // **********************************************************************
+        //               MAP  Q U E R Y  / NO SEARCH
+    // **********************************************************************
+    // if(map === true)
+    // create a raw query from "query"
+    // let rawQuery = knex(query).toSQL()
+    // console.log("rawQuery : ")
+    // console.log(rawQuery)
+    // let map_query = knex.raw(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon FROM (${rawQuery}) AS subquery`);
+    // map_query ? console.log("L240 typeof map_query :", map_query.toQuery()) : console.log("L240 map_query is FALSY....")
+    // let map_query = query
+    // **********************************************************************
+
+    // console.log("L248 : process.env.HOSTNAME :", process.env.HOSTNAME)
     //DO THIS FOR SEARCH TERM ONLY
     let sql_where_filter = "";
     let sql_and_filter =""
@@ -389,8 +404,19 @@ const listWrapper = async (req, res) => {
 
     if (searchIncluded) {
       try {
-        // let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery ${sql_where_filter}`); // includes all internal queries
+        
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
+
+        // **********************************************************************
+        //               MAP  Q U E R Y  / SEARCH INCLUDED
+        // **********************************************************************
+        // if(map === true)
+        // is map_select the same as sql_select ? 
+        let map_query = knex.raw(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon FROM (${sql_select}) AS subquery`);
+
+        map_query ? console.log("L411 typeof map_query :", map_query.toQuery()) : console.log("L411 map_query is FALSY....")
+        // **********************************************************************
+
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
 
@@ -420,12 +446,7 @@ const listWrapper = async (req, res) => {
         sql_order += `${order_by_rank} month_order ASC `; //3)
     }
 
-    //map-related is included then:
-    let map_select =  ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
-    let map_query = query;
-    // the map_query could be later re-assigned if(searchIncluded) below 
-
-
+  
     // ****************************************************************
     // LIMIT
     // ****************************************************************
@@ -453,7 +474,10 @@ const listWrapper = async (req, res) => {
             // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
             // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
-            // result_map = await knex.raw(map_select + outer_where);// remove sql_limit and replaced the sql_select with map_select 
+
+            // if(map === true)
+            // is map_select the same as sql_select ? 
+            // result_map = await knex.raw(map_select + outer_where);// remove sql_limit and sql_order 
             
             // logger("#######################################################");
             // logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
@@ -478,6 +502,9 @@ const listWrapper = async (req, res) => {
         // const sqlQuery = query.toString();
         // logger("SQL without search phrase :" + sqlQuery)
         // logger("#######################################################");
+
+        // if(map === true) // remove sql_limit and sql_order then replace the sql_select with map_select
+        // result_map = ......................; 
 
         result = await query;
         count = await countQuery.first();

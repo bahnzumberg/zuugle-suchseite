@@ -74,9 +74,9 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
             let connectionReturnEntries = [];
             if(!!cr && !!cr.return_description_json){
                 let entries = jsonToStringArray(cr,'from');
-                logger("L80 tourPdf connectionReturns :");
-                Array.isArray(entries) &&  logger(" entries is Array....");
-                logger(entries)
+                // logger("L80 tourPdf connectionReturns :");
+                // Array.isArray(entries) &&  logger(" entries is Array....");
+                // logger(entries)
                 // logger("L82 tourPdf cr value = connection ? :");
                 // logger(typeof(cr)); // contains already the return_description_parsed inserted
                 // logger(JSON.stringify(cr));
