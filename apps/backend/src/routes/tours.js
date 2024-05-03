@@ -874,8 +874,8 @@ const compareConnections = (trans1, trans2) => {
         && trans2 != null
         && moment(trans1.connection_departure_datetime).isSame(moment(trans2.connection_departure_datetime))
         && moment(trans1.connection_arrival_datetime).isSame(moment(trans2.connection_arrival_datetime))
-        && trans1.connection_departure_stop == trans2.connection_departure_stop
-        && trans1.connection_rank == trans2.connection_rank;
+        // && trans1.connection_departure_stop == trans2.connection_departure_stop
+        // && trans1.connection_rank == trans2.connection_rank;
 }
 
 const compareConnectionReturns = (conn1, conn2) => {
