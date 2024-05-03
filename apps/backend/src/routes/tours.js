@@ -684,8 +684,8 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
         connection.return_duration_minutes = minutesFromMoment(moment(connection.return_duration, 'HH:mm:ss'));
         connection.missing_days = missing_days;
-        connection.connection_departure_stop = 'XX departure_stop XX'
-        connection.connection_arrival_stop = 'YY arrival_stop YY'
+        // connection.connection_departure_stop = 'XX departure_stop XX'
+        // connection.connection_arrival_stop = 'YY arrival_stop YY'
         resolve(connection);
     })));
 
@@ -847,7 +847,7 @@ const compareConnections = (trans1, trans2) => {
         && trans2 != null
         && moment(trans1.connection_departure_datetime).isSame(moment(trans2.connection_departure_datetime))
         && moment(trans1.connection_arrival_datetime).isSame(moment(trans2.connection_arrival_datetime))
-        && trans1.connection_departure_stop == trans2.connection_departure_stop
+        // && trans1.connection_departure_stop == trans2.connection_departure_stop
         && trans1.connection_rank == trans2.connection_rank;
 }
 
