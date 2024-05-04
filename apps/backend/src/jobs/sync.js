@@ -624,7 +624,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
-                logger(`ERROR : Insert sql into fahrplan table: ${err}`);
+                console.log(`ERROR : Insert sql into fahrplan table: ${err}`);
                 logger(`Insert sql into fahrplan table: ${insert_sql}`);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
