@@ -242,14 +242,8 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                  // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
 
-                console.log("start of output tracksPoints :")
-                trackPoints.forEach((row) => {
-                    console.log("key" , row.track_key)
-                    console.log("track_point_sequence" , row.track_point_sequence)
-                    console.log("track_point_lon" , row.track_point_lon)
-                    console.log("track_point_lat" , row.track_point_lat)
-                    console.log("track_point_elevation" , row.track_point_elevation)
-                })
+               
+                // KNEX.RAW VERSION (DOES NO WORK)
                 // trackPoints.forEach((row) => {
                 //     if(row.track_point_sequence == 1){
                 //         knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
@@ -261,21 +255,23 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                 //             `)
                 //     }
                 // });
-                // trackPoints.forEach((row) => {
-                //     if (row.track_point_sequence === 1) {
-                //       knex('tracks')
-                //         .insert({
-                //           track_key: row.track_key,
-                //           track_point_sequence: row.track_point_sequence,
-                //           track_point_lon: row.track_point_lon,
-                //           track_point_lat: row.track_point_lat,
-                //           track_point_elevation: row.track_point_elevation,
-                //         })
-                //         .catch((error) => {
-                //           console.error("Error inserting data:", error);
-                //         });
-                //     }
-                //   });
+
+                // KNEX VERSION
+                trackPoints.forEach((row) => {
+                    if (row.track_point_sequence === 1) {
+                      knex('tracks')
+                        .insert({
+                          track_key: row.track_key,
+                          track_point_sequence: row.track_point_sequence,
+                          track_point_lon: row.track_point_lon,
+                          track_point_lat: row.track_point_lat,
+                          track_point_elevation: row.track_point_elevation,
+                        })
+                        .catch((error) => {
+                          console.error("Error inserting data:", error);
+                        });
+                    }
+                  });
                   
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
