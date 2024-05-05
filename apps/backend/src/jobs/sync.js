@@ -245,9 +245,17 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                 // Array.isArray(trackPoints) ? console.log("L245 trackPoints.length", trackPoints.length) : console.log("L245 trackpoints is not an array")
 
                 trackPoints.forEach((row,idx) => {
-                    console.log("L248 idx : ", idx)
-                    console.log(row.track_key)
+                    // console.log("L248 idx : ", idx)
+                    // console.log(row.track_key)
                     if(row.track_point_sequence == 1){
+                        console.log("L251 Start logging for idx  = 0 :")
+                        if(idx === 0) {
+                            console.log(row.track_key)
+                            console.log(row.track_point_sequence)
+                            console.log(row.track_point_lon)
+                            console.log(row.track_point_lat)
+                            console.log(row.track_point_elevation)
+                        }
                         knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
                             (${row.track_key}, 
                             ${row.track_point_sequence}, 
