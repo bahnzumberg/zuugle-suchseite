@@ -250,11 +250,11 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                     if(row.track_point_sequence == 1){
                         console.log("L251 Start logging for idx  = 0 :")
                         if(idx === 0) {
-                            console.log(row.track_key)
-                            console.log(row.track_point_sequence)
-                            console.log(row.track_point_lon)
-                            console.log(row.track_point_lat)
-                            console.log(row.track_point_elevation)
+                            console.log(typeof row.track_key)
+                            console.log( typeof row.track_point_sequence)
+                            console.log( typeof row.track_point_lon)
+                            console.log( typeof row.track_point_lat)
+                            console.log( typeof row.track_point_elevation)
                         }
                         knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
                             (${row.track_key}, 
