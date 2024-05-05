@@ -18,7 +18,7 @@
     "import-data": "node build/jobs/syncData.js > import-data.log 2>&1",
     "import-data-full": "node build/jobs/syncData.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
-    "import-files": "node build/jobs/syncFiles.js",
+    "import-files": "node build/jobs/syncFiles.js > import-data.log 2>&1",
     "generate-testdata": "node build/jobs/generateTestdata.js"
   },
   "keywords": [],
