@@ -241,8 +241,7 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
             else {
                  // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-
-               
+              
                 // KNEX.RAW VERSION (DOES NO WORK)
                 // trackPoints.forEach((row) => {
                 //     if(row.track_point_sequence == 1){
