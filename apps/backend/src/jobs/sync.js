@@ -242,18 +242,7 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                  // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
               
-                // KNEX.RAW VERSION (DOES NO WORK)
-                // trackPoints.forEach((row) => {
-                //     if(row.track_point_sequence == 1){
-                //         knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
-                //             (${row.track_key}, 
-                //             ${row.track_point_sequence}, 
-                //             ${row.track_point_lon},  
-                //             ${row.track_point_lat},  
-                //             ${row.track_point_elevation})
-                //             `)
-                //     }
-                // });
+
 
                 // KNEX VERSION
                 trackPoints.forEach((row) => {
@@ -286,6 +275,9 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
 export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
+    if(mod === 'dev'){
+        knex.raw('TRUNCATE TABLE tracks').catch(err =>console.error("Error truncating table tracks:", err))
+    }
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
