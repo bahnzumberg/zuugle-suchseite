@@ -265,7 +265,8 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                           track_point_lon: row.track_point_lon,
                           track_point_lat: row.track_point_lat,
                           track_point_elevation: row.track_point_elevation,
-                        })
+                        }).onConflict(['track_key', 'track_point_sequence']) // conflicting columns
+                        .ignore()  // prevent insertion of duplicate rows
                         .catch((error) => {
                           console.error("Error inserting data:", error);
                         });
