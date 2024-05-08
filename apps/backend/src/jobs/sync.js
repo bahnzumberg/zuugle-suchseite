@@ -241,17 +241,27 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
             else {
                  // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-                trackPoints.forEach(row => {
-                    if(row.track_point_sequence == 1){
-                        knex.raw(`INSERT INTO tracks (track_key,track_point_sequence,track_point_lon,track_point_lat,track_point_elevation) VALUES 
-                            (${row.track_key}, 
-                            ${row.track_point_sequence}, 
-                            ${row.track_point_lon},  
-                            ${row.track_point_lat},  
-                            ${row.track_point_elevation})
-                            `)
+              
+
+
+                // KNEX VERSION
+                trackPoints.forEach((row) => {
+                    if (row.track_point_sequence === 1) {
+                      knex('tracks')
+                        .insert({
+                          track_key: row.track_key,
+                          track_point_sequence: row.track_point_sequence,
+                          track_point_lon: row.track_point_lon,
+                          track_point_lat: row.track_point_lat,
+                          track_point_elevation: row.track_point_elevation,
+                        }).onConflict(['track_key', 'track_point_sequence']) // conflicting columns
+                        .ignore()  // prevent insertion of duplicate rows
+                        .catch((error) => {
+                          console.error("Error inserting data:", error);
+                        });
                     }
-                });
+                  });
+                  
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
@@ -265,6 +275,9 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
 export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
+    if(mod === 'dev'){
+        knex.raw('TRUNCATE TABLE tracks').catch(err =>console.error("Error truncating table tracks:", err))
+    }
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
@@ -553,6 +566,8 @@ const readAndInsertFahrplan = async (bundle) => {
         const result = await result_query;
 
         let data = result[0].map(row => ({ ...row }));
+
+        // !!data && Array.isArray(data) && console.log("L557 data[0]:", data[0])
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider,
@@ -624,6 +639,7 @@ const readAndInsertFahrplan = async (bundle) => {
                 resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
+                // console.log(`ERROR : Insert sql into fahrplan table: ${err}`);
                 logger(`Insert sql into fahrplan table: ${insert_sql}`);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
