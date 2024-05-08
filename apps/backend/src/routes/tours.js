@@ -428,11 +428,9 @@ const listWrapper = async (req, res) => {
     
     //markers-related 
     // map_query_main now contain the query when NO "searchIncluded" AND selects only 3 colmns
+    // and NO ORDER BY OR LIMIT OR OFFSET
     let map_query_main = query.clone().clearSelect().select('id', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat');
       
-                                         // and NO ORDER BY OR LIMIT OR OFFSET
-
-
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -490,7 +488,7 @@ const listWrapper = async (req, res) => {
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows;   // This is to be passed to the response below
             } else {
-                console.log('Result or markers_result.rows is null or undefined.');
+                console.log('markers_result.rows is null or undefined.');
             }
 
           } catch (error) {
@@ -618,7 +616,16 @@ const listWrapper = async (req, res) => {
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)
 
-    res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges});
+    res
+      .status(200)
+      .json({
+        success: true,
+        tours: result,
+        total: count_final,
+        page: page,
+        ranges: ranges,
+        markers: markers_array,
+      });
 }
 
 const filterWrapper = async (req, res) => {
