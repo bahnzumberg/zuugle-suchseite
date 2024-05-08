@@ -326,10 +326,10 @@ export function Search({
 
     setSearchParams(searchParams);
     
-    if (!!goto) { // "/suche" to be true only when coming from Start->Header->SearchContainer->Search->search()
+    if (!!goto) { // goto = "/suche"  comes from Start->Header->SearchContainer->Search->search() and from detail page
       navigate(`${goto}?${searchParams.toString()}`);
       // window.location.reload();
-    } else { // coming in from Main filter submit or 
+    } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
         if(pageKey === "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));

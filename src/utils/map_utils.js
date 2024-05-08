@@ -6,7 +6,7 @@ export const checkOnlyMapParams = (filterParam = false)=>{
   //map params are the only ones inside the filter object 
   //OR map params do not exist 
 
-  console.log("L5 filterParam : ", filterParam)
+  // console.log("L5 filterParam : ", filterParam)
   let mapFilter = false;
 
   if (!!filterParam) {

@@ -91,7 +91,7 @@ function Start({
       try {
         totalTourRef.current = await loadTotalTours(requestConfig);
         // consoleLog(`L92 : ${JSON.stringify(totalTourRef.current.data['total_tours'])}`)
-        consoleLog(`L92 : ${totalTourRef.current.data['total_tours']}`)
+        //consoleLog(`L92 : ${totalTourRef.current.data['total_tours']}`)
         await loadAllCities(requestConfig);
         await loadRanges(
           { ignore_limit: true, remove_duplicates: true },
@@ -195,6 +195,13 @@ function Start({
     navigate(`suche?${searchParams.toString()}`);
   }
 
+    // Function to navigate to another component with parameters
+    // const handleClick = () => {
+    //   navigate('/suche', {
+    //     state: { params: { cityName:  localStorage.getItem('city') || 'wien' , userName: 'Abas', lastName : 'Abd-Rabu' } }
+    //   });
+    // };
+
 
   const country = getTranslatedCountryName();
 
@@ -295,6 +302,7 @@ function Start({
 
         {!showMobileMenu && (
           <MapBtn 
+            // onClick={handleClick}
             onClick={onClickMap}
             mapBtnext={t("start.zur_kartenansicht")} 
             >

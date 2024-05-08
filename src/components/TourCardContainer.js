@@ -73,7 +73,7 @@ export default function TourCardContainer({
       page: !!pageTours ? Number(pageTours) + 1 : 2,
     }).then((res) => {
       // consoleLog("L116 >>>> results :",(res));
-
+      // let markers = res.data.mLis
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
       if (retrievedTours.length === 0 || retrievedTours.length < 9) {
         setHasMore(false);        

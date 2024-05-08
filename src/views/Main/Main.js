@@ -112,14 +112,29 @@ export function Main({
   //is true if params contains "filter" and has only 2 params specific to coordinate values
   const onlyMapParams = checkOnlyMapParams(searchParams.get('filter'));
 
-  if(!!tours){
-    tours.map((tour) => {
-      console.log("L117 / id :", tour.id)
-      console.log("L118 / connection_arrival_stop_lat :", tour.connection_arrival_stop_lat)
-      console.log("L119 / connection_arrival_stop_lon :", tour.connection_arrival_stop_lon)
-      return tour
-    })
-  }
+// trials / testing
+//   useEffect(() => {
+//     let markersArrayArrivals = [];
+//     if(!!tours){
+//       tours.map(tour => {
+//         markersArrayArrivals.push([tour.connection_arrival_stop_lat, tour.connection_arrival_stop_lon]);
+//         // console.log("L117 / id :", tour.id)
+//         // console.log("L118 / connection_arrival_stop_lat :", tour.connection_arrival_stop_lat)
+//         // console.log("L119 / connection_arrival_stop_lon :",  tour.connection_arrival_stop_lon)
+//         return markersArrayArrivals
+//       })
+//     }
+
+//     // if(markersArrayArrivals ){
+      
+//     //     for(let j=0  ; j<markersArrayArrivals.length ; j++){
+//     //       console.log(`row : ${j}`)
+//     //       console.log(`${markersArrayArrivals[j][0]} , ${markersArrayArrivals[j][1]}`)
+//     //     }     
+      
+//     // }
+// }, [])
+  
   useEffect(() => {
     // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
@@ -224,6 +239,13 @@ export function Main({
     // setMapView(searchParams.get("map") === "true");
     console.log("Main.6")
   }, [filterCountLocal,filterValuesLocal, searchParams]);
+
+useEffect(() => {
+  // !!location?.state?.params && console.log("L228 location.state.params :", location?.state?.params)
+  if (!!location && !!location.state && !!location.state.params  ) {
+    console.log("L228 location.state.params :", location?.state?.params)
+  }
+}, [location])
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
