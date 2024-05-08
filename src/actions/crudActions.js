@@ -96,9 +96,7 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-    //console.log(" L89 data: inside if(state) : ", state.filter); //  filter is passed
-    // now pass the filter
-    // data = {...data, filter: filter}
+   
     params = {
       ...pagination,
       ...data,
@@ -113,6 +111,20 @@ export function loadList(
       const entities = res.data[entityName];
       const total = res.data.total;
       const filter = !!res.data.filter ? res.data.filter : null;
+      const markers = res?.data?.markers?.map((markerObj) => ({
+      id: markerObj.id,
+      lat: markerObj.connection_arrival_stop_lat,
+      lon: markerObj.connection_arrival_stop_lon,
+    })) || [];
+    // markers example: 
+    // [{id:id,lat:connection_arrival_stop_lat,lon:connection_arrival_stop_lon}]
+
+      //clg markers
+      // !!Array.isArray(markers) && console.log("L115 loadList / markers.length : ",markers.length )
+      // !!markers && markers.forEach((markObj)=>{
+      //   console.log(`${markObj.id} -> ( ${markObj.lat} : ${markObj.lon} )`)
+      // });
+      
       if (!!useState) {
         dispatch({
           type: typeDone,
@@ -121,6 +133,7 @@ export function loadList(
           filter: filter,
           page: res.data.page,
           ranges: res.data.ranges,
+          markers:markers
         });
       }
       return res;
@@ -303,6 +316,7 @@ export const getTotalCityTours = (city) => {
     });
 };
 
+// This is a "BAUSTELLE" but already has basic fucntionality (for this stage May 2024 it is not needed)
 export const getMapData = (data)=>{
   return axios.get('tours/map/', {
     params: data

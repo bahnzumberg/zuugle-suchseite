@@ -11,7 +11,7 @@ import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 
@@ -38,6 +38,13 @@ function TourMapContainer({
                         
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
+
+    const markers = useSelector((state) => state.tours.markers);// move to props
+
+    if(!!markers && Array.isArray(markers)){
+        console.log("L44, markers inside TourMapContainer / length :", markers.length)
+        markers.forEach(mark => console.log(`${mark.id} : (${mark.lat}, ${mark.lon})`))
+    }
 
     const [popupOpen, setPopupOpen] = useState({});
 
@@ -84,9 +91,9 @@ function TourMapContainer({
             }
         }, [initialTours]);
 
-        useEffect(() => {
-            consoleLog("L88 Tours:", tours, true);
-        }, [tours]);
+        // useEffect(() => {
+        //     consoleLog("L88 Tours:", tours, true);
+        // }, [tours]);
         
         
         
@@ -102,7 +109,7 @@ function TourMapContainer({
     },[popupOpen]);
         
     useEffect(() => {
-        consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
+        // consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
@@ -223,8 +230,6 @@ function TourMapContainer({
                             title={tour.title}
                             icon={StartIcon}
                             eventHandlers={{
-                                // click: () => handleMarkerClick(tour.id)
-                                // ,
                                 click: () => {
                                     setTourID(tour.id);
                                     setCurrentGpxTrack(tour.gpx_file);
@@ -283,7 +288,7 @@ function TourMapContainer({
         };
     }
 
-    function stoppedMoving(bounds) { //funciton used to call initiate Filter
+    function stoppedMoving(bounds) { //funciton used to call initiate filter
         initiateFilter(bounds)
     }
 
