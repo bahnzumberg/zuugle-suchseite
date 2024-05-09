@@ -555,13 +555,13 @@ const readAndInsertFahrplan = async (bundle) => {
                         totour_track_key, totour_track_duration,  
                         fromtour_track_key,
                         fromtour_track_duration, 
-                        REPLACE(REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´"), "\"", "´") as connection_description_json,
+                        REPLACE(REPLACE(REPLACE(connection_description_json, '\n', ''), '\'', '´'), '"', '´') as 
+                        connection_description_json,
                         DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
-                        REPLACE(REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´"), "\"", "´") as return_description_json,
+                        REPLACE(REPLACE(REPLACE(return_description_json, '\n', ''), '\'', '´'), "\"", '´') as return_description_json,
                         DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
                         FROM vw_fplan_to_search 
-                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
-
+                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`                       
         const result_query = knexTourenDb.raw(mysql_sql);
         const result = await result_query;
 
