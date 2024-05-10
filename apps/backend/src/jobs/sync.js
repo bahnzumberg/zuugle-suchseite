@@ -84,6 +84,7 @@ export async function fixTours(){
                         GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
                     WHERE a.row_number=1
                     AND a.id=t.id`);
+    console.log("Update tour to fill connection_arrival_stop_lat and connection_arrival_stop_lon");
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
