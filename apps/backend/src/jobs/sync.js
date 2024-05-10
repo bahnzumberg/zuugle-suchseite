@@ -60,31 +60,7 @@ export async function fixTours(){
                              
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    await knex.raw(`UPDATE tour AS t
-                    SET connection_arrival_stop_lat = a.lat,
-                    connection_arrival_stop_lon = a.lon
-                    FROM (SELECT
-                        f.id,
-                        f.lon,
-                        f.lat,
-                        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
-                        FROM
-                            (SELECT 
-                            tour.id,
-                            t.track_point_lon AS lon,
-                            t.track_point_lat AS lat,
-                            COUNT(*) AS count_num
-                            FROM tour
-                            INNER JOIN fahrplan AS f
-                            ON f.hashed_url=tour.hashed_url
-                            INNER JOIN tracks AS t
-                            ON f.totour_track_key=t.track_key
-                            AND t.track_point_sequence=1
-                            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
-                        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
-                    WHERE a.row_number=1
-                    AND a.id=t.id`);
-    console.log("Update tour to fill connection_arrival_stop_lat and connection_arrival_stop_lon");
+    await update_tours_from_tracks();
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -215,6 +191,34 @@ export async function generateTestdata(){
 }
 
 
+async function update_tours_from_tracks() {
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+    SET connection_arrival_stop_lat = a.lat,
+    connection_arrival_stop_lon = a.lon
+    FROM (SELECT
+        f.id,
+        f.lon,
+        f.lat,
+        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
+        FROM
+            (SELECT 
+            tour.id,
+            t.track_point_lon AS lon,
+            t.track_point_lat AS lat,
+            COUNT(*) AS count_num
+            FROM tour
+            INNER JOIN fahrplan AS f
+            ON f.hashed_url=tour.hashed_url
+            INNER JOIN tracks AS t
+            ON f.totour_track_key=t.track_key
+            AND t.track_point_sequence=1
+            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
+        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
+    WHERE a.row_number=1
+    AND a.id=t.id`);
+}
+
 
 async function _syncConnectionGPX(key, fileName, title, mod=null){
     return new Promise(async resolve => {
@@ -269,6 +273,7 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
             }
         }
 
+        await update_tours_from_tracks();
         resolve();
     })
 }
