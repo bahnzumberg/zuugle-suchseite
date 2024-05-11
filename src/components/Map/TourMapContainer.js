@@ -14,15 +14,17 @@ import { loadGPX } from '../../actions/fileActions';
 import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
+import { loadTour } from '../../actions/tourActions';
 
 function TourMapContainer({
     tours,
+    tour,
     totalTours,
     onSelectTour,
-    // scrollWheelZoom = true,
     filter,
-    // loadGPX,
     setTourID,
+    // loadGPX,
+    // scrollWheelZoom = true,
     //   loadTourConnections,
     //   city,
     //   loadTours,
@@ -41,6 +43,7 @@ function TourMapContainer({
     const markers = useSelector((state) => state.tours.markers);// move to props
 
     const [popupOpen, setPopupOpen] = useState({});
+    
 
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
@@ -56,6 +59,10 @@ function TourMapContainer({
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const initialCity = !!searchParams.get('city') ? searchParams.get('city') : null
+    const [city, setCity] = useState(initialCity);
+
     // create a bounds state ?
     var onToggle = localStorage.getItem('MapToggle');
     
@@ -149,6 +156,12 @@ function TourMapContainer({
         }
     }, [tours]);
 
+    useEffect(()=>{
+        if(!!city && !!searchParams.get('city') && city !== searchParams.get('city')){
+            setCity(searchParams.get('city'))
+        }
+    },[searchParams])
+
     // const handleMarkerClick = (tourId) => {
     //     console.log('Previous popupOpen state:', popupOpen);
     //     setPopupOpen(prevState => ({
@@ -204,6 +217,32 @@ function TourMapContainer({
             setGpxTrack([]);
         }
     }
+
+    const popupClick = async (popupId)=>{
+        // console.log("L221 popupClickHandler popupId : ", popupId)
+        // console.log("L221 popupClickHandler city : ", city)
+
+        if (!!popupId && !!city ) {
+            try {
+                await loadTour(popupId, city); // Wait for the loadTour action to complete
+                localStorage.setItem("tourId", popupId);
+                // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
+                // Proceed with any additional logic here
+                window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+            } catch (error) {
+                console.error("Error loading tour:", error);
+                window.location.reload(); // Reload the page in case of an error
+            }
+        }else{
+        window.location.reload()
+        }
+    }
+
+    const handlePopupClick = (event, id) => {
+        event.preventDefault();
+        popupClick(id);
+        console.log('L243 Clicked ID:', id);
+    };
 
     // const markerComponents = useMemo(() => {
     //     // if (!!tours) {
@@ -262,19 +301,17 @@ function TourMapContainer({
                                 eventHandlers={{
                                     click: () => {
                                         setTourID(mark.id);
-                                        console.log("mark.id -> ", mark.id)
+                                        //console.log("mark.id -> ", mark.id)
                                         // onSelectTour(mark.id);
                                         // handleMarkerClick(tour.id);
                                         // setPopupOpen(!popupOpen)
                                     },
                                 }}
                             >
-                                {/* {popupOpen[tour.id] && ( */}
                                 <Popup>
-                                    {/* <div>{`${tour.id} is open!`}</div> */}
-                                    <div>Popup here !</div>
+                                    {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
+                                    <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div>
                                 </Popup>
-                            {/* )} */}
                             </Marker>
                         );
                     }
@@ -416,6 +453,7 @@ const mapStateToProps = (state) => {
     return {
         filter: state.tours.filter, //used to get the filter variables
         visibleToursGPX: state.tours.visibleToursGPX, //used to get the current bounds of the map out of the store
+        tour: state.tours.tour,
     }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);
