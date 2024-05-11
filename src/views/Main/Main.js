@@ -331,9 +331,10 @@ useEffect(() => {
       className="cards-container"
       sx={{
         marginTop: {
-          xs: "20px",
+          xs: marginTop,
           md: marginTop,
         },
+        padding: "25px"
       }}
     >
       <TourCardContainer
