@@ -615,7 +615,8 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 
   .cards-container {
-    margin-top: 160px;
+    margin-top: 60px;
+    /* margin-top: 160px; */
   }
 
   .cards-container.seo-page {
