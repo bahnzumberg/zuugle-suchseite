@@ -21,6 +21,7 @@ export default function TourCardContainer({
   // total,
   filterValues,
   setFilterValues,
+  showMap
 }) {
 
   const [searchParams, setSearchParams] = useSearchParams();

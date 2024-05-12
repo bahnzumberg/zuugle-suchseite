@@ -98,8 +98,7 @@ export function Main({
   // const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
-  const mapValue = (searchParams.get('map')) === "true" ? true : false ;
-  const [showMap, setShowMap] = useState(mapValue);
+  const [showMap, setShowMap] = useState(false);
   
   const initBtnText = (searchParams.get('map')) === "true" ? 'Remove' : `${t("start.zur_kartenansicht")}` ;
   const [mapBtnext,setMapBtnText] = useState(initBtnText);
@@ -136,6 +135,8 @@ export function Main({
 // }, [])
   
   useEffect(() => {
+     
+    setShowMap(searchParams.get('map') === "true" ? true : false ) ;
     // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams) {
@@ -323,15 +324,17 @@ useEffect(() => {
 
   const renderCardContainer = ()=> (
     <Box
-      className={
-        "cards-container" +
-        (!!directLink && !!directLink.header ? " seo-page" : "")
-      }
+      // className={
+      //   "cards-container" +
+      //   (!!directLink && !!directLink.header ? " seo-page" : "")
+      // }
+      className="cards-container"
       sx={{
         marginTop: {
-          xs: "20px",
-          md: "250px",
+          xs: marginTop,
+          md: marginTop,
         },
+        padding: "25px"
       }}
     >
       <TourCardContainer
@@ -346,8 +349,48 @@ useEffect(() => {
         // total={totalTours}
         filterValues={filterValues}
         setFilterValues={setFilterValues}
+        showMap={showMap}  //to be used for other features
       />
     </Box>
+  )
+
+  let paddingTop = showMap ? "35px" : "50px"
+  let marginTop = showMap ? "20px" : "255px"
+
+  const totalToursHeader = ()=>(   
+    <Box elevation={0} className={"header-line-main"}>
+          <Box
+            sx={{
+              paddingTop: paddingTop,
+              paddingBottom: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography color={"black"} sx={{ textAlign: "center" }}>
+              {Number(totalTours).toLocaleString()}{" "}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+            </Typography>
+            {(!!filterCountLocal && filterCountLocal > 0 )   
+            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
+            && (
+              <Box display={"flex"} alignItems={"center"}>
+                &nbsp;{" - "}&nbsp;
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    color: "#FF7663",
+                    fontWeight: "600",
+                    mr: "2px",
+                  }}
+                >
+                  {t("filter.filter")}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
   )
 
  
@@ -374,7 +417,7 @@ useEffect(() => {
           sx={{
             height: {
               xs: "170px",
-              md: "150px",
+              md: "165px",
             },
           }}
           position={"relative"}
@@ -438,39 +481,9 @@ useEffect(() => {
             </Box>
           )}
         </Box>
-        <Box elevation={0} className={"header-line-main"}>
-          <Box
-            sx={{
-              paddingTop: "51px",
-              paddingBottom: "30px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography color={"black"} sx={{ textAlign: "center" }}>
-              {Number(totalTours).toLocaleString()}{" "}
-              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
-            </Typography>
-            {(!!filterCountLocal && filterCountLocal > 0 )   
-            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
-            && (
-              <Box display={"flex"} alignItems={"center"}>
-                &nbsp;{" - "}&nbsp;
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    color: "#FF7663",
-                    fontWeight: "600",
-                    mr: "2px",
-                  }}
-                >
-                  {t("filter.filter")}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </Box>
+        {!showMap && (
+         totalToursHeader()
+        )}
       </Box>
  
       {!!tours && tours.length > 0 && (
@@ -481,10 +494,12 @@ useEffect(() => {
               <Box className={"map-container"}>
                 {memoTourMapContainer}
               </Box>
+              {totalToursHeader()}
               {renderCardContainer()}
               
             </>
           ) : 
+          
             renderCardContainer()
           
           }
