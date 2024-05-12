@@ -1,8 +1,30 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
 import MapIcon from "../../icons/Map";
+import ListIcon from "../../icons/List";
 
-const MapBtn = ({ children, onClick , mapBtnext}) => {
+import { useTranslation } from "react-i18next";
+
+
+
+const MapBtn = ({ children, onClick, showMap}) => {
+
+  const [t, i18n] = useTranslation();
+
+  //state to update the text
+  const [mapBtnext,setMapBtnText] = useState("");
+
+  //initialiaze icon
+  const iconUsed = !showMap ? <MapIcon /> : <ListIcon /> ;
+
+
+  useEffect(() => {
+    // Update button text when language changes
+    setMapBtnText(showMap ? t("main_only.kartenansicht_entfernen") : t("start_main_pages.zur_kartenansicht"));
+  }, [showMap, t]);
+  
+
   return (
     <Button
       sx={{
@@ -24,7 +46,7 @@ const MapBtn = ({ children, onClick , mapBtnext}) => {
       onClick={onClick}
       aria-label="contained"
       variant="contained"
-      endIcon={<MapIcon />}
+      endIcon={!!iconUsed && iconUsed}
     >
       <span style={{ paddingLeft: "10px" }}>
         {children}
@@ -33,4 +55,4 @@ const MapBtn = ({ children, onClick , mapBtnext}) => {
     </Button>
   );
 };
-  export default MapBtn;
+export default MapBtn;
