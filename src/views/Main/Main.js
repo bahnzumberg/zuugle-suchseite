@@ -100,9 +100,6 @@ export function Main({
 
   const [showMap, setShowMap] = useState(false);
   
-  const initBtnText = (searchParams.get('map')) === "true" ? 'Remove' : `${t("start.zur_kartenansicht")}` ;
-  const [mapBtnext,setMapBtnText] = useState(initBtnText);
-
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
@@ -308,7 +305,6 @@ useEffect(() => {
       searchParams.delete('map');
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams)
-      setMapBtnText(`${t("start.zur_kartenansicht")}`);
       setShowMap(false);
       console.log("Main.7")
     }else{
@@ -316,7 +312,6 @@ useEffect(() => {
       searchParams.set('map', true)
       //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams)
-      setMapBtnText('Remove it !')
       setShowMap(true)
       console.log("Main.8")
     }
@@ -488,7 +483,6 @@ useEffect(() => {
  
       {!!tours && tours.length > 0 && (
         <>
-          {/* //either display 100% size map or display the TourCardContainer */}
           {!!showMap ? (
             <>
               <Box className={"map-container"}>
@@ -499,15 +493,11 @@ useEffect(() => {
               
             </>
           ) : 
-          
             renderCardContainer()
-          
           }
           (
-          <MapBtn mapBtnext={mapBtnext} onClick={toggleMapHandler}>
-            
-          </MapBtn>
-       
+          <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
+                   
         </>
       )}
     </div>
