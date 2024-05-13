@@ -10,7 +10,7 @@
         "entwicklung_von_zuugle_4": "Po kliku na izbrano turo se ti na zaslonu prikaže profil ture, ki ga lahko preneseš kot PDF datoteko. Če si želiš ogledati vozne rede, ki ti jih Zuugle predlaga za naslednjih 7 dni, klikni na zavihek »Prihod in odhod«. Zuugle izbere optimalno pot in ti pokaže več možnosti za povratek.",
         "entwicklung_von_zuugle_5": "Upoštevaj, da predlagani vozni red morda ne upošteva kratkoročnih odpovedi vlakov ali sprememb voznega reda. Zato pred začetkom potovanja svojo povezavo preveri pri ustreznem izvajalcu (bahn.de, oebb.at). S klikom na gumb portala s pohodniškimi turami se odpre novo okno s podrobnim opisom pohoda v posameznem portalu."
     },
-    "DeatilReworked.js": {
+    "Details": {
         "gpx_loading_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
         "pdf_loading_notice": "Prenos za tiskanje / pošiljanje po e-pošti.",
         "disabled_download_button_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
@@ -20,7 +20,7 @@
         "rückreise": "Povratek",
         "rückreise_moeglichkeiten": "dodatne možnosti vrnitve."
     },
-    "Filter": {
+    "filter": {
         "tourlaenge": "Dolžina ture",
         "tagestour": "Dnevna tura",
         "mehrtagestour": "Večdnevna tura",
@@ -79,7 +79,7 @@
         "zuugle_description": "Zuugle ti prikaže preverjene povezave z vlakom in avtobusom do gorskih tur, pohodniških poti, turnega smučanja, krpljanja, itn. z izhodiščem iz tvojega kraja bivanja.",
         "noscript": "Izgleda, da JavaScript ni omogočen. Vendar ta iskalnik za gorske ture, dostopne z javnim prevozom, za svoje delovanje potrebuje JavaScript. V svojem brskalniku omogoči JavaScript."
     },
-    "Main": {
+    "main": {
         "ergebnisse": "rezultatov",
         "ergebnis": "Rezultat",
         "karte": "Zemljevid",
@@ -203,12 +203,9 @@
         "tourenanzahl_untertitel_city": "gorskih tur in izletov iz {{capCity}} – dostopnih z vlakom in avtobusom"
     },
     "DeatilReworked": {
-        "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
-        "start_ausgangort": "Začetek pri izhodišču.",
-        "keine_verbindungen": "Za ta dan ni najdena nobena povezava.",
-        "liveabfrage_anreise": "Opravi poizvedbo v živo za ta prihod."
+       
     },
-    "DetailReworked": {
+    "details": {
         "teilen_text": "Poglej, kakšno turo sem našel na Zuuglu:",
         "warnung_andere_station": "To je bilo vzeto s postaje osebe, ki je ustvarila LInk.",
         "teilen": "Delite",
@@ -245,6 +242,10 @@
         "km_kilometer": "km",
         "min_minute": "min",
         "m_meter": "m",
-        "h_hour": "h"
+        "h_hour": "h",
+        "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
+        "start_ausgangort": "Začetek pri izhodišču.",
+        "keine_verbindungen": "Za ta dan ni najdena nobena povezava.",
+        "liveabfrage_anreise": "Opravi poizvedbo v živo za ta prihod."
     }
 }

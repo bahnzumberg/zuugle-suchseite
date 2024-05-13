@@ -10,7 +10,7 @@
         "entwicklung_von_zuugle_4": "Now click on your desired tour. A tour description will appear on your screen, which you can also download as a PDF. For the Zuugle timetable suggestions for the next 7 days, click on the \"Arrival & Departure\" tab. Zuugle selects the best outward journey and shows you several return options.",
         "entwicklung_von_zuugle_5": "Please note that train cancellations or timetable changes at short notice may not be taken into account by our timetable suggestions. Therefore, please check your connection with the respective operators (bahn.de, oebb.at) before starting your journey. Click on the button of the tour portal to open a new window with the detailed tour description in the respective portal."
     },
-    "DeatilReworked.js": {
+    "Details": {
         "gpx_loading_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
         "pdf_loading_notice": "Download to print / Send via mail",
         "disabled_download_button_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
@@ -20,7 +20,7 @@
         "rückreise": "Return journey",
         "rückreise_moeglichkeiten": "more return options"
     },
-    "Filter": {
+    "filter": {
         "tourlaenge": "Tour length",
         "tagestour": "Day trip",
         "mehrtagestour": "Multiday trip",
@@ -79,7 +79,7 @@
         "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
         "noscript": "It seems that you do not have Javascript enabled. This search engine for mountain tours reachable via public transport requires Javascript to work. Please enable Javascript in your browser."
     },
-    "Main": {
+    "main": {
         "ergebnisse": "Results",
         "ergebnis": "Result",
         "karte": "Map",
@@ -203,12 +203,9 @@
         "tourenanzahl_untertitel_city": "hikes reachable via public transport from {{capCity}}"
     },
     "DeatilReworked": {
-        "track_gps_geraet": "Download track for GPS-device",
-        "start_ausgangort": "Start from the starting location",
-        "keine_verbindungen": "No connections found for this day",
-        "liveabfrage_anreise": "Check this outward journey with the live query button"
+        
     },
-    "DetailReworked": {
+    "details": {
         "teilen_text": "Look what tour I found on Zuugle:",
         "warnung_andere_station": "It was taken from the station of the person who created the LInk.",
         "teilen": "Share",
@@ -245,6 +242,10 @@
         "km_kilometer": "km",
         "min_minute": "min",
         "m_meter": "m",
-        "h_hour": "h"
+        "h_hour": "h",
+        "track_gps_geraet": "Download track for GPS-device",
+        "start_ausgangort": "Start from the starting location",
+        "keine_verbindungen": "No connections found for this day",
+        "liveabfrage_anreise": "Check this outward journey with the live query button"
     }
 }

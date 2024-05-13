@@ -10,7 +10,7 @@
         "entwicklung_von_zuugle_4": "Klicke nun auf deine Wunschtour. Auf deinem Bildschirm erscheint ein Tourensteckbrief, welchen du auch als PDF herunterladen kannst. Für die Zuugle Fahrplanvorschläge für die nächsten 7 Tage klicke auf den Reiter “An & Abreise”. Zuugle wählt die optimale Hinfahrt und zeigt dir mehrer Rückfahrmöglichkeiten an.",
         "entwicklung_von_zuugle_5": "Bitte beachte, dass kurzfristige Zugausfälle oder Fahrplanänderungen eventuell nicht von unseren Fahrplan Vorschlägen berücksichtigt werden können. Deshalb prüfe deine Verbindung vor Fahrtantritt über die jeweiligen Betreiber (bahn.de, oebb.at). Mit einem Klick auf den Button des Tourenportals öffnet sich ein neues Fenster mit der ausführlichen Tourenbeschreibung im jeweiligen Portal."
     },
-    "DeatilReworked.js": {
+    "Details": {
         "gpx_loading_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
         "pdf_loading_notice": "Download für Druck / Mailversand",
         "disabled_download_button_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
@@ -20,7 +20,7 @@
         "rückreise": "Rückreise",
         "rückreise_moeglichkeiten": "weitere Rückreisemöglichkeiten anzeigen"
     },
-    "Filter": {
+    "filter": {
         "tourlaenge": "Tourlänge",
         "tagestour": "Tagestour",
         "mehrtagestour": "Mehrtagestour",
@@ -79,7 +79,7 @@
         "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
         "noscript": "Es scheint, dass du Javascript nicht aktiviert hast. Diese Suchmaschine für Öffi-Bergtouren benötigt aber Javascript um zu funktionieren. Bitte aktiviere Javacript in deinem Browser."
     },
-    "Main": {
+    "main": {
         "ergebnisse": "Ergebnisse",
         "ergebnis": "Ergebnis",
         "karte": "Karte",
@@ -203,12 +203,9 @@
         "tourenanzahl_untertitel_city": "Bergtouren von {{capCity}} - erreichbar mit Bahn & Bus"
     },
     "DeatilReworked": {
-        "track_gps_geraet": "Track für GPS-Gerät herunterladen",
-        "start_ausgangort": "Start beim Ausgangsort",
-        "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
-        "liveabfrage_anreise": "Liveabfrage für diese Anreise prüfen"
+       
     },
-    "DetailReworked": {
+    "details": {
         "teilen_text": "Schau welche Tour ich auf Zuugle gefunden habe:",
         "warnung_andere_station": "Es wurde der Bahnhof der Person, die den Link erstellt hat genommen.",
         "teilen": "Teilen",
@@ -245,6 +242,10 @@
         "km_kilometer": "km",
         "min_minute": "min",
         "m_meter": "m",
-        "h_hour": "h"
+        "h_hour": "h",
+        "track_gps_geraet": "Track für GPS-Gerät herunterladen",
+        "start_ausgangort": "Start beim Ausgangsort",
+        "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
+        "liveabfrage_anreise": "Liveabfrage für diese Anreise prüfen"
     }
 }
