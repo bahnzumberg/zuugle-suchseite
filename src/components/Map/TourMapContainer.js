@@ -8,7 +8,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import gpxParser from "gpxparser";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
-import {useSearchParams} from "react-router-dom";
+import {useSearchParams, useNavigate} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,7 +38,7 @@ function TourMapContainer({
     //   doSubmit,
     }) {
 
-                        
+    const navigate = useNavigate();
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
 
@@ -226,14 +226,14 @@ function TourMapContainer({
 
         if (!!popupId && !!city ) {
             try {
-                await loadTour(popupId, city); // Wait for the loadTour action to complete
+                loadTour(popupId, city); // Wait for the loadTour action to complete
                 localStorage.setItem("tourId", popupId);
                 // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
-                // Proceed with any additional logic here
-                window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-            } catch (error) {
+                // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+                navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
+                //window.location.reload(); // Reload the page in case of an error
+            }catch (error) {
                 console.error("Error loading tour:", error);
-                window.location.reload(); // Reload the page in case of an error
             }
         }else{
         window.location.reload()
