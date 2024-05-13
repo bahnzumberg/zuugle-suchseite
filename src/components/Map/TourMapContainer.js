@@ -315,7 +315,7 @@ function TourMapContainer({
                                     {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
                                 {/* </Popup> */}
 
-                                <Popup className="request-popup">
+                                {/* <Popup className="request-popup">
                                     <div 
                                         style={popupContent}
                                         onClick={e => handlePopupClick(e,mark.id)}
@@ -330,7 +330,7 @@ function TourMapContainer({
                                             }}
                                         />
                                     </div>
-                                </Popup>
+                                </Popup> */}
                             </Marker>
                         );
                     }
