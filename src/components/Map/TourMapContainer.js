@@ -15,6 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
+import {popupContent, popupHead} from "./popupStyles";
+import GoIcon from '../../icons/GoIcon';
 
 function TourMapContainer({
     tours,
@@ -42,7 +44,7 @@ function TourMapContainer({
 
     const markers = useSelector((state) => state.tours.markers);// move to props
 
-    const [popupOpen, setPopupOpen] = useState({});
+    // const [popupOpen, setPopupOpen] = useState({});
     
 
     let StartIcon = L.icon({
@@ -51,11 +53,11 @@ function TourMapContainer({
         iconSize: [30, 41],                             //size of the icon
         iconAnchor: [15, 41],
     });
-
+ 
     const mapRef = useRef();
     const clusterRef = useRef();
     const markerRef = useRef(null);
-    const initialTours = useRef(markers);
+    // const initialTours = useRef(markers);
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -308,9 +310,26 @@ function TourMapContainer({
                                     },
                                 }}
                             >
-                                <Popup>
+                                {/* <Popup> */}
                                     {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                    <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div>
+                                    {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
+                                {/* </Popup> */}
+
+                                <Popup className="request-popup">
+                                    <div 
+                                        style={popupContent}
+                                        onClick={e => handlePopupClick(e,mark.id)}
+                                    >
+                                        <div className="m-2" style={popupHead}>
+                                            Tour Details
+                                        </div>
+                                        <GoIcon
+                                            style={{
+                                                transform: "scale(1.55)",
+                                                strokeWidth: 0,
+                                            }}
+                                        />
+                                    </div>
                                 </Popup>
                             </Marker>
                         );
