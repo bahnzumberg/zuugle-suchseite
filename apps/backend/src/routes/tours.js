@@ -232,20 +232,6 @@ const listWrapper = async (req, res) => {
     countQuery = buildWhereFromFilter(req.query, countQuery);
 
 
-    // **********************************************************************
-        //               MAP  Q U E R Y  / NO SEARCH
-    // **********************************************************************
-    // if(map === true)
-    // create a raw query from "query"
-    // let rawQuery = knex(query).toSQL()
-    // console.log("rawQuery : ")
-    // console.log(rawQuery)
-    // let map_query = knex.raw(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon FROM (${rawQuery}) AS subquery`);
-    // map_query ? console.log("L240 typeof map_query :", map_query.toQuery()) : console.log("L240 map_query is FALSY....")
-    // let map_query = query
-    // **********************************************************************
-
-    // console.log("L248 : process.env.HOSTNAME :", process.env.HOSTNAME)
     //DO THIS FOR SEARCH TERM ONLY
     let sql_where_filter = "";
     let sql_and_filter =""
@@ -311,16 +297,11 @@ const listWrapper = async (req, res) => {
         let _search = search.trim().toLowerCase();
         _search = search.replace(/'/g, "''");
 
-        // console.log("L318 _search :", _search)
 
         //from is added here to be used in the search module ONLY
         sql_select += " FROM ( ";
 
         const langRanks = currRanks(); // internal to search section
-        //clgs
-        //console.log(" ");
-        //console.log("L 223 , langRanks : ", langRanks); //[ { en: 100 }, { de: 10 }, { it: 1 }, { fr: 1 }, { sl: 1 } ]
-        //console.log(" ");
         const encodeLang = [{ en: "english" },{ de: "german" },{ it: "italian" }, { fr: "french" } ,{ sl: "simple" }];
 
         let _traveltime_weight = ''
@@ -481,6 +462,7 @@ const listWrapper = async (req, res) => {
               markers_result = await knex.raw(`
               SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
               FROM ( ${sql_select} ${outer_where} ) AS subquery
+              WHERE (connection_arrival_stop_lat IS NOT NULL OR connection_arrival_stop_lon IS NOT NULL)
               `); // fire the DB call here (when search is included)
             // }
                   
@@ -488,7 +470,8 @@ const listWrapper = async (req, res) => {
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows;   // This is to be passed to the response below
             } else {
-                console.log('markers_result.rows is null or undefined.');
+                // Handle the case, if resultset is empty!
+                // console.log('markers_result.rows is null or undefined.');
             }
 
           } catch (error) {
@@ -507,17 +490,7 @@ const listWrapper = async (req, res) => {
         count = await countQuery.first();
     }
 
-    // markers-related
-    if(searchIncluded){
-        console.log(" ==========================  ")
-        console.log(map_query_main.toString())
-        console.log(" ==========================  ")
-    }else{
-        console.log(" ---------------------------------  ")
-        console.log(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
-        FROM ( ${sql_select} ${outer_where} ) AS subquery`)
-        console.log(" ---------------------------------  ")
-    }
+
     // markers-related
      if(!!markers_array && Array.isArray(markers_array)) {
         console.log("Length of markers Array :", markers_array.length)
