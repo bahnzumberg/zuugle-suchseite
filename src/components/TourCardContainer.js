@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import Grid from "@mui/material/Grid";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import {useSearchParams} from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from './EndOfList';
+import {consoleLog} from '../utils/globals'
 
 export default function TourCardContainer({
   tours,
@@ -14,50 +15,50 @@ export default function TourCardContainer({
   loadTourConnections,
   city,
   loadTours,
-  totalTours,
+  // totalTours,
   pageTours,
   loading,
-  total,
+  // total,
   filterValues,
   setFilterValues,
+  showMap
 }) {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
   
-  let _filter = localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {} ;
+  let filterRef = useRef(localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {});
+
   useEffect(() => {
     _loadTours();
   }, [!!localStorage.getItem("filterValues")])
 
   useEffect(() => {
     if(!!hasMore && !!filterValues){
-        _filter = filterValues ? filterValues : searchParams.get("filter");
+        filterRef.current = filterValues ? filterValues : (!!searchParams && searchParams.get("filter"));
     } else if(!!!hasMore || !!!filterValues){
-        _filter = searchParams.get("filter");
+        filterRef.current = !!searchParams && searchParams.get('filter');
     }
-  }, [hasMore])
+  }, [hasMore,filterValues,searchParams])
 
 
   
   const _loadTours = async () => {
-    if(process.env.NODE_ENV != "production"){
-      // console.log("L67 ====//////   filterValues :", filterValues);
-      // console.log("L68 ====//////   filterValues :", _filter);
-    }
+      // consoleLog("L67 ====//////   filterValues :", filterValues);
+      // consoleLog("L68 ====//////   filterValues :", _filter);
     let city = searchParams.get("city");
     let range = searchParams.get("range");
     let state = searchParams.get("state");
     let country = searchParams.get("country");
     let type = searchParams.get("type");
     let search = searchParams.get("search");
-    let filter = _filter;
     let sort = searchParams.get("sort");
     let map = searchParams.get("map");
     let provider = searchParams.get("p");
 
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
-    _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
+    // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
+    filterRef.current = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
    
     await loadTours({
       city: city,
@@ -66,17 +67,15 @@ export default function TourCardContainer({
       country: country,
       type: type,
       search: search,
-      filter: _filter,
-    //   filter: filter,
+      filter: filterRef.current,
       sort: sort,
       map: map,
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
     }).then((res) => {
-      if(process.env.NODE_ENV != "production"){
-        // console.log("L116 >>>> results :",(res));
-      }
-      let retrievedTours = res.data.tours;
+      // consoleLog("L116 >>>> results :",(res));
+      // let markers = res.data.mLis
+      let retrievedTours = res?.data?.tours ? res.data.tours : [];
       if (retrievedTours.length === 0 || retrievedTours.length < 9) {
         setHasMore(false);        
       }

@@ -50,6 +50,7 @@ function LanguageMenu() {
 					src={`/app_static/img/langIcon.png`}
 					height={"23px"}
 					width={"23px"}
+					alt="language icon"
 				/>
 			</span>
 			{showLanguageMenu && (
