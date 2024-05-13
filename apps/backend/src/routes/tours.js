@@ -463,6 +463,7 @@ const listWrapper = async (req, res) => {
               SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
               FROM ( ${sql_select} ${outer_where} ) AS subquery
               WHERE (connection_arrival_stop_lat IS NOT NULL OR connection_arrival_stop_lon IS NOT NULL)
+              LIMIT 1
               `); // fire the DB call here (when search is included)
             // }
                   
@@ -489,13 +490,6 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
     }
-
-
-    // markers-related
-     if(!!markers_array && Array.isArray(markers_array)) {
-        console.log("Length of markers Array :", markers_array.length)
-        markers_array.forEach((pos)=> console.log(pos.id,' : ', pos.connection_arrival_stop_lat,' ', pos.connection_arrival_stop_lon ))
-     }
 
 
     //logsearchphrase
@@ -1137,11 +1131,6 @@ const buildWhereFromFilter = (params, query, print = false) => {
     } else if(summerSeason === false && winterSeason === false){
         query = query.whereIn('season', ['x']);
     }
-    //clg
-    // logger("................................................................")
-    // logger("L1222 query / after season:");
-    // logger(query.toSQL().sql)
-
 
 
     /** Eintagestouren bzw. Mehrtagestouren */
@@ -1154,10 +1143,6 @@ const buildWhereFromFilter = (params, query, print = false) => {
     } else if(singleDayTour === false && multipleDayTour === false){
         query = query.whereRaw('number_of_days = -1 ')
     }
-    // clgs
-    // logger("................................................................")
-    // logger("L1239 query / after number_of_days:");
-    // logger(query.toSQL().sql)
 
     /** Überschreitung */
     if (!!(traverse)) {
@@ -1165,10 +1150,7 @@ const buildWhereFromFilter = (params, query, print = false) => {
         val = traverse == true ? 1 : 0 ;
         query = query.where({ traverse: val });
     }
-    // clgs
-    // console.log("................................................................")
-    // console.log("L1258 query / after traverse:");
-    // console.log(query.toSQL().sql);
+
 
     /** Aufstieg, Abstieg */
     if(!!minAscent){
@@ -1181,10 +1163,6 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
         query = query.whereRaw('ascent <= ' + _ascent);
     }
-    // clg
-    // console.log("................................................................")
-    // console.log("L1275 query / after min/max Ascent:");
-    // console.log(query.toSQL().sql)
 
     if(!!minDescent){
         query = query.whereRaw('descent >= ' + minDescent);
@@ -1196,10 +1174,6 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
         query = query.whereRaw('descent <= ' + _descent);
     }
-    // clgs
-    // console.log("................................................................")
-    // console.log("L1290 query / after min/max Descent :");
-    // console.log(query.toSQL().sql)
 
 
     /** distanz */
@@ -1213,19 +1187,11 @@ const buildWhereFromFilter = (params, query, print = false) => {
         }
         query = query.whereRaw('distance <= ' + _distance);
     }
-    // clgs
-    // console.log("................................................................")
-    // console.log("L1307 query / after min/max Distance:");
-    // console.log(query.toSQL().sql)
 
     /** schwierigkeit */
     if (!!difficulty) {
         query = query.whereRaw("difficulty <= " + difficulty);
     }
-    //clgs
-    // console.log("................................................................")
-    // console.log("L1315 query / after Difficulty:");
-    // console.log(query.toSQL().sql)
 
 
     if (!!ranges) {
@@ -1314,7 +1280,6 @@ const parseTrueFalseQueryParam = (param) => {
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
-    // logger(`L1310 : tourPdfWrapper / id value : ${id}`); 
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id;
