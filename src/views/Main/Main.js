@@ -137,19 +137,16 @@ export function Main({
     // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams) {
-
       let values = getValuesFromParams(searchParams);
-      !!values && console.log("L128 loadTours call / values : ", values); 
 
-//  should values be prepared after they arrive from getValuesFromParameters() ???
+      //  should values be prepared after they arrive from getValuesFromParameters() ???
       
-//TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
+      //TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
       
       // getMapData(values).then((res)=>{
       //   res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
       //   res?.data && console.log("L167 res.data/ Map data :", res.data)
       // });
-      // console.log("Main.1")
     }
   }, [searchParams]); 
 
@@ -157,19 +154,16 @@ export function Main({
     // should be run at the begining only
   
     let values = getValuesFromParams();
-    !!values && console.log("L128 loadTours call / values : ", values);
-    
+        
     loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
       // set 'filterValues' in localStorage ?
     });
-    console.log("Main.2")
   }, []); 
 
   useEffect(() => {
     if (scrollToTop) {
       window.scrollTo({ top: 0 , behavior: 'smooth'});
     }
-    console.log("Main.3")
   }, [scrollToTop]);
   
   
@@ -182,7 +176,6 @@ export function Main({
       searchParams.set("city", city);
       setSearchParams(searchParams);
     }
-    console.log("Main.4")
   }, []);
 
   useEffect(() => {
@@ -223,7 +216,6 @@ export function Main({
     // if (location && location.pathname !== "/suche") {
     //   navigate("/");
     // }
-    console.log("Main.5")
   }, [allCities]);
 
   //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
@@ -235,15 +227,8 @@ export function Main({
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
     //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
     // setMapView(searchParams.get("map") === "true");
-    console.log("Main.6")
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
-useEffect(() => {
-  // !!location?.state?.params && console.log("L228 location.state.params :", location?.state?.params)
-  if (!!location && !!location.state && !!location.state.params  ) {
-    console.log("L228 location.state.params :", location?.state?.params)
-  }
-}, [location])
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
@@ -299,21 +284,17 @@ useEffect(() => {
 
   
   const toggleMapHandler = ()=> {
-    console.log("L303 searchParams ", searchParams.toString())
     if (searchParams.has('map') && (searchParams.get('map') === 'true')) {
       // removeMapParam
       searchParams.delete('map');
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setShowMap(false);
-      console.log("Main.7")
     }else{
-      console.log("L310 searchParams ", searchParams.toString())
       searchParams.set('map', true)
       //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setShowMap(true)
-      console.log("Main.8")
     }
   }
 

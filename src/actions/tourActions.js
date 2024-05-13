@@ -194,10 +194,7 @@ export const loadTourPdf = (data) => async (dispatch, getState) => {
     );
     return response;
   } catch (error) {
-    if(process.env.NODE_ENV !== "production"){
-      console.log("L94, tourActions Error: " + error.message);
-    }
-    throw error;
+      throw error;
   }
 };
 

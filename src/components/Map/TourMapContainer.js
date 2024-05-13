@@ -107,18 +107,8 @@ function TourMapContainer({
     // },[popupOpen]);
         
     useEffect(() => {
-        // consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
-        if(!!markers && Array.isArray(markers)){
-            console.log("L115, markers inside TourMapContainer / length :", markers.length)
-            markers.forEach(mark => console.log(`${mark.id} : (${mark.lat}, ${mark.lon})`))
-        }
         //states if the toggle button is was clicked
         
-        consoleLog("L70 pageAccessedByReload value :", pageAccessedByReload);
-        consoleLog("L71 onToggle value :", onToggle);
-        consoleLog("L72 filter value :", filter);
-        consoleLog("L73 totalTours value :", totalTours);
-
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
@@ -243,7 +233,6 @@ function TourMapContainer({
     const handlePopupClick = (event, id) => {
         event.preventDefault();
         popupClick(id);
-        console.log('L243 Clicked ID:', id);
     };
 
     // const markerComponents = useMemo(() => {
@@ -357,7 +346,6 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
-                console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }

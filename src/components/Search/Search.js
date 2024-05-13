@@ -332,7 +332,6 @@ export function Search({
     } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
         if(pageKey === "detail") {
-          console.log("Search L333 searchParams :", JSON.stringify(searchParams));
           navigate(`/suche?${searchParams.toString()}`);
         }
         window.location.reload();

@@ -1,7 +1,6 @@
 import axios from "../axios";
 
 export function loadGPX(url, responseType = "buffer") {
-    console.log("L4 from fileActions / loadGPX , url value : ", url)
     return (dispatch, getState) => {
         return axios
           .get(url, {

@@ -41,17 +41,9 @@ useEffect(() => {
     }
   };
   initializeMap();
-  //clg
-  mapRef.current
-    ? console.log(
-        "L130 Interactive, ouside if(), mapRef.current._leaflet_id is :",
-        mapRef.current._leaflet_id
-      )
-    : console.log("L133 mapRef.current is falsy");
-
+  
   return () => {
     // remove the map when the component is unmounted
-    // map ? console.log("L138 returning InteractiveM , map is", map) : console.log("L138 Interactive, this is", map);
     if(!!map) {
       map = map.remove();
     } 

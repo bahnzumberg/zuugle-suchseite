@@ -274,7 +274,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(languageValues.filter(lv => !lv.checked).length > 0){
             count++;
         }
-        console.log("From within Filter.js: countFilterActive() returns: ", count)
+        // console.log("From within Filter.js: countFilterActive() returns: ", count)
         return count;
     }
 
@@ -290,9 +290,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     
 
     const submit = () => {
-        if(process.env.NODE_ENV != "production"){
-            console.log("L288 traverse value : ", traverse)
-        }
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
             coordinatesSouthWest: coordinatesSouthWest,
