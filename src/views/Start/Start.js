@@ -304,7 +304,7 @@ function Start({
           <MapBtn 
             // onClick={handleClick}
             onClick={onClickMap}
-            mapBtnext={`${t("start_main_pages.zur_kartenansicht")}`} 
+            mapBtnext={`${t("start_pages.zur_kartenansicht")}`} 
             >
             
           </MapBtn>

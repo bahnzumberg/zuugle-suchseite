@@ -21,7 +21,7 @@ const MapBtn = ({ children, onClick, showMap}) => {
 
   useEffect(() => {
     // Update button text when language changes
-    setMapBtnText(showMap ? t("main.kartenansicht_entfernen") : t("main.zur_kartenansicht"));
+    setMapBtnText(showMap ? t("main_only.kartenansicht_entfernen") : t("start_pages.zur_kartenansicht"));
   }, [showMap, t]);
   
 
