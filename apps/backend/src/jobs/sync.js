@@ -60,30 +60,7 @@ export async function fixTours(){
                              
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    await knex.raw(`UPDATE tour AS t
-                    SET connection_arrival_stop_lat = a.lat,
-                    connection_arrival_stop_lon = a.lon
-                    FROM (SELECT
-                        f.id,
-                        f.lon,
-                        f.lat,
-                        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
-                        FROM
-                            (SELECT 
-                            tour.id,
-                            t.track_point_lon AS lon,
-                            t.track_point_lat AS lat,
-                            COUNT(*) AS count_num
-                            FROM tour
-                            INNER JOIN fahrplan AS f
-                            ON f.hashed_url=tour.hashed_url
-                            INNER JOIN tracks AS t
-                            ON f.totour_track_key=t.track_key
-                            AND t.track_point_sequence=1
-                            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
-                        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
-                    WHERE a.row_number=1
-                    AND a.id=t.id`);
+    await update_tours_from_tracks();
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -214,8 +191,36 @@ export async function generateTestdata(){
 }
 
 
+async function update_tours_from_tracks() {
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+    SET connection_arrival_stop_lat = a.lat,
+    connection_arrival_stop_lon = a.lon
+    FROM (SELECT
+        f.id,
+        f.lon,
+        f.lat,
+        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
+        FROM
+            (SELECT 
+            tour.id,
+            t.track_point_lon AS lon,
+            t.track_point_lat AS lat,
+            COUNT(*) AS count_num
+            FROM tour
+            INNER JOIN fahrplan AS f
+            ON f.hashed_url=tour.hashed_url
+            INNER JOIN tracks AS t
+            ON f.totour_track_key=t.track_key
+            AND t.track_point_sequence=1
+            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
+        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
+    WHERE a.row_number=1
+    AND a.id=t.id`);
+}
 
-async function _syncConnectionGPX(key, fileName, title){
+
+async function _syncConnectionGPX(key, fileName, title, mod=null){
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
@@ -224,38 +229,65 @@ async function _syncConnectionGPX(key, fileName, title){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        logger(`sync.js /syncConnectionGPX, filePath : ${filePath}`);
-
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
 
             let trackPoints = null;
-            if (!!!fs.existsSync(filePath)) {
-                if(process.env.NODE_ENV == "production"){
+            if(mod == "prod"){
+                if (!!!fs.existsSync(filePath)) {
                     // On production the table tracks will be already updated in the PostgreSQL database.
                     trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    
+                    if(!!trackPoints && trackPoints.length > 0){
+                        await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                    }
                 }
-                else {
-                    // On UAT we do not need the table tracks, so we fetch the data directly from the MySQL database.
-                    trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-                }
+            }
+            else {
+                 // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+              
+
+
+                // KNEX VERSION
+                trackPoints.forEach((row) => {
+                    if (row.track_point_sequence === 1) {
+                      knex('tracks')
+                        .insert({
+                          track_key: row.track_key,
+                          track_point_sequence: row.track_point_sequence,
+                          track_point_lon: row.track_point_lon,
+                          track_point_lat: row.track_point_lat,
+                          track_point_elevation: row.track_point_elevation,
+                        }).onConflict(['track_key', 'track_point_sequence']) // conflicting columns
+                        .ignore()  // prevent insertion of duplicate rows
+                        .catch((error) => {
+                          console.error("Error inserting data:", error);
+                        });
+                    }
+                  });
+                  
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
             }
         }
 
+        await update_tours_from_tracks();
         resolve();
     })
 }
 
-export async function syncConnectionGPX(){
+export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
+    if(mod === 'dev'){
+        knex.raw('TRUNCATE TABLE tracks').catch(err =>console.error("Error truncating table tracks:", err))
+    }
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
-            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour'))
+            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour', mod))
         });
         await Promise.all(promises);
     }
@@ -263,7 +295,7 @@ export async function syncConnectionGPX(){
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
-            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station'))
+            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station', mod))
         });
         await Promise.all(promises);
     }
@@ -534,12 +566,16 @@ const readAndInsertFahrplan = async (bundle) => {
                         REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
                         DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
                         FROM vw_fplan_to_search 
-                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
-
+                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} 
+                        AND calendar_date >= CURRENT_DATE
+                        AND connection_description_json NOT LIKE '%""%'
+                        AND return_description_json NOT LIKE '%""%'`
         const result_query = knexTourenDb.raw(mysql_sql);
         const result = await result_query;
 
         let data = result[0].map(row => ({ ...row }));
+
+        // !!data && Array.isArray(data) && console.log("L557 data[0]:", data[0])
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider,

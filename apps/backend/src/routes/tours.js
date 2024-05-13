@@ -128,10 +128,10 @@ const listWrapper = async (req, res) => {
     let searchIncluded = !!search && !!search.length > 0;
 
     //construct the array of selected columns 
-    let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele','connection_arrival_stop_lon', 'connection_arrival_stop_lat'];
 
     // CASE OF SEARCH
-    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,'gpx_data',  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele  ";
+    let sql_select = "SELECT id ,  url ,  provider ,  hashed_url ,'gpx_data',  description ,  image_url ,  ascent ,  descent ,  difficulty ,  difficulty_orig ,  duration ,  distance ,  title ,  type ,  number_of_days ,  traverse ,  country ,  state ,  range_slug ,  range ,  season ,  month_order , quality_rating ,  user_rating_avg ,  cities ,  cities_object ,  max_ele, connection_arrival_stop_lon, connection_arrival_stop_lat ";
    
 
     let where = {};
@@ -231,6 +231,21 @@ const listWrapper = async (req, res) => {
     query = buildWhereFromFilter(req.query, query, true);
     countQuery = buildWhereFromFilter(req.query, countQuery);
 
+
+    // **********************************************************************
+        //               MAP  Q U E R Y  / NO SEARCH
+    // **********************************************************************
+    // if(map === true)
+    // create a raw query from "query"
+    // let rawQuery = knex(query).toSQL()
+    // console.log("rawQuery : ")
+    // console.log(rawQuery)
+    // let map_query = knex.raw(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon FROM (${rawQuery}) AS subquery`);
+    // map_query ? console.log("L240 typeof map_query :", map_query.toQuery()) : console.log("L240 map_query is FALSY....")
+    // let map_query = query
+    // **********************************************************************
+
+    // console.log("L248 : process.env.HOSTNAME :", process.env.HOSTNAME)
     //DO THIS FOR SEARCH TERM ONLY
     let sql_where_filter = "";
     let sql_and_filter =""
@@ -389,8 +404,9 @@ const listWrapper = async (req, res) => {
 
     if (searchIncluded) {
       try {
-        // let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery ${sql_where_filter}`); // includes all internal queries
+        
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
+
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
 
@@ -409,7 +425,12 @@ const listWrapper = async (req, res) => {
 
     let sql_order = "";
     sql_order += `ORDER BY `;
-
+    
+    //markers-related 
+    // map_query_main now contain the query when NO "searchIncluded" AND selects only 3 colmns
+    // and NO ORDER BY OR LIMIT OR OFFSET
+    let map_query_main = query.clone().clearSelect().select('id', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat');
+      
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -420,12 +441,7 @@ const listWrapper = async (req, res) => {
         sql_order += `${order_by_rank} month_order ASC `; //3)
     }
 
-    //map-related is included then:
-    let map_select =  ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
-    let map_query = query;
-    // the map_query could be later re-assigned if(searchIncluded) below 
-
-
+  
     // ****************************************************************
     // LIMIT
     // ****************************************************************
@@ -447,43 +463,66 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let result = '';
     let count = '';
-
+    let markers_result = ''; //markers-related : to return map markers positions from database
+    let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
+    
     if(searchIncluded){
         try {
-            // console.log(" L435: with search term / final query :", sql_select + outer_where + sql_order + sql_limit)
-            // console.log("================================================")
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
-            // result_map = await knex.raw(map_select + outer_where);// remove sql_limit and replaced the sql_select with map_select 
-            
-            // logger("#######################################################");
-            // logger('SQL with search phrase: ' + sql_select + outer_where + sql_order + sql_limit);
-            // logger('SQL with search phrase: ' + sql_select );
-            // logger("#######################################################");
-            
+
             if (result && result.rows) {
                 result = result.rows;
-            //clg
-              result.forEach((item) => {
-                // console.log(`Title: ${item.title}`);
-              });
-            } else {
-              console.log('Result or result.rows is null or undefined.');
+              } else {
+                console.log('Result or result.rows is null or undefined.');
             }
+            
+            // markers-related / searchIncluded
+            // if(map === true){  
+              markers_result = await knex.raw(`
+              SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
+              FROM ( ${sql_select} ${outer_where} ) AS subquery
+              `); // fire the DB call here (when search is included)
+            // }
+                  
+            // markers-related / searchIncluded
+            if (!!markers_result && !!markers_result.rows) {
+                markers_array = markers_result.rows;   // This is to be passed to the response below
+            } else {
+                console.log('markers_result.rows is null or undefined.');
+            }
+
           } catch (error) {
-            console.log("error retrieving results:", error);
+            console.log("error retrieving results or markers_result:", error);
           }
 
     }else{
-        // logger("#######################################################");
-        // const sqlQuery = query.toString();
-        // logger("SQL without search phrase :" + sqlQuery)
-        // logger("#######################################################");
+        // markers-related
+        // if(map === true) {
+            markers_result = await knex.raw(`${map_query_main.toString()}`)
+            markers_array = !!markers_result && markers_result.rows            
+        // }
+        
 
         result = await query;
         count = await countQuery.first();
     }
 
-    
+    // markers-related
+    if(searchIncluded){
+        console.log(" ==========================  ")
+        console.log(map_query_main.toString())
+        console.log(" ==========================  ")
+    }else{
+        console.log(" ---------------------------------  ")
+        console.log(`SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
+        FROM ( ${sql_select} ${outer_where} ) AS subquery`)
+        console.log(" ---------------------------------  ")
+    }
+    // markers-related
+     if(!!markers_array && Array.isArray(markers_array)) {
+        console.log("Length of markers Array :", markers_array.length)
+        markers_array.forEach((pos)=> console.log(pos.id,' : ', pos.connection_arrival_stop_lat,' ', pos.connection_arrival_stop_lon ))
+     }
 
 
     //logsearchphrase
@@ -506,7 +545,7 @@ const listWrapper = async (req, res) => {
 
     //preparing tour entries
     //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
-    if(result){
+    if(result && Array.isArray(result)){
         await Promise.all(result.map(entry => new Promise(async resolve => {
             entry = await prepareTourEntry(entry, city, domain, addDetails);
             // entry.is_map_entry = !!map;
@@ -577,7 +616,16 @@ const listWrapper = async (req, res) => {
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)
 
-    res.status(200).json({success: true, tours: result, total: count_final, page: page, ranges: ranges});
+    res
+      .status(200)
+      .json({
+        success: true,
+        tours: result,
+        total: count_final,
+        page: page,
+        ranges: ranges,
+        markers: markers_array,
+      });
 }
 
 const filterWrapper = async (req, res) => {
@@ -684,8 +732,8 @@ const connectionsWrapper = async (req, res) => {
         connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
         connection.return_duration_minutes = minutesFromMoment(moment(connection.return_duration, 'HH:mm:ss'));
         connection.missing_days = missing_days;
-        connection.connection_departure_stop = 'XX departure_stop XX'
-        connection.connection_arrival_stop = 'YY arrival_stop YY'
+        // connection.connection_departure_stop = 'XX departure_stop XX'
+        // connection.connection_arrival_stop = 'YY arrival_stop YY'
         resolve(connection);
     })));
 
@@ -847,8 +895,8 @@ const compareConnections = (trans1, trans2) => {
         && trans2 != null
         && moment(trans1.connection_departure_datetime).isSame(moment(trans2.connection_departure_datetime))
         && moment(trans1.connection_arrival_datetime).isSame(moment(trans2.connection_arrival_datetime))
-        && trans1.connection_departure_stop == trans2.connection_departure_stop
-        && trans1.connection_rank == trans2.connection_rank;
+        // && trans1.connection_departure_stop == trans2.connection_departure_stop
+        // && trans1.connection_rank == trans2.connection_rank;
 }
 
 const compareConnectionReturns = (conn1, conn2) => {
