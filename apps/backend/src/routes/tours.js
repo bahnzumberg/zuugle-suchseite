@@ -463,7 +463,6 @@ const listWrapper = async (req, res) => {
               SELECT id, connection_arrival_stop_lat, connection_arrival_stop_lon
               FROM ( ${sql_select} ${outer_where} ) AS subquery
               WHERE (connection_arrival_stop_lat IS NOT NULL OR connection_arrival_stop_lon IS NOT NULL)
-              LIMIT 1
               `); // fire the DB call here (when search is included)
             // }
                   

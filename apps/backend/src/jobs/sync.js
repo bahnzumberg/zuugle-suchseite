@@ -200,7 +200,7 @@ async function update_tours_from_tracks() {
         f.id,
         f.lon,
         f.lat,
-        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
+        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.count_num DESC ) AS row_number
         FROM
             (SELECT 
             tour.id,
@@ -244,7 +244,7 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
                 }
             }
             else {
-                 // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
                 trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
               
 
