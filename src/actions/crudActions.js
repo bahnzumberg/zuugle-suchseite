@@ -72,7 +72,8 @@ export function loadList(
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
-  
+  // console.log("L75 -> route :", route)
+
   // initialize language param
   const langPassed =
     language &&
@@ -84,6 +85,7 @@ export function loadList(
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
+  // console.log(`L87 : state : ${JSON.stringify(state)} and stateName :${stateName}`)
 
   let params = {};
   if (state) {
@@ -94,9 +96,7 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-    //console.log(" L89 data: inside if(state) : ", state.filter); //  filter is passed
-    // now pass the filter
-    // data = {...data, filter: filter}
+   
     params = {
       ...pagination,
       ...data,
@@ -111,6 +111,20 @@ export function loadList(
       const entities = res.data[entityName];
       const total = res.data.total;
       const filter = !!res.data.filter ? res.data.filter : null;
+      const markers = res?.data?.markers?.map((markerObj) => ({
+      id: markerObj.id,
+      lat: markerObj.connection_arrival_stop_lat,
+      lon: markerObj.connection_arrival_stop_lon,
+    })) || [];
+    // markers example: 
+    // [{id:id,lat:connection_arrival_stop_lat,lon:connection_arrival_stop_lon}]
+
+      //clg markers
+      // !!Array.isArray(markers) && console.log("L115 loadList / markers.length : ",markers.length )
+      // !!markers && markers.forEach((markObj)=>{
+      //   console.log(`${markObj.id} -> ( ${markObj.lat} : ${markObj.lon} )`)
+      // });
+      
       if (!!useState) {
         dispatch({
           type: typeDone,
@@ -119,6 +133,7 @@ export function loadList(
           filter: filter,
           page: res.data.page,
           ranges: res.data.ranges,
+          markers:markers
         });
       }
       return res;
@@ -300,3 +315,14 @@ export const getTotalCityTours = (city) => {
       return res.data;
     });
 };
+
+// This is a "BAUSTELLE" but already has basic fucntionality (for this stage May 2024 it is not needed)
+export const getMapData = (data)=>{
+  return axios.get('tours/map/', {
+    params: data
+  }).then((res)=>{
+    console.log("L311 res.data /crudActions  :", res.data)
+    return res.data
+  })
+
+}

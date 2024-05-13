@@ -270,8 +270,7 @@ export function Search({
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
     setFilterValues(null);  // reset state in parent Main
-    localStorage.removeItem("filterValues");
-    localStorage.setItem("filterCount", 0);
+    resetFilterLocalStorage()
   };
 
   const handleFilterChange = (entry) => {
@@ -308,9 +307,9 @@ export function Search({
       ? searchPhrase
       : "";
 
-    values.map = searchParams.get("map"); // map related
+    values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
     values.provider = searchParams.get("p");
-    if(!!searchParams.get("filter")) values.filter = searchParams.get("filter");
+    values.filter = !!searchParams.get("filter") ?  searchParams.get("filter") : null;
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
     setOrRemoveSearchParam(searchParams, "range", values.range);
@@ -327,10 +326,10 @@ export function Search({
 
     setSearchParams(searchParams);
     
-    if (!!goto) { // "/suche" to be true only when coming from Start->Header->SearchContainer->Search->search()
+    if (!!goto) { // goto = "/suche"  comes from Start->Header->SearchContainer->Search->search() and from detail page
       navigate(`${goto}?${searchParams.toString()}`);
-      window.location.reload();
-    } else { // coming in from Main filter submit or 
+      // window.location.reload();
+    } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
         if(pageKey === "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));

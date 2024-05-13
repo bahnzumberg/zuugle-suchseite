@@ -25,7 +25,7 @@ const initialState = {
   loading: false,
   saving: false,
   page: 1,
-  pageSize: 10,
+  pageSize: 100,
   total: "",
   orderId: "created_at",
   orderDesc: true,
@@ -43,6 +43,7 @@ const initialState = {
   total_connections: 0,
   visibleToursGPX: [],
   noToursAvailable: null,
+  markers: [],
 };
 
 // Keep comment below for Eslint purposes
@@ -63,12 +64,15 @@ export default ((state = initialState, action = {}) => {
         tours = [...action.tours];
       }
 
+      const markers = action?.markers || [];
+
       let toPush = {
         ...state,
         tours: tours,
         total: action.total,
         loading: false,
         page: action.page,
+        markers: markers,
       };
  
       return {
