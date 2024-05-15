@@ -215,7 +215,7 @@ export async function generateTestdata(){
 
 
 
-async function _syncConnectionGPX(key, fileName, title){
+async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
@@ -231,13 +231,9 @@ async function _syncConnectionGPX(key, fileName, title){
 
             let trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
-                let count_tracks = await knex.raw(`SELECT COUNT(*) AS row_count FROM tracks`);
-                let count_tracks_num = parseInt(count_tracks.rows[0].row_count, 10);
-
                 if(process.env.NODE_ENV == "production"){
                     // We enter this section on prod, uat and dev
                     if (count_tracks_num > 100000) {
-                        console.log("Found more than 100.000 tracks in table tracks.")
                         // On production the table tracks will be already updated in the PostgreSQL database.
                         trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                     }
@@ -265,10 +261,13 @@ async function _syncConnectionGPX(key, fileName, title){
 export async function syncConnectionGPX(){
     const _limit = pLimit(20);
 
+    let count_tracks = await knex.raw(`SELECT COUNT(*) AS row_count FROM tracks`);
+    let count_tracks_num = parseInt(count_tracks.rows[0].row_count, 10);
+
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
-            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour'))
+            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour', count_tracks_num))
         });
         await Promise.all(promises);
     }
@@ -276,7 +275,7 @@ export async function syncConnectionGPX(){
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
-            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station'))
+            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station', count_tracks_num))
         });
         await Promise.all(promises);
     }
