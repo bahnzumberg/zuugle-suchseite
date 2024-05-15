@@ -231,14 +231,27 @@ async function _syncConnectionGPX(key, fileName, title){
 
             let trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
+                let count_tracks = await knex.raw(`SELECT COUNT(*) AS row_count FROM tracks`);
+                let count_tracks_num = parseInt(count_tracks.rows[0].row_count, 10);
+
                 if(process.env.NODE_ENV == "production"){
-                    // On production the table tracks will be already updated in the PostgreSQL database.
-                    trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    // We enter this section on prod, uat and dev
+                    if (count_tracks_num > 100000) {
+                        console.log("Found more than 100.000 tracks in table tracks.")
+                        // On production the table tracks will be already updated in the PostgreSQL database.
+                        trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    }
+                    else {
+                        // On UAT, DEV we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                        trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    }                   
                 }
                 else {
-                    // On UAT we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                    // On DEV
                     trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                 }
+
+
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
