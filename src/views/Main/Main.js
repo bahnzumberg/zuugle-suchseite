@@ -481,9 +481,9 @@ useEffect(() => {
         )}
       </Box>
  
-      {!!tours && tours.length > 0 && (
+      {!!tours && (tours.length > 0) && !!totalTours && (totalTours > 0)  && (
         <>
-          {!!showMap ? (
+          {!!showMap ?  (
             <>
               <Box className={"map-container"}>
                 {memoTourMapContainer}

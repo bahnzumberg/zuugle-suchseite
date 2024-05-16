@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
-import {popupContent, popupHead} from "./popupStyles";
+// import {popupContent, popupHead} from "./popupStyles";
 import GoIcon from '../../icons/GoIcon';
 
 function TourMapContainer({
