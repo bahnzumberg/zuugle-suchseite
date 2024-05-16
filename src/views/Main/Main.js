@@ -34,6 +34,7 @@ import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from '../../components/Search/MapBtn';
 import {getMapData} from '../../actions/crudActions';
 import { checkOnlyMapParams } from "../../utils/map_utils";
+import NoData from "../../components/NoData";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -348,6 +349,7 @@ useEffect(() => {
       />
     </Box>
   )
+  console.log("L352 :", !!tours && (tours.length > 0) && !!totalTours && (totalTours > 0))
 
   let paddingTop = showMap ? "35px" : "50px"
   let marginTop = showMap ? "20px" : "255px"
@@ -480,26 +482,31 @@ useEffect(() => {
          totalToursHeader()
         )}
       </Box>
- 
-      {!!tours && (tours.length > 0) && !!totalTours && (totalTours > 0)  && (
-        <>
-          {!!showMap ?  (
+      {!!tours && (tours.length > 0) && !!totalTours && (totalTours > 0)  ? 
+        ( <>
+          {!!showMap ?  
+            (
+              <>
+                <Box className={"map-container"}>
+                  {memoTourMapContainer}
+                </Box>
+                {totalToursHeader()}
+                {renderCardContainer()}
+                <MapBtn  showMap={showMap} onClick={toggleMapHandler} />                
+              </>
+            ) : 
             <>
-              <Box className={"map-container"}>
-                {memoTourMapContainer}
-              </Box>
-              {totalToursHeader()}
               {renderCardContainer()}
-              
+              <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
             </>
-          ) : 
-            renderCardContainer()
           }
-          (
-          <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
-                   
-        </>
-      )}
+        </> )
+        :
+        <Box style={{width: "100vw", margin:"200px",padding:"15%",textAlign:"center", display:"flex"}}>
+          <NoData style={{width: "100vw", margin:"200px",padding:"15%",textAlign:"center"}}/>
+        </Box>
+        // <h1>NO DATA.....</h1>
+      }
     </div>
   );
 }
