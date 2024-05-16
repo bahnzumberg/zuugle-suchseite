@@ -447,6 +447,10 @@ const listWrapper = async (req, res) => {
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
+    logger(sql_select + outer_where + sql_order + sql_limit)
+    logger("====================================================")
+    logger("====================================================")
+    
     if(searchIncluded){
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
