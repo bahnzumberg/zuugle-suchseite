@@ -449,12 +449,12 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        logger("===============tours.js L450========================")
-        logger(sql_select + outer_where + sql_order + sql_limit)
-        logger("====================================================")
-        logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
-        logger("====================================================")
-        
+        // logger("===============tours.js L450========================")
+        // logger(sql_select + outer_where + sql_order + sql_limit)
+        // logger("====================================================")
+        // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
+        // logger("====================================================")
+
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
@@ -485,7 +485,8 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        logger('L486 : inside "No search term" included')
+        // logger('L486 : inside "No search term" included')
+
         // markers-related
         // if(map === true) {
             markers_result = await knex.raw(`${map_query_main.toString()}`)
@@ -495,8 +496,8 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
 
-        logger("tours.js L 496 : query 'No search term' : " + query);
-        logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
+        // logger("tours.js L 496 : query 'No search term' : " + query);
+        // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
 
