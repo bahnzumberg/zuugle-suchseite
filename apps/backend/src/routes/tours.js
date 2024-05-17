@@ -447,6 +447,7 @@ const listWrapper = async (req, res) => {
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
+    logger("====================================================")
     logger(sql_select + outer_where + sql_order + sql_limit)
     logger("====================================================")
     logger("====================================================")
