@@ -447,7 +447,7 @@ const listWrapper = async (req, res) => {
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
-    logger("====================================================")
+    logger("===============tours.js L450========================")
     logger(sql_select + outer_where + sql_order + sql_limit)
     logger("====================================================")
     logger("====================================================")
@@ -459,7 +459,7 @@ const listWrapper = async (req, res) => {
             if (result && result.rows) {
                 result = result.rows;
               } else {
-                console.log('Result or result.rows is null or undefined.');
+                logger('L462 Result or result.rows is null or undefined.');
             }
             
             // markers-related / searchIncluded
@@ -476,14 +476,14 @@ const listWrapper = async (req, res) => {
                 markers_array = markers_result.rows;   // This is to be passed to the response below
             } else {
                 // Handle the case, if resultset is empty!
-                // console.log('markers_result.rows is null or undefined.');
             }
-
-          } catch (error) {
-            console.log("error retrieving results or markers_result:", error);
+            
+        } catch (error) {
+            logger("tours.js L 482 error retrieving results or markers_result:" + error);
           }
 
     }else{
+        logger('L486 : inside "No search term" included')
         // markers-related
         // if(map === true) {
             markers_result = await knex.raw(`${map_query_main.toString()}`)
