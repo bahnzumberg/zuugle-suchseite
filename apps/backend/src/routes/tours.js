@@ -489,12 +489,12 @@ const listWrapper = async (req, res) => {
             markers_result = await knex.raw(`${map_query_main.toString()}`)
             markers_array = !!markers_result && markers_result.rows            
         // }
-        logger("tours.js L 492 : query 'No search term' : " + query);
-
         
-
         result = await query;
         count = await countQuery.first();
+
+        logger("tours.js L 496 : query 'No search term' : " + query);
+        logger("tours.js L 497 : count 'No search term' : " + count);
     }
 
 
