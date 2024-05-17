@@ -494,7 +494,7 @@ const listWrapper = async (req, res) => {
         count = await countQuery.first();
 
         logger("tours.js L 496 : query 'No search term' : " + query);
-        logger("tours.js L 497 : count 'No search term' : " + count);
+        logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
 
