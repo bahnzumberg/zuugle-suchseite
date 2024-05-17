@@ -491,11 +491,13 @@ const listWrapper = async (req, res) => {
         // }
         
         result = await query;
-        count = await countQuery.first();
 
         logger("tours.js L 496 : query 'No search term' : " + query);
         logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
+
+    //count query for both cases with or w/o search result
+    count = await countQuery.first();
 
 
     //logsearchphrase
