@@ -502,8 +502,8 @@ useEffect(() => {
           }
         </> )
         :
-        <Box style={{width: "100vw", margin:"200px",padding:"15%",textAlign:"center", display:"flex"}}>
-          <NoData style={{width: "100vw", margin:"200px",padding:"15%",textAlign:"center"}}/>
+        <Box style={{width:  "calc(100vw - 30%)",marginTop:"200px",padding:"15%",textAlign:"center", display:"flex"}}>
+          <NoData />
         </Box>
         // <h1>NO DATA.....</h1>
       }
