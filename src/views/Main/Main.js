@@ -349,7 +349,6 @@ useEffect(() => {
       />
     </Box>
   )
-  console.log("L352 :", !!tours && (tours.length > 0) && !!totalTours && (totalTours > 0))
 
   let paddingTop = showMap ? "35px" : "50px"
   let marginTop = showMap ? "20px" : "255px"
@@ -482,7 +481,7 @@ useEffect(() => {
          totalToursHeader()
         )}
       </Box>
-      {!!tours && (tours.length > 0) && !!totalTours && (totalTours > 0)  ? 
+      { !!totalTours && (totalTours > 0)  ? 
         ( <>
           {!!showMap ?  
             (
@@ -491,21 +490,40 @@ useEffect(() => {
                   {memoTourMapContainer}
                 </Box>
                 {totalToursHeader()}
-                {renderCardContainer()}
-                <MapBtn  showMap={showMap} onClick={toggleMapHandler} />                
+                {!!tours && (tours.length > 0) &&
+                <>
+                  {renderCardContainer()}
+                  <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
+                </>
+                }
+                                
               </>
             ) : 
-            <>
-              {renderCardContainer()}
-              <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
-            </>
+
+            !!tours && (tours.length > 0) &&
+              (<>
+                {renderCardContainer()}
+                <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
+              </>)
+            
           }
         </> )
         :
-        <Box style={{width:  "calc(100vw - 30%)",marginTop:"200px",padding:"15%",textAlign:"center", display:"flex"}}>
-          <NoData />
-        </Box>
-        // <h1>NO DATA.....</h1>
+        (
+          <>
+          {
+          !!showMap && (
+              <>
+                <Box className={"map-container"}>
+                  {memoTourMapContainer}
+                </Box>
+                {totalToursHeader()}
+              </>
+            )
+          } 
+          </>
+        ) 
+
       }
     </div>
   );
