@@ -447,12 +447,12 @@ const listWrapper = async (req, res) => {
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
-    logger("===============tours.js L450========================")
-    logger(sql_select + outer_where + sql_order + sql_limit)
-    logger("====================================================")
-    logger("====================================================")
-    
     if(searchIncluded){
+        
+        logger("===============tours.js L450========================")
+        logger(sql_select + outer_where + sql_order + sql_limit)
+        logger("====================================================")
+        logger("====================================================")
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
@@ -489,6 +489,8 @@ const listWrapper = async (req, res) => {
             markers_result = await knex.raw(`${map_query_main.toString()}`)
             markers_array = !!markers_result && markers_result.rows            
         // }
+        logger("tours.js L 492 : query 'No search term' : " + query);
+
         
 
         result = await query;
