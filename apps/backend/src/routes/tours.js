@@ -449,9 +449,9 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        // logger("===============tours.js L450========================")
-        // logger(sql_select + outer_where + sql_order + sql_limit)
-        // logger("====================================================")
+        logger("===============tours.js L450========================")
+        logger(sql_select + outer_where + sql_order + sql_limit)
+        logger("====================================================")
         // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
         // logger("====================================================")
 
@@ -496,7 +496,7 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
 
-        // logger("tours.js L 496 : query 'No search term' : " + query);
+        logger("tours.js L 496 : query 'No search term' : " + query);
         // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
