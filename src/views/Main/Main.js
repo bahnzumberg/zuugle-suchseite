@@ -66,22 +66,6 @@ export function Main({
 }) {
 
 
-// try {
-//   if (typeof filter === "string" && filter.length > 0) {
-//     filter = JSON.parse(filter);
-//     // Valid JSON data
-//   } else if (typeof filter === "object") {
-//     // Object is already valid --> do nothing
-//   } else {
-//     filter = {};
-//   }
-// } catch (error) {
-//   // case of JSON parsing error
-//   console.error(" Main : Error parsing JSON:", error);
-//   filter = {}; 
-// }
-
-
   const navigate = useNavigate();
   const location = useLocation();
   const { t }    = useTranslation();
@@ -296,7 +280,7 @@ useEffect(() => {
         totalTours={totalTours}
       />
     );
-  }, [filter,onSelectTourById,setTourID,tours, totalTours]);
+  }, [filter,tours, totalTours]);
 
   
   const toggleMapHandler = ()=> {
@@ -389,6 +373,14 @@ useEffect(() => {
         </Box>
   )
 
+  const renderMapWithHeader = ()=>{!!showMap && (
+    <>
+      <Box className={"map-container"}>
+        {memoTourMapContainer}
+      </Box>
+      {totalToursHeader()}
+    </>
+  )}
  
   return (
     <div>
@@ -481,7 +473,7 @@ useEffect(() => {
          totalToursHeader()
         )}
       </Box>
-      { !!totalTours && (totalTours > 0)  ? 
+      {/* { !!totalTours && (totalTours > 0)  ? 
         ( <>
           {!!showMap ?  
             (
@@ -524,7 +516,29 @@ useEffect(() => {
           </>
         ) 
 
-      }
+      } */}
+
+
+{
+  !!totalTours && totalTours > 0 ? (
+    <>
+      {renderMapWithHeader}
+
+      {!!tours && tours.length > 0 && (
+        <>
+          {renderCardContainer()}
+          <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+        </>
+      )}
+    </>
+  ) : (
+    <>
+      {renderMapWithHeader}
+    </>
+  )
+}
+
+
     </div>
   );
 }
