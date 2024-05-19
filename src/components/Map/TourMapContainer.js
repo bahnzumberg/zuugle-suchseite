@@ -77,41 +77,43 @@ function TourMapContainer({
         .map((nav) => nav.type)
         .includes("reload");
 
-    // POPUP related code
-    // useEffect(() => {
-    //     if (initialTours.current) {
-    //         const initialPopupOpenState = {};
-    //         const uniqueTourIds = new Set(); // Use a Set to store unique tour IDs
-    //         initialTours.current.forEach(tour => {
-    //             if (!uniqueTourIds.has(tour.id)) { // Check if tour ID is unique
-    //                 initialPopupOpenState[tour.id] = false;
-    //                 uniqueTourIds.add(tour.id); // Add tour ID to the Set
-    //             } else {
-    //                 console.log(`Duplicate tour ID found: ${tour.id}`); // Log a warning for duplicate IDs
-    //             }
-    //         });
-    //         setPopupOpen(initialPopupOpenState);
-    //     }
-    // }, [initialTours]);
 
-                
-  
-    // useEffect(()=>{
-    //     // if(!!popupOpen && Array.isArray(popupOpen)){
-    //     if(!!popupOpen){
-    //         // for (let i = 0; i < popupOpen.length; i++) {
-    //         //     consoleLog(`poopUp${i} : ${popupOpen[i]}`);
-    //         // }
-    //         consoleLog("L100 popupOpen:", popupOpen);
-    //     }
-    // },[popupOpen]);
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (mapRef.current) {
+                console.log("L88, mapRef.current  inside TourMapContainer / length :", !!mapRef.current)
+    
+                mapRef.current.eachLayer(layer => {
+                    mapRef.current.removeLayer(layer);
+                });
+            }
+    
+            const map = L.map('map').setView([47.800499, 13.044410], 13); // Set initial view
+            L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png").addTo(map); // Add tile layer
+    
+            // Add markers or other map layers based on tours
+            markers.forEach(tour => {
+                console.log("L93/TMC tour")
+                L.marker([tour.lat, tour.lng]).addTo(map);
+            });
+    
+            // Save reference to the map
+            mapRef.current = map;
+        }, 1000); // Set a small delay, or adjust as needed
+    
+        return () => clearTimeout(timeout);
+    }, [markers]);
+   
+    useEffect(()=>{
+        console.log("L306 : markers.length :", markers.length)
+    });
         
     useEffect(() => {
         // consoleLog("L61 TMC / tours is : ", tours) //we do get array of tours here
-        if(!!markers && Array.isArray(markers)){
-            console.log("L115, markers inside TourMapContainer / length :", markers.length)
-            markers.forEach(mark => console.log(`${mark.id} : (${mark.lat}, ${mark.lon})`))
-        }
+        // if(!!markers && Array.isArray(markers)){
+        //     console.log("L115, markers inside TourMapContainer / length :", markers.length)
+        //     markers.forEach(mark => console.log(`${mark.id} : (${mark.lat}, ${mark.lon})`))
+        // }
         //states if the toggle button is was clicked
         
         consoleLog("L70 pageAccessedByReload value :", pageAccessedByReload);
@@ -310,27 +312,6 @@ function TourMapContainer({
                                     },
                                 }}
                             >
-                                {/* <Popup> */}
-                                    {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                    {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                {/* </Popup> */}
-
-                                {/* <Popup className="request-popup">
-                                    <div 
-                                        style={popupContent}
-                                        onClick={e => handlePopupClick(e,mark.id)}
-                                    >
-                                        <div className="m-2" style={popupHead}>
-                                            Tour Details
-                                        </div>
-                                        <GoIcon
-                                            style={{
-                                                transform: "scale(1.55)",
-                                                strokeWidth: 0,
-                                            }}
-                                        />
-                                    </div>
-                                </Popup> */}
                             </Marker>
                         );
                     }
