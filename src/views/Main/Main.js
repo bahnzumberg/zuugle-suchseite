@@ -79,6 +79,9 @@ export function Main({
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(0); 
 
+  const [mapInitialized, setMapInitialized] = useState(false);
+
+
   // const currentParams = new URLSearchParams(location.search);
   // const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
@@ -272,13 +275,17 @@ useEffect(() => {
 
   const memoTourMapContainer = useMemo(() => {
     return (
+
       <TourMapContainer
         tours={tours}
         onSelectTour={onSelectTourById}
         setTourID={setTourID}
         filter={filter}
         totalTours={totalTours}
+        setMapInitialized={setMapInitialized}
+        mapInitialized={mapInitialized}
       />
+      
     );
   }, [filter,tours, totalTours]);
 
@@ -384,7 +391,7 @@ useEffect(() => {
  
   return (
     <div>
-        <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
+      <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
             <Typography
@@ -393,7 +400,7 @@ useEffect(() => {
             >
               {directLink.header}
             </Typography>
-            <Typography variant={"h2"} sx={{ fontSize: "14px" , color: "#fff"}}>
+            <Typography variant={"h2"} sx={{ fontSize: "14px", color: "#fff" }}>
               {directLink.description}
             </Typography>
           </Box>
@@ -413,7 +420,7 @@ useEffect(() => {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                 <Link
+                <Link
                   to={{
                     pathname: "/",
                   }}
@@ -456,89 +463,49 @@ useEffect(() => {
               }}
             >
               <Box elevation={1} className={"colCenter"}>
-                <Search 
-                  isMain={true} 
-                  page="main" 
-                  activeFilter = {activeFilter}
-                  filterValues = {filterValues}
-                  setFilterValues = {setFilterValues}
-                  counter = {counter}
-                  setCounter = {setCounter}
+                <Search
+                  isMain={true}
+                  page="main"
+                  activeFilter={activeFilter}
+                  filterValues={filterValues}
+                  setFilterValues={setFilterValues}
+                  counter={counter}
+                  setCounter={setCounter}
                 />
               </Box>
             </Box>
           )}
         </Box>
-        {!showMap && (
-         totalToursHeader()
-        )}
+        {!showMap && totalToursHeader()}
       </Box>
-      {/* { !!totalTours && (totalTours > 0)  ? 
-        ( <>
-          {!!showMap ?  
-            (
-              <>
-                <Box className={"map-container"}>
-                  {memoTourMapContainer}
-                </Box>
-                {totalToursHeader()}
-                {!!tours && (tours.length > 0) &&
+      {/* {!!tours && tours.length > 0 && ( */}
+      {!!totalTours && totalTours > 0 && (
+        <>
+          {!!showMap ? (
+            <>
+              <Box className={"map-container"}>{memoTourMapContainer}</Box>
+              {totalToursHeader()}
+              {!!tours && tours.length > 0 && (
                 <>
                   {renderCardContainer()}
-                  <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
+                  <MapBtn showMap={showMap} onClick={toggleMapHandler} />
                 </>
-                }
-                                
-              </>
-            ) : 
-
-            !!tours && (tours.length > 0) &&
-              (<>
-                {renderCardContainer()}
-                <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
-              </>)
-            
-          }
-        </> )
-        :
-        (
-          <>
-          {
-          !!showMap && (
+              )}
+            </>
+          ) 
+          : 
+          (
+            !!tours &&
+            tours.length > 0 && (
               <>
-                <Box className={"map-container"}>
-                  {memoTourMapContainer}
-                </Box>
-                {totalToursHeader()}
+                {renderCardContainer()}
+                <MapBtn showMap={showMap} onClick={toggleMapHandler} />
               </>
             )
-          } 
-          </>
-        ) 
-
-      } */}
-
-
-{
-  !!totalTours && totalTours > 0 ? (
-    <>
-      {renderMapWithHeader}
-
-      {!!tours && tours.length > 0 && (
-        <>
-          {renderCardContainer()}
-          <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+          )
+          }
         </>
-      )}
-    </>
-  ) : (
-    <>
-      {renderMapWithHeader}
-    </>
-  )
-}
-
-
+      ) }
     </div>
   );
 }
