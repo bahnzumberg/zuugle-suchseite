@@ -62,7 +62,7 @@
     "puppeteer": "^22.1.0",
     "puppeteer-core": "^22.1.0",
     "request": "^2.88.2",
-    "request-promise": "^0.0.1",
+    "request-promise": "^4.2.6",
     "sharp": "^0.33.2",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
