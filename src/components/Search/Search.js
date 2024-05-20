@@ -307,7 +307,8 @@ export function Search({
       ? searchPhrase
       : "";
 
-    values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
+    // values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
+    values.map = searchParams.get("map"); // remove map param when pressing GO (search button)
     values.provider = searchParams.get("p");
     values.filter = !!searchParams.get("filter") ?  searchParams.get("filter") : null;
 
