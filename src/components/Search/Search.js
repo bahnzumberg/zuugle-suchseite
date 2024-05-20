@@ -45,7 +45,6 @@ export function Search({
   setCounter,
   setFilterValues, 
   filterValues,
-  filterCountLocal,
   // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
@@ -61,6 +60,8 @@ export function Search({
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
+  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
