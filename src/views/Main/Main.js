@@ -335,18 +335,23 @@ useEffect(() => {
     </Box>
   )
 
-  let paddingTop = showMap ? "35px" : "50px"
   let marginTop = showMap ? "20px" : "255px"
+  const paddingTopValue = showMap ? "3.89%" : "5.56%"; // 35px and 50px equivalent
+  const largeScreenPaddingTop = showMap ? "1.67%" : "2.78%"; // 15px and 25px equivalent
 
   const totalToursHeader = ()=>(   
     <Box elevation={0} className={"header-line-main"}>
           <Box
             sx={{
-              paddingTop: paddingTop,
+              // paddingTop: paddingTop,
+              paddingTop: paddingTopValue,
               paddingBottom: "30px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              '@media (min-width: 900px)': {
+                paddingTop: largeScreenPaddingTop,
+              },
             }}
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>

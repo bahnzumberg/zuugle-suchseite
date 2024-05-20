@@ -42,6 +42,9 @@ const MapBtn = ({ children, onClick, showMap}) => {
         justifyContent: "space-between", // Space content evenly
         flexDirection: "row", // Text and icon in a row
         margin: "2 auto",
+        '@media (min-width: 900px)': {
+          bottom: "calc(20px - 2%)", // Move down by 5% on screens wider than 900px
+        },
       }}
       onClick={onClick}
       aria-label="contained"
