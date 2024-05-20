@@ -30,11 +30,11 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog, getValuesFromParams } from "../../utils/globals";
+// import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from '../../components/Search/MapBtn';
-import {getMapData} from '../../actions/crudActions';
+// import {getMapData} from '../../actions/crudActions';
 import { checkOnlyMapParams } from "../../utils/map_utils";
-import NoData from "../../components/NoData";
+// import NoData from "../../components/NoData";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -120,38 +120,32 @@ export function Main({
 // }, [])
   
   useEffect(() => {
-     
     setShowMap(searchParams.get('map') === "true" ? true : false ) ;
     // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams) {
 
-      let values = getValuesFromParams(searchParams);
-      !!values && console.log("L128 loadTours call / values : ", values); 
-
-//  should values be prepared after they arrive from getValuesFromParameters() ???
-      
-//TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
+      // should values be "prepared" after they arrive from getValuesFromParameters() ???
+      //TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
       
       // getMapData(values).then((res)=>{
       //   res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
       //   res?.data && console.log("L167 res.data/ Map data :", res.data)
       // });
-      // console.log("Main.1")
     }
   }, [searchParams]); 
 
-  useEffect(() => {
+  // useEffect(() => {
     // should be run at the begining only
   
-    let values = getValuesFromParams();
-    !!values && console.log("L128 loadTours call / values : ", values);
+    // let values = getValuesFromParams();
+    // !!values && console.log("L128 loadTours call / values : ", values);
     
-    loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
-      // set 'filterValues' in localStorage ?
-    });
-    console.log("Main.2")
-  }, []); 
+  //   loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
+  //     // set 'filterValues' in localStorage ?
+  //   });
+  //   console.log("Main.2")
+  // }, []); 
 
   useEffect(() => {
     if (scrollToTop) {
@@ -479,7 +473,7 @@ useEffect(() => {
         {!showMap && totalToursHeader()}
       </Box>
       {/* {!!tours && tours.length > 0 && ( */}
-      {!!totalTours && totalTours > 0 && (
+      {!!totalTours && totalTours > 0 ? (
         <>
           {!!showMap ? (
             <>
@@ -505,7 +499,13 @@ useEffect(() => {
           )
           }
         </>
-      ) }
+      ) 
+      :
+        (<>
+          {!!showMap && memoTourMapContainer}
+          {!!showMap && totalToursHeader()}
+        </>)
+      }
     </div>
   );
 }

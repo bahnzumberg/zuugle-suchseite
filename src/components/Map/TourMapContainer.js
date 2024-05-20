@@ -75,25 +75,13 @@ function TourMapContainer({
         .map((nav) => nav.type)
         .includes("reload");
 
+    useEffect(() => {
+        // console.log("L79 mapInitialized :", mapInitialized)
+        if (!mapInitialized) {
+            setMapInitialized(true);
+        }
+    }, [mapInitialized, setMapInitialized]);
 
-    // useEffect(() => {
-    //     // if (!mapInitialized) {
-    //         console.log("mapInitialized", mapInitialized)
-    //         const map = L.map('map').setView([47.800499, 13.044410], 13); // Set initial view
-    //         L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png").addTo(map); // Add tile layer
-    
-    //           // Add markers or other map layers based on tours
-    //           markers.forEach(tour => {
-    //             L.marker([tour.lat, tour.lng]).addTo(map);
-    //         });
-
-    //         // Save reference to the map
-    //         mapRef.current = map;
-
-    //         // Update the state variable to indicate that the map has been initialized
-    //         setMapInitialized(true);
-    //     }
-    // }, [markers, mapInitialized]);
    
     useEffect(()=>{
         console.log("L306 : markers.length :", markers.length)
@@ -328,21 +316,22 @@ function TourMapContainer({
             overflow: "hidden",
             margin: "auto"
             }}>
-
-        <MapContainer
-            className='leaflet-container'
-            ref={mapRef}
-            scrollWheelZoom={false} //if you can zoom with you mouse wheel
-            zoomSnap={1}
-            maxZoom={15}                    //how many times you can zoom
-            center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
-            zoom={13}       //zoom level --> how much it is zoomed out
-            style={{height: "100%", width: "100%"}} //Size of the map
-            zoomControl={false}
-            bounds={() => {
-                updateBounds(); 
-            }}
-        >
+        {mapInitialized && (
+            <MapContainer
+                className='leaflet-container'
+                ref={mapRef}
+                scrollWheelZoom={false} //if you can zoom with you mouse wheel
+                zoomSnap={1}
+                maxZoom={15}                    //how many times you can zoom
+                center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+                zoom={13}       //zoom level --> how much it is zoomed out
+                style={{height: "100%", width: "100%"}} //Size of the map
+                zoomControl={false}
+                bounds={() => {
+                    updateBounds(); 
+                }}
+            >
+            
             <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
             />
@@ -365,6 +354,7 @@ function TourMapContainer({
             <MyComponent/>
             <ZoomControl position="bottomright" />
         </MapContainer>
+        )}
     </Box>
 }
 
@@ -381,4 +371,5 @@ const mapStateToProps = (state) => {
         tour: state.tours.tour,
     }
 };
-export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);
+// export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(React.memo(TourMapContainer));
