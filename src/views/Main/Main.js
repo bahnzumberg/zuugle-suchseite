@@ -336,7 +336,7 @@ useEffect(() => {
   )
 
   let marginTop = showMap ? "20px" : "255px"
-  const paddingTopValue = showMap ? "3.89%" : "5.56%"; // 35px and 50px equivalent
+  const paddingTopValue = showMap ? "3.89%" : "8%"; // 35px and 50px equivalent
   const largeScreenPaddingTop = showMap ? "1.67%" : "2.78%"; // 15px and 25px equivalent
 
   const totalToursHeader = ()=>(   
