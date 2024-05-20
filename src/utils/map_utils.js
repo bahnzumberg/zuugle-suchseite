@@ -13,8 +13,8 @@ export const checkOnlyMapParams = (filterParam = false)=>{
     try {
       const filterObject = JSON.parse(decodeURIComponent(filterParam));
       const keyCount = Object.keys(filterObject).length;
-      console.log("L16 filterObject : ", filterObject)
-      console.log("L17 keyCount : ", keyCount)
+      // console.log("L16 filterObject : ", filterObject)
+      // console.log("L17 keyCount : ", keyCount)
 
       if(filterObject){
           
@@ -25,7 +25,7 @@ export const checkOnlyMapParams = (filterParam = false)=>{
               filterObject.hasOwnProperty('coordinatesSouthWest') && 
               filterObject.hasOwnProperty('coordinatesNorthEast')
       }
-      console.log("L34 mapFilter :", mapFilter) //true or false
+      // consoleLog("L34 mapFilter :", mapFilter) //true or false
       return mapFilter;
     } catch (error) {
       console.error('Error parsing filter object:', error);
