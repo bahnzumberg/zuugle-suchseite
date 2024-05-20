@@ -229,9 +229,9 @@ useEffect(() => {
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
-    // if(!!searchParams.get('map')) {
-    //   searchParams.delete('map');
-    // }
+    if(!!searchParams.get('map')) {
+      searchParams.delete('map');
+    }
     if(searchParams.get('range')){
       searchParams.delete('range');
     }
