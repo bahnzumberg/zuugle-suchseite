@@ -48,7 +48,7 @@ export default function TextInput({value, onChange, label, variant, endAdormentL
         label={label}
         variant={variant}
         fullWidth
-        disableAutoFocus={true}
+        // disableAutoFocus={true}
         type={"text"}
         value={value}
         onChange={onChange}
