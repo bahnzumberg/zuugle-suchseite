@@ -16,7 +16,6 @@ import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
 // import {popupContent, popupHead} from "./popupStyles";
-import GoIcon from '../../icons/GoIcon';
 
 function TourMapContainer({
     tours,
@@ -65,7 +64,16 @@ function TourMapContainer({
 
     // create a bounds state ?
     var onToggle = localStorage.getItem('MapToggle');
-    
+    // default map values 
+    const default_MapPositionLatNE = 49.019;
+    const default_MapPositionLngNE = 17.189;
+    const default_MapPositionLatSW = 46.372;
+    const default_MapPositionLngSW = 9.530;
+    //default center calculations
+    const centerLat = (default_MapPositionLatSW + default_MapPositionLatNE) / 2;
+    const centerLng = (default_MapPositionLngSW + default_MapPositionLngNE) / 2;
+
+
     //checks if page is reloaded
     const pageAccessedByReload =
       (window.performance.getEntriesByType("navigation")[0] &&
@@ -82,7 +90,24 @@ function TourMapContainer({
         }
     }, [mapInitialized, setMapInitialized]);
 
-   
+    // useEffect(() => {
+    //     // Set default bounds to Austria's geographic bounds
+    //     const defaultBounds = L.latLngBounds(
+    //         L.latLng(46.372, 9.530), // Southwest corner (latitude, longitude)
+    //         L.latLng(49.019, 17.189) // Northeast corner (latitude, longitude)
+    //     );
+    //     // console.log('Default Bounds:', defaultBounds);
+
+    //     // Update the bounds when the map is first initialized
+    //     if (!!mapRef.current && defaultBounds.isValid()) {
+    //         // Delay execution to ensure map is fully initialized
+    //         setTimeout(() => {
+    //             console.log('Fitting Bounds:', defaultBounds);
+    //             mapRef.current.fitBounds(defaultBounds);
+    //         }, 100); // Adjust delay as needed
+    //     }
+    // }, []);
+
     useEffect(()=>{
         console.log("L306 : markers.length :", markers.length)
     });
@@ -97,7 +122,7 @@ function TourMapContainer({
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
             assignNewMapPosition(null); // set the localStorage to default values
-            consoleLog("L78 / local storage is set")
+            // consoleLog("L78 / local storage is set")
             updateBounds();
         } else {
             if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
@@ -138,10 +163,10 @@ function TourMapContainer({
 
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
-        localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || 47.97659313367704);
-        localStorage.setItem('MapPositionLngNE', position?._northEast?.lng || 13.491897583007814);
-        localStorage.setItem('MapPositionLatSW', position?._southWest?.lat || 47.609403608607785);
-        localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || 12.715988159179688);
+        localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || default_MapPositionLatNE);
+        localStorage.setItem('MapPositionLngNE', position?._northEast?.lng || default_MapPositionLngNE);
+        localStorage.setItem('MapPositionLatSW', position?._southWest?.lat || default_MapPositionLatSW);
+        localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || default_MapPositionLngSW);
     }
 
     const updateBounds = () => {
@@ -323,8 +348,8 @@ function TourMapContainer({
                 scrollWheelZoom={false} //if you can zoom with you mouse wheel
                 zoomSnap={1}
                 maxZoom={15}                    //how many times you can zoom
-                center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
-                zoom={13}       //zoom level --> how much it is zoomed out
+                center={[centerLat, centerLng]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+                zoom={7}       //zoom level --> how much it is zoomed out
                 style={{height: "100%", width: "100%"}} //Size of the map
                 zoomControl={false}
                 bounds={() => {
