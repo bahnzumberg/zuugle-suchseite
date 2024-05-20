@@ -45,6 +45,7 @@ export function Search({
   setCounter,
   setFilterValues, 
   filterValues,
+  filterCountLocal,
   // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
@@ -52,6 +53,7 @@ export function Search({
   // isCityLoading,
   // loadFavouriteTours,
 }) {
+
 
   //navigation
   const navigate = useNavigate();
@@ -73,7 +75,7 @@ export function Search({
   });
 
   const [region, setRegion] = useState(null);
-  const initialIsMapView = isMapView || false;
+  // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false)
   const [scrollToTop, setScrollToTop] = useState(false);
 
@@ -86,6 +88,7 @@ export function Search({
   useEffect(() => {
     const filterParamValue = searchParams.get('filter');
     if (filterParamValue) {
+      !!counter && console.log("L89 : counter :", counter )
       setActiveFilter(!!counter && counter > 0);
     }
   }, [searchParams, counter]);
@@ -175,7 +178,8 @@ export function Search({
       };
     }
     // flag active filter if count > 0
-    filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
+    !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
+    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
     let result = loadTours({
       city: city,
@@ -533,7 +537,8 @@ export function Search({
           <Box>
             {!cityInput && pageKey === "detail" ? (
               ""
-            ) : !!initialIsMapView ? null : (
+            ) :  (
+            // ) : !!initialIsMapView ? null : (
               <Box
                 sx={{
                   marginLeft: "10px",
