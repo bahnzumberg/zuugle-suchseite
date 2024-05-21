@@ -449,9 +449,9 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        logger("===============tours.js L450========================")
-        logger(sql_select + outer_where + sql_order + sql_limit)
-        logger("====================================================")
+        // logger("===============tours.js L450========================")
+        // logger(sql_select + outer_where + sql_order + sql_limit)
+        // logger("====================================================")
         // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
         // logger("====================================================")
 
@@ -496,7 +496,7 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
 
-        logger("tours.js L 496 : query 'No search term' : " + query);
+        // logger("tours.js L 496 : query 'No search term' : " + query);
         // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
@@ -1343,7 +1343,7 @@ const tourPdfWrapper = async (req, res) => {
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
-            console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
+            // console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
             return;
         }
