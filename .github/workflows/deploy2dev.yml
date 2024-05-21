@@ -1,8 +1,8 @@
-name: UAT Deploy
+name: DEV Deploy
 on:
   push:
     branches:
-      - 'uat'
+      - 'dev'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,5 +40,5 @@ jobs:
           SOURCE: 'build/'
           REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
-          TARGET: ${{ secrets.PROD_REMOTE_TARGET_SUCHSEITE }}
+          TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
           EXCLUDE: '/dist/, /node_modules/'

@@ -9,25 +9,33 @@ import gpxParser from "gpxparser";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types";
 import {useSearchParams} from "react-router-dom";
-import debounce from "lodash/debounce";
+// import debounce from "lodash/debounce";
+import { loadGPX } from '../../actions/fileActions';
+import { useDispatch, useSelector } from 'react-redux';
 
 function TourMapContainer({
-                              tours,
-                              onSelectTour,
-                              loadTourConnections,
-                              city,
-                              loadTours,
-                              totalTours,
-                              pageTours,
-                              loading,
-                              total,
-                              loadGPX,
-                              setTourID,
-                              scrollWheelZoom = true,
-                              filter,
-                              filterVisibleToursGPX,
-                              doSubmit,
-                          }) {
+    tours,
+    onSelectTour,
+    scrollWheelZoom = true,
+    filter,
+    // loadGPX,
+    setTourID,
+    //   loadTourConnections,
+    //   city,
+    //   loadTours,
+    //   totalTours,
+    //   pageTours,
+    //   loading,
+    //   total,
+    //   tourID,
+    //   filterVisibleToursGPX,
+    //   doSubmit,
+    }) {
+
+                        
+    const dispatch = useDispatch(); // Get dispatch function from Redux
+    const getState = useSelector(state => state); // Get state from Redux
+
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
         shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
@@ -37,47 +45,65 @@ function TourMapContainer({
 
     const mapRef = useRef();
     const clusterRef = useRef();
+    const markerRef = useRef(null)
+
     const [gpxTrack, setGpxTrack] = useState([]);
-    const [mapLoading, setMapLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
+    // create a bounds state 
 
     //checks if page is reloaded
-    const pageAccessedByReload = (
-        (window.performance.navigation && window.performance.navigation.type === 1) ||
-        window.performance
-            .getEntriesByType('navigation')
-            .map((nav) => nav.type)
-            .includes('reload')
-    );
+    const pageAccessedByReload =
+      // (window.performance.navigation && window.performance.navigation.type === 1) ||
+      (window.performance.getEntriesByType("navigation")[0] &&
+        window.performance.getEntriesByType("navigation")[0].type === 1) ||
+      window.performance
+        .getEntriesByType("navigation")
+        .map((nav) => nav.type)
+        .includes("reload");
 
-    useEffect(() => {
+        
+        
+        useEffect(() => {
+        //console.log("L61 TMC / tours is : ", tours) //we do get array of tours here
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
         //states if the toggle button is was clicked
         var onToggle = localStorage.getItem('MapToggle');
-
+        // console.log("L60 onToggle :", onToggle);
         //if the page is reloaded (this would also be true when clicking the toggle button) AND the toggle button was not clicked
         //all items are removed and updateBounds() is called in order to reset the map
-        if (pageAccessedByReload && onToggle != "true") {
+        console.log("L70 pageAccessedByReload value :", pageAccessedByReload);
+        console.log("L71 onToggle value :", onToggle);
+        console.log("L72 filter value :", filter);
+
+        if (pageAccessedByReload && onToggle !== "true") {
             localStorage.removeItem('MapPositionLatNE');
             localStorage.removeItem('MapPositionLngNE');
             localStorage.removeItem('MapPositionLatSW');
             localStorage.removeItem('MapPositionLngSW');
+            setMapPosition(null); // set the localStorage to default values
+            console.log("L78 / local storage is set")
             updateBounds();
         } else {
             if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
                 && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+
                 var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
+
                 var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
                 //creating a latLngBounds-Object for the fitBounds()-Method
                 var bounds = L.latLngBounds(corner1, corner2);
+
+                console.log("L89 bounds :", bounds);
+
 
                 //the map's current position is set to the last position where the user has been
                 if (!!bounds && !!mapRef && !!mapRef.current) {
                     mapRef.current?.fitBounds(bounds);
                 }
             } else {
+                console.log("L97 you are at L97 next step is updateBounds()")
                 //the map is aligned to the marker/cluster
                 updateBounds();
             }
@@ -86,10 +112,10 @@ function TourMapContainer({
 
     //saves the bounds on localStorage
     const setMapPosition = (position) => {
-        localStorage.setItem('MapPositionLatNE', position._northEast?.lat || 47.97659313367704);
-        localStorage.setItem('MapPositionLngNE', position._northEast?.lng || 13.491897583007814);
-        localStorage.setItem('MapPositionLatSW', position._southWest?.lat || 47.609403608607785);
-        localStorage.setItem('MapPositionLngSW', position._southWest?.lng || 12.715988159179688);
+        localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || 47.97659313367704);
+        localStorage.setItem('MapPositionLngNE', position?._northEast?.lng || 13.491897583007814);
+        localStorage.setItem('MapPositionLatSW', position?._southWest?.lat || 47.609403608607785);
+        localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || 12.715988159179688);
     }
 
     const updateBounds = () => {
@@ -100,14 +126,44 @@ function TourMapContainer({
         }
     }
 
+    const setCurrentGpxTrack = async (url) => {
+        if (!!url) {
+            try {
+                const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+                const res = await loadGpxFunction(dispatch, getState); // Execute the inner function with dispatch and getState
+                if (!!res && !!res.data) {
+                    console.log("L154 IF res.data is true :", !!res.data )
+                    let gpx = new gpxParser(); //Create gpxParser Object
+                    gpx.parse(res.data);
+                    if (gpx.tracks.length > 0) {
+                        // console.log("L190 gpx.tracks[0].points : ")
+                        // console.log(gpx.tracks[0])
+                        let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
+                        console.log("L193 track[0][0] : ")
+                        console.log(track[0][0]) //  [47.639424, 15.830512] 
+                        setGpxTrack(track);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading GPX:', error);
+                setGpxTrack([]);
+            }
+        } else {
+            setGpxTrack([]);
+        }
+    }
+
     const markerComponents = useMemo(() => {
         if (!!tours) {
             return tours.map((tour, index) => {
+                console.log("L123 : tour", tour)
                 let data = !!tour.gpx_data ? tour.gpx_data.find(d => d.typ === "first") : null;
+                console.log("L124 : data is ", data)
                 if (!!data) {
                     return (
                         <Marker
                             key={index}
+                            ref={markerRef}
                             position={[data.lat, data.lon]}
                             title={tour.title}
                             icon={StartIcon}
@@ -125,23 +181,7 @@ function TourMapContainer({
             });
         }
         return null;
-    }, [tours]);
-
-    const setCurrentGpxTrack = (url) => {
-        loadGPX(url).then(res => {
-            if (!!res && !!res.data) {
-                let gpx = new gpxParser(); //Create gpxParser Object
-                gpx.parse(res.data);
-                if (gpx.tracks.length > 0) {
-                    let track = gpx.tracks[0].points.map(p => [p.lat, p.lon]);
-                    setGpxTrack(track);
-                }
-            }
-        }).catch(error => {
-            console.error('Error loading GPX:', error);
-            setGpxTrack([]);
-        });
-    }
+    }, [tours,onSelectTour,setTourID,StartIcon]);
 
     const createClusterCustomIcon = function (cluster) {
         return L.divIcon({
@@ -154,6 +194,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
+                console.log("L168 position changed -> value :", position)
                 setMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
@@ -177,6 +218,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
+        console.log("L205 bounds value", bounds);  // seems to give the rights values when zoom in or out
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -201,9 +243,11 @@ function TourMapContainer({
             searchParams.delete("filter");
         } else {
             searchParams.set("filter", JSON.stringify(filterValues));
+            console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
+        // check : how & where is the call made ??  inside main? when searchParams change?
     };
 
     return <Box
@@ -212,7 +256,7 @@ function TourMapContainer({
         <MapContainer
             ref={mapRef}
             scrollWheelZoom={scrollWheelZoom} //if you can zoom with you mouse wheel
-            maxZoom={15}                    //how many times you can zoom
+            maxZoom={25}                    //how many times you can zoom
             center={[47.800499, 13.044410]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
             zoom={13}       //zoom level --> how much it is zoomed out
             style={{height: "100%", width: "100%"}} //Size of the map
@@ -222,7 +266,7 @@ function TourMapContainer({
             />
 
             {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
-                pathOptions={{fillColor: 'red', color: 'red'}}
+                pathOptions={{fillColor: 'green', color: 'green'}}
                 positions={gpxTrack}
             />]}
 
@@ -236,7 +280,8 @@ function TourMapContainer({
             >
                 {markerComponents}
             </MarkerClusterGroup>
-            <MyComponent></MyComponent>
+            <MyComponent/>
+            {/* <MyComponent></MyComponent> */}
         </MapContainer>
     </Box>
 }

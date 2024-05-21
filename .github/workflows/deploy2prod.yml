@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '19.8.1'
+        node-version: '20.5.0'
 
     - name: Cache node_modules
       id: cache-npm
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
           cache-name: cache-node-modules
       with:
@@ -40,8 +40,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
-            rm -r /root/suchseite/app-backup/
-            cp -r /root/suchseite/app/ /root/suchseite/app-backup/
+            rm /root/suchseite/backup/app.tar.gz
+            tar -zcvf /root/suchseite/backup/app.tar.gz /root/suchseite/app/
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:

@@ -57,7 +57,7 @@ export function updateAllSearchParams(searchParams, values){
 }
 
 export function setOrRemoveSearchParam(searchParams, key, value){
-    if(!!!value || value == "undefined"){
+    if(!!!value || value === "undefined"){
         searchParams.delete(key);
     } else {
         searchParams.set(key, value)
@@ -77,7 +77,7 @@ export function getFilterFromParams(searchParams){
             const parsed = JSON.parse(searchParams.get("filter"));
             return parsed;
         } catch(e){
-
+            console.log("Error getting filter params")
         }
     }
 }
@@ -137,7 +137,7 @@ export const getDomainText = () => {
     }
 }
 
-export const isResponsive = () => {
+export const useResponsive = () => {
     const matches = useMediaQuery('(max-width:600px)');
     return !!matches;
 }
@@ -155,12 +155,12 @@ export const getTopLevelDomain = () => {
     return host.substring(host.length-2).toLowerCase();
 }
 
-export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
-    if(!!connection){
-        return connection[field].split('\n');
-    }
-    return [];
-}
+// export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
+//     if(!!connection){
+//         return connection[field].split('\n');
+//     }
+//     return [];
+// }
 
 export const getTimeFromConnectionDescriptionEntry = (entry) => {
     let _entry = !!entry ? entry.trim() : null;
@@ -217,7 +217,7 @@ export const countFilterActive = (searchParams, filter) => {
       if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
         count++;
       }
-      if (_filter?.difficulty != 10) {
+      if (_filter?.difficulty !== 10) {
         count++;
       }
       if (!!_filter?.traverse) {
@@ -255,19 +255,19 @@ export const countFilterActive = (searchParams, filter) => {
         count++;
       }
       if (
-        _filter?.ranges?.length != filter?.ranges?.length) 
+        _filter?.ranges?.length !== filter?.ranges?.length) 
         {
         count++;
       }
-      if (_filter?.types?.length != filter?.types?.length) {
+      if (_filter?.types?.length !== filter?.types?.length) {
         count++;
       }
-      if (_filter?.languages?.length != filter?.languages?.length) {
+      if (_filter?.languages?.length !== filter?.languages?.length) {
         count++;
       }
     }
-    if(process.env.NODE_ENV != "production"){
-        consoleLog("L267 : FINAL count :",count)
+    if(process.env.NODE_ENV !== "production"){
+        // consoleLog("L267 : FINAL count :",count)
     }
     return count;
   };
@@ -290,7 +290,7 @@ for (const [key, value] of searchParams) {
 return obj;
 }
 
-export function consoleLog(textOutput, varOutput, doubleLine = false) {
+export function consoleLog(textOutput ="output :", varOutput = null, doubleLine = false) {
     if(process.env.NODE_ENV !== "production"){
         if(!!doubleLine){
             console.log("----------------------------")
@@ -298,10 +298,24 @@ export function consoleLog(textOutput, varOutput, doubleLine = false) {
             console.log(varOutput);
             console.log("=============================")
         }else{
-            console.log(textOutput, varOutput);
+            (textOutput && varOutput) ? console.log(textOutput, varOutput) : textOutput ? console.log(textOutput) : console.log(varOutput);  
         }
         return;
     }
     return;
+}
+
+export function getMinutesFromDuration(duration) {
+    if(!!duration && typeof duration === "string"){
+        const [hours, minutes] = duration.split(":").map(Number);
+        return hours * 60 + minutes;
+    }
+    return null
+}
+
+export function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}:${remainingMinutes.toString().padStart(2, "0")}`;
 }
   

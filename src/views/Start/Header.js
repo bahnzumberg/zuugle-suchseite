@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import SearchContainer from "./SearchContainer";
 import { useEffect, useState } from "react";
-import { getDomainText, isResponsive } from "../../utils/globals";
+import { getDomainText, useResponsive } from "../../utils/globals";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,7 @@ export default function Header({
   const [totalToursFromCity, setTotalToursFromCity] = React.useState(0);
 
   let tld = "";
-  let domain = location.hostname;
+  let domain = window.location.hostname;
   if (domain.indexOf("zuugle.de") > 0) {
     tld = "de";
   } else if (domain.indexOf("zuugle.si") > 0) {
@@ -45,7 +45,7 @@ export default function Header({
   const [backgroundImage, setBackgroundImage] = useState(
     `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
   );
-  const _isMobile = isResponsive();
+  const _isMobile = useResponsive();
   const { t, i18n } = useTranslation();
 
   function updateCapCity(newCity) {
@@ -107,6 +107,7 @@ export default function Header({
               src={`/app_static/img/logo-white.png`}
               height={"16px"}
               width={"29px"}
+              alt="logo"
             />
             <Typography
               style={{

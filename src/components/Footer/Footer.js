@@ -23,7 +23,7 @@ export default function Footer({}){
                         <Typography id="yearSpan" sx={{marginLeft: "10px", color: "#4992FF"}}>© {`${currentYear}`} Zuugle</Typography>
                     </Grid>
                     <Grid item xs  md={3}>
-                        <a href="https://www.bahnzumberg.at" target="_blank" rel='noreferrer'>
+                        <a href="https://verein.bahn-zum-berg.at" target="_blank" rel='noreferrer'>
                         <Typography sx={{marginLeft: "10px", textDecoration: "underline"}} className={"cursor-link"} >Bahn zum Berg</Typography>
                         </a>
                     </Grid>

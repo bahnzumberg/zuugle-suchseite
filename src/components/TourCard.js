@@ -40,6 +40,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     // i18next
     const {t} = useTranslation();
 
+    const hm = t("details.hm_hoehenmeter");
+    const km = t("details.km_kilometer");
+
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
     useEffect(() => {
@@ -76,7 +79,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             setConnectionLoading(true);
             loadTourConnections({id: tour.id, city: city}).then(res => {
                 //clg
-                // console.log("Line 74 TourCard:",res.data.connections)
+                // console.log("Line 79 TourCard:")
+                // console.log(res.data.connections[0])
+                // console.log("=====================================")
                 // console.log("Line 75 TourCard:",res.data.returns)
                 // console.log("Line 75 TourCard:",res.data)
                 setConnectionLoading(false);
@@ -111,7 +116,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     }
 
     const renderProps = () => {
-
+       
         const translateDiff = (diff) =>{
             if(diff === "Leicht"){
                 return t('start.leicht');
@@ -137,7 +142,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         if(!!tour){
             values.push({
                 icon: <Clock style={{fill: "transparent"}}/>,
-                text: "Tour: " + ((!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ' Tage') : convertNumToTime(tour.total_tour_duration)),
+                text: `${t("main.tour")}: ` + ((!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ` ${t("details.tage")}`) : convertNumToTime(tour.total_tour_duration)),
             });
             values.push({
                 icon: <Intensity style={{fill: "transparent"}} />,
@@ -151,11 +156,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
             })
             values.push({
                 icon: <ArrowVertical style={{fill: "transparent"}} />,
-                text: tour.ascent + " / "+  tour.descent + " hm",
+                text: tour.ascent + " / "+  tour.descent + " " + hm,
             })
             values.push({
                 icon: <ArrowHorizontal style={{fill: "transparent"}} />,
-                text: formatNumber(tour.distance, " km"),
+                text: formatNumber(tour.distance, " " + km),
             });
         }
 
@@ -195,7 +200,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-          consoleLog("Card Clicked  !! tourLink -->", tourLink)
+        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
@@ -259,24 +264,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
                     </div>
                 </Fragment>
             )
-            // : ( <Fragment>
-            //     <div className="bottom-container">
-            //         <CardContent>
-            //             <Box
-            //                 display="flex"
-            //                 alignItems="center"
-            //                 justifyContent="center"
-            //             >
-            //                 <Typography variant="h5" style={{ whiteSpace: "break-spaces", marginTop:'10%', color:'#FF7663' }}>
-            //                     {/* {t('start.keine_tour_gefunden')} */}
-            //                     Diese Tour ist derzeit nicht verfügbar
-            //                 </Typography>
-            //             </Box>
-            //         </CardContent>
-            //     </div>
-            // </Fragment>)
         }
-        
       </Card>
     );
 }

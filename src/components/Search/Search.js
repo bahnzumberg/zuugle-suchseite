@@ -103,40 +103,35 @@ export function Search({
     let provider = searchParams.get("p");
     let cityEntry = null;
 
-    if (pageKey === "detail") {
-      if (!!city) {
-        setCityInput(city); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-        writeCityToLocalStorage(city);
+    if (!!city && !!allCities) {
+      cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
+    }
+
+    if (!!city && !!allCities) {
+      if (!!cityEntry) {
+        setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
+        setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
+        writeCityToLocalStorage(city); // store the city NAME in local storage
 
         /** load regions initially */
-        loadRegions({ city: city });  
-      }
-    } else {
-      if (!!city && !!allCities) {
-        cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
-        if (!!cityEntry) {
-          setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
-          setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-          writeCityToLocalStorage(city); // store the city NAME in local storage
-
-          /** load regions initially */
-          loadRegions({ city: city });
-        }
+        loadRegions({ city: city });
       }
     }
 
     //setting searchPhrase to the value of the search parameter
+    //if there is a range selected then set searchPhrase to that range name
     if (!!range) {
       setSearchPhrase(range);
       setRegion({ value: range, label: range, type: "range" });
     }
+    // todo : note that this code here checks if there is a search param ONLY if there is NO range param
     else if (!!search) {
       setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
 
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
+        let cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
@@ -258,7 +253,7 @@ export function Search({
       !!filterValues && setFilterValues(filterValues)
       localStorage.setItem("filterValues", JSON.stringify(filterValues));
       localStorage.setItem("filterCount", filterCount);
-      window.location.reload();
+      window.location.reload(); 
     } else {
       setActiveFilter(false);
       searchParams.delete("filter");
@@ -325,21 +320,21 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
     // added for issue #208
-    pageKey != "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
-    if(pageKey == "detail") {
-      resetFilterLocalStorage();
-    }
+    pageKey !== "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
+    // if(pageKey === "detail") {
+    //   resetFilterLocalStorage();
+    // }
 
     setSearchParams(searchParams);
     
-    if (!!goto) {
-      navigate(goto + "?" + searchParams);
+    if (!!goto) { // "/suche" to be true only when coming from Start->Header->SearchContainer->Search->search()
+      navigate(`${goto}?${searchParams.toString()}`);
       window.location.reload();
-    } else {
-      loadTours(values).then((res) => {
-        if(pageKey == "detail") {
+    } else { // coming in from Main filter submit or 
+      await loadTours(values).then((res) => {
+        if(pageKey === "detail") {
           console.log("Search L333 searchParams :", JSON.stringify(searchParams));
-          navigate("/suche" + "?" + searchParams);
+          navigate(`/suche?${searchParams.toString()}`);
         }
         window.location.reload();
         setScrollToTop(true);
@@ -357,9 +352,9 @@ export function Search({
         hideModal();
         if (!!city) {
           setCityInput(city.label);
-          await setCity(city);
-          pageKey=="start" && updateCapCity(city.label);
-          pageKey=="detail" && window.location.reload();
+          setCity(city);
+          pageKey==="start" && updateCapCity(city.label);
+          // pageKey=="detail" && window.location.reload();
 
         }
       },
