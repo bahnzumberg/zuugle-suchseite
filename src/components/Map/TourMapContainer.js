@@ -62,6 +62,11 @@ function TourMapContainer({
     const initialCity = !!searchParams.get('city') ? searchParams.get('city') : null
     const [city, setCity] = useState(initialCity);
 
+    let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
+    filter =  !!filterValuesLocal ? filterValuesLocal : filter;
+
+    console.log("L68 filter from Main or from Localstroge: ", filter)
+
     // create a bounds state ?
     var onToggle = localStorage.getItem('MapToggle');
     // default map values 
@@ -300,7 +305,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        consoleLog("L205 bounds value", bounds);  // seems to give the rights values when zoom in or out
+        consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -321,15 +326,31 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
-        if (filterValues == null) {
+        // if (filterValues == null) {
+        //     searchParams.delete("filter");
+        // } else {
+        //     console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
+        //     //pull filtervalues from localStorage and pass it to params for setting
+        //     searchParams.set("filter", JSON.stringify(filterValues));
+        //     setSearchParams(searchParams);
+        //     consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
+        // }
+        // //pull filtervalues from localStorage and pass it to params for setting
+        // localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
+        // setSearchParams(searchParams) //set the search Params and start the call to the backend
+
+        if (filter == null || Object.keys(filter).length === 0) {
             searchParams.delete("filter");
         } else {
-            searchParams.set("filter", JSON.stringify(filterValues));
+            console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
+            //filter comes from localStorage or from Main and pass it to params to be set 
+            searchParams.set("filter", JSON.stringify(filter));
             setSearchParams(searchParams);
-            consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
+        //pull filtervalues from localStorage and pass it to params for setting
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
+
     };
 
     return <Box
