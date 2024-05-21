@@ -48,7 +48,7 @@ export default function NumberInput({value, onChange, label, variant, endAdormen
         label={label}
         variant={variant}
         fullWidth
-        disableAutoFocus={true}
+        // disableAutoFocus={true}
         type={"number"}
         value={value}
         onChange={onChange}

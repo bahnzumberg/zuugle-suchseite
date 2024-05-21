@@ -615,7 +615,8 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 
   .cards-container {
-    margin-top: 160px;
+    margin-top: 60px;
+    /* margin-top: 160px; */
   }
 
   .cards-container.seo-page {
@@ -627,6 +628,26 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 }
 
+@media only screen and (max-width: 909px) {
+  .search-result-header-container {
+    position: fixed;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+    -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+    -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+  }
+  .map-container {
+    z-index: 100;
+    margin-top: 20px; /* Adjust this value based on your layout and header height */
+  }
+}
+
+@media only screen and (max-width: 899px) {
+  .cards-container {
+    margin-top: 350px;
+  }
+}
 .tour-detail-header {
   padding: 2rem 1rem;
   text-align: left;

@@ -318,4 +318,35 @@ export function formatDuration(minutes) {
     const remainingMinutes = minutes % 60;
     return `${hours}:${remainingMinutes.toString().padStart(2, "0")}`;
 }
+
+export const getValuesFromParams = (searchParams)=>{
+
+    let values = {};
+
+    if(!!searchParams){//extract values and add to one data variable
+        let city = searchParams.get("city"); 
+        let range = searchParams.get("range"); 
+        let state = searchParams.get("state"); 
+        let country = searchParams.get("country"); 
+        let type = searchParams.get("type"); 
+        let search = searchParams.get("search");
+        let filter = searchParams.get("filter");
+        let sort = searchParams.get("sort");
+        let provider = searchParams.get("p");
+        let map = searchParams.get("map");
+
+        values.city = !!city && city;
+        values.range = !!range && range;
+        values.search = !!search && search;
+        values.state = !!state && state;
+        values.country = !!country && country;
+        values.type = !!type && type;
+        values.provider = !!provider && provider;
+        values.sort = !!sort && sort;
+        values.map = !!map && map;
+        values.filter = !!filter && filter;
+    }
+
+    return values
+}
   

@@ -34,7 +34,7 @@ export default function ItineraryTourTimeLineContainer({
   tour
 }) {
   
-  const [entries, setEntries] = useState([]); //PARSED array[strings] only one object, a departure description
+  const [entries, setEntries] = useState([]); //PARSED array[of strings], related to only one object, a departure description
   const [returnEntries, setReturnEntries] = useState([]); //UNPARSED array[objects] with possibly a few return connections
 
   const [getMore, setGetMore] = useState(false);
