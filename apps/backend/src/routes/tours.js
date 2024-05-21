@@ -451,6 +451,8 @@ const listWrapper = async (req, res) => {
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
+            logger("L454")
+            logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
             if (result && result.rows) {
                 result = result.rows;
               } else {
@@ -485,7 +487,8 @@ const listWrapper = async (req, res) => {
             markers_array = !!markers_result && markers_result.rows            
         // }
         
-
+        logger("L488 query")
+        logger((await query).toString)
         result = await query;
         count = await countQuery.first();
     }
