@@ -60,30 +60,7 @@ export async function fixTours(){
                              
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    await knex.raw(`UPDATE tour AS t
-                    SET connection_arrival_stop_lat = a.lat,
-                    connection_arrival_stop_lon = a.lon
-                    FROM (SELECT
-                        f.id,
-                        f.lon,
-                        f.lat,
-                        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.id, f.count_num DESC ) AS row_number
-                        FROM
-                            (SELECT 
-                            tour.id,
-                            t.track_point_lon AS lon,
-                            t.track_point_lat AS lat,
-                            COUNT(*) AS count_num
-                            FROM tour
-                            INNER JOIN fahrplan AS f
-                            ON f.hashed_url=tour.hashed_url
-                            INNER JOIN tracks AS t
-                            ON f.totour_track_key=t.track_key
-                            AND t.track_point_sequence=1
-                            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
-                        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
-                    WHERE a.row_number=1
-                    AND a.id=t.id`);
+    await update_tours_from_tracks();
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -224,8 +201,6 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
             filePath = path.join(__dirname, "../../", fileName);
         }
 
-        logger(`sync.js /syncConnectionGPX, filePath : ${filePath}`);
-
         if(!!key){
             // deleteFileModulo30(fileName, filePath);
 
@@ -254,16 +229,21 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
             }
         }
 
+        await update_tours_from_tracks();
         resolve();
     })
 }
 
-export async function syncConnectionGPX(){
+export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
     let count_tracks = await knex.raw(`SELECT COUNT(*) AS row_count FROM tracks`);
     let count_tracks_num = parseInt(count_tracks.rows[0].row_count, 10);
 
+
+    if(mod === 'dev'){
+        knex.raw('TRUNCATE TABLE tracks').catch(err =>console.error("Error truncating table tracks:", err))
+    }
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
@@ -546,12 +526,16 @@ const readAndInsertFahrplan = async (bundle) => {
                         REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
                         DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
                         FROM vw_fplan_to_search 
-                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} AND calendar_date >= CURRENT_DATE`
-
+                        WHERE trigger_id % ${bundle.chunksizer} = ${bundle.leftover} 
+                        AND calendar_date >= CURRENT_DATE
+                        AND connection_description_json NOT LIKE '%""%'
+                        AND return_description_json NOT LIKE '%""%'`
         const result_query = knexTourenDb.raw(mysql_sql);
         const result = await result_query;
 
         let data = result[0].map(row => ({ ...row }));
+
+        // !!data && Array.isArray(data) && console.log("L557 data[0]:", data[0])
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider,
