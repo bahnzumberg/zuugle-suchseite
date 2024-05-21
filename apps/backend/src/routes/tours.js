@@ -488,8 +488,8 @@ const listWrapper = async (req, res) => {
         // }
         
         logger("L488 query")
-        // logger( query.toString())
-        logger( query.toSQL().toNative())
+        logger( query.toString())
+        // logger( query.toSQL().toNative())
         result = await query;
         count = await countQuery.first();
     }
