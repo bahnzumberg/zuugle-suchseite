@@ -487,7 +487,7 @@ useEffect(() => {
               {!!tours && tours.length > 0 && (
                 <>
                   {renderCardContainer()}
-                  <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+                  <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
                 </>
               )}
             </>
@@ -498,7 +498,7 @@ useEffect(() => {
             tours.length > 0 && (
               <>
                 {renderCardContainer()}
-                <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+                <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
               </>
             )
           )
