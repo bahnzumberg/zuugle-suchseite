@@ -30,10 +30,11 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-import { consoleLog, getValuesFromParams } from "../../utils/globals";
+// import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from '../../components/Search/MapBtn';
-import {getMapData} from '../../actions/crudActions';
+// import {getMapData} from '../../actions/crudActions';
 import { checkOnlyMapParams } from "../../utils/map_utils";
+// import NoData from "../../components/NoData";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -65,22 +66,6 @@ export function Main({
 }) {
 
 
-// try {
-//   if (typeof filter === "string" && filter.length > 0) {
-//     filter = JSON.parse(filter);
-//     // Valid JSON data
-//   } else if (typeof filter === "object") {
-//     // Object is already valid --> do nothing
-//   } else {
-//     filter = {};
-//   }
-// } catch (error) {
-//   // case of JSON parsing error
-//   console.error(" Main : Error parsing JSON:", error);
-//   filter = {}; 
-// }
-
-
   const navigate = useNavigate();
   const location = useLocation();
   const { t }    = useTranslation();
@@ -93,6 +78,9 @@ export function Main({
  
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(0); 
+
+  const [mapInitialized, setMapInitialized] = useState(false);
+
 
   // const currentParams = new URLSearchParams(location.search);
   // const [forceUpdate, setForceUpdate] = useState(false);
@@ -132,15 +120,12 @@ export function Main({
 // }, [])
   
   useEffect(() => {
-     
     setShowMap(searchParams.get('map') === "true" ? true : false ) ;
     // should be run at the begining and everytime map changes 
     let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
     if(!!filterFromParams) {
-      let values = getValuesFromParams(searchParams);
 
-      //  should values be prepared after they arrive from getValuesFromParameters() ???
-      
+      // should values be "prepared" after they arrive from getValuesFromParameters() ???
       //TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
       
       // getMapData(values).then((res)=>{
@@ -150,15 +135,17 @@ export function Main({
     }
   }, [searchParams]); 
 
-  useEffect(() => {
+  // useEffect(() => {
     // should be run at the begining only
   
-    let values = getValuesFromParams();
-        
-    loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
-      // set 'filterValues' in localStorage ?
-    });
-  }, []); 
+    // let values = getValuesFromParams();
+    // !!values && console.log("L128 loadTours call / values : ", values);
+    
+  //   loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
+  //     // set 'filterValues' in localStorage ?
+  //   });
+  //   console.log("Main.2")
+  // }, []); 
 
   useEffect(() => {
     if (scrollToTop) {
@@ -232,9 +219,9 @@ export function Main({
 
   const backBtnHandler = (e)=> {
     e.preventDefault();
-    // if(!!searchParams.get('map')) {
-    //   searchParams.delete('map');
-    // }
+    if(!!searchParams.get('map')) {
+      searchParams.delete('map');
+    }
     if(searchParams.get('range')){
       searchParams.delete('range');
     }
@@ -272,15 +259,19 @@ export function Main({
 
   const memoTourMapContainer = useMemo(() => {
     return (
+
       <TourMapContainer
         tours={tours}
         onSelectTour={onSelectTourById}
         setTourID={setTourID}
         filter={filter}
         totalTours={totalTours}
+        setMapInitialized={setMapInitialized}
+        mapInitialized={mapInitialized}
       />
+      
     );
-  }, [filter,onSelectTourById,setTourID,tours, totalTours]);
+  }, [filter,tours, totalTours]);
 
   
   const toggleMapHandler = ()=> {
@@ -330,18 +321,23 @@ export function Main({
     </Box>
   )
 
-  let paddingTop = showMap ? "35px" : "50px"
   let marginTop = showMap ? "20px" : "255px"
+  const paddingTopValue = showMap ? "3.89%" : "12%"; // 35px and 50px equivalent
+  const largeScreenPaddingTop = showMap ? "1.67%" : "2.78%"; // 15px and 25px equivalent
 
   const totalToursHeader = ()=>(   
     <Box elevation={0} className={"header-line-main"}>
           <Box
             sx={{
-              paddingTop: paddingTop,
+              // paddingTop: paddingTop,
+              paddingTop: paddingTopValue,
               paddingBottom: "30px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              '@media (min-width: 900px)': {
+                paddingTop: largeScreenPaddingTop,
+              },
             }}
           >
             <Typography color={"black"} sx={{ textAlign: "center" }}>
@@ -369,10 +365,18 @@ export function Main({
         </Box>
   )
 
+  const renderMapWithHeader = ()=>{!!showMap && (
+    <>
+      <Box className={"map-container"}>
+        {memoTourMapContainer}
+      </Box>
+      {totalToursHeader()}
+    </>
+  )}
  
   return (
     <div>
-        <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
+      <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
             <Typography
@@ -381,7 +385,7 @@ export function Main({
             >
               {directLink.header}
             </Typography>
-            <Typography variant={"h2"} sx={{ fontSize: "14px" , color: "#fff"}}>
+            <Typography variant={"h2"} sx={{ fontSize: "14px", color: "#fff" }}>
               {directLink.description}
             </Typography>
           </Box>
@@ -401,7 +405,7 @@ export function Main({
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                 <Link
+                <Link
                   to={{
                     pathname: "/",
                   }}
@@ -444,43 +448,55 @@ export function Main({
               }}
             >
               <Box elevation={1} className={"colCenter"}>
-                <Search 
-                  isMain={true} 
-                  page="main" 
-                  activeFilter = {activeFilter}
-                  filterValues = {filterValues}
-                  setFilterValues = {setFilterValues}
-                  counter = {counter}
-                  setCounter = {setCounter}
+                <Search
+                  isMain={true}
+                  page="main"
+                  activeFilter={activeFilter}
+                  filterValues={filterValues}
+                  setFilterValues={setFilterValues}
+                  counter={counter}
+                  setCounter={setCounter}
                 />
               </Box>
             </Box>
           )}
         </Box>
-        {!showMap && (
-         totalToursHeader()
-        )}
+        {!showMap && totalToursHeader()}
       </Box>
- 
-      {!!tours && tours.length > 0 && (
+      {/* {!!tours && tours.length > 0 && ( */}
+      {!!totalTours && totalTours > 0 ? (
         <>
           {!!showMap ? (
             <>
-              <Box className={"map-container"}>
-                {memoTourMapContainer}
-              </Box>
+              <Box className={"map-container"}>{memoTourMapContainer}</Box>
               {totalToursHeader()}
-              {renderCardContainer()}
-              
+              {!!tours && tours.length > 0 && (
+                <>
+                  {renderCardContainer()}
+                  <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+                </>
+              )}
             </>
-          ) : 
-            renderCardContainer()
-          }
+          ) 
+          : 
           (
-          <MapBtn  showMap={showMap} onClick={toggleMapHandler} />
-                   
+            !!tours &&
+            tours.length > 0 && (
+              <>
+                {renderCardContainer()}
+                <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+              </>
+            )
+          )
+          }
         </>
-      )}
+      ) 
+      :
+        (<>
+          {!!showMap && memoTourMapContainer}
+          {!!showMap && totalToursHeader()}
+        </>)
+      }
     </div>
   );
 }

@@ -53,12 +53,15 @@ export function Search({
   // loadFavouriteTours,
 }) {
 
+
   //navigation
   const navigate = useNavigate();
   // Translation
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
+  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,7 +76,7 @@ export function Search({
   });
 
   const [region, setRegion] = useState(null);
-  const initialIsMapView = isMapView || false;
+  // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false)
   const [scrollToTop, setScrollToTop] = useState(false);
 
@@ -86,6 +89,7 @@ export function Search({
   useEffect(() => {
     const filterParamValue = searchParams.get('filter');
     if (filterParamValue) {
+      !!counter && console.log("L89 : counter :", counter )
       setActiveFilter(!!counter && counter > 0);
     }
   }, [searchParams, counter]);
@@ -175,7 +179,8 @@ export function Search({
       };
     }
     // flag active filter if count > 0
-    filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
+    !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
+    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
     let result = loadTours({
       city: city,
@@ -307,7 +312,8 @@ export function Search({
       ? searchPhrase
       : "";
 
-    values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
+    // values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
+    values.map = searchParams.get("map"); 
     values.provider = searchParams.get("p");
     values.filter = !!searchParams.get("filter") ?  searchParams.get("filter") : null;
 
@@ -332,6 +338,7 @@ export function Search({
     } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
         if(pageKey === "detail") {
+          // console.log("Search L333 searchParams :", JSON.stringify(searchParams));
           navigate(`/suche?${searchParams.toString()}`);
         }
         window.location.reload();
@@ -531,7 +538,8 @@ export function Search({
           <Box>
             {!cityInput && pageKey === "detail" ? (
               ""
-            ) : !!initialIsMapView ? null : (
+            ) :  (
+            // ) : !!initialIsMapView ? null : (
               <Box
                 sx={{
                   marginLeft: "10px",
