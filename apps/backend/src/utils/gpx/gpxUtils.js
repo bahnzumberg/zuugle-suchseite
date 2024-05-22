@@ -79,11 +79,11 @@ export const createImagesFromMap = async (ids) => {
                     let filePath = undefined;
                     let filePathSmall = undefined;
                     if(process.env.NODE_ENV == "production"){
-                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+ch+"_gpx.jpg");
-                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+ch+"_gpx_small.jpg");
+                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx.jpg");
+                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx_small.jpg");
                     } else {
-                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+ch+"_gpx.jpg");
-                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+ch+"_gpx_small.jpg");
+                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx.jpg");
+                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx_small.jpg");
                     }
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
@@ -176,7 +176,7 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
         }
 
         let filePath = undefined;
-        let baseFilePath = "public/gpx-image-with-track/"+providerhashedUrl+ "_"+ getValidUndefinedFileName(toTourTrackKey) + "_" + getValidUndefinedFileName(fromTourTrackKey) + fileNamePostfix +"_gpx.jpg";
+        let baseFilePath = "public/gpx-image-with-track/"+last_two_characters(providerhashedUrl)+"/"+providerhashedUrl+ "_"+ getValidUndefinedFileName(toTourTrackKey) + "_" + getValidUndefinedFileName(fromTourTrackKey) + fileNamePostfix +"_gpx.jpg";
         if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../../", baseFilePath);
         } else {

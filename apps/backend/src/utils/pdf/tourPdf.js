@@ -35,12 +35,9 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
     let _imageConnection = null;
     let _imageReturn = null;
 
-    // let file = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_gpx.jpg";
-    // let fileConnection = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
-    // let fileReturn = "public/gpx-image/" + tour.provider+"_"+tour.hashed_url + "_without_tour_gpx.jpg";
-    let file = "public/gpx-image/" + tour.hashed_url + "_gpx.jpg";
-    let fileConnection = "public/gpx-image/" + tour.hashed_url + "_without_tour_gpx.jpg";
-    let fileReturn = "public/gpx-image/" + tour.hashed_url + "_without_tour_gpx.jpg";
+    let file = "public/gpx-image/" + last_two_characters(tour.hashed_url) + "/" + tour.hashed_url + "_gpx.jpg";
+    let fileConnection = "public/gpx-image/" + last_two_characters(tour.hashed_url) + "/" + tour.hashed_url + "_without_tour_gpx.jpg";
+    let fileReturn = "public/gpx-image/" + last_two_characters(tour.hashed_url) + "/" + tour.hashed_url + "_without_tour_gpx.jpg";
 
  
 
@@ -125,15 +122,10 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
         url: tour.url
     };
 
-    //logger(`L105 tourPdf data is : ${JSON.stringify(data)}`) ; // L105 tourPdf data is : object , this works
-    //logger(`L105 tourPdf tour.name is : ${JSON.stringify(tour.name)}`) ; // L105 tourPdf data is : object , this works
-    // logger("L105 tourPdf data is :", typeof(data) ); // L105 tourPdf data is : object , this works
-    // console.log("L106 tourPdf tour.name is :", tour.name); // this is undefined
     return await writePdf(data, TEMPLATE, false, tour.name + ".pdf", false,  null); // this call works; see the test inside utils.js/writePdf
 };
 
 const parseImageToValidBase64 = async (file, contentType = "image/jpeg", resizeWidth = undefined) => {
-    // !!file && console.log("L108 / tourPdf / value of file: " + file) // this is working, getting paths to files of real images stored inside gpx-image
     try {
         let _image = await get_image_base64({
             content_type: contentType,
