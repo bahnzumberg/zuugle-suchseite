@@ -220,14 +220,18 @@ export async function generateTestdata(){
 
 
 
-async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
+async function _syncConnectionGPX(key, partFilePath, fileName, title, count_tracks_num){
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
-            filePath = path.join(__dirname, "../", fileName);
+            filePath = path.join(__dirname, "../", partFilePath);
         } else {
-            filePath = path.join(__dirname, "../../", fileName);
+            filePath = path.join(__dirname, "../../", partFilePath);
         }
+        if (!fs.existsSync(filePath)){
+            fs.mkdirSync(filePath);
+        }
+        filePath = path.join(filePath, fileName);
 
         if(!!key){
             let trackPoints = null;
@@ -277,7 +281,7 @@ export async function syncConnectionGPX(mod=null){
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
-            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track/' + last_two_characters(entry.totour_track_key) + "/" + entry.totour_track_key + '.gpx', 'Station zur Tour', count_tracks_num))
+            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track/' + last_two_characters(entry.totour_track_key) + "/", entry.totour_track_key + '.gpx', 'Station zur Tour', count_tracks_num))
         });
         await Promise.all(promises);
     }
@@ -285,7 +289,7 @@ export async function syncConnectionGPX(mod=null){
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
-            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track/' + last_two_characters(entry.fromtour_track_key) + "/" + entry.fromtour_track_key + '.gpx', 'Tour zur Station', count_tracks_num))
+            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track/' + last_two_characters(entry.fromtour_track_key) + "/", entry.fromtour_track_key + '.gpx', 'Tour zur Station', count_tracks_num))
         });
         await Promise.all(promises);
     }
