@@ -8,13 +8,6 @@ import logger from "../logger";
 import { jsonToStringArray, jsonToText } from "./utils"
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
-    // logger(`L11 , tourPdf.js / tourPdf, value of JSON.stringify(connection) : `);
-    // !!connection ? logger(JSON.stringify(connection)) : logger(' NO CONNECION YET ?');
-    // logger(`L13 , tourPdf.js / tourPdf, value of JSON.stringify(connection.connection_description_json) : `);
-    // !!connection ? logger(JSON.stringify(connection.connection_description_json)) : logger(' NO connection_description_json');
-    //logger('L14 connectionReturn :', connectionReturn);
-    
-
     const TEMPLATE = "tour-details";
 
     tour.difficulty = convertDifficulty(tour.difficulty); //switch from integer values (1,2,3) to text (Leicht, Mittel, Schwer)
@@ -42,12 +35,10 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
  
 
     if(!!connection && !!connection.totour_track_key){
-        // fileConnection = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
         fileConnection = await createSingleImageFromMap(tour.hashed_url, null, connection.totour_track_key, "toTour.html", "_without_tour", false);
     }
 
     if(!!connectionReturn && !!connectionReturn.fromtour_track_key){
-        // fileReturn = await createSingleImageFromMap(tour.provider+"_"+tour.hashed_url, connectionReturn.fromtour_track_key, null, "fromTour.html", "_without_tour", false);
         fileReturn = await createSingleImageFromMap(tour.hashed_url, connectionReturn.fromtour_track_key, null, "fromTour.html", "_without_tour", false);
     }
 
@@ -71,17 +62,7 @@ export const tourPdf = async ({tour, connection, connectionReturn, connectionRet
             let connectionReturnEntries = [];
             if(!!cr && !!cr.return_description_json){
                 let entries = jsonToStringArray(cr,'from');
-                // logger("L80 tourPdf connectionReturns :");
-                // Array.isArray(entries) &&  logger(" entries is Array....");
-                // logger(entries)
-                // logger("L82 tourPdf cr value = connection ? :");
-                // logger(typeof(cr)); // contains already the return_description_parsed inserted
-                // logger(JSON.stringify(cr));
-                // let jsonEntries = jsonToText(cr,'from');
-                // let jsonEntries = jsonToStringArray(cr,'from');
-                // logger("L87 tourPdf From json array -> jsonEntries :");
-                // Array.isArray(jsonEntries) &&  logger(" jsonEntries is Array....");
-                // logger(jsonEntries)
+
                 connectionReturnEntries = createReturnEntries(entries, cr);
                 allReturn.push({
                     connectionReturnEntries: connectionReturnEntries,
@@ -174,34 +155,6 @@ export const createReturnEntries = (entries, connection) => {
     // console.log("L158 toReturn: " + JSON.stringify(toReturn));
     return toReturn;
 }
-//example of variable "entries" 
-//     [
-//     "08:02 Wien Meidling",
-//     "  |  01:03 Std mit Zug REX9 nach",
-//     "09:05 Payerbach-Reichenau Bahnhof",
-//     "  =  00:09 Std Umstiegszeit",
-//     "09:14 Payerbach-Reichenau Bahnhof",
-//     "  |  00:22 Std mit Bus 341 nach",
-//     "09:36 Höllental Abzw. Weichtalhaus",
-//     "  >  00:02 Std Zustiegsdauer zum Touren-Ausgangspunkt",
-//     ""];
-// Below is sample output from : "L158 toReturn"
-// [
-// {"time":"08:14","text":" Baden Bahnhof","firstEntry":true},
-// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_train.svg","text":"  00:51 Std mit Zug REX9 nach","middleEntry":true,"detailEntry":true},
-// {"time":"09:05","text":" Payerbach-Reichenau Bahnhof","middleEntry":true},
-// {"time":"","image":"http://localhost:8080/public/icons/ic_shuffle_black.svg","text":"  00:09 Std Umstiegszeit","middleEntry":true,"detailEntry":true},
-// {"time":"09:14","text":" Payerbach-Reichenau Bahnhof","middleEntry":true},
-// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_bus.svg","text":"  00:22 Std mit Bus 341 nach","middleEntry":true,"detailEntry":true},
-// {"time":"09:36","text":" Höllental Abzw. Weichtalhaus","middleEntry":true},
-// {"time":"","image":"http://localhost:8080/public/icons/ic_transport_walk.svg","text":"  00:02 Std Zustiegsdauer zum Touren-Ausgangspunkt","middleEntry":true,"detailEntry":true},
-// {"time":"00:02","text":" Ankunft bei Tourstart","lastEntry":true}
-// ]
-
-// using the new JSON method described in : 
-// https://github.com/bahnzumberg/hermes/wiki/Connection-and-Return-Description ,
-// check the file /zuugle-api/test_fahrplan.json for a sample of data
-// from jsonb column 'connection_description_json' inside table 'fahrplan'
 
 
 export const createConnectionEntries = (entries, connection) => {
@@ -230,7 +183,6 @@ export const createConnectionEntries = (entries, connection) => {
         }
         toReturn.push(getArrivalEntry(`${newStart} Ankunft bei Tourstart`));
     }
-    // console.log("L197 toReturn: " + JSON.stringify(toReturn));
 
     return toReturn;
 }

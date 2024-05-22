@@ -164,10 +164,10 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
         url = LEAFLET_BASE + (!!addBaseGpx ? "?gpx=" + BASE_GPX_URL + last_two_characters(providerhashedUrl) + "/" + providerhashedUrl + ".gpx" : "");
 
         if(!!fromTourTrackKey){
-            url = url + (!!addBaseGpx ? "&" : "?") + "gpx1=" + BASE_GPX_TRACK_URL + "fromtour_track_" + fromTourTrackKey + ".gpx";
+            url = url + (!!addBaseGpx ? "&" : "?") + "gpx1=" + BASE_GPX_TRACK_URL + "fromtour/" + last_two_characters(fromTourTrackKey) + "/" + fromTourTrackKey + ".gpx";
         }
         if(!!toTourTrackKey){
-            url = url + (!!addBaseGpx ? "&" : "?") + "gpx2=" + BASE_GPX_TRACK_URL + "totour_track_" + toTourTrackKey + ".gpx";
+            url = url + (!!addBaseGpx ? "&" : "?") + "gpx2=" + BASE_GPX_TRACK_URL + "totour/" + last_two_characters(toTourTrackKey) + "/" + toTourTrackKey + ".gpx";
         }
 
         let addParam = {};

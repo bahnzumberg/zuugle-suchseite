@@ -774,7 +774,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
             if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
                 e = mapConnectionToFrontend(e, today.format());
-                e.gpx_file = `${getHost(domain)}/public/gpx-track/totour_track_${e.totour_track_key}.gpx`;
+                e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
             }
         })
@@ -1378,8 +1378,8 @@ const tourGpxWrapper = async (req, res) => {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
             let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`));
-            let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track/${last_two_characters(keyAbreise)}/${keyAbreise}.gpx`));
-            let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour_track/${last_two_characters(keyAnreise)}/${keyAnreise}.gpx`));
+            let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour/${last_two_characters(keyAbreise)}/${keyAbreise}.gpx`));
+            let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour/${last_two_characters(keyAnreise)}/${keyAnreise}.gpx`));
 
             const xml = await mergeGpxFilesToOne(filePathMain, filePathAnreise, filePathAbreise);
             if(!!xml){
@@ -1391,9 +1391,9 @@ const tourGpxWrapper = async (req, res) => {
         } else {
             let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`);
             if(type == "abreise" && !!key){
-                filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour_track/${last_two_characters(key)}/${key}.gpx`);
+                filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour/${last_two_characters(key)}/${key}.gpx`);
             } else if(type == "anreise" && !!key){
-                filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/totour_track/${last_two_characters(key)}/${key}.gpx`);
+                filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/totour/${last_two_characters(key)}/${key}.gpx`);
             }
             filePath = replaceFilePath(filePath);
 
@@ -1473,10 +1473,10 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
             const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
             if(!!toTour && !!toTour.totour_track_key){
-                entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour_track/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
+                entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
             }
             if(!!fromTour && !!fromTour.fromtour_track_key){
-                entry.fromtour_gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
+                entry.fromtour_gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
             }
         }
 
