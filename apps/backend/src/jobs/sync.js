@@ -230,8 +230,6 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
         }
 
         if(!!key){
-            // deleteFileModulo30(fileName, filePath);
-
             let trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
                 if(process.env.NODE_ENV == "production"){
@@ -243,11 +241,17 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
                     else {
                         // On UAT, DEV we do not need the table tracks, so we fetch the data directly from the MySQL database.
                         trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                        
+                        // As we are fetching tracks just now, we have to set lat and lon of startingpoint in table tours
+                        update_tours_from_tracks();
                     }                   
                 }
                 else {
                     // On DEV
                     trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    
+                    // As we are fetching tracks just now, we have to set lat and lon of startingpoint in table tours
+                    update_tours_from_tracks();
                 }
 
 
@@ -256,8 +260,6 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
                 }
             }
         }
-
-        update_tours_from_tracks();
         resolve();
     })
 }
