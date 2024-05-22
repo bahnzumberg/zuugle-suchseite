@@ -448,6 +448,13 @@ const listWrapper = async (req, res) => {
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
     if(searchIncluded){
+        
+        // logger("===============tours.js L450========================")
+        // logger(sql_select + outer_where + sql_order + sql_limit)
+        // logger("====================================================")
+        // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
+        // logger("====================================================")
+
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
@@ -456,7 +463,7 @@ const listWrapper = async (req, res) => {
             if (result && result.rows) {
                 result = result.rows;
               } else {
-                console.log('Result or result.rows is null or undefined.');
+                logger('L462 Result or result.rows is null or undefined.');
             }
             
             // markers-related / searchIncluded
@@ -473,25 +480,26 @@ const listWrapper = async (req, res) => {
                 markers_array = markers_result.rows;   // This is to be passed to the response below
             } else {
                 // Handle the case, if resultset is empty!
-                // console.log('markers_result.rows is null or undefined.');
             }
-
-          } catch (error) {
-            console.log("error retrieving results or markers_result:", error);
+            
+        } catch (error) {
+            logger("tours.js L 482 error retrieving results or markers_result:" + error);
           }
 
     }else{
+        // logger('L486 : inside "No search term" included')
+
         // markers-related
         // if(map === true) {
             markers_result = await knex.raw(`${map_query_main.toString()}`)
             markers_array = !!markers_result && markers_result.rows            
         // }
         
-        logger("L488 query")
-        logger( query.toString())
-        // logger( query.toSQL().toNative())
         result = await query;
         count = await countQuery.first();
+
+        // logger("tours.js L 496 : query 'No search term' : " + query);
+        // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
 
@@ -1337,7 +1345,7 @@ const tourPdfWrapper = async (req, res) => {
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
-            console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
+            // console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
             return;
         }

@@ -10,6 +10,34 @@ const path = require('path');
 import pLimit from 'p-limit';
 import logger from "../utils/logger";
 
+async function update_tours_from_tracks() {
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    await knex.raw(`UPDATE tour AS t
+    SET connection_arrival_stop_lat = a.lat,
+    connection_arrival_stop_lon = a.lon
+    FROM (SELECT
+        f.id,
+        f.lon,
+        f.lat,
+        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.count_num DESC ) AS row_number
+        FROM
+            (SELECT 
+            tour.id,
+            t.track_point_lon AS lon,
+            t.track_point_lat AS lat,
+            COUNT(*) AS count_num
+            FROM tour
+            INNER JOIN fahrplan AS f
+            ON f.hashed_url=tour.hashed_url
+            INNER JOIN tracks AS t
+            ON f.totour_track_key=t.track_key
+            AND t.track_point_sequence=1
+            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
+        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
+    WHERE a.row_number=1
+    AND a.id=t.id`);
+}
+
 export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
@@ -191,36 +219,8 @@ export async function generateTestdata(){
 }
 
 
-async function update_tours_from_tracks() {
-    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    await knex.raw(`UPDATE tour AS t
-    SET connection_arrival_stop_lat = a.lat,
-    connection_arrival_stop_lon = a.lon
-    FROM (SELECT
-        f.id,
-        f.lon,
-        f.lat,
-        ROW_NUMBER () OVER ( PARTITION BY f.id ORDER BY f.count_num DESC ) AS row_number
-        FROM
-            (SELECT 
-            tour.id,
-            t.track_point_lon AS lon,
-            t.track_point_lat AS lat,
-            COUNT(*) AS count_num
-            FROM tour
-            INNER JOIN fahrplan AS f
-            ON f.hashed_url=tour.hashed_url
-            INNER JOIN tracks AS t
-            ON f.totour_track_key=t.track_key
-            AND t.track_point_sequence=1
-            GROUP BY tour.id, t.track_point_lon, t.track_point_lat) AS f
-        GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
-    WHERE a.row_number=1
-    AND a.id=t.id`);
-}
 
-
-async function _syncConnectionGPX(key, fileName, title, mod=null){
+async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
@@ -233,40 +233,24 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
             // deleteFileModulo30(fileName, filePath);
 
             let trackPoints = null;
-            if(mod == "prod"){
-                if (!!!fs.existsSync(filePath)) {
-                    // On production the table tracks will be already updated in the PostgreSQL database.
-                    trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-                    
-                    if(!!trackPoints && trackPoints.length > 0){
-                        await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+            if (!!!fs.existsSync(filePath)) {
+                if(process.env.NODE_ENV == "production"){
+                    // We enter this section on prod, uat and dev
+                    if (count_tracks_num > 100000) {
+                        // On production the table tracks will be already updated in the PostgreSQL database.
+                        trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                     }
+                    else {
+                        // On UAT, DEV we do not need the table tracks, so we fetch the data directly from the MySQL database.
+                        trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                    }                   
                 }
-            }
-            else {
-                // On UAT, Dev or Local Env we do not need the table tracks, so we fetch the data directly from the MySQL database.
-                trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-              
+                else {
+                    // On DEV
+                    trackPoints = await knexTourenDb('vw_tracks_to_search').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
+                }
 
 
-                // KNEX VERSION
-                trackPoints.forEach((row) => {
-                    if (row.track_point_sequence === 1) {
-                      knex('tracks')
-                        .insert({
-                          track_key: row.track_key,
-                          track_point_sequence: row.track_point_sequence,
-                          track_point_lon: row.track_point_lon,
-                          track_point_lat: row.track_point_lat,
-                          track_point_elevation: row.track_point_elevation,
-                        }).onConflict(['track_key', 'track_point_sequence']) // conflicting columns
-                        .ignore()  // prevent insertion of duplicate rows
-                        .catch((error) => {
-                          console.error("Error inserting data:", error);
-                        });
-                    }
-                  });
-                  
                 if(!!trackPoints && trackPoints.length > 0){
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
@@ -281,13 +265,17 @@ async function _syncConnectionGPX(key, fileName, title, mod=null){
 export async function syncConnectionGPX(mod=null){
     const _limit = pLimit(20);
 
+    let count_tracks = await knex.raw(`SELECT COUNT(*) AS row_count FROM tracks`);
+    let count_tracks_num = parseInt(count_tracks.rows[0].row_count, 10);
+
+
     if(mod === 'dev'){
         knex.raw('TRUNCATE TABLE tracks').catch(err =>console.error("Error truncating table tracks:", err))
     }
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
-            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour', mod))
+            return _limit(() => _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour_track_' + entry.totour_track_key + '.gpx', 'Station zur Tour', count_tracks_num))
         });
         await Promise.all(promises);
     }
@@ -295,7 +283,7 @@ export async function syncConnectionGPX(mod=null){
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
-            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station', mod))
+            return _limit(() =>  _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour_track_' + entry.fromtour_track_key + '.gpx', 'Tour zur Station', count_tracks_num))
         });
         await Promise.all(promises);
     }

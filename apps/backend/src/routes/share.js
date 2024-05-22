@@ -62,16 +62,16 @@ const newShareWrapper = async (req, res) => {
 //   "usedCityOfCookie" //Indicates whether the original city of the generated link or the current user's city (based on the cookie) is returned
 // }
 const getCorrespondingLinkWrapper = async (req, res) => {
-    logger("==== 1 ========Request===================");
-    logger(JSON.stringify(req.query));  // {}
+    // logger("==== 1 ========Request===================");
+    // logger(JSON.stringify(req.query));  // {}
     //Share id from query param
     const shareId = req.params.shareId;
-    logger("======== 2 =======shareId===================");
-    logger(JSON.stringify(shareId)); // "8ad04f48-0f50-4462-9ecd-f937f19265bc"
+    // logger("======== 2 =======shareId===================");
+    // logger(JSON.stringify(shareId)); // "8ad04f48-0f50-4462-9ecd-f937f19265bc"
     //City of Cookie, when there is none it will be set to null
     let citySlugOfCookie = (req.query && req.query.city) ? req.query.city : null;
-    logger("============ 3 ========= citySlugOfCookie ===================");
-    logger(JSON.stringify(citySlugOfCookie)); // null
+    // logger("============ 3 ========= citySlugOfCookie ===================");
+    // logger(JSON.stringify(citySlugOfCookie)); // null
     //Variable that changes depending on whether the city of the cookie has been used or the one of the link creator
     let usedCityOfCookie = false;
 
@@ -82,8 +82,8 @@ const getCorrespondingLinkWrapper = async (req, res) => {
             .select('calendar_date', 'city_slug', 'hashed_url', 'provider')
             .where('link', shareId);
 
-            logger("=============== 4 =====shareLinkData[0]===================");
-            logger(JSON.stringify(shareLinkData[0]));
+            // logger("=============== 4 =====shareLinkData[0]===================");
+            // logger(JSON.stringify(shareLinkData[0]));
             //{"calendar_date":"2024-01-16T23:00:00.000Z","city_slug":"amstetten","hashed_url":"620","provider":"bahnzumberg"}
 
         //Failure when the data of the column of the table isn't complete
@@ -99,8 +99,8 @@ const getCorrespondingLinkWrapper = async (req, res) => {
             .whereRaw('LOWER(provider) = LOWER(?)', shareLinkData[0].provider)
             .whereRaw('LOWER(hashed_url) = LOWER(?)', shareLinkData[0].hashed_url)
             .first();
-        logger("============ 5 ========= id.id ===================");
-        logger(JSON.stringify(id.id)); // 620
+        // logger("============ 5 ========= id.id ===================");
+        // logger(JSON.stringify(id.id)); // 620
         //Formatting of date for select statement
         const date = new Date(shareLinkData[0].calendar_date);
 
@@ -114,14 +114,14 @@ const getCorrespondingLinkWrapper = async (req, res) => {
                 .whereRaw('LOWER(city_slug) = LOWER(?)', citySlugOfCookie)
                 .whereRaw('DATE(calendar_date) = ?', date);
             
-                logger("================  6 ===== reachableTourConnections[0]===================");
-                logger(JSON.stringify(reachableTourConnections[0]));
+                // logger("================  6 ===== reachableTourConnections[0]===================");
+                // logger(JSON.stringify(reachableTourConnections[0]));
             //Use the city of the link creator when there isn't a connection available
             if (reachableTourConnections[0].count < 1) {
                 citySlugOfCookie = shareLinkData[0].city_slug;
-                logger("== 7 =========  citySlugOfCookie (count < 1) ===================");
-                logger(JSON.stringify(citySlugOfCookie));
-                logger("==============   E N D ===================");
+                // logger("== 7 =========  citySlugOfCookie (count < 1) ===================");
+                // logger(JSON.stringify(citySlugOfCookie));
+                // logger("==============   E N D ===================");
             } else {
                 usedCityOfCookie = true;
             }
