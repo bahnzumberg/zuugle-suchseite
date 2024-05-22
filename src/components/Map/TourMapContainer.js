@@ -16,6 +16,7 @@ import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
 // import {popupContent, popupHead} from "./popupStyles";
+import {formatMapClusterNumber} from "../../utils/map_utils"
 
 function TourMapContainer({
     tours,
@@ -265,12 +266,21 @@ function TourMapContainer({
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [markers,StartIcon]);
 
-    
+        
     const createClusterCustomIcon = function (cluster) {
+        const clusterChildCount = cluster.getChildCount();
+        const formattedCount = formatMapClusterNumber(clusterChildCount);
+
+        // Calculate icon size based on formatted count length
+        const iconSize = L.point(
+        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+        true // Anchor point flag :  center the icon on the cluster center position
+    );
         return L.divIcon({
-            html: `<span>${cluster.getChildCount()}</span>`,
+            html: `<span style='display: flex; justify-content: center; align-items: center; height: 100%;'>${formattedCount}</span>`,
             className: 'custom-marker-cluster',
-            iconSize: L.point(33, 33, true),
+            iconSize: iconSize,
         })
     }
 

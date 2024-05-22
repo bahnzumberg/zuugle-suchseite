@@ -1,5 +1,16 @@
 
+export const formatMapClusterNumber = (number) => {
+  // Absolute numbers
+  number = Math.abs(number);
 
+  if (number < 1000) {
+      return number.toString();
+    } else {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+};
+
+//this fcn is unused, we changed the method for changing the color of filter icon 
 export const checkOnlyMapParams = (filterParam = false)=>{
   // filterParam should be searchParams.get('filter')
   // should return true if : 
