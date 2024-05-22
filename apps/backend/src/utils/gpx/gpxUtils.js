@@ -79,11 +79,29 @@ export const createImagesFromMap = async (ids) => {
                     let filePath = undefined;
                     let filePathSmall = undefined;
                     if(process.env.NODE_ENV == "production"){
-                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx.jpg");
-                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx_small.jpg");
+                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
+                        if (!fs.existsSync(filePath)){ 
+                            fs.mkdirSync(filePath);
+                        }
+                        filePath = path.join(filePath, ch+"_gpx.jpg");
+
+                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
+                        if (!fs.existsSync(filePathSmall)){ 
+                            fs.mkdirSync(filePathSmall);
+                        }
+                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
                     } else {
-                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx.jpg");
-                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/"+ch+"_gpx_small.jpg");
+                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
+                        if (!fs.existsSync(filePath)){ 
+                            fs.mkdirSync(filePath);
+                        }
+                        filePath = path.join(filePath, ch+"_gpx.jpg");
+
+                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
+                        if (!fs.existsSync(filePathSmall)){ 
+                            fs.mkdirSync(filePathSmall);
+                        }
+                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
                     }
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
@@ -97,7 +115,7 @@ export const createImagesFromMap = async (ids) => {
                             }).jpeg({quality: 30}).toFile(filePathSmall);
                         } catch(e){
                             if(process.env.NODE_ENV !== "production"){
-                                console.error("Line 96: gpxUtils error :",e);
+                                console.error("gpxUtils error :",e);
                             }
                         }
                     }
