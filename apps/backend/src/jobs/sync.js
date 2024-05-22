@@ -257,7 +257,7 @@ async function _syncConnectionGPX(key, fileName, title, count_tracks_num){
             }
         }
 
-        await update_tours_from_tracks();
+        update_tours_from_tracks();
         resolve();
     })
 }
