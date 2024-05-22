@@ -15,8 +15,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
-// import {popupContent, popupHead} from "./popupStyles";
-import {formatMapClusterNumber} from "../../utils/map_utils"
+import {popupContent, popupHead} from "./popupStyles";
+import {formatMapClusterNumber} from "../../utils/map_utils";
+import Swatter from './Swatter';
+
 
 function TourMapContainer({
     tours,
@@ -256,6 +258,34 @@ function TourMapContainer({
                                     },
                                 }}
                             >
+                                {/* <Popup> */}
+                                    {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
+                                    {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
+                                {/* </Popup> */}
+
+                                <Popup className="request-popup">
+                                    <div 
+                                        style={popupContent}
+                                        onClick={e => handlePopupClick(e,mark.id)}
+                                    >
+                                        <Swatter 
+                                            style={{
+                                                width: "200px",
+                                                height: "100px",
+                                                marginBottom: "10px", // Add some margin for spacing
+                                            }}
+                                        />
+                                        <div className="m-2" style={popupHead}>
+                                            Tour Details
+                                        </div>
+                                        {/* <GoIcon
+                                            style={{
+                                                transform: "scale(1.55)",
+                                                strokeWidth: 0,
+                                            }}
+                                        /> */}
+                                    </div>
+                                </Popup>
                             </Marker>
                         );
                     }

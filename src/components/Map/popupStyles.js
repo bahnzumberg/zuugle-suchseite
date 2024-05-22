@@ -1,6 +1,7 @@
 const popupContent = {
     textAlign: "center",
-    height: "50px",
+    height: "250px",
+    width: "300px",
     marginTop: "15px",
     curser:"pointer"
   };
