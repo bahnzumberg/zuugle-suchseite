@@ -267,7 +267,7 @@ function TourMapContainer({
                                 <Popup className="request-popup">
                                     <div 
                                         style={popupContent}
-                                        onClick={e => handlePopupClick(e,mark.id)}
+                                        // onClick={e => handlePopupClick(e,mark.id)}
                                     >
                                         <MountinImage 
                                             imageUrl='src/components/Map/mountain-landscape-2031539_640.jpg'
