@@ -17,7 +17,8 @@ import {consoleLog} from '../../utils/globals';
 import { loadTour } from '../../actions/tourActions';
 import {popupContent, popupHead} from "./popupStyles";
 import {formatMapClusterNumber} from "../../utils/map_utils";
-import Swatter from './Swatter';
+// import Swatter from './Swatter';
+import MountinImage from './MountinImage.jsx';
 
 
 function TourMapContainer({
@@ -268,7 +269,8 @@ function TourMapContainer({
                                         style={popupContent}
                                         onClick={e => handlePopupClick(e,mark.id)}
                                     >
-                                        <Swatter 
+                                        <MountinImage 
+                                            imageUrl='src/components/Map/mountain-landscape-2031539_640.jpg'
                                             style={{
                                                 width: "200px",
                                                 height: "100px",
