@@ -117,9 +117,6 @@ function TourMapContainer({
     //     }
     // }, []);
 
-    useEffect(()=>{
-        console.log("L306 : markers.length :", markers.length)
-    });
         
     useEffect(() => {
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
