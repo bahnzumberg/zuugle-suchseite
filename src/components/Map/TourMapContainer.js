@@ -267,7 +267,8 @@ function TourMapContainer({
                                         // onClick={e => handlePopupClick(e,mark.id)}
                                     >
                                         <MountinImage 
-                                            imageUrl='../src/components/Map/mountain-landscape-2031539_640.jpg'
+                                            imageUrl='https://www.bahn-zum-berg.at/wp-content/uploads/2021/01/20201231_Michael_werdenfels_18-720x480.jpg'
+                                            // imageUrl='../src/components/Map/mountain-landscape-2031539_640.jpg'
                                             style={{
                                                 width: "200px",
                                                 height: "100px",
