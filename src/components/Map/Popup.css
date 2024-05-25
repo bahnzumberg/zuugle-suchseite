@@ -1,30 +1,32 @@
 /* Popup.css */
 .request-popup .leaflet-popup-content-wrapper {
   border-radius: 5px;
-  border-color: rgba(89, 255, 0, 0.233);
+  border: 1px solid rgba(89, 255, 0, 0.233);
 }
 
-.request-popup {
+.request-popup .leaflet-popup-content {
   width: 100%; /* Use full width of the parent container */
   max-width: 300px; /* Set a maximum width for larger screens */
+  box-sizing: border-box;
 }
 
 .request-popup img {
   width: 100%; /* Ensure the image takes the full width of its container */
   height: auto; /* Maintain aspect ratio */
-  margin-bottom: 10px; /* Add some margin for spacing */
+  object-fit: cover; /* Crop the image to cover the entire container */
+  border-radius: 5px; /* Apply border radius */
 }
 
 /* Media query for screens less than 900px */
 @media (max-width: 900px) {
-  .request-popup {
+  .request-popup .leaflet-popup-content {
       max-width: 210px; /* 30% smaller than 300px */
   }
 }
 
 /* Media query for screens less than 600px */
 @media (max-width: 600px) {
-  .request-popup {
+  .request-popup .leaflet-popup-content {
       max-width: 150px; /* 50% smaller than 300px */
   }
 }
