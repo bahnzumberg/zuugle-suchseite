@@ -475,7 +475,7 @@ useEffect(() => {
             </Box>
           )}
         </Box>
-        {!showMap && totalToursHeader()}
+        {!showMap && totalTours && totalToursHeader()}
       </Box>
       {/* {!!tours && tours.length > 0 && ( */}
       {!!totalTours && totalTours > 0 ? (
@@ -507,8 +507,8 @@ useEffect(() => {
       ) 
       :
         (<>
-          {!!showMap && memoTourMapContainer}
-          {!!showMap && totalToursHeader()}
+          {!!showMap && totalTours && memoTourMapContainer}
+          {!!showMap && totalTours && totalToursHeader()}
         </>)
       }
     </div>
