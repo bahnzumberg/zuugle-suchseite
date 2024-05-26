@@ -113,9 +113,9 @@ function TourMapContainer({
     //     }
     // }, []);
 
-    useEffect(()=>{
-        console.log("L306 : markers.length :", markers.length)
-    });
+    // useEffect(()=>{
+    //     console.log("L306 : markers.length :", markers.length)
+    // });
         
     useEffect(() => {
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
@@ -237,7 +237,7 @@ function TourMapContainer({
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
                 return markers.map((mark) => {
                     // consoleLog("L123 : mark", mark.id)
-                    if (!!mark) {
+                    if (!!mark && !!mark.lat && !!mark.lon && mark.lat !== null && mark.lon !== null) {
                         return (
                             <Marker
                                 key={mark.id}
