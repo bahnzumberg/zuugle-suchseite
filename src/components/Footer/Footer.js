@@ -45,5 +45,19 @@ export default function Footer({}){
                 </Box>
             </Grid>
         </Grid>
+        
+        <Grid container spacing={2}>
+            <Grid item xs={12} md={6} justifySelf="center" alignItems="center" style={{ alignItems: 'flex-end' }}>
+                <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
+                <img src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.png" height="122px" width="206px" />
+                </a>
+            </Grid>
+            <Grid item xs={12} md={6} justifySelf="center" alignItems="center" style={{ alignItems: 'flex-end' }}>
+                <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
+                <img src="/app_static/img/Alpenkonvention_logo_gruen.png" height="75px" width="317px" />
+                </a>
+            </Grid>
+        </Grid>
+
     </Box>;
 }
