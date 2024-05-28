@@ -26,6 +26,7 @@ import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { countFilterActive } from "../../utils/globals"
+import { CircularProgress } from "@mui/material";
 
 
 export function Search({
@@ -258,7 +259,7 @@ export function Search({
       !!filterValues && setFilterValues(filterValues)
       localStorage.setItem("filterValues", JSON.stringify(filterValues));
       localStorage.setItem("filterCount", filterCount);
-      //window.location.reload(); 
+      window.location.reload(); 
     } else {
       setActiveFilter(false);
       searchParams.delete("filter");
@@ -397,7 +398,7 @@ export function Search({
     
   const handleGoButton = () =>  {
     search();
-    //window.location.reload();
+    window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);
   }
