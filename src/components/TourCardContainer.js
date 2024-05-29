@@ -29,9 +29,9 @@ export default function TourCardContainer({
   
   let filterRef = useRef(localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {});
 
-  useEffect(() => {
-    _loadTours();
-  }, [!!localStorage.getItem("filterValues")])
+  // useEffect(() => {
+  //   _loadTours();
+  // }, [!!localStorage.getItem("filterValues")])
 
   useEffect(() => {
     if(!!hasMore && !!filterValues){
