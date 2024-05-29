@@ -56,7 +56,6 @@
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1",
     "shortid": "^2.2.16",
-    "styled-components": "^6.1.11",
     "uuid": "^9.0.0",
     "web-vitals": "^3.3.0"
   },

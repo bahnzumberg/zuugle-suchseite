@@ -15,11 +15,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
-import { PopupContent, PopupHead,PopupText, PopupImage } from "./PopupStyles.js";
+import {popupContent, popupHead} from "./popupStyles";
 import {formatMapClusterNumber} from "../../utils/map_utils";
+// import Swatter from './Swatter';
 import MountinImage from './MountinImage.jsx';
-// import "./Popup.css";
-
 
 
 function TourMapContainer({
@@ -263,14 +262,29 @@ function TourMapContainer({
                                 {/* </Popup> */}
 
                                 <Popup className="request-popup">
-                                    <PopupContent>
-                                        <PopupImage
-                                        src="https://www.bahn-zum-berg.at/wp-content/uploads/2021/01/20201231_Michael_werdenfels_18-720x480.jpg"
-                                        alt="Mountain Image"
+                                    <div 
+                                        style={popupContent}
+                                        // onClick={e => handlePopupClick(e,mark.id)}
+                                    >
+                                        <MountinImage 
+                                            imageUrl='https://www.bahn-zum-berg.at/wp-content/uploads/2021/01/20201231_Michael_werdenfels_18-720x480.jpg'
+                                            // imageUrl='../src/components/Map/mountain-landscape-2031539_640.jpg'
+                                            style={{
+                                                width: "200px",
+                                                height: "100px",
+                                                marginBottom: "10px", // Add some margin for spacing
+                                            }}
                                         />
-                                        <PopupHead>Tour Details</PopupHead>
-                                        <PopupText>Some additional details about the tour.</PopupText>
-                                    </PopupContent>
+                                        <div className="m-2" style={popupHead}>
+                                            Tour Details
+                                        </div>
+                                        {/* <GoIcon
+                                            style={{
+                                                transform: "scale(1.55)",
+                                                strokeWidth: 0,
+                                            }}
+                                        /> */}
+                                    </div>
                                 </Popup>
                             </Marker>
                         );
