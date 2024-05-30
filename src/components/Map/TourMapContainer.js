@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState, useMemo} from "react";
+import {useEffect, useRef, useState, useMemo, lazy, Suspense} from "react";
 import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, ZoomControl, Popup} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
@@ -15,11 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour } from '../../actions/tourActions';
-import {popupContent, popupHead} from "./popupStyles";
 import {formatMapClusterNumber} from "../../utils/map_utils";
 // import Swatter from './Swatter';
-import MountinImage from './MountinImage.jsx';
-
+const TourPopupContent = lazy(()=>import('./TourPopupContent.jsx'));
 
 function TourMapContainer({
     tours,
@@ -261,31 +259,11 @@ function TourMapContainer({
                                     {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
                                 {/* </Popup> */}
 
-                                <Popup className="request-popup">
-                                    <div 
-                                        style={popupContent}
-                                        // onClick={e => handlePopupClick(e,mark.id)}
-                                    >
-                                        <MountinImage 
-                                            imageUrl='https://www.bahn-zum-berg.at/wp-content/uploads/2021/01/20201231_Michael_werdenfels_18-720x480.jpg'
-                                            // imageUrl='../src/components/Map/mountain-landscape-2031539_640.jpg'
-                                            style={{
-                                                width: "200px",
-                                                height: "100px",
-                                                marginBottom: "10px", // Add some margin for spacing
-                                            }}
-                                        />
-                                        <div className="m-2" style={popupHead}>
-                                            Tour Details
-                                        </div>
-                                        {/* <GoIcon
-                                            style={{
-                                                transform: "scale(1.55)",
-                                                strokeWidth: 0,
-                                            }}
-                                        /> */}
-                                    </div>
-                                </Popup>
+                                
+                                    <Suspense fallback={<div>Loading...</div>}>
+                                        <TourPopupContent />
+                                    </Suspense>
+                                
                             </Marker>
                         );
                     }
