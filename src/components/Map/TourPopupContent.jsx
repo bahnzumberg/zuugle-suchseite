@@ -1,7 +1,6 @@
 import React from "react";
 import {Popup} from 'react-leaflet';
-import { popupContent, popupHead } from "./popupStyles.js";
-// import { popupContent, popupHead, popupText, popupImage } from "./popupStyles";
+import { popupContent, popupHead, popupImage } from "./popupStyles.js";
 import MountinImage from './MountinImage.jsx';
 
 const TourPopupContent = () => (
@@ -12,11 +11,12 @@ const TourPopupContent = () => (
     >
       <MountinImage
         imageUrl="src/components/Map/mountain-landscape-2031539_640.jpg"
-        style={{
-          width: "200px",
-          height: "100px",
-          marginBottom: "10px", // Add some margin for spacing
-        }}
+        // style={{
+        //   width: "200px",
+        //   height: "100px",
+        //   marginBottom: "10px", // Add some margin for spacing
+        // }}
+        className={popupImage}
       />
       <div className={`m-2 ${popupHead}`}>
         Tour Details
