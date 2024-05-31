@@ -410,7 +410,16 @@ const listWrapper = async (req, res) => {
     //markers-related 
     // map_query_main now contain the query when NO "searchIncluded" AND selects only 3 colmns
     // and NO ORDER BY OR LIMIT OR OFFSET
-    let map_query_main = query.clone().clearSelect().select('id', 'connection_arrival_stop_lon', 'connection_arrival_stop_lat');
+    let map_query_main = query
+      .clone()
+      .clearSelect()
+      .select(
+        "id",
+        "connection_arrival_stop_lon",
+        "connection_arrival_stop_lat"
+      )
+      .whereNotNull("connection_arrival_stop_lon")
+      .whereNotNull("connection_arrival_stop_lat");
       
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
