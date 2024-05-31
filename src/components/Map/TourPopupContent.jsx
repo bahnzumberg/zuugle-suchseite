@@ -10,7 +10,7 @@ const TourPopupContent = () => (
       // onClick={e => handlePopupClick(e,mark.id)}
     >
       <MountinImage
-        imageUrl="src/components/Map/mountain-landscape-2031539_640.jpg"
+        imageUrl="public/img/mountain-landscape-2031539_640.jpg"
         // style={{
         //   width: "200px",
         //   height: "100px",

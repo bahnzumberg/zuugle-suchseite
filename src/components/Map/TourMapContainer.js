@@ -155,16 +155,7 @@ function TourMapContainer({
         }
     },[searchParams])
 
-    // const handleMarkerClick = (tourId) => {
-    //     console.log('Previous popupOpen state:', popupOpen);
-    //     setPopupOpen(prevState => ({
-    //         ...prevState,
-    //         [tourId]: !prevState[tourId] // Toggle the state of the clicked marker with popup
-    //     }));
-    //     console.log('New popupOpen state:', popupOpen);
-
-    // }
-
+   
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
         localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || default_MapPositionLatNE);
@@ -248,21 +239,15 @@ function TourMapContainer({
                                     click: () => {
                                         setTourID(mark.id);
                                         //console.log("mark.id -> ", mark.id)
-                                        // onSelectTour(mark.id);
-                                        // handleMarkerClick(tour.id);
-                                        // setPopupOpen(!popupOpen)
                                     },
                                 }}
                             >
-                                {/* <Popup> */}
                                     {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
                                     {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                {/* </Popup> */}
-
                                 
-                                    {/* <Suspense fallback={<div>Loading...</div>}>
+                                    <Suspense fallback={<div>Loading...</div>}>
                                         <TourPopupContent />
-                                    </Suspense> */}
+                                    </Suspense>
                                 
                             </Marker>
                         );
@@ -299,7 +284,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
-                console.log("L168 position changed -> value :", position)
+                // console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
             }
