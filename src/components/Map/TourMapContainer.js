@@ -260,9 +260,9 @@ function TourMapContainer({
                                 {/* </Popup> */}
 
                                 
-                                    <Suspense fallback={<div>Loading...</div>}>
+                                    {/* <Suspense fallback={<div>Loading...</div>}>
                                         <TourPopupContent />
-                                    </Suspense>
+                                    </Suspense> */}
                                 
                             </Marker>
                         );
