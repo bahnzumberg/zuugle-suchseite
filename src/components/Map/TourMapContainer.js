@@ -245,7 +245,7 @@ function TourMapContainer({
                                     {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
                                     {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
                                 
-                                    <Suspense fallback={<div>Loading...</div>}>
+                                    <Suspense >
                                         <TourPopupContent />
                                     </Suspense>
                                 
@@ -377,7 +377,7 @@ function TourMapContainer({
                 style={{height: "100%", width: "100%"}} //Size of the map
                 zoomControl={false}
                 bounds={() => {
-                    updateBounds(); 
+                    updateBounds();  // TODO : issue https://github.com/bahnzumberg/zuugle-suchseite/issues/342 here check which bounds params are being used from the localStorage
                 }}
             >
             
