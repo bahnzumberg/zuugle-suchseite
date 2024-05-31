@@ -26,6 +26,7 @@ import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { countFilterActive } from "../../utils/globals"
+import { CircularProgress } from "@mui/material";
 
 
 export function Search({
@@ -341,7 +342,7 @@ export function Search({
           // console.log("Search L333 searchParams :", JSON.stringify(searchParams));
           navigate(`/suche?${searchParams.toString()}`);
         }
-        window.location.reload();
+        //window.location.reload();
         setScrollToTop(true);
       });
     }

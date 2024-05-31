@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 
 
-const MapBtn = ({ children, onClick, showMap}) => {
+const MapBtn = ({ children, onClick, showMap, btnSource}) => {
 
   const [t, i18n] = useTranslation();
 
@@ -24,6 +24,8 @@ const MapBtn = ({ children, onClick, showMap}) => {
     setMapBtnText(showMap ? t("main_only.kartenansicht_entfernen") : t("start_pages.zur_kartenansicht"));
   }, [showMap, t]);
   
+  let marginBottom900 =
+    !!btnSource && btnSource === "main" ? "calc(20px - 2%)" : "calc(70px - 3%)";
 
   return (
     <Button
@@ -43,7 +45,7 @@ const MapBtn = ({ children, onClick, showMap}) => {
         flexDirection: "row", // Text and icon in a row
         margin: "2 auto",
         '@media (min-width: 900px)': {
-          bottom: "calc(20px - 2%)", // Move down by 5% on screens wider than 900px
+          bottom: marginBottom900, // Move down on screens wider than 900px
         },
       }}
       onClick={onClick}

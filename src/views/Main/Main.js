@@ -473,7 +473,7 @@ export function Main({
               {!!tours && tours.length > 0 && (
                 <>
                   {renderCardContainer()}
-                  <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+                  <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
                 </>
               )}
             </>
@@ -484,7 +484,7 @@ export function Main({
             tours.length > 0 && (
               <>
                 {renderCardContainer()}
-                <MapBtn showMap={showMap} onClick={toggleMapHandler} />
+                <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
               </>
             )
           )
