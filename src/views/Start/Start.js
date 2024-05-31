@@ -149,7 +149,7 @@ function Start({
 
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id ) {
-      // if(!!city){
+      if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -159,6 +159,7 @@ function Start({
               window.location.reload();
             }
           })
+      }
     }else{
       window.location.reload()
     }
