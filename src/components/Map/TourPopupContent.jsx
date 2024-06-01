@@ -13,7 +13,7 @@ const TourPopupContent = (handlePopupClick, tourId) => (
       // onClick={e => handlePopupClick(e,tourId)}
     >
       <MountinImage
-        imageUrl="url(/app_static/img/mountain-landscape-2031539_640.jpg)"
+        imageUrl="app_static/img/mountain-landscape-2031539_640.jpg"
         // style={{
         //   width: "200px",
         //   height: "100px",
