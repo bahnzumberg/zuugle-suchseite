@@ -95,7 +95,7 @@ function TourMapContainer({
         if (!mapInitialized) {
             setMapInitialized(true);
         }
-    }, [mapInitialized, setMapInitialized]);
+    }, [mapInitialized, setMapInitialized]); //TODO: remove setMapInitialized after testing its absence
 
     // useEffect(() => {
     //     // Set default bounds to Austria's geographic bounds
@@ -203,7 +203,8 @@ function TourMapContainer({
 
         if (!!popupId && !!city ) {
             try {
-                loadTour(popupId, city); // Wait for the loadTour action to complete
+                const selected = await loadTour(popupId, city); // Wait for the loadTour action to complete
+                console.log("L207 : selected", JSON.parse(selected))
                 localStorage.setItem("tourId", popupId);
                 // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
                 // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
@@ -246,7 +247,10 @@ function TourMapContainer({
                                     {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
                                 
                                     <Suspense >
-                                        <TourPopupContent />
+                                        <TourPopupContent 
+                                            handlePopupClick = {handlePopupClick}
+                                            tourId = {mark.id}
+                                        />
                                     </Suspense>
                                 
                             </Marker>
