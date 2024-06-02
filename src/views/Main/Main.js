@@ -262,9 +262,33 @@ useEffect(() => {
     }
   };
 
+  //with id only // as code enhancement,create one function for both map and card containers
+  const onSelectMapTour = (markerId)=>{
+    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+    const id = markerId.id
+    if ( !!id ) {
+      console.log("L269 : Main/id.id :", id)
+      console.log("L270 : Main/city :", city)
+        loadTour(id, city)
+          .then((tourExtracted) => {
+            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+              console.log("L272 called from TourMapContent :")
+              console.log(tourExtracted.data.tour)
+              localStorage.setItem("tourId", id);
+              // window.open("/tour?" + searchParams.toString());
+            }else{
+              goToStartPage();
+            }
+          })
+    }else{
+      goToStartPage();
+    }
+
+  }
+
  //Map-related : a callback function that selects a tour with a specific id
  const onSelectTourById = useCallback((id) => {
-  onSelectTour({ id: id });
+  onSelectMapTour({ id: id });
 }, []);
 
   const memoTourMapContainer = useMemo(() => {
@@ -272,15 +296,18 @@ useEffect(() => {
 
       <TourMapContainer
         tours={tours}
-        onSelectTour={onSelectTourById}
         setTourID={setTourID}
         filter={filter}
         totalTours={totalTours}
         setMapInitialized={setMapInitialized}
         mapInitialized={mapInitialized}
+        loadTour={loadTour}
+        loadTourConnections={loadTourConnections}
+        onSelectTour={onSelectTourById}
       />
       
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter,tours, totalTours]);
 
   

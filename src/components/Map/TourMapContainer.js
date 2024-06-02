@@ -23,12 +23,12 @@ function TourMapContainer({
     tours,
     tour,
     totalTours,
-    onSelectTour,
     filter,
     setTourID,
     setMapInitialized,
-    mapInitialized
-    
+    mapInitialized,
+    onSelectTour,  // use for Popup content
+    loadTourConnections
     }) {
 
     const navigate = useNavigate();
@@ -189,8 +189,6 @@ function TourMapContainer({
     }
 
     const onMarkerClick = async (tourId)=>{
-        // console.log("L221 popupClickHandler popupId : ", popupId)
-        // console.log("L221 popupClickHandler city : ", city)
 
         if (!!tourId && !!city ) {
             try {
@@ -224,15 +222,18 @@ function TourMapContainer({
                                 eventHandlers={{
                                     click: () => {
                                         setTourID(mark.id);
-                                        onMarkerClick(mark.id)
-                                        //console.log("mark.id -> ", mark.id)
+                                        console.log("L225 mark.id", mark.id)
                                     },
                                 }}
                             >                                
                                 <Suspense >
-                                    <TourPopupContent 
-                                        tourId = {mark.id}
-                                    />
+                                    <Popup className="request-popup">
+                                        <TourPopupContent 
+                                            tourId = {mark.id}
+                                            onSelectTour= {onSelectTour}
+                                            loadTourConnections={loadTourConnections}
+                                        />
+                                    </Popup>
                                 </Suspense>
                                 
                             </Marker>
