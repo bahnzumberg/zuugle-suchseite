@@ -28,17 +28,7 @@ function TourMapContainer({
     setTourID,
     setMapInitialized,
     mapInitialized
-    // loadGPX,
-    // scrollWheelZoom = true,
-    //   loadTourConnections,
-    //   city,
-    //   loadTours,
-    //   pageTours,
-    //   loading,
-    //   total,
-    //   tourID,
-    //   filterVisibleToursGPX,
-    //   doSubmit,
+    
     }) {
 
     const navigate = useNavigate();
@@ -63,11 +53,12 @@ function TourMapContainer({
 
     const initialCity = !!searchParams.get('city') ? searchParams.get('city') : localStorage.getItem('city') ? localStorage.getItem('city') : null 
     const [city, setCity] = useState(initialCity);
+    const [selectedTour , setSelectedTour] = useState(null);
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
 
-    console.log("L68 filter from Main or from Localstroge: ", filter)
+    //console.log("L68 filter from Main or from Localstroge: ", filter)
 
     // create a bounds state ?
     var onToggle = localStorage.getItem('MapToggle');
@@ -197,18 +188,19 @@ function TourMapContainer({
         }
     }
 
-    const popupClick = async (popupId)=>{
+    const onMarkerClick = async (tourId)=>{
         // console.log("L221 popupClickHandler popupId : ", popupId)
         // console.log("L221 popupClickHandler city : ", city)
 
-        if (!!popupId && !!city ) {
+        if (!!tourId && !!city ) {
             try {
-                const selected = await loadTour(popupId, city); // Wait for the loadTour action to complete
-                console.log("L207 : selected", JSON.parse(selected))
-                localStorage.setItem("tourId", popupId);
+                const selected = await loadTour(tourId, city); // Wait for the loadTour action to complete
+                setSelectedTour(selected.data.tour);
+                console.log("L199 : selected", selected.data.tour)
+                localStorage.setItem("tourId", tourId);
                 // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
                 // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-                navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
+                //navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
                 //window.location.reload(); // Reload the page in case of an error
             }catch (error) {
                 console.error("Error loading tour:", error);
@@ -217,13 +209,6 @@ function TourMapContainer({
         window.location.reload()
         }
     }
-
-    const handlePopupClick = (event, id) => {
-        event.preventDefault();
-        popupClick(id);
-        console.log('L243 Clicked ID:', id);
-    };
-
 
     const markerComponents = useMemo(() => {
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
@@ -239,19 +224,16 @@ function TourMapContainer({
                                 eventHandlers={{
                                     click: () => {
                                         setTourID(mark.id);
+                                        onMarkerClick(mark.id)
                                         //console.log("mark.id -> ", mark.id)
                                     },
                                 }}
-                            >
-                                    {/* <div onClick={()=>popupClickHandler(mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                    {/* <div onClick={e => handlePopupClick(e,mark.id)}> {`ID: ${mark.id}`}</div> */}
-                                
-                                    <Suspense >
-                                        <TourPopupContent 
-                                            handlePopupClick = {handlePopupClick}
-                                            tourId = {mark.id}
-                                        />
-                                    </Suspense>
+                            >                                
+                                <Suspense >
+                                    <TourPopupContent 
+                                        tourId = {mark.id}
+                                    />
+                                </Suspense>
                                 
                             </Marker>
                         );
@@ -312,7 +294,7 @@ function TourMapContainer({
 
     //Method to load the parameters and the filter call:
     const initiateFilter = (bounds) => {
-        consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
+        // consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
         const filterValues = { //All Values in the URL
             coordinatesSouthWest: bounds?._southWest,
             coordinatesNorthEast: bounds?._northEast,
@@ -349,7 +331,7 @@ function TourMapContainer({
         if (filter == null || Object.keys(filter).length === 0) {
             searchParams.delete("filter");
         } else {
-            console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
+            // console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
             //filter comes from localStorage or from Main and pass it to params to be set 
             searchParams.set("filter", JSON.stringify(filter));
             setSearchParams(searchParams);
@@ -413,7 +395,8 @@ function TourMapContainer({
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        filterVisibleToursGPX: (visibleToursGPX) => dispatch({type: LOAD_MAP_FILTERS, visibleToursGPX}) //used to save the bounds of the map in the redux store
+        loadTour,
+        filterVisibleToursGPX: (visibleToursGPX) => dispatch({type: LOAD_MAP_FILTERS, visibleToursGPX}), //used to save the bounds of the map in the redux store
     }
 };
 
@@ -424,5 +407,4 @@ const mapStateToProps = (state) => {
         tour: state.tours.tour,
     }
 };
-// export default connect(mapStateToProps, mapDispatchToProps)(TourMapContainer);
 export default connect(mapStateToProps, mapDispatchToProps)(React.memo(TourMapContainer));
