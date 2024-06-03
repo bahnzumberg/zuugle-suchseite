@@ -7,15 +7,15 @@ import Box from "@mui/material/Box";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import gpxParser from "gpxparser";
 import {connect} from "react-redux";
-import {LOAD_MAP_FILTERS} from "../../actions/types";
+import {LOAD_MAP_FILTERS} from "../../actions/types.js";
 import {useSearchParams, useNavigate} from "react-router-dom";
 // import debounce from "lodash/debounce";
-import { loadGPX } from '../../actions/fileActions';
+import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-import {consoleLog} from '../../utils/globals';
+import {consoleLog} from '../../utils/globals.js';
 // import useDebouncedCallback from '../../utils/useDebouncedCallback';
-import { loadTour } from '../../actions/tourActions';
-import {formatMapClusterNumber} from "../../utils/map_utils";
+import { loadTour, setTourID } from '../../actions/tourActions.js';
+import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import Swatter from './Swatter';
 const TourPopupContent = lazy(()=>import('./TourPopupContent.jsx'));
 
@@ -54,6 +54,8 @@ function TourMapContainer({
     const initialCity = !!searchParams.get('city') ? searchParams.get('city') : localStorage.getItem('city') ? localStorage.getItem('city') : null 
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
@@ -188,25 +190,41 @@ function TourMapContainer({
         }
     }
 
-    const onMarkerClick = async (tourId)=>{
+    // const onMarkerClick = async (tourId)=>{
 
-        if (!!tourId && !!city ) {
-            try {
-                const selected = await loadTour(tourId, city); // Wait for the loadTour action to complete
-                setSelectedTour(selected.data.tour);
-                console.log("L199 : selected", selected.data.tour)
-                localStorage.setItem("tourId", tourId);
-                // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
-                // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-                //navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
-                //window.location.reload(); // Reload the page in case of an error
-            }catch (error) {
-                console.error("Error loading tour:", error);
-            }
-        }else{
-        window.location.reload()
-        }
-    }
+    //     if (!!tourId && !!city ) {
+    //         try {
+    //             setIsLoading(true);
+    //             const _tourDetail = await onSelectTour(tourId);
+    //             setSelectedTour(_tourDetail)
+    //             console.log("Tour details fetched:", _tourDetail);
+    //             setIsLoading(false);
+    //         }catch (error) {
+    //             console.error("Error loading tour:", error);
+    //         }
+    //     }else{
+    //     window.location.reload()
+    //     }
+    // }
+    // const onMarkerClick = async (tourId)=>{
+
+    //     if (!!tourId && !!city ) {
+    //         try {
+    //             const selected = await loadTour(tourId, city); // Wait for the loadTour action to complete
+    //             setSelectedTour(selected.data.tour);
+    //             console.log("L199 : selected", selected.data.tour)
+    //             localStorage.setItem("tourId", tourId);
+    //             // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
+    //             // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
+    //             //navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
+    //             //window.location.reload(); // Reload the page in case of an error
+    //         }catch (error) {
+    //             console.error("Error loading tour:", error);
+    //         }
+    //     }else{
+    //     window.location.reload()
+    //     }
+    // }
 
     const markerComponents = useMemo(() => {
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
@@ -222,6 +240,8 @@ function TourMapContainer({
                                 eventHandlers={{
                                     click: () => {
                                         setTourID(mark.id);
+                                        // onSelectTour(mark.id)
+                                        // onMarkerClick(mark.id)
                                         console.log("L225 mark.id", mark.id)
                                     },
                                 }}
@@ -232,6 +252,9 @@ function TourMapContainer({
                                             tourId = {mark.id}
                                             onSelectTour= {onSelectTour}
                                             loadTourConnections={loadTourConnections}
+                                            city={city}
+                                            tour={tour}
+                                            isLoading={isLoading}
                                         />
                                     </Popup>
                                 </Suspense>
@@ -398,6 +421,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         loadTour,
         filterVisibleToursGPX: (visibleToursGPX) => dispatch({type: LOAD_MAP_FILTERS, visibleToursGPX}), //used to save the bounds of the map in the redux store
+        setTourID: (tourId) => dispatch(setTourID(tourId)),
     }
 };
 

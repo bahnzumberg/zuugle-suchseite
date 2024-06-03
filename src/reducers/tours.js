@@ -19,6 +19,8 @@ import {
   NO_DATA_AVAILABLE,
   LOAD_DATA_ERROR,
   NO_TOURS_AVAILABLE,
+  SET_TOUR_ID
+
 } from "../actions/types";
 
 const initialState = {
@@ -44,6 +46,7 @@ const initialState = {
   visibleToursGPX: [],
   noToursAvailable: null,
   markers: [],
+  selectedTourID: null,
 };
 
 // Keep comment below for Eslint purposes
@@ -186,5 +189,11 @@ export default ((state = initialState, action = {}) => {
       };
       default:
         return state;
+    
+    case SET_TOUR_ID:
+      return {
+        ...state,
+        selectedTourID: action.payload, // Update the state with the new tour ID
+      };
   }
 })

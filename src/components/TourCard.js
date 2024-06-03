@@ -23,10 +23,10 @@ import {consoleLog} from "../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-export default function TourCard({tour, onSelectTour, loadTourConnections, city}){
+export default function TourCard({tour, onSelectTour, loadTourConnections, city, mapCard}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
+    const imageOpacity = 1;
 
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
@@ -35,7 +35,6 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
     const [searchParams, setSearchParams] = useSearchParams();
 
     let tourLink = '/tour?'+ searchParams.toString();
-    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
       
     // i18next
     const {t} = useTranslation();
@@ -246,7 +245,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         </CardContent>
         
         {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
-        {!!connections && connections.length > 0 && (
+        {!!connections && connections.length > 0 && !mapCard &&(
                 <Fragment>
                     <div className="bottom-container">
                     <CardContent>

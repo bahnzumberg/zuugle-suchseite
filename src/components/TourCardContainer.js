@@ -105,6 +105,7 @@ export default function TourCardContainer({
                   tour={tour}
                   loadTourConnections={loadTourConnections}
                   city={city}
+                  mapCard={false}
                 />
               </Grid>
             ))}

@@ -21,6 +21,7 @@ import {
   LOAD_TOURS,
   LOAD_TOURS_DONE,
   SET_SELECTED_DATE,
+  SET_TOUR_ID,
   // NO_DATA_AVAILABLE,
   // NO_TOURS_AVAILABLE,
   // LOAD_DATA_ERROR,
@@ -60,9 +61,9 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-  console.log("1) loadTour is called !")
+  // console.log("1) loadTour is called !")
   return (dispatch, getState) => {
-    console.log("2) loadTour is called !")
+    // console.log("2) loadTour is called !")
     return loadOne(
       dispatch,
       getState,
@@ -231,3 +232,10 @@ export function clearTours() {
 export function checkProviderApproval() {
   // related to issue #65 in the project, given a provider name this function will return from the backend with a value of "Y" or "N" (to be used inside the Details page)
 }
+
+export const setTourID = (tourId) => {
+  return {
+    type: SET_TOUR_ID,
+    payload: tourId,
+  };
+};
