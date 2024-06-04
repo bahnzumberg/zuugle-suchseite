@@ -264,14 +264,14 @@ useEffect(() => {
   };
 
   //with id only // as code enhancement,create one function for both map and card containers
-  const onSelectMapTour = (markerId)=>{
+  const onSelectMapTour = async (markerId)=>{
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     const id = markerId.id
     let retTour = null;
     if ( !!id ) {
-      console.log("L269 : Main/id.id :", id)
-      console.log("L270 : Main/city :", city)
-      loadTour(id, city)
+      // console.log("L269 : Main/id.id :", id)
+      // console.log("L270 : Main/city :", city)
+      await loadTour(id, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
             retTour = tourExtracted;
@@ -283,6 +283,8 @@ useEffect(() => {
             goToStartPage();
           }
         })
+        // console.log("L286 retTour :")
+        // console.log(retTour)
       return retTour
     }else{
       goToStartPage();
@@ -292,7 +294,8 @@ useEffect(() => {
 
  //Map-related : a callback function that selects a tour with a specific id
  const onSelectTourById = useCallback((id) => {
-  onSelectMapTour({ id: id });
+  const resultedData = onSelectMapTour({ id: id });
+  return resultedData
 }, []);
 
   const memoTourMapContainer = useMemo(() => {
@@ -307,7 +310,8 @@ useEffect(() => {
         mapInitialized={mapInitialized}
         loadTour={loadTour}
         loadTourConnections={loadTourConnections}
-        onSelectTour={onSelectTourById}
+        // onSelectTour={onSelectMapTour} // does not work,  creates re-renders and redirects to start page
+        onSelectTour={onSelectTourById} 
         tour={tour}
       />
       
