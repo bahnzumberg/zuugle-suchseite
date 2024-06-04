@@ -8,15 +8,15 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import gpxParser from "gpxparser";
 import {connect} from "react-redux";
 import {LOAD_MAP_FILTERS} from "../../actions/types.js";
-import {useSearchParams, useNavigate} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals.js';
-// import useDebouncedCallback from '../../utils/useDebouncedCallback';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
-// import Swatter from './Swatter';
+import CustomMarker from './CustomMarker.js';
+
 const TourPopupContent = lazy(()=>import('./TourPopupContent.jsx'));
 
 function TourMapContainer({
@@ -31,7 +31,7 @@ function TourMapContainer({
     loadTourConnections
     }) {
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
 
@@ -110,6 +110,9 @@ function TourMapContainer({
 
         
     useEffect(() => {
+        // TODO : if coming in from search/filter submit : remove all map positions from local storage then bind to markers
+        // mapRef.current?.fitBounds(new L.LatLngBounds(markers));
+        //legacy: 
         //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
         // So updateBounds() is called instead
 
@@ -137,7 +140,13 @@ function TourMapContainer({
                 }
             } else {
                 //the map is aligned to the marker/cluster
-                updateBounds();
+                // updateBounds();
+                //the map's current position is set to the last position where the user has been
+                if (!!bounds && !!mapRef && !!mapRef.current) {
+                    mapRef.current?.fitBounds(new L.LatLngBounds(markers));
+                }else{
+                    updateBounds();
+                }
             }
         }
     }, [tours]);
@@ -147,6 +156,11 @@ function TourMapContainer({
             setCity(searchParams.get('city'))
         }
     },[searchParams])
+
+    // useEffect( ()=>{
+    //     console.log("L152 selectedTour");
+    //     console.log(selectedTour);
+    // }, [selectedTour]);
 
    
     //saves the bounds on localStorage
@@ -189,23 +203,39 @@ function TourMapContainer({
             setGpxTrack([]);
         }
     }
+    // we have id and the function (onSelectTour) to make the tour api call to get the tour
+    // onClick event : get the tour data and then store it inside the state "selectedTour" 
+    // pass the selectedTour to the component Popup
 
-    // const onMarkerClick = async (tourId)=>{
+    const onMarkerClick = async (tourId)=>{
+        if (!!tourId && !!city ) {
+            try {
+                setIsLoading(true);
+                const _tourDetail = await onSelectTour(tourId);
+                const _tour = _tourDetail.data.tour;
+                !!_tour && setSelectedTour(_tour)
+                console.log("Tour details fetched:", _tour);
+                setIsLoading(false);
+                if(!!_tour && !!markerRef.current){
+                    markerRef.bindPopup(
+                        <TourPopupContent 
+                            tourId = {tourId}
+                            onSelectTour= {onSelectTour}
+                            loadTourConnections={loadTourConnections}
+                            city={city}
+                            tour={tour}
+                            isLoading={isLoading}
+                        />         
+                    ).openPopup();
 
-    //     if (!!tourId && !!city ) {
-    //         try {
-    //             setIsLoading(true);
-    //             const _tourDetail = await onSelectTour(tourId);
-    //             setSelectedTour(_tourDetail)
-    //             console.log("Tour details fetched:", _tourDetail);
-    //             setIsLoading(false);
-    //         }catch (error) {
-    //             console.error("Error loading tour:", error);
-    //         }
-    //     }else{
-    //     window.location.reload()
-    //     }
-    // }
+                }
+            }catch (error) {
+                console.error("Error loading tour:", error);
+            }
+        }else{
+        window.location.reload()
+        }
+    }
     // const onMarkerClick = async (tourId)=>{
 
     //     if (!!tourId && !!city ) {
@@ -229,37 +259,18 @@ function TourMapContainer({
     const markerComponents = useMemo(() => {
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
                 return markers.map((mark) => {
-                    // consoleLog("L123 : mark", mark.id)
                     if (!!mark) {
                         return (
-                            <Marker
+                            <CustomMarker
                                 key={mark.id}
-                                ref={markerRef}
                                 position={[mark.lat, mark.lon]}
-                                icon={StartIcon}
-                                eventHandlers={{
-                                    click: () => {
-                                        setTourID(mark.id);
-                                        // onSelectTour(mark.id)
-                                        // onMarkerClick(mark.id)
-                                        console.log("L225 mark.id", mark.id)
-                                    },
-                                }}
-                            >                                
-                                <Suspense >
-                                    <Popup className="request-popup">
-                                        <TourPopupContent 
-                                            tourId = {mark.id}
-                                            onSelectTour= {onSelectTour}
-                                            loadTourConnections={loadTourConnections}
-                                            city={city}
-                                            tour={tour}
-                                            isLoading={isLoading}
-                                        />
-                                    </Popup>
-                                </Suspense>
-                                
-                            </Marker>
+                                mark={mark}
+                                onSelectTour={onSelectTour}
+                                loadTourConnections={loadTourConnections}
+                                city={city}
+                                // tour={tour}
+                                StartIcon={StartIcon}
+                            />
                         );
                     }
                     return null;
