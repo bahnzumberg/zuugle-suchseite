@@ -75,8 +75,8 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-        console.log("L76 : res.data")
-        console.log(res.data)
+        // console.log("L76 : res.data")
+        // console.log(res.data)
         return res;
       })
       .catch((error) => {
