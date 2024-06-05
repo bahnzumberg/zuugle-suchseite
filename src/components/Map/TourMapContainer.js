@@ -46,7 +46,7 @@ function TourMapContainer({
  
     const mapRef = useRef();
     const clusterRef = useRef();
-    const markerRef = useRef(null);
+    // const markerRef = useRef(null);
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -207,35 +207,35 @@ function TourMapContainer({
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
 
-    const onMarkerClick = async (tourId)=>{
-        if (!!tourId && !!city ) {
-            try {
-                setIsLoading(true);
-                const _tourDetail = await onSelectTour(tourId);
-                const _tour = _tourDetail.data.tour;
-                !!_tour && setSelectedTour(_tour)
-                console.log("Tour details fetched:", _tour);
-                setIsLoading(false);
-                if(!!_tour && !!markerRef.current){
-                    markerRef.bindPopup(
-                        <TourPopupContent 
-                            tourId = {tourId}
-                            onSelectTour= {onSelectTour}
-                            loadTourConnections={loadTourConnections}
-                            city={city}
-                            tour={tour}
-                            isLoading={isLoading}
-                        />         
-                    ).openPopup();
+    // const onMarkerClick = async (tourId)=>{
+    //     if (!!tourId && !!city ) {
+    //         try {
+    //             setIsLoading(true);
+    //             const _tourDetail = await onSelectTour(tourId);
+    //             const _tour = _tourDetail.data.tour;
+    //             !!_tour && setSelectedTour(_tour)
+    //             console.log("Tour details fetched:", _tour);
+    //             setIsLoading(false);
+    //             if(!!_tour && !!markerRef.current){
+    //                 markerRef.bindPopup(
+    //                     <TourPopupContent 
+    //                         tourId = {tourId}
+    //                         onSelectTour= {onSelectTour}
+    //                         loadTourConnections={loadTourConnections}
+    //                         city={city}
+    //                         tour={tour}
+    //                         isLoading={isLoading}
+    //                     />         
+    //                 ).openPopup();
 
-                }
-            }catch (error) {
-                console.error("Error loading tour:", error);
-            }
-        }else{
-        window.location.reload()
-        }
-    }
+    //             }
+    //         }catch (error) {
+    //             console.error("Error loading tour:", error);
+    //         }
+    //     }else{
+    //     window.location.reload()
+    //     }
+    // }
     // const onMarkerClick = async (tourId)=>{
 
     //     if (!!tourId && !!city ) {
@@ -268,8 +268,9 @@ function TourMapContainer({
                                 onSelectTour={onSelectTour}
                                 loadTourConnections={loadTourConnections}
                                 city={city}
-                                // tour={tour}
                                 StartIcon={StartIcon}
+                                mapRef={mapRef}
+                                clusterRef={clusterRef}
                             />
                         );
                     }
