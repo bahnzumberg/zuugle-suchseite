@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState, useMemo, lazy, Suspense} from "react";
+import {useEffect, useRef, useState, useMemo, lazy, useCallback} from "react";
 import {MapContainer, TileLayer, Marker, Polyline, useMapEvents, ZoomControl, Popup} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
@@ -209,7 +209,7 @@ function TourMapContainer({
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
 
-    const handleMarkerClick = async (tourId)=>{
+    const handleMarkerClick = useCallback(async (tourId) => {
         setSelectedTour(null);
         setIsLoading(true);
 
@@ -220,6 +220,7 @@ function TourMapContainer({
             console.log("L218 _tour : ")
             console.log(_tour)
             if(_tour) setSelectedTour(_tour);
+            if(_tour) setCurrentGpxTrack(_tour.gpx_file);
             isLoading ? console.log("L221 isLoading is True") : console.log("L221 isLoading is False")
 
         } catch (error) {
@@ -229,7 +230,8 @@ function TourMapContainer({
             setIsLoading(false);
             setTimeout(() => setShowPopup(true), 1000);
         }
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[city, onSelectTour])
 
     function TourPopupContent({ tour }) {
         return (
@@ -268,7 +270,7 @@ function TourMapContainer({
                                 }}
                             >
                                  {showPopup ? console.log("showPopup is True") : console.log("showPopup is False")}
-                                {!!selectedTour && !!showPopup && (
+                                {!!showPopup && selectedTour?.id === mark.id && (
                                     <Popup minWidth={90}>
                                        
                                         {selectedTour  ? console.log("selectedTour :", selectedTour) : console.log("NO SELECTEDTOUR!")}
@@ -291,7 +293,7 @@ function TourMapContainer({
             }
             return null;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [markers,StartIcon]);
+        }, [markers,StartIcon, handleMarkerClick, showPopup, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
@@ -436,6 +438,7 @@ function TourMapContainer({
             </MarkerClusterGroup>
             <MyComponent/>
             <ZoomControl position="bottomright" />
+    
         </MapContainer>
         )}
     </Box>
