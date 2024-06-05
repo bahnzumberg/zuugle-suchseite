@@ -192,7 +192,7 @@ function Start({
       searchParams.set('map', true);
       setSearchParams(searchParams);
     };
-    consoleLog(`L190 : suche?${searchParams.toString()}`)
+    // consoleLog(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
   }
 
