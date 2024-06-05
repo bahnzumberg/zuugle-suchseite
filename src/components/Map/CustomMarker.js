@@ -21,7 +21,7 @@ const CustomMarker = ({ position, mark, onSelectTour, loadTourConnections, city,
         console.log("L26 in handlePopupOpen Tour details fetched:", _tour);
         if (_tour) {
           const root = popupRootRefs.current[tourId];
-          console.log("L24 !!root is : ", !!root)
+          console.log("L24 !!root is true or false ? ", !!root)
           root.render(
             <TourPopupContent
               tourId={tourId}
@@ -36,6 +36,7 @@ const CustomMarker = ({ position, mark, onSelectTour, loadTourConnections, city,
     };
 
     if (clusterRef.current) {
+        console.log("L39 inside if (clusterRef.current) ")
       // Create marker and bind popup
       const marker = L.marker(position, { icon: StartIcon });
       marker.bindPopup(`<div id="popup-${mark.id}"></div>`, {

@@ -46,7 +46,7 @@ function TourMapContainer({
  
     const mapRef = useRef();
     const clusterRef = useRef();
-    // const markerRef = useRef(null);
+    const markerRef = useRef(null);
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +55,8 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPopup, setShowPopup] = useState(false); 
+
 
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
@@ -207,71 +209,81 @@ function TourMapContainer({
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
 
-    // const onMarkerClick = async (tourId)=>{
-    //     if (!!tourId && !!city ) {
-    //         try {
-    //             setIsLoading(true);
-    //             const _tourDetail = await onSelectTour(tourId);
-    //             const _tour = _tourDetail.data.tour;
-    //             !!_tour && setSelectedTour(_tour)
-    //             console.log("Tour details fetched:", _tour);
-    //             setIsLoading(false);
-    //             if(!!_tour && !!markerRef.current){
-    //                 markerRef.bindPopup(
-    //                     <TourPopupContent 
-    //                         tourId = {tourId}
-    //                         onSelectTour= {onSelectTour}
-    //                         loadTourConnections={loadTourConnections}
-    //                         city={city}
-    //                         tour={tour}
-    //                         isLoading={isLoading}
-    //                     />         
-    //                 ).openPopup();
+    const handleMarkerClick = async (tourId)=>{
+        setSelectedTour(null);
+        setIsLoading(true);
 
-    //             }
-    //         }catch (error) {
-    //             console.error("Error loading tour:", error);
-    //         }
-    //     }else{
-    //     window.location.reload()
-    //     }
-    // }
-    // const onMarkerClick = async (tourId)=>{
+        if (!tourId || !city ) return ; // exit if not both parameters available
+        try {
+            const _tourDetail = await onSelectTour(tourId);
+            const _tour = _tourDetail.data.tour;
+            console.log("L218 _tour : ")
+            console.log(_tour)
+            if(_tour) setSelectedTour(_tour);
+            isLoading ? console.log("L221 isLoading is True") : console.log("L221 isLoading is False")
 
-    //     if (!!tourId && !!city ) {
-    //         try {
-    //             const selected = await loadTour(tourId, city); // Wait for the loadTour action to complete
-    //             setSelectedTour(selected.data.tour);
-    //             console.log("L199 : selected", selected.data.tour)
-    //             localStorage.setItem("tourId", tourId);
-    //             // console.log("L227 popupClickHandler: tour data loaded successfully, tour.id :", tour.id);
-    //             // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");
-    //             //navigate('/tour?' + searchParams.toString(), { target: '_blank' });            
-    //             //window.location.reload(); // Reload the page in case of an error
-    //         }catch (error) {
-    //             console.error("Error loading tour:", error);
-    //         }
-    //     }else{
-    //     window.location.reload()
-    //     }
-    // }
+        } catch (error) {
+            console.error('Error fetching tour details:', error);
+        }finally{
+            isLoading ? console.log("L224 isLoading is True") : console.log("L224 isLoading is False")
+            setIsLoading(false);
+            setTimeout(() => setShowPopup(true), 1000);
+        }
+    }
+
+    function TourPopupContent({ tour }) {
+        return (
+          <div>
+            <h2>{tour.id}</h2>
+            <p>{tour.title}</p>
+            
+          </div>
+        );
+      }
 
     const markerComponents = useMemo(() => {
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
                 return markers.map((mark) => {
                     if (!!mark) {
                         return (
-                            <CustomMarker
+                            // <CustomMarker
+                            //     key={mark.id}
+                            //     position={[mark.lat, mark.lon]}
+                            //     mark={mark}
+                            //     onSelectTour={onSelectTour}
+                            //     loadTourConnections={loadTourConnections}
+                            //     city={city}
+                            //     StartIcon={StartIcon}
+                            //     mapRef={mapRef}
+                            //     clusterRef={clusterRef}
+                            // NO markerRef ?? not if use Leaflet only inside CustomMarker
+                            // />
+                            <Marker
                                 key={mark.id}
                                 position={[mark.lat, mark.lon]}
-                                mark={mark}
-                                onSelectTour={onSelectTour}
-                                loadTourConnections={loadTourConnections}
-                                city={city}
-                                StartIcon={StartIcon}
-                                mapRef={mapRef}
-                                clusterRef={clusterRef}
-                            />
+                                markerRef={markerRef}
+                                icon={StartIcon}
+                                eventHandlers={{
+                                    click: () => handleMarkerClick(mark.id)
+                                }}
+                            >
+                                 {showPopup ? console.log("showPopup is True") : console.log("showPopup is False")}
+                                {!!selectedTour && !!showPopup && (
+                                    <Popup minWidth={90}>
+                                       
+                                        {selectedTour  ? console.log("selectedTour :", selectedTour) : console.log("NO SELECTEDTOUR!")}
+                                    {/* {isLoading ? ( */}
+                                        {/* <p>Loading tour details...</p> */}
+                                    {/* ) : ( */}
+                                        {/* <TourPopupContent 
+                                        tour={selectedTour} 
+                                        /> */}
+                                    {/* )} */}
+                                    <h3>{selectedTour.id}</h3>
+                                    </Popup>
+                                )}
+                            </Marker>
+
                         );
                     }
                     return null;
