@@ -199,7 +199,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 
                         if(!!filter && !!filter.ranges && !!parsed.ranges){
                             setRangeValues(filter.ranges.map(entry => {
-                                const found = parsed.ranges.find(e => e == entry);
+                                const found = parsed.ranges.find(e => e === entry);
                                 return {
                                     value: entry,
                                     checked: !!found ? true : false
@@ -208,7 +208,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                         }
                         if(!!filter && !!filter.types && !!parsed.types){
                             setTypeValues(filter.types.map(entry => {
-                                const found = parsed.types.find(e => e == entry);
+                                const found = parsed.types.find(e => e === entry);
                                 return {
                                     value: entry,
                                     checked: !!found ? true : false
@@ -246,22 +246,22 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(!(!!summerSeason && !!winterSeason)){
             count++;
         }
-        if(difficulty != 10){
+        if(difficulty !== 10){
             count++;
         }
         if(!!traverse){
             count++;
         }
-        if(minAscent != getFilterProp(filter, "minAscent") || maxAscent != getFilterProp(filter, "maxAscent")){
+        if(minAscent !== getFilterProp(filter, "minAscent") || maxAscent !== getFilterProp(filter, "maxAscent")){
             count++;
         }
-        if(minDescent != getFilterProp(filter, "minDescent") || maxDescent != getFilterProp(filter, "maxDescent")){
+        if(minDescent !== getFilterProp(filter, "minDescent") || maxDescent !== getFilterProp(filter, "maxDescent")){
             count++;
         }
-        if(minTransportDuration != getFilterProp(filter, "minTransportDuration") || maxTransportDuration != getFilterProp(filter, "maxTransportDuration")){
+        if(minTransportDuration !== getFilterProp(filter, "minTransportDuration") || maxTransportDuration !== getFilterProp(filter, "maxTransportDuration")){
             count++;
         }
-        if(minDistance != getFilterProp(filter, "minDistance") || maxDistance != getFilterProp(filter, "maxDistance")){
+        if(minDistance !== getFilterProp(filter, "minDistance") || maxDistance !== getFilterProp(filter, "maxDistance")){
             count++;
         }
         if(rangeValues.filter(rv => !!!rv.checked).length > 0){
@@ -290,9 +290,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     
 
     const submit = () => {
-        if(process.env.NODE_ENV != "production"){
-            console.log("L288 traverse value : ", traverse)
-        }
+
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
             coordinatesSouthWest: coordinatesSouthWest,
@@ -321,13 +319,13 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     }
 
     const checkIfCheckedFromCheckbox = (list, key) => {
-        return !!(!!list ? list: []).find(l => l.value == key && !!l.checked);
+        return !!(!!list ? list: []).find(l => l.value === key && !!l.checked);
     }
 
     const onChangedCheckbox = (list, key, value, _function) => {
         _function((!!list ? list: []).map(entry => {
             let toPush = {...entry};
-            if(entry.value == key){
+            if(entry.value === key){
                 toPush.checked = value;
             }
             return toPush;
