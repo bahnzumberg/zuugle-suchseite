@@ -176,7 +176,11 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
             }
 
 
-            let _filter = searchParams.get('filter');
+            let _filter_url = searchParams.get('filter');
+            let _filter_local = !!localStorage.getItem('filterValues') && localStorage.getItem('filterValues');
+
+            let _filter = !!_filter_local ? _filter_local : _filter_url ;
+            
             if(!!_filter){
                 try {
                     const parsed = JSON.parse(_filter);
