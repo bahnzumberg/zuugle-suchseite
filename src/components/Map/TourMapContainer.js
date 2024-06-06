@@ -111,48 +111,78 @@ function TourMapContainer({
     // }, []);
 
         
-    useEffect(() => {
-        // TODO : if coming in from search/filter submit : remove all map positions from local storage then bind to markers
-        // mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-        //legacy: 
-        //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
-        // So updateBounds() is called instead
+    // useEffect(() => {
+    //     // TODO : if coming in from search/filter submit : remove all map positions from local storage then bind to markers
+    //     // mapRef.current?.fitBounds(new L.LatLngBounds(markers));
+    //     //legacy: 
+    //     //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
+    //     // So updateBounds() is called instead
 
-        if (pageAccessedByReload && onToggle !== "true") {
-            localStorage.removeItem('MapPositionLatNE');
-            localStorage.removeItem('MapPositionLngNE');
-            localStorage.removeItem('MapPositionLatSW');
-            localStorage.removeItem('MapPositionLngSW');
-            assignNewMapPosition(null); // set the localStorage to default values
-            // consoleLog("L78 / local storage is set")
-            updateBounds();
-        } else {
-            if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
-                && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+    //     if (pageAccessedByReload && onToggle !== "true") {
+    //         console.log("L122 : inside  first if !")
+    //         localStorage.removeItem('MapPositionLatNE');
+    //         localStorage.removeItem('MapPositionLngNE');
+    //         localStorage.removeItem('MapPositionLatSW');
+    //         localStorage.removeItem('MapPositionLngSW');
+    //         assignNewMapPosition(null); // set the localStorage to default values
+    //         // consoleLog("L78 / local storage is set")
+    //         updateBounds();
+    //     } else {
+    //         if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
+    //             && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
+            
+    //         console.log("L130 : inside  else if (we have localStorage) !")
+    //             var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
 
-                var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
+    //             var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
+    //             //creating a latLngBounds-Object for the fitBounds()-Method
+    //             var bounds = L.latLngBounds(corner1, corner2);
 
-                var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
-                //creating a latLngBounds-Object for the fitBounds()-Method
-                var bounds = L.latLngBounds(corner1, corner2);
+    //             //the map's current position is set to the last position where the user has been
+    //             if (!!bounds && !!mapRef && !!mapRef.current) {
+    //                 mapRef.current?.fitBounds(bounds);
+    //             }
+    //         } else {
+    //             //the map is aligned to the marker/cluster
+    //             // updateBounds();
+    //             //the map's current position is set to the last position where the user has been
+    //             // if (!!bounds && !!mapRef && !!mapRef.current) {
+    //             //     mapRef.current?.fitBounds(new L.LatLngBounds(markers));
+    //             // }else{
+    //             //     updateBounds();
+    //             // }
+    //             // console.log("L130 : inside  last else ! not first time / no stored bounds")
+    //             // if (markers && markers.length > 0 && mapRef.current) {
+    //             //     const bounds = getMarkersBounds(markers);
+    //             //     mapRef.current.fitBounds(bounds);
+    //             // }
+    //             // else{
+    //             //     updateBounds();
+    //             // }
 
-                //the map's current position is set to the last position where the user has been
-                if (!!bounds && !!mapRef && !!mapRef.current) {
-                    mapRef.current?.fitBounds(bounds);
-                }
-            } else {
-                //the map is aligned to the marker/cluster
-                // updateBounds();
-                //the map's current position is set to the last position where the user has been
-                if (!!bounds && !!mapRef && !!mapRef.current) {
-                    mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-                }else{
-                    updateBounds();
-                }
-            }
+    //         }
+    //     }
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [markers]);
+
+    useEffect(()=>{
+        if (markers && markers.length > 0 && mapRef.current) {
+            const bounds = getMarkersBounds(markers);
+            mapRef.current.fitBounds(bounds);
         }
-    }, [tours]);
+    }, [markers]);
 
+    const getMarkersBounds = (markers) => {
+        const bounds = L.latLngBounds([]);
+        markers.forEach((marker) => {
+            if (marker.lat && marker.lon) {
+                bounds.extend([marker.lat, marker.lon]);
+            }
+        });
+        return bounds;
+    };
+
+   
     useEffect(()=>{
         if(!!city && !!searchParams.get('city') && city !== searchParams.get('city')){
             setCity(searchParams.get('city'))
