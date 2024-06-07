@@ -34,7 +34,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    let tourLink = '/tour?'+ searchParams.toString();
+    // let tourLink = '/tour?'+ searchParams.toString();
+    let tourLink = `/tour?id=${tour.id}/` + searchParams.toString();
       
     // i18next
     const {t} = useTranslation();
