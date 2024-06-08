@@ -67,8 +67,14 @@ const totalWrapper = async (req, res) => {
 
 const getWrapper = async (req, res) => {
     
-    const city = req.query.city;
-    const id = parseInt(req.params.id, 10); 
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
+    const id = parseInt(req.params.id, 10);
+    // console.log("===================") 
+    // console.log(" city from getWrapper : ", city )
+    // console.log(" req.params from getWrapper : ", req.params )
+    // console.log("===================") 
+    // console.log(" req.query from getWrapper : ", (req.query) )
+    // console.log("===================") 
     const domain = req.query.domain;
 
     if (isNaN(id)) {
@@ -77,6 +83,7 @@ const getWrapper = async (req, res) => {
     }
 
     if(!!!id){
+       
         res.status(404).json({success: false});
         return
     }
@@ -467,8 +474,8 @@ const listWrapper = async (req, res) => {
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
-            logger("L454")
-            logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
+            // logger("L454")
+            // logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
             if (result && result.rows) {
                 result = result.rows;
               } else {
@@ -700,7 +707,7 @@ const filterWrapper = async (req, res) => {
 
 const connectionsWrapper = async (req, res) => {
     const id = req.params.id;
-    const city = req.query.city;
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
     const weekday = getWeekday(moment());
@@ -754,8 +761,16 @@ const connectionsWrapper = async (req, res) => {
 
 const connectionsExtendedWrapper = async (req, res) => {
     const id = req.params.id;
-    const city = req.query.city;
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
+
+    console.log("===================") 
+    console.log(" city from req.query.city /connectionsExtendedWrapper : ", req.query.city )
+    console.log(" city from req.params.city /connectionsExtendedWrapper : ", req.params.city )
+    console.log(" req.params from connectionsExtendedWrapper : ", req.params )
+    console.log("===================") 
+    console.log(" req.query from connectionsExtendedWrapper : ", (req.query) )
+    console.log("===================") 
 
     const tour = await knex('tour').select().where({id: id}).first();
     if(!!!tour || !!!city){
@@ -826,8 +841,6 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
-        // if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
-
         if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${e.fromtour_track_key}.gpx`;
@@ -837,6 +850,7 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
     return _duplicatesRemoved;
 }
 
+// TODO : gpxWrapper seems to be dead code / check if gpxWrapper is being used in a client api call
 const gpxWrapper = async (req, res) => {
     createImageFromMap();
     res.status(200).json({success: true });
