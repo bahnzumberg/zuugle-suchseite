@@ -61,9 +61,9 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-  // console.log("1) loadTour is called !")
+  console.log(" 1) loadTour , id :", id);
+  console.log(" 2) loadTour , city :", city);
   return (dispatch, getState) => {
-    // console.log("2) loadTour is called !")
     return loadOne(
       dispatch,
       getState,
@@ -75,8 +75,8 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-        // console.log("L76 : res.data")
-        // console.log(res.data)
+         console.log("L76 : res.data")
+         !!res?.data && console.log(res.data)
         return res;
       })
       .catch((error) => {
@@ -109,11 +109,13 @@ export function loadTotalTours() {
 
 export function loadTourConnections(data) {
   const language = i18next.resolvedLanguage;
-
+// !!data && console.log("L112 data / loadTourConnections",data);
+// output: {city: "wien", domain: "localhost:3000", id: 102411}
   return (dispatch, getState) => {
     data.domain = window.location.host;
     let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
-
+    
+    // let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
     
     // returndataPromise.then(returndata => {
       // consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
@@ -121,19 +123,6 @@ export function loadTourConnections(data) {
     // });
     
     return returndataPromise;
-    // return loadList(
-    //   dispatch,
-    //   getState,
-    //   LOAD_TOUR_CONNECTIONS,
-    //   LOAD_TOUR_CONNECTIONS_DONE,
-    //   "tours",
-    //   data,
-    //   "tours/" + data.id + "/connections",
-    //   "connections",
-    //   false,
-    //   undefined,
-    //   language
-    // );
   };
 }
 
