@@ -70,7 +70,7 @@ export function loadTour(id, city) {
       LOAD_TOUR,
       LOAD_TOUR_DONE,
       id,
-      "tours/",
+      `tours/${id}/${city}`,
       "tour",
       { city: city }
     )
