@@ -61,9 +61,9 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-  console.log(" 1) loadTour , id :", id);
-  console.log(" 2) loadTour , city :", city);
+  // console.log("1) loadTour is called !")
   return (dispatch, getState) => {
+    // console.log("2) loadTour is called !")
     return loadOne(
       dispatch,
       getState,
@@ -75,8 +75,8 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-         console.log("L76 : res.data")
-         !!res?.data && console.log(res.data)
+        // console.log("L76 : res.data")
+        // console.log(res.data)
         return res;
       })
       .catch((error) => {
