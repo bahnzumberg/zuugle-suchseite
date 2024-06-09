@@ -34,8 +34,9 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
 
     const [searchParams, setSearchParams] = useSearchParams();
 
+    
     // let tourLink = '/tour?'+ searchParams.toString();
-    let tourLink = `/tour?id=${tour.id}/` + searchParams.toString();
+    let tourLink = `/tour?id=${tour.id}&city=${city}` ;
       
     // i18next
     const {t} = useTranslation();
@@ -200,7 +201,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
+          console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
