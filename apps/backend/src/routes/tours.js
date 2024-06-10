@@ -746,7 +746,7 @@ const connectionsWrapper = async (req, res) => {
         /** Die Rückreisen werden nach aktuellem Tag gefiltert -> kann man machen, muss man aber nicht. Wenn nicht gefiltert, werden alle Rückreisen für alle Wochentage angezeigt, was eine falsche Anzahl an Rückreisen ausgibt */
         if(!!!filteredReturns.find(tt => compareConnectionReturns(t, tt))){
             t = mapConnectionReturnToFrontend(t)
-            t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${t.fromtour_track_key}.gpx`;
+            t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(t.fromtour_track_key)}/${t.fromtour_track_key}.gpx`;
 
             filteredReturns.push(t);
         }
@@ -843,7 +843,7 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
 
         if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
-            e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour_track_${e.fromtour_track_key}.gpx`;
+            e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
         }
     });
