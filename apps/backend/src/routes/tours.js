@@ -26,7 +26,7 @@ router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/pdf', (req, res) => tourPdfWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
-router.get('/:id', (req, res) => getWrapper(req, res));
+router.get('/:id/:city', (req, res) => getWrapper(req, res));
 
 const providerWrapper = async (req, res) => {
     const provider = req.params.provider; 
@@ -764,13 +764,13 @@ const connectionsExtendedWrapper = async (req, res) => {
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
-    console.log("===================") 
-    console.log(" city from req.query.city /connectionsExtendedWrapper : ", req.query.city )
-    console.log(" city from req.params.city /connectionsExtendedWrapper : ", req.params.city )
-    console.log(" req.params from connectionsExtendedWrapper : ", req.params )
-    console.log("===================") 
-    console.log(" req.query from connectionsExtendedWrapper : ", (req.query) )
-    console.log("===================") 
+    // console.log("===================") 
+    // console.log(" city from req.query.city /connectionsExtendedWrapper : ", req.query.city )
+    // console.log(" city from req.params.city /connectionsExtendedWrapper : ", req.params.city )
+    // console.log(" req.params from connectionsExtendedWrapper : ", req.params )
+    // console.log("===================") 
+    // console.log(" req.query from connectionsExtendedWrapper : ", (req.query) )
+    // console.log("===================") 
 
     const tour = await knex('tour').select().where({id: id}).first();
     if(!!!tour || !!!city){
