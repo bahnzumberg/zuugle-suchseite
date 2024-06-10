@@ -67,7 +67,7 @@ function TourMapContainer({
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
 
-    console.log("L68 filter from Main or from Localstroge: ", filter)
+    // console.log("L68 filter from Main or from Localstroge: ", filter)
 
     // create a bounds state ?
     var onToggle = localStorage.getItem('MapToggle');
@@ -372,7 +372,7 @@ function TourMapContainer({
     return <Box
         style={{
             // height: "500px", 
-            height: "calc(75vh - 50px)", 
+            height: "calc(70vh - 50px)", 
             width: "100%", 
             position: "relative",
             overflow: "hidden",

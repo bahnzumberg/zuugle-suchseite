@@ -25,7 +25,7 @@ const MapBtn = ({ children, onClick, showMap, btnSource}) => {
   }, [showMap, t]);
   
   let marginBottom900 =
-    !!btnSource && btnSource === "main" ? "calc(20px - 2%)" : "calc(70px - 3%)";
+    !!btnSource && btnSource === "main" ? "calc(50px - 3%)" : "calc(70px - 5%)";
 
   return (
     <Button

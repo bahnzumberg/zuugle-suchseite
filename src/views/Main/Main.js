@@ -322,8 +322,9 @@ export function Main({
   )
 
   let marginTop = showMap ? "20px" : "255px"
-  const paddingTopValue = showMap ? "3.89%" : "12%"; // 35px and 50px equivalent
-  const largeScreenPaddingTop = showMap ? "1.67%" : "2.78%"; // 15px and 25px equivalent
+  const paddingTopValue = showMap ? "3.3%" : "10.2%"; 
+  const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%"; 
+  const paddingBottomValue = "25.5px";
 
   const totalToursHeader = ()=>(   
     <Box elevation={0} className={"header-line-main"}>
@@ -331,7 +332,8 @@ export function Main({
             sx={{
               // paddingTop: paddingTop,
               paddingTop: paddingTopValue,
-              paddingBottom: "30px",
+              // paddingBottom: "25.5px",
+              paddingBottom: paddingBottomValue,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -340,7 +342,7 @@ export function Main({
               },
             }}
           >
-            <Typography color={"black"} sx={{ textAlign: "center" }}>
+            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
               {Number(totalTours).toLocaleString()}{" "}
               {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
