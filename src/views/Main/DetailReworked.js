@@ -291,8 +291,10 @@ useEffect(() => {
 
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = !!searchParams.get("tourId") ? searchParams.get("tourId") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
 
+    console.log("L314 : id :", tourId)
+    console.log("L315 : city :", city)
     if (!!tourId) {
       setIsTourLoading(true);
       loadTour(tourId, city)
@@ -504,13 +506,6 @@ useEffect(() => {
   	}
   };
   
-
-  // useEffect(() => {
-  // // consoleLog("L464  : share link",shareLink )
-  // }, [shareLink]);
-  // useEffect(() => {
-  //   consoleLog("L511  : connections",connections )
-  // }, [connections]);
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
