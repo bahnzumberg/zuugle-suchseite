@@ -321,8 +321,8 @@ function TourMapContainer({
                                 }}
                             >
                                 <Popup minWidth={90}>
-                                    {console.log("L325 selectedTour.id : ")}
-                                    {console.log(selectedTour?.id)}
+                                    {/* {console.log("L325 selectedTour.id : ")}
+                                    {console.log(selectedTour?.id)} */}
 
                                     {isLoading ? (
                                         <div>Loading...</div>
@@ -330,7 +330,7 @@ function TourMapContainer({
                                         selectedTour?.id === mark.id && (
                                             <div>
                                                 {/* Add more details as necessary */}
-                                                tour id : {selectedTour.id}
+                                                tour id : {selectedTour?.id}
                                             </div>
                                         )
                                     )}
