@@ -55,7 +55,7 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [showPopup, setShowPopup] = useState(false); 
+    // const [showPopup, setShowPopup] = useState(false); 
 
 
 
@@ -65,7 +65,7 @@ function TourMapContainer({
     //console.log("L68 filter from Main or from Localstroge: ", filter)
 
     // create a bounds state ?
-    var onToggle = localStorage.getItem('MapToggle');
+    // var onToggle = localStorage.getItem('MapToggle');
     // default map values 
     const default_MapPositionLatNE = 49.019;
     const default_MapPositionLngNE = 17.189;
@@ -77,13 +77,13 @@ function TourMapContainer({
 
 
     //checks if page is reloaded
-    const pageAccessedByReload =
-      (window.performance.getEntriesByType("navigation")[0] &&
-        window.performance.getEntriesByType("navigation")[0].type === 1) ||
-      window.performance
-        .getEntriesByType("navigation")
-        .map((nav) => nav.type)
-        .includes("reload");
+    // const pageAccessedByReload =
+    //   (window.performance.getEntriesByType("navigation")[0] &&
+    //     window.performance.getEntriesByType("navigation")[0].type === 1) ||
+    //   window.performance
+    //     .getEntriesByType("navigation")
+    //     .map((nav) => nav.type)
+    //     .includes("reload");
 
     useEffect(() => {
         // console.log("L79 mapInitialized :", mapInitialized)
@@ -239,29 +239,49 @@ function TourMapContainer({
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
 
+    // const getCircularReplacer = () => {
+    //     const seen = new WeakSet();
+    //     return (key, value) => {
+    //         if (typeof value === "object" && value !== null) {
+    //             if (seen.has(value)) {
+    //                 return;
+    //             }
+    //             seen.add(value);
+    //         }
+    //         return value;
+    //     };
+    // };
+    
     const handleMarkerClick = useCallback(async (tourId) => {
         setSelectedTour(null);
         setIsLoading(true);
-
+        
         if (!tourId || !city ) return ; // exit if not both parameters available
         try {
             const _tourDetail = await onSelectTour(tourId);
             const _tour = _tourDetail.data.tour;
-            console.log("L218 _tour : ")
-            console.log(_tour)
+            // console.log("L255 _tour : ")
+            // console.log(_tour)
             if(_tour) setSelectedTour(_tour);
-            if(_tour) setCurrentGpxTrack(_tour.gpx_file);
-            isLoading ? console.log("L221 isLoading is True") : console.log("L221 isLoading is False")
+            // if(_tour) setCurrentGpxTrack(_tour.gpx_file);
+            console.log("L259 isLoading after setting tour:", isLoading);
 
+            // Logging e.target to confirm the marker object
+            // console.log("L259 e.target:", e.target);
+    
         } catch (error) {
             console.error('Error fetching tour details:', error);
         }finally{
-            isLoading ? console.log("L224 isLoading is True") : console.log("L224 isLoading is False")
             setIsLoading(false);
-            setTimeout(() => setShowPopup(true), 1000);
+            console.log("L264 isLoading after setting false:", isLoading);
+            const marker = markerRef.current
+            if (marker) {
+                console.log("L279 marker is truthy", marker)
+                marker.openPopup()
+            }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[city, onSelectTour])
+    },[city])
 
     function TourPopupContent({ tour }) {
         return (
@@ -293,27 +313,28 @@ function TourMapContainer({
                             <Marker
                                 key={mark.id}
                                 position={[mark.lat, mark.lon]}
-                                markerRef={markerRef}
+                                ref={markerRef}
                                 icon={StartIcon}
                                 eventHandlers={{
                                     click: () => handleMarkerClick(mark.id)
+                                    // click: () => console.log("mark.is is :", mark.id)
                                 }}
                             >
-                                 {showPopup ? console.log("showPopup is True") : console.log("showPopup is False")}
-                                {!!showPopup && selectedTour?.id === mark.id && (
-                                    <Popup minWidth={90}>
-                                       
-                                        {selectedTour  ? console.log("selectedTour :", selectedTour) : console.log("NO SELECTEDTOUR!")}
-                                    {/* {isLoading ? ( */}
-                                        {/* <p>Loading tour details...</p> */}
-                                    {/* ) : ( */}
-                                        {/* <TourPopupContent 
-                                        tour={selectedTour} 
-                                        /> */}
-                                    {/* )} */}
-                                    <h3>{selectedTour.id}</h3>
-                                    </Popup>
-                                )}
+                                <Popup minWidth={90}>
+                                    {console.log("L325 selectedTour.id : ")}
+                                    {console.log(selectedTour?.id)}
+
+                                    {isLoading ? (
+                                        <div>Loading...</div>
+                                    ) : (
+                                        selectedTour?.id === mark.id && (
+                                            <div>
+                                                {/* Add more details as necessary */}
+                                                tour id : {selectedTour.id}
+                                            </div>
+                                        )
+                                    )}
+                                </Popup>
                             </Marker>
 
                         );
@@ -323,7 +344,7 @@ function TourMapContainer({
             }
             return null;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [markers,StartIcon, handleMarkerClick, showPopup, selectedTour]);
+        }, [markers,StartIcon, handleMarkerClick, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
