@@ -6,6 +6,7 @@ import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -110,7 +111,8 @@ const DetailReworked = (props) => {
   //Whether a warning that says that your local trainstation has not been used, should be shown
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
-    const [isTourLoading, setIsTourLoading] = useState(false);
+  const [isTourLoading, setIsTourLoading] = useState(false);
+  const[showModal, setShowModal] =useState(false)
 
 
   // Translation-related
@@ -127,7 +129,8 @@ const DetailReworked = (props) => {
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
 
   const handleCloseTab = () => {
-    window.close();
+    let ableToClose = window.close();
+    !ableToClose && setShowModal(true)
   };
 
   const navigate = useNavigate();
@@ -506,6 +509,10 @@ useEffect(() => {
   		setSocialMediaDropDownToggle((current) => !current);
   	}
   };
+
+  const handleModalClose = ()=>{
+    setShowModal(false)
+  }
   
 
   const actionButtonPart = (
@@ -696,6 +703,36 @@ useEffect(() => {
                   style={{ stroke: "#fff", width: "34px", height: "34px" }}
                 />
               </Box>
+              <Modal
+                open={showModal}
+                onClose={handleModalClose}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+              >
+                <Box 
+                  sx={{ 
+                    p: 4, 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    borderRadius: '8px', 
+                    margin: 'auto', 
+                    mt: '20vh', 
+                    width: '300px',
+                    boxShadow: 24,
+                  }}
+                >
+                  <Typography id="modal-title" variant="h6" component="h2">
+                    Unable to close tab
+                  </Typography>
+                  <Typography id="modal-description" sx={{ mt: 2 }}>
+                    Please close this tab manually.
+                  </Typography>
+                  <Box sx={{ textAlign: 'center', mt: 4 }}>
+                    <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+                      Okay
+                    </button>
+                  </Box>
+                </Box>
+              </Modal>
               <DomainMenu />
             </Box>
             <Box
