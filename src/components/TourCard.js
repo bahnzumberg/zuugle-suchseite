@@ -35,8 +35,14 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
     const [searchParams, setSearchParams] = useSearchParams();
 
     
-    // let tourLink = '/tour?'+ searchParams.toString();
-    let tourLink = `/tour?id=${tour.id}&city=${city}` ;
+    const today = new Date().toISOString().split('T')[0];
+    console.log("L158 today : ", today)
+    // Append the date
+    searchParams.set('id', tour.id);
+    searchParams.set('datum', today);
+    setSearchParams(searchParams)
+    let tourLink = '/tour?'+ searchParams.toString();
+    // let tourLink = `/tour?id=${tour.id}&city=${city}` ;
       
     // i18next
     const {t} = useTranslation();
