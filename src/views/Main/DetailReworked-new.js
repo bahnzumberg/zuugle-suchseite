@@ -191,7 +191,7 @@ useEffect(() => {
  
 }, [tour]);
 
-// **** Need a tour here to function
+// **** Need a tour here to work
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     if (!!tour) {
@@ -201,7 +201,8 @@ useEffect(() => {
     }
   }, [tour]);
 
-
+  // **** Need a tour here to function   
+  // **** UE needs "isShareGenerating" state which is initialy false
   //Creating a new share link
   useEffect(() => {
       if (isShareGenerating === true && tour) {
@@ -227,66 +228,19 @@ useEffect(() => {
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
+
     const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
 
-    !!shareId && consoleLog("detail page --> shareId :", shareId); 
-    //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
-    
-    !!city && consoleLog("detail page --> city :", city); 
-    // detail page --> city : amstetten
+    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; 
 
-    //Redirects to according page when it is a share link
+    //Redirects to according page when it is a share link // from there it navigates to a new url
     if (shareId !== null) {
-
-      setIsTourLoading(true);
-
-      loadShareParams(shareId, city)
-        .then((res) => {
-          consoleLog("L221 --> res: ", res, true) ; 
-          // city : "amstetten"
-          // date : "2024-01-16T23:00:00.000Z"
-          // success : true
-          // tourId : 2708
-          // usedCityOfCookie : true
-          setIsTourLoading(false);
-          if (res.success === true) {
-            if (res.usedCityOfCookie === false) {
-              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
-              setShowDifferentStationUsedWarning(true);
-            }
-            const redirectSearchParams = new URLSearchParams();
-            const date = moment(res.date);
-            // redirectSearchParams.set("id", res.tourId);
-            redirectSearchParams.set("city", res.city);
-            redirectSearchParams.set(
-              "datum",
-              moment(date).format("YYYY-MM-DD")
-            );
-
-            localStorage.setItem("tourId", res.tourId);
-
-            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
-            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-            navigate(`/tour?${redirectSearchParams.toString()}`);
-       
-          } else {
-            setIsTourLoading(false);
-            consoleLog("L245 --> inside : res.success === false")
-            city && searchParams.set("city", city);
-            goToStartPage();
-          }
-        })
-        .catch((err) => {
-          setIsTourLoading(false);
-          console.log("error: " + err)
-          city && searchParams.set("city", city);
-          goToStartPage();
-        });
+      getSharedTour(shareId,city);
     }
 
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+
 
     console.log("L314 : id :", tourId)
     console.log("L315 : city :", city)
@@ -329,10 +283,11 @@ useEffect(() => {
           // if(!!res.data.result && !!res.data.result[0] && !!res.data.result[0].connections && res.data.result[0].connections[0].connection_description_json) {
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            console.log("L338 connections -> connectJson:",connectJson);
-            let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
-            console.log("L340 text connections -> connectJson:");
-            console.log(textDescription);
+            // console.log("L338 connections -> connectJson:",connectJson);
+            Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
+            // let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
+            // console.log("L340 text connections -> connectJson:");
+            // console.log(textDescription);
           }
         }
       })
@@ -350,9 +305,9 @@ useEffect(() => {
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
-        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
-        setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
-        setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+        // setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+        // setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
+        // setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         setRenderImage(!!tour?.image_url);
       }
     }
@@ -511,7 +466,7 @@ useEffect(() => {
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
             onClick={() => {
-              onDownloadGpx();
+              // onDownloadGpx();
             }}
           >
             <DownloadIcon />
@@ -532,7 +487,7 @@ useEffect(() => {
           <Button
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
-            onClick={onDownload}
+            // onClick={onDownload}
           >
             <PdfIcon />
             <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
@@ -672,6 +627,53 @@ useEffect(() => {
       </>
     </Box>
   );
+
+  const getSharedTour = ((shareId, city)=>{
+    setIsTourLoading(true);
+
+      loadShareParams(shareId, city)
+        .then((res) => {
+          consoleLog("L221 --> res: ", res, true) ; 
+          // city : "amstetten"
+          // date : "2024-01-16T23:00:00.000Z"
+          // success : true
+          // tourId : 2708
+          // usedCityOfCookie : true
+          setIsTourLoading(false);
+          if (res.success === true) {
+            if (res.usedCityOfCookie === false) {
+              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
+              setShowDifferentStationUsedWarning(true);
+            }
+            const redirectSearchParams = new URLSearchParams();
+            const date = moment(res.date);
+            redirectSearchParams.set("id", res.tourId);
+            redirectSearchParams.set("city", res.city);
+            redirectSearchParams.set(
+              "datum",
+              moment(date).format("YYYY-MM-DD")
+            );
+
+            localStorage.setItem("tourId", res.tourId);
+
+            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
+            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+            navigate(`/tour?${redirectSearchParams.toString()}`);
+       
+          } else {
+            setIsTourLoading(false);
+            consoleLog("L245 --> inside : res.success === false")
+            city && searchParams.set("city", city);
+            goToStartPage();
+          }
+        })
+        .catch((err) => {
+          setIsTourLoading(false);
+          console.log("error: " + err)
+          city && searchParams.set("city", city);
+          goToStartPage();
+        });
+  })
 
     return (
 
