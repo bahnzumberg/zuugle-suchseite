@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import axios from "../../axios";
-import { lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
@@ -13,7 +13,6 @@ import {
   loadTourConnectionsExtended,
   loadTourGpx,
   loadTourPdf,
-  loadTours,
 } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -61,19 +60,15 @@ const DetailReworked = (props) => {
 
   const {
     loadTour,
-    loadTours,
     loadTourConnectionsExtended,
     loadGPX,
     loadTourGpx,
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    allCities,
     tour,
     loadCities,
     loadAllCities,
-    showMobileMenu,
-    setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
@@ -110,7 +105,7 @@ const DetailReworked = (props) => {
   //Whether a warning that says that your local trainstation has not been used, should be shown
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
-    const [isTourLoading, setIsTourLoading] = useState(false);
+  const [isTourLoading, setIsTourLoading] = useState(false);
 
 
   // Translation-related
@@ -137,6 +132,7 @@ const DetailReworked = (props) => {
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
+  console.log("L136 searchParams :", searchParams.toString())
   const goToStartPageUnavailableTour = () => {
     navigate(`/?${searchParams.toString()}`);
     window.location.reload();
@@ -155,14 +151,12 @@ const DetailReworked = (props) => {
     </div>
   );
 
-
-
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
   const [providerPermit, setProviderPermit] = useState(true);
 
-
+// **** Need a tour here to get provider permit to use their GPX
 useEffect(() => {
   if (!!tour && tour.provider) {
     setIsTourLoading(true);
@@ -195,9 +189,9 @@ useEffect(() => {
       });
   }
  
-}, [tour,providerPermit]);
+}, [tour]);
 
-
+// **** Need a tour here to function
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     if (!!tour) {
@@ -210,8 +204,8 @@ useEffect(() => {
 
   //Creating a new share link
   useEffect(() => {
-      if (isShareGenerating === true) {
-          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+      if (isShareGenerating === true && tour) {
+          generateShareLink(tour?.provider, tour?.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
                       // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
@@ -222,6 +216,7 @@ useEffect(() => {
               });
           setIsShareGenerating(false);
       }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShareGenerating, shareLink]);
 
   useEffect(() => {
@@ -395,6 +390,7 @@ useEffect(() => {
       setActiveConnection(connections[index]);
       setActiveReturnConnection(connections[index].returns[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!connections]);
 
   async function onDownload() {
@@ -856,7 +852,6 @@ useEffect(() => {
 
 const mapDispatchToProps = {
   loadTour,
-  loadTours,
   loadTourConnectionsExtended,
   loadGPX,
   loadTourGpx,
