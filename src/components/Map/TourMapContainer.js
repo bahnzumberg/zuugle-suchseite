@@ -36,6 +36,15 @@ function TourMapContainer({
     // const getState = useSelector(state => state); // Get state from Redux
 
     const markers = useSelector((state) => state.tours.markers);// move to props    
+    
+    const createIcon = () => {
+        return L.icon({
+            iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
+            shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
+            iconSize: [30, 41],                             //size of the icon
+            iconAnchor: [15, 41],
+        });
+    };
 
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
@@ -50,6 +59,7 @@ function TourMapContainer({
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [ activeMarker, setActiveMarker ] = useState(null);
 
     const initialCity = !!searchParams.get('city') ? searchParams.get('city') : localStorage.getItem('city') ? localStorage.getItem('city') : null 
     const [city, setCity] = useState(initialCity);
@@ -86,7 +96,7 @@ function TourMapContainer({
     //     .includes("reload");
 
     useEffect(() => {
-        // console.log("L79 mapInitialized :", mapInitialized)
+        console.log("L79 mapInitialized :", mapInitialized)
         if (!mapInitialized) {
             setMapInitialized(true);
         }
@@ -252,9 +262,12 @@ function TourMapContainer({
     //     };
     // };
     
-    const handleMarkerClick = useCallback(async (tourId) => {
+    const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
+        console.log("Marker Click");
+
         setSelectedTour(null);
         setIsLoading(true);
+        setActiveMarker(tourInfo);
         
         if (!tourId || !city ) return ; // exit if not both parameters available
         try {
@@ -274,11 +287,11 @@ function TourMapContainer({
         }finally{
             setIsLoading(false);
             console.log("L264 isLoading after setting false:", isLoading);
-            const marker = markerRef.current
-            if (marker) {
-                console.log("L279 marker is truthy", marker)
-                marker.openPopup()
-            }
+            // const marker = markerRef.current
+            // if (marker) {
+            //     console.log("L279 marker is truthy", marker)
+            //     // marker.openPopup()
+            // }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
@@ -294,8 +307,10 @@ function TourMapContainer({
       }
 
     const markerComponents = useMemo(() => {
+            console.log('Rerender:', isLoading);
+
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
-                return markers.map((mark) => {
+                return markers.slice(0,100).map((mark) => {
                     if (!!mark) {
                         return (
                             // <CustomMarker
@@ -314,27 +329,13 @@ function TourMapContainer({
                                 key={mark.id}
                                 position={[mark.lat, mark.lon]}
                                 ref={markerRef}
-                                icon={StartIcon}
+                                icon={createIcon()}
                                 eventHandlers={{
-                                    click: () => handleMarkerClick(mark.id)
+                                    click: () => handleMarkerClick(mark, mark.id)
                                     // click: () => console.log("mark.is is :", mark.id)
                                 }}
                             >
-                                <Popup minWidth={90}>
-                                    {/* {console.log("L325 selectedTour.id : ")}
-                                    {console.log(selectedTour?.id)} */}
-
-                                    {isLoading ? (
-                                        <div>Loading...</div>
-                                    ) : (
-                                        selectedTour?.id === mark.id && (
-                                            <div>
-                                                {/* Add more details as necessary */}
-                                                tour id : {selectedTour?.id}
-                                            </div>
-                                        )
-                                    )}
-                                </Popup>
+                                
                             </Marker>
 
                         );
@@ -446,12 +447,13 @@ function TourMapContainer({
     return <Box
         style={{
             // height: "500px", 
-            height: "calc(75vh - 50px)", 
+            height: "calc(95vh - 50px)", 
             width: "100%", 
             position: "relative",
             overflow: "hidden",
             margin: "auto"
-            }}>
+            }}
+        >
         {mapInitialized && (
             <MapContainer
                 className='leaflet-container'
@@ -468,9 +470,30 @@ function TourMapContainer({
                 }}
             >
             
-            <TileLayer
+            {/* <TileLayer
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
+            /> */}
+
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+
+            {activeMarker &&
+                <Popup minWidth={90} offset={L.point([0, -25])} position={[activeMarker.lat, activeMarker.lon]}>
+                    <div>Simple Popup</div>
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        selectedTour?.id === activeMarker.id && (
+                            <div> 
+                                {/* Add more details as necessary */}
+                                tour id : {selectedTour?.id}
+                            </div>
+                        )
+                    )}
+                </Popup>
+            }
 
             {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
                 pathOptions={{fillColor: 'green', color: 'green'}}
@@ -487,6 +510,7 @@ function TourMapContainer({
             >
                 {markerComponents}
             </MarkerClusterGroup>
+
             <MyComponent/>
             <ZoomControl position="bottomright" />
     
