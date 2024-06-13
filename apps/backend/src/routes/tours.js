@@ -11,6 +11,7 @@ import logger from '../utils/logger';
 // import {jsonToText, jsonToStringArray} from '../utils/utils';
 import { jsonToStringArray } from '../utils/pdf/utils';
 import { isArray } from 'lodash';
+import {last_two_characters} from "../utils/pdf/utils"
 
 const fs = require('fs');
 const path = require('path');
@@ -1316,7 +1317,7 @@ const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
-    const connectionId = req.query.connection_id;
+    const connectionId = req.query.connection_id; logger("L1319 : connectionId :", connectionId)
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
@@ -1340,7 +1341,8 @@ const tourPdfWrapper = async (req, res) => {
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }
-
+    logger("L1343 , connection :")
+    logger(connection)
     if(!!connectionReturnId){
         connectionReturn = await knex('fahrplan').select().where({id: connectionReturnId}).first();
     }
@@ -1376,15 +1378,15 @@ const tourPdfWrapper = async (req, res) => {
     res.status(500).json({ success: false });
 }
 
-function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
-    }
-    else {
-        return "undefined";
-    }
-}
+// function last_two_characters(h_url) {
+//     const hashed_url = h_url.toString();
+//     if (hashed_url.length >= 2) {
+//         return hashed_url.substr(hashed_url.length - 2).toString();
+//     }
+//     else {
+//         return "undefined";
+//     }
+// }
 
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;

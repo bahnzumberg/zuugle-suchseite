@@ -8,6 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import logger from "../utils/logger";
+import {last_two_characters} from "../utils/pdf/utils"
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -310,15 +311,15 @@ export async function syncGPXImage(){
 
 }
 
-function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
-    }
-    else {
-        return "undefined";
-    }
-}
+// function last_two_characters(h_url) {
+//     const hashed_url = h_url.toString();
+//     if (hashed_url.length >= 2) {
+//         return hashed_url.substr(hashed_url.length - 2).toString();
+//     }
+//     else {
+//         return "undefined";
+//     }
+// }
 
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
