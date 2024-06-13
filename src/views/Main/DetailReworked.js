@@ -261,7 +261,7 @@ useEffect(() => {
             }
             const redirectSearchParams = new URLSearchParams();
             const date = moment(res.date);
-            // redirectSearchParams.set("id", res.tourId);
+            redirectSearchParams.set("id", res.tourId);
             redirectSearchParams.set("city", res.city);
             redirectSearchParams.set(
               "datum",
@@ -335,9 +335,10 @@ useEffect(() => {
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
             console.log("L338 connections -> connectJson:",connectJson);
-            let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
-            console.log("L340 text connections -> connectJson:");
-            console.log(textDescription);
+            Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
+            // let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
+            // console.log("L340 text connections -> connectJson:");
+            // console.log(textDescription);
           }
         }
       })
