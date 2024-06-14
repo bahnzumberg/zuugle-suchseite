@@ -200,7 +200,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-          console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
+        //   console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
