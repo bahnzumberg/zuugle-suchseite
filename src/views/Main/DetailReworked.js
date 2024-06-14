@@ -124,9 +124,9 @@ const DetailReworked = (props) => {
   };
   
   // pdf buttons shows up only when menu language is German
-  // let pdfLanguagePermit = i18next.resolvedLanguage === "de";
+  let pdfLanguagePermit = i18next.resolvedLanguage === "de";
   // Because of https://github.com/orgs/bahnzumberg/projects/2/views/6?pane=issue&itemId=67291173, PDF button will be deactivated for everyone
-  let pdfLanguagePermit = i18next.resolvedLanguage === "none";
+  // let pdfLanguagePermit = i18next.resolvedLanguage === "none";
 
   const handleCloseTab = () => {
     window.close();
