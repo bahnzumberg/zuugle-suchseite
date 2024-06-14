@@ -177,6 +177,7 @@ function TourMapContainer({
 
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
+            console.log('Update bounds');
             const bounds = getMarkersBounds(markers);
             mapRef.current.fitBounds(bounds);
         }
@@ -214,6 +215,7 @@ function TourMapContainer({
     }
 
     const updateBounds = () => {
+        console.log('Updated Bounds');
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
@@ -296,7 +298,7 @@ function TourMapContainer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
 
-    function TourPopupContent({ tour }) {
+    function TourPopupContents({ tour }) {
         return (
           <div>
             <h2>{tour.id}</h2>
@@ -304,13 +306,13 @@ function TourMapContainer({
             
           </div>
         );
-      }
+    }
 
     const markerComponents = useMemo(() => {
             console.log('Rerender:', isLoading);
 
             if (!!markers && Array.isArray(markers) && markers.length > 0) {
-                return markers.slice(0,100).map((mark) => {
+                return markers.map((mark) => {
                     if (!!mark) {
                         return (
                             // <CustomMarker
@@ -345,7 +347,7 @@ function TourMapContainer({
             }
             return null;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [markers,StartIcon, handleMarkerClick, selectedTour]);
+        }, [markers, handleMarkerClick, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
@@ -354,10 +356,11 @@ function TourMapContainer({
 
         // Calculate icon size based on formatted count length
         const iconSize = L.point(
-        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
-        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
-        true // Anchor point flag :  center the icon on the cluster center position
-    );
+            Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+            Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+            true // Anchor point flag :  center the icon on the cluster center position
+        );
+
         return L.divIcon({
             html: `<span style='display: flex; justify-content: center; align-items: center; height: 100%;'>${formattedCount}</span>`,
             className: 'custom-marker-cluster',
@@ -447,7 +450,7 @@ function TourMapContainer({
     return <Box
         style={{
             // height: "500px", 
-            height: "calc(95vh - 50px)", 
+            height: "calc(75vh - 50px)", 
             width: "100%", 
             position: "relative",
             overflow: "hidden",
@@ -470,20 +473,34 @@ function TourMapContainer({
                 }}
             >
             
-            {/* <TileLayer
-                url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
-            /> */}
-
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
             />
 
             {activeMarker &&
-                <Popup minWidth={90} offset={L.point([0, -25])} position={[activeMarker.lat, activeMarker.lon]}>
+                <Popup 
+                    minWidth={90} offset={L.point([0, -25])} 
+                    position={[
+                        parseFloat(activeMarker.lat), 
+                        parseFloat(activeMarker.lon)
+                    ]}
+                    eventHandlers={{
+                        remove:() => setActiveMarker(null)
+                    }}
+                >
                     <div>Simple Popup</div>
+
+                    {/* <TourPopupContent
+                        tourId={activeMarker.id}
+                        onSelectTour={onSelectTour}
+                        loadTourConnections={loadTourConnections}
+                        city={city}
+                        tour={selectedTour}
+                        isLoading={isLoading}
+                    /> */}
+
                     {isLoading ? (
-                        <div>Loading...</div>
+                        <div>Loading ...</div>
                     ) : (
                         selectedTour?.id === activeMarker.id && (
                             <div> 
@@ -501,14 +518,28 @@ function TourMapContainer({
             />]}
 
             <MarkerClusterGroup
-                key={new Date().getTime()}
+                // key={new Date().getTime()}
                 ref={clusterRef}
                 maxClusterRadius={100}
                 chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
                 showCoverageOnHover={false}
+                removeOutsideVisibleBounds={true}
                 iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
             >
-                {markerComponents}
+                
+                {markers.map((mark) => {
+                    return <Marker
+                        key={mark.id}
+                        position={[mark.lat, mark.lon]}
+                        ref={markerRef}
+                        icon={createIcon()}
+                        eventHandlers={{
+                            click: () => handleMarkerClick(mark, mark.id)
+                        }}
+                    >
+                        
+                    </Marker>
+                })}
             </MarkerClusterGroup>
 
             <MyComponent/>
