@@ -23,10 +23,10 @@ import {consoleLog} from "../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-export default function TourCard({tour, onSelectTour, loadTourConnections, city, mapCard}){
+export default function PopupCard({tour, onSelectTour, loadTourConnections, city}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const imageOpacity = 1;
+    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
 
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
@@ -34,8 +34,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    
-    let tourLink = `/tour?id=${tour.id}&city=${city}` ;
+    let tourLink = '/tour?'+ searchParams.toString();
+    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
       
     // i18next
     const {t} = useTranslation();
@@ -79,11 +79,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
             setConnectionLoading(true);
             loadTourConnections({id: tour.id, city: city}).then(res => {
                 //clg
-                // console.log("Line 79 TourCard:")
+                // console.log("Line 79 PopupCard:")
                 // console.log(res.data.connections[0])
                 // console.log("=====================================")
-                // console.log("Line 75 TourCard:",res.data.returns)
-                // console.log("Line 75 TourCard:",res.data)
+                // console.log("Line 75 PopupCard:",res.data.returns)
+                // console.log("Line 75 PopupCard:",res.data)
                 setConnectionLoading(false);
                 setConnections(res?.data?.connections);
                 setReturns(res?.data?.returns);
@@ -176,7 +176,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
     const getAnreise = () => {
         if(!!connections && connections.length > 0){
             let connection = connections[0];
-            // console.log("TourCard connection: ") ;
+            // console.log("PopupCard connection: ") ;
             // console.log(connection)
             return <TourConnectionCardNew connection={connection}/>
         } else {
@@ -200,7 +200,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-          console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
+        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
@@ -246,7 +246,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
         </CardContent>
         
         {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
-        {!!connections && connections.length > 0 && !mapCard &&(
+        {!!connections && connections.length > 0 && (
                 <Fragment>
                     <div className="bottom-container">
                     <CardContent>

@@ -1,12 +1,11 @@
 /* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import axios from "../../axios";
-import { lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -14,7 +13,6 @@ import {
   loadTourConnectionsExtended,
   loadTourGpx,
   loadTourPdf,
-  loadTours,
 } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -62,19 +60,15 @@ const DetailReworked = (props) => {
 
   const {
     loadTour,
-    loadTours,
     loadTourConnectionsExtended,
     loadGPX,
     loadTourGpx,
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    allCities,
     tour,
     loadCities,
     loadAllCities,
-    showMobileMenu,
-    setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
@@ -112,7 +106,6 @@ const DetailReworked = (props) => {
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
-  const[showModal, setShowModal] =useState(false)
 
 
   // Translation-related
@@ -127,12 +120,9 @@ const DetailReworked = (props) => {
   
   // pdf buttons shows up only when menu language is German
   let pdfLanguagePermit = i18next.resolvedLanguage === "de";
-  // Because of https://github.com/orgs/bahnzumberg/projects/2/views/6?pane=issue&itemId=67291173, PDF button will be deactivated for everyone
-  // let pdfLanguagePermit = i18next.resolvedLanguage === "none";
 
   const handleCloseTab = () => {
-    let ableToClose = window.close();
-    !ableToClose && setShowModal(true)
+    window.close();
   };
 
   const navigate = useNavigate();
@@ -142,6 +132,7 @@ const DetailReworked = (props) => {
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
+  console.log("L136 searchParams :", searchParams.toString())
   const goToStartPageUnavailableTour = () => {
     navigate(`/?${searchParams.toString()}`);
     window.location.reload();
@@ -160,14 +151,12 @@ const DetailReworked = (props) => {
     </div>
   );
 
-
-
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
   const [providerPermit, setProviderPermit] = useState(true);
 
-
+// **** Need a tour here to get provider permit to use their GPX
 useEffect(() => {
   if (!!tour && tour.provider) {
     setIsTourLoading(true);
@@ -200,9 +189,9 @@ useEffect(() => {
       });
   }
  
-}, [tour,providerPermit]);
+}, [tour]);
 
-
+// **** Need a tour here to work
   React.useEffect(() => {
     var _mtm = window._mtm = window._mtm || [];
     if (!!tour) {
@@ -212,11 +201,12 @@ useEffect(() => {
     }
   }, [tour]);
 
-
+  // **** Need a tour here to function   
+  // **** UE needs "isShareGenerating" state which is initialy false
   //Creating a new share link
   useEffect(() => {
-      if (isShareGenerating === true) {
-          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+      if (isShareGenerating === true && tour) {
+          generateShareLink(tour?.provider, tour?.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
                       // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
@@ -227,6 +217,7 @@ useEffect(() => {
               });
           setIsShareGenerating(false);
       }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShareGenerating, shareLink]);
 
   useEffect(() => {
@@ -237,66 +228,19 @@ useEffect(() => {
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
+
     const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
 
-    !!shareId && consoleLog("detail page --> shareId :", shareId); 
-    //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
-    
-    !!city && consoleLog("detail page --> city :", city); 
-    // detail page --> city : amstetten
+    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; 
 
-    //Redirects to according page when it is a share link
+    //Redirects to according page when it is a share link // from there it navigates to a new url
     if (shareId !== null) {
-
-      setIsTourLoading(true);
-
-      loadShareParams(shareId, city)
-        .then((res) => {
-          consoleLog("L221 --> res: ", res, true) ; 
-          // city : "amstetten"
-          // date : "2024-01-16T23:00:00.000Z"
-          // success : true
-          // tourId : 2708
-          // usedCityOfCookie : true
-          setIsTourLoading(false);
-          if (res.success === true) {
-            if (res.usedCityOfCookie === false) {
-              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
-              setShowDifferentStationUsedWarning(true);
-            }
-            const redirectSearchParams = new URLSearchParams();
-            const date = moment(res.date);
-            redirectSearchParams.set("id", res.tourId);
-            redirectSearchParams.set("city", res.city);
-            redirectSearchParams.set(
-              "datum",
-              moment(date).format("YYYY-MM-DD")
-            );
-
-            localStorage.setItem("tourId", res.tourId);
-
-            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
-            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-            navigate(`/tour?${redirectSearchParams.toString()}`);
-       
-          } else {
-            setIsTourLoading(false);
-            consoleLog("L245 --> inside : res.success === false")
-            city && searchParams.set("city", city);
-            goToStartPage();
-          }
-        })
-        .catch((err) => {
-          setIsTourLoading(false);
-          console.log("error: " + err)
-          city && searchParams.set("city", city);
-          goToStartPage();
-        });
+      getSharedTour(shareId,city);
     }
 
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+
 
     console.log("L314 : id :", tourId)
     console.log("L315 : city :", city)
@@ -334,10 +278,12 @@ useEffect(() => {
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
         if (res && res.data) {
           !!res.data.result && setConnections(res.data.result);
-          
+          // !!res.data.result && console.log("L333 res.data.result :",res.data.result);
+          // !!res.data.result && !!res.data.result[0] && console.log("L334 res.data.result :",res.data.result[0]);
+          // if(!!res.data.result && !!res.data.result[0] && !!res.data.result[0].connections && res.data.result[0].connections[0].connection_description_json) {
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            console.log("L338 connections -> connectJson:",connectJson);
+            // console.log("L338 connections -> connectJson:",connectJson);
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
             // let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
             // console.log("L340 text connections -> connectJson:");
@@ -359,9 +305,9 @@ useEffect(() => {
       } else {
         // console.log("inside block for setting gopx files and tracks")
         // console.log("===============================================")
-        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
-        setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
-        setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+        // setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+        // setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
+        // setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         setRenderImage(!!tour?.image_url);
       }
     }
@@ -399,6 +345,7 @@ useEffect(() => {
       setActiveConnection(connections[index]);
       setActiveReturnConnection(connections[index].returns[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!connections]);
 
   async function onDownload() {
@@ -509,10 +456,6 @@ useEffect(() => {
   		setSocialMediaDropDownToggle((current) => !current);
   	}
   };
-
-  const handleModalClose = ()=>{
-    setShowModal(false)
-  }
   
 
   const actionButtonPart = (
@@ -523,7 +466,7 @@ useEffect(() => {
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
             onClick={() => {
-              onDownloadGpx();
+              // onDownloadGpx();
             }}
           >
             <DownloadIcon />
@@ -544,7 +487,7 @@ useEffect(() => {
           <Button
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
-            onClick={onDownload}
+            // onClick={onDownload}
           >
             <PdfIcon />
             <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
@@ -685,6 +628,53 @@ useEffect(() => {
     </Box>
   );
 
+  const getSharedTour = ((shareId, city)=>{
+    setIsTourLoading(true);
+
+      loadShareParams(shareId, city)
+        .then((res) => {
+          consoleLog("L221 --> res: ", res, true) ; 
+          // city : "amstetten"
+          // date : "2024-01-16T23:00:00.000Z"
+          // success : true
+          // tourId : 2708
+          // usedCityOfCookie : true
+          setIsTourLoading(false);
+          if (res.success === true) {
+            if (res.usedCityOfCookie === false) {
+              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
+              setShowDifferentStationUsedWarning(true);
+            }
+            const redirectSearchParams = new URLSearchParams();
+            const date = moment(res.date);
+            redirectSearchParams.set("id", res.tourId);
+            redirectSearchParams.set("city", res.city);
+            redirectSearchParams.set(
+              "datum",
+              moment(date).format("YYYY-MM-DD")
+            );
+
+            localStorage.setItem("tourId", res.tourId);
+
+            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
+            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+            navigate(`/tour?${redirectSearchParams.toString()}`);
+       
+          } else {
+            setIsTourLoading(false);
+            consoleLog("L245 --> inside : res.success === false")
+            city && searchParams.set("city", city);
+            goToStartPage();
+          }
+        })
+        .catch((err) => {
+          setIsTourLoading(false);
+          console.log("error: " + err)
+          city && searchParams.set("city", city);
+          goToStartPage();
+        });
+  })
+
     return (
 
       <Box sx={{ backgroundColor: "#fff" }}>
@@ -703,36 +693,6 @@ useEffect(() => {
                   style={{ stroke: "#fff", width: "34px", height: "34px" }}
                 />
               </Box>
-              <Modal
-                open={showModal}
-                onClose={handleModalClose}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-              >
-                <Box 
-                  sx={{ 
-                    p: 4, 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    borderRadius: '8px', 
-                    margin: 'auto', 
-                    mt: '20vh', 
-                    width: '300px',
-                    boxShadow: 24,
-                  }}
-                >
-                  <Typography id="modal-title" variant="h6" component="h2">
-                    Unable to close tab
-                  </Typography>
-                  <Typography id="modal-description" sx={{ mt: 2 }}>
-                    Please close this tab manually.
-                  </Typography>
-                  <Box sx={{ textAlign: 'center', mt: 4 }}>
-                    <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                      Okay
-                    </button>
-                  </Box>
-                </Box>
-              </Modal>
               <DomainMenu />
             </Box>
             <Box
@@ -894,7 +854,6 @@ useEffect(() => {
 
 const mapDispatchToProps = {
   loadTour,
-  loadTours,
   loadTourConnectionsExtended,
   loadGPX,
   loadTourGpx,
