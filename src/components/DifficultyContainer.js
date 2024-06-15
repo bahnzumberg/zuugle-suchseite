@@ -14,7 +14,7 @@ export default function DifficultyContainer({value, disabled = false}){
         </Box>
         <Typography variant={"subtitle1"}>Schwierigkeit</Typography>
         <Box  sx={{marginTop: '10px'}}>
-            <Typography variant={"textSmall"}>Der Schwierigkeitswert wurde nach den allgemein verfügbaren Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann zwischen 1 (leicht) bis 10 (sehr schwierig) variieren.</Typography>
+            <Typography variant={"textSmall"}>Der Schwierigkeitswert wurde nach den allgemein verfügbaren Schwierigkeitsskalen auf den diversen Tourenportalen konsolidiert und kann leicht, mittel oder schwer sein.</Typography>
             {/*<br/>
             <Typography variant={"link"} sx={{fontSize: '14px'}}>Mehr erfahren...</Typography>*/}
         </Box>

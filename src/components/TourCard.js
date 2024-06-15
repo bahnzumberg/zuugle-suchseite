@@ -120,9 +120,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city,
         const translateDiff = (diff) =>{
             if(diff === "Leicht"){
                 return t('start.leicht');
+            }else if(diff === "Mittel") {
+                return t('start.mittel');
             }else if(diff === "Schwer") {
                 return t('start.schwer');
-            }else return t('start.mittel');
+            }else return t('start.notset');
         };
 
         const translateTourType = (type) =>{
