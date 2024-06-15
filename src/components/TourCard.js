@@ -23,10 +23,10 @@ import {consoleLog} from "../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-export default function TourCard({tour, onSelectTour, loadTourConnections, city}){
+export default function TourCard({tour, onSelectTour, loadTourConnections, city, mapCard}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
+    const imageOpacity = 1;
 
     const [connectionLoading, setConnectionLoading] = useState(true)
     const [connections, setConnections] = useState([]);
@@ -34,8 +34,8 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    let tourLink = '/tour?'+ searchParams.toString();
-    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
+    
+    let tourLink = `/tour?id=${tour.id}&city=${city}` ;
       
     // i18next
     const {t} = useTranslation();
@@ -120,9 +120,11 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         const translateDiff = (diff) =>{
             if(diff === "Leicht"){
                 return t('start.leicht');
+            }else if(diff === "Mittel") {
+                return t('start.mittel');
             }else if(diff === "Schwer") {
                 return t('start.schwer');
-            }else return t('start.mittel');
+            }else return t('start.notset');
         };
 
         const translateTourType = (type) =>{
@@ -200,7 +202,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         className="tour-card"
         onClick={() => {
           onSelectTour(tour);
-        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
+        //   console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
         }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
@@ -246,7 +248,7 @@ export default function TourCard({tour, onSelectTour, loadTourConnections, city}
         </CardContent>
         
         {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
-        {!!connections && connections.length > 0 && (
+        {!!connections && connections.length > 0 && !mapCard &&(
                 <Fragment>
                     <div className="bottom-container">
                     <CardContent>
