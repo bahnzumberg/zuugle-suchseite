@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
-import CustomMarker from './CustomMarker.js';
+// import CustomMarker from './CustomMarker.js';
 
-const TourPopupContent = lazy(()=>import('./TourPopupContent.jsx'));
+const PopupCard = lazy(()=>import('./PopupCard'));
 
 function TourMapContainer({
     tours,
@@ -469,7 +469,7 @@ function TourMapContainer({
                 style={{height: "100%", width: "100%"}} //Size of the map
                 zoomControl={false}
                 bounds={() => {
-                    updateBounds();  // TODO : issue https://github.com/bahnzumberg/zuugle-suchseite/issues/342 here check which bounds params are being used from the localStorage
+                    updateBounds();  
                 }}
             >
             
@@ -479,7 +479,11 @@ function TourMapContainer({
 
             {activeMarker &&
                 <Popup 
-                    minWidth={90} offset={L.point([0, -25])} 
+                minWidth={350}  /* Gray: Setting minimum width */
+                maxWidth={400}  /* Gray: Setting maximum width */
+                minHeight={300} /* Gray: Setting minimum height */
+                maxHeight={300} /* Gray: Setting maximum height */
+                offset={L.point([0, -25])}
                     position={[
                         parseFloat(activeMarker.lat), 
                         parseFloat(activeMarker.lon)
@@ -488,27 +492,11 @@ function TourMapContainer({
                         remove:() => setActiveMarker(null)
                     }}
                 >
-                    <div>Simple Popup</div>
-
-                    {/* <TourPopupContent
-                        tourId={activeMarker.id}
-                        onSelectTour={onSelectTour}
-                        loadTourConnections={loadTourConnections}
-                        city={city}
-                        tour={selectedTour}
-                        isLoading={isLoading}
-                    /> */}
-
-                    {isLoading ? (
-                        <div>Loading ...</div>
-                    ) : (
+                    {
                         selectedTour?.id === activeMarker.id && (
-                            <div> 
-                                {/* Add more details as necessary */}
-                                tour id : {selectedTour?.id}
-                            </div>
-                        )
-                    )}
+                            <PopupCard tour={selectedTour}/>
+                        )                    
+                    }
                 </Popup>
             }
 
