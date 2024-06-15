@@ -17,7 +17,7 @@ export const convertDifficulty = (difficulty) => {
       break;
 
     default:
-      convertedDifficulty = " Unbekannt";
+      convertedDifficulty = "Unbekannt";
       break;
   }
 //   console.log("Difficulty / dataConversion.js: ",convertedDifficulty)
