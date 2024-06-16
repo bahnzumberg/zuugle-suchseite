@@ -90,20 +90,20 @@ body ::-webkit-scrollbar-thumb:hover {
 /* Ensuring the card fits within a 350px width and 300px height, scales down typography sizes */
 .tour-card-map {
   text-align: left;
-  max-width: 400px; /* Gray: Setting the maximum width */
-  max-height: 300px; /* Gray: Setting the maximum height */
+  max-width: 400px; 
+  max-height: 300px; 
   width: 100%;
   height: auto;
 }
 
 /* Adjusting typography sizes for better fit within the card */
 .tour-card-map .MuiTypography-h4, .tour-card-map .MuiTypography-h5, .tour-card-map .MuiTypography-h6 {
-  font-size: 0.875rem; /* Adjust font size to fit content */
+  font-size: 0.875rem; 
 }
 
 /* Adjusting padding for better fit */
 .tour-card-map .MuiCardContent-root {
-  padding: 8px; /* Gray: Adjust padding */
+  padding: 8px; 
 }
 
 /* Ensuring the icon and text display correctly within the limited space */
@@ -111,7 +111,8 @@ body ::-webkit-scrollbar-thumb:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  font-size: 0.75rem; /* Gray: Adjust font size */
+  font-size: 0.75rem; 
+  align-items: center; 
 }
 
 

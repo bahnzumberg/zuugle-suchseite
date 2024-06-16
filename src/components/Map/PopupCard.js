@@ -116,33 +116,43 @@ export default function PopupCard({tour}){
         const values = [];
         if (tour) {
             values.push({
-                icon: <Clock style={{ fill: "transparent", width: '16px', height: '16px', margin:"1px" }} />, 
+                icon: <Clock style={{ fill: "transparent", width: '25px', height: '25px' }} />, 
                 text: `${t("main.tour")}: ` + ((tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ` ${t("details.tage")}`) : convertNumToTime(tour.total_tour_duration)),
             });
             values.push({
-                icon: <Intensity style={{ fill: "transparent", width: '16px', height: '16px', margin:"1px" }} />, 
+                icon: <Intensity style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: translateDiff(tour.difficulty),
             });
             values.push({
-                icon: <Walk style={{ fill: "transparent", width: '16px', height: '16px', margin:"1px" }} />, 
+                icon: <Walk style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: translateTourType(tour.type),
             });
             values.push({
-                icon: <ArrowVertical style={{ fill: "transparent", width: '16px', height: '16px', margin:"1px" }} />, 
+                icon: <ArrowVertical style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: `${tour.ascent} / ${tour.descent} ${hm}`,
             });
             values.push({
-                icon: <ArrowHorizontal style={{ fill: "transparent", width: '16px', height: '16px', margin:"1px" }} />, 
+                icon: <ArrowHorizontal style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: `${formatNumber(tour.distance, ` ${km}`)}`,
             });
         }
 
         return (
-            <Box display="inline" style={{ whiteSpace: "break-spaces", fontSize: '12px' }}> {/* Gray: Scale down font size */}
+            <Box display="inline" style={{ 
+                whiteSpace: "break-spaces", 
+                fontSize: '12px' ,
+                }}> 
                 {values.map((entry, index) => (
-                    <Box key={index} display="inline-block" sx={{ marginRight: "5px" }}> {/* Gray: Adjust margin */}
+                    <Box key={index} display="inline-block" sx={{ marginRight: "10px" }}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                    }}
+                    > 
                         {entry.icon}
-                        <Typography display="inline" variant="subtitle2" sx={{ lineHeight: "12px", position: "relative", top: "-5px", left: "2px" }}> 
+                        {/* <Typography display="inline" variant="subtitle2" sx={{ lineHeight: "12px", position: "relative", top: "-5px", left: "2px" }}>  */}
+                        <Typography display="inline" variant="subtitle2" sx={{ fontSize: '14px', marginLeft:'4px'}}> 
                             {entry.text}
                         </Typography>
                     </Box>
@@ -170,7 +180,7 @@ export default function PopupCard({tour}){
             />
         </a>
         <CardContent sx={{ padding: '8px' }}>
-            <Typography variant="h6" sx={{ fontSize: '16px' }}>{tour.range}</Typography> {/* Gray: Adjust font size */}
+            <Typography variant="h6" sx={{ fontSize: '16px' }}>{tour.range}</Typography> 
             <Typography variant="h5" sx={{ fontSize: '14px', whiteSpace: "break-spaces" }}> 
                 <a href={tourLink} target='_blank' rel='noreferrer' className="custom-h5-link curser-link">
                     {tour.title}
