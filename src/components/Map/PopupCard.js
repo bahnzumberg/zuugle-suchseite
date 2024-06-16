@@ -151,7 +151,6 @@ export default function PopupCard({tour}){
                     }}
                     > 
                         {entry.icon}
-                        {/* <Typography display="inline" variant="subtitle2" sx={{ lineHeight: "12px", position: "relative", top: "-5px", left: "2px" }}>  */}
                         <Typography display="inline" variant="subtitle2" sx={{ fontSize: '14px', marginLeft:'4px'}}> 
                             {entry.text}
                         </Typography>
