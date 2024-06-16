@@ -93,6 +93,7 @@ CREATE TABLE tour_inactive (
       state varchar(128) DEFAULT NULL,
       range_slug varchar(128) DEFAULT NULL,
       range varchar(128) DEFAULT NULL,
+      last_active timestamp NOT NULL,
       PRIMARY KEY (id)
 );
 
