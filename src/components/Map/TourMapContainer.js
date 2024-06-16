@@ -479,10 +479,11 @@ function TourMapContainer({
 
             {activeMarker &&
                 <Popup 
-                minWidth={350}  /* Gray: Setting minimum width */
-                maxWidth={400}  /* Gray: Setting maximum width */
-                minHeight={300} /* Gray: Setting minimum height */
-                maxHeight={300} /* Gray: Setting maximum height */
+                minWidth={350}  
+                maxWidth={400}  
+                minHeight={300} 
+                maxHeight={300} 
+                margin="0"
                 offset={L.point([0, -25])}
                     position={[
                         parseFloat(activeMarker.lat), 
