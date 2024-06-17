@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
-import "./Popup.css";
+import "./popup.css";
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
