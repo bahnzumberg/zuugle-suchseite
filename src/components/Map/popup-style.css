@@ -1,4 +1,7 @@
 /* Base styles for .leaflet-popup-content to remove background and adjust layout */
+.request-popup {
+    padding-top: 5%;
+}
 .leaflet-popup-content {
     background: transparent; /* Remove white background */
     padding: 0; /* Remove padding */
@@ -8,11 +11,16 @@
     display: flex; /* Use flexbox for alignment */
     align-items: center; /* Center items vertically */
     justify-content: center; /* Center items horizontally */
+    box-shadow: none; 
+    /* border: solid 5px white;
+    border-radius: 15px; */
   }
   
   .leaflet-popup-content-wrapper {
-    background: transparent; /* Remove background from wrapper */
+    background: white; /* Remove background from wrapper */
     box-shadow: none; /* Remove box shadow */
+    padding:10px;
+    border-radius: 20px;
   }
   
   .leaflet-popup-tip {
