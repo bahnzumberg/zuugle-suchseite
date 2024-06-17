@@ -169,7 +169,15 @@ export default function PopupCard({tour}){
       <Card
         className="tour-card-map"
       >
-      
+        <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
+            <CardMedia
+             component="img"
+             height="100"
+             image={image}
+             // Ensuring the image fits within the width and maintains aspect ratio
+             style={{ opacity: 1, width: "100%", maxHeight: "100px", objectFit: "cover" }}
+            />
+        </a>
         <CardContent sx={{ padding: '8px' }}>
             <Typography variant="h6" sx={{ fontSize: '16px' }}>{tour.range}</Typography> 
             <Typography variant="h5" sx={{ fontSize: '14px', whiteSpace: "break-spaces" }}> 
