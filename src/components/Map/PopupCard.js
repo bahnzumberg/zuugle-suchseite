@@ -27,7 +27,10 @@ export default function PopupCard({tour}){
     const [searchParams, setSearchParams] = useSearchParams();
 
     console.log("L29 : searchParams.toString() :", searchParams.toString())
-    let tourLink = '/tour?'+ searchParams.toString();
+    if(searchParams.get('filter')) searchParams.delete("filter");
+    if(searchParams.get('map')) searchParams.delete("map");
+ 
+    let tourLink = `/tour?id=${tour.id} &`+ searchParams.toString();
       
     // i18next
     const {t} = useTranslation();
