@@ -29,7 +29,7 @@ export default function PopupCard({tour}){
     if(searchParams.get('filter')) searchParams.delete("filter");
     if(searchParams.get('map')) searchParams.delete("map");
  
-    let tourLink = `/tour?id=${tour.id} &`+ searchParams.toString();
+    let tourLink = `/tour?id=${tour.id}&`+ searchParams.toString();
       
     // i18next
     const {t} = useTranslation();
