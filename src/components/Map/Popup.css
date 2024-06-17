@@ -1,45 +1,45 @@
-/* current / Base styles for .leaflet-popup-content to remove background and adjust layout */
+/* Base styles for .leaflet-popup-content to remove background and adjust layout */
 .leaflet-popup-content {
-  background: transparent; /* current / Remove white background */
-  padding: 0; /* current / Remove padding */
-  margin: 0; /* current / Remove margin */
-  width: auto; /* current / Allow content to define width */
-  height: auto; /* current / Allow content to define height */
-  display: flex; /* current / Use flexbox for alignment */
-  align-items: center; /* current / Center items vertically */
-  justify-content: center; /* current / Center items horizontally */
+  background: transparent; /* Remove white background */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+  width: auto; /* Allow content to define width */
+  height: auto; /* Allow content to define height */
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
 }
 
 .leaflet-popup-content-wrapper {
-  background: transparent; /* current / Remove background from wrapper */
-  box-shadow: none; /* current / Remove box shadow */
+  background: transparent; /* Remove background from wrapper */
+  box-shadow: none; /* Remove box shadow */
 }
 
 .leaflet-popup-tip {
-  display: none; /* current / Remove the popup tip */
+  display: none; /* Remove the popup tip */
 }
 
-/* current / Responsive font sizes for different breakpoints */
+/* Responsive font sizes for different breakpoints */
 @media (max-width: 1200px) {
   .tour-card-map {
-    font-size: 14px; /* current / Adjust font size for screens up to 1200px */
+    font-size: 14px; /* Adjust font size for screens up to 1200px */
   }
 }
 
 @media (max-width: 900px) {
   .tour-card-map {
-    font-size: 12px; /* current / Adjust font size for screens up to 900px */
+    font-size: 12px; /* Adjust font size for screens up to 900px */
   }
 }
 
 @media (max-width: 600px) {
   .tour-card-map {
-    font-size: 10px; /* current / Adjust font size for screens up to 600px */
+    font-size: 10px; /* Adjust font size for screens up to 600px */
   }
 }
 
 @media (max-width: 400px) {
   .tour-card-map {
-    font-size: 8px; /* current / Adjust font size for screens up to 400px */
+    font-size: 8px; /* Adjust font size for screens up to 400px */
   }
 }

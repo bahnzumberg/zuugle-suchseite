@@ -1,0 +1,46 @@
+/* Base styles for .leaflet-popup-content to remove background and adjust layout */
+.leaflet-popup-content {
+    background: transparent; /* Remove white background */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+    width: auto; /* Allow content to define width */
+    height: auto; /* Allow content to define height */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+  }
+  
+  .leaflet-popup-content-wrapper {
+    background: transparent; /* Remove background from wrapper */
+    box-shadow: none; /* Remove box shadow */
+  }
+  
+  .leaflet-popup-tip {
+    display: none; /* Remove the popup tip */
+  }
+  
+  /* Responsive font sizes for different breakpoints */
+  @media (max-width: 1200px) {
+    .tour-card-map {
+      font-size: 14px; /* Adjust font size for screens up to 1200px */
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .tour-card-map {
+      font-size: 12px; /* Adjust font size for screens up to 900px */
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .tour-card-map {
+      font-size: 10px; /* Adjust font size for screens up to 600px */
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .tour-card-map {
+      font-size: 8px; /* Adjust font size for screens up to 400px */
+    }
+  }
+  
