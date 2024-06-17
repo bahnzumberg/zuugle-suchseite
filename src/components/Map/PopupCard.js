@@ -26,7 +26,6 @@ export default function PopupCard({tour}){
     const [image, setImage] = useState(DEFAULT_IMAGE);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    console.log("L29 : searchParams.toString() :", searchParams.toString())
     if(searchParams.get('filter')) searchParams.delete("filter");
     if(searchParams.get('map')) searchParams.delete("map");
  
@@ -70,10 +69,15 @@ export default function PopupCard({tour}){
     }, [tour])
 
 
-    const isMobile = useMediaQuery('(max-width:600px)');
+    const isMobile_600px = useMediaQuery('(max-width:600px)');
+    if(isMobile_600px){
+        let iconStyle = { fill: "transparent", width: '25px', height: '25px' }
+    }
+
+
     const shortened_url = () => {
         let length = 45;
-        if (!!isMobile) { 
+        if (!!isMobile_600px) { 
             length = 35; 
         } 
         let red_url = (!!tour.url?tour.url:"").replace("https://www.", "").replace("http://www.", "").split("/"), i;
