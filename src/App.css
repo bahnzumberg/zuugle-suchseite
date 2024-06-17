@@ -87,6 +87,35 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 }
 
+/* Ensuring the card fits within a 350px width and 300px height, scales down typography sizes */
+.tour-card-map {
+  text-align: left;
+  max-width: 400px; 
+  max-height: 300px; 
+  width: 100%;
+  height: auto;
+}
+
+/* Adjusting typography sizes for better fit within the card */
+.tour-card-map .MuiTypography-h4, .tour-card-map .MuiTypography-h5, .tour-card-map .MuiTypography-h6 {
+  font-size: 0.875rem; 
+}
+
+/* Adjusting padding for better fit */
+.tour-card-map .MuiCardContent-root {
+  padding: 8px; 
+}
+
+/* Ensuring the icon and text display correctly within the limited space */
+.tour-card-map .MuiBox-root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.75rem; 
+  align-items: center; 
+}
+
+
 .tour-card {
   text-align: left;
   height: 100%;

@@ -3,39 +3,33 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import CustomStarRating from "./CustomStarRating";
-import {checkIfImageExists, convertNumToTime, formatNumber} from "../utils/globals";
-import Clock from "../icons/Clock";
-import Intensity from "../icons/Intensity";
-import Walk from "../icons/Walk";
-import ArrowHorizontal from "../icons/ArrowHorizontal";
-import ArrowVertical from "../icons/ArrowVertical";
+import CustomStarRating from "../CustomStarRating";
+import {checkIfImageExists, convertNumToTime, formatNumber} from "../../utils/globals";
+import Clock from "../../icons/Clock";
+import Intensity from "../../icons/Intensity";
+import Walk from "../../icons/Walk";
+import ArrowHorizontal from "../../icons/ArrowHorizontal";
+import ArrowVertical from "../../icons/ArrowVertical";
 import {Fragment, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
-import TourConnectionCardNew from "./TourConnectionCardNew";
-import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
+
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
-import {tourTypes} from "../utils/language_Utils";
+import {tourTypes} from "../../utils/language_Utils";
 import { useSearchParams } from 'react-router-dom';
-import {consoleLog} from "../utils/globals";
+// import {consoleLog} from "../../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
-export default function PopupCard({tour, onSelectTour, loadTourConnections, city}){
+export default function PopupCard({tour}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
-
-    const [connectionLoading, setConnectionLoading] = useState(true)
-    const [connections, setConnections] = useState([]);
-    const [returns, setReturns] = useState([]);
-
     const [searchParams, setSearchParams] = useSearchParams();
 
-    let tourLink = '/tour?'+ searchParams.toString();
-    // must update the Redux state : tour (this is done through leaving onSelectTour as it is)
+    if(searchParams.get('filter')) searchParams.delete("filter");
+    if(searchParams.get('map')) searchParams.delete("map");
+ 
+    let tourLink = `/tour?id=${tour.id} &`+ searchParams.toString();
       
     // i18next
     const {t} = useTranslation();
@@ -74,30 +68,16 @@ export default function PopupCard({tour, onSelectTour, loadTourConnections, city
         }
     }, [tour])
 
-    useEffect(() => {
-        if(!!loadTourConnections && !!city && tour.cities && tour.cities.length > 0){
-            setConnectionLoading(true);
-            loadTourConnections({id: tour.id, city: city}).then(res => {
-                //clg
-                // console.log("Line 79 PopupCard:")
-                // console.log(res.data.connections[0])
-                // console.log("=====================================")
-                // console.log("Line 75 PopupCard:",res.data.returns)
-                // console.log("Line 75 PopupCard:",res.data)
-                setConnectionLoading(false);
-                setConnections(res?.data?.connections);
-                setReturns(res?.data?.returns);
-            })
-        } else if(!!!city){
-            setConnections([]);
-            setReturns([]);
-        }
-    }, [tour])
 
-    const isMobile = useMediaQuery('(max-width:600px)');
+    const isMobile_600px = useMediaQuery('(max-width:600px)');
+    if(isMobile_600px){
+        let iconStyle = { fill: "transparent", width: '25px', height: '25px' }
+    }
+
+
     const shortened_url = () => {
         let length = 45;
-        if (!!isMobile) { 
+        if (!!isMobile_600px) { 
             length = 35; 
         } 
         let red_url = (!!tour.url?tour.url:"").replace("https://www.", "").replace("http://www.", "").split("/"), i;
@@ -111,7 +91,6 @@ export default function PopupCard({tour, onSelectTour, loadTourConnections, city
                 return final_url;
             }
         }
-
         return final_url;
     }
 
@@ -139,132 +118,82 @@ export default function PopupCard({tour, onSelectTour, loadTourConnections, city
 
 
         const values = [];
-        if(!!tour){
+        if (tour) {
             values.push({
-                icon: <Clock style={{fill: "transparent"}}/>,
-                text: `${t("main.tour")}: ` + ((!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ` ${t("details.tage")}`) : convertNumToTime(tour.total_tour_duration)),
+                icon: <Clock style={{ fill: "transparent", width: '25px', height: '25px' }} />, 
+                text: `${t("main.tour")}: ` + ((tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + ` ${t("details.tage")}`) : convertNumToTime(tour.total_tour_duration)),
             });
             values.push({
-                icon: <Intensity style={{fill: "transparent"}} />,
+                icon: <Intensity style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: translateDiff(tour.difficulty),
-                // text: tour.difficulty,
-            })
+            });
             values.push({
-                icon: <Walk style={{fill: "transparent"}} />,
+                icon: <Walk style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
                 text: translateTourType(tour.type),
-                // text: tour.type,
-            })
+            });
             values.push({
-                icon: <ArrowVertical style={{fill: "transparent"}} />,
-                text: tour.ascent + " / "+  tour.descent + " " + hm,
-            })
+                icon: <ArrowVertical style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
+                text: `${tour.ascent} / ${tour.descent} ${hm}`,
+            });
             values.push({
-                icon: <ArrowHorizontal style={{fill: "transparent"}} />,
-                text: formatNumber(tour.distance, " " + km),
+                icon: <ArrowHorizontal style={{ fill: "transparent", width: '20px', height: '20px' }} />, 
+                text: `${formatNumber(tour.distance, ` ${km}`)}`,
             });
         }
 
-        return <Box display="inline" style={{whiteSpace: "break-spaces"}}>{values.map((entry,index) => {
-            return <Box key={index} display="inline-block" sx={{marginRight: "10px"}}>
-                {entry.icon}
-                <Typography display={"inline"} variant={"subtitle2"} sx={{lineHeight: "24px", position: "relative", top: "-7px", left: "4px"}}>{entry.text}</Typography>
+        return (
+            <Box display="inline" style={{ 
+                whiteSpace: "break-spaces", 
+                fontSize: '12px' ,
+                }}> 
+                {values.map((entry, index) => (
+                    <Box key={index} display="inline-block" sx={{ marginRight: "10px" }}
+                        style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        }}
+                    > 
+                        {entry.icon}
+                        <Typography display="inline" variant="subtitle2" sx={{ fontSize: '14px', marginLeft:'4px'}}> 
+                            {entry.text}
+                        </Typography>
+                    </Box>
+                ))}
             </Box>
-        })}</Box>;
-    }
-
-
-    const getAnreise = () => {
-        if(!!connections && connections.length > 0){
-            let connection = connections[0];
-            // console.log("PopupCard connection: ") ;
-            // console.log(connection)
-            return <TourConnectionCardNew connection={connection}/>
-        } else {
-            return <Fragment></Fragment>
-        }
-    }
-
-    const getAbreise = () => {
-        if(!!returns && returns.length > 0){
-            return <Box sx={{marginTop: "10px"}}>
-                <TourConnectionReturnCardNew returns={returns}/>
-            </Box>
-        } else {
-            return <Fragment></Fragment>
-        }
-    }
+        );
+    };
 
 
     return (
       <Card
-        className="tour-card"
-        onClick={() => {
-          onSelectTour(tour);
-        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
-        }}
+        className="tour-card-map"
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
             <CardMedia
-            component="img"
-            height="140"
-            image={image}
-            style={{ opacity: imageOpacity }}
+             component="img"
+             height="100"
+             image={image}
+             // Ensuring the image fits within the width and maintains aspect ratio
+             style={{ opacity: 1, width: "100%", maxHeight: "100px", objectFit: "cover" }}
             />
         </a>
-        <CardContent>
-          <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
-          <div className="mt-3">
-            <Typography variant="h5">{tour.range}</Typography>
-          </div>
-          <div className="mt-3">
-
-            <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
-          <a 
-            href={tourLink} 
-            target='_blank' 
-            rel='noreferrer'
-            className="custom-h4-link curser-link"
-          >
-              {tour.title}
-          </a>
+        <CardContent sx={{ padding: '8px' }}>
+            <Typography variant="h6" sx={{ fontSize: '16px' }}>{tour.range}</Typography> 
+            <Typography variant="h5" sx={{ fontSize: '14px', whiteSpace: "break-spaces" }}> 
+                <a href={tourLink} target='_blank' rel='noreferrer' className="custom-h5-link curser-link">
+                    {tour.title}
+                </a>
             </Typography>
-            <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
-            <a 
-            href={tourLink} 
-            target='_blank' 
-            rel='noreferrer'
-            className="custom-h5-link curser-link"
-          >
-              {shortened_url()}
-            </a>
+            <Typography variant="h6" sx={{ fontSize: '12px', whiteSpace: "break-spaces" }}> 
+                <a href={tourLink} target='_blank' rel='noreferrer' className="custom-h6-link curser-link">
+                    {shortened_url()}
+                </a>
             </Typography>
-
-          </div>
-          <div className="mt-3" style={{ whiteSpace: "break-space" }}>
-            {renderProps()}
-          </div>
+            <Box mt={1} style={{ whiteSpace: "break-space" }}> 
+                {renderProps()}
+            </Box>
         </CardContent>
-        
-        {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
-        {!!connections && connections.length > 0 && (
-                <Fragment>
-                    <div className="bottom-container">
-                    <CardContent>
-                        {!!connectionLoading ? (
-                        <Box sx={{ padding: "20px" }}>
-                            <LinearProgress />
-                        </Box>
-                        ) : (
-                        <Fragment>
-                            {getAnreise()}
-                            {getAbreise()}
-                        </Fragment>
-                        )}
-                    </CardContent>
-                    </div>
-                </Fragment>
-            )
-        }
       </Card>
     );
 }

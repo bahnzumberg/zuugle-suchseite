@@ -12,12 +12,13 @@ import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-import {consoleLog} from '../../utils/globals.js';
+// import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
-import CustomMarker from './CustomMarker.js';
+// import CustomMarker from './CustomMarker.js';
+import "./popup-style.css";
 
-const TourPopupContent = lazy(()=>import('./TourPopupContent.jsx'));
+const PopupCard = lazy(()=>import('./PopupCard'));
 
 function TourMapContainer({
     tours,
@@ -36,6 +37,15 @@ function TourMapContainer({
     // const getState = useSelector(state => state); // Get state from Redux
 
     const markers = useSelector((state) => state.tours.markers);// move to props    
+    
+    const createIcon = () => {
+        return L.icon({
+            iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
+            shadowUrl: 'app_static/img/pin-shadow.png',     //the shadow of the icon
+            iconSize: [30, 41],                             //size of the icon
+            iconAnchor: [15, 41],
+        });
+    };
 
     let StartIcon = L.icon({
         iconUrl: 'app_static/img/pin-icon-start.png',   //the acutal picture
@@ -50,6 +60,7 @@ function TourMapContainer({
 
     const [gpxTrack, setGpxTrack] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [ activeMarker, setActiveMarker ] = useState(null);
 
     const initialCity = !!searchParams.get('city') ? searchParams.get('city') : localStorage.getItem('city') ? localStorage.getItem('city') : null 
     const [city, setCity] = useState(initialCity);
@@ -86,7 +97,7 @@ function TourMapContainer({
     //     .includes("reload");
 
     useEffect(() => {
-        // console.log("L79 mapInitialized :", mapInitialized)
+        console.log("L79 mapInitialized :", mapInitialized)
         if (!mapInitialized) {
             setMapInitialized(true);
         }
@@ -167,6 +178,7 @@ function TourMapContainer({
 
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
+            console.log('Update bounds');
             const bounds = getMarkersBounds(markers);
             mapRef.current.fitBounds(bounds);
         }
@@ -204,6 +216,7 @@ function TourMapContainer({
     }
 
     const updateBounds = () => {
+        console.log('Updated Bounds');
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
@@ -212,7 +225,8 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-
+        console.log("L227 url incoming to setCurrentGpxTrack :")
+        console.log(url)
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -238,113 +252,69 @@ function TourMapContainer({
     // we have id and the function (onSelectTour) to make the tour api call to get the tour
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
+  
+    const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
+        console.log("Marker Click");
 
-    // const getCircularReplacer = () => {
-    //     const seen = new WeakSet();
-    //     return (key, value) => {
-    //         if (typeof value === "object" && value !== null) {
-    //             if (seen.has(value)) {
-    //                 return;
-    //             }
-    //             seen.add(value);
-    //         }
-    //         return value;
-    //     };
-    // };
-    
-    const handleMarkerClick = useCallback(async (tourId) => {
         setSelectedTour(null);
         setIsLoading(true);
+        setActiveMarker(tourInfo);
         
         if (!tourId || !city ) return ; // exit if not both parameters available
         try {
             const _tourDetail = await onSelectTour(tourId);
             const _tour = _tourDetail.data.tour;
-            // console.log("L255 _tour : ")
-            // console.log(_tour)
             if(_tour) setSelectedTour(_tour);
-            // if(_tour) setCurrentGpxTrack(_tour.gpx_file);
-            console.log("L259 isLoading after setting tour:", isLoading);
-
-            // Logging e.target to confirm the marker object
-            // console.log("L259 e.target:", e.target);
-    
+            if(_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);    
         } catch (error) {
             console.error('Error fetching tour details:', error);
         }finally{
             setIsLoading(false);
             console.log("L264 isLoading after setting false:", isLoading);
-            const marker = markerRef.current
-            if (marker) {
-                console.log("L279 marker is truthy", marker)
-                marker.openPopup()
-            }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
 
-    function TourPopupContent({ tour }) {
-        return (
-          <div>
-            <h2>{tour.id}</h2>
-            <p>{tour.title}</p>
-            
-          </div>
-        );
-      }
+    // const markerComponents = useMemo(() => {
+    //         console.log('Rerender:', isLoading);
 
-    const markerComponents = useMemo(() => {
-            if (!!markers && Array.isArray(markers) && markers.length > 0) {
-                return markers.map((mark) => {
-                    if (!!mark) {
-                        return (
-                            // <CustomMarker
-                            //     key={mark.id}
-                            //     position={[mark.lat, mark.lon]}
-                            //     mark={mark}
-                            //     onSelectTour={onSelectTour}
-                            //     loadTourConnections={loadTourConnections}
-                            //     city={city}
-                            //     StartIcon={StartIcon}
-                            //     mapRef={mapRef}
-                            //     clusterRef={clusterRef}
-                            // NO markerRef ?? not if use Leaflet only inside CustomMarker
-                            // />
-                            <Marker
-                                key={mark.id}
-                                position={[mark.lat, mark.lon]}
-                                ref={markerRef}
-                                icon={StartIcon}
-                                eventHandlers={{
-                                    click: () => handleMarkerClick(mark.id)
-                                    // click: () => console.log("mark.is is :", mark.id)
-                                }}
-                            >
-                                <Popup minWidth={90}>
-                                    {/* {console.log("L325 selectedTour.id : ")}
-                                    {console.log(selectedTour?.id)} */}
+    //         if (!!markers && Array.isArray(markers) && markers.length > 0) {
+    //             return markers.map((mark) => {
+    //                 if (!!mark) {
+    //                     return (
+    //                         // <CustomMarker
+    //                         //     key={mark.id}
+    //                         //     position={[mark.lat, mark.lon]}
+    //                         //     mark={mark}
+    //                         //     onSelectTour={onSelectTour}
+    //                         //     loadTourConnections={loadTourConnections}
+    //                         //     city={city}
+    //                         //     StartIcon={StartIcon}
+    //                         //     mapRef={mapRef}
+    //                         //     clusterRef={clusterRef}
+    //                         // NO markerRef ?? not if use Leaflet only inside CustomMarker
+    //                         // />
+    //                         <Marker
+    //                             key={mark.id}
+    //                             position={[mark.lat, mark.lon]}
+    //                             ref={markerRef}
+    //                             icon={createIcon()}
+    //                             eventHandlers={{
+    //                                 click: () => handleMarkerClick(mark, mark.id)
+    //                                 // click: () => console.log("mark.is is :", mark.id)
+    //                             }}
+    //                         >
+                                
+    //                         </Marker>
 
-                                    {isLoading ? (
-                                        <div>Loading...</div>
-                                    ) : (
-                                        selectedTour?.id === mark.id && (
-                                            <div>
-                                                {/* Add more details as necessary */}
-                                                tour id : {selectedTour?.id}
-                                            </div>
-                                        )
-                                    )}
-                                </Popup>
-                            </Marker>
-
-                        );
-                    }
-                    return null;
-                });
-            }
-            return null;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [markers,StartIcon, handleMarkerClick, selectedTour]);
+    //                     );
+    //                 }
+    //                 return null;
+    //             });
+    //         }
+    //         return null;
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    //     }, [markers, handleMarkerClick, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
@@ -353,10 +323,11 @@ function TourMapContainer({
 
         // Calculate icon size based on formatted count length
         const iconSize = L.point(
-        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
-        Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
-        true // Anchor point flag :  center the icon on the cluster center position
-    );
+            Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+            Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+            true // Anchor point flag :  center the icon on the cluster center position
+        );
+
         return L.divIcon({
             html: `<span style='display: flex; justify-content: center; align-items: center; height: 100%;'>${formattedCount}</span>`,
             className: 'custom-marker-cluster',
@@ -365,9 +336,7 @@ function TourMapContainer({
     }
 
             
-    
-    //legacy code (the Diploma )
-      const MyComponent = () => {
+    const MyComponent = () => {
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
@@ -451,7 +420,8 @@ function TourMapContainer({
             position: "relative",
             overflow: "hidden",
             margin: "auto"
-            }}>
+            }}
+        >
         {mapInitialized && (
             <MapContainer
                 className='leaflet-container'
@@ -464,7 +434,7 @@ function TourMapContainer({
                 style={{height: "100%", width: "100%"}} //Size of the map
                 zoomControl={false}
                 bounds={() => {
-                    updateBounds();  // TODO : issue https://github.com/bahnzumberg/zuugle-suchseite/issues/342 here check which bounds params are being used from the localStorage
+                    updateBounds();  
                 }}
             >
             
@@ -472,21 +442,61 @@ function TourMapContainer({
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
             />
 
+            {activeMarker && selectedTour &&
+                <Popup 
+                minWidth={350}  
+                maxWidth={400}  
+                minHeight={300} 
+                maxHeight={300} 
+                margin="0"
+                className='request-popup'
+                offset={L.point([0, -25])}
+                    position={[
+                        parseFloat(activeMarker.lat), 
+                        parseFloat(activeMarker.lon)
+                    ]}
+                    eventHandlers={{
+                        remove:() => setActiveMarker(null)
+                    }}
+                >
+                    {
+                        selectedTour?.id === activeMarker.id && (
+                            <PopupCard tour={selectedTour}/>
+                        )                    
+                    }
+                </Popup>
+            }
+
             {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
                 pathOptions={{fillColor: 'green', color: 'green'}}
                 positions={gpxTrack}
             />]}
 
             <MarkerClusterGroup
-                key={new Date().getTime()}
+                // key={new Date().getTime()}
                 ref={clusterRef}
                 maxClusterRadius={100}
                 chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
                 showCoverageOnHover={false}
+                removeOutsideVisibleBounds={true}
                 iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
             >
-                {markerComponents}
+                
+                {markers.map((mark) => {
+                    return <Marker
+                        key={mark.id}
+                        position={[mark.lat, mark.lon]}
+                        ref={markerRef}
+                        icon={createIcon()}
+                        eventHandlers={{
+                            click: () => handleMarkerClick(mark, mark.id)
+                        }}
+                    >
+                        
+                    </Marker>
+                })}
             </MarkerClusterGroup>
+
             <MyComponent/>
             <ZoomControl position="bottomright" />
     
