@@ -163,7 +163,7 @@ export function loadOne(
   dispatch({ type: typeBefore });
 
   return axios
-    .get(route + id, { params: { ...params, domain: window.location.host } })
+    .get(route, { params: { ...params, domain: window.location.host } })
     .then((res) => {
       const entity = res.data[entityName];
       // console.log("entity = ", entity)

@@ -54,6 +54,7 @@ export function Main({
   loading,
   allCities,
   loadRanges,
+  tour
   // clearTours,
   // allRanges,
   // showModal,
@@ -252,9 +253,39 @@ export function Main({
     }
   };
 
+  //with id only // as code enhancement,create one function for both map and card containers
+  const onSelectMapTour = async (markerId)=>{
+    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+    const id = markerId.id
+    let retTour = null;
+    if ( !!id ) {
+      // console.log("L269 : Main/id.id :", id)
+      // console.log("L270 : Main/city :", city)
+      await loadTour(id, city)
+        .then((tourExtracted) => {
+          if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+            retTour = tourExtracted;
+            // console.log("L272 called from Main :")
+            // console.log(tourExtracted.data.tour)
+            localStorage.setItem("tourId", id);
+            // window.open("/tour?" + searchParams.toString());
+          }else{
+            goToStartPage();
+          }
+        })
+        // console.log("L286 retTour :")
+        // console.log(retTour)
+      return retTour
+    }else{
+      goToStartPage();
+    }
+
+  }
+
  //Map-related : a callback function that selects a tour with a specific id
  const onSelectTourById = useCallback((id) => {
-  onSelectTour({ id: id });
+  const resultedData = onSelectMapTour({ id: id });
+  return resultedData
 }, []);
 
   const memoTourMapContainer = useMemo(() => {
@@ -262,15 +293,20 @@ export function Main({
 
       <TourMapContainer
         tours={tours}
-        onSelectTour={onSelectTourById}
         setTourID={setTourID}
         filter={filter}
         totalTours={totalTours}
         setMapInitialized={setMapInitialized}
         mapInitialized={mapInitialized}
+        loadTour={loadTour}
+        loadTourConnections={loadTourConnections}
+        // onSelectTour={onSelectMapTour} // does not work,  creates re-renders and redirects to start page
+        onSelectTour={onSelectTourById} 
+        tour={tour}
       />
       
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter,tours, totalTours]);
 
   
@@ -527,6 +563,7 @@ const mapStateToProps = (state) => {
     filter: state.tours.filter,
     totalTours: state.tours.total,
     pageTours: state.tours.page,
+    tour:state.tours.tour
   };
 };
 

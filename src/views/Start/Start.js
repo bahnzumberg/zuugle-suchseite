@@ -149,7 +149,7 @@ function Start({
 
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id ) {
-      // if(!!city){
+      if(!!city){
         loadTour(tour.id, city)
           .then((tourExtracted) => {
             if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -159,6 +159,7 @@ function Start({
               window.location.reload();
             }
           })
+      }
     }else{
       window.location.reload()
     }
@@ -191,7 +192,7 @@ function Start({
       searchParams.set('map', true);
       setSearchParams(searchParams);
     };
-    consoleLog(`L190 : suche?${searchParams.toString()}`)
+    // consoleLog(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
   }
 

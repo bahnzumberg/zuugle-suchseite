@@ -88,17 +88,17 @@ export default function ItineraryTourTimeLineContainer({
       connections.returns.length > 0
     ) {
       let array = connections.returns;
-      consoleLog("L90 ITTLC/ extractReturns array", array, true);
+      // consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
         
         if (index <= 1) {
-          consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
+          // consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
           twoReturns[index] = jsonToStringArray(
             array[index],
             "from",
             t
           );
-          consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
+          // consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
         }
   
         if (index > 1) {
@@ -107,7 +107,7 @@ export default function ItineraryTourTimeLineContainer({
             "from",
             t
           );
-          consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
+          // consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
       }
       return;
