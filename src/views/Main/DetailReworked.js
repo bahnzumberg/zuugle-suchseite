@@ -131,8 +131,9 @@ const DetailReworked = (props) => {
   // let pdfLanguagePermit = i18next.resolvedLanguage === "none";
 
   const handleCloseTab = () => {
-    let ableToClose = window.close();
-    !ableToClose && setShowModal(true)
+    window.close()
+    // let ableToClose = window.close();
+    // !ableToClose && setShowModal(true)
   };
 
   const navigate = useNavigate();
