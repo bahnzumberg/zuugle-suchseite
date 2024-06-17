@@ -152,6 +152,7 @@ export default function PopupCard({tour}){
     };
 
 
+    console.log("Tour Card");
     return (
       <Card
         className="tour-card-map"

@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
+import { map } from 'lodash';
 // import CustomMarker from './CustomMarker.js';
 
 const PopupCard = lazy(()=>import('./PopupCard'));
@@ -96,9 +97,19 @@ function TourMapContainer({
     //     .includes("reload");
 
     useEffect(() => {
-        console.log("L79 mapInitialized :", mapInitialized)
+        console.log("L79 mapInitialized :", mapInitialized);
+        let mapContainer;
+        if(mapRef.current) {
+            mapContainer = mapRef.current;
+        }
+
         if (!mapInitialized) {
             setMapInitialized(true);
+        }
+
+        return () => {
+            if(mapContainer) mapContainer.remove();
+            setMapInitialized(false);
         }
     }, [mapInitialized, setMapInitialized]); //TODO: remove setMapInitialized after testing its absence
 
@@ -176,8 +187,10 @@ function TourMapContainer({
     // }, [markers]);
 
     useEffect(()=>{
+        console.log('Update bounds');
+
         if (markers && markers.length > 0 && mapRef.current) {
-            console.log('Update bounds');
+            
             const bounds = getMarkersBounds(markers);
             mapRef.current.fitBounds(bounds);
         }
@@ -265,7 +278,6 @@ function TourMapContainer({
     // };
     
     const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
-        console.log("Marker Click");
 
         setSelectedTour(null);
         setIsLoading(true);
@@ -273,6 +285,7 @@ function TourMapContainer({
         
         if (!tourId || !city ) return ; // exit if not both parameters available
         try {
+            console.log("Getting Tour");
             const _tourDetail = await onSelectTour(tourId);
             const _tour = _tourDetail.data.tour;
             // console.log("L255 _tour : ")
@@ -444,23 +457,23 @@ function TourMapContainer({
         //pull filtervalues from localStorage and pass it to params for setting
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
-
     };
-
+   
     return <Box
-        style={{
-            // height: "500px", 
-            height: "calc(75vh - 50px)", 
-            width: "100%", 
-            position: "relative",
-            overflow: "hidden",
-            margin: "auto"
+            style={{
+                // height: "500px", 
+                height: "calc(75vh - 50px)", 
+                width: "100%", 
+                position: "relative",
+                overflow: "hidden",
+                margin: "auto"
             }}
         >
-        {mapInitialized && (
+        { mapInitialized && (
             <MapContainer
                 className='leaflet-container'
                 ref={mapRef}
+                // key={new Date().getTime()}
                 scrollWheelZoom={false} //if you can zoom with you mouse wheel
                 zoomSnap={1}
                 maxZoom={15}                    //how many times you can zoom
@@ -479,21 +492,23 @@ function TourMapContainer({
 
             {activeMarker &&
                 <Popup 
-                minWidth={350}  /* Gray: Setting minimum width */
-                maxWidth={400}  /* Gray: Setting maximum width */
-                minHeight={300} /* Gray: Setting minimum height */
-                maxHeight={300} /* Gray: Setting maximum height */
-                offset={L.point([0, -25])}
-                    position={[
-                        parseFloat(activeMarker.lat), 
-                        parseFloat(activeMarker.lon)
-                    ]}
-                    eventHandlers={{
-                        remove:() => setActiveMarker(null)
-                    }}
+                    key={activeMarker.id}
+                    minWidth={350}  /* Gray: Setting minimum width */
+                    maxWidth={400}  /* Gray: Setting maximum width */
+                    minHeight={300} /* Gray: Setting minimum height */
+                    maxHeight={300} /* Gray: Setting maximum height */
+                    offset={L.point([0, -25])}
+                        position={[
+                            parseFloat(activeMarker.lat), 
+                            parseFloat(activeMarker.lon)
+                        ]}
+                        eventHandlers={{
+                            remove:() => setActiveMarker(null)
+                        }}
                 >
+                    {/* selectedTour?.id ===  */}
                     {
-                        selectedTour?.id === activeMarker.id && (
+                        (selectedTour?.id && activeMarker.id) && (
                             <PopupCard tour={selectedTour}/>
                         )                    
                     }
@@ -514,8 +529,9 @@ function TourMapContainer({
                 removeOutsideVisibleBounds={true}
                 iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
             >
+                {markerComponents}
                 
-                {markers.map((mark) => {
+                {/* {markers.map((mark) => {
                     return <Marker
                         key={mark.id}
                         position={[mark.lat, mark.lon]}
@@ -527,7 +543,7 @@ function TourMapContainer({
                     >
                         
                     </Marker>
-                })}
+                })} */}
             </MarkerClusterGroup>
 
             <MyComponent/>
