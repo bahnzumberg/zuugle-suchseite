@@ -224,7 +224,8 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-
+        console.log("L227 url incoming to setCurrentGpxTrack :")
+        console.log(url)
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -278,8 +279,8 @@ function TourMapContainer({
             // console.log("L255 _tour : ")
             // console.log(_tour)
             if(_tour) setSelectedTour(_tour);
-            // if(_tour) setCurrentGpxTrack(_tour.gpx_file);
-            console.log("L259 isLoading after setting tour:", isLoading);
+            if(_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);
+            // console.log("L259 isLoading after setting tour:", isLoading);
 
             // Logging e.target to confirm the marker object
             // console.log("L259 e.target:", e.target);
