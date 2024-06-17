@@ -17,18 +17,16 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
 import {tourTypes} from "../../utils/language_Utils";
 import { useSearchParams } from 'react-router-dom';
-import {consoleLog} from "../../utils/globals";
-import { PaddingRounded } from '@mui/icons-material';
+// import {consoleLog} from "../../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
 export default function PopupCard({tour}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
-    const [imageOpacity, setImageOpacity] = useState(1)   //FAL: why is this a state if it is set only once?
-
     const [searchParams, setSearchParams] = useSearchParams();
 
+    console.log("L29 : searchParams.toString() :", searchParams.toString())
     let tourLink = '/tour?'+ searchParams.toString();
       
     // i18next
@@ -86,7 +84,6 @@ export default function PopupCard({tour}){
                 return final_url;
             }
         }
-
         return final_url;
     }
 
@@ -144,11 +141,11 @@ export default function PopupCard({tour}){
                 }}> 
                 {values.map((entry, index) => (
                     <Box key={index} display="inline-block" sx={{ marginRight: "10px" }}
-                    style={{
+                        style={{
                         display: 'flex',
                         alignItems: 'center',
                         flexWrap: 'wrap',
-                    }}
+                        }}
                     > 
                         {entry.icon}
                         <Typography display="inline" variant="subtitle2" sx={{ fontSize: '14px', marginLeft:'4px'}}> 
@@ -164,10 +161,6 @@ export default function PopupCard({tour}){
     return (
       <Card
         className="tour-card-map"
-        onClick={() => {
-        //   onSelectTour(tour);
-        //   consoleLog("Card Clicked  !! tourLink -->", tourLink)
-        }}
       >
         <a href={tourLink} target='_blank' rel='noreferrer' className='cursor-link'>
             <CardMedia

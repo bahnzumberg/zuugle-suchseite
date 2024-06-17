@@ -115,10 +115,6 @@ body ::-webkit-scrollbar-thumb:hover {
   align-items: center; 
 }
 
-.leaflet-popup-content-wrapper{
-  background-color: transparent;
-  box-shadow: none;
-}
 
 .tour-card {
   text-align: left;

@@ -12,10 +12,11 @@ import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-import {consoleLog} from '../../utils/globals.js';
+// import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
+import "./popup.css";
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
@@ -251,20 +252,7 @@ function TourMapContainer({
     // we have id and the function (onSelectTour) to make the tour api call to get the tour
     // onClick event : get the tour data and then store it inside the state "selectedTour" 
     // pass the selectedTour to the component Popup
-
-    // const getCircularReplacer = () => {
-    //     const seen = new WeakSet();
-    //     return (key, value) => {
-    //         if (typeof value === "object" && value !== null) {
-    //             if (seen.has(value)) {
-    //                 return;
-    //             }
-    //             seen.add(value);
-    //         }
-    //         return value;
-    //     };
-    // };
-    
+  
     const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
         console.log("Marker Click");
 
@@ -276,79 +264,57 @@ function TourMapContainer({
         try {
             const _tourDetail = await onSelectTour(tourId);
             const _tour = _tourDetail.data.tour;
-            // console.log("L255 _tour : ")
-            // console.log(_tour)
             if(_tour) setSelectedTour(_tour);
-            if(_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);
-            // console.log("L259 isLoading after setting tour:", isLoading);
-
-            // Logging e.target to confirm the marker object
-            // console.log("L259 e.target:", e.target);
-    
+            if(_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);    
         } catch (error) {
             console.error('Error fetching tour details:', error);
         }finally{
             setIsLoading(false);
             console.log("L264 isLoading after setting false:", isLoading);
-            // const marker = markerRef.current
-            // if (marker) {
-            //     console.log("L279 marker is truthy", marker)
-            //     // marker.openPopup()
-            // }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
 
-    function TourPopupContents({ tour }) {
-        return (
-          <div>
-            <h2>{tour.id}</h2>
-            <p>{tour.title}</p>
-            
-          </div>
-        );
-    }
+    // const markerComponents = useMemo(() => {
+    //         console.log('Rerender:', isLoading);
 
-    const markerComponents = useMemo(() => {
-            console.log('Rerender:', isLoading);
-
-            if (!!markers && Array.isArray(markers) && markers.length > 0) {
-                return markers.map((mark) => {
-                    if (!!mark) {
-                        return (
-                            // <CustomMarker
-                            //     key={mark.id}
-                            //     position={[mark.lat, mark.lon]}
-                            //     mark={mark}
-                            //     onSelectTour={onSelectTour}
-                            //     loadTourConnections={loadTourConnections}
-                            //     city={city}
-                            //     StartIcon={StartIcon}
-                            //     mapRef={mapRef}
-                            //     clusterRef={clusterRef}
-                            // NO markerRef ?? not if use Leaflet only inside CustomMarker
-                            // />
-                            <Marker
-                                key={mark.id}
-                                position={[mark.lat, mark.lon]}
-                                ref={markerRef}
-                                icon={createIcon()}
-                                eventHandlers={{
-                                    click: () => handleMarkerClick(mark, mark.id)
-                                    // click: () => console.log("mark.is is :", mark.id)
-                                }}
-                            >
+    //         if (!!markers && Array.isArray(markers) && markers.length > 0) {
+    //             return markers.map((mark) => {
+    //                 if (!!mark) {
+    //                     return (
+    //                         // <CustomMarker
+    //                         //     key={mark.id}
+    //                         //     position={[mark.lat, mark.lon]}
+    //                         //     mark={mark}
+    //                         //     onSelectTour={onSelectTour}
+    //                         //     loadTourConnections={loadTourConnections}
+    //                         //     city={city}
+    //                         //     StartIcon={StartIcon}
+    //                         //     mapRef={mapRef}
+    //                         //     clusterRef={clusterRef}
+    //                         // NO markerRef ?? not if use Leaflet only inside CustomMarker
+    //                         // />
+    //                         <Marker
+    //                             key={mark.id}
+    //                             position={[mark.lat, mark.lon]}
+    //                             ref={markerRef}
+    //                             icon={createIcon()}
+    //                             eventHandlers={{
+    //                                 click: () => handleMarkerClick(mark, mark.id)
+    //                                 // click: () => console.log("mark.is is :", mark.id)
+    //                             }}
+    //                         >
                                 
-                            </Marker>
+    //                         </Marker>
 
-                        );
-                    }
-                    return null;
-                });
-            }
-            return null;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [markers, handleMarkerClick, selectedTour]);
+    //                     );
+    //                 }
+    //                 return null;
+    //             });
+    //         }
+    //         return null;
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    //     }, [markers, handleMarkerClick, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
@@ -370,9 +336,7 @@ function TourMapContainer({
     }
 
             
-    
-    //legacy code (the Diploma )
-      const MyComponent = () => {
+    const MyComponent = () => {
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
@@ -485,6 +449,7 @@ function TourMapContainer({
                 minHeight={300} 
                 maxHeight={300} 
                 margin="0"
+                className='request-popup'
                 offset={L.point([0, -25])}
                     position={[
                         parseFloat(activeMarker.lat), 
