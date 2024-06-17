@@ -448,7 +448,12 @@ function TourMapContainer({
                 maxWidth={400}  
                 minHeight={300} 
                 maxHeight={300} 
-                margin="0"
+                // padding={15}
+                // style={
+                //     {
+                //         padding: "10px"
+                //     }
+                // }
                 className='request-popup'
                 offset={L.point([0, -25])}
                     position={[
