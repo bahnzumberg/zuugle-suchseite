@@ -478,7 +478,7 @@ function TourMapContainer({
                 url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
             />
 
-            {activeMarker &&
+            {activeMarker && selectedTour &&
                 <Popup 
                 minWidth={350}  
                 maxWidth={400}  
