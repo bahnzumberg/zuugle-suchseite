@@ -50,11 +50,11 @@ CREATE TABLE tour (
       cities JSONB DEFAULT NULL,
       cities_object JSONB DEFAULT NULL,
       full_text TEXT,
-	search_column tsvector,
-	separator smallint,
-	gpx_data JSONB,
-	max_ele INT default 0,
-	text_lang VARCHAR(2) default 'de',
+	  search_column tsvector,
+ 	  separator smallint,
+	  gpx_data JSONB,
+	  max_ele INT default 0,
+	  text_lang VARCHAR(2) default 'de',
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
       connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
       PRIMARY KEY (id)
@@ -70,6 +70,32 @@ CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
 CREATE INDEX search_column_idx ON tour USING GIN (search_column);
+
+
+CREATE TABLE tour_inactive (
+      id SERIAL,
+      url varchar(1024) NOT NULL,
+      provider varchar(30) NOT NULL,
+      hashed_url varchar(100) NOT NULL,
+      description varchar(1000) NOT NULL,
+      image_url varchar(1024) DEFAULT NULL,
+      ascent int NOT NULL,
+      descent int NOT NULL,
+      difficulty int DEFAULT NULL,
+      difficulty_orig varchar(45) DEFAULT NULL,
+      duration decimal(6,2) DEFAULT NULL,
+      distance decimal(6,2) DEFAULT NULL,
+      title varchar(255) DEFAULT NULL,
+      type varchar(255) DEFAULT NULL,
+      number_of_days int DEFAULT NULL,
+      traverse int DEFAULT NULL,
+      country varchar(128) DEFAULT NULL,
+      state varchar(128) DEFAULT NULL,
+      range_slug varchar(128) DEFAULT NULL,
+      range varchar(128) DEFAULT NULL,
+      last_active timestamp NOT NULL,
+      PRIMARY KEY (id)
+);
 
 
 -- weekday types

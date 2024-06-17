@@ -11,6 +11,7 @@ import logger from '../utils/logger';
 // import {jsonToText, jsonToStringArray} from '../utils/utils';
 import { jsonToStringArray } from '../utils/pdf/utils';
 import { isArray } from 'lodash';
+import {last_two_characters} from "../utils/pdf/utils"
 
 const fs = require('fs');
 const path = require('path');
@@ -26,7 +27,7 @@ router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/pdf', (req, res) => tourPdfWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
-router.get('/:id', (req, res) => getWrapper(req, res));
+router.get('/:id/:city', (req, res) => getWrapper(req, res));
 
 const providerWrapper = async (req, res) => {
     const provider = req.params.provider; 
@@ -67,8 +68,14 @@ const totalWrapper = async (req, res) => {
 
 const getWrapper = async (req, res) => {
     
-    const city = req.query.city;
-    const id = parseInt(req.params.id, 10); 
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
+    const id = parseInt(req.params.id, 10);
+    // console.log("===================") 
+    // console.log(" city from getWrapper : ", city )
+    // console.log(" req.params from getWrapper : ", req.params )
+    // console.log("===================") 
+    // console.log(" req.query from getWrapper : ", (req.query) )
+    // console.log("===================") 
     const domain = req.query.domain;
 
     if (isNaN(id)) {
@@ -77,6 +84,7 @@ const getWrapper = async (req, res) => {
     }
 
     if(!!!id){
+       
         res.status(404).json({success: false});
         return
     }
@@ -467,8 +475,8 @@ const listWrapper = async (req, res) => {
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
-            logger("L454")
-            logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
+            // logger("L454")
+            // logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
             if (result && result.rows) {
                 result = result.rows;
               } else {
@@ -700,7 +708,7 @@ const filterWrapper = async (req, res) => {
 
 const connectionsWrapper = async (req, res) => {
     const id = req.params.id;
-    const city = req.query.city;
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
     const weekday = getWeekday(moment());
@@ -754,8 +762,16 @@ const connectionsWrapper = async (req, res) => {
 
 const connectionsExtendedWrapper = async (req, res) => {
     const id = req.params.id;
-    const city = req.query.city;
+    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
+
+    // console.log("===================") 
+    // console.log(" city from req.query.city /connectionsExtendedWrapper : ", req.query.city )
+    // console.log(" city from req.params.city /connectionsExtendedWrapper : ", req.params.city )
+    // console.log(" req.params from connectionsExtendedWrapper : ", req.params )
+    // console.log("===================") 
+    // console.log(" req.query from connectionsExtendedWrapper : ", (req.query) )
+    // console.log("===================") 
 
     const tour = await knex('tour').select().where({id: id}).first();
     if(!!!tour || !!!city){
@@ -826,8 +842,6 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
-        // if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
-
         if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
             e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
@@ -837,6 +851,7 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
     return _duplicatesRemoved;
 }
 
+// TODO : gpxWrapper seems to be dead code / check if gpxWrapper is being used in a client api call
 const gpxWrapper = async (req, res) => {
     createImageFromMap();
     res.status(200).json({success: true });
@@ -1302,7 +1317,7 @@ const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
-    const connectionId = req.query.connection_id;
+    const connectionId = req.query.connection_id; logger("L1319 : connectionId :", connectionId)
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
@@ -1326,7 +1341,8 @@ const tourPdfWrapper = async (req, res) => {
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }
-
+    logger("L1343 , connection :")
+    logger(connection)
     if(!!connectionReturnId){
         connectionReturn = await knex('fahrplan').select().where({id: connectionReturnId}).first();
     }
@@ -1362,15 +1378,15 @@ const tourPdfWrapper = async (req, res) => {
     res.status(500).json({ success: false });
 }
 
-function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
-    }
-    else {
-        return "undefined";
-    }
-}
+// function last_two_characters(h_url) {
+//     const hashed_url = h_url.toString();
+//     if (hashed_url.length >= 2) {
+//         return hashed_url.substr(hashed_url.length - 2).toString();
+//     }
+//     else {
+//         return "undefined";
+//     }
+// }
 
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;

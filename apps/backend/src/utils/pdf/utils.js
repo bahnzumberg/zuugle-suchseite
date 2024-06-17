@@ -245,6 +245,17 @@ export function jsonToStringArray(connection, toFrom = "to"){
 //     logger(JSON.stringify(stringArray));
     return stringArray;   
 }
+
+export function last_two_characters(h_url) {
+    const hashed_url = h_url.toString();
+    if (hashed_url.length >= 2) {
+        return hashed_url.substr(hashed_url.length - 2).toString();
+    }
+    else {
+        return "undefined";
+    }
+}
+
 // **************
 // description 1:
 // **************

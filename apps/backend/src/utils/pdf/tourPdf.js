@@ -6,6 +6,7 @@ import {createSingleImageFromMap} from "../gpx/gpxUtils";
 import { convertDifficulty, titleCase } from "../dataConversion";
 import logger from "../logger";
 import { jsonToStringArray, jsonToText } from "./utils"
+import {last_two_characters} from "./utils"
 
 export const tourPdf = async ({tour, connection, connectionReturn, connectionReturns, datum, referral = "https://www.zuugle.at"}) => {
     const TEMPLATE = "tour-details";
