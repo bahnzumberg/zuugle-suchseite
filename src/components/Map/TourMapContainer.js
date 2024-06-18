@@ -199,7 +199,7 @@ function TourMapContainer({
         if(!!city && !!searchParams.get('city') && city !== searchParams.get('city')){
             setCity(searchParams.get('city'))
         }
-    },[searchParams])
+    },[searchParams, city])
 
     // useEffect( ()=>{
     //     console.log("L152 selectedTour");
