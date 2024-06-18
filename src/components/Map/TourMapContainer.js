@@ -178,7 +178,7 @@ function TourMapContainer({
 
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
-            console.log('Update bounds');
+            // console.log('Update bounds');
             const bounds = getMarkersBounds(markers);
             mapRef.current.fitBounds(bounds);
         }
