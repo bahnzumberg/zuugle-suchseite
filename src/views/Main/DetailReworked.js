@@ -299,8 +299,8 @@ useEffect(() => {
     loadCities({ limit: 5 });
     const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
 
-    console.log("L314 : id :", tourId)
-    console.log("L315 : city :", city)
+    // console.log("L314 : id :", tourId)
+    // console.log("L315 : city :", city)
     if (!!tourId) {
       setIsTourLoading(true);
       loadTour(tourId, city)
@@ -338,7 +338,7 @@ useEffect(() => {
           
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            console.log("L338 connections -> connectJson:",connectJson);
+            // console.log("L338 connections -> connectJson:",connectJson);
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
             // let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
             // console.log("L340 text connections -> connectJson:");
