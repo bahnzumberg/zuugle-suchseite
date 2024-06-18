@@ -97,7 +97,7 @@ function TourMapContainer({
     //     .includes("reload");
 
     useEffect(() => {
-        console.log("L79 mapInitialized :", mapInitialized)
+        // console.log("L79 mapInitialized :", mapInitialized)
         if (!mapInitialized) {
             setMapInitialized(true);
         }
@@ -225,8 +225,8 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-        console.log("L227 url incoming to setCurrentGpxTrack :")
-        console.log(url)
+        // console.log("L227 url incoming to setCurrentGpxTrack :")
+        // console.log(url)
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -254,7 +254,7 @@ function TourMapContainer({
     // pass the selectedTour to the component Popup
   
     const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
-        console.log("Marker Click");
+        // console.log("Marker Click");
 
         setSelectedTour(null);
         setIsLoading(true);
@@ -270,7 +270,7 @@ function TourMapContainer({
             console.error('Error fetching tour details:', error);
         }finally{
             setIsLoading(false);
-            console.log("L264 isLoading after setting false:", isLoading);
+            // console.log("L264 isLoading after setting false:", isLoading);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
