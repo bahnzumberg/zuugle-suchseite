@@ -66,8 +66,8 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    // const [showPopup, setShowPopup] = useState(false); 
-
+    const [markersSubList, setMarkersSubList] = useState(markers);
+    const prevMarkersSubListRef = useRef();
 
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
@@ -148,7 +148,6 @@ function TourMapContainer({
     //             var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
     //             //creating a latLngBounds-Object for the fitBounds()-Method
     //             var bounds = L.latLngBounds(corner1, corner2);
-
     //             //the map's current position is set to the last position where the user has been
     //             if (!!bounds && !!mapRef && !!mapRef.current) {
     //                 mapRef.current?.fitBounds(bounds);
@@ -170,7 +169,6 @@ function TourMapContainer({
     //             // else{
     //             //     updateBounds();
     //             // }
-
     //         }
     //     }
     // // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,11 +199,21 @@ function TourMapContainer({
         }
     },[searchParams, city])
 
-    // useEffect( ()=>{
-    //     console.log("L152 selectedTour");
-    //     console.log(selectedTour);
-    // }, [selectedTour]);
+    useEffect( ()=>{
+        if(markersSubList){
+            console.log("L202 markersSubList");
+            console.log(markersSubList);
+        }
+    }, [markersSubList]);
 
+    useEffect(() => {
+        if (JSON.stringify(markersSubList) !== JSON.stringify(prevMarkersSubListRef)) {
+            const prevMarkersSubList = prevMarkersSubListRef.current
+            // toursRetrieve(markersSubList.map(marker => marker.id));
+            markersSubList && markersSubList.map(marker => console.log(marker.id));
+            prevMarkersSubListRef.current = prevMarkersSubList
+        }
+    }, [markersSubList]);
    
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
@@ -343,9 +351,16 @@ function TourMapContainer({
                 // console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
+                updateVisibleMarkers(map)
             }
         })
         return null
+    }
+
+    const updateVisibleMarkers = (map)=>{
+        const bounds = map.getBounds();
+        const visibleMarkers = markers.filter((marker)=> bounds.contains([marker.lat, marker.lon]));
+        setMarkersSubList(visibleMarkers);
     }
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
@@ -448,12 +463,6 @@ function TourMapContainer({
                 maxWidth={400}  
                 minHeight={300} 
                 maxHeight={300} 
-                // padding={15}
-                // style={
-                //     {
-                //         padding: "10px"
-                //     }
-                // }
                 className='request-popup'
                 offset={L.point([0, -25])}
                     position={[
