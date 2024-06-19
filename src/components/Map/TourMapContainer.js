@@ -17,6 +17,7 @@ import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
+import {arraysEqual} from '../../utils/globals.js'
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
@@ -67,7 +68,7 @@ function TourMapContainer({
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [markersSubList, setMarkersSubList] = useState(markers);
-    const prevMarkersSubListRef = useRef();
+    // const prevMarkersSubListRef = useRef();
 
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
@@ -174,6 +175,7 @@ function TourMapContainer({
     // // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [markers]);
 
+    //continous monitoring of markers to fit map bounds
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
             console.log('Update bounds');
@@ -193,26 +195,31 @@ function TourMapContainer({
         return bounds;
     };
 
-   
+    // city setting 
     useEffect(()=>{
         if(!!city && !!searchParams.get('city') && city !== searchParams.get('city')){
             setCity(searchParams.get('city'))
         }
     },[searchParams, city])
 
-    useEffect( ()=>{
-        if(markersSubList){
-            console.log("L202 markersSubList");
-            console.log(markersSubList);
-        }
-    }, [markersSubList]);
+    // useEffect( ()=>{
+    //     if(markersSubList){
+    //         console.log("L202 markersSubList");
+    //         console.log(markersSubList);
+    //     }
+    // }, [markersSubList]);
 
+
+    // useEffect to compare the current value of "markersSubList" with the localStorage('visibleMarkers')
+    // then replace its value in localStorage                                   
     useEffect(() => {
-        if (JSON.stringify(markersSubList) !== JSON.stringify(prevMarkersSubListRef)) {
-            const prevMarkersSubList = prevMarkersSubListRef.current
-            // toursRetrieve(markersSubList.map(marker => marker.id));
-            markersSubList && markersSubList.map(marker => console.log(marker.id));
-            prevMarkersSubListRef.current = prevMarkersSubList
+        const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
+        const storedMarkersSubList = storedMarkers.map(item => item.id);
+        
+        console.log("L219 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(markersSubList, storedMarkersSubList) );
+        if (!arraysEqual(markersSubList, storedMarkersSubList)) {// when not equal arrays
+            localStorage.setItem('visibleMarkers', JSON.stringify(markersSubList));
+            console.log("L228 Updated localStorage :", localStorage.getItem('visibleMarkers'));
         }
     }, [markersSubList]);
    
@@ -343,7 +350,20 @@ function TourMapContainer({
             iconSize: iconSize,
         })
     }
+    // useEffect(() => {
+    //     const handleMoveEnd = () => {
+    //         updateVisibleMarkers(map);
+    //     };
 
+    //     map.on('moveend', handleMoveEnd);
+
+    //     // Initial call to update visible markers
+    //     updateVisibleMarkers(map);
+
+    //     return () => {
+    //         map.off('moveend', handleMoveEnd);
+    //     };
+    // }, [map, updateVisibleMarkers]);
             
     const MyComponent = () => {
         const map = useMapEvents({
@@ -358,6 +378,7 @@ function TourMapContainer({
         return null
     }
 
+    //returns a list of markers that are contained within the passed bounds object
     const getMarkersListFromBounds = (bounds, markers) => {
         return markers.filter((marker) => {
             const lat = parseFloat(marker.lat);
@@ -366,11 +387,10 @@ function TourMapContainer({
         });
     };
 
+    // Updates the state "markersSubList" to contain only the visible ones
     const updateVisibleMarkers = useCallback ((map)=>{
         const bounds = map.getBounds();
         // console.log("L362 updateVisibleMarkers / bounds :", bounds)
-
-        // const visibleMarkers = markers.filter((marker)=> bounds.contains([marker.lat, marker.lon]));
         const visibleMarkers = getMarkersListFromBounds(bounds, markers);
         setMarkersSubList(visibleMarkers);
     },[markers])

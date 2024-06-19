@@ -350,3 +350,12 @@ export const getValuesFromParams = (searchParams)=>{
     return values
 }
   
+export  const arraysEqual = (a, b) => {
+    const aIds = new Set(a.map(item => item.id));
+    const bIds = new Set(b.map(item => item.id));
+    if (aIds.size !== bIds.size) return false;
+    for (let id of aIds) {
+        if (!bIds.has(id)) return false;
+    }
+    return true;
+};
