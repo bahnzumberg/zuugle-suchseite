@@ -210,12 +210,14 @@ function TourMapContainer({
     // }, [markersSubList]);
 
 
-    // useEffect to compare the current value of "markersSubList" with the localStorage('visibleMarkers')
-    // then replace its value in localStorage                                   
+    // useEffect to sync and compare the current value of "markersSubList" with the localStorage('visibleMarkers')
     useEffect(() => {
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
         const storedMarkersSubList = storedMarkers.map(item => item.id);
-        
+
+        console.log("L218 Current localStorage :", localStorage.getItem('visibleMarkers'));
+        console.log("L219 Current markersSubList:",markersSubList );
+
         console.log("L219 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(markersSubList, storedMarkersSubList) );
         if (!arraysEqual(markersSubList, storedMarkersSubList)) {// when not equal arrays
             localStorage.setItem('visibleMarkers', JSON.stringify(markersSubList));
