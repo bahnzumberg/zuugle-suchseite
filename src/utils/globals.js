@@ -351,11 +351,11 @@ export const getValuesFromParams = (searchParams)=>{
 }
   
 export  const arraysEqual = (a, b) => {
-    const aIds = new Set(a.map(item => item.id));
-    const bIds = new Set(b.map(item => item.id));
-    if (aIds.size !== bIds.size) return false;
-    for (let id of aIds) {
-        if (!bIds.has(id)) return false;
+    console.log("L354 a :", a);
+    console.log("L355 b :", b);
+    if (a.length !== b.length) return false;
+    for (let id of a) {
+        if (!b.includes(id)) return false;
     }
     return true;
 };

@@ -54,6 +54,11 @@ function TourMapContainer({
         iconSize: [30, 41],                             //size of the icon
         iconAnchor: [15, 41],
     });
+
+    const createIdArray = (markers) => {
+        return markers.map(marker => marker.id);
+    };
+
  
     const mapRef = useRef();
     const clusterRef = useRef();
@@ -67,9 +72,7 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [markersSubList, setMarkersSubList] = useState(markers);
-    // const prevMarkersSubListRef = useRef();
-
+    const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
@@ -210,18 +213,19 @@ function TourMapContainer({
     // }, [markersSubList]);
 
 
+
     // useEffect to sync and compare the current value of "markersSubList" with the localStorage('visibleMarkers')
     useEffect(() => {
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
-        const storedMarkersSubList = storedMarkers.map(item => item.id);
+        const markersSubListIds = markersSubList;
 
-        console.log("L218 Current localStorage :", localStorage.getItem('visibleMarkers'));
-        console.log("L219 Current markersSubList:",markersSubList );
+        // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
+        // console.log("L219 Current id values from markersSubList:",markersSubListIds );
+        // console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(markersSubListIds, storedMarkers) );
 
-        console.log("L219 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(markersSubList, storedMarkersSubList) );
-        if (!arraysEqual(markersSubList, storedMarkersSubList)) {// when not equal arrays
-            localStorage.setItem('visibleMarkers', JSON.stringify(markersSubList));
-            console.log("L228 Updated localStorage :", localStorage.getItem('visibleMarkers'));
+        if (!arraysEqual(markersSubListIds, storedMarkers)) {// when not equal arrays
+            localStorage.setItem('visibleMarkers', JSON.stringify(markersSubListIds));
+            console.log("L229 Updated localStorage :", localStorage.getItem('visibleMarkers'));
         }
     }, [markersSubList]);
    
@@ -352,20 +356,6 @@ function TourMapContainer({
             iconSize: iconSize,
         })
     }
-    // useEffect(() => {
-    //     const handleMoveEnd = () => {
-    //         updateVisibleMarkers(map);
-    //     };
-
-    //     map.on('moveend', handleMoveEnd);
-
-    //     // Initial call to update visible markers
-    //     updateVisibleMarkers(map);
-
-    //     return () => {
-    //         map.off('moveend', handleMoveEnd);
-    //     };
-    // }, [map, updateVisibleMarkers]);
             
     const MyComponent = () => {
         const map = useMapEvents({
@@ -393,8 +383,11 @@ function TourMapContainer({
     const updateVisibleMarkers = useCallback ((map)=>{
         const bounds = map.getBounds();
         // console.log("L362 updateVisibleMarkers / bounds :", bounds)
-        const visibleMarkers = getMarkersListFromBounds(bounds, markers);
-        setMarkersSubList(visibleMarkers);
+        let visibleMarkers = getMarkersListFromBounds(bounds, markers);
+        //turn to array of ids
+        visibleMarkers = createIdArray(visibleMarkers)
+        console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
+        setMarkersSubList(visibleMarkers);// an array of ids
     },[markers])
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
