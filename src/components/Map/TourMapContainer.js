@@ -177,6 +177,7 @@ function TourMapContainer({
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
             console.log('Update bounds');
+            // console.log(markers)
             const bounds = getMarkersBounds(markers);
             mapRef.current.fitBounds(bounds);
         }
@@ -224,7 +225,7 @@ function TourMapContainer({
     }
 
     const updateBounds = () => {
-        console.log('Updated Bounds');
+        // console.log('Updated Bounds');
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
@@ -348,7 +349,7 @@ function TourMapContainer({
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
                 const position = map.getBounds();  //after moving the map, a position is set and saved
-                // console.log("L168 position changed -> value :", position)
+                console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
                 updateVisibleMarkers(map)
@@ -357,11 +358,22 @@ function TourMapContainer({
         return null
     }
 
-    const updateVisibleMarkers = (map)=>{
+    const getMarkersListFromBounds = (bounds, markers) => {
+        return markers.filter((marker) => {
+            const lat = parseFloat(marker.lat);
+            const lon = parseFloat(marker.lon);
+            return bounds.contains(L.latLng(lat, lon));
+        });
+    };
+
+    const updateVisibleMarkers = useCallback ((map)=>{
         const bounds = map.getBounds();
-        const visibleMarkers = markers.filter((marker)=> bounds.contains([marker.lat, marker.lon]));
+        // console.log("L362 updateVisibleMarkers / bounds :", bounds)
+
+        // const visibleMarkers = markers.filter((marker)=> bounds.contains([marker.lat, marker.lon]));
+        const visibleMarkers = getMarkersListFromBounds(bounds, markers);
         setMarkersSubList(visibleMarkers);
-    }
+    },[markers])
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
         let timer;
@@ -430,7 +442,7 @@ function TourMapContainer({
     return <Box
         style={{
             // height: "500px", 
-            height: "calc(70vh - 50px)", 
+            height: "calc(60vh - 50px)", 
             width: "100%", 
             position: "relative",
             overflow: "hidden",
