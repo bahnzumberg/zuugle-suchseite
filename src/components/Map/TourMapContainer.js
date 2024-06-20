@@ -33,7 +33,6 @@ function TourMapContainer({
     loadTourConnections
     }) {
 
-    // const navigate = useNavigate();
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
 
@@ -77,10 +76,6 @@ function TourMapContainer({
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
 
-    //console.log("L68 filter from Main or from Localstroge: ", filter)
-
-    // create a bounds state ?
-    // var onToggle = localStorage.getItem('MapToggle');
     // default map values 
     const default_MapPositionLatNE = 49.019;
     const default_MapPositionLngNE = 17.189;
@@ -126,58 +121,6 @@ function TourMapContainer({
     // }, []);
 
         
-    // useEffect(() => {
-    //     // TODO : if coming in from search/filter submit : remove all map positions from local storage then bind to markers
-    //     // mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-    //     //legacy: 
-    //     //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
-    //     // So updateBounds() is called instead
-
-    //     if (pageAccessedByReload && onToggle !== "true") {
-    //         console.log("L122 : inside  first if !")
-    //         localStorage.removeItem('MapPositionLatNE');
-    //         localStorage.removeItem('MapPositionLngNE');
-    //         localStorage.removeItem('MapPositionLatSW');
-    //         localStorage.removeItem('MapPositionLngSW');
-    //         assignNewMapPosition(null); // set the localStorage to default values
-    //         // consoleLog("L78 / local storage is set")
-    //         updateBounds();
-    //     } else {
-    //         if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
-    //             && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
-            
-    //         console.log("L130 : inside  else if (we have localStorage) !")
-    //             var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
-
-    //             var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
-    //             //creating a latLngBounds-Object for the fitBounds()-Method
-    //             var bounds = L.latLngBounds(corner1, corner2);
-    //             //the map's current position is set to the last position where the user has been
-    //             if (!!bounds && !!mapRef && !!mapRef.current) {
-    //                 mapRef.current?.fitBounds(bounds);
-    //             }
-    //         } else {
-    //             //the map is aligned to the marker/cluster
-    //             // updateBounds();
-    //             //the map's current position is set to the last position where the user has been
-    //             // if (!!bounds && !!mapRef && !!mapRef.current) {
-    //             //     mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-    //             // }else{
-    //             //     updateBounds();
-    //             // }
-    //             // console.log("L130 : inside  last else ! not first time / no stored bounds")
-    //             // if (markers && markers.length > 0 && mapRef.current) {
-    //             //     const bounds = getMarkersBounds(markers);
-    //             //     mapRef.current.fitBounds(bounds);
-    //             // }
-    //             // else{
-    //             //     updateBounds();
-    //             // }
-    //         }
-    //     }
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [markers]);
-
     //continous monitoring of markers to fit map bounds
     useEffect(()=>{
         if (markers && markers.length > 0 && mapRef.current) {
@@ -204,14 +147,6 @@ function TourMapContainer({
             setCity(searchParams.get('city'))
         }
     },[searchParams, city])
-
-    // useEffect( ()=>{
-    //     if(markersSubList){
-    //         console.log("L202 markersSubList");
-    //         console.log(markersSubList);
-    //     }
-    // }, [markersSubList]);
-
 
 
     // useEffect to sync and compare the current value of "markersSubList" with the localStorage('visibleMarkers')
@@ -296,47 +231,6 @@ function TourMapContainer({
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
-
-    // const markerComponents = useMemo(() => {
-    //         console.log('Rerender:', isLoading);
-
-    //         if (!!markers && Array.isArray(markers) && markers.length > 0) {
-    //             return markers.map((mark) => {
-    //                 if (!!mark) {
-    //                     return (
-    //                         // <CustomMarker
-    //                         //     key={mark.id}
-    //                         //     position={[mark.lat, mark.lon]}
-    //                         //     mark={mark}
-    //                         //     onSelectTour={onSelectTour}
-    //                         //     loadTourConnections={loadTourConnections}
-    //                         //     city={city}
-    //                         //     StartIcon={StartIcon}
-    //                         //     mapRef={mapRef}
-    //                         //     clusterRef={clusterRef}
-    //                         // NO markerRef ?? not if use Leaflet only inside CustomMarker
-    //                         // />
-    //                         <Marker
-    //                             key={mark.id}
-    //                             position={[mark.lat, mark.lon]}
-    //                             ref={markerRef}
-    //                             icon={createIcon()}
-    //                             eventHandlers={{
-    //                                 click: () => handleMarkerClick(mark, mark.id)
-    //                                 // click: () => console.log("mark.is is :", mark.id)
-    //                             }}
-    //                         >
-                                
-    //                         </Marker>
-
-    //                     );
-    //                 }
-    //                 return null;
-    //             });
-    //         }
-    //         return null;
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    //     }, [markers, handleMarkerClick, selectedTour]);
 
         
     const createClusterCustomIcon = function (cluster) {
