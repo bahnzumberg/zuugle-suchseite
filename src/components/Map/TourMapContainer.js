@@ -17,20 +17,19 @@ import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
-import {arraysEqual} from '../../utils/globals.js'
+import {arraysEqual} from '../../utils/globals.js';
+import { createIdArray } from '../../utils/map_utils.js';
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
 function TourMapContainer({
     tours,
-    tour,
-    totalTours,
     filter,
-    setTourID,
     setMapInitialized,
     mapInitialized,
     onSelectTour,  // use for Popup content
-    loadTourConnections
+    onMarkersSubListChange,//handler for change in markers list, sets the state in Main.js
+    markersSubList
     }) {
 
     const dispatch = useDispatch(); // Get dispatch function from Redux
@@ -54,11 +53,6 @@ function TourMapContainer({
         iconAnchor: [15, 41],
     });
 
-    const createIdArray = (markers) => {
-        return markers.map(marker => marker.id);
-    };
-
- 
     const mapRef = useRef();
     const clusterRef = useRef();
     const markerRef = useRef(null);
@@ -71,7 +65,7 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
+    // const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
@@ -152,7 +146,7 @@ function TourMapContainer({
     // useEffect to sync and compare the current value of "markersSubList" with the localStorage('visibleMarkers')
     useEffect(() => {
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
-        const markersSubListIds = markersSubList;
+        const markersSubListIds = markersSubList || [];
 
         // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
         // console.log("L219 Current id values from markersSubList:",markersSubListIds );
@@ -211,7 +205,7 @@ function TourMapContainer({
     // pass the selectedTour to the component Popup
   
     const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
-        console.log("Marker Click");
+        // console.log("Marker Click");
 
         setSelectedTour(null);
         setIsLoading(true);
@@ -281,8 +275,8 @@ function TourMapContainer({
         //turn to array of ids
         visibleMarkers = createIdArray(visibleMarkers)
         console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
-        setMarkersSubList(visibleMarkers);// an array of ids
-    },[markers])
+        onMarkersSubListChange(visibleMarkers);// set the state of "markersSubList" defined inside Main
+    },[markers,onMarkersSubListChange])
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
         let timer;

@@ -2,7 +2,7 @@ import * as React from "react";
 import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import { compose } from "redux";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import {
   clearTours,
   loadFilter,
@@ -15,13 +15,11 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import CircularProgress from "@mui/material/CircularProgress";
+// import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
-import { loadGPX } from "../../actions/fileActions";
 import { Typography } from "@mui/material";
 import {
   checkIfSeoPageCity,
-  // checkIfSeoPageRange,
   getPageHeader,
   getCityLabel,
 } from "../../utils/seoPageHelper";
@@ -33,8 +31,8 @@ import ArrowBefore from "../../icons/ArrowBefore";
 // import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from '../../components/Search/MapBtn';
 // import {getMapData} from '../../actions/crudActions';
-import { checkOnlyMapParams } from "../../utils/map_utils";
 // import NoData from "../../components/NoData";
+import { createIdArray } from "../../utils/map_utils";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
@@ -61,7 +59,6 @@ export function Main({
   // hideModal,
   // loadFilter,
   // isLoadingFilter,
-  // loadGPX,
   // loadTour,
   // loadTourConnectionsExtended,
 }) {
@@ -72,7 +69,6 @@ export function Main({
   const { t }    = useTranslation();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  // const [mapView, setMapView]           = useState(false);
   const [directLink, setDirectLink]     = useState(null);
   const [tourID, setTourID]             = useState(null);
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
@@ -81,6 +77,7 @@ export function Main({
   const [counter, setCounter] = useState(0); 
 
   const [mapInitialized, setMapInitialized] = useState(false);
+  const markers = useSelector((state) => state.tours.markers);// move to props    
 
 
   // const currentParams = new URLSearchParams(location.search);
@@ -88,52 +85,16 @@ export function Main({
   const [scrollToTop, setScrollToTop] = useState(false);
 
   const [showMap, setShowMap] = useState(false);
+  const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
+
   
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
-  
-  //is true if params contains "filter" and has only 2 params specific to coordinate values
-  const onlyMapParams = checkOnlyMapParams(searchParams.get('filter'));
-
-// trials / testing
-//   useEffect(() => {
-//     let markersArrayArrivals = [];
-//     if(!!tours){
-//       tours.map(tour => {
-//         markersArrayArrivals.push([tour.connection_arrival_stop_lat, tour.connection_arrival_stop_lon]);
-//         // console.log("L117 / id :", tour.id)
-//         // console.log("L118 / connection_arrival_stop_lat :", tour.connection_arrival_stop_lat)
-//         // console.log("L119 / connection_arrival_stop_lon :",  tour.connection_arrival_stop_lon)
-//         return markersArrayArrivals
-//       })
-//     }
-
-//     // if(markersArrayArrivals ){
-      
-//     //     for(let j=0  ; j<markersArrayArrivals.length ; j++){
-//     //       console.log(`row : ${j}`)
-//     //       console.log(`${markersArrayArrivals[j][0]} , ${markersArrayArrivals[j][1]}`)
-//     //     }     
-      
-//     // }
-// }, [])
-  
+    
   useEffect(() => {
-    setShowMap(searchParams.get('map') === "true" ? true : false ) ;
-    // should be run at the begining and everytime map changes 
-    let filterFromParams = !!searchParams.get('filter') ? searchParams.get('filter') : null;
-    if(!!filterFromParams) {
-
-      // should values be "prepared" after they arrive from getValuesFromParameters() ???
-      //TODO : add condition -> if map filter contains map coordinates (?) then call getMapData
-      
-      // getMapData(values).then((res)=>{
-      //   res?.data_received && console.log("L166 res?.data_received/ Map :", res.data_received)
-      //   res?.data && console.log("L167 res.data/ Map data :", res.data)
-      // });
-    }
+    setShowMap(searchParams.get('map') === "true" ? true : false ) ;  
   }, [searchParams]); 
 
   // useEffect(() => {
@@ -201,20 +162,13 @@ export function Main({
         setDirectLink(null);
       }
     }
-    // if (location && location.pathname !== "/suche") {
-    //   navigate("/");
-    // }
   }, [allCities]);
 
-  //updates the state of activeFilter, filterValues and mapView based on the searchParams and filter values whenever there is a change in either searchParams or filter.
+  //updates the state of activeFilter, filterValues based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    //when onlyMapParams = true : map positions inside "filter" param is the only one set, means proper filter modal was not submitted/ set, therefore we setActiveFilter should be set to false. 
-    // (!!filterCountLocal && filterCountLocal > 0) || !onlyMapParams ? 
     (!!filterCountLocal && filterCountLocal > 0) ? 
     setActiveFilter(true) : setActiveFilter(false);
     !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
-    //updates the state of mapView based on the value of map in searchParams. If map is equal to "true", then mapView is set to true, otherwise it remains set to initial value of false.
-    // setMapView(searchParams.get("map") === "true");
   }, [filterCountLocal,filterValuesLocal, searchParams]);
 
 
@@ -288,21 +242,23 @@ export function Main({
   return resultedData
 }, []);
 
+//Map-related : callback to set the state of "markersSubList" inside Map Container
+const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
+  setMarkersSubList(newMarkersSubList);
+}, []);
+
   const memoTourMapContainer = useMemo(() => {
     return (
 
       <TourMapContainer
         tours={tours}
-        setTourID={setTourID}
         filter={filter}
-        totalTours={totalTours}
         setMapInitialized={setMapInitialized}
         mapInitialized={mapInitialized}
         loadTour={loadTour}
-        loadTourConnections={loadTourConnections}
-        // onSelectTour={onSelectMapTour} // does not work,  creates re-renders and redirects to start page
         onSelectTour={onSelectTourById} 
-        tour={tour}
+        onMarkersSubListChange={handleMarkersSubListChange}
+        markersSubList={markersSubList}
       />
       
     );
@@ -402,15 +358,6 @@ export function Main({
           </Box>
         </Box>
   )
-
-  const renderMapWithHeader = ()=>{!!showMap && (
-    <>
-      <Box className={"map-container"}>
-        {memoTourMapContainer}
-      </Box>
-      {totalToursHeader()}
-    </>
-  )}
  
   return (
     <div>
@@ -547,7 +494,6 @@ const mapDispatchToProps = {
   loadTourConnections,
   loadTourConnectionsExtended,
   loadFilter,
-  // loadGPX,
   loadTour,
   clearTours,
   loadRanges,
