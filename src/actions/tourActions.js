@@ -26,15 +26,16 @@ import {
   // NO_TOURS_AVAILABLE,
   // LOAD_DATA_ERROR,
 } from "./types";
-import { loadFile, loadList, loadOne, loadOneReturnAll } from "./crudActions";
+import { loadFile, loadList, loadOne, loadOneReturnAll, getMapData } from "./crudActions";
 import i18next from "i18next";
 import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
-
+    console.log("L35 tourActions / data : ", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
+        console.log("L38 tourActions / data with domain: ", data);  
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
@@ -225,3 +226,32 @@ export const setTourID = (tourId) => {
     payload: tourId,
   };
 };
+
+// Passing marker Ids from map to retrieve corresponding tours
+export function loadMapTours(markersArray) {
+  return (dispatch) => {
+      const data = {
+        markerIds: markersArray, // this passed var should be already an array of ids
+      };
+
+      return getMapData(data)
+          .then((res) => {
+              const tours = res.tours;
+              dispatch({
+                type: LOAD_TOURS_DONE,
+                tours: tours,
+                total: res.total,
+                page: res.page,
+              });
+              return res;
+          })
+          .catch((err) => {
+              console.error(err);
+              dispatch({
+                  type: LOAD_TOURS_DONE,
+                  tours: [],
+                  total: 0,
+              });
+          });
+  };
+}
