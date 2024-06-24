@@ -70,7 +70,6 @@ export function Main({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [directLink, setDirectLink]     = useState(null);
-  const [tourID, setTourID]             = useState(null);
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
  
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
@@ -80,12 +79,14 @@ export function Main({
   const markers = useSelector((state) => state.tours.markers);// move to props    
 
 
-  // const currentParams = new URLSearchParams(location.search);
-  // const [forceUpdate, setForceUpdate] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
+  // console.log("L86 , createIdArray(markers) :", createIdArray(markers))
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
+  const [mapBounds, setMapBounds] = useState(null);
+  const [markersChanged, setMarkersChanged] = useState(false)
+  
 
   
 
@@ -93,21 +94,11 @@ export function Main({
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
     
+  useEffect(()=> console.log("L263 Main.js -> mapBounds ", mapBounds),[mapBounds]);
+
   useEffect(() => {
     setShowMap(searchParams.get('map') === "true" ? true : false ) ;  
   }, [searchParams]); 
-
-  // useEffect(() => {
-    // should be run at the begining only
-  
-    // let values = getValuesFromParams();
-    // !!values && console.log("L128 loadTours call / values : ", values);
-    
-  //   loadTours(values).then((res) => {    //the redux state tours is filled by calling loadTours
-  //     // set 'filterValues' in localStorage ?
-  //   });
-  //   console.log("Main.2")
-  // }, []); 
 
   useEffect(() => {
     if (scrollToTop) {
@@ -243,9 +234,26 @@ export function Main({
 }, []);
 
 //Map-related : callback to set the state of "markersSubList" inside Map Container
-const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
-  setMarkersSubList(newMarkersSubList);
+// const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
+//   console.log("L239 newMarkersSubList :",newMarkersSubList)
+//   setMarkersSubList(newMarkersSubList);
+// }, []);
+//Map-related : callback to set the state of "mapBounds" inside Map Container
+const handleMapBounds = useCallback((bounds) => {
+  // console.log("L261 handleMapBounds :", bounds)
+  setMapBounds(bounds);
 }, []);
+//Map-related : callback to set the state of "mapBounds" inside Map Container
+const handleChangedMarkers = useCallback((value) => {
+  // console.log("L248 handleChangedBounds , value:", value)
+  setMarkersChanged(value);
+}, []);
+
+useEffect(() => {
+  console.log("L254 Main / markersSubList: ", markersSubList)// works 
+  console.log("L255 Main / mapBounds: ", mapBounds) //works
+}, [markersSubList, mapBounds])
+
 
   const memoTourMapContainer = useMemo(() => {
     return (
@@ -257,8 +265,12 @@ const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
         mapInitialized={mapInitialized}
         loadTour={loadTour}
         onSelectTour={onSelectTourById} 
-        onMarkersSubListChange={handleMarkersSubListChange}
+        // onMarkersSubListChange={handleMarkersSubListChange}
         markersSubList={markersSubList}
+        setMarkersSubList={setMarkersSubList}
+        handleMapBounds={handleMapBounds}
+        handleChangedMarkers={handleChangedMarkers}
+        setMapBounds={setMapBounds}
       />
       
     );
@@ -302,13 +314,13 @@ const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
         loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
         loadTours={loadTours}
-        // totalTours={totalTours}
         pageTours={pageTours}
         loading={loading}
-        // total={totalTours}
         filterValues={filterValues}
         setFilterValues={setFilterValues}
         showMap={showMap}  //to be used for other features
+        mapBounds={mapBounds}
+        markersChanged={markersChanged}
       />
     </Box>
   )

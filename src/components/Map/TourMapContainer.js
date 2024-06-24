@@ -28,8 +28,12 @@ function TourMapContainer({
     setMapInitialized,
     mapInitialized,
     onSelectTour,  // use for Popup content
-    onMarkersSubListChange,//handler for change in markers list, sets the state in Main.js
-    markersSubList
+    //onMarkersSubListChange,//handler for change in markers list, sets the state in Main.js
+    markersSubList,
+    handleMapBounds,
+    handleChangedMarkers,
+    setMarkersSubList,
+    setMapBounds
     }) {
 
     const dispatch = useDispatch(); // Get dispatch function from Redux
@@ -65,12 +69,11 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    // const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
 
-    // default map values 
+    // default map bounds 
     const default_MapPositionLatNE = 49.019;
     const default_MapPositionLngNE = 17.189;
     const default_MapPositionLatSW = 46.372;
@@ -94,7 +97,7 @@ function TourMapContainer({
         if (!mapInitialized) {
             setMapInitialized(true);
         }
-    }, [mapInitialized, setMapInitialized]); //TODO: remove setMapInitialized after testing its absence
+    }, [mapInitialized, setMapInitialized]); 
 
     // useEffect(() => {
     //     // Set default bounds to Austria's geographic bounds
@@ -116,23 +119,25 @@ function TourMapContainer({
 
         
     //continous monitoring of markers to fit map bounds
-    useEffect(()=>{
-        if (markers && markers.length > 0 && mapRef.current) {
-            console.log('Update bounds');
-            // console.log(markers)
-            const bounds = getMarkersBounds(markers);
-            mapRef.current.fitBounds(bounds);
-        }
-    }, [markers]);
+    // useEffect(()=>{
+    //     if (markers && markers.length > 0 && mapRef.current) {
+    //         console.log("L124 useEffect/ markers now :",markers)
+    //         const _bounds = getMarkersBounds(markers);
+    //         console.log('L125 useEffect / new bounds for markers:',_bounds);
+    //         //handleMapBounds(_bounds); // set state here
+    //         mapRef.current.fitBounds(_bounds);
+    //     }
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [markers]); // need to have dependency with bounds !!
 
     const getMarkersBounds = (markers) => {
-        const bounds = L.latLngBounds([]);
+        const _bounds = L.latLngBounds([]);
         markers.forEach((marker) => {
             if (marker.lat && marker.lon) {
-                bounds.extend([marker.lat, marker.lon]);
+                _bounds.extend([marker.lat, marker.lon]);
             }
         });
-        return bounds;
+        return _bounds;
     };
 
     // city setting 
@@ -143,21 +148,17 @@ function TourMapContainer({
     },[searchParams, city])
 
 
-    // useEffect to sync and compare the current value of "markersSubList" with the localStorage('visibleMarkers')
-    useEffect(() => {
-        const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
-        const markersSubListIds = markersSubList || [];
+   const checkMarkersChanges = (visibleMarkers, storedMarkers)=>{
+        console.log("L150 inside checkMarkersChanges !")
+      
+        console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
+        console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
+        console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(visibleMarkers, storedMarkers) );
 
-        // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
-        // console.log("L219 Current id values from markersSubList:",markersSubListIds );
-        // console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(markersSubListIds, storedMarkers) );
-
-        if (!arraysEqual(markersSubListIds, storedMarkers)) {// when not equal arrays
-            localStorage.setItem('visibleMarkers', JSON.stringify(markersSubListIds));
-            console.log("L229 Updated localStorage :", localStorage.getItem('visibleMarkers'));
-        }
-    }, [markersSubList]);
-   
+        if (!arraysEqual(visibleMarkers, storedMarkers)) {// when not equal arrays (changes)
+            return true;
+        }else return false;
+   }
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
         localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || default_MapPositionLatNE);
@@ -166,6 +167,7 @@ function TourMapContainer({
         localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || default_MapPositionLngSW);
     }
 
+    // fitting bounds when cluster is clicked
     const updateBounds = () => {
         // console.log('Updated Bounds');
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
@@ -248,11 +250,17 @@ function TourMapContainer({
     const MyComponent = () => {
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
-                const position = map.getBounds();  //after moving the map, a position is set and saved
-                console.log("L168 position changed -> value :", position)
+                // if there are markers , fit map to them else use the usual way
+                let position= null
+                if (markers && markers.length > 0 && mapRef.current){
+                    position = getMarkersBounds(markers)
+                }else {
+                    position = map.getBounds();  //after moving the map, a position is set and saved
+                }
+                // console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
-                updateVisibleMarkers(map)
+                updateVisibleMarkers(map)  // pulling markers on map movements
             }
         })
         return null
@@ -267,16 +275,33 @@ function TourMapContainer({
         });
     };
 
-    // Updates the state "markersSubList" to contain only the visible ones
+    // Updates the state "markersSubList" to contain only the visible ones only if different from localstorage
     const updateVisibleMarkers = useCallback ((map)=>{
+    // const updateVisibleMarkers =  (map)=>{
         const bounds = map.getBounds();
-        // console.log("L362 updateVisibleMarkers / bounds :", bounds)
+
         let visibleMarkers = getMarkersListFromBounds(bounds, markers);
-        //turn to array of ids
         visibleMarkers = createIdArray(visibleMarkers)
+
+        const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
+
         console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
-        onMarkersSubListChange(visibleMarkers);// set the state of "markersSubList" defined inside Main
-    },[markers,onMarkersSubListChange])
+        console.log("L391 storedMarkers :", storedMarkers)
+        const check = checkMarkersChanges(visibleMarkers,storedMarkers);
+        console.log("L392 check :", check)
+
+       
+
+        if(!!check){
+            setMarkersSubList(visibleMarkers) // set the state of "markersSubList" defined inside Main
+            setMapBounds(bounds)
+            localStorage.setItem('visibleMarkers', JSON.stringify(visibleMarkers));
+            handleChangedMarkers(true) // *** handle the Boolean flag to create a new call in card containers
+            handleMapBounds(bounds) // * setting bounds value in state (state in Main.js)
+
+        }
+
+    },[markers])
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
         let timer;
@@ -315,27 +340,28 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
-        // if (filterValues == null) {
-        //     searchParams.delete("filter");
-        // } else {
-        //     console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
-        //     //pull filtervalues from localStorage and pass it to params for setting
-        //     searchParams.set("filter", JSON.stringify(filterValues));
-        //     setSearchParams(searchParams);
-        //     consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
-        // }
-        // //pull filtervalues from localStorage and pass it to params for setting
-        // localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
-        // setSearchParams(searchParams) //set the search Params and start the call to the backend
-
-        if (filter == null || Object.keys(filter).length === 0) {
+        if (filterValues == null) {
             searchParams.delete("filter");
         } else {
-            // console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
-            //filter comes from localStorage or from Main and pass it to params to be set 
-            searchParams.set("filter", JSON.stringify(filter));
+            //console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
+            //pull filtervalues from localStorage and pass it to params for setting
+            searchParams.set("filter", JSON.stringify(filterValues));
             setSearchParams(searchParams);
+            console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
+        //pull filtervalues from localStorage and pass it to params for setting
+        localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
+        setSearchParams(searchParams) //set the search Params and start the call to the backend
+
+        // {"coordinatesSouthWest":{"lat":46.9690080331196,"lng":12.958374023437502},"coordinatesNorthEast":{"lat":48.60748989475176,"lng":15.3094482421875}}
+        // if (filter == null || Object.keys(filter).length === 0) {
+        //     searchParams.delete("filter");
+        // } else {
+        //     // console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
+        //     //filter comes from localStorage or from Main and pass it to params to be set 
+        //     searchParams.set("filter", JSON.stringify(filter));
+        //     setSearchParams(searchParams);
+        // }
         //pull filtervalues from localStorage and pass it to params for setting
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
