@@ -453,6 +453,7 @@ const handleChangedMarkers = useCallback((value) => {
                   setFilterValues={setFilterValues}
                   counter={counter}
                   setCounter={setCounter}
+                  mapBounds={mapBounds}
                 />
               </Box>
             </Box>

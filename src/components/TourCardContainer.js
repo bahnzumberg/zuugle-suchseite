@@ -44,12 +44,14 @@ export default function TourCardContainer({
     // if (markersChanged && mapBounds) {
     if (mapBounds) {
         console.log("L44 just before loadTours , mapBounds : ", mapBounds);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        pageMapTours = 1 ;
-        _loadTours();
+      // make a tours call
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      pageMapTours = 1 ;
+      _loadTours();
     }
 // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [markersChanged, mapBounds]);
+}, [mapBounds]);
 
   
   const _loadTours = async () => {

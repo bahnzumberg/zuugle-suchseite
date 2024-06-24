@@ -46,6 +46,7 @@ export function Search({
   setCounter,
   setFilterValues, 
   filterValues,
+  mapBounds
   // showMobileMenu, setShowMobileMenu,
   // loadCities,
   // cities,
@@ -96,6 +97,7 @@ export function Search({
   }, [searchParams, counter]);
 
   useEffect(() => {
+    if(!!mapBounds) return 
     // pull out values from URL params
     let city = searchParams.get("city");
     let range = searchParams.get("range"); 
