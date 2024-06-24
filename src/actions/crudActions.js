@@ -72,7 +72,7 @@ export function loadList(
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
-  console.log("L75 -> data :", data)
+  // console.log("L75 -> data :", data)
 
   // initialize language param
   const langPassed =
@@ -90,8 +90,8 @@ export function loadList(
 
   let params = {};
   if (state) {
-    console.log("L93 CRUD state :", state)
-    console.log("L94 CRUD state.bounds :", state["bounds"])
+    // console.log("L93 CRUD state :", state)
+    // console.log("L94 CRUD state.bounds :", state["bounds"])
     let pagination = {};
     if (!!usePagination) {
       pagination.page = state.page;
@@ -115,7 +115,7 @@ export function loadList(
       bounds: data.bounds 
     };
 }
-  console.log("L108 params : ", params);
+  // console.log("L108 params : ", params);
 
   // console.log("L108 params : ", params)
   return axios
