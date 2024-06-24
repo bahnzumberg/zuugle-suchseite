@@ -41,7 +41,8 @@ export default function TourCardContainer({
 
   useEffect(() => {
     console.log("L40 markersChanged :", markersChanged);
-    if (markersChanged && mapBounds) {
+    // if (markersChanged && mapBounds) {
+    if (mapBounds) {
         console.log("L44 just before loadTours , mapBounds : ", mapBounds);
         // eslint-disable-next-line react-hooks/exhaustive-deps
         pageMapTours = 1 ;
@@ -63,7 +64,6 @@ export default function TourCardContainer({
     let sort = searchParams.get("sort");
     let map = searchParams.get("map");
     let provider = searchParams.get("p");
-    // let filter = searchParams.get("filter");
 
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
