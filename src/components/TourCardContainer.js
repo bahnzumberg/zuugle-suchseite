@@ -70,7 +70,7 @@ export default function TourCardContainer({
     filterRef.current = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
     // add bounds from mapBounds state to call parameters
     let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
-    console.log("L72 : bounds :", bounds)
+    // console.log("L72 : bounds :", bounds)
   
     // console.log("L70 bounds inside TCC :", bounds)
    

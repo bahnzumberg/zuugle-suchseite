@@ -94,7 +94,7 @@ export function Main({
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
     
-  useEffect(()=> console.log("L263 Main.js -> mapBounds ", mapBounds),[mapBounds]);
+  // useEffect(()=> console.log("L263 Main.js -> mapBounds ", mapBounds),[mapBounds]);
 
   useEffect(() => {
     setShowMap(searchParams.get('map') === "true" ? true : false ) ;  
@@ -249,10 +249,10 @@ const handleChangedMarkers = useCallback((value) => {
   setMarkersChanged(value);
 }, []);
 
-useEffect(() => {
-  console.log("L254 Main / markersSubList: ", markersSubList)// works 
-  console.log("L255 Main / mapBounds: ", mapBounds) //works
-}, [markersSubList, mapBounds])
+// useEffect(() => {
+//   console.log("L254 Main / markersSubList: ", markersSubList)// works 
+//   console.log("L255 Main / mapBounds: ", mapBounds) //works
+// }, [markersSubList, mapBounds])
 
 
   const memoTourMapContainer = useMemo(() => {

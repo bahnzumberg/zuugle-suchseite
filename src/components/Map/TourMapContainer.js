@@ -149,11 +149,11 @@ function TourMapContainer({
 
 
    const checkMarkersChanges = (visibleMarkers, storedMarkers)=>{
-        console.log("L150 inside checkMarkersChanges !")
+        // console.log("L150 inside checkMarkersChanges !")
       
-        console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
-        console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
-        console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(visibleMarkers, storedMarkers) );
+        // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
+        // console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
+        // console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(visibleMarkers, storedMarkers) );
 
         if (!arraysEqual(visibleMarkers, storedMarkers)) {// when not equal arrays (changes)
             return true;
@@ -277,7 +277,6 @@ function TourMapContainer({
 
     // Updates the state "markersSubList" to contain only the visible ones only if different from localstorage
     const updateVisibleMarkers = useCallback ((map)=>{
-    // const updateVisibleMarkers =  (map)=>{
         const bounds = map.getBounds();
 
         let visibleMarkers = getMarkersListFromBounds(bounds, markers);
@@ -285,12 +284,10 @@ function TourMapContainer({
 
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
 
-        console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
-        console.log("L391 storedMarkers :", storedMarkers)
+        // console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
+        // console.log("L391 storedMarkers :", storedMarkers)
         const check = checkMarkersChanges(visibleMarkers,storedMarkers);
         console.log("L392 check :", check)
-
-       
 
         if(!!check){
             setMarkersSubList(visibleMarkers) // set the state of "markersSubList" defined inside Main
@@ -346,14 +343,13 @@ function TourMapContainer({
             //console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
             //pull filtervalues from localStorage and pass it to params for setting
             searchParams.set("filter", JSON.stringify(filterValues));
-            setSearchParams(searchParams);
+            // setSearchParams(searchParams);
             console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         //pull filtervalues from localStorage and pass it to params for setting
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
 
-        // {"coordinatesSouthWest":{"lat":46.9690080331196,"lng":12.958374023437502},"coordinatesNorthEast":{"lat":48.60748989475176,"lng":15.3094482421875}}
         // if (filter == null || Object.keys(filter).length === 0) {
         //     searchParams.delete("filter");
         // } else {
@@ -363,8 +359,8 @@ function TourMapContainer({
         //     setSearchParams(searchParams);
         // }
         //pull filtervalues from localStorage and pass it to params for setting
-        localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
-        setSearchParams(searchParams) //set the search Params and start the call to the backend
+        // localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
+        // setSearchParams(searchParams) //set the search Params and start the call to the backend
 
     };
 
