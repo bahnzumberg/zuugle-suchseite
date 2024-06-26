@@ -12,13 +12,14 @@ import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-// import {consoleLog} from '../../utils/globals.js';
+import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
 import {arraysEqual} from '../../utils/globals.js';
 import { createIdArray } from '../../utils/map_utils.js';
+import { isArray } from 'lodash';
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
@@ -118,7 +119,7 @@ function TourMapContainer({
     // }, []);
 
         
-    //continous monitoring of markers to fit map bounds
+    //continous monitoring of markers to fit map bounds // removed to moveend
     // useEffect(()=>{
     //     if (markers && markers.length > 0 && mapRef.current) {
     //         console.log("L124 useEffect/ markers now :",markers)
@@ -278,8 +279,12 @@ function TourMapContainer({
     // Updates the state "markersSubList" to contain only the visible ones only if different from localstorage
     const updateVisibleMarkers = useCallback ((map)=>{
         const bounds = map.getBounds();
-
-        let visibleMarkers = getMarkersListFromBounds(bounds, markers);
+        // console.log("L281 masterMarkers inside updateVisibleMarkers: ")
+        // !!localStorage.getItem('masterMarkers') ? console.log(localStorage.getItem('masterMarkers')) : console.log("L282 : masterMarkers not available in localStorage")
+        let _masterMarkers = localStorage.getItem('masterMarkers');
+        _masterMarkers = JSON.parse(_masterMarkers)
+        
+        let visibleMarkers = getMarkersListFromBounds(bounds,_masterMarkers); 
         visibleMarkers = createIdArray(visibleMarkers)
 
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
@@ -287,15 +292,14 @@ function TourMapContainer({
         // console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
         // console.log("L391 storedMarkers :", storedMarkers)
         const check = checkMarkersChanges(visibleMarkers,storedMarkers);
-        console.log("L392 check :", check)
+        consoleLog("L392 check :", check)
 
         if(!!check){
             setMarkersSubList(visibleMarkers) // set the state of "markersSubList" defined inside Main
             setMapBounds(bounds)
             localStorage.setItem('visibleMarkers', JSON.stringify(visibleMarkers));
-            handleChangedMarkers(true) // *** handle the Boolean flag to create a new call in card containers
+            handleChangedMarkers(true) // *** handle the Boolean flag in Main /make new call in card container
             handleMapBounds(bounds) // * setting bounds value in state (state in Main.js)
-
         }
 
     },[markers])
