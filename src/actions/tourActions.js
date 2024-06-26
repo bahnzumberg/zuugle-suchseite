@@ -32,10 +32,10 @@ import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
-    console.log("L35 tourActions / data : ", data)
+    // console.log("L35 tourActions / data : ", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        console.log("L38 tourActions / data with domain: ", data);  
+        // console.log("L38 tourActions / data with domain: ", data);  
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
