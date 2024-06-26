@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
+import {useRef} from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
@@ -81,6 +82,9 @@ export function Search({
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false)
   const [scrollToTop, setScrollToTop] = useState(false);
+
+  const markers = useSelector((state) => state.tours.markers);
+  const isMasterMarkersSet = useRef(false);
 
   useEffect(() => {
     if (scrollToTop) {
@@ -168,7 +172,10 @@ export function Search({
     //=======================================================
     if (!!!isMain ) {
       return;
+    }else{
+      isMasterMarkersSet.current = false ;
     }
+
     let _filter = !!filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
     // !!_filter && console.log(" L142 -> _filter is of †ype :", typeof(_filter))
     if (!!_filter) {
@@ -185,6 +192,9 @@ export function Search({
     !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
     // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
+    const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
+    console.log("L196 Search/ bounds :", bounds)
+
     let result = loadTours({
       city: city,
       range: range, 
@@ -196,11 +206,29 @@ export function Search({
       sort: sort,
       provider: provider,
       map: searchParams.get("map"),
+      bounds: bounds
     });
 
-    result.then((resolvedValue) => {
+    result.then((res) => {
       //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
-      // console.log("Search L183 result of load Tours", resolvedValue);
+      let importedMarkersArray = res.data.markers;
+      
+      console.log("L213 Search/ !isMasterMarkersSet.current : ", !isMasterMarkersSet.current)
+      console.log("L211 Search/ res.data.total :", res.data.total);
+      console.log("L212 Search/ result of markers array :", importedMarkersArray);
+      if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
+        // Transform the markers array
+        const transformedMarkers = importedMarkersArray.map(marker => ({
+          id: marker.id,
+          lat: marker.connection_arrival_stop_lat,
+          lon: marker.connection_arrival_stop_lon
+        }));
+        console.log("L215 Search/ transformedMarkers : ", transformedMarkers)
+
+        // Store the transformed array in localStorage
+        localStorage.setItem('masterMarkers', JSON.stringify(transformedMarkers));
+        isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
+      }
     });
   }, [
     // useEffect dependencies
@@ -340,10 +368,15 @@ export function Search({
       // window.location.reload();
     } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
+        if(!!res && !!res.data) console.log("L348 res", res.data)
+
         if(pageKey === "detail") {
           // console.log("Search L333 searchParams :", JSON.stringify(searchParams));
           navigate(`/suche?${searchParams.toString()}`);
         }
+        //if markers received then assign markers array to localStorage('masterMarkers')
+        // if(!!res && !!res.data) console.log("L348 res", res.data)
+
         //window.location.reload();
         setScrollToTop(true);
       });
@@ -399,8 +432,11 @@ export function Search({
 
     
   const handleGoButton = () =>  {
+    if (!!isMain ) {
+      isMasterMarkersSet.current = false ;
+    }
     search();
-    window.location.reload();
+    // window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);
   }

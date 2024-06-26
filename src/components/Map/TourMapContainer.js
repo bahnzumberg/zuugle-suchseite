@@ -40,7 +40,15 @@ function TourMapContainer({
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
 
-    const markers = useSelector((state) => state.tours.markers);// move to props    
+    const markers = useSelector((state) => state.tours.markers);// move to props 
+    const isMasterMarkersSet = useRef(false);
+
+    useEffect(() => {
+      if (!isMasterMarkersSet.current && markers && markers.length > 0) {
+        localStorage.setItem('masterMarkers', JSON.stringify(markers));
+        isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
+      }
+    }, []);
     
     const createIcon = () => {
         return L.icon({
@@ -281,7 +289,9 @@ function TourMapContainer({
         const bounds = map.getBounds();
         // console.log("L281 masterMarkers inside updateVisibleMarkers: ")
         // !!localStorage.getItem('masterMarkers') ? console.log(localStorage.getItem('masterMarkers')) : console.log("L282 : masterMarkers not available in localStorage")
-        let _masterMarkers = localStorage.getItem('masterMarkers');
+        // let _masterMarkers = localStorage.getItem('masterMarkers');
+        // _masterMarkers = JSON.parse(_masterMarkers)
+        let _masterMarkers = !!localStorage.getItem('masterMarkers') ? localStorage.getItem('masterMarkers') : {};
         _masterMarkers = JSON.parse(_masterMarkers)
         
         let visibleMarkers = getMarkersListFromBounds(bounds,_masterMarkers); 

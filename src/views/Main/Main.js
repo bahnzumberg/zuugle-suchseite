@@ -87,17 +87,16 @@ export function Main({
   const [mapBounds, setMapBounds] = useState(null);
   const [markersChanged, setMarkersChanged] = useState(false)
   
-
-
+ 
   //create masterMarkersList inside localStorage
-  useEffect (()=>{
-    if(!!markers && markers.length > 0 ) {
-      console.log("L96 useEffect markers")
-      console.log(markers)
-      localStorage.setItem('masterMarkers', JSON.stringify(markers)) 
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[])
+  // useEffect (()=>{
+  //   if(!!markers && markers.length > 0 ) {
+  //     console.log("L96 useEffect markers")
+  //     console.log(markers)
+  //     localStorage.setItem('masterMarkers', JSON.stringify(markers)) 
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // },[])
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
