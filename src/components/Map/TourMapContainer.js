@@ -187,8 +187,8 @@ function TourMapContainer({
     }
 
     const setCurrentGpxTrack = async (url) => {
-        // console.log("L227 url incoming to setCurrentGpxTrack :")
-        // console.log(url)
+        console.log("L227 url incoming to setCurrentGpxTrack :")
+        console.log(url)
         if (!!url) {
             try {
                 const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
