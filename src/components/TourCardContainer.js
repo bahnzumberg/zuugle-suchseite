@@ -7,27 +7,40 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import {useSearchParams} from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from './EndOfList';
-import {consoleLog} from '../utils/globals'
+import {consoleLog} from '../utils/globals';
 
 export default function TourCardContainer({
   tours,
   onSelectTour,
   loadTourConnections,
-  city,
+  // city,
   loadTours,
-  // totalTours,
   pageTours,
   loading,
-  // total,
   filterValues,
   setFilterValues,
-  showMap
+  showMap,
+  markersChanged,
+  mapBounds,
 }) {
 
+  // console.log("L71 TCC >>>> pageTours :", pageTours)
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
   
   let filterRef = useRef(localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {});
+
+  //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
+
+  let city = searchParams.get("city");
+  let range = searchParams.get("range");
+  let state = searchParams.get("state");
+  let country = searchParams.get("country");
+  let type = searchParams.get("type");
+  let search = searchParams.get("search");
+  let sort = searchParams.get("sort");
+  let map = searchParams.get("map");
+  let provider = searchParams.get("p");
 
   useEffect(() => {
     if(!!hasMore && !!filterValues){
@@ -37,25 +50,55 @@ export default function TourCardContainer({
     }
   }, [hasMore,filterValues,searchParams])
 
+  useEffect(() => {
+    console.log("L40 markersChanged :", markersChanged);
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
+    if (mapBounds && markersChanged) {
+        console.log("L44 just before loadTours , mapBounds : ", mapBounds);
+      // make a tours call
 
-  
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      loadTours({
+        city: city,
+        range: range,
+        state: state,
+        country: country,
+        type: type,
+        search: search,
+        filter: filterRef.current,
+        sort: sort,
+        map: map,
+        provider: provider,
+        bounds:bounds ,  // bounds added
+      }).then((res) => {
+        // console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
+        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :",(res.data));
+        // let retrievedTours = res?.data?.tours ? res.data.tours : [];
+        consoleLog("L75 TCC >>>> loadTours / useEffect , res.data.total :",(res.data.total));
+
+        // if (res.data.total === 0 || res.data.total < 9) {
+        //   console.log("L80 TCC >>>> loadTours:", res.data.total)
+        //   setHasMore(false);        
+        // }
+        // console.log("L76 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
+
+      });
+    }
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [mapBounds]);
+
+
   const _loadTours = async () => {
+    // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
+
       // consoleLog("L67 ====//////   filterValues :", filterValues);
       // consoleLog("L68 ====//////   filterValues :", _filter);
-    let city = searchParams.get("city");
-    let range = searchParams.get("range");
-    let state = searchParams.get("state");
-    let country = searchParams.get("country");
-    let type = searchParams.get("type");
-    let search = searchParams.get("search");
-    let sort = searchParams.get("sort");
-    let map = searchParams.get("map");
-    let provider = searchParams.get("p");
-
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
     filterRef.current = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
-   
+    // add bounds from mapBounds state to call parameters
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
+     
     await loadTours({
       city: city,
       range: range,
@@ -68,13 +111,18 @@ export default function TourCardContainer({
       map: map,
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
+      // page: pageMapTours ? 1 : !!pageTours ? Number(pageTours) + 1 : 2,
+      bounds:bounds   // bounds added
+       
+
     }).then((res) => {
-      // consoleLog("L116 >>>> results :",(res));
-      // let markers = res.data.mLis
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      if (retrievedTours.length === 0 || retrievedTours.length < 9) {
-        setHasMore(false);        
-      }
+      // consoleLog("L113 >>>> results length :", retrievedTours.length);
+      !!retrievedTours && consoleLog("L114 >>>> results total :", retrievedTours.total);
+      consoleLog("L115 >>>> _loadTours : retrievedTours", retrievedTours);
+      // if (retrievedTours.length === 0 || retrievedTours.length < 9) {
+      //   setHasMore(false);        
+      // }
     });
   };
 
@@ -83,7 +131,8 @@ export default function TourCardContainer({
       <InfiniteScroll
         dataLength={tours.length}
         next={_loadTours}
-        hasMore={hasMore}
+        hasMore={true}
+        // hasMore={hasMore}
         loader={!!loading && <CircularProgress />}
         endMessage={<EndOfList />}
       >

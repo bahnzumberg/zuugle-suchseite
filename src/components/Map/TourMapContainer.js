@@ -12,31 +12,43 @@ import {useSearchParams} from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from '../../actions/fileActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-// import {consoleLog} from '../../utils/globals.js';
+import {consoleLog} from '../../utils/globals.js';
 import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
+import {arraysEqual} from '../../utils/globals.js';
+import { createIdArray } from '../../utils/map_utils.js';
+import { isArray } from 'lodash';
 
 const PopupCard = lazy(()=>import('./PopupCard'));
 
 function TourMapContainer({
     tours,
-    tour,
-    totalTours,
     filter,
-    setTourID,
     setMapInitialized,
     mapInitialized,
     onSelectTour,  // use for Popup content
-    loadTourConnections
+    //onMarkersSubListChange,//handler for change in markers list, sets the state in Main.js
+    markersSubList,
+    handleMapBounds,
+    handleChangedMarkers,
+    setMarkersSubList,
+    setMapBounds
     }) {
 
-    // const navigate = useNavigate();
     const dispatch = useDispatch(); // Get dispatch function from Redux
     // const getState = useSelector(state => state); // Get state from Redux
 
-    const markers = useSelector((state) => state.tours.markers);// move to props    
+    const markers = useSelector((state) => state.tours.markers);// move to props 
+    const isMasterMarkersSet = useRef(false);
+
+    useEffect(() => {
+      if (!isMasterMarkersSet.current && markers && markers.length > 0) {
+        localStorage.setItem('masterMarkers', JSON.stringify(markers));
+        isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
+      }
+    }, []);
     
     const createIcon = () => {
         return L.icon({
@@ -53,7 +65,7 @@ function TourMapContainer({
         iconSize: [30, 41],                             //size of the icon
         iconAnchor: [15, 41],
     });
- 
+
     const mapRef = useRef();
     const clusterRef = useRef();
     const markerRef = useRef(null);
@@ -66,18 +78,11 @@ function TourMapContainer({
     const [city, setCity] = useState(initialCity);
     const [selectedTour , setSelectedTour] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    // const [showPopup, setShowPopup] = useState(false); 
-
-
 
     let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null;
     filter =  !!filterValuesLocal ? filterValuesLocal : filter;
 
-    //console.log("L68 filter from Main or from Localstroge: ", filter)
-
-    // create a bounds state ?
-    // var onToggle = localStorage.getItem('MapToggle');
-    // default map values 
+    // default map bounds 
     const default_MapPositionLatNE = 49.019;
     const default_MapPositionLngNE = 17.189;
     const default_MapPositionLatSW = 46.372;
@@ -101,7 +106,7 @@ function TourMapContainer({
         if (!mapInitialized) {
             setMapInitialized(true);
         }
-    }, [mapInitialized, setMapInitialized]); //TODO: remove setMapInitialized after testing its absence
+    }, [mapInitialized, setMapInitialized]); 
 
     // useEffect(() => {
     //     // Set default bounds to Austria's geographic bounds
@@ -122,91 +127,47 @@ function TourMapContainer({
     // }, []);
 
         
-    // useEffect(() => {
-    //     // TODO : if coming in from search/filter submit : remove all map positions from local storage then bind to markers
-    //     // mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-    //     //legacy: 
-    //     //If the Bounds-Variables in the Storage are undefined --> it must be the first Load
-    //     // So updateBounds() is called instead
-
-    //     if (pageAccessedByReload && onToggle !== "true") {
-    //         console.log("L122 : inside  first if !")
-    //         localStorage.removeItem('MapPositionLatNE');
-    //         localStorage.removeItem('MapPositionLngNE');
-    //         localStorage.removeItem('MapPositionLatSW');
-    //         localStorage.removeItem('MapPositionLngSW');
-    //         assignNewMapPosition(null); // set the localStorage to default values
-    //         // consoleLog("L78 / local storage is set")
-    //         updateBounds();
-    //     } else {
-    //         if (!!localStorage.getItem('MapPositionLatNE') && !!localStorage.getItem('MapPositionLngNE')
-    //             && !!localStorage.getItem('MapPositionLatSW') && !!localStorage.getItem('MapPositionLngSW')) {
-            
-    //         console.log("L130 : inside  else if (we have localStorage) !")
-    //             var corner1 = L.latLng(localStorage.getItem('MapPositionLatNE'), localStorage.getItem('MapPositionLngNE'));
-
-    //             var corner2 = L.latLng(localStorage.getItem('MapPositionLatSW'), localStorage.getItem('MapPositionLngSW'));
-    //             //creating a latLngBounds-Object for the fitBounds()-Method
-    //             var bounds = L.latLngBounds(corner1, corner2);
-
-    //             //the map's current position is set to the last position where the user has been
-    //             if (!!bounds && !!mapRef && !!mapRef.current) {
-    //                 mapRef.current?.fitBounds(bounds);
-    //             }
-    //         } else {
-    //             //the map is aligned to the marker/cluster
-    //             // updateBounds();
-    //             //the map's current position is set to the last position where the user has been
-    //             // if (!!bounds && !!mapRef && !!mapRef.current) {
-    //             //     mapRef.current?.fitBounds(new L.LatLngBounds(markers));
-    //             // }else{
-    //             //     updateBounds();
-    //             // }
-    //             // console.log("L130 : inside  last else ! not first time / no stored bounds")
-    //             // if (markers && markers.length > 0 && mapRef.current) {
-    //             //     const bounds = getMarkersBounds(markers);
-    //             //     mapRef.current.fitBounds(bounds);
-    //             // }
-    //             // else{
-    //             //     updateBounds();
-    //             // }
-
-    //         }
+    //continous monitoring of markers to fit map bounds // removed to moveend
+    // useEffect(()=>{
+    //     if (markers && markers.length > 0 && mapRef.current) {
+    //         console.log("L124 useEffect/ markers now :",markers)
+    //         const _bounds = getMarkersBounds(markers);
+    //         console.log('L125 useEffect / new bounds for markers:',_bounds);
+    //         //handleMapBounds(_bounds); // set state here
+    //         mapRef.current.fitBounds(_bounds);
     //     }
     // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [markers]);
-
-    useEffect(()=>{
-        if (markers && markers.length > 0 && mapRef.current) {
-            // console.log('Update bounds');
-            const bounds = getMarkersBounds(markers);
-            mapRef.current.fitBounds(bounds);
-        }
-    }, [markers]);
+    // }, [markers]); // need to have dependency with bounds !!
 
     const getMarkersBounds = (markers) => {
-        const bounds = L.latLngBounds([]);
+        const _bounds = L.latLngBounds([]);
         markers.forEach((marker) => {
             if (marker.lat && marker.lon) {
-                bounds.extend([marker.lat, marker.lon]);
+                _bounds.extend([marker.lat, marker.lon]);
             }
         });
-        return bounds;
+        return _bounds;
     };
 
-   
+    // city setting 
     useEffect(()=>{
         if(!!city && !!searchParams.get('city') && city !== searchParams.get('city')){
             setCity(searchParams.get('city'))
         }
-    },[searchParams])
+    },[searchParams, city])
 
-    // useEffect( ()=>{
-    //     console.log("L152 selectedTour");
-    //     console.log(selectedTour);
-    // }, [selectedTour]);
 
-   
+   const checkMarkersChanges = (visibleMarkers, storedMarkers)=>{
+        // console.log("L150 inside checkMarkersChanges !")
+      
+        // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
+        // console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
+        // console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(visibleMarkers, storedMarkers) );
+
+        if (!arraysEqual(visibleMarkers, storedMarkers)) {// when not equal arrays (changes)
+            return true;
+        }else return false;
+   }
     //saves the bounds on localStorage
     const assignNewMapPosition = (position) => {
         localStorage.setItem('MapPositionLatNE', position?._northEast?.lat || default_MapPositionLatNE);
@@ -215,8 +176,9 @@ function TourMapContainer({
         localStorage.setItem('MapPositionLngSW', position?._southWest?.lng || default_MapPositionLngSW);
     }
 
+    // fitting bounds when cluster is clicked
     const updateBounds = () => {
-        console.log('Updated Bounds');
+        // console.log('Updated Bounds');
         if (!!mapRef && !!mapRef.current && !!tours && clusterRef && clusterRef.current) {
             if (clusterRef.current.getBounds() && clusterRef.current.getBounds().isValid()) {
                 mapRef.current.fitBounds(clusterRef.current.getBounds());
@@ -275,47 +237,6 @@ function TourMapContainer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[city])
 
-    // const markerComponents = useMemo(() => {
-    //         console.log('Rerender:', isLoading);
-
-    //         if (!!markers && Array.isArray(markers) && markers.length > 0) {
-    //             return markers.map((mark) => {
-    //                 if (!!mark) {
-    //                     return (
-    //                         // <CustomMarker
-    //                         //     key={mark.id}
-    //                         //     position={[mark.lat, mark.lon]}
-    //                         //     mark={mark}
-    //                         //     onSelectTour={onSelectTour}
-    //                         //     loadTourConnections={loadTourConnections}
-    //                         //     city={city}
-    //                         //     StartIcon={StartIcon}
-    //                         //     mapRef={mapRef}
-    //                         //     clusterRef={clusterRef}
-    //                         // NO markerRef ?? not if use Leaflet only inside CustomMarker
-    //                         // />
-    //                         <Marker
-    //                             key={mark.id}
-    //                             position={[mark.lat, mark.lon]}
-    //                             ref={markerRef}
-    //                             icon={createIcon()}
-    //                             eventHandlers={{
-    //                                 click: () => handleMarkerClick(mark, mark.id)
-    //                                 // click: () => console.log("mark.is is :", mark.id)
-    //                             }}
-    //                         >
-                                
-    //                         </Marker>
-
-    //                     );
-    //                 }
-    //                 return null;
-    //             });
-    //         }
-    //         return null;
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    //     }, [markers, handleMarkerClick, selectedTour]);
-
         
     const createClusterCustomIcon = function (cluster) {
         const clusterChildCount = cluster.getChildCount();
@@ -334,19 +255,64 @@ function TourMapContainer({
             iconSize: iconSize,
         })
     }
-
             
     const MyComponent = () => {
         const map = useMapEvents({
             moveend: () => { //Throws an event whenever the bounds of the map change
-                const position = map.getBounds();  //after moving the map, a position is set and saved
+                // if there are markers , fit map to them else use the usual way
+                let position= null
+                if (markers && markers.length > 0 && mapRef.current){
+                    position = getMarkersBounds(markers)
+                }else {
+                    position = map.getBounds();  //after moving the map, a position is set and saved
+                }
                 // console.log("L168 position changed -> value :", position)
                 assignNewMapPosition(position);
                 debouncedStoppedMoving(map.getBounds());
+                updateVisibleMarkers(map)  // pulling markers on map movements
             }
         })
         return null
     }
+
+    //returns a list of markers that are contained within the passed bounds object
+    const getMarkersListFromBounds = (bounds, markers) => {
+        return markers.filter((marker) => {
+            const lat = parseFloat(marker.lat);
+            const lon = parseFloat(marker.lon);
+            return bounds.contains(L.latLng(lat, lon));
+        });
+    };
+
+    // Updates the state "markersSubList" to contain only the visible ones only if different from localstorage
+    const updateVisibleMarkers = useCallback ((map)=>{
+        const bounds = map.getBounds();
+        // console.log("L281 masterMarkers inside updateVisibleMarkers: ")
+        // !!localStorage.getItem('masterMarkers') ? console.log(localStorage.getItem('masterMarkers')) : console.log("L282 : masterMarkers not available in localStorage")
+        // let _masterMarkers = localStorage.getItem('masterMarkers');
+        // _masterMarkers = JSON.parse(_masterMarkers)
+        let _masterMarkers = !!localStorage.getItem('masterMarkers') ? localStorage.getItem('masterMarkers') : {};
+        _masterMarkers = JSON.parse(_masterMarkers)
+        
+        let visibleMarkers = getMarkersListFromBounds(bounds,_masterMarkers); 
+        visibleMarkers = createIdArray(visibleMarkers)
+
+        const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
+
+        console.log("L390 (visibleMarkers) :", (visibleMarkers))
+        console.log("L391 storedMarkers :", storedMarkers)
+        const check = checkMarkersChanges(visibleMarkers,storedMarkers);
+        consoleLog("L392 check :", check)
+
+        if(!!check){
+            setMarkersSubList(visibleMarkers) // set the state of "markersSubList" defined inside Main
+            setMapBounds(bounds)
+            localStorage.setItem('visibleMarkers', JSON.stringify(visibleMarkers));
+            handleChangedMarkers(true) // *** handle the Boolean flag in Main /make new call in card container
+            handleMapBounds(bounds) // * setting bounds value in state (state in Main.js)
+        }
+
+    },[markers])
 
     function makeDebounced(func, timeout) { //Function for the actual debounce
         let timer;
@@ -385,37 +351,37 @@ function TourMapContainer({
             ranges: filter.ranges,
             types: filter.types,
         }
-        // if (filterValues == null) {
-        //     searchParams.delete("filter");
-        // } else {
-        //     console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
-        //     //pull filtervalues from localStorage and pass it to params for setting
-        //     searchParams.set("filter", JSON.stringify(filterValues));
-        //     setSearchParams(searchParams);
-        //     consoleLog("L230 searchParams set to:", JSON.stringify(filterValues) )
-        // }
-        // //pull filtervalues from localStorage and pass it to params for setting
-        // localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
-        // setSearchParams(searchParams) //set the search Params and start the call to the backend
-
-        if (filter == null || Object.keys(filter).length === 0) {
+        if (filterValues == null) {
             searchParams.delete("filter");
         } else {
-            // console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
-            //filter comes from localStorage or from Main and pass it to params to be set 
-            searchParams.set("filter", JSON.stringify(filter));
-            setSearchParams(searchParams);
+            //console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
+            //pull filtervalues from localStorage and pass it to params for setting
+            searchParams.set("filter", JSON.stringify(filterValues));
+            // setSearchParams(searchParams);
+            console.log("L230 searchParams set to:", JSON.stringify(filterValues) )
         }
         //pull filtervalues from localStorage and pass it to params for setting
         localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
         setSearchParams(searchParams) //set the search Params and start the call to the backend
+
+        // if (filter == null || Object.keys(filter).length === 0) {
+        //     searchParams.delete("filter");
+        // } else {
+        //     // console.log("L330 JSON.stringify(filter) : ", JSON.stringify(filter))
+        //     //filter comes from localStorage or from Main and pass it to params to be set 
+        //     searchParams.set("filter", JSON.stringify(filter));
+        //     setSearchParams(searchParams);
+        // }
+        //pull filtervalues from localStorage and pass it to params for setting
+        // localStorage.setItem('MapToggle', true); //The map should stay the same after rendering the page
+        // setSearchParams(searchParams) //set the search Params and start the call to the backend
 
     };
 
     return <Box
         style={{
             // height: "500px", 
-            height: "calc(70vh - 50px)", 
+            height: "calc(60vh - 50px)", 
             width: "100%", 
             position: "relative",
             overflow: "hidden",
@@ -448,12 +414,6 @@ function TourMapContainer({
                 maxWidth={400}  
                 minHeight={300} 
                 maxHeight={300} 
-                // padding={15}
-                // style={
-                //     {
-                //         padding: "10px"
-                //     }
-                // }
                 className='request-popup'
                 offset={L.point([0, -25])}
                     position={[
