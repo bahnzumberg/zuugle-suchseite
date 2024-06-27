@@ -299,8 +299,8 @@ function TourMapContainer({
 
         const storedMarkers = JSON.parse(localStorage.getItem('visibleMarkers')) || [];
 
-        // console.log("L390 createIdArray(visibleMarkers) :", (visibleMarkers))
-        // console.log("L391 storedMarkers :", storedMarkers)
+        console.log("L390 (visibleMarkers) :", (visibleMarkers))
+        console.log("L391 storedMarkers :", storedMarkers)
         const check = checkMarkersChanges(visibleMarkers,storedMarkers);
         consoleLog("L392 check :", check)
 

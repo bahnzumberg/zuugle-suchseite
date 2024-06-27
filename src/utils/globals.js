@@ -351,8 +351,8 @@ export const getValuesFromParams = (searchParams)=>{
 }
   
 export  const arraysEqual = (a, b) => {
-    console.log("L354 a :", a);
-    console.log("L355 b :", b);
+    // console.log("L354 a :", a);
+    // console.log("L355 b :", b);
     if (a.length !== b.length) return false;
     for (let id of a) {
         if (!b.includes(id)) return false;

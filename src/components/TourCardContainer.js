@@ -69,14 +69,15 @@ export default function TourCardContainer({
         sort: sort,
         map: map,
         provider: provider,
-        bounds:bounds   // bounds added
+        bounds:bounds ,  // bounds added
       }).then((res) => {
-        console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
+        // console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
         consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :",(res.data));
-        let retrievedTours = res?.data?.tours ? res.data.tours : [];
-        consoleLog("L75 TCC >>>> loadTours / useEffect , retrievedTours.length :",(retrievedTours.length));
+        // let retrievedTours = res?.data?.tours ? res.data.tours : [];
+        consoleLog("L75 TCC >>>> loadTours / useEffect , res.data.total :",(res.data.total));
 
-        // if (retrievedTours.length === 0 || retrievedTours.length < 9) {
+        // if (res.data.total === 0 || res.data.total < 9) {
+        //   console.log("L80 TCC >>>> loadTours:", res.data.total)
         //   setHasMore(false);        
         // }
         // console.log("L76 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
@@ -86,12 +87,9 @@ export default function TourCardContainer({
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [mapBounds]);
 
-useEffect(()=>{
-  console.log("L77 TCC >>>> loadTours /2nd useEffect , hasMore :", hasMore)// does not re-render on map event
-},[hasMore]);
-  
+
   const _loadTours = async () => {
-    console.log("L86 >>>>: inisde _loadTours :")
+    // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
       // consoleLog("L67 ====//////   filterValues :", filterValues);
       // consoleLog("L68 ====//////   filterValues :", _filter);
@@ -119,11 +117,12 @@ useEffect(()=>{
 
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      consoleLog("L113 >>>> results :", retrievedTours.length);
-      consoleLog("L115 >>>> First tour from _loadTours : retrievedTours[0]", retrievedTours[0]);
-      if (retrievedTours.length === 0 || retrievedTours.length < 9) {
-        setHasMore(false);        
-      }
+      // consoleLog("L113 >>>> results length :", retrievedTours.length);
+      !!retrievedTours && consoleLog("L114 >>>> results total :", retrievedTours.total);
+      consoleLog("L115 >>>> _loadTours : retrievedTours", retrievedTours);
+      // if (retrievedTours.length === 0 || retrievedTours.length < 9) {
+      //   setHasMore(false);        
+      // }
     });
   };
 
@@ -132,7 +131,8 @@ useEffect(()=>{
       <InfiniteScroll
         dataLength={tours.length}
         next={_loadTours}
-        hasMore={hasMore}
+        hasMore={true}
+        // hasMore={hasMore}
         loader={!!loading && <CircularProgress />}
         endMessage={<EndOfList />}
       >
