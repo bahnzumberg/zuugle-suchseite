@@ -211,9 +211,6 @@ function TourMapContainer({
             setGpxTrack([]);
         }
     }
-    // we have id and the function (onSelectTour) to make the tour api call to get the tour
-    // onClick event : get the tour data and then store it inside the state "selectedTour" 
-    // pass the selectedTour to the component Popup
   
     const handleMarkerClick = useCallback(async (tourInfo, tourId) => {
         // console.log("Marker Click");
@@ -378,96 +375,94 @@ function TourMapContainer({
 
     };
 
-    return <Box
+    return (
+      <Box
         style={{
-            // height: "500px", 
-            height: "calc(60vh - 50px)", 
-            width: "100%", 
-            position: "relative",
-            overflow: "hidden",
-            margin: "auto"
-            }}
-        >
+          // height: "500px",
+          height: "calc(60vh - 50px)",
+          width: "100%",
+          position: "relative",
+          overflow: "hidden",
+          margin: "auto",
+        }}
+      >
         {mapInitialized && (
-            <MapContainer
-                className='leaflet-container'
-                ref={mapRef}
-                scrollWheelZoom={false} //if you can zoom with you mouse wheel
-                zoomSnap={1}
-                maxZoom={15}                    //how many times you can zoom
-                center={[centerLat, centerLng]}  //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
-                zoom={7}       //zoom level --> how much it is zoomed out
-                style={{height: "100%", width: "100%"}} //Size of the map
-                zoomControl={false}
-                bounds={() => {
-                    updateBounds();  
-                }}
-            >
-            
-            <TileLayer
-                url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
-            />
+          <MapContainer
+            className="leaflet-container"
+            ref={mapRef}
+            scrollWheelZoom={false} //if you can zoom with you mouse wheel
+            zoomSnap={1}
+            maxZoom={15} //how many times you can zoom
+            center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+            zoom={7} //zoom level --> how much it is zoomed out
+            style={{ height: "100%", width: "100%" }} //Size of the map
+            zoomControl={false}
+            bounds={() => {
+              updateBounds();
+            }}
+          >
+            <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
 
-            {activeMarker && selectedTour &&
-                <Popup 
-                minWidth={350}  
-                maxWidth={400}  
-                minHeight={300} 
-                maxHeight={300} 
-                className='request-popup'
+            {activeMarker && selectedTour && (
+              <Popup
+                minWidth={350}
+                maxWidth={400}
+                minHeight={300}
+                maxHeight={300}
+                className="request-popup"
                 offset={L.point([0, -25])}
-                    position={[
-                        parseFloat(activeMarker.lat), 
-                        parseFloat(activeMarker.lon)
-                    ]}
-                    eventHandlers={{
-                        remove:() => setActiveMarker(null)
-                    }}
-                >
-                    {
-                        selectedTour?.id === activeMarker.id && (
-                            <PopupCard tour={selectedTour}/>
-                        )                    
-                    }
-                </Popup>
-            }
+                position={[
+                  parseFloat(activeMarker.lat),
+                  parseFloat(activeMarker.lon),
+                ]}
+                eventHandlers={{
+                  remove: () => setActiveMarker(null),
+                }}
+              >
+                {selectedTour?.id === activeMarker.id && (
+                  <PopupCard tour={selectedTour} />
+                )}
+              </Popup>
+            )}
 
-            {(!!gpxTrack && gpxTrack.length > 0) && [<Polyline
-                pathOptions={{fillColor: 'green', color: 'green'}}
-                positions={gpxTrack}
-            />]}
+            {!!gpxTrack &&
+              gpxTrack.length > 0 && [
+                <Polyline
+                  pathOptions={{ weight: 10, color: "#FF7663" }}
+                  positions={gpxTrack}
+                />,
+              ]}
 
             <MarkerClusterGroup
-                // key={new Date().getTime()}
-                ref={clusterRef}
-                maxClusterRadius={100}
-                chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
-                showCoverageOnHover={false}
-                removeOutsideVisibleBounds={true}
-                iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
+              // key={new Date().getTime()}
+              ref={clusterRef}
+              maxClusterRadius={100}
+              chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
+              showCoverageOnHover={false}
+              removeOutsideVisibleBounds={true}
+              iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
             >
-                
-                {markers.map((mark) => {
-                    return <Marker
-                        key={mark.id}
-                        position={[mark.lat, mark.lon]}
-                        ref={markerRef}
-                        icon={createIcon()}
-                        eventHandlers={{
-                            click: () => handleMarkerClick(mark, mark.id)
-                        }}
-                    >
-                        
-                    </Marker>
-                })}
+              {markers.map((mark) => {
+                return (
+                  <Marker
+                    key={mark.id}
+                    position={[mark.lat, mark.lon]}
+                    ref={markerRef}
+                    icon={createIcon()}
+                    eventHandlers={{
+                      click: () => handleMarkerClick(mark, mark.id),
+                    }}
+                  ></Marker>
+                );
+              })}
             </MarkerClusterGroup>
 
-            <MyComponent/>
+            <MyComponent />
             <ZoomControl position="bottomright" />
-    
-        </MapContainer>
+          </MapContainer>
         )}
-    </Box>
+      </Box>
+    );
 }
 
 const mapDispatchToProps = (dispatch) => {

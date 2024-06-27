@@ -89,7 +89,8 @@ useEffect(() => {
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
           ref={polyRef}
-          pathOptions={{ color: 'red' }}
+          // pathOptions={{ color: 'red' }}
+          pathOptions={{ weight: 10, color: "#FF7663" }}
           positions={gpxPositions}
         />
       )}
@@ -97,13 +98,15 @@ useEffect(() => {
       {getEndMarker()}
       {!!anreiseGpxPositions && anreiseGpxPositions.length > 0 && (
         <Polyline
-          pathOptions={{ color: 'blue' }}
+          // pathOptions={{ color: 'blue' }}
+          pathOptions={{ weight: 10, color: "#FF7663" }}
           positions={anreiseGpxPositions}
         />
       )}
       {!!abreiseGpxPositions && abreiseGpxPositions.length > 0 && (
         <Polyline
-          pathOptions={{ color: 'green' }}
+          // pathOptions={{ color: 'green' }}
+          pathOptions={{ weight: 10, color: "#FF7663" }}
           positions={abreiseGpxPositions}
         />
       )}
