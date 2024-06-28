@@ -428,7 +428,7 @@ function TourMapContainer({
             {!!gpxTrack &&
               gpxTrack.length > 0 && [
                 <Polyline
-                  pathOptions={{ weight: 8, color: "#FF7663" }}
+                  pathOptions={{ weight: 5, color: "#FF7663" }}
                   positions={gpxTrack}
                 />,
               ]}
