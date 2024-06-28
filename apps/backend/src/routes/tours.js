@@ -618,7 +618,14 @@ const listWrapper = async (req, res) => {
 
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)
-
+    
+    //parse lat and lon before adding markers to response
+    markers_array = markers_array.map((marker) => ({
+    id: marker.id,
+    connection_arrival_stop_lat: parseFloat(marker.connection_arrival_stop_lat),
+    connection_arrival_stop_lon: parseFloat(marker.connection_arrival_stop_lon),
+    }));
+        
     res
       .status(200)
       .json({
