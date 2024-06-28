@@ -350,6 +350,7 @@ export const getValuesFromParams = (searchParams)=>{
     return values
 }
   
+// is of O(n * m) order
 export  const arraysEqual = (a, b) => {
     // console.log("L354 a :", a);
     // console.log("L355 b :", b);
@@ -359,3 +360,14 @@ export  const arraysEqual = (a, b) => {
     }
     return true;
 };
+
+// assuming a and b are ordered and equal length arrays; is of O(n) order 
+export const orderedArraysEqual = (a,b)=>{
+    console.log("L354 a :", a);
+    console.log("L355 b :", b);
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+       if (a[i] !== b[i] ) return false
+    }
+    return true
+}

@@ -17,7 +17,7 @@ import { loadTour, setTourID } from '../../actions/tourActions.js';
 import {formatMapClusterNumber} from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
-import {arraysEqual} from '../../utils/globals.js';
+import {orderedArraysEqual} from '../../utils/globals.js';
 import { createIdArray } from '../../utils/map_utils.js';
 import { isArray } from 'lodash';
 
@@ -162,9 +162,9 @@ function TourMapContainer({
       
         // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
         // console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
-        // console.log("L220 arraysEqual(markersSubList, storedMarkersSubList) :", arraysEqual(visibleMarkers, storedMarkers) );
+        // console.log("L220 orderedArraysEqual(markersSubList, storedMarkersSubList) :", orderedArraysEqual(visibleMarkers, storedMarkers) );
 
-        if (!arraysEqual(visibleMarkers, storedMarkers)) {// when not equal arrays (changes)
+        if (!orderedArraysEqual(visibleMarkers, storedMarkers)) {// when not equal arrays (changes)
             return true;
         }else return false;
    }
@@ -273,11 +273,10 @@ function TourMapContainer({
     }
 
     //returns a list of markers that are contained within the passed bounds object
-    const getMarkersListFromBounds = (bounds, markers) => {
-        return markers.filter((marker) => {
-            const lat = parseFloat(marker.lat);
-            const lon = parseFloat(marker.lon);
-            return bounds.contains(L.latLng(lat, lon));
+    const getMarkersListFromBounds = (bounds, markersList) => {
+      // markersList is an array of objects {id: 72869, lat: 47.79043, lon: 15.91079}
+        return markersList.filter((marker) => {    
+          return bounds.contains(L.latLng(marker.lat, marker.lon));
         });
     };
 
@@ -375,6 +374,8 @@ function TourMapContainer({
 
     };
 
+    if(markers) console.log("L446 markers.length", markers.length)
+    
     return (
       <Box
         style={{
