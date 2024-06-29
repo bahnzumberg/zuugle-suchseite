@@ -101,7 +101,8 @@ export function Search({
   }, [searchParams, counter]);
 
   useEffect(() => {
-    if(!!mapBounds) return 
+    if(!!mapBounds) return ; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
+
     // pull out values from URL params
     let city = searchParams.get("city");
     let range = searchParams.get("range"); 
@@ -213,20 +214,11 @@ export function Search({
       //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       let importedMarkersArray = res.data.markers;
       
-      console.log("L213 Search/ !isMasterMarkersSet.current : ", !isMasterMarkersSet.current)
+      console.log("L210 Search/ !isMasterMarkersSet.current : ", !isMasterMarkersSet.current)
       console.log("L211 Search/ res.data.total :", res.data.total);
       console.log("L212 Search/ result of markers array :", importedMarkersArray);
       if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
-        // Transform the markers array
-        const transformedMarkers = importedMarkersArray.map(marker => ({
-          id: marker.id,
-          lat: marker.connection_arrival_stop_lat,
-          lon: marker.connection_arrival_stop_lon
-        }));
-        console.log("L215 Search/ transformedMarkers : ", transformedMarkers)
-
-        // Store the transformed array in localStorage
-        localStorage.setItem('masterMarkers', JSON.stringify(transformedMarkers));
+        localStorage.setItem('masterMarkers', JSON.stringify(importedMarkersArray));
         isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
       }
     });
