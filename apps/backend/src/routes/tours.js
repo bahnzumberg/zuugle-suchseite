@@ -622,8 +622,8 @@ const listWrapper = async (req, res) => {
     //parse lat and lon before adding markers to response
     markers_array = markers_array.map((marker) => ({
     id: marker.id,
-    connection_arrival_stop_lat: parseFloat(marker.connection_arrival_stop_lat),
-    connection_arrival_stop_lon: parseFloat(marker.connection_arrival_stop_lon),
+    lat: parseFloat(marker.connection_arrival_stop_lat),
+    lon: parseFloat(marker.connection_arrival_stop_lon),
     }));
         
     res
