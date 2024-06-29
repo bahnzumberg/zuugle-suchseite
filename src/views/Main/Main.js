@@ -247,10 +247,10 @@ export function Main({
 //   setMarkersSubList(newMarkersSubList);
 // }, []);
 //Map-related : callback to set the state of "mapBounds" inside Map Container
-const handleMapBounds = useCallback((bounds) => {
-  // console.log("L261 handleMapBounds :", bounds)
-  setMapBounds(bounds);
-}, []);
+// const handleMapBounds = useCallback((bounds) => {
+//   // console.log("L261 handleMapBounds :", bounds)
+//   setMapBounds(bounds);
+// }, []);
 //Map-related : callback to set the state of "mapBounds" inside Map Container
 const handleChangedMarkers = useCallback((value) => {
   // console.log("L248 handleChangedBounds , value:", value)
@@ -276,14 +276,15 @@ const handleChangedMarkers = useCallback((value) => {
         // onMarkersSubListChange={handleMarkersSubListChange}
         markersSubList={markersSubList}
         setMarkersSubList={setMarkersSubList}
-        handleMapBounds={handleMapBounds}
+        // handleMapBounds={handleMapBounds}
         handleChangedMarkers={handleChangedMarkers}
         setMapBounds={setMapBounds}
+        mapBounds={mapBounds}
       />
       
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter,tours, totalTours]);
+  }, [filter,tours, totalTours, mapBounds]);
 
   
   const toggleMapHandler = ()=> {
