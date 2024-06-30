@@ -133,7 +133,7 @@ const listWrapper = async (req, res) => {
         // console.log("L131 parsedBounds._southWest :", parsedBounds._southWest);   
         // console.log("L132 parsedBounds._northEast :", parsedBounds._northEast);   
     }    
-    console.log("L135 req.query", req.query);
+    // console.log("L135 req.query", req.query);
  
     const coordinatesNorthEast = !!parsedBounds ? parsedBounds._northEast : null;
     const coordinatesSouthWest = !!parsedBounds ? parsedBounds._southWest : null;
@@ -399,7 +399,7 @@ const listWrapper = async (req, res) => {
 
     if (searchIncluded) {
       try {
-        
+        // console.log("L402 : sql_select", sql_select);
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
 
         let sql_count_call = await count_query;
@@ -473,11 +473,11 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        // logger("===============tours.js L450========================")
-        // logger(sql_select + outer_where + sql_order + sql_limit)
-        // logger("====================================================")
-        // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
-        // logger("====================================================")
+        // console.log("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
+        // console.log("===============tours.js L450========================")
+        // console.log(sql_select + outer_where + sql_order + sql_limit)
+        // console.log("====================================================")
+        // console.log("====================================================")
 
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
@@ -511,8 +511,8 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        console.log('L486 : inside "No search term" included')
-        console.log(query.toQuery())
+        // console.log('L486 : inside "No search term" included')
+        // console.log(query.toQuery())
 
         // markers-related
         // if(map === true) {
@@ -523,8 +523,8 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
 
-        // logger("tours.js L 496 : query 'No search term' : " + query);
-        // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
+        // console.log("tours.js L 496 : query 'No search term' : " + query);
+        // console.log("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
 
