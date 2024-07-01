@@ -43,3 +43,7 @@ export const checkOnlyMapParams = (filterParam = false)=>{
     }
   }else return mapFilter;
 }
+
+export  const createIdArray = (markers) => {
+  return markers.map(marker => marker.id);
+};
