@@ -51,10 +51,10 @@ export default function TourCardContainer({
   }, [hasMore,filterValues,searchParams])
 
   useEffect(() => {
-    console.log("L40 markersChanged :", markersChanged);
+    // console.log("L40 markersChanged :", markersChanged);
     let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
     if (mapBounds && markersChanged) {
-        console.log("L44 just before loadTours , mapBounds : ", mapBounds);
+        // console.log("L44 just before loadTours , mapBounds : ", mapBounds);
       // make a tours call
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
