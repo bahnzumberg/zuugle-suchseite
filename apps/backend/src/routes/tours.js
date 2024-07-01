@@ -122,9 +122,21 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain; 
     const provider = req.query.provider;
     const language = req.query.language; 
+    const filter = req.query.filter;
+    const bounds = req.query.bounds;
 
-    const coordinatesNorthEast = req.query.filter && req.query.filter.coordinatesNorthEast ? req.query.filter.coordinatesNorthEast : null;
-    const coordinatesSouthWest = req.query.filter && req.query.filter.coordinatesSouthWest ? req.query.filter.coordinatesSouthWest : null;
+    let parsedBounds;
+
+    if (bounds) {
+        parsedBounds = JSON.parse(bounds);
+        // console.log("L130 bounds :", parsedBounds);  
+        // console.log("L131 parsedBounds._southWest :", parsedBounds._southWest);   
+        // console.log("L132 parsedBounds._northEast :", parsedBounds._northEast);   
+    }    
+    // console.log("L135 req.query", req.query);
+ 
+    const coordinatesNorthEast = !!parsedBounds ? parsedBounds._northEast : null;
+    const coordinatesSouthWest = !!parsedBounds ? parsedBounds._southWest : null;
 
     // variables initialized depending on availability of 'map' in the request
     //const map = req && req.query && req.query.map === "true"; // add optional chaining
@@ -143,11 +155,7 @@ const listWrapper = async (req, res) => {
    
 
     let where = {};
-    // This map check is not needed when we move to the new detail page design, map shows only in detail then
-    // if(!!map){
-    //     selects = ['id', 'gpx_data', 'provider', 'hashed_url', 'title'];
-    //     sql_select = "SELECT 'id', 'gpx_data', 'provider', 'hashed_url', 'title' "
-    // }
+
     //********************************************************************++*/
     // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
@@ -203,21 +211,19 @@ const listWrapper = async (req, res) => {
 
     //filters the tours by coordinates
     //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
-    if(!!coordinatesNorthEast && !!coordinatesSouthWest){
+    if(!!coordinatesNorthEast && !!coordinatesSouthWest){  
+        // console.log("L219 coordinatesNorthEast.lat.toString()",coordinatesNorthEast.lat.toString())
         const latNE = coordinatesNorthEast.lat.toString();
         const lngNE = coordinatesNorthEast.lng.toString();
         const latSW = coordinatesSouthWest.lat.toString();
         const lngSW = coordinatesSouthWest.lng.toString();
 
         whereRaw += whereRaw ? ' AND ' : '';
-        whereRaw += `id IN (SELECT id
-          FROM tour,
-          jsonb_array_elements(tour.gpx_data) as tour_data
-          WHERE (tour_data->>'typ') = 'first'
-          AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
-          AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
+        whereRaw += `
+            connection_arrival_stop_lon between (${lngSW})::numeric and (${lngNE})::numeric
+	        and connection_arrival_stop_lat between (${latSW})::numeric AND (${latNE})::numeric
+            `
     }
-
 
 // *******************************************************************
 // MOVE INTO QUERY ANY ACCUMULATED CONDITIONS INSIDE WHERE / (NO SEARCH)
@@ -393,7 +399,7 @@ const listWrapper = async (req, res) => {
 
     if (searchIncluded) {
       try {
-        
+        // console.log("L402 : sql_select", sql_select);
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM (${sql_select}) AS subquery`); // includes all internal queries
 
         let sql_count_call = await count_query;
@@ -429,6 +435,7 @@ const listWrapper = async (req, res) => {
       .whereNotNull("connection_arrival_stop_lon")
       .whereNotNull("connection_arrival_stop_lat");
       
+    //   console.log("L460 query", query.toQuery())
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -466,11 +473,11 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        // logger("===============tours.js L450========================")
-        // logger(sql_select + outer_where + sql_order + sql_limit)
-        // logger("====================================================")
-        // logger("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
-        // logger("====================================================")
+        // console.log("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
+        // console.log("===============tours.js L450========================")
+        // console.log(sql_select + outer_where + sql_order + sql_limit)
+        // console.log("====================================================")
+        // console.log("====================================================")
 
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
@@ -504,7 +511,8 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        // logger('L486 : inside "No search term" included')
+        // console.log('L486 : inside "No search term" included')
+        // console.log(query.toQuery())
 
         // markers-related
         // if(map === true) {
@@ -515,8 +523,8 @@ const listWrapper = async (req, res) => {
         result = await query;
         count = await countQuery.first();
 
-        // logger("tours.js L 496 : query 'No search term' : " + query);
-        // logger("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
+        // console.log("tours.js L 496 : query 'No search term' : " + query);
+        // console.log("tours.js L 497 : count['count'] 'No search term' : " + count['count']);
     }
 
 
@@ -610,7 +618,14 @@ const listWrapper = async (req, res) => {
 
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)
-
+    
+    //parse lat and lon before adding markers to response
+    markers_array = markers_array.map((marker) => ({
+    id: marker.id,
+    lat: parseFloat(marker.connection_arrival_stop_lat),
+    lon: parseFloat(marker.connection_arrival_stop_lon),
+    }));
+        
     res
       .status(200)
       .json({
@@ -1526,37 +1541,6 @@ const mapWrapper = async (req, res) => {
   
     // console.log("req.query is : ", req.query)
     // console.log("req.query.filter is : ", req.query.filter);
-
-    if (req.query.filter) {
-        try {
-            const filterObject = JSON.parse(req.query.filter);
-            // console.log("req.query.filter parsed into object is : ", filterObject);
-    
-            // Now you can access nested properties
-            if (filterObject && filterObject.coordinatesNorthEast && filterObject.coordinatesSouthWest) {
-                const latNE = filterObject.coordinatesNorthEast.lat;
-                const lngNE = filterObject.coordinatesNorthEast.lng;
-                const latSW = filterObject.coordinatesSouthWest.lat;
-                const lngSW = filterObject.coordinatesSouthWest.lng;
-                // console.log("Latitude from coordinatesNorthEast:", latNE.toString());
-                // whereRaw += whereRaw ? ' AND ' : '';
-                // whereRaw += `id IN (SELECT id
-                // FROM tour,
-                // jsonb_array_elements(tour.gpx_data) as tour_data
-                // WHERE (tour_data->>'typ') = 'first'
-                // AND (tour_data->>'lat')::numeric BETWEEN (${latSW})::numeric AND (${latNE})::numeric
-                // AND (tour_data->>'lon')::numeric BETWEEN (${lngSW})::numeric AND (${lngNE})::numeric) `;
-            } else {
-                console.error("coordinatesNorthEast not found in filter object");
-            }
-        } catch (error) {
-            console.error("Error parsing filter object:", error);
-        }
-    } else {
-        console.error("No filter parameter found in req.query");
-    }
-    
-  
     let selects = ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
   
     try {
