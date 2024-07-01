@@ -60,9 +60,9 @@ export async function loadFile(
 }
 
 export function loadList(
-  dispatch,
-  getState, //returns the current state of the Redux store.
-  typeBefore, // load-action type
+  dispatch,                                                   
+  getState, //returns the current state of the Redux store.   
+  typeBefore, // load-action type                     
   typeDone, // done-action type
   stateName, //redux store-key
   data,   // to be passed to the backend
@@ -72,7 +72,7 @@ export function loadList(
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
-  // console.log("L75 -> route :", route)
+  // console.log("L75 -> data :", data)
 
   // initialize language param
   const langPassed =
@@ -85,10 +85,13 @@ export function loadList(
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
-  // console.log(`L87 : state : ${JSON.stringify(state)} and stateName :${stateName}`)
+  // console.log(`L88 :  stateName :${stateName}`)
+  // console.log(`L89 : state : ${JSON.stringify(state)}`)
 
   let params = {};
   if (state) {
+    // console.log("L93 CRUD state :", state)
+    // console.log("L94 CRUD state.bounds :", state["bounds"])
     let pagination = {};
     if (!!usePagination) {
       pagination.page = state.page;
@@ -96,15 +99,25 @@ export function loadList(
       pagination.order_id = state.orderId;
       pagination.order_desc = state.orderDesc;
     }
-   
     params = {
       ...pagination,
       ...data,
       currLanguage: langPassed,
       // filter: state.filter,
-    };
-  }
+      bounds: data.bounds
 
+    };
+  } else {
+    // console.log("L110 CRUD inside else .....")
+    params = {
+      ...data,
+      currLanguage: langPassed,
+      bounds: data.bounds 
+    };
+}
+  // console.log("L108 params : ", params);
+
+  // console.log("L108 params : ", params)
   return axios
     .get(route, { params: params })
     .then((res) => {
@@ -113,18 +126,10 @@ export function loadList(
       const filter = !!res.data.filter ? res.data.filter : null;
       const markers = res?.data?.markers?.map((markerObj) => ({
       id: markerObj.id,
-      lat: markerObj.connection_arrival_stop_lat,
-      lon: markerObj.connection_arrival_stop_lon,
+      lat: markerObj.lat,
+      lon: markerObj.lon,
     })) || [];
-    // markers example: 
-    // [{id:id,lat:connection_arrival_stop_lat,lon:connection_arrival_stop_lon}]
 
-      //clg markers
-      // !!Array.isArray(markers) && console.log("L115 loadList / markers.length : ",markers.length )
-      // !!markers && markers.forEach((markObj)=>{
-      //   console.log(`${markObj.id} -> ( ${markObj.lat} : ${markObj.lon} )`)
-      // });
-      
       if (!!useState) {
         dispatch({
           type: typeDone,
@@ -291,13 +296,13 @@ export function generateShareLink(provider, hashedUrl, date, city) {
     })
     .then((res) => {
       if(process.env.NODE_ENV !== "production"){
-        console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
+        // console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
       }
       return res.data;
     })
     .catch((err) => {
       if(process.env.NODE_ENV !== "production"){
-        console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
+        // console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
       }
       return err.response;
     });
@@ -321,7 +326,7 @@ export const getMapData = (data)=>{
   return axios.get('tours/map/', {
     params: data
   }).then((res)=>{
-    console.log("L311 res.data /crudActions  :", res.data)
+    // console.log("L311 res.data /crudActions  :", res.data)
     return res.data
   })
 
