@@ -1,53 +1,122 @@
-import * as React from 'react';
-// import Grid from "@mui/material/Grid";
+import * as React from "react";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
-import {ScrollMenu} from "react-horizontal-scrolling-menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import {LeftArrow} from "./HorizontalScroll/LeftArrow";
-import {RightArrow} from "./HorizontalScroll/RightArrow";
+import Image5 from "../../public/img/Card5.gif";
+import { Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import { useTranslation } from "react-i18next";
 
-export default function ScrollingTourCardContainer({tours, onSelectTour, loadTourConnections, city}){
+export default function ScrollingTourCardContainer({
+  tours,
+  onSelectTour,
+  loadTourConnections,
+  city,
+}) {
+  const { t } = useTranslation();
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const firstSet = tours.slice(0, 4);
+  const secondSet = tours.slice(4, 7);
+  console.log("object", tours);
 
-    const isMobile = useMediaQuery('(max-width:600px)');
-
-    if(!!isMobile){
-        return <Box component="div">
-            <Box style={{width: "100%", overflowX: "scroll", whiteSpace: "nowrap", display: "flex", alignItems: "stretch"}}>
-                {(!!tours ? tours : []).map((tour,index) => <Box key={index} className={"scrolling-card-box"} style={{display: "block", marginRight: "20px", verticalAlign: "top", marginBottom: "5px"}}>
-                    <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
-                </Box>)
-            }
-            </Box>
-        </Box>
-    }
-
-
-    return <Box component="div">
-        <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow} >
-            {
-                (!!tours ? tours : []).map(tour => <Card
-                    itemId={tour.id}
-                    tour={tour}
-                    key={tour.id}
-                    onSelectTour={onSelectTour}
-                    loadTourConnections={loadTourConnections}
-                    city={city}
-                />)
-            }
-        </ScrollMenu>
+  const renderImage = (imageSrc, key) => (
+    <Box
+      key={key}
+      style={{
+        display: "block",
+      }}
+    >
+      <img src={imageSrc} alt="description" className="tour_card_Image" />
     </Box>
+  );
+
+  const renderFourth = () => (
+    <Box
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        maxWidth: "392px",
+        justifyContent: "center",
+        marginRight: "20px",
+        verticalAlign: "top",
+        padding: "0 10px",
+        marginBottom: "5px",
+      }}
+    >
+      <Typography
+        style={{
+          fontSize: "16px",
+          fontWeight: "600",
+          padding: "30px 10%",
+          borderTop: "1px solid #000",
+        }}
+      >
+        {t("start.TextCard1")}
+      </Typography>
+      <Button
+        style={{
+          border: "2px solid #000",
+          color: "#000",
+          width: "100%",
+          fontSize: "22px",
+          fontWeight: "600",
+        }}
+      >
+        {t("start.TextCard2")}
+      </Button>
+    </Box>
+  );
+
+  return (
+    <Box
+      component="div"
+      style={{
+        display: "grid",
+        width: "screen",
+        gridTemplateColumns: isMobile ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
+        gap: "20px",
+      }}
+    >
+      {firstSet.map((tour) => (
+        <Card
+          key={tour.id}
+          tour={tour}
+          onSelectTour={onSelectTour}
+          loadTourConnections={loadTourConnections}
+          city={city}
+        />
+      ))}
+
+      {renderImage(Image5, "image1")}
+
+      {secondSet.map((tour) => (
+        <Card
+          key={tour.id}
+          tour={tour}
+          onSelectTour={onSelectTour}
+          loadTourConnections={loadTourConnections}
+          city={city}
+        />
+      ))}
+      {renderFourth()}
+    </Box>
+  );
 }
 
 function Card({ tour, onSelectTour, loadTourConnections, city }) {
-    return (
-        <Box
-            className={"react-horizontal-scrolling-card"}
-            tabIndex={0}
-            component="div"
-        >
-            <TourCard onSelectTour={onSelectTour} tour={tour} loadTourConnections={loadTourConnections} city={city}/>
-        </Box>
-    );
+  return (
+    <Box
+      className={"react-horizontal-scrolling-card"}
+      tabIndex={0}
+      component="div"
+    >
+      <TourCard
+        onSelectTour={onSelectTour}
+        tour={tour}
+        loadTourConnections={loadTourConnections}
+        city={city}
+      />
+    </Box>
+  );
 }
-

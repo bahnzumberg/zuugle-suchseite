@@ -1,0 +1,52 @@
+/* PopupStyles.css */
+
+.popup-content {
+  text-align: center;
+    width: 300px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #333;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    border: 1px solid rgba(89, 255, 0, 0.233);
+    padding: 1px;
+    background: white;
+    box-sizing: border-box;
+    max-width: 300px; /* Maximum width for larger screens */
+
+}
+
+@media (max-width: 900px) {
+    .popup-content {
+        max-width: 70vw; /* Maximum width of 70% of the viewport width */
+    }
+}
+
+@media (max-width: 600px) {
+    .popup-content {
+        max-width: 30vw; /* Maximum width of 50% of the viewport width */
+    }
+}
+
+.popup-head {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+    height: auto;
+    width: 100%;
+}
+
+.popup-text {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.popup-image {
+  width: 100%; /* Ensures the image takes the full width of its container */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Ensure the image covers the container while maintaining its aspect ratio */
+  border-radius: 5px; /* Adds rounded corners to the image */
+}

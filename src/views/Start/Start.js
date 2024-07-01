@@ -75,7 +75,7 @@ function Start({
   let city = "";
 
   let _city = searchParams.get("city");
-  let totalTourRef = useRef(0) ;
+  let totalTourRef = useRef(0);
 
   useEffect(() => {
     // matomo
@@ -130,7 +130,7 @@ function Start({
       // Cancel any ongoing network request when the component unmounts
       abortController.abort();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCity = () => {
@@ -148,20 +148,19 @@ function Start({
   // };
 
   const onSelectTour = (tour) => {
-    if (!!tour && !!tour.id ) {
-      if(!!city){
-        loadTour(tour.id, city)
-          .then((tourExtracted) => {
-            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-              localStorage.setItem("tourId", tour.id);
-              // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
-            }else{
-              window.location.reload();
-            }
-          })
+    if (!!tour && !!tour.id) {
+      if (!!city) {
+        loadTour(tour.id, city).then((tourExtracted) => {
+          if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+            localStorage.setItem("tourId", tour.id);
+            // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
+          } else {
+            window.location.reload();
+          }
+        });
       }
-    }else{
-      window.location.reload()
+    } else {
+      window.location.reload();
     }
   };
 
@@ -179,6 +178,14 @@ function Start({
     }
   };
 
+  const getPublicTransportText = () => {
+    if (!!_city && _city.length > 0) {
+      return t("start.Öffi-Touren in Alpenregionen");
+    } else {
+      return t("start.Öffi-Touren in Alpenregionen");
+    }
+  };
+
   const getFavouriteToursText = () => {
     if (!!_city && _city.length > 0) {
       return t("start.beliebte_bergtouren_nahe");
@@ -187,22 +194,21 @@ function Start({
     }
   };
 
-  const onClickMap = ()=>{
-    if( !searchParams.get('map') ) {
-      searchParams.set('map', true);
+  const onClickMap = () => {
+    if (!searchParams.get("map")) {
+      searchParams.set("map", true);
       setSearchParams(searchParams);
-    };
+    }
     // consoleLog(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
-  }
+  };
 
-    // Function to navigate to another component with parameters
-    // const handleClick = () => {
-    //   navigate('/suche', {
-    //     state: { params: { cityName:  localStorage.getItem('city') || 'wien' , userName: 'Abas', lastName : 'Abd-Rabu' } }
-    //   });
-    // };
-
+  // Function to navigate to another component with parameters
+  // const handleClick = () => {
+  //   navigate('/suche', {
+  //     state: { params: { cityName:  localStorage.getItem('city') || 'wien' , userName: 'Abas', lastName : 'Abd-Rabu' } }
+  //   });
+  // };
 
   const country = getTranslatedCountryName();
 
@@ -213,8 +219,7 @@ function Start({
         <Footer />
       </Box>
     );
-  }
-  else if (noToursAvailable === false) {
+  } else if (noToursAvailable === false) {
     return (
       <Box>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
@@ -240,23 +245,6 @@ function Start({
         )}
         {!showMobileMenu && (
           <Box className={"start-body-container"}>
-            <Box>
-              <Typography
-                variant={"h4"}
-                sx={{
-                  textAlign: "left",
-                  paddingBottom: "15px",
-                  paddingTop: "15px",
-                }}
-              >
-                {getRangeText()}
-              </Typography>
-              <RangeCardContainer
-                ranges={favouriteRanges}
-                onSelectTour={onSelectRange}
-              />
-            </Box>
-
             <Box sx={{ marginTop: "20px" }}>
               <Typography
                 variant={"h4"}
@@ -276,19 +264,36 @@ function Start({
               />
             </Box>
 
-            <Box sx={{ marginTop: "20px" }}>
-              <AboutZuugleContainer />
+            <Box>
+              <Typography
+                variant={"h4"}
+                sx={{
+                  textAlign: "left",
+                  paddingBottom: "15px",
+                  paddingTop: "15px",
+                }}
+              >
+                {getPublicTransportText()}
+              </Typography>
+              <RangeCardContainer
+                ranges={favouriteRanges}
+                onSelectTour={onSelectRange}
+              />
             </Box>
 
-            <Box sx={{ marginTop: "20px" }}>
+            {/* <Box sx={{ marginTop: "20px" }}>
+              <AboutZuugleContainer />
+            </Box> */}
+
+            {/* <Box sx={{ marginTop: "20px" }}>
               <UserRecommendationContainer />
             </Box>
 
             <Box sx={{ marginTop: "20px" }}>
               <SponsoringContainer />
-            </Box>
+            </Box> */}
 
-            <Box sx={{ marginTop: "20px" }}>
+            {/* <Box sx={{ marginTop: "20px" }}>
               <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}
@@ -297,25 +302,23 @@ function Start({
                 city={searchParams.get("city")}
                 totalProvider={totalProvider}
               />
-            </Box>
+            </Box> */}
           </Box>
         )}
 
         {!showMobileMenu && (
-          <MapBtn 
+          <MapBtn
             // onClick={handleClick}
             onClick={onClickMap}
-            mapBtnext={`${t("start_pages.zur_kartenansicht")}`} 
+            mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
             btnSource="start"
-            >
-            
-          </MapBtn>
+          ></MapBtn>
         )}
 
-
-        {!showMobileMenu && (
+        {/* {!showMobileMenu && (
           <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )}
+        )} */}
+
         {!showMobileMenu && <Footer />}
       </Box>
     );
@@ -351,9 +354,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(Start);
+export default compose(connect(mapStateToProps, mapDispatchToProps))(Start);

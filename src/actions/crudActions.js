@@ -126,8 +126,8 @@ export function loadList(
       const filter = !!res.data.filter ? res.data.filter : null;
       const markers = res?.data?.markers?.map((markerObj) => ({
       id: markerObj.id,
-      lat: markerObj.lat,
-      lon: markerObj.lon,
+      lat: markerObj.connection_arrival_stop_lat,
+      lon: markerObj.connection_arrival_stop_lon,
     })) || [];
 
       if (!!useState) {

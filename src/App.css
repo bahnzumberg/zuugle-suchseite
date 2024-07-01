@@ -90,20 +90,22 @@ body ::-webkit-scrollbar-thumb:hover {
 /* Ensuring the card fits within a 350px width and 300px height, scales down typography sizes */
 .tour-card-map {
   text-align: left;
-  max-width: 400px; 
-  max-height: 300px; 
+  max-width: 400px;
+  max-height: 300px;
   width: 100%;
   height: auto;
 }
 
 /* Adjusting typography sizes for better fit within the card */
-.tour-card-map .MuiTypography-h4, .tour-card-map .MuiTypography-h5, .tour-card-map .MuiTypography-h6 {
-  font-size: 0.875rem; 
+.tour-card-map .MuiTypography-h4,
+.tour-card-map .MuiTypography-h5,
+.tour-card-map .MuiTypography-h6 {
+  font-size: 0.875rem;
 }
 
 /* Adjusting padding for better fit */
 .tour-card-map .MuiCardContent-root {
-  padding: 8px; 
+  padding: 8px;
 }
 
 /* Ensuring the icon and text display correctly within the limited space */
@@ -111,14 +113,45 @@ body ::-webkit-scrollbar-thumb:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  font-size: 0.75rem; 
-  align-items: center; 
+  font-size: 0.75rem;
+  align-items: center;
 }
-
 
 .tour-card {
   text-align: left;
   height: 100%;
+  width: 392px;
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+/* .tour_card_Image {
+  width: auto;
+  height: 100%;
+  border-radius: 25px;
+  margin-right: 30px;
+  vertical-align: top;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    height: auto;
+  }
+} */
+
+.tour_card_Image {
+  width: 100%;
+  max-width: 392px;
+  height: auto;
+  display: flex;
+  align-items: start;
+  border-radius: 25px;
+}
+
+@media (max-width: 600px) {
+  .tour_card_Image {
+    height: 100%;
+  }
 }
 
 .tour-card .bottom-container {
@@ -1123,8 +1156,8 @@ ul.about-bullets {
 }
 
 .react-horizontal-scrolling-card {
-  width: 400px;
-  margin-right: 20px;
+  width: auto;
+  /* margin-right: 20px; */
   vertical-align: top;
   height: 98%;
 }
@@ -1713,6 +1746,15 @@ top:250px; */
   font-weight: 600; /* Equivalent to h4 in Material-UI */
   line-height: 1.235rem; /* Adjust as needed */
   /* Other styles specific to your use case */
+  text-decoration: none;
+  color: rgb(16, 16, 16);
+  /* Add any other styles that match the h4 variant */
+}
+.updated-title {
+  font-size: 20px; /* Equivalent to h4 in Material-UI */
+  font-weight: 700; /* Equivalent to h4 in Material-UI */
+  line-height: 22px; /* Adjust as needed */
+  width: 100%;
   text-decoration: none;
   color: rgb(16, 16, 16);
   /* Add any other styles that match the h4 variant */
