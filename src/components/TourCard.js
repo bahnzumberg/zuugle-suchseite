@@ -36,6 +36,7 @@ export default function TourCard({
   city,
   mapCard,
 }) {
+  console.log("object", tour);
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
 
@@ -44,6 +45,22 @@ export default function TourCard({
   const [returns, setReturns] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
+  console.log("imgSrc", imgSrc);
+  useEffect(() => {
+    const checkImage = async () => {
+      try {
+        const response = await fetch(`/logos/${tour?.provider}.svg`);
+        if (response.ok) {
+          setImgSrc(`/logos/${tour?.provider}.svg`);
+        }
+      } catch (error) {
+        console.error("Error fetching the image:", error);
+      }
+    };
+
+    checkImage();
+  }, []);
 
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
@@ -289,7 +306,10 @@ export default function TourCard({
           }}
         >
           <img
-            src="/public/logos/cardIcon.png"
+            src={
+              `/public/logos/${tour.provider}.svg` ||
+              `/public/logos/fallback.svg`
+            }
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
           <Typography variant="grayP">alpenvereinaktiv.com</Typography>

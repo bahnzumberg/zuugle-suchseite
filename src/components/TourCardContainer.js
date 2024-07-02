@@ -173,7 +173,7 @@ export default function TourCardContainer({
               />
             </Grid>
           ))}
-          <Grid
+          {/* <Grid
             item
             xs={12}
             sm={6}
@@ -195,7 +195,7 @@ export default function TourCardContainer({
                 border: "1px solid #C5C5C5",
               }}
             />
-          </Grid>
+          </Grid> */}
           {tours.slice(4).map((tour, index) => (
             <Grid
               key={index}
