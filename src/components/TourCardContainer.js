@@ -24,6 +24,7 @@ export default function TourCardContainer({
   markersChanged,
   mapBounds,
 }) {
+
   // console.log("L71 TCC >>>> pageTours :", pageTours)
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -33,6 +34,18 @@ export default function TourCardContainer({
       ? localStorage.getItem("filterValues")
       : {}
   );
+
+  //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
+
+  let city = searchParams.get("city");
+  let range = searchParams.get("range");
+  let state = searchParams.get("state");
+  let country = searchParams.get("country");
+  let type = searchParams.get("type");
+  let search = searchParams.get("search");
+  let sort = searchParams.get("sort");
+  let map = searchParams.get("map");
+  let provider = searchParams.get("p");
 
   //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
 
@@ -63,6 +76,13 @@ export default function TourCardContainer({
       console.log("L44 just before loadTours , mapBounds : ", mapBounds);
       // make a tours call
 
+  useEffect(() => {
+    // console.log("L40 markersChanged :", markersChanged);
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
+    if (mapBounds && markersChanged) {
+        // console.log("L44 just before loadTours , mapBounds : ", mapBounds);
+      // make a tours call
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
         city: city,
@@ -75,39 +95,35 @@ export default function TourCardContainer({
         sort: sort,
         map: map,
         provider: provider,
-        bounds: bounds, // bounds added
+        bounds:bounds ,  // bounds added
       }).then((res) => {
         // console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
-        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :", res.data);
+        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :",(res.data));
         // let retrievedTours = res?.data?.tours ? res.data.tours : [];
-        consoleLog(
-          "L75 TCC >>>> loadTours / useEffect , res.data.total :",
-          res.data.total
-        );
+        consoleLog("L75 TCC >>>> loadTours / useEffect , res.data.total :",(res.data.total));
 
         // if (res.data.total === 0 || res.data.total < 9) {
         //   console.log("L80 TCC >>>> loadTours:", res.data.total)
-        //   setHasMore(false);
+        //   setHasMore(false);        
         // }
         // console.log("L76 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
+
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapBounds]);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [mapBounds]);
 
   const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
-    // consoleLog("L67 ====//////   filterValues :", filterValues);
-    // consoleLog("L68 ====//////   filterValues :", _filter);
-    //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string.
+     // consoleLog("L67 ====//////   filterValues :", filterValues);
+      // consoleLog("L68 ====//////   filterValues :", _filter);
+    //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
-    filterRef.current = !!localStorage.getItem("filterValues")
-      ? localStorage.getItem("filterValues")
-      : {};
+    filterRef.current = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
     // add bounds from mapBounds state to call parameters
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
-
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
+     
     await loadTours({
       city: city,
       range: range,
