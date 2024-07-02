@@ -235,22 +235,6 @@ export function Main({
     return resultedData;
   }, []);
 
-  //Map-related : callback to set the state of "markersSubList" inside Map Container
-  // const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
-  //   console.log("L239 newMarkersSubList :",newMarkersSubList)
-  //   setMarkersSubList(newMarkersSubList);
-  // }, []);
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  const handleMapBounds = useCallback((bounds) => {
-    // console.log("L261 handleMapBounds :", bounds)
-    setMapBounds(bounds);
-  }, []);
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  const handleChangedMarkers = useCallback((value) => {
-    // console.log("L248 handleChangedBounds , value:", value)
-    setMarkersChanged(value);
-  }, []);
-
   // useEffect(() => {
   //   console.log("L254 Main / markersSubList: ", markersSubList)// works
   //   console.log("L255 Main / mapBounds: ", mapBounds) //works
@@ -347,45 +331,43 @@ const handleChangedMarkers = useCallback((value) => {
   const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%";
   const paddingBottomValue = "25.5px";
 
-  const totalToursHeader = () => (
+  const totalToursHeader = ()=>(   
     <Box elevation={0} className={"header-line-main"}>
-      <Box
-        sx={{
-          // paddingTop: paddingTop,
-          paddingTop: paddingTopValue,
-          // paddingBottom: "25.5px",
-          paddingBottom: paddingBottomValue,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          "@media (min-width: 900px)": {
-            paddingTop: largeScreenPaddingTop,
-          },
-        }}
-      >
-        <Typography
-          color={"black"}
-          sx={{ textAlign: "center", paddingTop: "0px" }}
-        >
-          {Number(totalTours).toLocaleString()}{" "}
-          {totalTours === 1
-            ? ` ${t("main.ergebnis")}`
-            : ` ${t("main.ergebnisse")}`}
-        </Typography>
-        {!!filterCountLocal && filterCountLocal > 0 && (
-          // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )
-          <Box display={"flex"} alignItems={"center"}>
-            &nbsp;{" - "}&nbsp;
-            <Typography
-              sx={{
-                fontSize: "16px",
-                color: "#FF7663",
-                fontWeight: "600",
-                mr: "2px",
-              }}
-            >
-              {t("filter.filter")}
+          <Box
+            sx={{
+              // paddingTop: paddingTop,
+              paddingTop: paddingTopValue,
+              // paddingBottom: "25.5px",
+              paddingBottom: paddingBottomValue,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              '@media (min-width: 900px)': {
+                paddingTop: largeScreenPaddingTop,
+              },
+            }}
+          >
+            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
+              {Number(totalTours).toLocaleString()}{" "}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
+            {(!!filterCountLocal && filterCountLocal > 0 )   
+            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
+            && (
+              <Box display={"flex"} alignItems={"center"}>
+                &nbsp;{" - "}&nbsp;
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    color: "#FF7663",
+                    fontWeight: "600",
+                    mr: "2px",
+                  }}
+                >
+                  {t("filter.filter")}
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
   )
