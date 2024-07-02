@@ -143,12 +143,12 @@ function TourMapContainer({
       // if _masterMarkers is not empty
       if (Object.keys(_masterMarkers).length > 0) {
         visibleMarkersObj = getMarkersListFromBounds(mapBounds, _masterMarkers);
-        console.log("L142 visibleMarkersObj after getMarkersListFromBounds :", visibleMarkersObj)
+        // console.log("L142 visibleMarkersObj after getMarkersListFromBounds :", visibleMarkersObj)
         
         // Early exit if no list of visible markers is found
         if (!visibleMarkersObj || Object.keys(visibleMarkersObj).length === 0) {
           handleShowCardContainer(false);  // so we can remove the card container 
-          console.log("L149 exiting visibleMarkersObj.length: ", visibleMarkersObj.length)
+          // console.log("L149 exiting visibleMarkersObj.length: ", visibleMarkersObj.length)
           return;
         }else{
           handleShowCardContainer(true);  // so we can retain the card container when markers are there 
@@ -159,8 +159,8 @@ function TourMapContainer({
 
       const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
 
-      console.log("L390 (visibleMarkers) :", visibleMarkersArray);
-      console.log("L391 storedMarkers :", storedMarkers);
+      // console.log("L390 (visibleMarkers) :", visibleMarkersArray);
+      // console.log("L391 storedMarkers :", storedMarkers);
 
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
 
@@ -227,9 +227,9 @@ function TourMapContainer({
   const checkMarkersChanges = (visibleMarkers, storedMarkers) => {
     // console.log("L150 inside check Markers Changes !")
 
-    console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
-    console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
-    console.log("L220 orderedArraysEqual(markersSubList, storedMarkersSubList) :", orderedArraysEqual(visibleMarkers, storedMarkers) ); //case a, b are not equal in length or in values return false
+    // console.log("L218 Current localStorage/ storedMarkers :", storedMarkers);
+    // console.log("L219 Current id values from visibleMarkers:",visibleMarkers );
+    // console.log("L220 orderedArraysEqual(markersSubList, storedMarkersSubList) :", orderedArraysEqual(visibleMarkers, storedMarkers) ); //case a, b are not equal in length or in values return false
 
     if (!orderedArraysEqual(visibleMarkers, storedMarkers)) {
 
@@ -276,8 +276,8 @@ function TourMapContainer({
   };
 
   const setCurrentGpxTrack = async (url) => {
-    console.log("L227 url incoming to setCurrentGpxTrack :");
-    console.log(url);
+    // console.log("L227 url incoming to setCurrentGpxTrack :");
+    // console.log(url);
     if (!!url) {
       try {
         const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -415,11 +415,11 @@ function TourMapContainer({
       types: filter.types,
     };
     if (filterValues == null) {
-      console.log("L426 inside filterValues == null ")
+      // console.log("L426 inside filterValues == null ")
       searchParams.delete("filter");
       setSearchParams(searchParams);
     } else {
-      console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
+      // console.log("L330 JSON.stringify(filterValues) : ", JSON.stringify(filterValues))
       //pull filtervalues from localStorage and pass it to params for setting
       searchParams.set("filter", JSON.stringify(filterValues));
       setSearchParams(searchParams);
@@ -427,7 +427,7 @@ function TourMapContainer({
       //pull filtervalues from localStorage and pass it to params for setting
       localStorage.setItem("MapToggle", true); //The map should stay the same after rendering the page
       // setSearchParams(searchParams); //set the search Params and start the call to the backend
-      console.log("L230 searchParams set to:", JSON.stringify(searchParams));
+      // console.log("L230 searchParams set to:", JSON.stringify(searchParams));
 
   };
 

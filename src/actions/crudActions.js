@@ -108,7 +108,7 @@ export function loadList(
 
     };
   } else {
-    console.log("L110 CRUD inside else .....")
+    // console.log("L110 CRUD inside else .....")
     params = {
       ...data,
       currLanguage: langPassed,
@@ -296,7 +296,7 @@ export function generateShareLink(provider, hashedUrl, date, city) {
     })
     .then((res) => {
       if(process.env.NODE_ENV !== "production"){
-        console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
+        // console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
       }
       return res.data;
     })
@@ -326,7 +326,7 @@ export const getMapData = (data)=>{
   return axios.get('tours/map/', {
     params: data
   }).then((res)=>{
-    console.log("L311 res.data /crudActions  :", res.data)
+    // console.log("L311 res.data /crudActions  :", res.data)
     return res.data
   })
 
