@@ -85,7 +85,8 @@ export function Main({
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
   const [mapBounds, setMapBounds] = useState(null);
-  const [markersChanged, setMarkersChanged] = useState(false)
+  const [markersChanged, setMarkersChanged] = useState(false);
+  const [showCardContainer, setShowCardContainer] = useState(true)
   
  
   //create masterMarkersList inside localStorage
@@ -246,15 +247,22 @@ export function Main({
 //   console.log("L239 newMarkersSubList :",newMarkersSubList)
 //   setMarkersSubList(newMarkersSubList);
 // }, []);
+
 //Map-related : callback to set the state of "mapBounds" inside Map Container
 const handleMapBounds = useCallback((bounds) => {
   setMapBounds(bounds);
 }, []);
 
-//Map-related : callback to set the state of "mapBounds" inside Map Container
+//Map-related : callback to set the state of "markersChanged" inside Map Container
 const handleChangedMarkers = useCallback((value) => {
   // console.log("L248 handleChangedBounds , value:", value)
   setMarkersChanged(value);
+}, []);
+
+//Map-related : callback to set the state of "markersChanged" inside Map Container
+const handleShowCardContainer = useCallback((value) => {
+  // console.log("L248 handleChangedBounds , value:", value)
+  setShowCardContainer(value);
 }, []);
 
 // useEffect(() => {
@@ -280,6 +288,7 @@ const handleChangedMarkers = useCallback((value) => {
         handleChangedMarkers={handleChangedMarkers}
         setMapBounds={setMapBounds}
         mapBounds={mapBounds}
+        handleShowCardContainer={handleShowCardContainer}
       />
       
     );
@@ -356,7 +365,7 @@ const handleChangedMarkers = useCallback((value) => {
             }}
           >
             <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
-              {Number(totalTours).toLocaleString()}{" "}
+              {!!showCardContainer? Number(totalTours).toLocaleString() : 0}{" "}
               {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
             {(!!filterCountLocal && filterCountLocal > 0 )   
@@ -479,7 +488,7 @@ const handleChangedMarkers = useCallback((value) => {
               {totalToursHeader()}
               {!!tours && tours.length > 0 && (
                 <>
-                  {renderCardContainer()}
+                  {showCardContainer && renderCardContainer()}
                   <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
                 </>
               )}
@@ -488,7 +497,7 @@ const handleChangedMarkers = useCallback((value) => {
           : 
           (
             !!tours &&
-            tours.length > 0 && (
+            tours.length > 0 && showCardContainer &&(
               <>
                 {renderCardContainer()}
                 <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
