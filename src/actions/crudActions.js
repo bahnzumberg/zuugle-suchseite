@@ -108,7 +108,6 @@ export function loadList(
 
     };
   } else {
-    // console.log("L110 CRUD inside else .....")
     params = {
       ...data,
       currLanguage: langPassed,

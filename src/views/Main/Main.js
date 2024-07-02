@@ -29,7 +29,7 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 // import { consoleLog, getValuesFromParams } from "../../utils/globals";
-import MapBtn from '../../components/Search/MapBtn';
+import MapBtn from "../../components/Search/MapBtn";
 // import {getMapData} from '../../actions/crudActions';
 // import NoData from "../../components/NoData";
 import { createIdArray } from "../../utils/map_utils";
@@ -38,7 +38,6 @@ const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(() =>
   import("../../components/TourCardContainer")
 );
-
 
 export function Main({
   loadTours,
@@ -52,7 +51,7 @@ export function Main({
   loading,
   allCities,
   loadRanges,
-  tour
+  tour,
   // clearTours,
   // allRanges,
   // showModal,
@@ -62,22 +61,22 @@ export function Main({
   // loadTour,
   // loadTourConnectionsExtended,
 }) {
-
-
   const navigate = useNavigate();
   const location = useLocation();
-  const { t }    = useTranslation();
+  const { t } = useTranslation();
 
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [directLink, setDirectLink]     = useState(null);
+
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
- 
+
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
-  const [counter, setCounter] = useState(0); 
+  const [counter, setCounter] = useState(0);
 
   const [mapInitialized, setMapInitialized] = useState(false);
-  const markers = useSelector((state) => state.tours.markers);// move to props    
 
+  const markers = useSelector((state) => state.tours.markers);// move to props    
 
   const [scrollToTop, setScrollToTop] = useState(false);
 
@@ -85,9 +84,9 @@ export function Main({
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
   const [mapBounds, setMapBounds] = useState(null);
+
   const [markersChanged, setMarkersChanged] = useState(false)
   
- 
   //create masterMarkersList inside localStorage
   // useEffect (()=>{
   //   if(!!markers && markers.length > 0 ) {
@@ -110,11 +109,10 @@ export function Main({
 
   useEffect(() => {
     if (scrollToTop) {
-      window.scrollTo({ top: 0 , behavior: 'smooth'});
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [scrollToTop]);
-  
-  
+
   useEffect(() => {
     loadAllCities();
     loadRanges({ ignore_limit: true, remove_duplicates: true });
@@ -127,37 +125,35 @@ export function Main({
   }, []);
 
   useEffect(() => {
-    if(!!location && !!allCities && allCities.length > 0){
-      const cityLabel = location && allCities ? t(`${getCityLabel(location, allCities)}`) : "VV";
+    if (!!location && !!allCities && allCities.length > 0) {
+      const cityLabel =
+        location && allCities
+          ? t(`${getCityLabel(location, allCities)}`)
+          : "VV";
       getPageHeader({ header: `Zuugli boy ${cityLabel}` });
     }
-  },[allCities,location])
+  }, [allCities, location]);
 
-  
   useEffect(() => {
-    var _mtm = window._mtm = window._mtm || [];
-    _mtm.push({'pagetitel': "Suche"});
+    var _mtm = (window._mtm = window._mtm || []);
+    _mtm.push({ pagetitel: "Suche" });
   }, []);
 
-
   useEffect(() => {
-    if (
-      !!location &&
-      location.pathname &&
-      allCities &&
-      allCities.length > 0 
-    ) {
-
+    if (!!location && location.pathname && allCities && allCities.length > 0) {
       const city = checkIfSeoPageCity(location, allCities);
       if (!!city && city.value) {
         searchParams.set("city", city.value);
         setSearchParams(searchParams);
         setDirectLink({
-          header: t(`main.oeffi_bergtouren_fuer_cityname`, { "city.label": city.label }),
-          description: t(`main.alle_bergtouren_von_cityname`, { "city.label": city.label }),
+          header: t(`main.oeffi_bergtouren_fuer_cityname`, {
+            "city.label": city.label,
+          }),
+          description: t(`main.alle_bergtouren_von_cityname`, {
+            "city.label": city.label,
+          }),
         });
-      }
-      else if(!!!city || !!!city.value){
+      } else if (!!!city || !!!city.value) {
         setDirectLink(null);
       }
     }
@@ -172,74 +168,93 @@ export function Main({
 
 
   const backBtnHandler = (e)=> {
+
     e.preventDefault();
-    if(!!searchParams.get('map')) {
-      searchParams.delete('map');
+    if (!!searchParams.get("map")) {
+      searchParams.delete("map");
     }
-    if(searchParams.get('range')){
-      searchParams.delete('range');
+    if (searchParams.get("range")) {
+      searchParams.delete("range");
     }
     setSearchParams(searchParams);
     goToStartPage();
-  }
+  };
 
   const goToStartPage = () => {
-    //remove map param here 
+    //remove map param here
     navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
   const onSelectTour = (tour) => {
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
-    if (!!tour && !!tour.id ) {
+    if (!!tour && !!tour.id) {
       // if(!!city){
-        loadTour(tour.id, city)
-          .then((tourExtracted) => {
-            if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-              localStorage.setItem("tourId", tour.id);
-              // window.open("/tour?" + searchParams.toString());
-            }else{
-              goToStartPage();
-            }
-          })
-    }else{
+      loadTour(tour.id, city).then((tourExtracted) => {
+        if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+          localStorage.setItem("tourId", tour.id);
+          // window.open("/tour?" + searchParams.toString());
+        } else {
+          goToStartPage();
+        }
+      });
+    } else {
       goToStartPage();
     }
   };
 
   //with id only // as code enhancement,create one function for both map and card containers
-  const onSelectMapTour = async (markerId)=>{
+  const onSelectMapTour = async (markerId) => {
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
-    const id = markerId.id
+    const id = markerId.id;
     let retTour = null;
-    if ( !!id ) {
+    if (!!id) {
       // console.log("L269 : Main/id.id :", id)
       // console.log("L270 : Main/city :", city)
-      await loadTour(id, city)
-        .then((tourExtracted) => {
-          if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            retTour = tourExtracted;
-            // console.log("L272 called from Main :")
-            // console.log(tourExtracted.data.tour)
-            localStorage.setItem("tourId", id);
-            // window.open("/tour?" + searchParams.toString());
-          }else{
-            goToStartPage();
-          }
-        })
-        // console.log("L286 retTour :")
-        // console.log(retTour)
-      return retTour
-    }else{
+      await loadTour(id, city).then((tourExtracted) => {
+        if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
+          retTour = tourExtracted;
+          // console.log("L272 called from Main :")
+          // console.log(tourExtracted.data.tour)
+          localStorage.setItem("tourId", id);
+          // window.open("/tour?" + searchParams.toString());
+        } else {
+          goToStartPage();
+        }
+      });
+      // console.log("L286 retTour :")
+      // console.log(retTour)
+      return retTour;
+    } else {
       goToStartPage();
     }
+  };
 
-  }
+  //Map-related : a callback function that selects a tour with a specific id
+  const onSelectTourById = useCallback((id) => {
+    const resultedData = onSelectMapTour({ id: id });
+    return resultedData;
+  }, []);
 
- //Map-related : a callback function that selects a tour with a specific id
- const onSelectTourById = useCallback((id) => {
-  const resultedData = onSelectMapTour({ id: id });
-  return resultedData
-}, []);
+  //Map-related : callback to set the state of "markersSubList" inside Map Container
+  // const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
+  //   console.log("L239 newMarkersSubList :",newMarkersSubList)
+  //   setMarkersSubList(newMarkersSubList);
+  // }, []);
+  //Map-related : callback to set the state of "mapBounds" inside Map Container
+  const handleMapBounds = useCallback((bounds) => {
+    // console.log("L261 handleMapBounds :", bounds)
+    setMapBounds(bounds);
+  }, []);
+  //Map-related : callback to set the state of "mapBounds" inside Map Container
+  const handleChangedMarkers = useCallback((value) => {
+    // console.log("L248 handleChangedBounds , value:", value)
+    setMarkersChanged(value);
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("L254 Main / markersSubList: ", markersSubList)// works
+  //   console.log("L255 Main / mapBounds: ", mapBounds) //works
+  // }, [markersSubList, mapBounds])
 
 //Map-related : callback to set the state of "markersSubList" inside Map Container
 // const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
@@ -265,14 +280,13 @@ const handleChangedMarkers = useCallback((value) => {
 
   const memoTourMapContainer = useMemo(() => {
     return (
-
       <TourMapContainer
         tours={tours}
         filter={filter}
         setMapInitialized={setMapInitialized}
         mapInitialized={mapInitialized}
         loadTour={loadTour}
-        onSelectTour={onSelectTourById} 
+        onSelectTour={onSelectTourById}
         // onMarkersSubListChange={handleMarkersSubListChange}
         markersSubList={markersSubList}
         setMarkersSubList={setMarkersSubList}
@@ -281,40 +295,34 @@ const handleChangedMarkers = useCallback((value) => {
         setMapBounds={setMapBounds}
         mapBounds={mapBounds}
       />
-      
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter,tours, totalTours, mapBounds]);
 
-  
-  const toggleMapHandler = ()=> {
-    if (searchParams.has('map') && (searchParams.get('map') === 'true')) {
+  const toggleMapHandler = () => {
+    if (searchParams.has("map") && searchParams.get("map") === "true") {
       // removeMapParam
-      searchParams.delete('map');
+      searchParams.delete("map");
       //add filter values from localStorage ?  here or inside the mapcontainer ?
-      setSearchParams(searchParams)
+      setSearchParams(searchParams);
       setShowMap(false);
-    }else{
-      searchParams.set('map', true)
+    } else {
+      searchParams.set("map", true);
       //add filterValues from localStorage ? here or inside the mapcontainer ?
-      setSearchParams(searchParams)
-      setShowMap(true)
+      setSearchParams(searchParams);
+      setShowMap(true);
     }
-  }
+  };
 
-  const renderCardContainer = ()=> (
+  const renderCardContainer = () => (
     <Box
-      // className={
-      //   "cards-container" +
-      //   (!!directLink && !!directLink.header ? " seo-page" : "")
-      // }
       className="cards-container"
       sx={{
         marginTop: {
           xs: marginTop,
           md: marginTop,
         },
-        padding: "25px"
+        padding: "25px",
       }}
     >
       <TourCardContainer
@@ -332,54 +340,56 @@ const handleChangedMarkers = useCallback((value) => {
         markersChanged={markersChanged}
       />
     </Box>
-  )
+  );
 
-  let marginTop = showMap ? "20px" : "255px"
-  const paddingTopValue = showMap ? "3.3%" : "10.2%"; 
-  const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%"; 
+  let marginTop = showMap ? "20px" : "255px";
+  const paddingTopValue = showMap ? "3.3%" : "10.2%";
+  const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%";
   const paddingBottomValue = "25.5px";
 
-  const totalToursHeader = ()=>(   
+  const totalToursHeader = () => (
     <Box elevation={0} className={"header-line-main"}>
-          <Box
-            sx={{
-              // paddingTop: paddingTop,
-              paddingTop: paddingTopValue,
-              // paddingBottom: "25.5px",
-              paddingBottom: paddingBottomValue,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              '@media (min-width: 900px)': {
-                paddingTop: largeScreenPaddingTop,
-              },
-            }}
-          >
-            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
-              {Number(totalTours).toLocaleString()}{" "}
-              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+      <Box
+        sx={{
+          // paddingTop: paddingTop,
+          paddingTop: paddingTopValue,
+          // paddingBottom: "25.5px",
+          paddingBottom: paddingBottomValue,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          "@media (min-width: 900px)": {
+            paddingTop: largeScreenPaddingTop,
+          },
+        }}
+      >
+        <Typography
+          color={"black"}
+          sx={{ textAlign: "center", paddingTop: "0px" }}
+        >
+          {Number(totalTours).toLocaleString()}{" "}
+          {totalTours === 1
+            ? ` ${t("main.ergebnis")}`
+            : ` ${t("main.ergebnisse")}`}
+        </Typography>
+        {!!filterCountLocal && filterCountLocal > 0 && (
+          // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )
+          <Box display={"flex"} alignItems={"center"}>
+            &nbsp;{" - "}&nbsp;
+            <Typography
+              sx={{
+                fontSize: "16px",
+                color: "#FF7663",
+                fontWeight: "600",
+                mr: "2px",
+              }}
+            >
+              {t("filter.filter")}
             </Typography>
-            {(!!filterCountLocal && filterCountLocal > 0 )   
-            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
-            && (
-              <Box display={"flex"} alignItems={"center"}>
-                &nbsp;{" - "}&nbsp;
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    color: "#FF7663",
-                    fontWeight: "600",
-                    mr: "2px",
-                  }}
-                >
-                  {t("filter.filter")}
-                </Typography>
-              </Box>
-            )}
           </Box>
         </Box>
   )
- 
+  
   return (
     <div>
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
@@ -480,30 +490,34 @@ const handleChangedMarkers = useCallback((value) => {
               {!!tours && tours.length > 0 && (
                 <>
                   {renderCardContainer()}
-                  <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
+                  <MapBtn
+                    showMap={showMap}
+                    onClick={toggleMapHandler}
+                    btnSource="main"
+                  />
                 </>
               )}
             </>
-          ) 
-          : 
-          (
+          ) : (
             !!tours &&
             tours.length > 0 && (
               <>
                 {renderCardContainer()}
-                <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
+                <MapBtn
+                  showMap={showMap}
+                  onClick={toggleMapHandler}
+                  btnSource="main"
+                />
               </>
             )
-          )
-          }
+          )}
         </>
-      ) 
-      :
-        (<>
+      ) : (
+        <>
           {!!showMap && memoTourMapContainer}
           {!!showMap && totalToursHeader()}
-        </>)
-      }
+        </>
+      )}
     </div>
   );
 }
@@ -522,7 +536,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => {
-
   return {
     loading: state.tours.loading,
     tours: state.tours.tours,
@@ -531,7 +544,7 @@ const mapStateToProps = (state) => {
     filter: state.tours.filter,
     totalTours: state.tours.total,
     pageTours: state.tours.page,
-    tour:state.tours.tour
+    tour: state.tours.tour,
   };
 };
 

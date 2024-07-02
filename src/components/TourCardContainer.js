@@ -1,13 +1,14 @@
-import * as React from 'react';
-import {useState, useEffect, useRef} from 'react';
+import * as React from "react";
+import { useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {useSearchParams} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import EndOfList from './EndOfList';
-import {consoleLog} from '../utils/globals';
+import EndOfList from "./EndOfList";
+import { consoleLog } from "../utils/globals";
+import Image5 from "../../public/img/Card5.gif";
 
 export default function TourCardContainer({
   tours,
@@ -27,8 +28,24 @@ export default function TourCardContainer({
   // console.log("L71 TCC >>>> pageTours :", pageTours)
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
-  
-  let filterRef = useRef(localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {});
+
+  let filterRef = useRef(
+    localStorage.getItem("filterValues")
+      ? localStorage.getItem("filterValues")
+      : {}
+  );
+
+  //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
+
+  let city = searchParams.get("city");
+  let range = searchParams.get("range");
+  let state = searchParams.get("state");
+  let country = searchParams.get("country");
+  let type = searchParams.get("type");
+  let search = searchParams.get("search");
+  let sort = searchParams.get("sort");
+  let map = searchParams.get("map");
+  let provider = searchParams.get("p");
 
   //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
 
@@ -43,12 +60,21 @@ export default function TourCardContainer({
   let provider = searchParams.get("p");
 
   useEffect(() => {
-    if(!!hasMore && !!filterValues){
-        filterRef.current = filterValues ? filterValues : (!!searchParams && searchParams.get("filter"));
-    } else if(!!!hasMore || !!!filterValues){
-        filterRef.current = !!searchParams && searchParams.get('filter');
+    if (!!hasMore && !!filterValues) {
+      filterRef.current = filterValues
+        ? filterValues
+        : !!searchParams && searchParams.get("filter");
+    } else if (!!!hasMore || !!!filterValues) {
+      filterRef.current = !!searchParams && searchParams.get("filter");
     }
-  }, [hasMore,filterValues,searchParams])
+  }, [hasMore, filterValues, searchParams]);
+
+  useEffect(() => {
+    console.log("L40 markersChanged :", markersChanged);
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+    if (mapBounds && markersChanged) {
+      console.log("L44 just before loadTours , mapBounds : ", mapBounds);
+      // make a tours call
 
   useEffect(() => {
     // console.log("L40 markersChanged :", markersChanged);
@@ -87,11 +113,10 @@ export default function TourCardContainer({
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [mapBounds]);
 
-
   const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
-      // consoleLog("L67 ====//////   filterValues :", filterValues);
+     // consoleLog("L67 ====//////   filterValues :", filterValues);
       // consoleLog("L68 ====//////   filterValues :", _filter);
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
@@ -112,19 +137,28 @@ export default function TourCardContainer({
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
       // page: pageMapTours ? 1 : !!pageTours ? Number(pageTours) + 1 : 2,
-      bounds:bounds   // bounds added
-       
-
+      bounds: bounds, // bounds added
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
       // consoleLog("L113 >>>> results length :", retrievedTours.length);
-      !!retrievedTours && consoleLog("L114 >>>> results total :", retrievedTours.total);
+      !!retrievedTours &&
+        consoleLog("L114 >>>> results total :", retrievedTours.total);
       consoleLog("L115 >>>> _loadTours : retrievedTours", retrievedTours);
       // if (retrievedTours.length === 0 || retrievedTours.length < 9) {
-      //   setHasMore(false);        
+      //   setHasMore(false);
       // }
     });
   };
+
+  const renderImage = () => (
+    <Grid item xs={12} style={{ textAlign: "center", marginBottom: "5px" }}>
+      <img
+        src={Image5}
+        alt="Promotional"
+        style={{ width: "auto", borderRadius: "25px", maxWidth: "392px" }}
+      />
+    </Grid>
+  );
 
   return (
     <Box>
@@ -136,9 +170,68 @@ export default function TourCardContainer({
         loader={!!loading && <CircularProgress />}
         endMessage={<EndOfList />}
       >
-      
         <Grid container spacing={2}>
-          {(!!tours ? tours : [])
+          {tours.slice(0, 4).map((tour, index) => (
+            <Grid
+              key={index}
+              item
+              xs={12}
+              sm={6}
+              lg={4}
+              style={{ marginBottom: "5px" }}
+            >
+              <TourCard
+                onSelectTour={onSelectTour}
+                tour={tour}
+                loadTourConnections={loadTourConnections}
+                city={city}
+                mapCard={false}
+              />
+            </Grid>
+          ))}
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            lg={4}
+            style={{
+              textAlign: "center",
+              marginBottom: "5px",
+              display: "flex",
+              alignItems: "start",
+            }}
+          >
+            <img
+              src={Image5}
+              alt="Promotional"
+              style={{
+                width: "100%",
+                borderRadius: "25px",
+                maxWidth: "392px",
+                border: "1px solid #C5C5C5",
+              }}
+            />
+          </Grid>
+          {tours.slice(4).map((tour, index) => (
+            <Grid
+              key={index}
+              item
+              xs={12}
+              sm={6}
+              lg={4}
+              style={{ marginBottom: "5px" }}
+            >
+              <TourCard
+                onSelectTour={onSelectTour}
+                tour={tour}
+                loadTourConnections={loadTourConnections}
+                city={city}
+                mapCard={false}
+              />
+            </Grid>
+          ))}
+
+          {/* {(!!tours ? tours : [])
             .filter((tour) => !!!tour.is_map_entry)
             .map((tour, index) => (
               <Grid
@@ -157,7 +250,7 @@ export default function TourCardContainer({
                   mapCard={false}
                 />
               </Grid>
-            ))}
+            ))} */}
         </Grid>
       </InfiniteScroll>
     </Box>

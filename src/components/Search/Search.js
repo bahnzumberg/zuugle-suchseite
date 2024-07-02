@@ -194,7 +194,6 @@ export function Search({
     // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
     const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
-    // console.log("L196 Search/ bounds :", bounds)
 
     let result = loadTours({
       city: city,
@@ -214,9 +213,6 @@ export function Search({
       //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       let importedMarkersArray = res.data.markers;
       
-      // console.log("L210 Search/ !isMasterMarkersSet.current : ", !isMasterMarkersSet.current)
-      // console.log("L211 Search/ res.data.total :", res.data.total);
-      // console.log("L212 Search/ result of markers array :", importedMarkersArray);
       if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
         localStorage.setItem('masterMarkers', JSON.stringify(importedMarkersArray));
         isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
@@ -360,7 +356,6 @@ export function Search({
       // window.location.reload();
     } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
-        // if(!!res && !!res.data) console.log("L348 res", res.data)
 
         if(pageKey === "detail") {
           // console.log("Search L333 searchParams :", JSON.stringify(searchParams));
