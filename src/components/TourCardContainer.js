@@ -56,12 +56,6 @@ export default function TourCardContainer({
     }
   }, [hasMore, filterValues, searchParams]);
 
-  useEffect(() => {
-    console.log("L40 markersChanged :", markersChanged);
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
-    if (mapBounds && markersChanged) {
-      console.log("L44 just before loadTours , mapBounds : ", mapBounds);
-      // make a tours call
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
@@ -95,7 +89,7 @@ export default function TourCardContainer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapBounds]);
 
-  const _loadTours = async () => {
+const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
     // consoleLog("L67 ====//////   filterValues :", filterValues);
