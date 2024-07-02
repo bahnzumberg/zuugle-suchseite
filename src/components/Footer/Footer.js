@@ -20,7 +20,7 @@ export default function Footer({}) {
           justifyContent: "space-between",
         }}
       >
-        <Grid item xs={12} md={7}>
+        <Grid item xs={12} md={10}>
           <Grid container spacing={2}>
             <Grid
               item
@@ -85,7 +85,7 @@ export default function Footer({}) {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={2}>
           <Box sx={{ textAlign: "right" }} className={"social-icons"}>
             <img
               className={"cursor-link"}
@@ -123,7 +123,7 @@ export default function Footer({}) {
         </Grid>
       </Grid>
 
-      {/* <Grid container spacing={2}>
+      <Grid container spacing={2}>
         <Grid
           item
           xs={12}
@@ -156,7 +156,7 @@ export default function Footer({}) {
             />
           </a>
         </Grid>
-      </Grid> */}
+      </Grid>
     </Box>
   );
 }
