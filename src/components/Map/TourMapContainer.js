@@ -598,6 +598,7 @@ const mapStateToProps = (state) => {
     tour: state.tours.tour,
   };
 };
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps
