@@ -49,16 +49,6 @@ export default function TourCardContainer({
 
   //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
 
-  let city = searchParams.get("city");
-  let range = searchParams.get("range");
-  let state = searchParams.get("state");
-  let country = searchParams.get("country");
-  let type = searchParams.get("type");
-  let search = searchParams.get("search");
-  let sort = searchParams.get("sort");
-  let map = searchParams.get("map");
-  let provider = searchParams.get("p");
-
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
       filterRef.current = filterValues
@@ -75,6 +65,7 @@ export default function TourCardContainer({
     if (mapBounds && markersChanged) {
       console.log("L44 just before loadTours , mapBounds : ", mapBounds);
       // make a tours call
+    
 
   useEffect(() => {
     // console.log("L40 markersChanged :", markersChanged);
@@ -113,7 +104,7 @@ export default function TourCardContainer({
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [mapBounds]);
 
-  const _loadTours = async () => {
+const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
      // consoleLog("L67 ====//////   filterValues :", filterValues);
