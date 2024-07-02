@@ -24,7 +24,6 @@ export default function TourCardContainer({
   markersChanged,
   mapBounds,
 }) {
-
   // console.log("L71 TCC >>>> pageTours :", pageTours)
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -47,8 +46,6 @@ export default function TourCardContainer({
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
 
-  //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
-
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
       filterRef.current = filterValues
@@ -59,13 +56,6 @@ export default function TourCardContainer({
     }
   }, [hasMore, filterValues, searchParams]);
 
-
-  useEffect(() => {
-    // console.log("L40 markersChanged :", markersChanged);
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
-    if (mapBounds && markersChanged) {
-        // console.log("L44 just before loadTours , mapBounds : ", mapBounds);
-      // make a tours call
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
@@ -79,35 +69,39 @@ export default function TourCardContainer({
         sort: sort,
         map: map,
         provider: provider,
-        bounds:bounds ,  // bounds added
+        bounds: bounds, // bounds added
       }).then((res) => {
         // console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
-        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :",(res.data));
+        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :", res.data);
         // let retrievedTours = res?.data?.tours ? res.data.tours : [];
-        consoleLog("L75 TCC >>>> loadTours / useEffect , res.data.total :",(res.data.total));
+        consoleLog(
+          "L75 TCC >>>> loadTours / useEffect , res.data.total :",
+          res.data.total
+        );
 
         // if (res.data.total === 0 || res.data.total < 9) {
         //   console.log("L80 TCC >>>> loadTours:", res.data.total)
-        //   setHasMore(false);        
+        //   setHasMore(false);
         // }
         // console.log("L76 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
-
       });
     }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [mapBounds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapBounds]);
 
 const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
-     // consoleLog("L67 ====//////   filterValues :", filterValues);
-      // consoleLog("L68 ====//////   filterValues :", _filter);
-    //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string. 
+    // consoleLog("L67 ====//////   filterValues :", filterValues);
+    // consoleLog("L68 ====//////   filterValues :", _filter);
+    //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string.
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
-    filterRef.current = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
+    filterRef.current = !!localStorage.getItem("filterValues")
+      ? localStorage.getItem("filterValues")
+      : {};
     // add bounds from mapBounds state to call parameters
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
-     
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+
     await loadTours({
       city: city,
       range: range,
@@ -155,48 +149,7 @@ const _loadTours = async () => {
         endMessage={<EndOfList />}
       >
         <Grid container spacing={2}>
-          {tours.slice(0, 4).map((tour, index) => (
-            <Grid
-              key={index}
-              item
-              xs={12}
-              sm={6}
-              lg={4}
-              style={{ marginBottom: "5px" }}
-            >
-              <TourCard
-                onSelectTour={onSelectTour}
-                tour={tour}
-                loadTourConnections={loadTourConnections}
-                city={city}
-                mapCard={false}
-              />
-            </Grid>
-          ))}
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            lg={4}
-            style={{
-              textAlign: "center",
-              marginBottom: "5px",
-              display: "flex",
-              alignItems: "start",
-            }}
-          >
-            <img
-              src={Image5}
-              alt="Promotional"
-              style={{
-                width: "100%",
-                borderRadius: "25px",
-                maxWidth: "392px",
-                border: "1px solid #C5C5C5",
-              }}
-            />
-          </Grid>
-          {tours.slice(4).map((tour, index) => (
+          {tours.map((tour, index) => (
             <Grid
               key={index}
               item
