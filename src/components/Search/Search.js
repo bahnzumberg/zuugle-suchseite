@@ -95,13 +95,14 @@ export function Search({
   useEffect(() => {
     const filterParamValue = searchParams.get('filter');
     if (filterParamValue) {
-      !!counter && console.log("L89 : counter :", counter )
+      // !!counter && console.log("L89 : counter :", counter )
       setActiveFilter(!!counter && counter > 0);
     }
   }, [searchParams, counter]);
 
   useEffect(() => {
-    if(!!mapBounds) return 
+    if(!!mapBounds) return ; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
+
     // pull out values from URL params
     let city = searchParams.get("city");
     let range = searchParams.get("range"); 
@@ -193,7 +194,6 @@ export function Search({
     // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
     const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
-    console.log("L196 Search/ bounds :", bounds)
 
     let result = loadTours({
       city: city,
@@ -213,20 +213,8 @@ export function Search({
       //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       let importedMarkersArray = res.data.markers;
       
-      console.log("L213 Search/ !isMasterMarkersSet.current : ", !isMasterMarkersSet.current)
-      console.log("L211 Search/ res.data.total :", res.data.total);
-      console.log("L212 Search/ result of markers array :", importedMarkersArray);
       if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
-        // Transform the markers array
-        const transformedMarkers = importedMarkersArray.map(marker => ({
-          id: marker.id,
-          lat: marker.connection_arrival_stop_lat,
-          lon: marker.connection_arrival_stop_lon
-        }));
-        console.log("L215 Search/ transformedMarkers : ", transformedMarkers)
-
-        // Store the transformed array in localStorage
-        localStorage.setItem('masterMarkers', JSON.stringify(transformedMarkers));
+        localStorage.setItem('masterMarkers', JSON.stringify(importedMarkersArray));
         isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
       }
     });
@@ -280,7 +268,7 @@ export function Search({
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
     
-    !!filterCount && console.log("Search L235 filterCount: ", filterCount)
+    // !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
@@ -368,7 +356,6 @@ export function Search({
       // window.location.reload();
     } else { // coming in from Main filter submit  
       await loadTours(values).then((res) => {
-        if(!!res && !!res.data) console.log("L348 res", res.data)
 
         if(pageKey === "detail") {
           // console.log("Search L333 searchParams :", JSON.stringify(searchParams));

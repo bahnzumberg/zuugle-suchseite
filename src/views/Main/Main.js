@@ -66,14 +66,17 @@ export function Main({
   const { t } = useTranslation();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [directLink, setDirectLink] = useState(null);
+
+  const [directLink, setDirectLink]     = useState(null);
+
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
 
   const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
   const [counter, setCounter] = useState(0);
 
   const [mapInitialized, setMapInitialized] = useState(false);
-  const markers = useSelector((state) => state.tours.markers); // move to props
+
+  const markers = useSelector((state) => state.tours.markers);// move to props    
 
   const [scrollToTop, setScrollToTop] = useState(false);
 
@@ -81,31 +84,28 @@ export function Main({
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
   const [mapBounds, setMapBounds] = useState(null);
-  const [markersChanged, setMarkersChanged] = useState(false);
 
+  const [markersChanged, setMarkersChanged] = useState(false)
+  
   //create masterMarkersList inside localStorage
   // useEffect (()=>{
   //   if(!!markers && markers.length > 0 ) {
   //     console.log("L96 useEffect markers")
   //     console.log(markers)
-  //     localStorage.setItem('masterMarkers', JSON.stringify(markers))
+  //     localStorage.setItem('masterMarkers', JSON.stringify(markers)) 
   //   }
   // // eslint-disable-next-line react-hooks/exhaustive-deps
   // },[])
 
   // filter values in localStorage:
-  let filterCountLocal = !!localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
-  let filterValuesLocal = !!localStorage.getItem("filterValues")
-    ? localStorage.getItem("filterValues")
-    : null;
-
+  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
+    
   // useEffect(()=> console.log("L263 Main.js -> mapBounds ", mapBounds),[mapBounds]);
 
   useEffect(() => {
-    setShowMap(searchParams.get("map") === "true" ? true : false);
-  }, [searchParams]);
+    setShowMap(searchParams.get('map') === "true" ? true : false ) ;  
+  }, [searchParams]); 
 
   useEffect(() => {
     if (scrollToTop) {
@@ -161,15 +161,14 @@ export function Main({
 
   //updates the state of activeFilter, filterValues based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    !!filterCountLocal && filterCountLocal > 0
-      ? setActiveFilter(true)
-      : setActiveFilter(false);
-    !!filterValuesLocal
-      ? setFilterValues(filterValuesLocal)
-      : setFilterValues({});
-  }, [filterCountLocal, filterValuesLocal, searchParams]);
+    (!!filterCountLocal && filterCountLocal > 0) ? 
+    setActiveFilter(true) : setActiveFilter(false);
+    !!filterValuesLocal ? setFilterValues(filterValuesLocal) : setFilterValues({});
+  }, [filterCountLocal,filterValuesLocal, searchParams]);
 
-  const backBtnHandler = (e) => {
+
+  const backBtnHandler = (e)=> {
+
     e.preventDefault();
     if (!!searchParams.get("map")) {
       searchParams.delete("map");
@@ -257,6 +256,28 @@ export function Main({
   //   console.log("L255 Main / mapBounds: ", mapBounds) //works
   // }, [markersSubList, mapBounds])
 
+//Map-related : callback to set the state of "markersSubList" inside Map Container
+// const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
+//   console.log("L239 newMarkersSubList :",newMarkersSubList)
+//   setMarkersSubList(newMarkersSubList);
+// }, []);
+//Map-related : callback to set the state of "mapBounds" inside Map Container
+const handleMapBounds = useCallback((bounds) => {
+  setMapBounds(bounds);
+}, []);
+
+//Map-related : callback to set the state of "mapBounds" inside Map Container
+const handleChangedMarkers = useCallback((value) => {
+  // console.log("L248 handleChangedBounds , value:", value)
+  setMarkersChanged(value);
+}, []);
+
+// useEffect(() => {
+//   console.log("L254 Main / markersSubList: ", markersSubList)// works 
+//   console.log("L255 Main / mapBounds: ", mapBounds) //works
+// }, [markersSubList, mapBounds])
+
+
   const memoTourMapContainer = useMemo(() => {
     return (
       <TourMapContainer
@@ -272,10 +293,11 @@ export function Main({
         handleMapBounds={handleMapBounds}
         handleChangedMarkers={handleChangedMarkers}
         setMapBounds={setMapBounds}
+        mapBounds={mapBounds}
       />
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, tours, totalTours]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter,tours, totalTours, mapBounds]);
 
   const toggleMapHandler = () => {
     if (searchParams.has("map") && searchParams.get("map") === "true") {
@@ -313,7 +335,7 @@ export function Main({
         loading={loading}
         filterValues={filterValues}
         setFilterValues={setFilterValues}
-        showMap={showMap} //to be used for other features
+        showMap={showMap}  //to be used for other features
         mapBounds={mapBounds}
         markersChanged={markersChanged}
       />
@@ -365,11 +387,9 @@ export function Main({
               {t("filter.filter")}
             </Typography>
           </Box>
-        )}
-      </Box>
-    </Box>
-  );
-
+        </Box>
+  )
+  
   return (
     <div>
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>

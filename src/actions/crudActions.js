@@ -108,7 +108,6 @@ export function loadList(
 
     };
   } else {
-    console.log("L110 CRUD inside else .....")
     params = {
       ...data,
       currLanguage: langPassed,
@@ -126,8 +125,8 @@ export function loadList(
       const filter = !!res.data.filter ? res.data.filter : null;
       const markers = res?.data?.markers?.map((markerObj) => ({
       id: markerObj.id,
-      lat: markerObj.connection_arrival_stop_lat,
-      lon: markerObj.connection_arrival_stop_lon,
+      lat: markerObj.lat,
+      lon: markerObj.lon,
     })) || [];
 
       if (!!useState) {
@@ -296,13 +295,13 @@ export function generateShareLink(provider, hashedUrl, date, city) {
     })
     .then((res) => {
       if(process.env.NODE_ENV !== "production"){
-        console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
+        // console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
       }
       return res.data;
     })
     .catch((err) => {
       if(process.env.NODE_ENV !== "production"){
-        console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
+        // console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
       }
       return err.response;
     });
@@ -326,7 +325,7 @@ export const getMapData = (data)=>{
   return axios.get('tours/map/', {
     params: data
   }).then((res)=>{
-    console.log("L311 res.data /crudActions  :", res.data)
+    // console.log("L311 res.data /crudActions  :", res.data)
     return res.data
   })
 
