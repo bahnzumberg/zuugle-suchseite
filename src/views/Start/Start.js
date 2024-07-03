@@ -272,7 +272,7 @@ function Start({
               />
             </Box>
 
-            <Box style={{ padding: "0px 40px" }}>
+            <Box style={{ padding: "30px 40px" }}>
               <Typography
                 variant={"h4"}
                 sx={{
