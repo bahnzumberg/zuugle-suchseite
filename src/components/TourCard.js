@@ -312,7 +312,7 @@ export default function TourCard({
             }
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
-          <Typography variant="grayP">alpenvereinaktiv.com</Typography>
+          <Typography variant="grayP">{tour.provider_name}</Typography>
         </div>
         <div className="mt-1" style={{ marginBottom: "80px", width: "100%" }}>
           <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>

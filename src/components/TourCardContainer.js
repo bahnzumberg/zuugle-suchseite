@@ -8,7 +8,6 @@ import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
 import { consoleLog } from "../utils/globals";
-import Image5 from "../../public/img/Card5.gif";
 
 export default function TourCardContainer({
   tours,
@@ -56,7 +55,10 @@ export default function TourCardContainer({
     }
   }, [hasMore, filterValues, searchParams]);
 
-
+  useEffect(() => {
+    // console.log("L40 markersChanged :", markersChanged);
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+    if (mapBounds && markersChanged) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
         city: city,
@@ -89,7 +91,7 @@ export default function TourCardContainer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapBounds]);
 
-const _loadTours = async () => {
+  const _loadTours = async () => {
     // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
 
     // consoleLog("L67 ====//////   filterValues :", filterValues);
@@ -127,16 +129,6 @@ const _loadTours = async () => {
       // }
     });
   };
-
-  const renderImage = () => (
-    <Grid item xs={12} style={{ textAlign: "center", marginBottom: "5px" }}>
-      <img
-        src={Image5}
-        alt="Promotional"
-        style={{ width: "auto", borderRadius: "25px", maxWidth: "392px" }}
-      />
-    </Grid>
-  );
 
   return (
     <Box>
