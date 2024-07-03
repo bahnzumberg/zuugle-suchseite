@@ -56,6 +56,10 @@ export default function TourCardContainer({
     }
   }, [hasMore, filterValues, searchParams]);
 
+  useEffect(() => {
+      // console.log("L40 markersChanged :", markersChanged);
+      let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
+      if (mapBounds && markersChanged) {
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
