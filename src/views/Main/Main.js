@@ -390,8 +390,6 @@ export function Main({
               </Box>
             )}
           </Box>
-        )}
-      </Box>
     </Box>
   );
 
