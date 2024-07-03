@@ -87,7 +87,7 @@ export default function ScrollingTourCardContainer({
         />
       ))}
 
-      {renderImage(url(/app_static/img/zuugle-ad.gif), "image1")}
+      {renderImage("/app_static/img/zuugle-ad.gif", "image1")}
 
       {secondSet.map((tour) => (
         <Card
