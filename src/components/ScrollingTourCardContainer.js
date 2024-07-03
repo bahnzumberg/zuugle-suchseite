@@ -2,7 +2,6 @@ import * as React from "react";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import AdImage from "/app_static/img/zuugle-ad.gif";
 import { Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useTranslation } from "react-i18next";
@@ -88,7 +87,7 @@ export default function ScrollingTourCardContainer({
         />
       ))}
 
-      {renderImage(AdImage, "image1")}
+      {renderImage(url(/app_static/img/zuugle-ad.gif), "image1")}
 
       {secondSet.map((tour) => (
         <Card
