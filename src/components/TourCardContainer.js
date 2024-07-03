@@ -8,7 +8,6 @@ import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
 import { consoleLog } from "../utils/globals";
-import Image5 from "../../public/img/Card5.gif";
 
 export default function TourCardContainer({
   tours,
@@ -132,15 +131,6 @@ const _loadTours = async () => {
     });
   };
 
-  const renderImage = () => (
-    <Grid item xs={12} style={{ textAlign: "center", marginBottom: "5px" }}>
-      <img
-        src={Image5}
-        alt="Promotional"
-        style={{ width: "auto", borderRadius: "25px", maxWidth: "392px" }}
-      />
-    </Grid>
-  );
 
   return (
     <Box>
