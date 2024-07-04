@@ -813,7 +813,7 @@ export async function mergeToursWithFahrplan(){
                         fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
                     }
                     else {
-                        fp.best_connection_duration = minutesFromMoment(moment(0, "HH:mm:ss"));
+                        fp.best_connection_duration = getDurationValue(0);
                         fp.connection_no_of_transfers = 0;
                     }
                     fp.durations = durations;
