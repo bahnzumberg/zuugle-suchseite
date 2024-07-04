@@ -178,13 +178,6 @@ function Start({
     }
   };
 
-  const getPublicTransportText = () => {
-    if (!!_city && _city.length > 0) {
-      return t("start.schoene_wanderungen_nahe");
-    } else {
-      return t("start.schoene_wanderungen_nahe");
-    }
-  };
 
   const getFavouriteToursText = () => {
     if (!!_city && _city.length > 0) {
@@ -273,7 +266,7 @@ function Start({
                   paddingTop: "15px",
                 }}
               >
-                {getPublicTransportText()}
+                {getRangeText()}
               </Typography>
               <RangeCardContainer
                 ranges={favouriteRanges}
