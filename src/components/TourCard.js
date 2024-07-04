@@ -12,8 +12,8 @@ import {
 import { Fragment, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 // import LinearProgress from "@mui/material/LinearProgress";
-import TourConnectionCardNew from "./TourConnectionCardNew";
-import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
+// import TourConnectionCardNew from "./TourConnectionCardNew";
+// import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
@@ -61,7 +61,7 @@ export default function TourCard({
   const { t } = useTranslation();
 
   const hm = t("details.hm_hoehenmeter");
-  const km = t("details.km_kilometer");
+  // const km = t("details.km_kilometer");
 
   //description
   //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
@@ -112,30 +112,7 @@ export default function TourCard({
     }
   }, [tour]);
 
-  const isMobile = useMediaQuery("(max-width:600px)");
-
   const renderProps = () => {
-    const translateDiff = (diff) => {
-      if (diff === "Leicht") {
-        return t("start.leicht");
-      } else if (diff === "Mittel") {
-        return t("start.mittel");
-      } else if (diff === "Schwer") {
-        return t("start.schwer");
-      } else return t("start.notset");
-    };
-
-    const translateTourType = (type) => {
-      let translatedType = null;
-      tourTypes.forEach((typ) => {
-        type = type.toLowerCase();
-        if (typ === type) {
-          //correct the small cap so both can be equal
-          translatedType = t(`filter.${type}`);
-        }
-      });
-      return translatedType;
-    };
 
     const values = [];
 
@@ -168,6 +145,8 @@ export default function TourCard({
     //   });
     // }
 
+    console.log(tour)
+
     return (
       <Box display="inline" style={{ whiteSpace: "break-spaces" }}>
         {values.map((entry, index) => {
@@ -197,26 +176,6 @@ export default function TourCard({
     );
   };
 
-  const getAnreise = () => {
-    if (!!connections && connections.length > 0) {
-      let connection = connections[0];
-      return <TourConnectionCardNew connection={connection} />;
-    } else {
-      return <Fragment></Fragment>;
-    }
-  };
-
-  const getAbreise = () => {
-    if (!!returns && returns.length > 0) {
-      return (
-        <Box sx={{ marginTop: "10px" }}>
-          <TourConnectionReturnCardNew returns={returns} />
-        </Box>
-      );
-    } else {
-      return <Fragment></Fragment>;
-    }
-  };
 
   return (
     <Card
@@ -326,7 +285,7 @@ export default function TourCard({
 
           <Typography variant="blackP" styles={{}}>
             {t("start.card4")} <br />
-            <span style={{ fontSize: "18px" }}>{tour.ascent} hm</span>
+            <span style={{ fontSize: "18px" }}>{tour.ascent} {hm}</span>
           </Typography>
         </Box>
       </CardContent>
