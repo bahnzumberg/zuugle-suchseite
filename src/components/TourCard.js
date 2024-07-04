@@ -316,7 +316,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
             {t("start.card2")} <br />
-            <span style={{ fontSize: "18px" }}>{connection_no_of_transfers}</span>
+            <span style={{ fontSize: "18px" }}>transfers</span>
           </Typography>
 
           <Typography
