@@ -113,13 +113,12 @@ export default function TourCard({
     }
   }, [tour]);
 
-  useEffect(() => {
-    for (let i in tour.cities) {
-      if(tour.cities[i].city_slug === city){
-        return one_city = tour.cities[i]
-      }
-    }
-  }, [tour]);
+  for (let i in tour.cities) {
+    if(tour.cities[i].city_slug === city){
+     one_city = tour.cities[i]
+     break;
+    } 
+  };
 
   const renderProps = () => {
 
