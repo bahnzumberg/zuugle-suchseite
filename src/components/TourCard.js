@@ -258,7 +258,7 @@ export default function TourCard({
         </Chip>
       </a>
       <CardContent>
-        
+      <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
         <div
           className="mt-1"
           style={{
