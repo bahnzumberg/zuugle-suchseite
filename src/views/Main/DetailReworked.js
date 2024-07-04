@@ -169,7 +169,7 @@ const DetailReworked = (props) => {
 useEffect(() => {
   searchParams.get("id");
   searchParams.get("city");
-  console.log("id :", tourId)
+  console.log("id :", id)
   console.log("city :", city)
 }, []);
 
