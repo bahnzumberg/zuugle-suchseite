@@ -178,9 +178,6 @@ useEffect(() => {
     axios.get(`tours/provider/${tour.provider}`)
       .then((response) => {
         if (response.status === 200) {
-          if(process.env.NODE_ENV !== "production"){
-            // consoleLog("L158 : response.data", response.data, true)
-          }
           return response.data;
         }
         throw new Error("Network response was not ok.");
@@ -220,7 +217,6 @@ useEffect(() => {
           generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
               .then(res => {
                   if (res.success === true){
-                      // console.log(`window.location.origin + "/ tour?share=" + res.shareId : `, window.location.origin + "/ tour?share=" + res.shareId )
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
                   } else {
                       console.log("Share link didn't generate as expected.");
@@ -253,7 +249,6 @@ useEffect(() => {
 
       loadShareParams(shareId, city)
         .then((res) => {
-          consoleLog("L221 --> res: ", res, true) ; 
           // city : "amstetten"
           // date : "2024-01-16T23:00:00.000Z"
           // success : true
@@ -262,7 +257,6 @@ useEffect(() => {
           setIsTourLoading(false);
           if (res.success === true) {
             if (res.usedCityOfCookie === false) {
-              consoleLog("L229 --> inside : (res.usedCityOfCookie === false)")
               setShowDifferentStationUsedWarning(true);
             }
             const redirectSearchParams = new URLSearchParams();
@@ -276,13 +270,12 @@ useEffect(() => {
 
             localStorage.setItem("tourId", res.tourId);
 
-            consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
+            // consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
             //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
             navigate(`/tour?${redirectSearchParams.toString()}`);
        
           } else {
             setIsTourLoading(false);
-            consoleLog("L245 --> inside : res.success === false")
             city && searchParams.set("city", city);
             goToStartPage();
           }
@@ -299,8 +292,8 @@ useEffect(() => {
     loadCities({ limit: 5 });
     const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
 
-    // console.log("L314 : id :", tourId)
-    // console.log("L315 : city :", city)
+    console.log("L314 : id :", tourId)
+    console.log("L315 : city :", city)
     if (!!tourId) {
       setIsTourLoading(true);
       loadTour(tourId, city)
@@ -338,11 +331,7 @@ useEffect(() => {
           
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            // console.log("L338 connections -> connectJson:",connectJson);
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
-            // let textDescription = Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
-            // console.log("L340 text connections -> connectJson:");
-            // console.log(textDescription);
           }
         }
       })
@@ -358,8 +347,6 @@ useEffect(() => {
       if (!tour.cities_object[searchParams.get("city")]) {
         consoleLog("No city L289");
       } else {
-        // console.log("inside block for setting gopx files and tracks")
-        // console.log("===============================================")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -371,12 +358,6 @@ useEffect(() => {
   useEffect(() => {
     let index = dateIndex;
     if (connections) {
-      // console.log("Inside connections L366");
-      // consoleLog("L368 : date", date, true);
-      // consoleLog("L369 : date[0]", connections[0].date);
-      // consoleLog("L369 : date[0]", connections[0], true);
-      // consoleLog("L370 : connections[6].date", connections[6].date);
-      // consoleLog("L370 : connections[6]", connections[6], true);
       let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
       if (date.isValid()) {
         if (

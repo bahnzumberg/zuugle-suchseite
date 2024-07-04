@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import CustomStarRating from "./CustomStarRating";
+// import CustomStarRating from "./CustomStarRating";
 import {
   checkIfImageExists,
   convertNumToTime,
@@ -258,7 +258,6 @@ export default function TourCard({
         </Chip>
       </a>
       <CardContent>
-      <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
         <div
           className="mt-1"
           style={{
