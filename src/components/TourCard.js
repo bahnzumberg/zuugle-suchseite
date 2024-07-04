@@ -9,14 +9,9 @@ import {
   convertNumToTime,
   formatNumber,
 } from "../utils/globals";
-import Clock from "../icons/Clock";
-import Intensity from "../icons/Intensity";
-import Walk from "../icons/Walk";
-import ArrowHorizontal from "../icons/ArrowHorizontal";
-import ArrowVertical from "../icons/ArrowVertical";
 import { Fragment, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
+// import LinearProgress from "@mui/material/LinearProgress";
 import TourConnectionCardNew from "./TourConnectionCardNew";
 import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -24,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
 import { useSearchParams } from "react-router-dom";
 import { consoleLog } from "../utils/globals";
-import { BorderLeft, Padding } from "@mui/icons-material";
+// import { BorderLeft, Padding } from "@mui/icons-material";
 import { Chip } from "@mui/material";
 
 const DEFAULT_IMAGE = "/app_static/img/train_placeholder.webp";
@@ -109,12 +104,6 @@ export default function TourCard({
     ) {
       setConnectionLoading(true);
       loadTourConnections({ id: tour.id, city: city }).then((res) => {
-        //clg
-        // console.log("Line 79 TourCard:")
-        // console.log(res.data.connections[0])
-        // console.log("=====================================")
-        // console.log("Line 75 TourCard:",res.data.returns)
-        // console.log("Line 75 TourCard:",res.data)
         setConnectionLoading(false);
         setConnections(res?.data?.connections);
         setReturns(res?.data?.returns);
@@ -126,28 +115,6 @@ export default function TourCard({
   }, [tour]);
 
   const isMobile = useMediaQuery("(max-width:600px)");
-  const shortened_url = () => {
-    let length = 45;
-    if (!!isMobile) {
-      length = 35;
-    }
-    let red_url = (!!tour.url ? tour.url : "")
-        .replace("https://www.", "")
-        .replace("http://www.", "")
-        .split("/"),
-      i;
-    let final_url = red_url[0];
-
-    for (i = 1; i < red_url.length - 1; i++) {
-      if (final_url.length + red_url[i].length <= length) {
-        final_url = final_url + " > " + red_url[i];
-      } else {
-        return final_url;
-      }
-    }
-
-    return final_url;
-  };
 
   const renderProps = () => {
     const translateDiff = (diff) => {
@@ -236,8 +203,6 @@ export default function TourCard({
   const getAnreise = () => {
     if (!!connections && connections.length > 0) {
       let connection = connections[0];
-      // console.log("TourCard connection: ") ;
-      // console.log(connection)
       return <TourConnectionCardNew connection={connection} />;
     } else {
       return <Fragment></Fragment>;
@@ -262,7 +227,6 @@ export default function TourCard({
       style={{ position: "relative" }}
       onClick={() => {
         onSelectTour(tour);
-        //   console.log("L209 : Card Clicked  !! tourLink -->", tourLink)
       }}
     >
       <a
@@ -288,13 +252,13 @@ export default function TourCard({
             color: "#C5C5C5",
             fontSize: "12px",
           }}
-          label={`${tour?.country}`}
+          label={`${tour?.range}`}
         >
           {" "}
         </Chip>
       </a>
       <CardContent>
-        <CustomStarRating ratings={200} ratingValue={tour.user_rating_avg} />
+        
         <div
           className="mt-1"
           style={{
@@ -325,16 +289,6 @@ export default function TourCard({
               {tour.title}
             </a>
           </Typography>
-          {/* <Typography variant="h5" style={{ whiteSpace: "break-spaces" }}>
-            <a
-              href={tourLink}
-              target="_blank"
-              rel="noreferrer"
-              className="custom-h5-link curser-link"
-            >
-              {shortened_url()}
-            </a>
-          </Typography> */}
         </div>
         <div className="mt-3" style={{ whiteSpace: "break-space" }}>
           {renderProps()}
@@ -355,7 +309,7 @@ export default function TourCard({
           >
             {t("start.card1")} <br />
             <span style={{ fontSize: "18px" }}>
-              {Number(tour.connection_arrival_stop_lon).toFixed(2)} h
+              {tour.best_connection_duration} h
             </span>
           </Typography>
           <Typography
@@ -363,7 +317,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
             {t("start.card2")} <br />
-            <span style={{ fontSize: "18px" }}>00.00</span>
+            <span style={{ fontSize: "18px" }}>{connection_no_of_transfers}</span>
           </Typography>
 
           <Typography
