@@ -221,7 +221,7 @@ function Start({
     );
   } else if (noToursAvailable === false) {
     return (
-      <Box>
+      <Box style={{ background: "#fff" }}>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
         {!!allCities && allCities.length > 0 && (
           <Header
@@ -245,7 +245,15 @@ function Start({
         )}
         {!showMobileMenu && (
           <Box className={"start-body-container"}>
-            <Box sx={{ marginTop: "20px" }}>
+            <Box
+              sx={{
+                marginTop: "20px",
+                padding: "30px 40px",
+                background: "#EBEBEB",
+                borderBottomLeftRadius: "30px",
+                borderBottomRightRadius: "30px",
+              }}
+            >
               <Typography
                 variant={"h4"}
                 sx={{
@@ -264,7 +272,7 @@ function Start({
               />
             </Box>
 
-            <Box>
+            <Box style={{ padding: "30px 40px" }}>
               <Typography
                 variant={"h4"}
                 sx={{
