@@ -4,7 +4,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { theme } from "./theme";
 import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
@@ -69,7 +69,7 @@ function App() {
               </div>
             }
           >
-            <BrowserRouter>
+            <Routes>
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
               <Route path="/suche" element={<Main />} />
@@ -83,7 +83,7 @@ function App() {
               <Route path="/searchPhrases" element={<Search />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
-            </BrowserRouter>
+            </Routes>
           </Suspense>
         </div>
         <ModalRoot />
