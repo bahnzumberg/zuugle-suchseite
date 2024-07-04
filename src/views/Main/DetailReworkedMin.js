@@ -7,7 +7,7 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import {
   loadTour,
   loadTourConnectionsExtended,
@@ -58,19 +58,31 @@ import transformToDescriptionDetail from "../../utils/transformJson";
 
 
 
-useEffect(() => {
-  const paramId = searchParams.get("id");
-  const paramCity = searchParams.get("city");
-  console.log("id :", paramId)
-  console.log("city :", paramCity)
-}, []);
+const DetailReworkedMin = ()=>{
 
+  const {id, city} = useParams;
+  // const paramId;
+  // const paramCity;
 
-return (
-  <div>
-    <h3>ID: {id}</h3>
-    <h3>City: {city}</h3>
-    <h3>paramId: {paramId}</h3>
-    <h3>paramCity: {paramCity}</h3>
-  </div>
-);
+  useEffect(() => {
+    // const paramId = searchParams.get("id");
+    // // const paramCity = searchParams.get("city");
+    //  paramId = id ;
+    //  paramCity = city;
+    console.log("id :", id)
+    console.log("city :", city)
+  }, []);
+  
+  
+  return (
+    <div>
+      <h3>ID: {id}</h3>
+      <h3>City: {city}</h3>
+      <h3>paramId: {id}</h3>
+      <h3>paramCity: {city}</h3>
+    </div>
+  );
+  
+}
+
+export default DetailReworkedMin

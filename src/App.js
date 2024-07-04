@@ -8,6 +8,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
+import DetailReworkedMin from "./views/Main/DetailReworkedMin";
 import Search from "./components/Search/Search";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
@@ -75,7 +76,7 @@ function App() {
               <Route path="/suche" element={<Main />} />
               <Route path="/about" element={<About />} />
               <Route path="/tour" element={<DetailReworked />} />
-              <Route path="/tour/:id/:city" element={<DetailReworked-min />} />
+              <Route path="/tour/:id/:city" element={<DetailReworkedMin />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />
               <Route path="/imprint" element={<Impressum />} />
               <Route path="/privacy" element={<Privacy />} />
