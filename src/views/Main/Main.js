@@ -389,7 +389,9 @@ export function Main({
               }}
             >
               {t("filter.filter")}
-            </Typography>
+              </Typography>
+              </Box>
+            )}
           </Box>
     </Box>
   );
