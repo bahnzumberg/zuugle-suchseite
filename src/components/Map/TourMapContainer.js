@@ -62,7 +62,7 @@ function TourMapContainer({
 
   const createIcon = () => {
     return L.icon({
-      iconUrl: "app_static/img/pin-icon-start.png", //the acutal picture
+      iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
       iconSize: [30, 41], //size of the icon
       iconAnchor: [15, 41],
