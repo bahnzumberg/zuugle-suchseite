@@ -114,6 +114,7 @@ export default function TourCard({
   }, [tour]);
 
   useEffect(() => {
+    console.log("Im useEffect")
     console.log(tour.cities[0])
 
     for (let i in tour.cities) {
@@ -125,7 +126,7 @@ export default function TourCard({
 
       //one_city = tour.cities.find((c)=> c.city_slug === city)
       //one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
-  }, [city]);
+  }, [tour]);
 
   const renderProps = () => {
 
