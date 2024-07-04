@@ -809,7 +809,7 @@ export async function mergeToursWithFahrplan(){
                         .first();
                     
                     if (!!values)  {
-                        fp.best_connection_duration = minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss"))/60;
+                        fp.best_connection_duration = getDurationValue(values.min_best_connection_duration, "HH:mm:ss");
                         fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
                     }
                     else {
@@ -829,8 +829,8 @@ export async function mergeToursWithFahrplan(){
                 fahrplan.forEach(fp => {
                     fahrplanObject[fp.city_slug] = {
                         durations: {...fp.durations},
-                        best_connection_duration: Math.ceil(fp.best_connection_duration / 0.25) * 0.25,
-                        total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
+                        best_connection_duration: fp.best_connection_duration,
+                        total_tour_duration: fp.total_tour_duration,
                         connection_no_of_transfers: fp.connection_no_of_transfers
                     };
                 })
