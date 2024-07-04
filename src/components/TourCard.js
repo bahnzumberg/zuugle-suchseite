@@ -31,7 +31,6 @@ export default function TourCard({
   city,
   mapCard,
 }) {
-  console.log("object", tour);
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
 
@@ -41,7 +40,6 @@ export default function TourCard({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
-  console.log("imgSrc", imgSrc);
   useEffect(() => {
     const checkImage = async () => {
       try {
@@ -50,7 +48,7 @@ export default function TourCard({
           setImgSrc(`/logos/${tour?.provider}.svg`);
         }
       } catch (error) {
-        console.error("Error fetching the image:", error);
+        // console.error("Error fetching the image:", error);
       }
     };
 
@@ -133,7 +131,6 @@ export default function TourCard({
         type = type.toLowerCase();
         if (typ === type) {
           //correct the small cap so both can be equal
-          // console.log("filter.${type} : ", `filter.${type}`)
           translatedType = t(`filter.${type}`);
         }
       });

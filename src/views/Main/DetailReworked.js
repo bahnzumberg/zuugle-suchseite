@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import axios from "../../axios";
 import { lazy, useEffect, useState } from "react";
@@ -56,7 +55,12 @@ import i18next from "i18next";
 // import { set } from "lodash";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
-
+useEffect(() => {
+  searchParams.get("id");
+  searchParams.get("city");
+  console.log("id :", tourId)
+  console.log("city :", city)
+}, []);
 
 const DetailReworked = (props) => {
 
@@ -292,8 +296,6 @@ useEffect(() => {
     loadCities({ limit: 5 });
     const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
 
-    console.log("L314 : id :", tourId)
-    console.log("L315 : city :", city)
     if (!!tourId) {
       setIsTourLoading(true);
       loadTour(tourId, city)
