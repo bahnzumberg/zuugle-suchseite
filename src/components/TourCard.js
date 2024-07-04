@@ -121,13 +121,7 @@ export default function TourCard({
   };
 
   const renderProps = () => {
-
     const values = [];
-
-    console.log("Tour: ");
-    console.log(tour);
-    console.log("one_city: ");
-    console.log(one_city);
 
     return (
       <Box display="inline" style={{ whiteSpace: "break-spaces" }}>
@@ -246,7 +240,7 @@ export default function TourCard({
           >
             {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
-              {convertNumToTime(one_city.best_connection_duration)} h
+              {convertNumToTime(one_city.best_connection_duration, true)}
             </span>
           </Typography>
           <Typography
@@ -262,7 +256,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
             {t("main.dauer")} <br />
-            <span style={{ fontSize: "18px" }}>{convertNumToTime(tour.duration)} h</span>
+            <span style={{ fontSize: "18px" }}>{convertNumToTime(tour.duration, true)}</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>
