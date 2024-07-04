@@ -180,9 +180,9 @@ function Start({
 
   const getPublicTransportText = () => {
     if (!!_city && _city.length > 0) {
-      return t("start.Öffi-Touren in Alpenregionen");
+      return t("start.schoene_wanderungen_nahe");
     } else {
-      return t("start.Öffi-Touren in Alpenregionen");
+      return t("start.schoene_wanderungen_nahe");
     }
   };
 
@@ -199,16 +199,8 @@ function Start({
       searchParams.set("map", true);
       setSearchParams(searchParams);
     }
-    // consoleLog(`L190 : suche?${searchParams.toString()}`)
     navigate(`suche?${searchParams.toString()}`);
   };
-
-  // Function to navigate to another component with parameters
-  // const handleClick = () => {
-  //   navigate('/suche', {
-  //     state: { params: { cityName:  localStorage.getItem('city') || 'wien' , userName: 'Abas', lastName : 'Abd-Rabu' } }
-  //   });
-  // };
 
   const country = getTranslatedCountryName();
 
