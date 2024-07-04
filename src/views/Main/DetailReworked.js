@@ -55,12 +55,6 @@ import i18next from "i18next";
 // import { set } from "lodash";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
-useEffect(() => {
-  searchParams.get("id");
-  searchParams.get("city");
-  console.log("id :", tourId)
-  console.log("city :", city)
-}, []);
 
 const DetailReworked = (props) => {
 
@@ -165,13 +159,19 @@ const DetailReworked = (props) => {
     </div>
   );
 
-
-
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
   const [providerPermit, setProviderPermit] = useState(true);
 
+
+
+useEffect(() => {
+  searchParams.get("id");
+  searchParams.get("city");
+  console.log("id :", tourId)
+  console.log("city :", city)
+}, []);
 
 useEffect(() => {
   if (!!tour && tour.provider) {
