@@ -790,13 +790,13 @@ export async function mergeToursWithFahrplan(){
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
-                    // let durations = {};
-                    // let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
-                    // if(!!connections && connections.length > 0){
-                    //     connections.forEach(con => {
-                    //         durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
-                    //     })
-                    // }
+                    let durations = {};
+                    let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
+                    if(!!connections && connections.length > 0){
+                        connections.forEach(con => {
+                            durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
+                        })
+                    }
 
                     const values = await knex('fahrplan')
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
@@ -816,7 +816,7 @@ export async function mergeToursWithFahrplan(){
                         fp.best_connection_duration = minutesFromMoment(moment(0, "HH:mm:ss"));
                         fp.connection_no_of_transfers = 0;
                     }
-                    // fp.durations = durations;
+                    fp.durations = durations;
 
                     fp.total_tour_duration = round((
                         Number(entry.duration)
@@ -828,8 +828,8 @@ export async function mergeToursWithFahrplan(){
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
                     fahrplanObject[fp.city_slug] = {
-                        // durations: {...fp.durations},
-                        best_connection_duration: fp.best_connection_duration,
+                        durations: {...fp.durations},
+                        best_connection_duration: Math.ceil(fp.best_connection_duration / 0.25) * 0.25,
                         total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
                         connection_no_of_transfers: fp.connection_no_of_transfers
                     };
