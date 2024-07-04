@@ -74,7 +74,8 @@ function App() {
               <Route path="/total" element={<Start />} />
               <Route path="/suche" element={<Main />} />
               <Route path="/about" element={<About />} />
-              <Route path="/tour/:id?/:city?" element={<DetailReworked />} />
+              <Route path="/tour" element={<DetailReworked />} />
+              <Route path="/tour/:id/:city" element={<DetailReworked-min />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />
               <Route path="/imprint" element={<Impressum />} />
               <Route path="/privacy" element={<Privacy />} />
