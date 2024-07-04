@@ -307,8 +307,8 @@ export default function TourCard({
         >
           <img
             src={
-              `/public/logos/${tour.provider}.svg` ||
-              `/public/logos/fallback.svg`
+              `/app_static/logos/${tour.provider}.svg` ||
+              `/app_static/logos/fallback.svg`
             }
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />

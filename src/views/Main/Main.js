@@ -391,8 +391,6 @@ export function Main({
               {t("filter.filter")}
             </Typography>
           </Box>
-        )}
-      </Box>
     </Box>
   );
 

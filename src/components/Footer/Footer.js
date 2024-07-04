@@ -35,16 +35,8 @@ export default function Footer({}) {
                 width={"36px"}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography
-                id="yearSpan"
-                sx={{ marginLeft: "10px", color: "#4992FF" }}
-              >
-                © {`${currentYear}`} Zuugle
-              </Typography>
-            </Grid>
             <Grid item xs md={3}>
-              <a
+            © {`${currentYear}`} <a
                 href="https://verein.bahn-zum-berg.at"
                 target="_blank"
                 rel="noreferrer"
