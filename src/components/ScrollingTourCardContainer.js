@@ -53,7 +53,7 @@ export default function ScrollingTourCardContainer({
       >
         {t("start.mehr_abenteuer")}
       </Typography>
-      <a href="/suche"><Button
+      <a href="/suche" classname="cursor-link"><Button
         style={{
           border: "2px solid #000",
           color: "#000",
