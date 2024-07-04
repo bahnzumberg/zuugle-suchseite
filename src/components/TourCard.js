@@ -124,35 +124,6 @@ export default function TourCard({
 
     const values = [];
 
-    // if (!!tour) {
-    //   values.push({
-    //     // icon: <Clock style={{ fill: "transparent" }} />,
-    //     text:
-    //       `${t("main.tour")}: ` +
-    //       (!!tour.number_of_days && tour.number_of_days > 1
-    //         ? convertNumToTime(tour.total_tour_duration)
-    //         : convertNumToTime(tour.total_tour_duration)),
-    //   });
-    //   //   values.push({
-    //   //     icon: <Intensity style={{ fill: "transparent" }} />,
-    //   //     text: translateDiff(tour.difficulty),
-    //   //     // text: tour.difficulty,
-    //   //   });
-    //   //   values.push({
-    //   //     icon: <Walk style={{ fill: "transparent" }} />,
-    //   //     text: translateTourType(tour.type),
-    //   //     // text: tour.type,
-    //   //   });
-    //   values.push({
-    //     // icon: <ArrowVertical style={{ fill: "transparent" }} />,
-    //     text: tour.ascent + " / " + tour.descent + " " + hm,
-    //   });
-    //   values.push({
-    //     // icon: <ArrowHorizontal style={{ fill: "transparent" }} />,
-    //     text: formatNumber(tour.distance * 1000, " " + hm),
-    //   });
-    // }
-
     console.log("Tour: ");
     console.log(tour);
     console.log("one_city: ");
@@ -275,7 +246,7 @@ export default function TourCard({
           >
             {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
-              {one_city.best_connection_duration} h
+              {convertNumToTime(one_city.best_connection_duration)} h
             </span>
           </Typography>
           <Typography
@@ -291,7 +262,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
             {t("main.dauer")} <br />
-            <span style={{ fontSize: "18px" }}>{tour.duration} h</span>
+            <span style={{ fontSize: "18px" }}>{convertNumToTime(tour.duration)} h</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>
@@ -301,26 +272,6 @@ export default function TourCard({
         </Box>
       </CardContent>
 
-      {/* {!!connections && connections.length > 0 && !!tour.id ? ( */}
-      {/* {!!connections && connections.length > 0 && !mapCard &&(
-                <Fragment>
-                    <div className="bottom-container">
-                    <CardContent>
-                        {!!connectionLoading ? (
-                        <Box sx={{ padding: "20px" }}>
-                            <LinearProgress />
-                        </Box>
-                        ) : (
-                        <Fragment>
-                            {getAnreise()}
-                            {getAbreise()}
-                        </Fragment>
-                        )}
-                    </CardContent>
-                    </div>
-                </Fragment>
-            )
-        } */}
     </Card>
   );
 }
