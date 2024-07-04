@@ -809,7 +809,7 @@ export async function mergeToursWithFahrplan(){
                         .first();
                     
                     if (!!values)  {
-                        fp.best_connection_duration = getDurationValue(values.min_best_connection_duration);
+                        fp.best_connection_duration = round(getDurationValue(values.min_best_connection_duration),2);
                         fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
                     }
                     else {
