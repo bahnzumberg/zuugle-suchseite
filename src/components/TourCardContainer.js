@@ -73,29 +73,13 @@ export default function TourCardContainer({
         provider: provider,
         bounds: bounds, // bounds added
       }).then((res) => {
-        // console.log("L71 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
-        consoleLog("L74 TCC >>>> loadTours / useEffect , res.data :", res.data);
-        // let retrievedTours = res?.data?.tours ? res.data.tours : [];
-        consoleLog(
-          "L75 TCC >>>> loadTours / useEffect , res.data.total :",
-          res.data.total
-        );
 
-        // if (res.data.total === 0 || res.data.total < 9) {
-        //   console.log("L80 TCC >>>> loadTours:", res.data.total)
-        //   setHasMore(false);
-        // }
-        // console.log("L76 TCC >>>> loadTours / useEffect , hasMore :", hasMore)
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapBounds]);
 
   const _loadTours = async () => {
-    // console.log("L86 >>>>: inisde _loadTours/ hasMore :", hasMore)
-
-    // consoleLog("L67 ====//////   filterValues :", filterValues);
-    // consoleLog("L68 ====//////   filterValues :", _filter);
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string.
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
     filterRef.current = !!localStorage.getItem("filterValues")
@@ -120,13 +104,6 @@ export default function TourCardContainer({
       bounds: bounds, // bounds added
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      // consoleLog("L113 >>>> results length :", retrievedTours.length);
-      !!retrievedTours &&
-        consoleLog("L114 >>>> results total :", retrievedTours.total);
-      consoleLog("L115 >>>> _loadTours : retrievedTours", retrievedTours);
-      // if (retrievedTours.length === 0 || retrievedTours.length < 9) {
-      //   setHasMore(false);
-      // }
     });
   };
 
