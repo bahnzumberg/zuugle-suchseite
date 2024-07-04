@@ -809,7 +809,8 @@ export async function mergeToursWithFahrplan(){
                         .first();
                     
                     if (!!values)  {
-                        fp.best_connection_duration = round(minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss"))/60,2);
+                        // min_best_connection_duration must be kept in minutes, as an integer, as it is used with the search as a weight.
+                        fp.best_connection_duration = round(minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")),0);
                         fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
                     }
                     else {
