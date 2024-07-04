@@ -804,6 +804,7 @@ export async function mergeToursWithFahrplan(){
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
                         .min('best_connection_duration as min_best_connection_duration')
+                        .min('connection_no_of_transfers as connection_no_of_transfers')
                         .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
                         .andWhereNot('fromtour_track_duration', null)
@@ -826,7 +827,8 @@ export async function mergeToursWithFahrplan(){
                     fahrplanObject[fp.city_slug] = {
                         durations: {...fp.durations},
                         best_connection_duration: fp.best_connection_duration,
-                        total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25
+                        total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
+                        connection_no_of_transfers: fp.connection_no_of_transfers
                     };
                 })
 
