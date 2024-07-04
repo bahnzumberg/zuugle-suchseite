@@ -64,7 +64,8 @@ function TourMapContainer({
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      iconSize: [30, 41], //size of the icon
+      // iconSize: [30, 41], //size of the icon
+      iconSize: [40, 51], //size of the icon
       iconAnchor: [15, 41],
     });
   };
@@ -236,6 +237,7 @@ function TourMapContainer({
       return true;
     } else return false;
   };
+
   //saves the bounds on localStorage
   const assignNewMapPosition = (position) => {
     localStorage.setItem(
@@ -313,6 +315,8 @@ function TourMapContainer({
       try {
         const _tourDetail = await onSelectTour(tourId);
         const _tour = _tourDetail.data.tour;
+        console.log("L318 _tour:")
+        console.log(_tour)
         if (_tour) setSelectedTour(_tour);
         if (_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);
       } catch (error) {
@@ -498,7 +502,7 @@ function TourMapContainer({
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#FF7663", dashArray: '20,20', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
                 positions={gpxTrack}
               />,
               // <Polyline
