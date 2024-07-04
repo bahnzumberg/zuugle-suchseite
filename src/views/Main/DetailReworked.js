@@ -167,10 +167,10 @@ const DetailReworked = (props) => {
 
 
 useEffect(() => {
-  searchParams.get("id");
-  searchParams.get("city");
-  console.log("id :", id)
-  console.log("city :", city)
+  const paramId = searchParams.get("id");
+  const paramCity = searchParams.get("city");
+  console.log("id :", paramId)
+  console.log("city :", paramCity)
 }, []);
 
 useEffect(() => {
