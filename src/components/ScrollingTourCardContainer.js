@@ -51,7 +51,7 @@ export default function ScrollingTourCardContainer({
           borderTop: "1px solid #000",
         }}
       >
-        {t("start.TextCard1")}
+        {t("start.mehr_abenteuer")}
       </Typography>
       <Button
         style={{
@@ -62,7 +62,7 @@ export default function ScrollingTourCardContainer({
           fontWeight: "600",
         }}
       >
-        {t("start.TextCard2")}
+        {t("start.mehr_anzeigen")}
       </Button>
     </Box>
   );

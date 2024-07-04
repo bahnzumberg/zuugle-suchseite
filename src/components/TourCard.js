@@ -262,7 +262,7 @@ export default function TourCard({
             variant="blueP"
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
-            {t("start.card1")} <br />
+            {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
               {tour.best_connection_duration} h
             </span>
@@ -271,7 +271,7 @@ export default function TourCard({
             variant="blueP"
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
-            {t("start.card2")} <br />
+            {t("start.umstiege")} <br />
             <span style={{ fontSize: "18px" }}>transfers</span>
           </Typography>
 
@@ -279,12 +279,12 @@ export default function TourCard({
             variant="blackP"
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
-            {t("start.card3")} <br />
+            {t("main.dauer")} <br />
             <span style={{ fontSize: "18px" }}>{tour.duration} h</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>
-            {t("start.card4")} <br />
+            {t("filter.anstieg")} <br />
             <span style={{ fontSize: "18px" }}>{tour.ascent} {hm}</span>
           </Typography>
         </Box>
