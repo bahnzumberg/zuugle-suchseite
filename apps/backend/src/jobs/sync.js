@@ -806,13 +806,17 @@ export async function mergeToursWithFahrplan(){
                         .min('connection_no_of_transfers as min_connection_no_of_transfers')
                         .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
-                        .andWhereNot('fromtour_track_duration', null)
-                        .andWhereNot('totour_track_duration', null)
                         .andWhereNot('best_connection_duration', null)
                         .first();
-
-                    fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
-                    fp.connection_no_of_transfers = !!values ? values.min_connection_no_of_transfers : 0;
+                    
+                    if (!!values)  {
+                        fp.best_connection_duration = minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss"));
+                        fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
+                    }
+                    else {
+                        fp.best_connection_duration = minutesFromMoment(moment(0, "HH:mm:ss"));
+                        fp.connection_no_of_transfers = 0;
+                    }
                     // fp.durations = durations;
 
                     fp.total_tour_duration = round((
