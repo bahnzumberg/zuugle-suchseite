@@ -114,12 +114,11 @@ export default function TourCard({
   }, [tour]);
 
   useEffect(() => {
-    console.log("Im useEffect")
-    console.log(tour.cities[0])
-
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
         one_city = tour.cities[i]
+        console.log("Im useEffect")
+        console.log(tour.cities[i])
         break;
       }
     }
