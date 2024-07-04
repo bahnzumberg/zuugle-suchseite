@@ -779,7 +779,6 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
-    // const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
@@ -810,7 +809,7 @@ export async function mergeToursWithFahrplan(){
                         .first();
                     
                     if (!!values)  {
-                        fp.best_connection_duration = minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss"));
+                        fp.best_connection_duration = minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss"))/60;
                         fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
                     }
                     else {
