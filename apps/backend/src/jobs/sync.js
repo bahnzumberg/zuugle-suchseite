@@ -779,7 +779,7 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
-    const cities = await knex('city').select();
+    // const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
@@ -791,19 +791,19 @@ export async function mergeToursWithFahrplan(){
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
-                    let durations = {};
+                    // let durations = {};
                     // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
-                    let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
-                    if(!!connections && connections.length > 0){
-                        connections.forEach(con => {
-                            durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
-                        })
-                    }
+                    // let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
+                    // if(!!connections && connections.length > 0){
+                    //     connections.forEach(con => {
+                    //         durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
+                    //     })
+                    // }
 
                     const values = await knex('fahrplan')
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
-                        .min('best_connection_duration as min_best_connection_duration')
+                        .min('best_connection_duration as best_connection_duration')
                         .min('connection_no_of_transfers as connection_no_of_transfers')
                         .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
@@ -813,7 +813,7 @@ export async function mergeToursWithFahrplan(){
                         .first();
 
                     fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
-                    fp.durations = durations;
+                    // fp.durations = durations;
 
                     fp.total_tour_duration = round((
                         Number(entry.duration)
@@ -825,7 +825,7 @@ export async function mergeToursWithFahrplan(){
                 let fahrplanObject = {}
                 fahrplan.forEach(fp => {
                     fahrplanObject[fp.city_slug] = {
-                        durations: {...fp.durations},
+                        // durations: {...fp.durations},
                         best_connection_duration: fp.best_connection_duration,
                         total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
                         connection_no_of_transfers: fp.connection_no_of_transfers
