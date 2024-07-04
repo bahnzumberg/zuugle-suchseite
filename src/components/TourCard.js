@@ -55,6 +55,7 @@ export default function TourCard({
     checkImage();
   }, []);
 
+  let one_city[];
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
   // i18next
@@ -112,6 +113,10 @@ export default function TourCard({
     }
   }, [tour]);
 
+  useEffect(() => {
+      one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
+  }, [city]);
+
   const renderProps = () => {
 
     const values = [];
@@ -146,6 +151,7 @@ export default function TourCard({
     // }
 
     console.log(tour)
+    console.log(one_city)
 
     return (
       <Box display="inline" style={{ whiteSpace: "break-spaces" }}>
@@ -264,7 +270,7 @@ export default function TourCard({
           >
             {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
-              {tour.best_connection_duration} h
+              {one_city.best_connection_duration} h
             </span>
           </Typography>
           <Typography
@@ -272,7 +278,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
             {t("start.umstiege")} <br />
-            <span style={{ fontSize: "18px" }}>transfers</span>
+            <span style={{ fontSize: "18px" }}>{one_city.connection_no_of_transfers}</span>
           </Typography>
 
           <Typography

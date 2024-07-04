@@ -347,7 +347,6 @@ useEffect(() => {
   useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
-        consoleLog("No city L289");
       } else {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
