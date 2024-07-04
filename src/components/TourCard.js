@@ -114,7 +114,8 @@ export default function TourCard({
   }, [tour]);
 
   useEffect(() => {
-      one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
+      one_city = tour.cities.find((c)=> c.city_slug = city)
+      //one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
   }, [city]);
 
   const renderProps = () => {
@@ -150,8 +151,10 @@ export default function TourCard({
     //   });
     // }
 
-    console.log(tour)
-    console.log(one_city)
+    console.log("Tour: ");
+    console.log(tour);
+    console.log("one_city: ");
+    console.log(one_city);
 
     return (
       <Box display="inline" style={{ whiteSpace: "break-spaces" }}>
