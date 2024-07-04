@@ -14,11 +14,11 @@ import Box from "@mui/material/Box";
 // import LinearProgress from "@mui/material/LinearProgress";
 // import TourConnectionCardNew from "./TourConnectionCardNew";
 // import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
-import useMediaQuery from "@mui/material/useMediaQuery";
+// import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from "react-i18next";
-import { tourTypes } from "../utils/language_Utils";
+// import { tourTypes } from "../utils/language_Utils";
 import { useSearchParams } from "react-router-dom";
-import { consoleLog } from "../utils/globals";
+// import { consoleLog } from "../utils/globals";
 // import { BorderLeft, Padding } from "@mui/icons-material";
 import { Chip } from "@mui/material";
 
@@ -240,7 +240,7 @@ export default function TourCard({
           >
             {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
-              {convertNumToTime(one_city.best_connection_duration, true)}
+              {convertNumToTime(one_city.best_connection_duration/60, true)}
             </span>
           </Typography>
           <Typography
