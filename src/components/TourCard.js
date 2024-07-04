@@ -55,7 +55,7 @@ export default function TourCard({
     checkImage();
   }, []);
 
-  let one_city[];
+  let one_city = [];
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
   // i18next
