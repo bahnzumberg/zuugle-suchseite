@@ -114,7 +114,7 @@ export default function TourCard({
   }, [tour]);
 
   useEffect(() => {
-      one_city = tour.cities.find((c)=> c.city_slug = city)
+      one_city = tour.cities.find((c)=> c.city_slug == city)
       //one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
   }, [city]);
 
