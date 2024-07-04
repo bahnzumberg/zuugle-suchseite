@@ -116,15 +116,9 @@ export default function TourCard({
   useEffect(() => {
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
-        one_city = tour.cities[i]
-        console.log("Im useEffect")
-        console.log(tour.cities[i])
-        break;
+        return one_city = tour.cities[i]
       }
     }
-
-      //one_city = tour.cities.find((c)=> c.city_slug === city)
-      //one_city = tour.cities.filter(()=> tour.cities.city_slug == city)
   }, [tour]);
 
   const renderProps = () => {
