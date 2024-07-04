@@ -7,7 +7,7 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import {
   loadTour,
   loadTourConnectionsExtended,
@@ -165,13 +165,14 @@ const DetailReworked = (props) => {
   const [providerPermit, setProviderPermit] = useState(true);
 
 
-
+const {paramId, paramCity} = useParams();
 useEffect(() => {
-  const paramId = searchParams.get("id");
-  const paramCity = searchParams.get("city");
+  // const paramId = searchParams.get("id");
+  // const paramCity = searchParams.get("city");
   console.log("id :", paramId)
   console.log("city :", paramCity)
 }, []);
+
 
 useEffect(() => {
   if (!!tour && tour.provider) {
