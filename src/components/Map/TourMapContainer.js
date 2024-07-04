@@ -498,9 +498,13 @@ function TourMapContainer({
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#FF7663" }}
+                pathOptions={{ weight: 5, color: "#FF7663", dashArray: '20,20', dashOffset: '0' }}
                 positions={gpxTrack}
               />,
+              // <Polyline
+              //   pathOptions={{ weight: 5, color: "#FF7663" }}
+              //   positions={gpxTrack}
+              // />,
             ]}
 
           <MarkerClusterGroup
