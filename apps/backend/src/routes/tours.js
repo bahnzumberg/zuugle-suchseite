@@ -111,8 +111,7 @@ const listWrapper = async (req, res) => {
 
     const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en'; 
 
-    // const search = req.query.search; 
-    const search = ""; 
+    const search = req.query.search; 
     const showRanges = !!req.query.ranges;
     const city = req.query.city;    
     const range = req.query.range;
@@ -147,7 +146,7 @@ const listWrapper = async (req, res) => {
 
     // This determines, if there is a search term given by the user.
     // let searchIncluded = !!search && !!search.length > 0;
-    let searchIncluded = true;
+    let searchIncluded = !!search && !!search.length > 0;
 
     //construct the array of selected columns 
     let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele','connection_arrival_stop_lon', 'connection_arrival_stop_lat'];
