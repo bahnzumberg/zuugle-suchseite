@@ -511,8 +511,8 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        // console.log('L486 : inside "No search term" included')
-        // console.log(query.toQuery())
+        console.log('L486 : inside "No search term" included')
+        console.log(query.toQuery())
 
         // markers-related
         // if(map === true) {
