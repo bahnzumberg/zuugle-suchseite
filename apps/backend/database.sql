@@ -240,7 +240,8 @@ CREATE TABLE city2tour (
       reachable_from_country varchar(2) NOT NULL,
       min_connection_duration int DEFAULT 200,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-      connection_arrival_stop_lat decimal(12,9) DEFAULT NULL
+      connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
+      stop_selector char(1) DEFAULT 'n'
 );
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
