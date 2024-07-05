@@ -122,13 +122,15 @@ export default function TourCard({
     }
   }
   else {
-    one_city = { best_connection_duration: 0, connection_no_of_transfers: 0 }
+    one_city = [{ best_connection_duration: 0, connection_no_of_transfers: 0 }]
+
+    console.log("one_city.best_connection_duration: ", one_city.best_connection_duration)
+    console.log("one_city.connection_no_of_transfers: ", one_city.connection_no_of_transfers)
   }
 
   console.log("one_city: ", one_city)
   console.log("city: ", city)
-  console.log("one_city.best_connection_duration: ", one_city.best_connection_duration)
-  console.log("one_city.connection_no_of_transfers: ", one_city.connection_no_of_transfers)
+
 
   const renderProps = () => {
     const values = [];
