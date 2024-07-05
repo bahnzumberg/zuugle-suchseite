@@ -109,7 +109,6 @@ export default function PopupCard({tour}){
             tourTypes.forEach((typ)=>{
                 type = type.toLowerCase();
                 if(typ === type){   //correct the small cap so both can be equal
-                    // console.log("filter.${type} : ", `filter.${type}`)
                     translatedType = t(`filter.${type}`)
                 }
             })

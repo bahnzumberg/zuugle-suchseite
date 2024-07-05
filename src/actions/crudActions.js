@@ -54,8 +54,8 @@ export async function loadFile(
 
     return res;
   } catch (error) {
-    console.log(" error :, L39", error.message);
-    throw error;
+      console.log(" error :, L39", error.message);
+      throw error;
   }
 }
 
@@ -72,7 +72,7 @@ export function loadList(
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
   language
 ) {
-  // console.log("L75 -> data :", data)
+
 
   // initialize language param
   const langPassed =
@@ -85,13 +85,11 @@ export function loadList(
     dispatch({ ...data, type: typeBefore });
   }
   const state = getState()[stateName];
-  // console.log(`L88 :  stateName :${stateName}`)
-  // console.log(`L89 : state : ${JSON.stringify(state)}`)
+
 
   let params = {};
   if (state) {
-    // console.log("L93 CRUD state :", state)
-    // console.log("L94 CRUD state.bounds :", state["bounds"])
+ 
     let pagination = {};
     if (!!usePagination) {
       pagination.page = state.page;
@@ -114,9 +112,7 @@ export function loadList(
       bounds: data.bounds 
     };
 }
-  // console.log("L108 params : ", params);
 
-  // console.log("L108 params : ", params)
   return axios
     .get(route, { params: params })
     .then((res) => {
@@ -170,7 +166,6 @@ export function loadOne(
     .get(route, { params: { ...params, domain: window.location.host } })
     .then((res) => {
       const entity = res.data[entityName];
-      // console.log("entity = ", entity)
 
       dispatch({
         type: typeDone,
@@ -294,15 +289,9 @@ export function generateShareLink(provider, hashedUrl, date, city) {
       city: city,
     })
     .then((res) => {
-      if(process.env.NODE_ENV !== "production"){
-        // console.log("L281 crudActions / generateShareLink res.data :", res.data); // shareId is passed from api
-      }
       return res.data;
     })
     .catch((err) => {
-      if(process.env.NODE_ENV !== "production"){
-        // console.log("L285 crudActions / generateShareLink err.response.data :", err.response);
-      }
       return err.response;
     });
 }
@@ -325,7 +314,6 @@ export const getMapData = (data)=>{
   return axios.get('tours/map/', {
     params: data
   }).then((res)=>{
-    // console.log("L311 res.data /crudActions  :", res.data)
     return res.data
   })
 

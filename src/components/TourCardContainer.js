@@ -23,7 +23,6 @@ export default function TourCardContainer({
   markersChanged,
   mapBounds,
 }) {
-  // console.log("L71 TCC >>>> pageTours :", pageTours)
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
 

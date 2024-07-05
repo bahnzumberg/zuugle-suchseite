@@ -21,8 +21,6 @@ export default function ResultBar({total, showModal, hideModal, filter, filterAc
    const mapLabel = t('main.karte');
    const sortLabel = t('main.sortieren_nach');
 
-
-    // console.log("Total in ResultBar: " + total);
     const [searchParams, setSearchParams] = useSearchParams();
     const [mapView, setMapView] = React.useState(false);
     const [provider, setProvider] = React.useState("provider");

@@ -61,14 +61,8 @@ import transformToDescriptionDetail from "../../utils/transformJson";
 const DetailReworkedMin = ()=>{
 
   const {id, city} = useParams;
-  // const paramId;
-  // const paramCity;
 
   useEffect(() => {
-    // const paramId = searchParams.get("id");
-    // // const paramCity = searchParams.get("city");
-    //  paramId = id ;
-    //  paramCity = city;
     console.log("id :", id)
     console.log("city :", city)
   }, []);

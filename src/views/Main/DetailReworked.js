@@ -166,14 +166,6 @@ const DetailReworked = (props) => {
 
 
 useEffect(() => {
-  const paramId = searchParams.get("id");
-  const paramCity = searchParams.get("city");
-  console.log("id :", paramId)
-  console.log("city :", paramCity)
-}, []);
-
-
-useEffect(() => {
   if (!!tour && tour.provider) {
     setIsTourLoading(true);
 

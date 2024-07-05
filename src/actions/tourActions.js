@@ -32,10 +32,8 @@ import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
-    // console.log("L35 tourActions / data : ", data)
     return (dispatch, getState) => {
         data.domain = window.location.host;
-        // console.log("L38 tourActions / data with domain: ", data);  
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }
@@ -62,9 +60,7 @@ export function loadFilter(data = {}) {
 }
 
 export function loadTour(id, city) {
-  // console.log("1) loadTour is called !")
   return (dispatch, getState) => {
-    // console.log("2) loadTour is called !")
     return loadOne(
       dispatch,
       getState,
@@ -76,8 +72,6 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-        // console.log("L76 : res.data")
-        // console.log(res.data)
         return res;
       })
       .catch((error) => {
@@ -110,19 +104,11 @@ export function loadTotalTours() {
 
 export function loadTourConnections(data) {
   const language = i18next.resolvedLanguage;
-// !!data && console.log("L112 data / loadTourConnections",data);
-// output: {city: "wien", domain: "localhost:3000", id: 102411}
+  // output: {city: "wien", domain: "localhost:3000", id: 102411}
   return (dispatch, getState) => {
     data.domain = window.location.host;
     let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
-    
-    // let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
-    
-    // returndataPromise.then(returndata => {
-      // consoleLog("L114 tourActions/loadTourConnections -> data: ", data);
-      // consoleLog("L115 tourActions / loadTourConnections / returned data: ", returndata);
-    // });
-    
+   
     return returndataPromise;
   };
 }
@@ -210,7 +196,6 @@ export function loadTourGpx(data) {
 }
 
 export function clearTours() {
-  // console.log("tourActions, clearTours L99, no data ")
   return (dispatch, getState) => {
     dispatch({ type: CLEAR_TOURS });
   };

@@ -31,7 +31,6 @@ const AutosuggestSearchTour = ({
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
-          // console.log("Suggestions from backend:", newOptions);
           newOptions && isArray(newOptions) && setOptions([...newOptions]);
         })
         .catch((err) => {
@@ -40,7 +39,6 @@ const AutosuggestSearchTour = ({
     }
   };
   
-
   return (
     <div>
       <CustomSelect

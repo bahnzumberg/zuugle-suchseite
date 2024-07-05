@@ -80,22 +80,11 @@ export function Main({
 
   const [scrollToTop, setScrollToTop] = useState(false);
 
-  // console.log("L86 , createIdArray(markers) :", createIdArray(markers))
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
   const [mapBounds, setMapBounds] = useState(null);
 
   const [markersChanged, setMarkersChanged] = useState(false);
-
-  //create masterMarkersList inside localStorage
-  // useEffect (()=>{
-  //   if(!!markers && markers.length > 0 ) {
-  //     console.log("L96 useEffect markers")
-  //     console.log(markers)
-  //     localStorage.setItem('masterMarkers', JSON.stringify(markers))
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // },[])
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount")
@@ -104,8 +93,6 @@ export function Main({
   let filterValuesLocal = !!localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
-
-  // useEffect(()=> console.log("L263 Main.js -> mapBounds ", mapBounds),[mapBounds]);
 
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
@@ -213,21 +200,14 @@ export function Main({
     const id = markerId.id;
     let retTour = null;
     if (!!id) {
-      // console.log("L269 : Main/id.id :", id)
-      // console.log("L270 : Main/city :", city)
       await loadTour(id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           retTour = tourExtracted;
-          // console.log("L272 called from Main :")
-          // console.log(tourExtracted.data.tour)
           localStorage.setItem("tourId", id);
-          // window.open("/tour?" + searchParams.toString());
         } else {
           goToStartPage();
         }
       });
-      // console.log("L286 retTour :")
-      // console.log(retTour)
       return retTour;
     } else {
       goToStartPage();
@@ -240,32 +220,6 @@ export function Main({
     return resultedData;
   }, []);
 
-  //Map-related : callback to set the state of "markersSubList" inside Map Container
-  // const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
-  //   console.log("L239 newMarkersSubList :",newMarkersSubList)
-  //   setMarkersSubList(newMarkersSubList);
-  // }, []);
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  // const handleMapBounds = useCallback((bounds) => {
-  //   // console.log("L261 handleMapBounds :", bounds)
-  //   setMapBounds(bounds);
-  // }, []);
-  // //Map-related : callback to set the state of "mapBounds" inside Map Container
-  // const handleChangedMarkers = useCallback((value) => {
-  //   // console.log("L248 handleChangedBounds , value:", value)
-  //   setMarkersChanged(value);
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("L254 Main / markersSubList: ", markersSubList)// works
-  //   console.log("L255 Main / mapBounds: ", mapBounds) //works
-  // }, [markersSubList, mapBounds])
-
-  //Map-related : callback to set the state of "markersSubList" inside Map Container
-  // const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
-  //   console.log("L239 newMarkersSubList :",newMarkersSubList)
-  //   setMarkersSubList(newMarkersSubList);
-  // }, []);
   //Map-related : callback to set the state of "mapBounds" inside Map Container
   const handleMapBounds = useCallback((bounds) => {
     setMapBounds(bounds);
@@ -273,14 +227,8 @@ export function Main({
 
   //Map-related : callback to set the state of "mapBounds" inside Map Container
   const handleChangedMarkers = useCallback((value) => {
-    // console.log("L248 handleChangedBounds , value:", value)
     setMarkersChanged(value);
   }, []);
-
-  // useEffect(() => {
-  //   console.log("L254 Main / markersSubList: ", markersSubList)// works
-  //   console.log("L255 Main / mapBounds: ", mapBounds) //works
-  // }, [markersSubList, mapBounds])
 
   const memoTourMapContainer = useMemo(() => {
     return (

@@ -278,7 +278,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         if(languageValues.filter(lv => !lv.checked).length > 0){
             count++;
         }
-        // console.log("From within Filter.js: countFilterActive() returns: ", count)
         return count;
     }
 

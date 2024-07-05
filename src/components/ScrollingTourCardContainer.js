@@ -16,7 +16,6 @@ export default function ScrollingTourCardContainer({
   const isMobile = useMediaQuery("(max-width:600px)");
   const firstSet = tours.slice(0, 4);
   const secondSet = tours.slice(4, 7);
-  console.log("object", tours);
 
   const renderImage = (imageSrc, key) => (
     <Box

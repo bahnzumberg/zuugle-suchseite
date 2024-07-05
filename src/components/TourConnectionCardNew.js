@@ -20,7 +20,6 @@ export default function TourConnectionCardNew({connection}){
         const days = localMissingDays(mDays, i18n.language);
         setMissingDays(days);
         } else {
-        // console.log("mDays.length is empty");
         }
     }
     useEffect(() => {

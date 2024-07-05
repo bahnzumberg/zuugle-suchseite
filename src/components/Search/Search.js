@@ -95,7 +95,6 @@ export function Search({
   useEffect(() => {
     const filterParamValue = searchParams.get('filter');
     if (filterParamValue) {
-      // !!counter && console.log("L89 : counter :", counter )
       setActiveFilter(!!counter && counter > 0);
     }
   }, [searchParams, counter]);
@@ -178,7 +177,6 @@ export function Search({
     }
 
     let _filter = !!filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
-    // !!_filter && console.log(" L142 -> _filter is of †ype :", typeof(_filter))
     if (!!_filter) {
       filter = {
         ..._filter,
@@ -210,7 +208,6 @@ export function Search({
     });
 
     result.then((res) => {
-      //console.log("Search L182 total Tours", resolvedValue.data.total); // giving first returned tours e.g. 24
       let importedMarkersArray = res.data.markers;
       
       if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
@@ -268,7 +265,6 @@ export function Search({
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
     
-    // !!filterCount && console.log("Search L235 filterCount: ", filterCount)
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
@@ -358,11 +354,9 @@ export function Search({
       await loadTours(values).then((res) => {
 
         if(pageKey === "detail") {
-          // console.log("Search L333 searchParams :", JSON.stringify(searchParams));
           navigate(`/suche?${searchParams.toString()}`);
         }
         //if markers received then assign markers array to localStorage('masterMarkers')
-        // if(!!res && !!res.data) console.log("L348 res", res.data)
 
         //window.location.reload();
         setScrollToTop(true);

@@ -23,8 +23,6 @@ export const checkOnlyMapParams = (filterParam = false)=>{
     try {
       const filterObject = JSON.parse(decodeURIComponent(filterParam));
       const keyCount = Object.keys(filterObject).length;
-      // console.log("L16 filterObject : ", filterObject)
-      // console.log("L17 keyCount : ", keyCount)
 
       if(filterObject){
           

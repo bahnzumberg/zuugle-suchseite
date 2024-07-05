@@ -102,21 +102,6 @@ const transportNameArrays = [train_key, metro_key,tram_key,bus_key, car_key ,cab
 function getIconFromText(text) {
   if (!text) return null; // Handle empty text case
 
-  // for (const transportArray of transportNameArrays) {
-  //   console.log("L106 transportName: ", transportArray); //['train_key', 'Zug', 'Train', 'le train', 'Treno'..
-  
-  //   for (let i = 1; i < transportArray.length; i++) {
-  //     console.log(`L116 transportArray[${i}] : ${transportArray[i]}`) ;  // Zug
-  //     let transportType = transportArray[0];
-  //     console.log("L110/3  transportType :",  transportType); // e.g. "train_key"
-  //     if (text.indexOf(`${transportArray[i]}`) >= 0) {
-  //       console.log("L113 transportType :", transportType);
-  //       return transportIcons[transportType];
-  //     }        
-  //   }
-  //   // If no match found, return a default icon
-  //   return transportIcons["walk"]
-  // }
   for (const transportArray of transportNameArrays) {    
     const transportType = transportArray[0]; // Assuming the first element is the key
 
@@ -201,7 +186,6 @@ export const createEntries = (entries, connection, t) => {
       if (!!newStart) {
         newStart = newStart.format("HH:mm");
       }
-      //console.log("L183 : newStart :", newStart) ; //e.g. 10:09
     }
     toReturn.push(getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`));
   }
