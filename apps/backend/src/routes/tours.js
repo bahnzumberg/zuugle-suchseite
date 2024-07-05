@@ -156,25 +156,25 @@ const listWrapper = async (req, res) => {
    
 
     let where = {};
-    logger("I am alive and kcking !")
-    const tld_1 = get_domain_country(domain);
-    let b
-    if(city){
-        b = `select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.city_slug = '${city}'`
-    }else {
-        b =`select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.stop_selector = 'y' AND c2t.reachable_from_country = '${tld_1}'`
-    }
+    // logger("I am alive and kcking !")
+    // const tld_1 = get_domain_country(domain);
+    // let b
+    // if(city){
+    //     b = `select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.city_slug = '${city}'`
+    // }else {
+    //     b =`select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.stop_selector = 'y' AND c2t.reachable_from_country = '${tld_1}'`
+    // }
     //********************************************************************++*/
     // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
 
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
-    // let query = knex('tour').select(selects);
-    let query = knex.raw(b)
+    // let query = knex.raw(b)
+    let query = knex('tour').select(selects);
     let countQuery = knex('tour').count('id');
 
-    logger("L175 Query :")
-    logger(query.toQuery())
+    // logger("L175 Query :")
+    // logger(query.toQuery())
 
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
