@@ -111,7 +111,8 @@ const listWrapper = async (req, res) => {
 
     const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en'; 
 
-    const search = req.query.search; 
+    // const search = req.query.search; 
+    const search = ""; 
     const showRanges = !!req.query.ranges;
     const city = req.query.city;    
     const range = req.query.range;
