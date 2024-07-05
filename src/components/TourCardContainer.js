@@ -18,8 +18,8 @@ export default function TourCardContainer({
   pageTours,
   loading,
   filterValues,
-  setFilterValues,
-  showMap,
+  // setFilterValues,
+  // showMap,
   markersChanged,
   mapBounds,
 }) {
@@ -99,7 +99,6 @@ export default function TourCardContainer({
       map: map,
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
-      // page: pageMapTours ? 1 : !!pageTours ? Number(pageTours) + 1 : 2,
       bounds: bounds, // bounds added
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
@@ -136,26 +135,6 @@ export default function TourCardContainer({
             </Grid>
           ))}
 
-          {/* {(!!tours ? tours : [])
-            .filter((tour) => !!!tour.is_map_entry)
-            .map((tour, index) => (
-              <Grid
-                key={index}
-                item
-                xs={12}
-                sm={6}
-                lg={4}
-                style={{ marginBottom: "5px" }}
-              >
-                <TourCard
-                  onSelectTour={onSelectTour}
-                  tour={tour}
-                  loadTourConnections={loadTourConnections}
-                  city={city}
-                  mapCard={false}
-                />
-              </Grid>
-            ))} */}
         </Grid>
       </InfiniteScroll>
     </Box>
