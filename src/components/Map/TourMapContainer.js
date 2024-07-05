@@ -82,6 +82,7 @@ function TourMapContainer({
   const markerRef = useRef(null);
 
   const [gpxTrack, setGpxTrack] = useState([]);
+  const [totourGpxTrack, setTotourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeMarker, setActiveMarker] = useState(null);
 
@@ -277,9 +278,7 @@ function TourMapContainer({
     }
   };
 
-  const setCurrentGpxTrack = async (url) => {
-    // console.log("L227 url incoming to setCurrentGpxTrack :");
-    // console.log(url);
+  const handleGpxTrack = async (url) => {
     if (!!url) {
       try {
         const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -288,7 +287,7 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            // consoleLog("L190 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            consoleLog("L290 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
             //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setGpxTrack(track);
@@ -303,6 +302,31 @@ function TourMapContainer({
     }
   };
 
+  const handleTotourGpxTrack = async (url) => {
+    // console.log("L308 url incoming to handleTotourGpxTrack :");
+    // console.log(url);
+    if (!!url) {
+      try {
+        const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadTotourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+            setTotourGpxTrack(track);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
+      }
+    } else {
+      setGpxTrack([]);
+    }
+  };
   const handleMarkerClick = useCallback(
     async (tourInfo, tourId) => {
       // console.log("Marker Click");
@@ -318,7 +342,8 @@ function TourMapContainer({
         console.log("L318 _tour:")
         console.log(_tour)
         if (_tour) setSelectedTour(_tour);
-        if (_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);
+        if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
+        if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
       } catch (error) {
         console.error("Error fetching tour details:", error);
       } finally {
@@ -502,14 +527,20 @@ function TourMapContainer({
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#FF7663"}}
                 positions={gpxTrack}
               />,
-              // <Polyline
-              //   pathOptions={{ weight: 5, color: "#FF7663" }}
-              //   positions={gpxTrack}
-              // />,
-            ]}
+            ]
+          }
+
+          {!!totourGpxTrack &&
+            totourGpxTrack.length > 0 && [
+              <Polyline
+                pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
+                positions={totourGpxTrack}
+              />,
+            ]
+          }
 
           <MarkerClusterGroup
             // key={new Date().getTime()}
