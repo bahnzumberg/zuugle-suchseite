@@ -570,7 +570,9 @@ function TourMapContainer({
                   color: "#00FF00",
                   smoothFactor: 1,
                   opacity: 1,
-                  weight: 3,              
+                  weight: 3, 
+                  lineCap: 'square',
+                  dashArray: '5,10',             
                 } }
                 positions={totourGpxTrack}
               />,
