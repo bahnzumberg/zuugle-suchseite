@@ -779,7 +779,6 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
-    // const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
@@ -792,7 +791,6 @@ export async function mergeToursWithFahrplan(){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     // let durations = {};
-                    // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     // let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
                     // if(!!connections && connections.length > 0){
                     //     connections.forEach(con => {
@@ -803,16 +801,22 @@ export async function mergeToursWithFahrplan(){
                     const values = await knex('fahrplan')
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
-                        .min('best_connection_duration as best_connection_duration')
-                        .min('connection_no_of_transfers as connection_no_of_transfers')
+                        .min('best_connection_duration as min_best_connection_duration')
+                        .min('connection_no_of_transfers as min_connection_no_of_transfers')
                         .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
-                        .andWhereNot('fromtour_track_duration', null)
-                        .andWhereNot('totour_track_duration', null)
                         .andWhereNot('best_connection_duration', null)
                         .first();
-
-                    fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
+                    
+                    if (!!values)  {
+                        // min_best_connection_duration must be kept in minutes, as an integer, as it is used with the search as a weight.
+                        fp.best_connection_duration = round(minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")),0);
+                        fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
+                    }
+                    else {
+                        fp.best_connection_duration = getDurationValue(0);
+                        fp.connection_no_of_transfers = 0;
+                    }
                     // fp.durations = durations;
 
                     fp.total_tour_duration = round((
@@ -827,7 +831,7 @@ export async function mergeToursWithFahrplan(){
                     fahrplanObject[fp.city_slug] = {
                         // durations: {...fp.durations},
                         best_connection_duration: fp.best_connection_duration,
-                        total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
+                        total_tour_duration: fp.total_tour_duration,
                         connection_no_of_transfers: fp.connection_no_of_transfers
                     };
                 })
