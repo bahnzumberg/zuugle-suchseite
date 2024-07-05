@@ -127,10 +127,6 @@ export default function TourCard({
   
   }
 
-  console.log("one_city: ", one_city)
-  console.log("city: ", city)
-
-
   const renderProps = () => {
     const values = [];
 
