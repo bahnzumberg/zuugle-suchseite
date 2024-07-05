@@ -55,7 +55,6 @@ export default function TourCard({
     checkImage();
   }, []);
 
-  // let one_city = [];
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
   // i18next
@@ -118,13 +117,11 @@ export default function TourCard({
   if (!!!city && city !== null) {
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
-      // one_city = tour.cities[i]
-      value_best_connection_duration = tour.cities[i].best_connection_duration
-      value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
-      break;
+        value_best_connection_duration = tour.cities[i].best_connection_duration
+        value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
+        break;
       } 
     }
-  
   }
 
   const renderProps = () => {
