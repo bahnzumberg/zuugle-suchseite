@@ -577,15 +577,14 @@ function TourMapContainer({
             ]
           }
 
-          {!!fromtourGpxTrack &&
+          {/* {!!fromtourGpxTrack &&
             fromtourGpxTrack.length > 0 && [
               <Polyline
-                // pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
                 pathOptions={{ weight: 5, color: "#4A91FF", dashArray: '5,5', dashOffset: '0' }}
                 positions={fromtourGpxTrack}
               />,
             ]
-          }
+          } */}
 
           <MarkerClusterGroup
             // key={new Date().getTime()}
