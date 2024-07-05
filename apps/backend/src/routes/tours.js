@@ -250,6 +250,8 @@ const listWrapper = async (req, res) => {
         countQuery = countQuery.andWhereRaw(whereRaw);
     }
 
+    logger("L253 query:")
+    logger(query.toQuery())
     
     // ****************************************************************
     // FILTER  / (BOTH)
