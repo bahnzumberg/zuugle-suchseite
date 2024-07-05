@@ -567,6 +567,7 @@ function TourMapContainer({
               <Polyline
                 // pathOptions={{ weight: 5, color: "#00FF00", dashArray: '5,5', dashOffset: '0' }}
                 pathOptions={{
+                  color: "#00FF00",
                   smoothFactor: 1,
                   opacity: 1,
                   weight: 3,              
