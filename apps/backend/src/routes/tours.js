@@ -169,8 +169,8 @@ const listWrapper = async (req, res) => {
     //********************************************************************++*/
 
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
-    //let query = knex('tour').select(selects);
-    let query = knex.raw(b)
+    let query = knex('tour').select(selects);
+    // let query = knex.raw(b)
     let countQuery = knex('tour').count('id');
 
     console.log("L175 Query :")
