@@ -12,6 +12,8 @@ import {last_two_characters} from "../utils/pdf/utils"
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    
+    // This query is updating tour table. It should be removed, together with the columns in table tour.
     await knex.raw(`UPDATE tour AS t
         SET connection_arrival_stop_lat = a.lat,
         connection_arrival_stop_lon = a.lon
@@ -36,6 +38,38 @@ async function update_tours_from_tracks() {
             GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
         WHERE a.row_number=1
         AND a.id=t.id`);
+
+    // This is the new query, which updates city2tour table. Every city gets its own lat/lon train stop, to be more accurate on the map.
+    await knex.raw(`UPDATE city2tour AS c2t
+                    SET connection_arrival_stop_lon=b.stop_lon,
+                    connection_arrival_stop_lat=b.stop_lat
+                    FROM (
+                        SELECT
+                        tour_id,
+                        city_slug,
+                        stop_lon,
+                        stop_lat
+                        FROM (
+                            SELECT 
+                            t.id AS tour_id,
+                            f.hashed_url,
+                            f.city_slug,
+                            tracks.track_point_lon AS stop_lon,
+                            tracks.track_point_lat AS stop_lat,
+                            MIN(calendar_date),
+                            rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC)
+                            FROM tour as t
+                            INNER JOIN fahrplan AS f
+                            ON t.hashed_url=f.hashed_url
+                            INNER JOIN tracks AS tracks
+                            ON f.totour_track_key=tracks.track_key
+                            WHERE tracks.track_point_sequence=1
+                            GROUP BY 1, 2, 3, 4, 5
+                        ) AS a 
+                        WHERE rank=1
+                    ) AS b
+                    WHERE b.tour_id=c2t.tour_id
+                    AND b.city_slug=c2t.city_slug`);
 }
 
 export async function fixTours(){
@@ -779,7 +813,6 @@ export async function syncTours(){
 }
 
 export async function mergeToursWithFahrplan(){
-    // const cities = await knex('city').select();
     const tours = await knex('tour').select(['hashed_url', 'duration']);
     
     if(!!tours){
@@ -792,7 +825,6 @@ export async function mergeToursWithFahrplan(){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
 
                     // let durations = {};
-                    // let connections = await knex('fahrplan').min(['connection_duration']).select(["weekday_type"]).where({hashed_url: entry.hashed_url, city_slug: fp.city_slug}).andWhereNot("connection_duration", null).groupBy('weekday_type');
                     // let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
                     // if(!!connections && connections.length > 0){
                     //     connections.forEach(con => {
@@ -803,16 +835,22 @@ export async function mergeToursWithFahrplan(){
                     const values = await knex('fahrplan')
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
                         .avg('totour_track_duration as avg_totour_track_duration')
-                        .min('best_connection_duration as best_connection_duration')
-                        .min('connection_no_of_transfers as connection_no_of_transfers')
+                        .min('best_connection_duration as min_best_connection_duration')
+                        .min('connection_no_of_transfers as min_connection_no_of_transfers')
                         .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
                         .andWhereNot("connection_duration", null)
-                        .andWhereNot('fromtour_track_duration', null)
-                        .andWhereNot('totour_track_duration', null)
                         .andWhereNot('best_connection_duration', null)
                         .first();
-
-                    fp.best_connection_duration = !!values ? minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")) : undefined;
+                    
+                    if (!!values)  {
+                        // min_best_connection_duration must be kept in minutes, as an integer, as it is used with the search as a weight.
+                        fp.best_connection_duration = round(minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")),0);
+                        fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
+                    }
+                    else {
+                        fp.best_connection_duration = getDurationValue(0);
+                        fp.connection_no_of_transfers = 0;
+                    }
                     // fp.durations = durations;
 
                     fp.total_tour_duration = round((
@@ -827,7 +865,7 @@ export async function mergeToursWithFahrplan(){
                     fahrplanObject[fp.city_slug] = {
                         // durations: {...fp.durations},
                         best_connection_duration: fp.best_connection_duration,
-                        total_tour_duration: Math.ceil(fp.total_tour_duration / 0.25) * 0.25,
+                        total_tour_duration: fp.total_tour_duration,
                         connection_no_of_transfers: fp.connection_no_of_transfers
                     };
                 })
