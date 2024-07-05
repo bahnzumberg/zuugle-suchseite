@@ -572,21 +572,21 @@ function TourMapContainer({
                   opacity: 1,
                   weight: 5, 
                   lineCap: 'square',
-                  dashArray: '5,10',             
+                  dashArray: '5,7',             
                 } }
                 positions={totourGpxTrack}
               />,
             ]
           }
 
-          {/* {!!fromtourGpxTrack &&
+          {!!fromtourGpxTrack &&
             fromtourGpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#4A91FF", dashArray: '5,5', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#4A91FF", dashArray: '5,7', dashOffset: '0' }}
                 positions={fromtourGpxTrack}
               />,
             ]
-          } */}
+          }
 
           <MarkerClusterGroup
             // key={new Date().getTime()}
