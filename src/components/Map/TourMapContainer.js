@@ -83,6 +83,7 @@ function TourMapContainer({
 
   const [gpxTrack, setGpxTrack] = useState([]);
   const [totourGpxTrack, setTotourGpxTrack] = useState([]);
+  const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeMarker, setActiveMarker] = useState(null);
 
@@ -327,6 +328,33 @@ function TourMapContainer({
       setGpxTrack([]);
     }
   };
+
+  const handleFromtourGpxTrack = async (url) => {
+    // console.log("L308 url incoming to handleTotourGpxTrack :");
+    // console.log(url);
+    if (!!url) {
+      try {
+        const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadFromtourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+            setFromtourGpxTrack(track);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
+      }
+    } else {
+      setGpxTrack([]);
+    }
+  };
+
   const handleMarkerClick = useCallback(
     async (tourInfo, tourId) => {
       // console.log("Marker Click");
@@ -344,6 +372,7 @@ function TourMapContainer({
         if (_tour) setSelectedTour(_tour);
         if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
         if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
+        if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
       } catch (error) {
         console.error("Error fetching tour details:", error);
       } finally {
@@ -536,9 +565,23 @@ function TourMapContainer({
           {!!totourGpxTrack &&
             totourGpxTrack.length > 0 && [
               <Polyline
-                // pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
-                pathOptions={{ weight: 5, color: "#00FF00", dashArray: '5,5', dashOffset: '0' }}
+                // pathOptions={{ weight: 5, color: "#00FF00", dashArray: '5,5', dashOffset: '0' }}
+                pathOptions={{
+                  smoothFactor: 1,
+                  opacity: 1,
+                  weight: 3,              
+                } }
                 positions={totourGpxTrack}
+              />,
+            ]
+          }
+
+          {!!fromtourGpxTrack &&
+            fromtourGpxTrack.length > 0 && [
+              <Polyline
+                // pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#4A91FF", dashArray: '5,5', dashOffset: '0' }}
+                positions={fromtourGpxTrack}
               />,
             ]
           }
