@@ -156,7 +156,7 @@ const listWrapper = async (req, res) => {
    
 
     let where = {};
-    console.log("I am alive and kcking !")
+    logger("I am alive and kcking !")
     const tld_1 = get_domain_country(domain);
     let b
     if(city){
@@ -169,12 +169,12 @@ const listWrapper = async (req, res) => {
     //********************************************************************++*/
 
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
-    let query = knex('tour').select(selects);
-    // let query = knex.raw(b)
+    // let query = knex('tour').select(selects);
+    let query = knex.raw(b)
     let countQuery = knex('tour').count('id');
 
-    console.log("L175 Query :")
-    console.log(query.toQuery())
+    logger("L175 Query :")
+    logger(query.toQuery())
 
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
