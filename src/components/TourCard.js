@@ -113,12 +113,17 @@ export default function TourCard({
     }
   }, [tour]);
 
-  for (let i in tour.cities) {
-    if(tour.cities[i].city_slug === city){
-     one_city = tour.cities[i]
-     break;
-    } 
-  };
+  if (!!!city) {
+    for (let i in tour.cities) {
+      if(tour.cities[i].city_slug === city){
+      one_city = tour.cities[i]
+      break;
+      } 
+    }
+  }
+  else {
+    one_city = { best_connection_duration: 0, connection_no_of_transfers: 0 }
+  }
 
   const renderProps = () => {
     const values = [];
