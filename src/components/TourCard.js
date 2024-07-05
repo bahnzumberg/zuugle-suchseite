@@ -55,7 +55,7 @@ export default function TourCard({
     checkImage();
   }, []);
 
-  let one_city = [];
+  // let one_city = [];
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
   // i18next
@@ -113,19 +113,18 @@ export default function TourCard({
     }
   }, [tour]);
 
+  let value_best_connection_duration = 0
+  let value_connection_no_of_transfers = 0
   if (!!!city && city !== null) {
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
-      one_city = tour.cities[i]
+      // one_city = tour.cities[i]
+      value_best_connection_duration = tour.cities[i].best_connection_duration
+      value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
       break;
       } 
     }
-  }
-  else {
-    one_city = [{ best_connection_duration: 0, connection_no_of_transfers: 0 }]
-
-    console.log("one_city.best_connection_duration: ", one_city.best_connection_duration)
-    console.log("one_city.connection_no_of_transfers: ", one_city.connection_no_of_transfers)
+  
   }
 
   console.log("one_city: ", one_city)
@@ -252,7 +251,7 @@ export default function TourCard({
           >
             {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
-              {convertNumToTime(one_city.best_connection_duration/60, true)}
+              {convertNumToTime(value_best_connection_duration/60, true)}
             </span>
           </Typography>
           <Typography
@@ -260,7 +259,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
             {t("start.umstiege")} <br />
-            <span style={{ fontSize: "18px" }}>{one_city.connection_no_of_transfers}</span>
+            <span style={{ fontSize: "18px" }}>{value_connection_no_of_transfers}</span>
           </Typography>
 
           <Typography
