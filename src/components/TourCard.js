@@ -113,7 +113,7 @@ export default function TourCard({
     }
   }, [tour]);
 
-  if (!!!city) {
+  if (!!!city && city !== null) {
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
       one_city = tour.cities[i]
