@@ -347,7 +347,7 @@ const listWrapper = async (req, res) => {
             // and on the quality_rating (the value of 10 should result in 1.1 and the value of 0 in 0.1)
 
             if(!!city && city.length > 0){
-                _traveltime_weight = ` * 2.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
+                _traveltime_weight = ` * 5.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
                 _traveltime_join = ` INNER JOIN city2tour as c ON c.tour_id=i${i + 1}.id AND c.city_slug='${city}' `
             }
 
@@ -360,8 +360,8 @@ const listWrapper = async (req, res) => {
                     encodeLang[i][lang]
                     }', ' ${_search}')) * ${langRank} 
                     * 1.0/(ABS(1100-ascent)+1)
-                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
-                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (CASE WHEN difficulty=2 THEN 5 ELSE 2 END)
+                    * (CASE WHEN traverse=1 THEN 5 ELSE 1 END)
                     * (quality_rating+1)/10.0
                     * 1.0 / (month_order+0.5)
                     ${_traveltime_weight}
