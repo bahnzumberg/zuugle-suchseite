@@ -127,6 +127,8 @@ export default function TourCard({
 
   console.log("one_city: ", one_city)
   console.log("city: ", city)
+  console.log("one_city.best_connection_duration: ", one_city.best_connection_duration)
+  console.log("one_city.connection_no_of_transfers: ", one_city.connection_no_of_transfers)
 
   const renderProps = () => {
     const values = [];
