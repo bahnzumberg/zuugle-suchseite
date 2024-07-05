@@ -537,7 +537,7 @@ function TourMapContainer({
             totourGpxTrack.length > 0 && [
               <Polyline
                 // pathOptions={{ weight: 5, color: "#FF7663", dashArray: '10,10', dashOffset: '0' }}
-                pathOptions={{ weight: 5, color: "green", dashArray: '10,10', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#00FF00", dashArray: '10,10', dashOffset: '0' }}
                 positions={totourGpxTrack}
               />,
             ]
