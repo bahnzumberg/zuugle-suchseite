@@ -156,6 +156,7 @@ const listWrapper = async (req, res) => {
    
 
     let where = {};
+    console.log("I am alive and kcking !")
     const tld_1 = get_domain_country(domain);
     let b
     if(city){
