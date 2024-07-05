@@ -71,41 +71,41 @@ async function update_tours_from_tracks() {
                     WHERE b.tour_id=c2t.tour_id
                     AND b.city_slug=c2t.city_slug`);
 
-    await knex.raw(`UPDATE city2tour
-                    SET stop_selector='n';`)
+    // await knex.raw(`UPDATE city2tour
+    //                 SET stop_selector='n';`)
 
-    await knex.raw(`UPDATE city2tour
-                    SET stop_selector='y'
-                    FROM (
-                        SELECT
-                        d.tour_id,
-                        d.city_slug
-                        FROM (
-                            SELECT
-                            c.*,
-                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
-                            FROM city2tour AS c
-                            INNER JOIN (
-                                SELECT 
-                                COUNT(*),
-                                tour_id,
-                                connection_arrival_stop_lon,
-                                connection_arrival_stop_lat,
-                                reachable_from_country,
-                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
-                                FROM city2tour
-                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
-                            ) AS a 
-                            ON c.tour_id=a.tour_id
-                            AND c.reachable_from_country=a.reachable_from_country
-                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
-                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
-                            AND a.lon_lat_order=1
-                        ) AS d
-                        WHERE d.city_order=1
-                    ) AS e
-                    WHERE city2tour.tour_id=e.tour_id
-                    AND city2tour.city_slug=e.city_slug;`)
+    // await knex.raw(`UPDATE city2tour
+    //                 SET stop_selector='y'
+    //                 FROM (
+    //                     SELECT
+    //                     d.tour_id,
+    //                     d.city_slug
+    //                     FROM (
+    //                         SELECT
+    //                         c.*,
+    //                         ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
+    //                         FROM city2tour AS c
+    //                         INNER JOIN (
+    //                             SELECT 
+    //                             COUNT(*),
+    //                             tour_id,
+    //                             connection_arrival_stop_lon,
+    //                             connection_arrival_stop_lat,
+    //                             reachable_from_country,
+    //                             row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
+    //                             FROM city2tour
+    //                             GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
+    //                         ) AS a 
+    //                         ON c.tour_id=a.tour_id
+    //                         AND c.reachable_from_country=a.reachable_from_country
+    //                         AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
+    //                         AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
+    //                         AND a.lon_lat_order=1
+    //                     ) AS d
+    //                     WHERE d.city_order=1
+    //                 ) AS e
+    //                 WHERE city2tour.tour_id=e.tour_id
+    //                 AND city2tour.city_slug=e.city_slug;`)
 }
 
 export async function fixTours(){
