@@ -172,6 +172,9 @@ const listWrapper = async (req, res) => {
     let query = knex.raw(b)
     let countQuery = knex('tour').count('id');
 
+    console.log("L175 Query :")
+    console.log(query.toQuery())
+
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
     
