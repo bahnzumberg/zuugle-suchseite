@@ -145,7 +145,8 @@ const listWrapper = async (req, res) => {
     let addDetails = true; 
 
     // This determines, if there is a search term given by the user.
-    let searchIncluded = !!search && !!search.length > 0;
+    // let searchIncluded = !!search && !!search.length > 0;
+    let searchIncluded = true;
 
     //construct the array of selected columns 
     let selects = ['id', 'url', 'provider', 'hashed_url','gpx_data', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele','connection_arrival_stop_lon', 'connection_arrival_stop_lat'];
