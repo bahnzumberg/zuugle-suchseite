@@ -83,7 +83,7 @@ async function update_tours_from_tracks() {
                         FROM (
                             SELECT
                             c.*,
-                            ROW_NUMBER() OVER (PARTITION BY c.tour_id ORDER BY c.city_slug) AS city_order
+                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
                             FROM city2tour AS c
                             INNER JOIN (
                                 SELECT 
@@ -91,11 +91,13 @@ async function update_tours_from_tracks() {
                                 tour_id,
                                 connection_arrival_stop_lon,
                                 connection_arrival_stop_lat,
-                                row_number() OVER (partition BY tour_id ORDER BY COUNT(*) DESC) AS lon_lat_order
+                                reachable_from_country,
+                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
                                 FROM city2tour
-                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat
+                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
                             ) AS a 
                             ON c.tour_id=a.tour_id
+                            AND c.reachable_from_country=a.reachable_from_country
                             AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
                             AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
                             AND a.lon_lat_order=1
