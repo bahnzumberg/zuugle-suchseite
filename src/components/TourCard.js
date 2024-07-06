@@ -193,11 +193,8 @@ export default function TourCard({
           }}
         >
           <img
-            src={
-              require.resolve(path.join(__dirname, `/public/logos/${tour.provider}.svg`))
-                ? `/app_static/logos/${tour.provider}.svg`
-                : `/app_static/logos/fallback.svg`
-            }
+            src={ `/app_static/logos/${tour.provider}.svg` ]
+                
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
           <Typography variant="grayP">{tour.provider_name}</Typography>
