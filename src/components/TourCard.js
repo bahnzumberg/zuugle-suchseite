@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 // import CustomStarRating from "./CustomStarRating";
 import {
   checkIfImageExists,
+  consoleLog,
   convertNumToTime,
   formatNumber,
 } from "../utils/globals";
@@ -114,9 +115,14 @@ export default function TourCard({
 
   let value_best_connection_duration = 0
   let value_connection_no_of_transfers = 0
+  console.log("city: ", city)
   if (!!!city && city !== null) {
     for (let i in tour.cities) {
       if(tour.cities[i].city_slug === city){
+        console.log("tour.cities[i]: ", tour.cities[i])
+        console.log("tour.cities[i].best_connection_duration: ", tour.cities[i].best_connection_duration)
+        console.log("tour.cities[i][best_connection_duration]: ", tour.cities[i][best_connection_duration])
+
         value_best_connection_duration = tour.cities[i].best_connection_duration
         value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
         break;
