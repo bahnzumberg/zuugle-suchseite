@@ -12,6 +12,7 @@ export default function Footer({}) {
 
   return (
     <Box>
+      <Box sx={{ height: "100px" }} />
       <Box sx={{ marginBottom: "50px"}}>
       <Grid container spacing={2}  sx={{ paddingBottom: "10px" }}>
         <Grid
