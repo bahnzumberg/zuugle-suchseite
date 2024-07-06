@@ -193,7 +193,7 @@ export default function TourCard({
         >
           <img
             src={
-              require.resolve(`/public/logos/${tour.provider}.svg`)
+              require.resolve(__dirname, `/public/logos/${tour.provider}.svg`)
                 ? `/app_static/logos/${tour.provider}.svg`
                 : `/app_static/logos/fallback.svg`
             }
