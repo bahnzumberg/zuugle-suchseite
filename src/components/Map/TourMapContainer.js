@@ -585,8 +585,8 @@ function TourMapContainer({
                 pathOptions={{ 
                   weight: 10, 
                   color: "#4A91FF",
-                  // opacity: 0.5,
-                  opacity: !!totourGpxTrack ? 0.5 : 1,
+                  opacity: 1,
+                  // opacity: !!totourGpxTrack ? 0.5 : 1,
                   lineCap: 'square',
                   dashArray: '10,10',
                   dashOffset: '0' 
