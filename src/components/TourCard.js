@@ -41,20 +41,6 @@ export default function TourCard({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
-  useEffect(() => {
-    const checkImage = async () => {
-      try {
-        const response = await fetch(`/logos/${tour?.provider}.svg`);
-        if (response.ok) {
-          setImgSrc(`/logos/${tour?.provider}.svg`);
-        }
-      } catch (error) {
-        // console.error("Error fetching the image:", error);
-      }
-    };
-
-    checkImage();
-  }, []);
 
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
@@ -62,7 +48,6 @@ export default function TourCard({
   const { t } = useTranslation();
 
   const hm = t("details.hm_hoehenmeter");
-  // const km = t("details.km_kilometer");
 
   //description
   //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
@@ -118,10 +103,7 @@ export default function TourCard({
   
   if (city !== null) {
     for (let i in tour.cities) {
-      if(tour.cities[i].city_slug === city){
-        // console.log("tour.cities[i]: ", tour.cities[i])
-        // console.log("tour.cities[i].best_connection_duration: ", tour.cities[i].best_connection_duration)
-        
+      if(tour.cities[i].city_slug === city){    
         value_best_connection_duration = tour.cities[i].best_connection_duration
         value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
         break;
@@ -211,8 +193,9 @@ export default function TourCard({
         >
           <img
             src={
-              `/app_static/logos/${tour.provider}.svg` ||
-              `/app_static/logos/fallback.svg`
+              require.resolve(`/app_static/logos/${tour.provider}.svg`)
+                ? `/app_static/logos/${tour.provider}.svg`
+                : `/app_static/logos/fallback.svg`
             }
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
