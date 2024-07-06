@@ -121,7 +121,7 @@ export default function TourCard({
       try {
         const response = await fetch(logoPath);
         console.log("logoPath: ", logoPath)
-        console.log("response: ", response)
+        console.log("response.ok: ", response.ok)
         if (!response.ok) {
           throw new Error('Logo not found');
         }
