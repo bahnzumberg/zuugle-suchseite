@@ -245,7 +245,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
             {t("main.dauer")} <br />
-            <span style={{ fontSize: "18px" }}>{convertNumToTime(tour.duration, true)}</span>
+            <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(tour?.total_tour_duration, true)}</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>

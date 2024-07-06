@@ -35,7 +35,7 @@ const TourDetailProperties = ({tour}) => {
                 <Typography variant={"h5alt"}>{tour && translateTourType(tour.type)}</Typography>
             </div>
             <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t('main.stop2stop')} {" "}</Typography>
+                <Typography variant={"infoKey"}>t("main.dauer") {" "}</Typography>
                 <Typography
                     variant={"h5alt"}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(tour?.total_tour_duration, true)}</Typography>
             </div>
