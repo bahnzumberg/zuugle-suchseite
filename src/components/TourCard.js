@@ -143,6 +143,7 @@ export default function TourCard({
     );
   };
 
+  console.log("path.join(__dirname, `/public/logos/${tour.provider}.svg`)", path.join(__dirname, `/public/logos/${tour.provider}.svg`))
 
   return (
     <Card
@@ -193,7 +194,7 @@ export default function TourCard({
         >
           <img
             src={
-              require.resolve(__dirname, `/public/logos/${tour.provider}.svg`)
+              require.resolve(path.join(__dirname, `/public/logos/${tour.provider}.svg`))
                 ? `/app_static/logos/${tour.provider}.svg`
                 : `/app_static/logos/fallback.svg`
             }
