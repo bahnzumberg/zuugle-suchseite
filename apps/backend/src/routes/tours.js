@@ -93,7 +93,12 @@ const getWrapper = async (req, res) => {
 
     try {
         // let entry = await entryQuery;
-        const sql = "SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
+        const sql = "SELECT id, url, provider, hashed_url, description, image_url, ascent, \
+                    descent, difficulty, difficulty_orig , duration, distance, title, type, \
+                    number_of_days, traverse, country, state, range_slug, range, season, \
+                    month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele \
+                    FROM ( \
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
                     t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
                     t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season, \
                     t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele, 1 AS prio \
@@ -105,8 +110,9 @@ const getWrapper = async (req, res) => {
                     'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, \
                     null as cities_object, 0 as max_ele, 2 AS prio \
                     FROM tour_inactive as t WHERE t.id={id} \
-                    ORDER BY prio ASC LIMIT 1"
-        let entry = await knex.raw(sql)
+                    ORDER BY prio ASC LIMIT 1) as a"
+        console.log("sql: ", sql)
+                    let entry = await knex.raw(sql)
         if (!entry) {
             res.status(404).json({ success: false, message: "Tour not found" });
             return;
@@ -573,8 +579,12 @@ const listWrapper = async (req, res) => {
     }
     
 
-    //preparing tour entries
-    //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
+    // preparing tour entries
+    // this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry 
+    // function returns a modified version of the entry that includes additional data and formatting. 
+    // The function also sets the 'is_map_entry' property of the entry to true if map is truthy. 
+    // The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before 
+    // returning the final result array.
     if(result && Array.isArray(result)){
         await Promise.all(result.map(entry => new Promise(async resolve => {
             entry = await prepareTourEntry(entry, city, domain, addDetails);
@@ -641,7 +651,11 @@ const listWrapper = async (req, res) => {
     }
 
     //describe:
-    // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
+    // The result array contains the list of tours returned from the database after executing the main query. 
+    // This array is already looped through to transform each tour entry with additional data and metadata 
+    // using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, 
+    // the tours array, the total count of tours returned by the main query, the current page, and the 
+    // ranges array (if showRanges is true).
 
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)
