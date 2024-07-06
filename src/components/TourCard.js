@@ -122,6 +122,7 @@ export default function TourCard({
         const response = await fetch(logoPath);
         console.log("logoPath: ", logoPath)
         console.log("response.ok: ", response.ok)
+        console.log("response.headers.has('Content-Length'):", response.headers.has('Content-Length'))
         if (!response.ok) {
           throw new Error('Logo not found');
         }
