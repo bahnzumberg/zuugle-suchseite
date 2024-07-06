@@ -14,7 +14,7 @@ function Impressum({}) {
 	}, []);
 
 	return (
-		<Box className={"about-container"}>
+		<Box className={"about-container"} sx={{ paddingBottom: "80px" }}>
 			<Header title={"Impressum"} />
 
 			<Box className={"start-body-container static-container"}>
@@ -57,9 +57,8 @@ function Impressum({}) {
 					</Typography>
 
 					<Typography> Martin Heppner (Obmann)</Typography>
-					<Typography>Veronika Schöll (Kassierin)</Typography>
-					<Typography>Nikolaus Vogl (Schriftführer)</Typography>
-					<Typography>Dietmar Trummer (Technik)</Typography>
+					<Typography>David Kurz (Kassier)</Typography>
+					<Typography>Dietmar Trummer (Schriftführer)</Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
 						{" "}
@@ -96,7 +95,7 @@ function Impressum({}) {
 							target={"_blank"}
 						>
 							{" "}
-							bahn-zum-berg
+							Bahn zum Berg
 						</a>
 					</Typography>
 					<Typography> </Typography>
