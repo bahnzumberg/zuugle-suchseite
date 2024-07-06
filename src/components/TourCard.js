@@ -113,7 +113,7 @@ export default function TourCard({
 
   
   const logoPath = `/app_static/logos/${tour.provider}.svg`;
-  const fallbackPath = '/app_static/logos/fallback.svg';
+  const fallbackPath = `/app_static/logos/fallback.svg`;
   const [imageUrl, setImageUrl] = React.useState(logoPath);
 
   useEffect(() => {
@@ -126,12 +126,12 @@ export default function TourCard({
         setImageUrl(logoPath);
       } catch (error) {
         setImageUrl(fallbackPath);
-        console.error('Error loading logo:', error);
+        console.log('Error loading logo:', error);
       }
     };
 
     loadImage();
-  }, []);
+  }, [tour]);
 
 
   const renderProps = () => {
