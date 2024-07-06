@@ -358,8 +358,17 @@ useEffect(() => {
       if (!tour.cities_object[searchParams.get("city")]) {
         consoleLog("No city L289");
       } else {
-        // console.log("inside block for setting gopx files and tracks")
-        // console.log("===============================================")
+        console.log("inside block for setting gpx files and tracks")
+        console.log("===============================================")
+        console.log("L362 tour.gpx_file :");
+        console.log( tour.gpx_file)
+        console.log("===============================================")
+        console.log("L363 tour.totour_gpx_file :");
+        console.log( tour.totour_gpx_file)
+        console.log("===============================================")
+        console.log("L364 tour.fromtour_gpx_file :");
+        console.log( tour.fromtour_gpx_file)
+        console.log("===============================================")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
