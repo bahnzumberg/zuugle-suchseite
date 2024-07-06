@@ -57,7 +57,7 @@ export default function Footer({}) {
           justifyContent: "space-between",
         }}
       >
-        <Grid item xs={12} md={10}>
+        <Grid item xs={12} md={10} sx={{ paddingBottom: "30px" }}>
           <Grid container spacing={2}>
             <Grid
               item
