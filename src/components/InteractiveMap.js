@@ -9,13 +9,15 @@ export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abre
   const mapRef  = useRef(null);
 
   const startIcon = L.icon({
-    iconUrl: 'app_static/img/pin-icon-start.png',
+    // iconUrl: 'app_static/img/pin-icon-start.png',
+    iconUrl: 'app_static/img/startpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
     iconSize: [30, 41],
     iconAnchor: [15, 41],
   });
   const endIcon = L.icon({
-    iconUrl: 'app_static/img/pin-icon-end.png',
+    // iconUrl: 'app_static/img/pin-icon-end.png',
+    iconUrl: 'app_static/img/zielpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
     iconSize: [30, 41],
     iconAnchor: [15, 41],
