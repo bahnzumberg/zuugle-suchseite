@@ -520,7 +520,8 @@ function TourMapContainer({
           ref={mapRef}
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
           zoomSnap={1}
-          maxZoom={15} //how many times you can zoom
+          // maxZoom={15} //how many times you can zoom
+          maxZoom={20} //how many times you can zoom
           center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
@@ -570,7 +571,7 @@ function TourMapContainer({
                   color: "#00FF00", 
                   dashArray: '10,10', 
                   dashOffset: '1' ,
-                  opacity: 0.5,
+                  opacity: 1,
                   lineCap: 'square',
                 }}
                 positions={totourGpxTrack}
@@ -584,7 +585,8 @@ function TourMapContainer({
                 pathOptions={{ 
                   weight: 10, 
                   color: "#4A91FF",
-                  opacity: 0.5,
+                  // opacity: 0.5,
+                  opacity: !!totourGpxTrack ? 0.5 : 1,
                   lineCap: 'square',
                   dashArray: '10,10',
                   dashOffset: '0' 
