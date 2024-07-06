@@ -72,18 +72,16 @@ export default function Footer({}) {
                 width={"36px"}
               />
             </Grid>
-            <Grid item xs md={3} whiteSpace={"nowrap"} >
-            © {`${currentYear}`} <a
+            <Grid item xs md={3} >
+              <a
                 href="https://verein.bahn-zum-berg.at"
                 target="_blank"
                 rel="noreferrer"
               >
                 <Typography
-                  sx={{ marginLeft: "10px", textDecoration: "underline" }}
+                  sx={{ marginLeft: "10px", textDecoration: "underline", whiteSpace: "nowrap" }}
                   className={"cursor-link"}
-                >
-                  Bahn zum Berg
-                </Typography>
+                >© {`${currentYear}`} Bahn zum Berg</Typography>
               </a>
             </Grid>
             <Grid item xs>
