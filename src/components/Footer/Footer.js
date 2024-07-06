@@ -11,15 +11,14 @@ export default function Footer({}) {
   const { t } = useTranslation();
 
   return (
-    <Box sx={{ width: "100%", borderTop: "1px solid #dfdfdf" }}>
-      <Box sx={{ marginBottom: "50px" }}>
+    <Box>
+      <Box sx={{ marginBottom: "50px"}}>
       <Grid container spacing={2}  sx={{ paddingBottom: "10px" }}>
         <Grid
           item
-          xs={12}
+          xs={6}
           justifySelf="center"
           alignItems="center"
-          justifyContent="space-between"
           style={{ alignItems: "flex-end" }}
         >
           <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
@@ -32,10 +31,9 @@ export default function Footer({}) {
         </Grid>
         <Grid
           item
-          xs={12}
+          xs={6}
           justifySelf="center"
           alignItems="center"
-          justifyContent="space-between"
           style={{ alignItems: "flex-end" }}
         >
           <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
@@ -49,6 +47,7 @@ export default function Footer({}) {
       </Grid>
       </Box>
 
+      <Box sx={{ width: "100%", borderTop: "1px solid #dfdfdf" }}>
       <Grid
         container
         sx={{
@@ -151,8 +150,8 @@ export default function Footer({}) {
           </Box>
         </Grid>
       </Grid>
+      </Box>
 
-      
     </Box>
   );
 }
