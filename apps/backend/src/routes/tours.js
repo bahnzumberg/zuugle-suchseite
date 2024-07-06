@@ -83,17 +83,30 @@ const getWrapper = async (req, res) => {
         return;
     }
 
-    if(!!!id){
-       
+    if(!!!id){     
         res.status(404).json({success: false});
         return
     }
-    // } else {
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-    let entryQuery = knex('tour').select(selects).where({id: id}).first();
+    
+    // let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    // let entryQuery = knex('tour').select(selects).where({id: id}).first();
 
     try {
-        let entry = await entryQuery;
+        // let entry = await entryQuery;
+        const sql = "SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season, \
+                    t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele, 1 AS prio \
+                    FROM tour as t WHERE t.id={id} \
+                    UNION \
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, \
+                    'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, \
+                    null as cities_object, 0 as max_ele, 2 AS prio \
+                    FROM tour_inactive as t WHERE t.id={id} \
+                    ORDER BY prio ASC LIMIT 1"
+        let entry = await knex.raw(sql)
         if (!entry) {
             res.status(404).json({ success: false, message: "Tour not found" });
             return;
