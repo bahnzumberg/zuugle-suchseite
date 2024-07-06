@@ -579,13 +579,13 @@ function TourMapContainer({
               />,
             ]
           }
-
+          {/* blue color  */}
           {!!fromtourGpxTrack &&
             fromtourGpxTrack.length > 0 && [
-              <Polyline
-                pathOptions={{ weight: 5, color: "#4A91FF", lineCap: 'square', dashArray: '5,3', dashOffset: '0' }}
-                positions={fromtourGpxTrack}
-              />,
+              // <Polyline
+              //   pathOptions={{ weight: 5, color: "#4A91FF", lineCap: 'square', dashArray: '5,3', dashOffset: '0' }}
+              //   positions={fromtourGpxTrack}
+              // />,
             ]
           }
 
