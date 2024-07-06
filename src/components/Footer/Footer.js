@@ -72,7 +72,7 @@ export default function Footer({}) {
                 width={"36px"}
               />
             </Grid>
-            <Grid item xs md={3}>
+            <Grid item xs md={3} whiteSpace={"nowrap"} >
             © {`${currentYear}`} <a
                 href="https://verein.bahn-zum-berg.at"
                 target="_blank"
