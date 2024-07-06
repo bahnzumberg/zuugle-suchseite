@@ -111,33 +111,6 @@ export default function TourCard({
     }
   }
 
-  
-  const logoPath = `/app_static/logos/${tour.provider}.svg`;
-  const fallbackPath = `/app_static/logos/fallback.svg`;
-  const [imageUrl, setImageUrl] = React.useState(logoPath);
-
-  useEffect(() => {
-    const loadImage = async () => {
-      try {
-        const response = await fetch(logoPath);
-        console.log("logoPath: ", logoPath)
-        console.log("response.ok: ", response.ok)
-        console.log("response.headers.has('Content-Length'):", response.headers.has('Content-Length'))
-        console.log("response.headers.has('Last-Modified'): ", response.headers.has('Last-Modified'))
-        if (!response.ok) {
-          throw new Error('Logo not found');
-        }
-        setImageUrl(logoPath);
-      } catch (error) {
-        setImageUrl(fallbackPath);
-        console.log('Error loading logo:', error);
-      }
-    };
-
-    loadImage();
-  }, [tour]);
-
-
   const renderProps = () => {
     const values = [];
 
@@ -219,7 +192,7 @@ export default function TourCard({
           }}
         >
           <img
-            src={imageUrl}    
+            src={`/app_static/logos/${tour.provider}.svg`}    
             alt={tour.provider_name}
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
