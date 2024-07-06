@@ -565,7 +565,7 @@ function TourMapContainer({
           {!!totourGpxTrack &&
             totourGpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#00FF00", dashArray: '3,3', dashOffset: '0' }}
+                pathOptions={{ weight: 5, color: "#00FF00", dashArray: '3,6', dashOffset: '0' }}
                 // pathOptions={{
                 //   color: "#00FF00",
                 //   smoothFactor: 1,
