@@ -565,16 +565,16 @@ function TourMapContainer({
           {!!totourGpxTrack &&
             totourGpxTrack.length > 0 && [
               <Polyline
-                // pathOptions={{ weight: 5, color: "#00FF00", dashArray: '5,5', dashOffset: '0' }}
-                pathOptions={{
-                  color: "#00FF00",
-                  smoothFactor: 1,
-                  opacity: 1,
-                  weight: 5, 
-                  lineCap: 'square',
-                  dashArray: '3,5', 
-                  dashOffset: '0'            
-                } }
+                pathOptions={{ weight: 5, color: "#00FF00", dashArray: '5,5', dashOffset: '0' }}
+                // pathOptions={{
+                //   color: "#00FF00",
+                //   smoothFactor: 1,
+                //   opacity: 1,
+                //   weight: 5, 
+                //   lineCap: 'square',
+                //   dashArray: '5,5', 
+                //   dashOffset: '0'            
+                // } }
                 positions={totourGpxTrack}
               />,
             ]
