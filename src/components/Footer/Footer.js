@@ -12,6 +12,43 @@ export default function Footer({}) {
 
   return (
     <Box sx={{ width: "100%", borderTop: "1px solid #dfdfdf" }}>
+      <Box sx={{ marginBottom: "50px" }}>
+      <Grid container spacing={2}  sx={{ paddingBottom: "10px" }}>
+        <Grid
+          item
+          xs={12}
+          justifySelf="center"
+          alignItems="center"
+          justifyContent="space-between"
+          style={{ alignItems: "flex-end" }}
+        >
+          <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
+            <img
+              src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.png"
+              height="122px"
+              width="206px"
+            />
+          </a>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          justifySelf="center"
+          alignItems="center"
+          justifyContent="space-between"
+          style={{ alignItems: "flex-end" }}
+        >
+          <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
+            <img
+              src="/app_static/img/Alpenkonvention_logo_gruen.png"
+              height="75px"
+              width="317px"
+            />
+          </a>
+        </Grid>
+      </Grid>
+      </Box>
+
       <Grid
         container
         sx={{
@@ -115,40 +152,7 @@ export default function Footer({}) {
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
-        <Grid
-          item
-          xs={12}
-          md={6}
-          justifySelf="center"
-          alignItems="center"
-          style={{ alignItems: "flex-end" }}
-        >
-          <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
-            <img
-              src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.png"
-              height="122px"
-              width="206px"
-            />
-          </a>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          md={6}
-          justifySelf="center"
-          alignItems="center"
-          style={{ alignItems: "flex-end" }}
-        >
-          <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
-            <img
-              src="/app_static/img/Alpenkonvention_logo_gruen.png"
-              height="75px"
-              width="317px"
-            />
-          </a>
-        </Grid>
-      </Grid>
+      
     </Box>
   );
 }
