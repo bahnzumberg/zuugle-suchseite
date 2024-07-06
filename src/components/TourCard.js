@@ -123,6 +123,7 @@ export default function TourCard({
         console.log("logoPath: ", logoPath)
         console.log("response.ok: ", response.ok)
         console.log("response.headers.has('Content-Length'):", response.headers.has('Content-Length'))
+        console.log("response.headers.has('Last-Modified'): ", response.headers.has('Last-Modified'))
         if (!response.ok) {
           throw new Error('Logo not found');
         }
