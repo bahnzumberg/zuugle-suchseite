@@ -120,6 +120,8 @@ export default function TourCard({
     const loadImage = async () => {
       try {
         const response = await fetch(logoPath);
+        console.log("logoPath: ", logoPath)
+        console.log("response: ", response)
         if (!response.ok) {
           throw new Error('Logo not found');
         }
@@ -216,7 +218,7 @@ export default function TourCard({
         >
           <img
             src={imageUrl}    
-            alt={tour.provider}
+            alt={tour.provider_name}
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
           <Typography variant="grayP">{tour.provider_name}</Typography>
