@@ -818,7 +818,7 @@ useEffect(() => {
                   anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
                   abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
                   scrollWheelZoom={false}
-                  tourTitle={tour.title}
+                  tourTitle={!!tour?.title && tour.title}
                 />
               </Box>
               <div className="tour-detail-data-container">
