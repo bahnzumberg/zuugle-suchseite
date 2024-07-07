@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import 'leaflet/dist/leaflet.css';
 import L, { divIcon } from 'leaflet';
 
-export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom=false }) {
+export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom=false }) {
   const polyRef = useRef();
   const mapRef  = useRef(null);
 
@@ -32,6 +32,7 @@ export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abre
   };
 
   useEffect(()=>{
+    console.log("L34 tour title :", tourTitle)
     console.log("L35 anreiseGpxPositions :")
     console.log(anreiseGpxPositions )
     console.log("===================================")

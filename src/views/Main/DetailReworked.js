@@ -358,6 +358,8 @@ useEffect(() => {
       if (!tour.cities_object[searchParams.get("city")]) {
         consoleLog("No city L289");
       } else {
+        console.log("L361 : tour title: ", tour.title)
+        console.log("L362 : tour id: ", tour.id)
         console.log("inside block for setting gpx files and tracks")
         console.log("===============================================")
         console.log("L362 tour.gpx_file :");
@@ -816,6 +818,7 @@ useEffect(() => {
                   anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
                   abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
                   scrollWheelZoom={false}
+                  tourTitle={tour.title}
                 />
               </Box>
               <div className="tour-detail-data-container">

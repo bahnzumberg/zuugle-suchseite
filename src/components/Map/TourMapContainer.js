@@ -367,7 +367,8 @@ function TourMapContainer({
       try {
         const _tourDetail = await onSelectTour(tourId);
         const _tour = _tourDetail.data.tour;
-        console.log("L318 _tour:")
+        console.log("L318 _tour:", _tour.title)
+        console.log("L319 _tour.id :", _tour.id)
         console.log(_tour)
         if (_tour) setSelectedTour(_tour);
         if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
