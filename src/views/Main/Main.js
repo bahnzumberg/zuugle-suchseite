@@ -303,12 +303,14 @@ const handleShowCardContainer = useCallback((value) => {
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setShowMap(false);
+      console.log("setting scrollToTop to FALSE")
       setScrollToTop(false)
     }else{
       searchParams.set('map', true)
       //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setShowMap(true)
+      console.log("setting scrollToTop to True")
       setScrollToTop(true)
     }
   }
