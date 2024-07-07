@@ -6,7 +6,7 @@ export const formatMapClusterNumber = (number) => {
   if (number < 1000) {
       return number.toString();
     } else {
-      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 };
 
