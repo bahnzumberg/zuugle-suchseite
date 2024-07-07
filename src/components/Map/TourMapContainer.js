@@ -521,7 +521,7 @@ function TourMapContainer({
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
           zoomSnap={1}
           // maxZoom={15} //how many times you can zoom
-          maxZoom={19} //how many times you can zoom
+          maxZoom={18} //how many times you can zoom
           center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
@@ -532,7 +532,7 @@ function TourMapContainer({
         >
           <TileLayer 
             url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" 
-            maxZoom={19}
+            maxZoom={18}
             maxNativeZoom={19}
           />
 
