@@ -530,7 +530,10 @@ function TourMapContainer({
             updateBounds();
           }}
         >
-          <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
+          <TileLayer 
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" 
+            maxZoom={20}
+          />
 
           {activeMarker && selectedTour && (
             <Popup
