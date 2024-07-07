@@ -12,14 +12,14 @@ export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPosi
     // iconUrl: 'app_static/img/pin-icon-start.png',
     iconUrl: 'app_static/img/startpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
-    iconSize: [30, 41],
+    iconSize: [30, 40],
     iconAnchor: [15, 41],
   });
   const endIcon = L.icon({
     // iconUrl: 'app_static/img/pin-icon-end.png',
     iconUrl: 'app_static/img/zielpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
-    iconSize: [30, 41],
+    iconSize: [25, 32],
     iconAnchor: [15, 41],
   });
 
