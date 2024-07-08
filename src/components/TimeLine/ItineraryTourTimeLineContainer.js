@@ -178,6 +178,9 @@ export default function ItineraryTourTimeLineContainer({
         borderRadius: "16px",
         position: "relative",
         textAlign: "center",
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box' 
       }}
     >
       {!loading ? (
@@ -193,6 +196,8 @@ export default function ItineraryTourTimeLineContainer({
                   display: "flex",
                   flexDirection: "row",
                   position: "relative",
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}
               >
                 <Box
