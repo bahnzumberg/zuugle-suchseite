@@ -562,7 +562,7 @@ function TourMapContainer({
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#FF7663"}}
+                pathOptions={{ weight: 6, color: "#FF7663"}}
                 positions={gpxTrack}
               />,
             ]
@@ -572,9 +572,9 @@ function TourMapContainer({
             totourGpxTrack.length > 0 && [
               <Polyline
                 pathOptions={{ 
-                  weight: 5, 
-                  color: "#00FF00", 
-                  dashArray: '10,10', 
+                  weight: 6, 
+                  color: "#FF7663", 
+                  dashArray: '5,10', 
                   dashOffset: '1' ,
                   opacity: 1,
                   lineCap: 'square',
@@ -588,12 +588,12 @@ function TourMapContainer({
             fromtourGpxTrack.length > 0 && [
               <Polyline
                 pathOptions={{ 
-                  weight: 10, 
+                  weight: 6, 
                   color: "#4A91FF",
                   opacity: 1,
                   // opacity: !!totourGpxTrack ? 0.5 : 1,
                   lineCap: 'square',
-                  dashArray: '10,10',
+                  dashArray: '5,10',
                   dashOffset: '0' 
                 }}
                 positions={fromtourGpxTrack}
