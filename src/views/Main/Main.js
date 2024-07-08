@@ -86,18 +86,7 @@ export function Main({
   const [markersChanged, setMarkersChanged] = useState(false);
   const [showCardContainer, setShowCardContainer] = useState(true)
   
- 
-  //create masterMarkersList inside localStorage
-  // useEffect (()=>{
-  //   if(!!markers && markers.length > 0 ) {
-  //     console.log("L96 useEffect markers")
-  //     console.log(markers)
-  //     localStorage.setItem('masterMarkers', JSON.stringify(markers)) 
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // },[])
-
-  // filter values in localStorage:
+   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount")
     ? localStorage.getItem("filterCount")
     : null;
@@ -232,11 +221,6 @@ export function Main({
     return resultedData;
   }, []);
 
-//Map-related : callback to set the state of "markersSubList" inside Map Container
-// const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
-//   console.log("L239 newMarkersSubList :",newMarkersSubList)
-//   setMarkersSubList(newMarkersSubList);
-// }, []);
 
 //Map-related : callback to set the state of "mapBounds" inside Map Container
 const handleMapBounds = useCallback((bounds) => {
@@ -245,21 +229,13 @@ const handleMapBounds = useCallback((bounds) => {
 
 //Map-related : callback to set the state of "markersChanged" inside Map Container
 const handleChangedMarkers = useCallback((value) => {
-  // console.log("L248 handleChangedBounds , value:", value)
   setMarkersChanged(value);
 }, []);
 
 //Map-related : callback to set the state of "markersChanged" inside Map Container
 const handleShowCardContainer = useCallback((value) => {
-  // console.log("L248 handleChangedBounds , value:", value)
   setShowCardContainer(value);
 }, []);
-
-// useEffect(() => {
-//   console.log("L254 Main / markersSubList: ", markersSubList)// works 
-//   console.log("L255 Main / mapBounds: ", mapBounds) //works
-// }, [markersSubList, mapBounds])
-
 
   const memoTourMapContainer = useMemo(() => {
     return (
@@ -290,20 +266,14 @@ const handleShowCardContainer = useCallback((value) => {
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams);
       setShowMap(false);
-      // console.log("setting scrollToTop to FALSE")
-      // setScrollToTop(false)
     }else{
       searchParams.set('map', true)
       //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams)
       setShowMap(true)
-      // console.log("setting scrollToTop to True")
-      // setScrollToTop(true)
       }
     window.scrollTo({ top: 0 , behavior: 'smooth'});
   }
-
-  // useEffect(()=>console.log(" Scrolltotop value :", scrollToTop))
 
   const renderCardContainer = () => (
     <Box

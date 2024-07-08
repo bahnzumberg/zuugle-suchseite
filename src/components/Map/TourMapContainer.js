@@ -144,7 +144,6 @@ function TourMapContainer({
         // Early exit if no list of visible markers is found
         if (!visibleMarkersObj || Object.keys(visibleMarkersObj).length === 0) {
           handleShowCardContainer(false);  // so we can remove the card container 
-          // console.log("L149 exiting visibleMarkersObj.length: ", visibleMarkersObj.length)
           return;
         }else{
           handleShowCardContainer(true);  // so we can retain the card container when markers are there 
@@ -156,8 +155,6 @@ function TourMapContainer({
       const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
 
-      consoleLog("L392 check :", check);
-      // if (!!check ) {
       if (!!check && !!visibleMarkersObj && !!visibleMarkersArray) { 
         setMarkersSubList(visibleMarkersArray); // set the state of "markersSubList" defined inside Main
         localStorage.setItem("visibleMarkers", JSON.stringify(visibleMarkersArray));
@@ -173,23 +170,6 @@ function TourMapContainer({
   // eslint-disable-next-line no-use-before-define
   }, [mapBounds]);  
 
-  // useEffect(() => {
-  //     // Set default bounds to Austria's geographic bounds
-  //     const defaultBounds = L.latLngBounds(
-  //         L.latLng(46.372, 9.530), // Southwest corner (latitude, longitude)
-  //         L.latLng(49.019, 17.189) // Northeast corner (latitude, longitude)
-  //     );
-  //     // console.log('Default Bounds:', defaultBounds);
-
-  //     // Update the bounds when the map is first initialized
-  //     if (!!mapRef.current && defaultBounds.isValid()) {
-  //         // Delay execution to ensure map is fully initialized
-  //         setTimeout(() => {
-  //             console.log('Fitting Bounds:', defaultBounds);
-  //             mapRef.current.fitBounds(defaultBounds);
-  //         }, 100); // Adjust delay as needed
-  //     }
-  // }, []);
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
@@ -245,7 +225,6 @@ function TourMapContainer({
 
   // fitting bounds when cluster is clicked
   const updateBounds = () => {
-    // console.log('Updated Bounds');
     if (
       !!mapRef &&
       !!mapRef.current &&
@@ -287,8 +266,6 @@ function TourMapContainer({
   };
 
   const handleTotourGpxTrack = async (url) => {
-    // console.log("L308 url incoming to handleTotourGpxTrack :");
-    // console.log(url);
     if (!!url) {
       try {
         const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -313,8 +290,6 @@ function TourMapContainer({
   };
 
   const handleFromtourGpxTrack = async (url) => {
-    // console.log("L308 url incoming to handleTotourGpxTrack :");
-    // console.log(url);
     if (!!url) {
       try {
         const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -340,8 +315,6 @@ function TourMapContainer({
 
   const handleMarkerClick = useCallback(
     async (tourInfo, tourId) => {
-      // console.log("Marker Click");
-
       setSelectedTour(null);
       setIsLoading(true);
       setActiveMarker(tourInfo);
@@ -350,9 +323,6 @@ function TourMapContainer({
       try {
         const _tourDetail = await onSelectTour(tourId);
         const _tour = _tourDetail.data.tour;
-        console.log("L318 _tour:", _tour.title)
-        console.log("L319 _tour.id :", _tour.id)
-        console.log(_tour)
         if (_tour) setSelectedTour(_tour);
         if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
         if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
@@ -465,23 +435,7 @@ function TourMapContainer({
       //pull filtervalues from localStorage and pass it to params for setting
       localStorage.setItem("MapToggle", true); //The map should stay the same after rendering the page
       // setSearchParams(searchParams); //set the search Params and start the call to the backend
-      // console.log("L230 searchParams set to:", JSON.stringify(searchParams));
-
   };
-
-  //if (markers) console.log("L446 markers.length", markers.length);// correspond to number of visible markers
-
-  // const MapLogger = () => {
-  //   const map = useMap();
-  
-  //   useEffect(() => {
-  //     if (map) {
-  //       console.log('Map instance:', map);
-  //     }
-  //   }, [map]);
-  
-  //   return null;
-  // };
 
   return (
     <Box

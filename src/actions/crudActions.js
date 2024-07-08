@@ -54,7 +54,7 @@ export async function loadFile(
 
     return res;
   } catch (error) {
-      console.log(" error :, L39", error.message);
+      console.log(" error:, ", error.message);
       throw error;
   }
 }

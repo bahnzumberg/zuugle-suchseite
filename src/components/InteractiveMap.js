@@ -31,15 +31,6 @@ export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPosi
     return <Marker position={position} icon={endIcon}></Marker>;
   };
 
-  useEffect(()=>{
-    console.log("L34 tour title :", tourTitle)
-    console.log("L35 anreiseGpxPositions :")
-    console.log(anreiseGpxPositions )
-    console.log("===================================")
-    console.log("L36 abreiseGpxPositions :")
-    console.log(abreiseGpxPositions )
-    console.log("===================================")
-  }, []);
 
 useEffect(() => {
   let map = mapRef.current;

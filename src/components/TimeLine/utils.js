@@ -544,14 +544,6 @@ export const getWalkEntry = (
   ];
 };
 
-
-// export function formatToHHMM(duration) {
-//   // Parse parameter using moment
-//   const parsedDuration = moment.duration(duration);
-//   const formattedDuration = parsedDuration.format("hh:mm");
-//   // Return formatted duration
-//   return `${formattedDuration} Std`;
-// }
 export function formatToHHMM(durationString) {
   const parsedDuration = moment.duration(durationString);
   const formattedDuration = moment.utc(parsedDuration.asMilliseconds()).format("HH:mm");
@@ -560,5 +552,4 @@ export function formatToHHMM(durationString) {
 // Example usage:
 // const originalDuration = "00:25:39 Std";
 // const transformedDuration = toHHMM(originalDuration);
-// console.log(transformedDuration); // Output: "00:25 Std"
 
