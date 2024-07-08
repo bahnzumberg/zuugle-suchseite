@@ -19,7 +19,7 @@ export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPosi
     // iconUrl: 'app_static/img/pin-icon-end.png',
     iconUrl: 'app_static/img/zielpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
-    iconSize: [22, 30],
+    iconSize: [37, 44],
     iconAnchor: [15, 41],
   });
 
