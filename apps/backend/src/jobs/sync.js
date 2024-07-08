@@ -352,10 +352,10 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
+    const allTours = await knex('tour').select(["title", "hashed_url"]);
     if(!!allTours && allTours.length > 0){
         const promises = allTours.map(entry => {
-            return _syncGPX(entry.provider, entry.hashed_url, entry.title);
+            return _syncGPX(entry.hashed_url, entry.title);
         });
         await Promise.all(promises);
     }
@@ -381,17 +381,7 @@ export async function syncGPXImage(){
 
 }
 
-// function last_two_characters(h_url) {
-//     const hashed_url = h_url.toString();
-//     if (hashed_url.length >= 2) {
-//         return hashed_url.substr(hashed_url.length - 2).toString();
-//     }
-//     else {
-//         return "undefined";
-//     }
-// }
-
-async function _syncGPX(prov, h_url, title){
+async function _syncGPX(h_url, title){
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
@@ -423,8 +413,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-      
-        const root = create({ version: '1.0' })
+          const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
             .ele('name').txt(title).up()
@@ -438,6 +427,7 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
         const xml = root.end({ prettyPrint: true });
         if(!!xml){
             await fs.writeFileSync(filePath, xml);
+            await fs.close();
         }
     }
 }
