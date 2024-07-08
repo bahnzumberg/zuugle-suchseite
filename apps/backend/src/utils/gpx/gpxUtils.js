@@ -64,7 +64,7 @@ export const createImagesFromMap = async (ids) => {
             });
 
             let url = process.env.NODE_ENV === "production" ? 
-            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
+            "https://www2.zuugle.at/public/headless-leaflet/index.html?gpx=https://www2.zuugle.at/public/gpx/" 
             :
             "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
         
@@ -141,13 +141,15 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
     try {
         if(!!filePath){
             const page = await browser.newPage();
-            await page.emulateMediaType('print'); 
-            await page.setCacheEnabled(false);
-            await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); 
-            await page.waitForTimeout(10);
-            await page.bringToFront();
-            await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
-            await page.close();
+            if (!!page) {
+                await page.emulateMediaType('print'); 
+                await page.setCacheEnabled(false);
+                await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); 
+                await page.waitForTimeout(10);
+                await page.bringToFront();
+                await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
+                await page.close();
+            }
         }
     } catch (err) {
         console.log('createImageFromMap error with url=',url, ' error:', err.message);
