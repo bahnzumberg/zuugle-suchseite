@@ -427,7 +427,8 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
         const xml = root.end({ prettyPrint: true });
         if(!!xml){
             await fs.writeFileSync(filePath, xml);
-            await fs.close();
+            const filedisc = fs.openSync(filePath) 
+            fs.close(filedisc);
         }
     }
 }
