@@ -353,6 +353,7 @@ export async function syncGPX(){
     prepareDirectories();
 
     const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
+    knex.destroy()
     if(!!allTours && allTours.length > 0){
         const promises = allTours.map(entry => {
             return _syncGPX(entry.provider, entry.hashed_url, entry.title);
@@ -381,15 +382,6 @@ export async function syncGPXImage(){
 
 }
 
-// function last_two_characters(h_url) {
-//     const hashed_url = h_url.toString();
-//     if (hashed_url.length >= 2) {
-//         return hashed_url.substr(hashed_url.length - 2).toString();
-//     }
-//     else {
-//         return "undefined";
-//     }
-// }
 
 async function _syncGPX(prov, h_url, title){
     return new Promise(async resolve => {
@@ -409,6 +401,7 @@ async function _syncGPX(prov, h_url, title){
             let filePathName = filePath + fileName;
             if (!!!fs.existsSync(filePathName)) {
                 const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
+                knex.destroy()
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
                     await createFileFromGpx(waypoints, filePathName, title);
                 }
