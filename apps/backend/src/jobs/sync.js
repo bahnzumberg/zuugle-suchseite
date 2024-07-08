@@ -352,12 +352,18 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    const allTours = await knex('tour').select(["title", "hashed_url"]);
-    if(!!allTours && allTours.length > 0){
-        const promises = allTours.map(entry => {
-            return _syncGPX(entry.hashed_url, entry.title);
-        });
-        await Promise.all(promises);
+    // const allTours = await knex('tour').select(["title", "hashed_url"]);
+    for (let i=0; i<=9; i++) {
+        console.log(i)
+        const sql_tour = "SELECT hashed_url, title FROM tour WHERE MOD(id, 10)="+i
+        const allTours = await knex.raw(sql_tour)
+
+        if(!!allTours && allTours.length > 0){
+            const promises = allTours.map(entry => {
+                return _syncGPX(entry.hashed_url, entry.title);
+            });
+            await Promise.all(promises);
+        }
     }
     return true;
 }
