@@ -44,7 +44,8 @@ function TourMapContainer({
   handleChangedMarkers,
   setMarkersSubList,
   setMapBounds,
-  mapBounds
+  mapBounds,
+  handleShowCardContainer
 }) {
   const dispatch = useDispatch(); // Get dispatch function from Redux
   // const getState = useSelector(state => state); // Get state from Redux
@@ -61,9 +62,10 @@ function TourMapContainer({
 
   const createIcon = () => {
     return L.icon({
-      iconUrl: "app_static/img/pin-icon-start.png", //the acutal picture
+      iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      iconSize: [30, 41], //size of the icon
+      // iconSize: [30, 41], //size of the icon
+      iconSize: [40, 51], //size of the icon
       iconAnchor: [15, 41],
     });
   };
@@ -80,6 +82,8 @@ function TourMapContainer({
   const markerRef = useRef(null);
 
   const [gpxTrack, setGpxTrack] = useState([]);
+  const [totourGpxTrack, setTotourGpxTrack] = useState([]);
+  const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeMarker, setActiveMarker] = useState(null);
 
@@ -139,8 +143,11 @@ function TourMapContainer({
         
         // Early exit if no list of visible markers is found
         if (!visibleMarkersObj || Object.keys(visibleMarkersObj).length === 0) {
-          
+          handleShowCardContainer(false);  // so we can remove the card container 
+          // console.log("L149 exiting visibleMarkersObj.length: ", visibleMarkersObj.length)
           return;
+        }else{
+          handleShowCardContainer(true);  // so we can retain the card container when markers are there 
         }
         // if found extract only IDs in an array
         visibleMarkersArray = createIdArray(visibleMarkersObj);
@@ -215,6 +222,7 @@ function TourMapContainer({
       return true;
     } else return false;
   };
+
   //saves the bounds on localStorage
   const assignNewMapPosition = (position) => {
     localStorage.setItem(
@@ -254,7 +262,7 @@ function TourMapContainer({
     }
   };
 
-  const setCurrentGpxTrack = async (url) => {
+  const handleGpxTrack = async (url) => {
     if (!!url) {
       try {
         const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
@@ -263,10 +271,62 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            // consoleLog("L190 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            consoleLog("L290 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
             //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setGpxTrack(track);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
+      }
+    } else {
+      setGpxTrack([]);
+    }
+  };
+
+  const handleTotourGpxTrack = async (url) => {
+    // console.log("L308 url incoming to handleTotourGpxTrack :");
+    // console.log(url);
+    if (!!url) {
+      try {
+        const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadTotourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+            setTotourGpxTrack(track);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
+      }
+    } else {
+      setGpxTrack([]);
+    }
+  };
+
+  const handleFromtourGpxTrack = async (url) => {
+    // console.log("L308 url incoming to handleTotourGpxTrack :");
+    // console.log(url);
+    if (!!url) {
+      try {
+        const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadFromtourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+            setFromtourGpxTrack(track);
           }
         }
       } catch (error) {
@@ -290,8 +350,13 @@ function TourMapContainer({
       try {
         const _tourDetail = await onSelectTour(tourId);
         const _tour = _tourDetail.data.tour;
+        console.log("L318 _tour:", _tour.title)
+        console.log("L319 _tour.id :", _tour.id)
+        console.log(_tour)
         if (_tour) setSelectedTour(_tour);
-        if (_tour && _tour.gpx_file) setCurrentGpxTrack(_tour.gpx_file);
+        if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
+        if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
+        if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
       } catch (error) {
         console.error("Error fetching tour details:", error);
       } finally {
@@ -333,7 +398,6 @@ function TourMapContainer({
         }
         assignNewMapPosition(position);
         debouncedStoppedMoving(map.getBounds());
-        // setMapBounds(map.getBounds())  ; // this is related to the use effect that sets visibleMarkers 
         handleMapBounds(map.getBounds())
       },
     });
@@ -349,6 +413,7 @@ function TourMapContainer({
       });
     };
   };
+
 
   function makeDebounced(func, timeout) {
     //Function for the actual debounce
@@ -367,6 +432,7 @@ function TourMapContainer({
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
+    // consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
     const filterValues = {
       //All Values in the URL
       coordinatesSouthWest: bounds?._southWest,
@@ -399,7 +465,23 @@ function TourMapContainer({
       //pull filtervalues from localStorage and pass it to params for setting
       localStorage.setItem("MapToggle", true); //The map should stay the same after rendering the page
       // setSearchParams(searchParams); //set the search Params and start the call to the backend
+      // console.log("L230 searchParams set to:", JSON.stringify(searchParams));
+
   };
+
+  //if (markers) console.log("L446 markers.length", markers.length);// correspond to number of visible markers
+
+  // const MapLogger = () => {
+  //   const map = useMap();
+  
+  //   useEffect(() => {
+  //     if (map) {
+  //       console.log('Map instance:', map);
+  //     }
+  //   }, [map]);
+  
+  //   return null;
+  // };
 
   return (
     <Box
@@ -419,6 +501,7 @@ function TourMapContainer({
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
           zoomSnap={1}
           maxZoom={15} //how many times you can zoom
+          //maxZoom={16} //how many times you can zoom
           center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
@@ -427,7 +510,11 @@ function TourMapContainer({
             updateBounds();
           }}
         >
-          <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
+          <TileLayer 
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" 
+            maxZoom={16}
+            maxNativeZoom={19}
+          />
 
           {activeMarker && selectedTour && (
             <Popup
@@ -454,10 +541,44 @@ function TourMapContainer({
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
-                pathOptions={{ weight: 5, color: "#FF7663" }}
+                pathOptions={{ weight: 6, color: "#FF7663"}}
                 positions={gpxTrack}
               />,
-            ]}
+            ]
+          }
+
+          {!!totourGpxTrack &&
+            totourGpxTrack.length > 0 && [
+              <Polyline
+                pathOptions={{ 
+                  weight: 6, 
+                  color: "#FF7663", 
+                  dashArray: '5,10', 
+                  dashOffset: '1' ,
+                  opacity: 1,
+                  lineCap: 'square',
+                }}
+                positions={totourGpxTrack}
+              />,
+            ]
+          }
+          {/* blue color  */}
+          {!!fromtourGpxTrack &&
+            fromtourGpxTrack.length > 0 && [
+              <Polyline
+                pathOptions={{ 
+                  weight: 6, 
+                  color: "#4A91FF",
+                  opacity: 1,
+                  // opacity: !!totourGpxTrack ? 0.5 : 1,
+                  lineCap: 'square',
+                  dashArray: '5,10',
+                  dashOffset: '0' 
+                }}
+                positions={fromtourGpxTrack}
+              />,
+            ]
+          }
 
           <MarkerClusterGroup
             // key={new Date().getTime()}

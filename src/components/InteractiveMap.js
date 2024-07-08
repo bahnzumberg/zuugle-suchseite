@@ -4,20 +4,22 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet
 import 'leaflet/dist/leaflet.css';
 import L, { divIcon } from 'leaflet';
 
-export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom=false }) {
+export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPositions, abreiseGpxPositions, scrollWheelZoom=false }) {
   const polyRef = useRef();
   const mapRef  = useRef(null);
 
   const startIcon = L.icon({
-    iconUrl: 'app_static/img/pin-icon-start.png',
+    // iconUrl: 'app_static/img/pin-icon-start.png',
+    iconUrl: 'app_static/img/startpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
-    iconSize: [30, 41],
+    iconSize: [30, 40],
     iconAnchor: [15, 41],
   });
   const endIcon = L.icon({
-    iconUrl: 'app_static/img/pin-icon-end.png',
+    // iconUrl: 'app_static/img/pin-icon-end.png',
+    iconUrl: 'app_static/img/zielpunkt.png',
     shadowUrl: 'app_static/img/pin-shadow.png',
-    iconSize: [30, 41],
+    iconSize: [22, 30],
     iconAnchor: [15, 41],
   });
 
@@ -29,6 +31,15 @@ export default function InteractiveMap({ gpxPositions, anreiseGpxPositions, abre
     return <Marker position={position} icon={endIcon}></Marker>;
   };
 
+  useEffect(()=>{
+    console.log("L34 tour title :", tourTitle)
+    console.log("L35 anreiseGpxPositions :")
+    console.log(anreiseGpxPositions )
+    console.log("===================================")
+    console.log("L36 abreiseGpxPositions :")
+    console.log(abreiseGpxPositions )
+    console.log("===================================")
+  }, []);
 
 useEffect(() => {
   let map = mapRef.current;

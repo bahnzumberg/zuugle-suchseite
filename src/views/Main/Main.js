@@ -83,8 +83,19 @@ export function Main({
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
   const [mapBounds, setMapBounds] = useState(null);
-
   const [markersChanged, setMarkersChanged] = useState(false);
+  const [showCardContainer, setShowCardContainer] = useState(true)
+  
+ 
+  //create masterMarkersList inside localStorage
+  // useEffect (()=>{
+  //   if(!!markers && markers.length > 0 ) {
+  //     console.log("L96 useEffect markers")
+  //     console.log(markers)
+  //     localStorage.setItem('masterMarkers', JSON.stringify(markers)) 
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // },[])
 
   // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount")
@@ -98,12 +109,13 @@ export function Main({
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
 
-  useEffect(() => {
-    if (scrollToTop) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [scrollToTop]);
-
+  // useEffect(() => {
+  //   if (scrollToTop) {
+  //     window.scrollTo({ top: 0 , behavior: 'smooth'});
+  //   }
+  // }, [scrollToTop]);
+  
+  
   useEffect(() => {
     loadAllCities();
     loadRanges({ ignore_limit: true, remove_duplicates: true });
@@ -220,15 +232,34 @@ export function Main({
     return resultedData;
   }, []);
 
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  const handleMapBounds = useCallback((bounds) => {
-    setMapBounds(bounds);
-  }, []);
+//Map-related : callback to set the state of "markersSubList" inside Map Container
+// const handleMarkersSubListChange = useCallback((newMarkersSubList) => {
+//   console.log("L239 newMarkersSubList :",newMarkersSubList)
+//   setMarkersSubList(newMarkersSubList);
+// }, []);
 
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  const handleChangedMarkers = useCallback((value) => {
-    setMarkersChanged(value);
-  }, []);
+//Map-related : callback to set the state of "mapBounds" inside Map Container
+const handleMapBounds = useCallback((bounds) => {
+  setMapBounds(bounds);
+}, []);
+
+//Map-related : callback to set the state of "markersChanged" inside Map Container
+const handleChangedMarkers = useCallback((value) => {
+  // console.log("L248 handleChangedBounds , value:", value)
+  setMarkersChanged(value);
+}, []);
+
+//Map-related : callback to set the state of "markersChanged" inside Map Container
+const handleShowCardContainer = useCallback((value) => {
+  // console.log("L248 handleChangedBounds , value:", value)
+  setShowCardContainer(value);
+}, []);
+
+// useEffect(() => {
+//   console.log("L254 Main / markersSubList: ", markersSubList)// works 
+//   console.log("L255 Main / mapBounds: ", mapBounds) //works
+// }, [markersSubList, mapBounds])
+
 
   const memoTourMapContainer = useMemo(() => {
     return (
@@ -246,6 +277,7 @@ export function Main({
         handleChangedMarkers={handleChangedMarkers}
         setMapBounds={setMapBounds}
         mapBounds={mapBounds}
+        handleShowCardContainer={handleShowCardContainer}
       />
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -258,13 +290,20 @@ export function Main({
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams);
       setShowMap(false);
-    } else {
-      searchParams.set("map", true);
+      // console.log("setting scrollToTop to FALSE")
+      // setScrollToTop(false)
+    }else{
+      searchParams.set('map', true)
       //add filterValues from localStorage ? here or inside the mapcontainer ?
-      setSearchParams(searchParams);
-      setShowMap(true);
-    }
-  };
+      setSearchParams(searchParams)
+      setShowMap(true)
+      // console.log("setting scrollToTop to True")
+      // setScrollToTop(true)
+      }
+    window.scrollTo({ top: 0 , behavior: 'smooth'});
+  }
+
+  // useEffect(()=>console.log(" Scrolltotop value :", scrollToTop))
 
   const renderCardContainer = () => (
     <Box
@@ -301,43 +340,39 @@ export function Main({
 
   const totalToursHeader = () => (
     <Box elevation={0} className={"header-line-main"}>
-      <Box
-        sx={{
-          // paddingTop: paddingTop,
-          paddingTop: paddingTopValue,
-          // paddingBottom: "25.5px",
-          paddingBottom: paddingBottomValue,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          "@media (min-width: 900px)": {
-            paddingTop: largeScreenPaddingTop,
-          },
-        }}
-      >
-        <Typography
-          color={"black"}
-          sx={{ textAlign: "center", paddingTop: "0px" }}
-        >
-          {Number(totalTours).toLocaleString()}{" "}
-          {totalTours === 1
-            ? ` ${t("main.ergebnis")}`
-            : ` ${t("main.ergebnisse")}`}
-        </Typography>
-        {!!filterCountLocal && filterCountLocal > 0 && (
-          // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )
-          <Box display={"flex"} alignItems={"center"}>
-            &nbsp;{" - "}&nbsp;
-            <Typography
-              sx={{
-                fontSize: "16px",
-                color: "#FF7663",
-                fontWeight: "600",
-                mr: "2px",
-              }}
-            >
-              {t("filter.filter")}
-              </Typography>
+          <Box
+            sx={{
+              // paddingTop: paddingTop,
+              paddingTop: paddingTopValue,
+              // paddingBottom: "25.5px",
+              paddingBottom: paddingBottomValue,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              '@media (min-width: 900px)': {
+                paddingTop: largeScreenPaddingTop,
+              },
+            }}
+          >
+            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
+              {!!showCardContainer? Number(totalTours).toLocaleString() : 0}{" "}
+              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+            </Typography>
+            {(!!filterCountLocal && filterCountLocal > 0 )   
+            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
+            && (
+              <Box display={"flex"} alignItems={"center"}>
+                &nbsp;{" - "}&nbsp;
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    color: "#FF7663",
+                    fontWeight: "600",
+                    mr: "2px",
+                  }}
+                >
+                  {t("filter.filter")}
+                </Typography>
               </Box>
             )}
           </Box>
@@ -443,18 +478,14 @@ export function Main({
               {totalToursHeader()}
               {!!tours && tours.length > 0 && (
                 <>
-                  {renderCardContainer()}
-                  <MapBtn
-                    showMap={showMap}
-                    onClick={toggleMapHandler}
-                    btnSource="main"
-                  />
+                  {showCardContainer && renderCardContainer()}
+                  <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
                 </>
               )}
             </>
           ) : (
             !!tours &&
-            tours.length > 0 && (
+            tours.length > 0 && showCardContainer &&(
               <>
                 {renderCardContainer()}
                 <MapBtn

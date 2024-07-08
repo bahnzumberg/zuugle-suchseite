@@ -340,6 +340,19 @@ useEffect(() => {
     if (tour) {
       if (!tour.cities_object[searchParams.get("city")]) {
       } else {
+        console.log("L361 : tour title: ", tour.title)
+        console.log("L362 : tour id: ", tour.id)
+        console.log("inside block for setting gpx files and tracks")
+        console.log("===============================================")
+        console.log("L362 tour.gpx_file :");
+        console.log( tour.gpx_file)
+        console.log("===============================================")
+        console.log("L363 tour.totour_gpx_file :");
+        console.log( tour.totour_gpx_file)
+        console.log("===============================================")
+        console.log("L364 tour.fromtour_gpx_file :");
+        console.log( tour.fromtour_gpx_file)
+        console.log("===============================================")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -781,6 +794,7 @@ useEffect(() => {
                   anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
                   abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
                   scrollWheelZoom={false}
+                  tourTitle={!!tour?.title && tour.title}
                 />
               </Box>
               <div className="tour-detail-data-container">
