@@ -61,10 +61,12 @@
                 shadowUrl: 'pin-shadow.png'
             },
             polyline_options: {
-                color: 'green',
+                weight: 6, 
+                color: "#4A91FF", 
+                dashArray: '5,10', 
+                dashOffset: '1' ,
                 opacity: 1,
-                weight: 6,
-                lineCap: 'round'
+                lineCap: 'square',
             }
         }).on('loaded', function(e) {
             map.fitBounds(e.target.getBounds().pad(0.15));
