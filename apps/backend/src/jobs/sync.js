@@ -354,7 +354,6 @@ export async function syncGPX(){
 
     // const allTours = await knex('tour').select(["title", "hashed_url"]);
     for (let i=0; i<=9; i++) {
-        console.log(i)
         const sql_tour = "SELECT hashed_url, title FROM tour WHERE MOD(id, 10)="+i
         const allTours = await knex.raw(sql_tour)
 
