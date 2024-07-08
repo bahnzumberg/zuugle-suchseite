@@ -352,13 +352,17 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
-    knex.destroy()
-    if(!!allTours && allTours.length > 0){
-        const promises = allTours.map(entry => {
-            return _syncGPX(entry.provider, entry.hashed_url, entry.title);
-        });
-        await Promise.all(promises);
+    // const allTours = await knex('tour').select(["title", "hashed_url"]);
+    for (let i=0; i<=9; i++) {
+        const sql_tour = "SELECT hashed_url, title FROM tour WHERE MOD(id, 10)="+i
+        const allTours = await knex.raw(sql_tour)
+
+        if(!!allTours && allTours.length > 0){
+            const promises = allTours.map(entry => {
+                return _syncGPX(entry.hashed_url, entry.title);
+            });
+            await Promise.all(promises);
+        }
     }
     return true;
 }
@@ -382,8 +386,12 @@ export async function syncGPXImage(){
 
 }
 
+<<<<<<< HEAD
 
 async function _syncGPX(prov, h_url, title){
+=======
+async function _syncGPX(h_url, title){
+>>>>>>> main
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
@@ -416,8 +424,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-      
-        const root = create({ version: '1.0' })
+          const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
             .ele('name').txt(title).up()
@@ -431,6 +438,8 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
         const xml = root.end({ prettyPrint: true });
         if(!!xml){
             await fs.writeFileSync(filePath, xml);
+            const filedisc = fs.openSync(filePath) 
+            fs.close(filedisc);
         }
     }
 }
