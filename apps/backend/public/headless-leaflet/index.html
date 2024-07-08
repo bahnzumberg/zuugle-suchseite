@@ -67,8 +67,8 @@
         new L.GPX(gpxTrackUrls[0], {
             async: true,
             marker_options: {
-                startIconUrl: gpxTrackUrls.length == 1 ? 'pin-icon-start.png' : 'transparent.png',
-                endIconUrl: gpxTrackUrls.length == 1 ? 'pin-icon-end.png' : 'transparent.png',
+                startIconUrl: gpxTrackUrls.length == 1 ? 'startpunkt.png' : 'transparent.png',
+                endIconUrl: gpxTrackUrls.length == 1 ? 'zielpunkt.png' : 'transparent.png',
                 shadowUrl: 'pin-shadow.png'
             },
             polyline_options: {
@@ -88,12 +88,12 @@
             async: true,
             marker_options: {
                 startIconUrl: 'transparent.png',
-                endIconUrl: 'pin-icon-end.png',
+                endIconUrl: 'zielpunkt.png',
                 shadowUrl: 'transparent.png'
             },
             polyline_options: {
                 // color: 'blue',
-                color: 'green',
+                color: '#FF7663',
                 opacity: 1,
                 weight: 6,
                 lineCap: 'round'
@@ -105,13 +105,13 @@
         new L.GPX(gpxTrackUrls[2], {
             async: true,
             marker_options: {
-                startIconUrl: 'pin-icon-start.png',
-                endIconUrl: 'transparent.png',
+                startIconUrl: 'startpunkt.png',
+                endIconUrl: 'zielpunkt.png',
                 shadowUrl: 'transparent.png'
             },
             polyline_options: {
                 // color: 'blue',
-                color: 'green',
+                color: '#FF7663',
                 opacity: 1,
                 weight: 6,
                 lineCap: 'round'

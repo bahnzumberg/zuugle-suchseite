@@ -57,15 +57,16 @@
             async: true,
             marker_options: {
                 startIconUrl: 'pin-stopsign.png',
-                endIconUrl: 'pin-icon-start.png',
+                endIconUrl: 'zielpunkt.png',
                 shadowUrl: 'pin-shadow.png'
             },
             polyline_options: {
-                // color: 'blue',
-                color: 'green',
+                weight: 6, 
+                color: "#FF7663", 
+                dashArray: '5,10', 
+                dashOffset: '1' ,
                 opacity: 1,
-                weight: 6,
-                lineCap: 'round'
+                lineCap: 'square',
             }
         }).on('loaded', function(e) {
             map.fitBounds(e.target.getBounds().pad(0.15));

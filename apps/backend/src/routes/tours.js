@@ -83,17 +83,37 @@ const getWrapper = async (req, res) => {
         return;
     }
 
-    if(!!!id){
-       
+    if(!!!id){     
         res.status(404).json({success: false});
         return
     }
-    // } else {
-    let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-    let entryQuery = knex('tour').select(selects).where({id: id}).first();
+    
+    // let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
+    // let entryQuery = knex('tour').select(selects).where({id: id}).first();
 
     try {
-        let entry = await entryQuery;
+        // let entry = await entryQuery;
+        const sql = "SELECT id, url, provider, hashed_url, description, image_url, ascent, \
+                    descent, difficulty, difficulty_orig , duration, distance, title, type, \
+                    number_of_days, traverse, country, state, range_slug, range, season, \
+                    month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele \
+                    FROM ( \
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season, \
+                    t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele, 1 AS prio \
+                    FROM tour as t WHERE t.id=" + id +
+                    " UNION \
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, \
+                    'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, \
+                    null as cities_object, 0 as max_ele, 2 AS prio \
+                    FROM tour_inactive as t WHERE t.id=" + id +
+                    " ORDER BY prio ASC LIMIT 1) as a"
+        let entry2 = await knex.raw(sql)
+        let entry = entry2.rows[0]
+
         if (!entry) {
             res.status(404).json({ success: false, message: "Tour not found" });
             return;
@@ -145,6 +165,7 @@ const listWrapper = async (req, res) => {
     let addDetails = true; 
 
     // This determines, if there is a search term given by the user.
+    // let searchIncluded = !!search && !!search.length > 0;
     let searchIncluded = !!search && !!search.length > 0;
 
     //construct the array of selected columns 
@@ -155,14 +176,25 @@ const listWrapper = async (req, res) => {
    
 
     let where = {};
-
+    // logger("I am alive and kcking !")
+    // const tld_1 = get_domain_country(domain);
+    // let b
+    // if(city){
+    //     b = `select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.city_slug = '${city}'`
+    // }else {
+    //     b =`select id, url, t.provider, t.hashed_url, description, image_url, ascent, descent, difficulty, difficulty_orig,duration, distance, title, "type", number_of_days, traverse, country, state, range_slug, "range", season, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, "dec", month_order, quality_rating, user_rating_avg, cities, cities_object, full_text, search_column, separator, gpx_data, max_ele, text_lang,c2t.connection_arrival_stop_lon, c2t.connection_arrival_stop_lat from tour t inner join city2tour c2t on t.id = c2t.tour_id and c2t.stop_selector = 'y' AND c2t.reachable_from_country = '${tld_1}'`
+    // }
     //********************************************************************++*/
     // CREATE QUERY / NO SEARCH
     //********************************************************************++*/
 
     //define the query using knex (table name is tour) and use the 'selects' array constructed above.
+    // let query = knex.raw(b)
     let query = knex('tour').select(selects);
     let countQuery = knex('tour').count('id');
+
+    // logger("L175 Query :")
+    // logger(query.toQuery())
 
     //initialize a new variable 'whereRaw' and use it to define the where statments
     let whereRaw = null;
@@ -238,6 +270,8 @@ const listWrapper = async (req, res) => {
         countQuery = countQuery.andWhereRaw(whereRaw);
     }
 
+    logger("L253 query:")
+    logger(query.toQuery())
     
     // ****************************************************************
     // FILTER  / (BOTH)
@@ -333,7 +367,7 @@ const listWrapper = async (req, res) => {
             // and on the quality_rating (the value of 10 should result in 1.1 and the value of 0 in 0.1)
 
             if(!!city && city.length > 0){
-                _traveltime_weight = ` * 2.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
+                _traveltime_weight = ` * 5.0-1000.0/((1000-ABS(90-c.min_connection_duration))-1) `
                 _traveltime_join = ` INNER JOIN city2tour as c ON c.tour_id=i${i + 1}.id AND c.city_slug='${city}' `
             }
 
@@ -346,8 +380,8 @@ const listWrapper = async (req, res) => {
                     encodeLang[i][lang]
                     }', ' ${_search}')) * ${langRank} 
                     * 1.0/(ABS(1100-ascent)+1)
-                    * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
-                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (CASE WHEN difficulty=2 THEN 5 ELSE 2 END)
+                    * (CASE WHEN traverse=1 THEN 5 ELSE 1 END)
                     * (quality_rating+1)/10.0
                     * 1.0 / (month_order+0.5)
                     ${_traveltime_weight}
@@ -370,7 +404,7 @@ const listWrapper = async (req, res) => {
                     }', ' "${_search}" ${_search}:*')) * ${langRank} 
                     * 1.0/(ABS(1100-ascent)+1)
                     * (CASE WHEN difficulty=2 THEN 0.5 ELSE 0.2 END)
-                    * (CASE WHEN traverse=1 THEN 1 ELSE 0.5 END)
+                    * (CASE WHEN traverse=1 THEN 5 ELSE 1 END)
                     * (quality_rating+1)/10.0
                     * 1.0 / (month_order+0.5)
                     ${_traveltime_weight}
@@ -511,8 +545,8 @@ const listWrapper = async (req, res) => {
           }
 
     }else{
-        // console.log('L486 : inside "No search term" included')
-        // console.log(query.toQuery())
+        console.log('L486 : inside "No search term" included')
+        console.log(query.toQuery())
 
         // markers-related
         // if(map === true) {
@@ -546,8 +580,12 @@ const listWrapper = async (req, res) => {
     }
     
 
-    //preparing tour entries
-    //this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry function returns a modified version of the entry that includes additional data and formatting. The function also sets the 'is_map_entry' property of the entry to true if map is truthy. The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before returning the final result array.
+    // preparing tour entries
+    // this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry 
+    // function returns a modified version of the entry that includes additional data and formatting. 
+    // The function also sets the 'is_map_entry' property of the entry to true if map is truthy. 
+    // The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before 
+    // returning the final result array.
     if(result && Array.isArray(result)){
         await Promise.all(result.map(entry => new Promise(async resolve => {
             entry = await prepareTourEntry(entry, city, domain, addDetails);
@@ -614,7 +652,11 @@ const listWrapper = async (req, res) => {
     }
 
     //describe:
-    // The result array contains the list of tours returned from the database after executing the main query. This array is already looped through to transform each tour entry with additional data and metadata using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, the tours array, the total count of tours returned by the main query, the current page, and the ranges array (if showRanges is true).
+    // The result array contains the list of tours returned from the database after executing the main query. 
+    // This array is already looped through to transform each tour entry with additional data and metadata 
+    // using the prepareTourEntry function. Finally, a JSON response is returned with success set to true, 
+    // the tours array, the total count of tours returned by the main query, the current page, and the 
+    // ranges array (if showRanges is true).
 
     let count_final = searchIncluded ? sql_count : count['count'];
     // console.log("L 563 count_final :", count_final)

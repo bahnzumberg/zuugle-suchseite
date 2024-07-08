@@ -12,6 +12,8 @@ import {last_two_characters} from "../utils/pdf/utils"
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
+    
+    // This query is updating tour table. It should be removed, together with the columns in table tour.
     await knex.raw(`UPDATE tour AS t
         SET connection_arrival_stop_lat = a.lat,
         connection_arrival_stop_lon = a.lon
@@ -36,6 +38,74 @@ async function update_tours_from_tracks() {
             GROUP BY f.id, f.lon, f.lat, f.count_num) AS a
         WHERE a.row_number=1
         AND a.id=t.id`);
+
+    // This is the new query, which updates city2tour table. Every city gets its own lat/lon train stop, to be more accurate on the map.
+    await knex.raw(`UPDATE city2tour AS c2t
+                    SET connection_arrival_stop_lon=b.stop_lon,
+                    connection_arrival_stop_lat=b.stop_lat
+                    FROM (
+                        SELECT
+                        tour_id,
+                        city_slug,
+                        stop_lon,
+                        stop_lat
+                        FROM (
+                            SELECT 
+                            t.id AS tour_id,
+                            f.hashed_url,
+                            f.city_slug,
+                            tracks.track_point_lon AS stop_lon,
+                            tracks.track_point_lat AS stop_lat,
+                            MIN(calendar_date),
+                            rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC)
+                            FROM tour as t
+                            INNER JOIN fahrplan AS f
+                            ON t.hashed_url=f.hashed_url
+                            INNER JOIN tracks AS tracks
+                            ON f.totour_track_key=tracks.track_key
+                            WHERE tracks.track_point_sequence=1
+                            GROUP BY 1, 2, 3, 4, 5
+                        ) AS a 
+                        WHERE rank=1
+                    ) AS b
+                    WHERE b.tour_id=c2t.tour_id
+                    AND b.city_slug=c2t.city_slug`);
+
+    // await knex.raw(`UPDATE city2tour
+    //                 SET stop_selector='n';`)
+
+    // await knex.raw(`UPDATE city2tour
+    //                 SET stop_selector='y'
+    //                 FROM (
+    //                     SELECT
+    //                     d.tour_id,
+    //                     d.city_slug
+    //                     FROM (
+    //                         SELECT
+    //                         c.*,
+    //                         ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
+    //                         FROM city2tour AS c
+    //                         INNER JOIN (
+    //                             SELECT 
+    //                             COUNT(*),
+    //                             tour_id,
+    //                             connection_arrival_stop_lon,
+    //                             connection_arrival_stop_lat,
+    //                             reachable_from_country,
+    //                             row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
+    //                             FROM city2tour
+    //                             GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
+    //                         ) AS a 
+    //                         ON c.tour_id=a.tour_id
+    //                         AND c.reachable_from_country=a.reachable_from_country
+    //                         AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
+    //                         AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
+    //                         AND a.lon_lat_order=1
+    //                     ) AS d
+    //                     WHERE d.city_order=1
+    //                 ) AS e
+    //                 WHERE city2tour.tour_id=e.tour_id
+    //                 AND city2tour.city_slug=e.city_slug;`)
 }
 
 export async function fixTours(){
@@ -282,12 +352,17 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    const allTours = await knex('tour').select(["title", "hashed_url", "provider"]).distinct();
-    if(!!allTours && allTours.length > 0){
-        const promises = allTours.map(entry => {
-            return _syncGPX(entry.provider, entry.hashed_url, entry.title);
-        });
-        await Promise.all(promises);
+    // const allTours = await knex('tour').select(["title", "hashed_url"]);
+    for (let i=0; i<=9; i++) {
+        const sql_tour = "SELECT hashed_url, title FROM tour WHERE MOD(id, 10)="+i
+        const allTours = await knex.raw(sql_tour)
+
+        if(!!allTours && allTours.length > 0){
+            const promises = allTours.map(entry => {
+                return _syncGPX(entry.hashed_url, entry.title);
+            });
+            await Promise.all(promises);
+        }
     }
     return true;
 }
@@ -311,17 +386,7 @@ export async function syncGPXImage(){
 
 }
 
-// function last_two_characters(h_url) {
-//     const hashed_url = h_url.toString();
-//     if (hashed_url.length >= 2) {
-//         return hashed_url.substr(hashed_url.length - 2).toString();
-//     }
-//     else {
-//         return "undefined";
-//     }
-// }
-
-async function _syncGPX(prov, h_url, title){
+async function _syncGPX(h_url, title){
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
@@ -353,8 +418,7 @@ async function _syncGPX(prov, h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-      
-        const root = create({ version: '1.0' })
+          const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
             .ele('name').txt(title).up()
@@ -368,6 +432,8 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
         const xml = root.end({ prettyPrint: true });
         if(!!xml){
             await fs.writeFileSync(filePath, xml);
+            const filedisc = fs.openSync(filePath) 
+            fs.close(filedisc);
         }
     }
 }
