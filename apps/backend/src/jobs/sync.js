@@ -193,25 +193,27 @@ const prepareDirectories = () => {
 }
 
 
-const deleteFilesOlder30days = async (directoryPath) => {
-    const days = 20;
-    const threshold = Date.now() - days * 24 * 60 * 60 * 1000;
-
+const deleteFilesOlder30days = async (dirPath) => {
     try {
-      const files = await fs.promises.readdir(directoryPath);
-  
-      for (const file of files) {
-        const filePath = path.join(directoryPath, file);
-        const stats = await fs.promises.stat(filePath);
-  
-        if (stats.mtimeMs < threshold && Math.random() < 0.5) {
-          await fs.promises.unlink(filePath);
-          console.log(`Datei gelöscht: ${filePath}`);
+        const dirents = await fs.readdir(dirPath);
+        for (const dirent of dirents) {
+          const filePath = path.join(dirPath, dirent);
+          const stats = await fs.stat(filePath);
+    
+          // Check if it's a directory and recurse
+          if (stats.isDirectory()) {
+            await deleteFilesOlder30days(filePath);
+          } else if (stats.isFile()) {
+            const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
+            if (isOlderThan30Days && Math.random() < 0.5) { // Delete with 50% probability
+              await fs.unlink(filePath);
+              console.log(`Deleted ${filePath}`);
+            }
+          }
         }
+      } catch (err) {
+        console.error(`Error processing directory: ${dirPath}`, err);
       }
-    } catch (error) {
-      console.error(`Fehler beim Löschen alter Dateien: ${error.message}`);
-    }
 };
 
 
