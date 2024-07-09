@@ -8,7 +8,8 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import logger from "../utils/logger";
-import {last_two_characters} from "../utils/pdf/utils"
+import {last_two_characters} from "../utils/pdf/utils";
+const random = require('random-random');
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -112,7 +113,6 @@ export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
-    // await knex.raw(`DELETE FROM tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
 
@@ -193,21 +193,26 @@ const prepareDirectories = () => {
 }
 
 
-const deleteFilesOlder30days = (dirPath) => {
-    let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
-    const { exec } = require('child_process');
-    exec(commandline, (err, stdout, stderr) => {
-        if (err) {
-            // node couldn't execute the command
-            return;
+const deleteFilesOlder30days = async (directoryPath) => {
+    const days = 20;
+    const threshold = Date.now() - days * 24 * 60 * 60 * 1000;
+
+    try {
+      const files = await fs.promises.readdir(directoryPath);
+  
+      for (const file of files) {
+        const filePath = path.join(directoryPath, file);
+        const stats = await fs.promises.stat(filePath);
+  
+        if (stats.mtimeMs < threshold && Math.random() < 0.5) {
+          await fs.promises.unlink(filePath);
+          console.log(`Datei gelöscht: ${filePath}`);
         }
-
-        // the *entire* stdout and stderr (buffered)
-        // logger(`deleteFilesOlder30days stdout: ${stdout}`);
-        // logger(`deleteFilesOlder30days stderr: ${stderr}`);
-    });
-}
-
+      }
+    } catch (error) {
+      console.error(`Fehler beim Löschen alter Dateien: ${error.message}`);
+    }
+};
 
 
 export async function writeKPIs(){
@@ -1007,9 +1012,6 @@ const bulk_insert_tours = async (entries) => {
 
     for (let i=0; i<entries.length; i++) {
         let entry = entries[i];
-        // if(entry.publishing_date == '0000-00-00'){
-        //     delete entry['publishing_date'];
-        // }
 
         let gpxData = [];
         if(entry.lat_start && entry.lon_start){
