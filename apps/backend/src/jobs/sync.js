@@ -411,7 +411,6 @@ async function _syncGPX(h_url, title){
         } catch(err) {
             console.error(err)
         }
-
         resolve();
     })
 }
