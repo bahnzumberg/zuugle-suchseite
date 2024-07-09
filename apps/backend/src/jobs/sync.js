@@ -412,6 +412,11 @@ async function _syncGPX(h_url, title){
                 knex.destroy()
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
                     await createFileFromGpx(waypoints, filePathName, title);
+
+                    if (!fs.existsSync(filePathName)) {
+                        // Something went wrong before. Let's try one more time.
+                        await createFileFromGpx(waypoints, filePathName, title);
+                    }
                 }
             } 
         } catch(err) {
