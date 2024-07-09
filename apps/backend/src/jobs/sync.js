@@ -386,12 +386,7 @@ export async function syncGPXImage(){
 
 }
 
-<<<<<<< HEAD
-
-async function _syncGPX(prov, h_url, title){
-=======
 async function _syncGPX(h_url, title){
->>>>>>> main
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
