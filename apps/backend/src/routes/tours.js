@@ -469,7 +469,6 @@ const listWrapper = async (req, res) => {
       .whereNotNull("connection_arrival_stop_lon")
       .whereNotNull("connection_arrival_stop_lat");
       
-    //   console.log("L460 query", query.toQuery())
     // traverse can be 0 / 1. If we add 1 to it, it will be 1 / 2. Then we can divide the best_connection_duration by this value to favour traverse hikes.
     if(!!city){
         query = query.orderByRaw(` ${order_by_rank} month_order ASC, FLOOR((cities_object->'${city}'->>'best_connection_duration')::int/(traverse + 1)/30)*30 ASC`);
@@ -507,7 +506,7 @@ const listWrapper = async (req, res) => {
     
     if(searchIncluded){
         
-        // console.log("tours.js L 455 : sql_count -> 'WITH search term' : " + sql_count);
+        // console.log("tours.js: sql_count -> 'WITH search term' : " + sql_count);
         // console.log("===============tours.js L450========================")
         // console.log(sql_select + outer_where + sql_order + sql_limit)
         // console.log("====================================================")
@@ -516,7 +515,6 @@ const listWrapper = async (req, res) => {
         try {
             result = await knex.raw(sql_select + outer_where + sql_order + sql_limit );// fire the DB call here (when search is included)
 
-            // logger("L454")
             // logger(JSON.stringify(sql_select + outer_where + sql_order + sql_limit))
             if (result && result.rows) {
                 result = result.rows;

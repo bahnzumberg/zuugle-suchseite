@@ -8,7 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import logger from "../utils/logger";
-import {last_two_characters} from "../utils/pdf/utils"
+import {last_two_characters} from "../utils/pdf/utils";
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -112,7 +112,6 @@ export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
-    // await knex.raw(`DELETE FROM tour WHERE CONCAT(provider, hashed_url) NOT IN (SELECT CONCAT(tour_provider, hashed_url) FROM fahrplan GROUP BY tour_provider, hashed_url);`);
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
 
@@ -193,21 +192,28 @@ const prepareDirectories = () => {
 }
 
 
-const deleteFilesOlder30days = (dirPath) => {
-    let commandline = "find "+ dirPath + " -maxdepth 1 -mtime +30 -type f -delete";
-    const { exec } = require('child_process');
-    exec(commandline, (err, stdout, stderr) => {
-        if (err) {
-            // node couldn't execute the command
-            return;
+const deleteFilesOlder30days = async (dirPath) => {
+    try {
+        const dirents = await fs.readdir(dirPath);
+        for (const dirent of dirents) {
+          const filePath = path.join(dirPath, dirent);
+          const stats = await fs.stat(filePath);
+    
+          // Check if it's a directory and recurse
+          if (stats.isDirectory()) {
+            await deleteFilesOlder30days(filePath);
+          } else if (stats.isFile()) {
+            const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
+            if (isOlderThan30Days && Math.random() < 0.5) { // Delete with 50% probability
+              await fs.unlink(filePath);
+              console.log(`Deleted ${filePath}`);
+            }
+          }
         }
-
-        // the *entire* stdout and stderr (buffered)
-        // logger(`deleteFilesOlder30days stdout: ${stdout}`);
-        // logger(`deleteFilesOlder30days stderr: ${stderr}`);
-    });
-}
-
+      } catch (err) {
+        console.error(`Error processing directory: ${dirPath}`, err);
+      }
+};
 
 
 export async function writeKPIs(){
@@ -404,8 +410,14 @@ async function _syncGPX(h_url, title){
             let filePathName = filePath + fileName;
             if (!!!fs.existsSync(filePathName)) {
                 const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
+                knex.destroy()
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
                     await createFileFromGpx(waypoints, filePathName, title);
+
+                    if (!fs.existsSync(filePathName)) {
+                        // Something went wrong before. Let's try one more time.
+                        await createFileFromGpx(waypoints, filePathName, title);
+                    }
                 }
             } 
         } catch(err) {
@@ -1005,9 +1017,6 @@ const bulk_insert_tours = async (entries) => {
 
     for (let i=0; i<entries.length; i++) {
         let entry = entries[i];
-        // if(entry.publishing_date == '0000-00-00'){
-        //     delete entry['publishing_date'];
-        // }
 
         let gpxData = [];
         if(entry.lat_start && entry.lon_start){
