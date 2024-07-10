@@ -800,7 +800,10 @@ export async function syncTours(){
         count = countResult[0]["anzahl"];
     }
 
-    while((counter *  limit) <= count){
+    const modulo = Math.ceil( count / limit, 0 );
+
+    for (i=0; i<modulo; i++) {
+    // while((counter *  limit) <= count){
         const query = knexTourenDb.raw(`SELECT
                                         t.id,
                                         t.url,
@@ -844,14 +847,17 @@ export async function syncTours(){
                                         t.lat_end,
                                         t.lon_end,
                                         t.maxele
-                                        from vw_touren_to_search as t limit ${limit} offset ${offset};`);
+                                        from vw_touren_to_search as t
+                                        WHERE t.id % ${modulo} = ${i};`);
+                                        
+                                        // from vw_touren_to_search as t limit ${limit} offset ${offset};`);
 
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
             bulk_insert_tours(result[0]);
         }
-        offset = offset + limit;
-        counter++;
+        // offset = offset + limit;
+        // counter++;
     }
 }
 
