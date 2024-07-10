@@ -170,10 +170,12 @@ function Start({
     }
   };
 
+
   const getRangeText = () => {
     if (!!_city && _city.length > 0) {
       return t("start.schoene_wanderungen_nahe");
-    } else {
+    } 
+    else {
       return t("start.schoene_wanderungen");
     }
   };
