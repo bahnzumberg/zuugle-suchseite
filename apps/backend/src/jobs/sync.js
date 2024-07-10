@@ -9,7 +9,6 @@ const fs = require('fs-extra');
 const path = require('path');
 import logger from "../utils/logger";
 import {last_two_characters} from "../utils/pdf/utils";
-const random = require('random-random');
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
