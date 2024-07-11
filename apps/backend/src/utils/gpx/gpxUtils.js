@@ -5,7 +5,6 @@ let sharp = require('sharp');
 const convertXML = require('xml-js');
 const { create, builder } = require('xmlbuilder2');
 import moment from "moment";
-import {hashString, minutesFromMoment} from "../../utils/helper";
 import {setTimeout} from "node:timers/promises";
 
 const minimal_args = [
@@ -51,7 +50,6 @@ export const createImagesFromMap = async (ids) => {
     if(!!ids){
         let browser;
         try {
-
             let addParam = {};
                if(process.env.NODE_ENV == "production"){
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
@@ -59,6 +57,7 @@ export const createImagesFromMap = async (ids) => {
 
             browser = await puppeteer.launch({
                 args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
+                protocolTimeout: 240000,
                 defaultViewport: {width: 1200, height: 800},
                 ...addParam
             });
@@ -70,7 +69,7 @@ export const createImagesFromMap = async (ids) => {
         
 
 
-            const chunkSize = 10;
+            const chunkSize = 3;
             let counter = 1;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 const chunk = ids.slice(i, i + chunkSize);
@@ -105,17 +104,20 @@ export const createImagesFromMap = async (ids) => {
                     }
 
                     if (!!filePath && !!!fs.existsSync(filePath)) {
+                        // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
                         await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
-                        try {
-                            await sharp(filePath).resize({
-                                width: 600,
-                                height: 400,
-                                fit: "inside"
-                            }).jpeg({quality: 30}).toFile(filePathSmall);
-                        } catch(e){
-                            if(process.env.NODE_ENV !== "production"){
-                                console.error("gpxUtils error :",e);
+                        if (!fs.existsSync(filePath)){
+                            try {
+                                await sharp(filePath).resize({
+                                    width: 600,
+                                    height: 400,
+                                    fit: "inside"
+                                }).jpeg({quality: 30}).toFile(filePathSmall);
+                            } catch(e){
+                                if(process.env.NODE_ENV !== "production"){
+                                    console.error("gpxUtils error :",e);
+                                }
                             }
                         }
                     }
@@ -150,9 +152,17 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
             }
+
+            if(filePath){
+                console.log(moment().format('HH:mm:ss'), ` createImageFromMap: ${filePath} created`);
+            }
+            else {
+                console.log(moment().format('HH:mm:ss'), ` createImageFromMap: ${filePath} NOT created`);
+            }
         }
     } catch (err) {
-        console.log('createImageFromMap error with url=',url, ' error:', err.message);
+        console.log('Error in createImageFromMap error: Could not generate ',filePath)
+        console.log('Errormessage:', err.message);
     }
 }
 

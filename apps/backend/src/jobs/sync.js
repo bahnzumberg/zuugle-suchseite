@@ -174,6 +174,8 @@ const prepareDirectories = () => {
     // We need a basic set of directories, which are created now, if they do not exist yet
     let filePath='';
     let dirPaths = ['public/gpx/', 'public/gpx-image/', 'public/gpx-image-with-track/', 'public/gpx-track/', 'public/gpx-track/totour/', 'public/gpx-track/fromtour/'];
+    
+    console.log(moment().format('HH:mm:ss'), ' Start deleting old files');
     for (const i in dirPaths) {
         if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../", dirPaths[i]);
@@ -189,6 +191,7 @@ const prepareDirectories = () => {
         // recreated new and by this we ensure all is updated and unused files are removed.
         deleteFilesOlder30days(filePath);
     }
+    console.log(moment().format('HH:mm:ss'), ' Finished deleting old files');
 }
 
 
@@ -206,7 +209,7 @@ const deleteFilesOlder30days = async (dirPath) => {
             const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
             if (isOlderThan30Days && Math.random() < 0.5) { // Delete with 50% probability
               await fs.unlink(filePath);
-              console.log(`Deleted ${filePath}`);
+              // console.log(`Deleted ${filePath}`);
             }
           }
         }
@@ -308,6 +311,8 @@ export async function generateTestdata(){
 
 
 async function _syncConnectionGPX(key, partFilePath, fileName, title){
+    
+
     return new Promise(async resolve => {
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
@@ -319,6 +324,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
             fs.mkdirSync(filePath);
         }
         filePath = path.join(filePath, fileName);
+        console.log(moment().format('HH:mm:ss'), ' Start creating gpx file '+filePath);
 
         if(!!key){
             let trackPoints = null;
@@ -335,6 +341,8 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
 }
 
 export async function syncConnectionGPX(mod=null){
+
+
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
@@ -358,16 +366,23 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    // const allTours = await knex('tour').select(["title", "hashed_url"]);
-    for (let i=0; i<=9; i++) {
-        const sql_tour = "SELECT hashed_url, title FROM tour WHERE MOD(id, 10)="+i
-        const allTours = await knex.raw(sql_tour)
-
+    // const allTours = await knex('tour').select(["title", "hashed_url"])
+    let allTours = null;
+    let promises = null;
+    for (let i=0; i<10; i++) {
+        console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
+        allTours = await knex('tour').select(["title", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
+              
         if(!!allTours && allTours.length > 0){
-            const promises = allTours.map(entry => {
-                return _syncGPX(entry.hashed_url, entry.title);
-            });
-            await Promise.all(promises);
+            try {
+                promises = allTours.map(entry => {
+                    return _syncGPX(entry.hashed_url, entry.title);
+                });
+            }
+            catch(e) {
+                console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
+            }    
+            // await Promise.all(promises);
         }
     }
     return true;
@@ -378,13 +393,14 @@ export async function syncGPXImage(){
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];
-        for(let i=0;i<allHashedUrls.length;i++){
+        for(let i=0; i<allHashedUrls.length; i++){
             let entry = allHashedUrls[i];
             toCreate.push({
                 hashed_url: entry.hashed_url,
             })
         }
         if(!!toCreate){
+            console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
     }
@@ -393,6 +409,8 @@ export async function syncGPXImage(){
 }
 
 async function _syncGPX(h_url, title){
+    console.log(`Entering _syncGPX`)
+
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
@@ -405,24 +423,36 @@ async function _syncGPX(h_url, title){
 
             if (!fs.existsSync(filePath)){
                 fs.mkdirSync(filePath);
+                console.log(`${filePath} folder created`)
             }
 
             let filePathName = filePath + fileName;
+            let waypoints = null;
             if (!!!fs.existsSync(filePathName)) {
-                const waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
-                knex.destroy()
+                try {
+                    waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
+                }
+                catch(err) {
+                    console.log(`Error in _syncGPX while trying to execute waypoints query`)
+                }
+                
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
+                    console.log(`Starting createFileFromGpx for ${filePathName}`)
                     await createFileFromGpx(waypoints, filePathName, title);
+                    console.log(`Finished createFileFromGpx for ${filePathName}`)
 
                     if (!fs.existsSync(filePathName)) {
                         // Something went wrong before. Let's try one more time.
+                        console.log(`Trying to generate ${filePathName} a second time`)
                         await createFileFromGpx(waypoints, filePathName, title);
                     }
                 }
             } 
         } catch(err) {
             console.error(err)
+            console.log(`Error in _syncGPX while trying to generate a gpx file`)
         }
+        console.log(`Leaving _syncGPX`)
         resolve();
     })
 }
@@ -872,14 +902,6 @@ export async function mergeToursWithFahrplan(){
             let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url}).groupBy('city_slug');
             if(!!fahrplan && fahrplan.length > 0){
                 await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
-
-                    // let durations = {};
-                    // let connections = await knex.raw("SELECT min(connection_duration) as min, CASE WHEN (weekday='mon' OR weekday='thu' OR weekday= 'wed' OR weekday= 'fri') THEN 'weekday' ELSE weekday END as weekday_type FROM fahrplan WHERE hashed_url='${entry.hashed_url}' AND city_slug='${fp.city_slug}' AND connection_duration IS NOT NULL GROUP BY 2")
-                    // if(!!connections && connections.length > 0){
-                    //     connections.forEach(con => {
-                    //         durations[con.weekday_type] = minutesFromMoment(moment(con.min, "HH:mm:ss"))
-                    //     })
-                    // }
 
                     const values = await knex('fahrplan')
                         .avg('fromtour_track_duration as avg_fromtour_track_duration')
