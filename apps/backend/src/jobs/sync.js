@@ -214,7 +214,7 @@ const deleteFilesOlder30days = async (dirPath) => {
           }
         }
       } catch (err) {
-        console.error(`Error processing directory: ${dirPath}`, err);
+        // console.error(`Error processing directory: ${dirPath}`, err);
       }
 };
 
@@ -409,8 +409,6 @@ export async function syncGPXImage(){
 }
 
 async function _syncGPX(h_url, title){
-    console.log(`Entering _syncGPX`)
-
     return new Promise(async resolve => {
         try {
             let fileName = h_url + '.gpx';
@@ -452,7 +450,6 @@ async function _syncGPX(h_url, title){
             console.error(err)
             console.log(`Error in _syncGPX while trying to generate a gpx file`)
         }
-        console.log(`Leaving _syncGPX`)
         resolve();
     })
 }
