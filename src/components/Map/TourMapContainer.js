@@ -178,8 +178,7 @@ const TourMapContainer = React.memo(({
         handleChangedMarkers(false);
       }
     }
-  // eslint-disable-next-line no-use-before-define
-  }, [mapBounds]);  
+  }, [mapBounds, handleChangedMarkers, handleMapBounds, handleShowCardContainer, setMarkersSubList]);  
 
   useEffect(() => {
     if (activeMarker && mapRef.current) {
@@ -416,7 +415,7 @@ const TourMapContainer = React.memo(({
     initiateFilter(bounds);
   }
 
-  const debouncedStoppedMoving = useMemo(() => makeDebounced(stoppedMoving, 1000), []); //Calls makeDebounce with the function you want to debounce and the debounce time
+  const debouncedStoppedMoving = useMemo(() => makeDebounced(stoppedMoving, 300), []); //Calls makeDebounce with the function you want to debounce and the debounce time
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
