@@ -60,7 +60,7 @@ function TourMapContainer({
     }
   }, []);
 
-  const createIcon = () => {
+  const createStartMarker = () => {
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
@@ -69,6 +69,16 @@ function TourMapContainer({
       iconAnchor: [15, 41],
     });
   };
+
+  // const createEndMarker = () => {
+  //   return L.icon({
+  //     iconUrl: "app_static/img/zielpunkt.png", //the acutal picture
+  //     shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+  //     // iconSize: [30, 41], //size of the icon
+  //     iconSize: [40, 51], //size of the icon
+  //     iconAnchor: [15, 41],
+  //   });
+  // };
 
   let StartIcon = L.icon({
     iconUrl: "app_static/img/pin-icon-start.png", //the acutal picture
@@ -170,6 +180,12 @@ function TourMapContainer({
   // eslint-disable-next-line no-use-before-define
   }, [mapBounds]);  
 
+  useEffect(() => {
+    if (activeMarker && mapRef.current) {
+      const { lat, lon } = activeMarker;
+      mapRef.current.setView([lat, lon], 15); 
+    }
+  }, [activeMarker]);
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
@@ -253,6 +269,7 @@ function TourMapContainer({
             consoleLog("L290 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
             //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+            // console.log("L266 track[gpx.tracks.length-1]", track[gpx.tracks.length-1])
             setGpxTrack(track);
           }
         }
@@ -398,7 +415,7 @@ function TourMapContainer({
     initiateFilter(bounds);
   }
 
-  const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
+  const debouncedStoppedMoving = useMemo(() => makeDebounced(stoppedMoving, 1000), []); //Calls makeDebounce with the function you want to debounce and the debounce time
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
@@ -472,6 +489,7 @@ function TourMapContainer({
 
           {activeMarker && selectedTour && (
             <Popup
+              key={`popup_${activeMarker.id}`}
               minWidth={350}
               maxWidth={400}
               minHeight={300}
@@ -491,7 +509,7 @@ function TourMapContainer({
               )}
             </Popup>
           )}
-
+          {/* orange color  (tour track) */}
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
@@ -500,23 +518,8 @@ function TourMapContainer({
               />,
             ]
           }
-
-          {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && [
-              <Polyline
-                pathOptions={{ 
-                  weight: 6, 
-                  color: "#FF7663", 
-                  dashArray: '5,10', 
-                  dashOffset: '1' ,
-                  opacity: 1,
-                  lineCap: 'square',
-                }}
-                positions={totourGpxTrack}
-              />,
-            ]
-          }
-          {/* blue color  */}
+          
+          {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
             fromtourGpxTrack.length > 0 && [
               <Polyline
@@ -530,6 +533,23 @@ function TourMapContainer({
                   dashOffset: '0' 
                 }}
                 positions={fromtourGpxTrack}
+              />,
+            ]
+          }
+
+          {/* orange color  (totour) */}
+          {!!totourGpxTrack &&
+            totourGpxTrack.length > 0 && [
+              <Polyline
+                pathOptions={{ 
+                  weight: 6, 
+                  color: "#FF7663", 
+                  dashArray: '5,10', 
+                  dashOffset: '1' ,
+                  opacity: 1,
+                  lineCap: 'square',
+                }}
+                positions={totourGpxTrack}
               />,
             ]
           }
@@ -549,7 +569,7 @@ function TourMapContainer({
                   key={mark.id}
                   position={[mark.lat, mark.lon]}
                   ref={markerRef}
-                  icon={createIcon()}
+                  icon={createStartMarker()}
                   eventHandlers={{
                     click: () => handleMarkerClick(mark, mark.id),
                   }}
