@@ -32,8 +32,7 @@ import { isArray } from "lodash";
 
 const PopupCard = lazy(() => import("./PopupCard"));
 
-// function TourMapContainer({
-const TourMapContainer = React.memo(({
+function TourMapContainer({
   tours,
   filter,
   setMapInitialized,
@@ -47,7 +46,7 @@ const TourMapContainer = React.memo(({
   setMapBounds,
   mapBounds,
   handleShowCardContainer
-}) => {
+}) {
   const dispatch = useDispatch(); // Get dispatch function from Redux
   // const getState = useSelector(state => state); // Get state from Redux
 
@@ -585,7 +584,7 @@ const TourMapContainer = React.memo(({
       )}
     </Box>
   );
-})
+}
 
 const mapDispatchToProps = (dispatch) => {
   return {
