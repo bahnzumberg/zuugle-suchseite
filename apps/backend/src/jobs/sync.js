@@ -435,9 +435,7 @@ async function _syncGPX(h_url, title){
                 }
                 
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
-                    console.log(`Starting createFileFromGpx for ${filePathName}`)
                     await createFileFromGpx(waypoints, filePathName, title);
-                    console.log(`Finished createFileFromGpx for ${filePathName}`)
 
                     if (!fs.existsSync(filePathName)) {
                         // Something went wrong before. Let's try one more time.
@@ -456,7 +454,9 @@ async function _syncGPX(h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-          const root = create({ version: '1.0' })
+        console.log(`createFileFromGpx ${filePath}`)
+        
+        const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
             .ele('name').txt(title).up()
@@ -829,7 +829,7 @@ export async function syncTours(){
 
     const modulo = Math.ceil( count / limit, 0 );
 
-    for (i=0; i<modulo; i++) {
+    for (let i=0; i<modulo; i++) {
     // while((counter *  limit) <= count){
         const query = knexTourenDb.raw(`SELECT
                                         t.id,
