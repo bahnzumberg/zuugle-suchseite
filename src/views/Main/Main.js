@@ -280,8 +280,8 @@ const handleShowCardContainer = useCallback((value) => {
       className="cards-container"
       sx={{
         marginTop: {
-          xs: marginTop,
-          md: marginTop,
+          xs: marginTopCards,
+          md: marginTopCards,
         },
         padding: "25px",
       }}
@@ -303,7 +303,7 @@ const handleShowCardContainer = useCallback((value) => {
     </Box>
   );
 
-  let marginTop = showMap ? "20px" : "255px";
+  let marginTopCards = showMap ? "20px" : "255px";
   const paddingTopValue = showMap ? "3.3%" : "10.2%";
   const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%";
   const paddingBottomValue = "25.5px";
@@ -372,7 +372,8 @@ const handleShowCardContainer = useCallback((value) => {
           sx={{
             height: {
               xs: "170px",
-              md: "165px",
+              // md: "165px",
+              md: "110px",
             },
           }}
           position={"relative"}

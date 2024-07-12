@@ -457,8 +457,8 @@ function TourMapContainer({
   return (
     <Box
       style={{
-        // height: "500px",
-        height: "calc(60vh - 50px)",
+        height: "calc(80vh - 50px)",
+        // height: "calc(60vh - 50px)",
         width: "100%",
         position: "relative",
         overflow: "hidden",
