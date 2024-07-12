@@ -702,7 +702,8 @@ body ::-webkit-scrollbar-thumb:hover {
   }
   .map-container {
     z-index: 100;
-    margin-top: 20px; /* Adjust this value based on your layout and header height */
+    /* margin-top: 20px; Adjust this value based on your layout and header height */
+    margin-top: 140px
   }
 }
 
@@ -1689,7 +1690,8 @@ top:250px; */
   }
 
   .blueDiv {
-    padding: 50px 15px 45px 15px;
+    /* padding: 50px 15px 45px 15px; */
+    padding: 20px 15px 45px 15px;
   }
 
   .languageMenu {
