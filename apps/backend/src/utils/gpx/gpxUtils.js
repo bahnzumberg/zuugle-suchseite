@@ -98,7 +98,7 @@ export const createImagesFromMap = async (ids) => {
 
                         filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
                         if (!fs.existsSync(filePathSmall)){ 
-                            fs.mkdirSync(filePathSmall);
+                            fs.mkdirSync(filePathSmall);cd
                         }
                         filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
                     }
@@ -107,13 +107,18 @@ export const createImagesFromMap = async (ids) => {
                         // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
                         await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
-                        if (!fs.existsSync(filePath)){
+                        if (fs.existsSync(filePath)){
                             try {
                                 await sharp(filePath).resize({
                                     width: 600,
                                     height: 400,
                                     fit: "inside"
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
+
+                                if (!fs.existsSync(filePathSmall)){
+                                    console.log("Nicht erfolgreich!")
+                                }
+
                             } catch(e){
                                 if(process.env.NODE_ENV !== "production"){
                                     console.error("gpxUtils error :",e);
@@ -151,13 +156,6 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.bringToFront();
                 await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
-            }
-
-            if(filePath){
-                console.log(moment().format('HH:mm:ss'), ` createImageFromMap: ${filePath} created`);
-            }
-            else {
-                console.log(moment().format('HH:mm:ss'), ` createImageFromMap: ${filePath} NOT created`);
             }
         }
     } catch (err) {
