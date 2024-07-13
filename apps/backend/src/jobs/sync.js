@@ -400,7 +400,7 @@ export async function syncGPXImage(){
             })
         }
         if(!!toCreate){
-            console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
+            // console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
     }

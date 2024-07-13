@@ -108,6 +108,7 @@ export const createImagesFromMap = async (ids) => {
                         await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
                         if (fs.existsSync(filePath)){
+                            console.log(moment().format('HH:mm:ss'), ' Gpx image file created: ' + filePath);
                             try {
                                 await sharp(filePath).resize({
                                     width: 600,
@@ -115,8 +116,11 @@ export const createImagesFromMap = async (ids) => {
                                     fit: "inside"
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
 
-                                if (!fs.existsSync(filePathSmall)){
-                                    console.log("Nicht erfolgreich!")
+                                if (fs.existsSync(filePathSmall)){
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                }
+                                else {
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
                                 }
 
                             } catch(e){
@@ -124,6 +128,9 @@ export const createImagesFromMap = async (ids) => {
                                     console.error("gpxUtils error :",e);
                                 }
                             }
+                        }
+                        else {
+                            console.log(moment().format('HH:mm:ss'), ' Gpx image file NOT created: ' + filePath);
                         }
                     }
                     
