@@ -371,7 +371,7 @@ const handleShowCardContainer = useCallback((value) => {
           className="newHeader"
           sx={{
             height: {
-              xs: "140px",
+              xs: "110px",
               // md: "165px",
               md: "110px",
             },

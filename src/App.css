@@ -703,7 +703,7 @@ body ::-webkit-scrollbar-thumb:hover {
   .map-container {
     z-index: 100;
     /* margin-top: 20px; Adjust this value based on your layout and header height */
-    margin-top: 140px
+    margin-top: 110px
   }
 }
 
