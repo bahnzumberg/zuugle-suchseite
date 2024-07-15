@@ -26,6 +26,8 @@ import {
 } from "./utils";
 import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 
 export default function ItineraryTourTimeLineContainer({
   connections,
@@ -34,6 +36,8 @@ export default function ItineraryTourTimeLineContainer({
   tour
 }) {
   
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   const [entries, setEntries] = useState([]); //PARSED array[of strings], related to only one object, a departure description
   const [returnEntries, setReturnEntries] = useState([]); //UNPARSED array[objects] with possibly a few return connections
 
@@ -157,19 +161,11 @@ export default function ItineraryTourTimeLineContainer({
     return `${t("Details.rückreise")} ${index + 1}`;
   };
 
-  // const get_live_timetable_link_there = () => {
-  //   let connection = getSingleConnection();
-  //   return (
-  //     "https://fahrplan.zuugle.at/?a=" +
-  //     encodeURI(connection.connection_departure_stop) +
-  //     "&b=" +
-  //     encodeURI(connection.connection_arrival_stop)
-  //   );
-  // };
 
   const addMoreConnections = () => {
     setGetMore(true);
   };
+
 
   
   return (
@@ -182,7 +178,7 @@ export default function ItineraryTourTimeLineContainer({
     >
       {!loading ? (
         <Fragment>
-          {/* ... Existing JSX code ... */}
+          {/* ... first accordion ... */}
           <Accordion sx={{ borderRadius: "18px !important" }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Box
@@ -193,14 +189,17 @@ export default function ItineraryTourTimeLineContainer({
                   display: "flex",
                   flexDirection: "row",
                   position: "relative",
+                  width: !isMobile ? '100%' : 'calc(100% - 40px)',
+                  boxSizing: 'border-box',
+                  margin: !isMobile  && "0 auto", // Center horizontally if mobile
                 }}
               >
                 <Box
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    width: !isMobile ? "40px" : "30",
+                    height: !isMobile ? "40px" : "30",
                     backgroundColor: "#4992FF",
-                    borderRadius: "12px",
+                    borderRadius: !isMobile ? "12px" : "8px",
                   }}
                 >
                   <Box
@@ -212,7 +211,7 @@ export default function ItineraryTourTimeLineContainer({
                       alignItems: "center",
                     }}
                   >
-                    <Anreise
+                    <Anreise    /* icon */
                       style={{
                         strokeWidth: 0.1,
                         stroke: "#FFFFFF",
@@ -221,8 +220,8 @@ export default function ItineraryTourTimeLineContainer({
                     />
                   </Box>
                 </Box>
-                <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                  <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                <Box sx={{ paddingLeft: "10px", textAlign: "left" }}> {/* TODO : padding value is appropriate? */}
+                  <Typography sx={{ lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
                     {_getDepartureText()}
                   </Typography>
                   {getDepartureText(getSingleConnection(), t)}
@@ -233,8 +232,8 @@ export default function ItineraryTourTimeLineContainer({
                       strokeWidth: 0.3,
                       stroke: "#4992FF",
                       fill: "#4992FF",
-                      width: "18px",
-                      height: "18px",
+                      width: !isMobile ? "18px" : "16px",
+                      height:!isMobile ? "18px" : "16px",
                     }}
                   />
                 </Box>
@@ -242,9 +241,9 @@ export default function ItineraryTourTimeLineContainer({
                   <Box
                     sx={{
                       color: "#4992FF",
-                      fontSize: "16px",
+                      fontSize: !isMobile ? "16px" : "14px",
                       fontWeight: 600,
-                      lineHeight: "16px",
+                      lineHeight: !isMobile ? "16px" : "14px",
                     }}
                   >
                     {getNumberOfTransfers(getSingleConnection())} {t('details.umstiege')}
@@ -259,7 +258,9 @@ export default function ItineraryTourTimeLineContainer({
             </AccordionDetails>
           </Accordion>
           <Divider sx={{ mt: "24px" }} />
-          <Accordion
+
+          {/* 2nd Accordion / return connections */}
+          <Accordion  //border-radius needed here ?
             sx={{
               backgroundColor: "transparent",
               boxShadow: "none",
@@ -274,14 +275,17 @@ export default function ItineraryTourTimeLineContainer({
                   display: "flex",
                   flexDirection: "row",
                   position: "relative",
+                  width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                  boxSizing: 'border-box',
+                  margin: !isMobile  && "0 auto", // Center horizontally if mobile
                 }}
               >
                 <Box
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    width: !isMobile ? "40px" : "30",
+                    height: !isMobile ? "40px" : "30",
                     backgroundColor: "#FF7663",
-                    borderRadius: "12px",
+                    borderRadius: !isMobile ? "12px" : "8px",
                   }}
                 >
                   <Box
@@ -302,27 +306,31 @@ export default function ItineraryTourTimeLineContainer({
                     />
                   </Box>
                 </Box>
-                <Box sx={{ paddingLeft: "20px", textAlign: "left" }}>
-                  <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                <Box sx={{ paddingLeft: "20px", textAlign: "left" }}> {/* TODO : padding value is appropriate? */}
+                  <Typography sx={{ lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
                   {t('details.circa')} {" "}
                   {(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : 
                   `${formattedDuration} ${t('details.stunden_tour')}`}
                   </Typography>
-                  <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                  <Typography sx={{ lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
                   {t('details.lt_tourbeschreibung')}
                   </Typography>
                 </Box>
               </Box>
             </AccordionDetails>
           </Accordion>
+
+          
           <Divider sx={{ mb: "24px" }} />
           {/* Rendering first 2 return connections */}
           {returnEntries.slice(0, 2).map((retObj, index) => (
+            
+            
+            //3rd Accordion / additional return connections 
             <Accordion
               key={index}
-              sx={{ borderRadius: "18px !important", mb: "24px" }}
+              sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
             >
-              {/* ... AccordionSummary and AccordionDetails ... */}
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box
                   sx={{
@@ -332,14 +340,17 @@ export default function ItineraryTourTimeLineContainer({
                     display: "flex",
                     flexDirection: "row",
                     position: "relative",
+                    width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                    boxSizing: 'border-box',
+                    margin: !isMobile  && "0 auto", // Center horizontally if mobile
                   }}
                 >
                   <Box
                     style={{
-                      width: "40px",
-                      height: "40px",
+                      width: !isMobile ? "40px" : "30",
+                      height:!isMobile ? "40px" : "30",
                       backgroundColor: "#4992FF",
-                      borderRadius: "12px",
+                      borderRadius: !isMobile ? "12px" : "8px",
                     }}
                   >
                     <Box
@@ -360,8 +371,8 @@ export default function ItineraryTourTimeLineContainer({
                       />
                     </Box>
                   </Box>
-                  <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                    <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                  <Box sx={{ paddingLeft: "10px", textAlign: "left" }}> {/* TODO padding value is appropriate? */}
+                    <Typography sx={{ lineHeight:!isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
                       {_getReturnText(index)}
                     </Typography>
                     {getReturnText(retObj, t)}
@@ -372,8 +383,8 @@ export default function ItineraryTourTimeLineContainer({
                         strokeWidth: 0.3,
                         stroke: "#4992FF",
                         fill: "#4992FF",
-                        width: "18px",
-                        height: "18px",
+                        width: !isMobile ? "18px" : "16px",
+                        height: !isMobile ? "18px" : "16px",
                       }}
                     />
                   </Box>
@@ -381,9 +392,9 @@ export default function ItineraryTourTimeLineContainer({
                     <Box
                       sx={{
                         color: "#4992FF",
-                        fontSize: "16px",
-                        fontWeight: 600,
-                        lineHeight: "16px",
+                        fontSize: !isMobile ? "16px" : "14px",
+                        fontWeight: !isMobile ? 600 : 500,
+                        lineHeight: !isMobile ? "16px" : "14px",
                       }}
                     >
                       {" "}
@@ -408,7 +419,7 @@ export default function ItineraryTourTimeLineContainer({
             returnEntries.slice(2).map((retObj, index) => (
               <Accordion
                 key={index}
-                sx={{ borderRadius: "18px !important", mb: "24px" }}
+                sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
               >
                 {/* ... AccordionSummary and AccordionDetails ... */}
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -420,14 +431,17 @@ export default function ItineraryTourTimeLineContainer({
                       display: "flex",
                       flexDirection: "row",
                       position: "relative",
+                      width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                      boxSizing: 'border-box',
+                      margin: !isMobile  && "0 auto", // Center horizontally if mobile
                     }}
                   >
                     <Box
                       style={{
-                        width: "40px",
-                        height: "40px",
+                        width: !isMobile ? "40px" : "30",
+                        height: !isMobile ? "40px" : "30",
                         backgroundColor: "#4992FF",
-                        borderRadius: "12px",
+                        borderRadius: !isMobile ? "12px" : "8px",
                       }}
                     >
                       <Box
@@ -448,8 +462,11 @@ export default function ItineraryTourTimeLineContainer({
                         />
                       </Box>
                     </Box>
-                    <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                      <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                    <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>{/* TODO padding value is appropriate? */}
+                      <Typography 
+                        sx={{ 
+                          lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 
+                        }}>
                         {_getReturnText(index+2)}
                       </Typography>
                       {getReturnText(retObj, t )}
@@ -460,8 +477,8 @@ export default function ItineraryTourTimeLineContainer({
                           strokeWidth: 0.3,
                           stroke: "#4992FF",
                           fill: "#4992FF",
-                          width: "18px",
-                          height: "18px",
+                          width: !isMobile ? "18px" : "16px",
+                          height: !isMobile ? "18px" : "16px",  
                         }}
                       />
                     </Box>
@@ -469,9 +486,9 @@ export default function ItineraryTourTimeLineContainer({
                       <Box
                         sx={{
                           color: "#4992FF",
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          lineHeight: "16px",
+                          fontSize: !isMobile ? "16px" : "14px",
+                          fontWeight: !isMobile ? 600 : 500,
+                          lineHeight: !isMobile ? "16px" : "14px",
                         }}
                       >
                         {" "}
@@ -513,9 +530,9 @@ export default function ItineraryTourTimeLineContainer({
                   color="rgba(0, 0, 0, 0.56)"
                   textAlign="center"
                   fontFamily="Open Sans"
-                  fontSize="14.25px"
-                  fontWeight={600}
-                  lineHeight="22px"
+                  fontSize={!isMobile ? "14.25px" : "12.47px"}
+                  fontWeight={!isMobile ? 600 : 500}
+                  lineHeight={!isMobile ? "22px" : "19.25px"}
                   sx={{ textDecoration: "underline" }}
                 >
                   {returnEntries.length - 2} {" "}
