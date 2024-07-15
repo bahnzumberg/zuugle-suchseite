@@ -528,7 +528,7 @@ function TourMapContainer({
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
-                  color: "#4A91FF",
+                  color: "#FF7663",
                   opacity: 1,
                   // opacity: !!totourGpxTrack ? 0.5 : 1,
                   lineCap: 'square',
