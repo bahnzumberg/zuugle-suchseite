@@ -28,7 +28,8 @@ import { formatMapClusterNumber } from "../../utils/map_utils.js";
 import "./popup-style.css";
 import { orderedArraysEqual } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
-import { isArray } from "lodash";
+// import { isArray } from "lodash";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const PopupCard = lazy(() => import("./PopupCard"));
 
@@ -52,6 +53,9 @@ function TourMapContainer({
 
   const markers = useSelector((state) => state.tours.markers); // move to props
   const isMasterMarkersSet = useRef(false);
+
+  const isMobile = useMediaQuery("(max-width:600px)");
+
 
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
@@ -457,8 +461,7 @@ function TourMapContainer({
   return (
     <Box
       style={{
-        height: "calc(73vh - 50px)",
-        // height: "calc(60vh - 50px)",
+        height: !isMobile ? "calc(80vh - 50px)" : "calc(75vh - 50px)",
         width: "100%",
         position: "relative",
         overflow: "hidden",
