@@ -984,6 +984,22 @@ body ::-webkit-scrollbar-thumb:hover {
   z-index: -1;
 }
 
+@media only screen and (max-width: 600px) {
+  .tour-detail-itinerary {
+    max-width: 300px;
+  }
+  .tour-detail-itinerary-calendar {
+    max-width: 400px;
+  }
+  .tour-detail-itinerary-calendar-grid {
+    grid-template-columns: repeat(7, 38px);
+    height: 85px;
+    padding: 10px 10px;
+  }
+
+
+}
+
 .tour-detail-action-btns-container {
   display: flex;
   flex-direction: column;

@@ -192,6 +192,7 @@ export default function ItineraryTourTimeLineContainer({
                   width: !isMobile ? '100%' : 'calc(100% - 40px)',
                   boxSizing: 'border-box',
                   margin: !isMobile  && "0 auto", // Center horizontally if mobile
+                  maxWidth: "260px",
                 }}
               >
                 <Box
