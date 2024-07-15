@@ -871,7 +871,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .tour-detail-itinerary > div:nth-of-type(2) > div > div > div {
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: auto;
 }
 
 .tour-detail-itinerary-header {

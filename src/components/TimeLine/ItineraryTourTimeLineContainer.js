@@ -183,13 +183,16 @@ export default function ItineraryTourTimeLineContainer({
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Box
                 sx={{
-                  padding: "20px",
+                  paddingTop: "20px",
+                  paddingBottom: "20px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
                   marginLeft: "-20px",
                   marginRight: "-20px",
                   display: "flex",
                   flexDirection: "row",
                   position: "relative",
-                  width: !isMobile ? '100%' : 'calc(100% - 40px)',
+                  width: !isMobile ? '100%' : 'calc(100% - 10px)',
                   boxSizing: 'border-box',
                   margin: !isMobile  && "0 auto", // Center horizontally if mobile
                   maxWidth: "260px",
@@ -276,7 +279,7 @@ export default function ItineraryTourTimeLineContainer({
                   display: "flex",
                   flexDirection: "row",
                   position: "relative",
-                  width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                  width: !isMobile ? '100%' : 'calc(100% - 10px)',
                   boxSizing: 'border-box',
                   margin: !isMobile  && "0 auto", // Center horizontally if mobile
                 }}
@@ -335,13 +338,16 @@ export default function ItineraryTourTimeLineContainer({
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box
                   sx={{
-                    padding: "20px",
+                    paddingTop: "20px",
+                    paddingBottom: "20px",
+                    paddingLeft: "5px",
+                    paddingRight: "5px",
                     marginLeft: "-20px",
                     marginRight: "-20px",
                     display: "flex",
                     flexDirection: "row",
                     position: "relative",
-                    width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                    width: !isMobile ? '100%' : 'calc(100% - 10px)',
                     boxSizing: 'border-box',
                     margin: !isMobile  && "0 auto", // Center horizontally if mobile
                   }}
@@ -426,13 +432,16 @@ export default function ItineraryTourTimeLineContainer({
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Box
                     sx={{
-                      padding: "20px",
+                      paddingTop: "20px",
+                      paddingBottom: "20px",
+                      paddingLeft: "5px",
+                      paddingRight: "5px",
                       marginLeft: "-20px",
                       marginRight: "-20px",
                       display: "flex",
                       flexDirection: "row",
                       position: "relative",
-                      width: !isMobile ? '100%' : 'calc(100% - 40px)', // TODO : adjust px when data returns
+                      width: !isMobile ? '100%' : 'calc(100% - 10px)',
                       boxSizing: 'border-box',
                       margin: !isMobile  && "0 auto", // Center horizontally if mobile
                     }}
