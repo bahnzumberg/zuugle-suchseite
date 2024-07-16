@@ -30,8 +30,7 @@ export async function loadFile(
   }
   try {
     //when clicking "pdf" button on detail page.
-    if(process.env.NODE_ENV !== "production"){
-    }
+
     let res = await axios.get(route, {
       // data: {},
       data: data,

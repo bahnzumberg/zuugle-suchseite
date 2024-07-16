@@ -26,6 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import {convertNumToTime} from "../../utils/globals";
 
 
 export default function ItineraryTourTimeLineContainer({

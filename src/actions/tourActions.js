@@ -37,7 +37,7 @@ export function loadTours(data = {}) {
 export function loadFilter(data = {}) {
 
   const language = i18next.resolvedLanguage;
-  return (dispatch, getState) => {
+    return (dispatch, getState) => {
     return loadList(
       dispatch,
       getState,
