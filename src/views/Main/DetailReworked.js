@@ -24,7 +24,6 @@ import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
-import { consoleLog, parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -232,10 +231,7 @@ useEffect(() => {
     const shareId = searchParams.get("share") ?? null;
     const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
 
-    !!shareId && consoleLog("detail page --> shareId :", shareId); 
     //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
-    
-    !!city && consoleLog("detail page --> city :", city); 
     // detail page --> city : amstetten
 
     //Redirects to according page when it is a share link
@@ -266,7 +262,6 @@ useEffect(() => {
 
             localStorage.setItem("tourId", res.tourId);
 
-            // consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
             //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
             navigate(`/tour?${redirectSearchParams.toString()}`);
        

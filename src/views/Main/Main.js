@@ -15,7 +15,6 @@ import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-// import CircularProgress from "@mui/material/CircularProgress";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import { Typography } from "@mui/material";
 import {
@@ -28,10 +27,7 @@ import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
-// import { consoleLog, getValuesFromParams } from "../../utils/globals";
 import MapBtn from "../../components/Search/MapBtn";
-// import {getMapData} from '../../actions/crudActions';
-// import NoData from "../../components/NoData";
 import { createIdArray } from "../../utils/map_utils";
 
 const Search = lazy(() => import("../../components/Search/Search"));

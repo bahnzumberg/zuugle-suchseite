@@ -21,7 +21,6 @@ import { useSearchParams } from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from "../../actions/fileActions.js";
 import { useDispatch, useSelector } from "react-redux";
-import { consoleLog } from "../../utils/globals.js";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
@@ -270,10 +269,8 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L290 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
-            // console.log("L266 track[gpx.tracks.length-1]", track[gpx.tracks.length-1])
+          
             setGpxTrack(track);
           }
         }
@@ -295,9 +292,7 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setTotourGpxTrack(track);
           }
         }
@@ -319,9 +314,7 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setFromtourGpxTrack(track);
           }
         }
@@ -423,7 +416,6 @@ function TourMapContainer({
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
-    // consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
     const filterValues = {
       //All Values in the URL
       coordinatesSouthWest: bounds?._southWest,

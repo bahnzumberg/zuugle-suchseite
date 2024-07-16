@@ -2,7 +2,6 @@ import { Fragment } from "react";
 import { Typography } from "@mui/material";
 import moment from "moment";
 import {
-  consoleLog,
   convertNumToTime,
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
@@ -31,16 +30,11 @@ export const getDepartureText = (connection, t) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
-  // consoleLog("L34 : utils.js/ getDepartureText : connection : ", connection, true);
-  // consoleLog("L35 : utils.js/ getDepartureText : connection.connection_duration_minutes : ", connection.connection_duration_minutes, true);
-  // consoleLog("L64 : utils.js/ getDepartureText : connection.connection_departure_datetime : ", connection.connection_departure_datetime, true);
-  // consoleLog("L37 : utils.js/ getDepartureText : connection.connection_arrival_datetime : ", connection.connection_arrival_datetime, true);
 
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
     `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;
 
-    // consoleLog("L44 : utils.js/ getDepartureText : : ", departureText, true);
   return (
     <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
       {departureText}
@@ -117,8 +111,6 @@ function getIconFromText(text) {
 }
 
 export const createReturnEntries = (entries, connection, t) => {
-  // consoleLog("L109 : utils.js/ createReturnEntries : entries : ", entries, true);
-  // consoleLog("L110 : utils.js/ createReturnEntries : connection : ", connection, true);
   let toReturn = [];
   if (!!entries && entries.length > 0) {
     let _entries = entries.filter((e) => !!e && e.length > 0); //ensures that only non-empty and truthy elements are included in the filtered array.

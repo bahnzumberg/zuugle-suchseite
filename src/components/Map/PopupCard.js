@@ -17,7 +17,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from 'react-i18next';
 import {tourTypes} from "../../utils/language_Utils";
 import { useSearchParams } from 'react-router-dom';
-// import {consoleLog} from "../../utils/globals";
 
 const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 

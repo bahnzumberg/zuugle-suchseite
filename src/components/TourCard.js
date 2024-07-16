@@ -3,24 +3,14 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-// import CustomStarRating from "./CustomStarRating";
 import {
   checkIfImageExists,
-  consoleLog,
   convertNumToTime,
-  formatNumber,
 } from "../utils/globals";
 import { Fragment, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-// import LinearProgress from "@mui/material/LinearProgress";
-// import TourConnectionCardNew from "./TourConnectionCardNew";
-// import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
-// import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from "react-i18next";
-// import { tourTypes } from "../utils/language_Utils";
 import { useSearchParams } from "react-router-dom";
-// import { consoleLog } from "../utils/globals";
-// import { BorderLeft, Padding } from "@mui/icons-material";
 import { Chip } from "@mui/material";
 
 const DEFAULT_IMAGE = "/app_static/img/train_placeholder.webp";

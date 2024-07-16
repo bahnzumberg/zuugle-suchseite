@@ -1,6 +1,4 @@
-// import { RateLimit } from 'express-rate-limit'; // added "type": "module" in package.json
 import RateLimit from 'express-rate-limit';
-import { consoleLog } from '../src/utils/globals.js';
 
 var express = require('express'),
     path = require('path'),
@@ -23,9 +21,6 @@ app.use(limiter)
 
 app.set('trust proxy', 1 /* number of proxies between user and server */)
 app.get('/ip', (request, response) => {
-	if(process.env.NODE_ENV !== "production"){
-		consoleLog("L11 Server.js request.ip: ", request.ip);
-	}
 	response.send(request.ip)
 	}) 
 

@@ -33,7 +33,6 @@ export const checkOnlyMapParams = (filterParam = false)=>{
               filterObject.hasOwnProperty('coordinatesSouthWest') && 
               filterObject.hasOwnProperty('coordinatesNorthEast')
       }
-      // consoleLog("L34 mapFilter :", mapFilter) //true or false
       return mapFilter;
     } catch (error) {
       console.error('Error parsing filter object:', error);

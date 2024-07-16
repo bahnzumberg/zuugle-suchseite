@@ -7,7 +7,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
-import { consoleLog } from "../utils/globals";
 
 export default function TourCardContainer({
   tours,

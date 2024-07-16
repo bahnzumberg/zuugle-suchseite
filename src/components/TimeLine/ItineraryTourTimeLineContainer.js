@@ -14,7 +14,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
-import {consoleLog, convertNumToTime} from "../../utils/globals";
 import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -53,7 +52,6 @@ export default function ItineraryTourTimeLineContainer({
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
     let settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
-    consoleLog("L57 ITTLC/ useEffect settingEnt", settingEnt, true);
     setEntries(settingEnt);
     setReturnEntries(connections.returns);
     extractReturns();
@@ -75,8 +73,6 @@ export default function ItineraryTourTimeLineContainer({
   
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
-    // consoleLog("L73 ITTLC/ getSingleConnection connections", connections, true);
-    // consoleLog("L74 ITTLC/ getSingleConnection connections.connections[0]", connections.connections[0], true);
     return !!connections &&
       !!connections.connections &&
       connections.connections.length > 0
@@ -92,17 +88,14 @@ export default function ItineraryTourTimeLineContainer({
       connections.returns.length > 0
     ) {
       let array = connections.returns;
-      // consoleLog("L90 ITTLC/ extractReturns array", array, true);
       for (let index = 0; index < array.length; index++) {
         
         if (index <= 1) {
-          // consoleLog("L94 ITTLC/ extractReturns array[index]", array[index], true);
           twoReturns[index] = jsonToStringArray(
             array[index],
             "from",
             t
           );
-          // consoleLog("L98 ITTLC/ extractReturns twoReturns[index]", twoReturns[index], true);
         }
   
         if (index > 1) {
@@ -111,7 +104,6 @@ export default function ItineraryTourTimeLineContainer({
             "from",
             t
           );
-          // consoleLog("L120 ITTLC/ extractReturns remainingReturns[index]", remainingReturns[index], true);
         }
       }
       return;

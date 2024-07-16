@@ -45,7 +45,6 @@ export default async function transformToDescriptionDetail(descriptionJSON) {
 }
 
 export function jsonToStringArray(connection, toFrom = "to", t){
-    // consoleLog("L1 : connection : ",connection), get connection as an object
     // toFrom is "to" or "from" , to use the right text in end or begining of array
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
 

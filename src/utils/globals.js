@@ -155,12 +155,6 @@ export const getTopLevelDomain = () => {
     return host.substring(host.length-2).toLowerCase();
 }
 
-// export const parseTourConnectionDescription = (connection, field = "connection_description_detail") => {
-//     if(!!connection){
-//         return connection[field].split('\n');
-//     }
-//     return [];
-// }
 
 export const getTimeFromConnectionDescriptionEntry = (entry) => {
     let _entry = !!entry ? entry.trim() : null;
@@ -266,9 +260,6 @@ export const countFilterActive = (searchParams, filter) => {
         count++;
       }
     }
-    if(process.env.NODE_ENV !== "production"){
-        // consoleLog("L267 : FINAL count :",count)
-    }
     return count;
   };
 
@@ -290,20 +281,6 @@ for (const [key, value] of searchParams) {
 return obj;
 }
 
-export function consoleLog(textOutput ="output :", varOutput = null, doubleLine = false) {
-    if(process.env.NODE_ENV !== "production"){
-        if(!!doubleLine){
-            console.log("----------------------------")
-            console.log(textOutput);
-            console.log(varOutput);
-            console.log("=============================")
-        }else{
-            (textOutput && varOutput) ? console.log(textOutput, varOutput) : textOutput ? console.log(textOutput) : console.log(varOutput);  
-        }
-        return;
-    }
-    return;
-}
 
 export function getMinutesFromDuration(duration) {
     if(!!duration && typeof duration === "string"){
