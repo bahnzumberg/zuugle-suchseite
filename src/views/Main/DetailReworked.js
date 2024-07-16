@@ -29,7 +29,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
-import PdfIcon from "../../icons/PdfIcon";
+// import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
@@ -123,9 +123,9 @@ const DetailReworked = (props) => {
   };
   
   // pdf buttons shows up only when menu language is German
-  let pdfLanguagePermit = i18next.resolvedLanguage === "de";
-  // Because of https://github.com/orgs/bahnzumberg/projects/2/views/6?pane=issue&itemId=67291173, PDF button will be deactivated for everyone
-  // let pdfLanguagePermit = i18next.resolvedLanguage === "none";
+  // let pdfLanguagePermit = i18next.resolvedLanguage === "de";
+  // PDF is deactivated
+  let pdfLanguagePermit = i18next.resolvedLanguage === "none";
 
   const handleCloseTab = () => {
     window.close()
