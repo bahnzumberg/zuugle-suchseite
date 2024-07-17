@@ -204,7 +204,6 @@ export function formatToHHMM(durationString) {
 }
 
 export function jsonToStringArray(connection, toFrom = "to"){
-    // consoleLog("L1 : connection : ",connection), get connection as an object
     // toFrom is "to" or "from" , to use the right text in end or begining of array
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
     // if(!!connection && !!connection.connection_description_json && !!connection.return_description_json ){
