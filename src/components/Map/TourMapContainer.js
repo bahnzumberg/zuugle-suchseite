@@ -66,9 +66,8 @@ function TourMapContainer({
   const createStartMarker = () => {
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
-      shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      // iconSize: [30, 41], //size of the icon
-      iconSize: [40, 51], //size of the icon
+      // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+      iconSize: [30, 40], //size of the icon
       iconAnchor: [15, 41],
     });
   };
@@ -77,18 +76,10 @@ function TourMapContainer({
   //   return L.icon({
   //     iconUrl: "app_static/img/zielpunkt.png", //the acutal picture
   //     shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-  //     // iconSize: [30, 41], //size of the icon
-  //     iconSize: [40, 51], //size of the icon
+  //     iconSize: [30, 40], //size of the icon
   //     iconAnchor: [15, 41],
   //   });
   // };
-
-  let StartIcon = L.icon({
-    iconUrl: "app_static/img/pin-icon-start.png", //the acutal picture
-    shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-    iconSize: [30, 41], //size of the icon
-    iconAnchor: [15, 41],
-  });
 
   const mapRef = useRef();
   const clusterRef = useRef();
