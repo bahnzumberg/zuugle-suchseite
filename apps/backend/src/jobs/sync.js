@@ -105,6 +105,7 @@ export async function fixTours(){
                     ON tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
 
+    // Store for each tour and city the minimal connection duration to get to the hike start                
     await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
                     FROM (
                     SELECT 
@@ -118,7 +119,20 @@ export async function fixTours(){
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
-                             
+    
+    // Store for every tour and city the minimal number of transfers (changing between trains/busses)
+    await knex.raw(`UPDATE city2tour AS c SET min_connection_no_of_transfers = i.min_connection_no_of_transfers
+                    FROM (
+                    SELECT 
+                    hashed_url, 
+                    city_slug, 
+                    MIN(connection_no_of_transfers) AS min_connection_no_of_transfers 
+                    FROM fahrplan 
+                    GROUP BY hashed_url, city_slug
+                    ) AS i
+                    WHERE i.hashed_url=c.hashed_url
+                    AND i.city_slug=c.city_slug`);
+
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
     if(process.env.NODE_ENV == "production"){
