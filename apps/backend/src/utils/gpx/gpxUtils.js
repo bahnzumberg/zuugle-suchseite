@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs-extra');
 let sharp = require('sharp');
 const convertXML = require('xml-js');
-const { create, builder } = require('xmlbuilder2');
+const { create } = require('xmlbuilder2');
 import moment from "moment";
 import {setTimeout} from "node:timers/promises";
+import knex from "../../knex";
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -105,12 +106,16 @@ export const createImagesFromMap = async (ids) => {
                         filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
                     }
 
+
                     if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
-                        console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
-                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
+                        // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
+                        let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
+                        let hashed_url_query = await knex.raw(hashed_url_sql);
+                        let hashed_url = hashed_url_query.rows[0].hashed_url;
+
+                        await createImageFromMap(browser, filePath, url + last_two_characters(hashed_url) + "/" + hashed_url + ".gpx", 80);
 
                         if (fs.existsSync(filePath)){
-                            // console.log(moment().format('HH:mm:ss'), ' Gpx image file created: ' + filePath);
                             try {
                                 await sharp(filePath).resize({
                                     width: 600,
@@ -164,7 +169,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.bringToFront();
                 await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
-                console.log("Created "+filePath)
+                // console.log("Created "+filePath)
             }
         }
     } catch (err) {

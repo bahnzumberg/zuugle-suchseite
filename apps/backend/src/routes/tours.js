@@ -1,7 +1,7 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
-import {createImageFromMap, mergeGpxFilesToOne} from "../utils/gpx/gpxUtils";
+import {createImageFromMap, mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
 import {tourPdf} from "../utils/pdf/tourPdf";
@@ -9,7 +9,6 @@ import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage
 import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
 import { jsonToStringArray } from '../utils/pdf/utils';
-import {last_two_characters} from "../utils/gpx/utils"
 
 const fs = require('fs');
 const path = require('path');
