@@ -245,13 +245,22 @@ export function jsonToStringArray(connection, toFrom = "to"){
     return stringArray;   
 }
 
-export function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
+function last_two_characters(h_url) {
+    if (!!h_url) {
+        const hashed_url = "" + h_url;
+
+        if (hashed_url.length >= 2) {
+            return hashed_url.substring(hashed_url.length - 2).toString();
+        }
+        else if (hashed_url.length == 1) {
+            return "0" + hashed_url;
+        }
+        else {
+            return "00";    
+        }
     }
     else {
-        return "undefined";
+        return "00";
     }
 }
 

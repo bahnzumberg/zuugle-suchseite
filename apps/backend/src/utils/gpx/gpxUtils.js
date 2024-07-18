@@ -55,12 +55,14 @@ export const createImagesFromMap = async (ids) => {
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
             }
 
+            
             browser = await puppeteer.launch({
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
-                protocolTimeout: 240000,
-                defaultViewport: {width: 1200, height: 800},
-                ...addParam
+               args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
+               protocolTimeout: 240000,
+               defaultViewport: {width: 1200, height: 800},
+               ...addParam
             });
+
 
             let url = process.env.NODE_ENV === "production" ? 
             "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
@@ -103,12 +105,12 @@ export const createImagesFromMap = async (ids) => {
                         filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
                     }
 
-                    if (!!filePath && !!!fs.existsSync(filePath)) {
-                        // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
+                    if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
+                        console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
                         await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
 
                         if (fs.existsSync(filePath)){
-                            console.log(moment().format('HH:mm:ss'), ' Gpx image file created: ' + filePath);
+                            // console.log(moment().format('HH:mm:ss'), ' Gpx image file created: ' + filePath);
                             try {
                                 await sharp(filePath).resize({
                                     width: 600,
@@ -118,6 +120,7 @@ export const createImagesFromMap = async (ids) => {
 
                                 if (fs.existsSync(filePathSmall)){
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    await fs.unlink(filePath);
                                 }
                                 else {
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
@@ -130,8 +133,8 @@ export const createImagesFromMap = async (ids) => {
                             }
                         }
                         else {
-                            console.log(moment().format('HH:mm:ss'), ' Gpx image file NOT created: ' + filePath);
-                        }
+                            console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
+                        } 
                     }
                     
                     counter++;
@@ -149,8 +152,6 @@ export const createImagesFromMap = async (ids) => {
 }
 
 
-
-
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
@@ -163,6 +164,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.bringToFront();
                 await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
+                console.log("Created "+filePath)
             }
         }
     } catch (err) {
@@ -171,13 +173,22 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
     }
 }
 
-function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
+export function last_two_characters(h_url) {
+    if (!!h_url) {
+        const hashed_url = "" + h_url;
+
+        if (hashed_url.length >= 2) {
+            return hashed_url.substring(hashed_url.length - 2).toString();
+        }
+        else if (hashed_url.length == 1) {
+            return "0" + hashed_url;
+        }
+        else {
+            return "00";    
+        }
     }
     else {
-        return "undefined";
+        return "00";
     }
 }
 

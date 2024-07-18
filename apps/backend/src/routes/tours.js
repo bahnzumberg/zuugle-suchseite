@@ -8,10 +8,8 @@ import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
-// import {jsonToText, jsonToStringArray} from '../utils/utils';
 import { jsonToStringArray } from '../utils/pdf/utils';
-import { isArray } from 'lodash';
-import {last_two_characters} from "../utils/pdf/utils"
+import {last_two_characters} from "../utils/gpx/utils"
 
 const fs = require('fs');
 const path = require('path');
@@ -1433,15 +1431,6 @@ const tourPdfWrapper = async (req, res) => {
     res.status(500).json({ success: false });
 }
 
-// function last_two_characters(h_url) {
-//     const hashed_url = h_url.toString();
-//     if (hashed_url.length >= 2) {
-//         return hashed_url.substr(hashed_url.length - 2).toString();
-//     }
-//     else {
-//         return "undefined";
-//     }
-// }
 
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
@@ -1533,8 +1522,21 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
 
     entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
-    entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx.jpg`;
-    entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx_small.jpg`;
+    // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx.jpg`;
+
+    filePathSmall_old = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.hashed_url) + "/" + entry.hashed_url + "_gpx_small.jpg")
+    filePathSmall_new = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.id) + "/" + entry.id + "_gpx_small.jpg")
+    
+    if (fs.existsSync(filePathSmall_new)){
+        entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.id)}/${entry.id}_gpx_small.jpg`;
+    }
+    else if (fs.existsSync(filePathSmall_new)){
+        entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx_small.jpg`;
+    }
+    else {
+        entry.gpx_image_file_small = `${getHost(domain)}/app_static/img/train_placeholder.webp`;
+    }
+
     if(!!addDetails){
         try {
             if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){

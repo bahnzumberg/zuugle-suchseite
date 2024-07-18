@@ -8,7 +8,7 @@ const { create, builder } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 import logger from "../utils/logger";
-import {last_two_characters} from "../utils/pdf/utils";
+import {last_two_characters} from "../utils/gpx/utils";
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -191,7 +191,7 @@ const prepareDirectories = () => {
         // recreated new and by this we ensure all is updated and unused files are removed.
         deleteFilesOlder30days(filePath);
     }
-    console.log(moment().format('HH:mm:ss'), ' Finished deleting old files');
+    // console.log(moment().format('HH:mm:ss'), ' Finished deleting old files');
 }
 
 
@@ -324,7 +324,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
             fs.mkdirSync(filePath);
         }
         filePath = path.join(filePath, fileName);
-        console.log(moment().format('HH:mm:ss'), ' Start creating gpx file '+filePath);
+        // console.log(moment().format('HH:mm:ss'), ' Start creating gpx file '+filePath);
 
         if(!!key){
             let trackPoints = null;
@@ -370,7 +370,7 @@ export async function syncGPX(){
     let allTours = null;
     let promises = null;
     for (let i=0; i<10; i++) {
-        console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
+        // console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
         allTours = await knex('tour').select(["title", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
               
         if(!!allTours && allTours.length > 0){
@@ -389,7 +389,8 @@ export async function syncGPX(){
 }
 
 export async function syncGPXImage(){
-    let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
+    // let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
+    let allHashedUrls = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as hashed_url FROM tour");
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];
@@ -454,7 +455,7 @@ async function _syncGPX(h_url, title){
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
-        console.log(`createFileFromGpx ${filePath}`)
+        // console.log(`createFileFromGpx ${filePath}`)
         
         const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
