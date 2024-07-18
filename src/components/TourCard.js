@@ -7,7 +7,7 @@ import {
   checkIfImageExists,
   convertNumToTime,
 } from "../utils/globals";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
