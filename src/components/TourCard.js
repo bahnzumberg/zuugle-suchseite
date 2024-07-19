@@ -70,12 +70,7 @@ export default function TourCard({
   }, [tour]);
 
   useEffect(() => {
-    if (
-      !!loadTourConnections &&
-      !!city &&
-      tour.cities &&
-      tour.cities.length > 0
-    ) {
+    if (!!loadTourConnections && !!city) {
       setConnectionLoading(true);
       loadTourConnections({ id: tour.id, city: city }).then((res) => {
         setConnectionLoading(false);
@@ -88,18 +83,8 @@ export default function TourCard({
     }
   }, [tour]);
 
-  let value_best_connection_duration = 0
-  let value_connection_no_of_transfers = 0
-  
-  if (city !== null) {
-    for (let i in tour.cities) {
-      if(tour.cities[i].city_slug === city){    
-        value_best_connection_duration = tour.cities[i].best_connection_duration
-        value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
-        break;
-      } 
-    }
-  }
+  let value_best_connection_duration = tour.min_connection_duration;
+  let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
 
   const renderProps = () => {
     const values = [];
