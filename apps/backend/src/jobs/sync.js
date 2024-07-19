@@ -167,12 +167,41 @@ export async function fixTours(){
                         FROM (
                             SELECT
                             g.hashed_url,
-                            g.lat,
-                            g.lon
+                            g.lat-0.5 as lat,
+                            g.lon-0.5 as lon
                             FROM gpx AS g
                             WHERE g.typ='first'
                         ) AS b
                         WHERE b.hashed_url=c2t.hashed_url`);
+
+        // Generating at least one point for the tracks
+        await knex.raw(`TRUNCATE tracks`)
+
+        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+                        SELECT
+                        f.totour_track_key AS track_key,
+                        1 AS track_point_sequence,
+                        ct.connection_arrival_stop_lon-0.5 AS track_point_lon,
+                        ct.connection_arrival_stop_lat-0.5 AS track_point_lat,
+                        0 AS track_point_elevation
+                        FROM fahrplan AS f
+                        INNER JOIN city2tour AS ct
+                        ON ct.hashed_url=f.hashed_url
+                        AND f.city_slug=ct.city_slug
+                        GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+
+        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+                        SELECT
+                        f.fromtour_track_key AS track_key,
+                        1 AS track_point_sequence,
+                        ct.connection_arrival_stop_lon+1 AS track_point_lon,
+                        ct.connection_arrival_stop_lat+1 AS track_point_lat,
+                        0 AS track_point_elevation
+                        FROM fahrplan AS f
+                        INNER JOIN city2tour AS ct
+                        ON ct.hashed_url=f.hashed_url
+                        AND f.city_slug=ct.city_slug
+                        GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
     }
 
 
