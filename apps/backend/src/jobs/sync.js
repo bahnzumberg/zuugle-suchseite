@@ -92,6 +92,7 @@ export async function fixTours(){
     // 2. You can filter on all tours reachable from all cities in this country (by filtering on reachable_from_country).
     await knex.raw(`TRUNCATE city2tour;`);
     await knex.raw(`INSERT INTO city2tour 
+                    (tour_id, provider, hashed_url, city_slug, reachable_from_country)
                     SELECT DISTINCT
                     tour.id AS tour_id,
                     tour.provider,
@@ -150,6 +151,7 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
+
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
     if(process.env.NODE_ENV == "production"){
         await update_tours_from_tracks();
@@ -165,13 +167,78 @@ export async function fixTours(){
                         FROM (
                             SELECT
                             g.hashed_url,
-                            g.lat,
-                            g.lon
+                            g.lat-0.5 as lat,
+                            g.lon-0.5 as lon
                             FROM gpx AS g
                             WHERE g.typ='first'
                         ) AS b
                         WHERE b.hashed_url=c2t.hashed_url`);
+
+        // Generating at least one point for the tracks
+        await knex.raw(`TRUNCATE tracks`)
+
+        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+                        SELECT
+                        f.totour_track_key AS track_key,
+                        1 AS track_point_sequence,
+                        ct.connection_arrival_stop_lon-0.5 AS track_point_lon,
+                        ct.connection_arrival_stop_lat-0.5 AS track_point_lat,
+                        0 AS track_point_elevation
+                        FROM fahrplan AS f
+                        INNER JOIN city2tour AS ct
+                        ON ct.hashed_url=f.hashed_url
+                        AND f.city_slug=ct.city_slug
+                        GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+
+        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+                        SELECT
+                        f.fromtour_track_key AS track_key,
+                        1 AS track_point_sequence,
+                        ct.connection_arrival_stop_lon+1 AS track_point_lon,
+                        ct.connection_arrival_stop_lat+1 AS track_point_lat,
+                        0 AS track_point_elevation
+                        FROM fahrplan AS f
+                        INNER JOIN city2tour AS ct
+                        ON ct.hashed_url=f.hashed_url
+                        AND f.city_slug=ct.city_slug
+                        GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
     }
+
+
+    await knex.raw(`UPDATE city2tour as ct
+                    SET stop_selector='y'
+                    FROM (
+                        SELECT
+                        d.tour_id,
+                        d.city_slug
+                        FROM (
+                            SELECT
+                            c.tour_id,
+                            c.city_slug,
+                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
+                            FROM city2tour AS c
+                            INNER JOIN (
+                                SELECT 
+                                COUNT(*),
+                                tour_id,
+                                connection_arrival_stop_lon,
+                                connection_arrival_stop_lat,
+                                reachable_from_country,
+                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
+                                FROM city2tour
+                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
+                            ) AS a 
+                            ON c.tour_id=a.tour_id
+                            AND c.reachable_from_country=a.reachable_from_country
+                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
+                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
+                            AND a.lon_lat_order=1
+                        ) AS d
+                        WHERE d.city_order=1
+                    ) AS e
+                    WHERE ct.tour_id=e.tour_id
+                    AND ct.city_slug=e.city_slug;`)
+
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
@@ -1039,10 +1106,10 @@ const calcMonthOrder = (entry) => {
         var Monthobject = entryScore.find(Monthvalue => Monthvalue.name === Monthname);
 
         if (Monthobject.value=='true') {
-            return i;
+            return Math.floor(i/6)*2;
         }
     }
-    return 100;
+    return 1;
 }
 
 
@@ -1104,7 +1171,6 @@ const bulk_insert_tours = async (entries) => {
             dec: entry.dec,
             month_order: calcMonthOrder(entry),
             traverse: entry.traverse,
-            // publishing_date: entry.publishing_date,
             quality_rating: entry.quality_rating,
             user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
