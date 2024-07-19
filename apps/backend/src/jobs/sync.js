@@ -133,6 +133,22 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
+    // Store for every tour and city the total walking duration: bus stop to start of hike, hike, back to bus stop 
+    await knex.raw(`UPDATE city2tour AS c SET avg_total_tour_duration = i.avg_total_tour_duration
+                    FROM (
+                    SELECT 
+                    f.hashed_url,
+                    f.city_slug,
+                    ROUND(AVG(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600 +
+                    EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600 +
+                    t.duration)*100)/100 AS avg_total_tour_duration
+                    FROM fahrplan AS f
+                    INNER JOIN tour AS t
+                    ON f.hashed_url=t.hashed_url
+                    GROUP BY f.hashed_url, f.city_slug
+                    ) AS i
+                    WHERE i.hashed_url=c.hashed_url
+                    AND i.city_slug=c.city_slug`);
 
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
     if(process.env.NODE_ENV == "production"){
@@ -141,6 +157,20 @@ export async function fixTours(){
     else {
         // On local development there are no tracks. How do we update the two columns in table tours?
         // If not set, the map can not be filled with data.
+        // We set the stop wrongly with the first track point of the hike. Better than having no data here.
+
+        await knex.raw(`UPDATE city2tour AS c2t
+                        SET connection_arrival_stop_lon=b.lon,
+                        connection_arrival_stop_lat=b.lat
+                        FROM (
+                            SELECT
+                            g.hashed_url,
+                            g.lat,
+                            g.lon
+                            FROM gpx AS g
+                            WHERE g.typ='first'
+                        ) AS b
+                        WHERE b.hashed_url=c2t.hashed_url`);
     }
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.

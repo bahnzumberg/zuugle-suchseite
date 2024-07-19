@@ -236,6 +236,7 @@ CREATE TABLE city2tour (
       reachable_from_country varchar(2) NOT NULL,
       min_connection_duration int DEFAULT 200,
       min_connection_no_of_transfers INTEGER DEFAULT 4,
+      avg_total_tour_duration decimal(6,2) DEFAULT NULL,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
       connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
       stop_selector char(1) DEFAULT 'n'
