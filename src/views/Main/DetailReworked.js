@@ -65,12 +65,12 @@ const DetailReworked = (props) => {
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    allCities,
+    // allCities,
     tour,
     loadCities,
     loadAllCities,
-    showMobileMenu,
-    setShowMobileMenu,
+    // showMobileMenu,
+    // setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
@@ -332,13 +332,13 @@ useEffect(() => {
 
   useEffect(() => {
     if (tour) {
-      if (!tour.cities_object[searchParams.get("city")]) {
-      } else {
+      // if (!tour.cities_object[searchParams.get("city")]) {
+      // } else {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         setRenderImage(!!tour?.image_url);
-      }
+      // }
     }
   }, [tour]);
 
