@@ -1523,8 +1523,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
     // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx.jpg`;
 
-    filePathSmall_old = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.hashed_url) + "/" + entry.hashed_url + "_gpx_small.jpg")
-    filePathSmall_new = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.id) + "/" + entry.id + "_gpx_small.jpg")
+    let filePathSmall_old = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.hashed_url) + "/" + entry.hashed_url + "_gpx_small.jpg")
+    let filePathSmall_new = path.join(__dirname, "../../../", "public/gpx-image/" + last_two_characters(entry.id) + "/" + entry.id + "_gpx_small.jpg")
     
     if (fs.existsSync(filePathSmall_new)){
         entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.id)}/${entry.id}_gpx_small.jpg`;
