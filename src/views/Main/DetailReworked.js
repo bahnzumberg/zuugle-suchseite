@@ -29,7 +29,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
-import PdfIcon from "../../icons/PdfIcon";
+// import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";

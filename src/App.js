@@ -13,10 +13,9 @@ import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 
 const Main = lazy(() => import("./views/Main/Main"));
-const About = lazy(() => import("./views/Pages/About"));
+// const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
 
 
 
@@ -73,7 +72,6 @@ function App() {
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
               <Route path="/suche" element={<Main />} />
-              <Route path="/about" element={<About />} />
               <Route path="/tour" element={<DetailReworked />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />
               <Route path="/imprint" element={<Impressum />} />
