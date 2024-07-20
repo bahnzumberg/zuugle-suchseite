@@ -59,7 +59,7 @@
   "scripts": {
     "start": "webpack --mode development --port 3000 --watch ./src --open --progress --host localhost --static .",
     "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
-    "build": "npm run generate-meta-tag && npm run build-app",
+    "build": "npm run build-app",
     "build-app": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
