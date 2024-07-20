@@ -36,12 +36,16 @@ export default function TourCard({
 
   // i18next
   const { t } = useTranslation();
-
   const hm = t("details.hm_hoehenmeter");
+
+  console.log("tour.gpx_image_file_small: ", tour.gpx_image_file_small)
 
   //description
   //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
   useEffect(() => {
+    setImage(tour.gpx_image_file_small)
+
+    /*
     if (!!tour.image_url && tour.provider === "bahnzumberg") {
       checkIfImageExists(tour.image_url).then((exists) => {
         if (!!exists) {
@@ -67,6 +71,7 @@ export default function TourCard({
     } else {
       setImage(DEFAULT_IMAGE);
     }
+    */
   }, [tour]);
 
   useEffect(() => {
