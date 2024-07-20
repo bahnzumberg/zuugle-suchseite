@@ -7,6 +7,7 @@ import {minutesFromMoment} from "../utils/helper";
 const { create } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
+const request = require('request');
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -177,10 +178,11 @@ export async function fixTours(){
         // Generating at least one point for the tracks
         await knex.raw(`TRUNCATE tracks`)
 
+        try {
         await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
                         SELECT
                         f.totour_track_key AS track_key,
-                        1 AS track_point_sequence,
+                        ROW_NUMBER() OVER(PARTITION BY f.totour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
                         ct.connection_arrival_stop_lon-0.5 AS track_point_lon,
                         ct.connection_arrival_stop_lat-0.5 AS track_point_lat,
                         0 AS track_point_elevation
@@ -188,12 +190,19 @@ export async function fixTours(){
                         INNER JOIN city2tour AS ct
                         ON ct.hashed_url=f.hashed_url
                         AND f.city_slug=ct.city_slug
+                        WHERE ct.connection_arrival_stop_lon IS NOT NULL
+                        AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+        }
+        catch(e) {
+            console.log(e)
+        }
 
+        try {
         await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
                         SELECT
                         f.fromtour_track_key AS track_key,
-                        1 AS track_point_sequence,
+                        ROW_NUMBER() OVER(PARTITION BY f.fromtour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
                         ct.connection_arrival_stop_lon+1 AS track_point_lon,
                         ct.connection_arrival_stop_lat+1 AS track_point_lat,
                         0 AS track_point_elevation
@@ -201,9 +210,15 @@ export async function fixTours(){
                         INNER JOIN city2tour AS ct
                         ON ct.hashed_url=f.hashed_url
                         AND f.city_slug=ct.city_slug
+                        WHERE f.fromtour_track_key NOT IN (SELECT track_key FROM tracks)
+                        AND ct.connection_arrival_stop_lon IS NOT NULL
+                        AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+        }
+        catch(e) {
+            console.log(e)
+        }
     }
-
 
     await knex.raw(`UPDATE city2tour as ct
                     SET stop_selector='y'
@@ -239,9 +254,46 @@ export async function fixTours(){
                     WHERE ct.tour_id=e.tour_id
                     AND ct.city_slug=e.city_slug;`)
 
-
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
+
+    // Check all entries of column image_url in table tour
+    // First, we remove all images producing 404, which are already stored there - mainly provider bahnzumberg 
+    const tour_image_url = await knex('tour').select(['id', 'image_url']).whereNotNull('image_url');
+
+    if (!!tour_image_url) {
+        try {
+            const updatePromises = tour_image_url.map(async (entry) => {
+                try {
+                    if (entry.image_url != encodeURI(entry.image_url).replace(/%5B/g, '[').replace(/%5D/g, ']')) {
+                        await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`)
+                        // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
+                    }
+                    else {
+                        const options = {
+                            timeout: 10000 // Set timeout to 10 seconds (default might be lower)
+                        };
+                          
+                        request(entry.image_url, options, (error, response) => {
+                            if (error ||  response.statusCode != 200) {
+                                // console.log("Response: ", response)
+                                // console.log("Error: ", error)
+                                knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
+                                // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
+                            }
+                        });                     
+                    }
+                }
+                catch(err){
+                    console.log('const updatePromises = tour_image_url.map: ', err)
+                }
+            });
+            await Promise.all(updatePromises);
+        }
+        catch(err){
+            console.log('error: ', err)
+        }
+    }
 }
 
 
@@ -479,6 +531,8 @@ export async function syncGPXImage(){
             // console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
+
+        await knex.raw(`UPDATE tour SET image_url='/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
     }
     return true;
 

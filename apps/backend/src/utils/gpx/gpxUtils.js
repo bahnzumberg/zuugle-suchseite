@@ -47,6 +47,15 @@ const minimal_args = [
 ];
 
 
+const setTourImageURL = async (tour_id, image_url) => {
+    if (!!tour_id) {
+        if (image_url.length > 0) {
+            await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+            // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+        }
+    }
+}
+
 export const createImagesFromMap = async (ids) => {
     if(!!ids){
         let browser;
@@ -124,11 +133,17 @@ export const createImagesFromMap = async (ids) => {
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
 
                                 if (fs.existsSync(filePathSmall)){
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
+
+                                    // Now we want to insert the correct image_url into table tour
+                                    await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                                 }
                                 else {
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
+                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
+
+                                    // In this case we set '/app_static/img/train_placeholder.webp'
+                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
                                 }
 
                             } catch(e){
@@ -139,7 +154,14 @@ export const createImagesFromMap = async (ids) => {
                         }
                         else {
                             console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
+                            
+                            // In this case we set '/app_static/img/train_placeholder.webp'
+                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
                         } 
+                    }
+                    else {
+                        // The gpx_small.jpg already exists and doesn't have to be regenerated.   
+                        await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                     }
                     
                     counter++;

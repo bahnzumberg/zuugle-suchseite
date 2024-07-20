@@ -4,7 +4,7 @@ import knex from "../knex";
 import {createImageFromMap, mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
-import {tourPdf} from "../utils/pdf/tourPdf";
+// import {tourPdf} from "../utils/pdf/tourPdf";
 import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
 import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
