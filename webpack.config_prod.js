@@ -19,7 +19,7 @@ module.exports = {
 		contentBase: BUILD_DIR,
 		//   port: 9001,
 		compress: true,
-		hot: false,
+		hot: true,
 		open: true,
 		historyApiFallback: true,
 	},

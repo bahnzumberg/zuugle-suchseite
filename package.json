@@ -51,13 +51,14 @@
     "redux-thunk": "^2.4.1",
     "uuid": "^9.0.0",
     "watch": "^1.0.2",
-    "web-vitals": "^3.3.0"
+    "web-vitals": "^3.3.0",
+    "wepack-cli": "^0.0.1-security"
   },
   "overrides": {
     "@types/react": "^18.0.0"
   },
   "scripts": {
-    "start": "webpack --mode development --port 3000 --watch ./src --open --progress --host localhost --static .",
+    "start": "webpack serve --mode development --port 3000 --open --watch ./src --hot --progress --host localhost --static .",
     "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
     "build": "npm run build-app",
     "build-app": "webpack --config webpack.config_prod.js",
