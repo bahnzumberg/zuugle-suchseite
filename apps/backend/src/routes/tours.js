@@ -38,9 +38,7 @@ const providerWrapper = async (req, res) => {
 
  
 const totalWrapper = async (req, res) => {
-
     const city = req.query.city;
-    // console.log("L44", req.query)
     const total = await knex.raw(`SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
@@ -526,6 +524,7 @@ const filterWrapper = async (req, res) => {
         where.language = language;
     }
 
+    console.log("tour.js provider: ", provider)
     /** provider search */
     if(!!provider && provider.length > 0){
         where.provider = provider;
