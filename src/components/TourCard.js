@@ -30,7 +30,7 @@ export default function TourCard({
   const [returns, setReturns] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
+  // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   let tourLink = `/tour?id=${tour.id}&city=${city}`;
 
@@ -38,37 +38,8 @@ export default function TourCard({
   const { t } = useTranslation();
   const hm = t("details.hm_hoehenmeter");
 
-  console.log("tour.image_url: ", tour.image_url)
-
-  //description
-  //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
   useEffect(() => {
-    // if (!!tour.image_url && tour.provider === "bahnzumberg") {
-    if (!!tour.image_url) {
-      checkIfImageExists(tour.image_url).then((exists) => {
-        if (!!exists) {
-          setImage(tour.image_url);
-        } else if (!!tour.gpx_image_file_small) {
-          checkIfImageExists(tour.gpx_image_file_small).then((gpxExists) => {
-            if (!!gpxExists) {
-              setImage(tour.gpx_image_file_small);
-            } else {
-              setImage(DEFAULT_IMAGE);
-            }
-          });
-        }
-      });
-    } else if (!!tour.gpx_image_file_small) {
-      checkIfImageExists(tour.gpx_image_file_small).then((gpxExists) => {
-        if (!!gpxExists) {
-          setImage(tour.gpx_image_file_small);
-        } else {
-          setImage(DEFAULT_IMAGE);
-        }
-      });
-    } else {
-      setImage(DEFAULT_IMAGE);
-    }
+    setImage(tour.image_url);
   }, [tour]);
 
   useEffect(() => {

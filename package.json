@@ -4,7 +4,7 @@
     "url": "https://github.com/bahnzumberg/zuugle-suchseite/issues/",
     "email": "test@zuugle.at"
   },
-  "version": "2.0.1",
+  "version": "3.0.0",
   "private": true,
   "dependencies": {
     "@babel/traverse": "^7.23.2",
