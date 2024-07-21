@@ -43,6 +43,9 @@ export default function TourCard({
   //description
   //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
   useEffect(() => {
+    setImage(tour.image_url);
+
+    /*
     // if (!!tour.image_url && tour.provider === "bahnzumberg") {
     if (!!tour.image_url) {
       checkIfImageExists(tour.image_url).then((exists) => {
@@ -69,6 +72,7 @@ export default function TourCard({
     } else {
       setImage(DEFAULT_IMAGE);
     }
+    */
   }, [tour]);
 
   useEffect(() => {
