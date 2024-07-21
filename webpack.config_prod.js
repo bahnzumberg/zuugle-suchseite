@@ -13,6 +13,7 @@ module.exports = {
 	output: {
 		path: BUILD_DIR,
 		filename: './app_static/[name].bundle.js',
+		publicPath: "/", 
 	},
 	watch: true,
 	devServer: {
@@ -60,6 +61,7 @@ module.exports = {
 						loader: 'file-loader',
 						options: {
 							name: './img/[name].[hash].[ext]',
+							publicPath: "/", 
 						},
 					},
 				],

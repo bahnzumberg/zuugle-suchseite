@@ -11,6 +11,7 @@ module.exports = {
 	output: {
 		path: BUILD_DIR,
 		filename: "./app_static/[name].bundle.js",
+		publicPath: "/", 
 	},
 
 	devServer: {
