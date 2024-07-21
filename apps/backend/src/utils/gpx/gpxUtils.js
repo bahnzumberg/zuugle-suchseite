@@ -50,8 +50,13 @@ const minimal_args = [
 const setTourImageURL = async (tour_id, image_url) => {
     if (!!tour_id) {
         if (image_url.length > 0) {
-            await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
-            // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+            try {
+                await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+            }
+            catch(e) {
+                console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)
+            }
         }
     }
 }
@@ -102,8 +107,8 @@ export const createImagesFromMap = async (ids) => {
 
                         if (fs.existsSync(filePath)){
                             try {
-                                console.log("filePath=", filePath)
-                                console.log("filePathSmall=", filePathSmall)
+                                // console.log("filePath=", filePath)
+                                // console.log("filePathSmall=", filePathSmall)
                                 await sharp(filePath).resize({
                                     width: 600,
                                     height: 400,
