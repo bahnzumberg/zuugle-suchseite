@@ -61,46 +61,39 @@ export const createImagesFromMap = async (ids) => {
         let browser;
         try {
             let addParam = {};
-               if(process.env.NODE_ENV == "production"){
-                addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
-            }
-
-            
-            browser = await puppeteer.launch({
-               args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
-               protocolTimeout: 240000,
-               defaultViewport: {width: 1200, height: 800},
-               ...addParam
-            });
-
             let url = "";
             let dir_go_up = "";
             if(process.env.NODE_ENV == "production"){ 
                 dir_go_up = "../../"; 
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
+                addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
             }
             else {
                 dir_go_up = "../../../";
                 url = "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
             }
+
+            browser = await puppeteer.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
+                protocolTimeout: 240000,
+                defaultViewport: {width: 1200, height: 800},
+                ...addParam
+            });
+ 
             const chunkSize = 3;
-            let counter = 1;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 const chunk = ids.slice(i, i + chunkSize);
                 await Promise.all(chunk.map(ch => new Promise(async resolve => {
-
-                    let filePath = undefined;
-                    let filePathSmall = undefined;
-
-                    filePath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
-                    if (!fs.existsSync(filePath)){ 
-                        fs.mkdirSync(filePath);
+                    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
+                    if (!fs.existsSync(dirPath)){ 
+                        fs.mkdirSync(dirPath);
                     }
-                    filePathSmall = path.join(filePath, ch+"_gpx_small.jpg"); // has to be first
-                    filePath = path.join(filePath, ch+"_gpx.jpg"); // has to be second
+                    
+                    let filePath = path.join(dirPath, ch+"_gpx.jpg");
+                    let filePathSmall = path.join(dirPath, ch+"_gpx_small.jpg");
 
                     if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
-                        // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
+                        console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap for tour.id=${ch} to create ${filePath}`);
                         let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
                         let hashed_url_query = await knex.raw(hashed_url_sql);
                         let hashed_url = hashed_url_query.rows[0].hashed_url;
@@ -116,14 +109,14 @@ export const createImagesFromMap = async (ids) => {
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
 
                                 if (fs.existsSync(filePathSmall)){
-                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
                                     await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                                 }
                                 else {
-                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
 
                                     // In this case we set '/app_static/img/train_placeholder.webp'
                                     await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
@@ -147,7 +140,6 @@ export const createImagesFromMap = async (ids) => {
                         await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                     }
                     
-                    counter++;
                     resolve();
                 })));
             }
