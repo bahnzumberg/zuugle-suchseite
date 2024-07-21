@@ -38,7 +38,9 @@ export default function TourCard({
   const { t } = useTranslation();
   const hm = t("details.hm_hoehenmeter");
 
-  console.log("tour.image_url: ", tour.image_url)
+  if (tour.provider != "bahnzumberg") {
+    console.log("tour.image_url: ", tour.image_url)
+  }
 
   //description
   //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
