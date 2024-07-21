@@ -32,7 +32,8 @@ export default function TourCard({
   const [searchParams, setSearchParams] = useSearchParams();
   // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
-  let tourLink = `/tour?id=${tour.id}&city=${city}`;
+  // let tourLink = `/tour?id=${tour.id}&city=${city}`;
+  let tourLink = `/tour/${tour.id}/${city}`;
 
   // i18next
   const { t } = useTranslation();
