@@ -72,7 +72,7 @@ function App() {
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
               <Route path="/suche" element={<Main />} />
-              <Route path="/tour/:cityOne/:idOne" element={<DetailReworked />} />
+              <Route path="/tour/:idOne/:cityOne" element={<DetailReworked />} />
               <Route path="/tour" element={<DetailReworked />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />
               <Route path="/imprint" element={<Impressum />} />
