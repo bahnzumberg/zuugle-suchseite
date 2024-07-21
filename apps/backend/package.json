@@ -4,21 +4,22 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "v20.5.0",
-    "npm": ">=10.5"
+    "node": "v20.3.0",
+    "npm": ">=9.5"
   },
   "bugs": {
     "url": "https://github.com/bahnzumberg/zuugle-api/issues/",
     "email": "test@zuugle.at"
   },
   "scripts": {
-    "start": "nodemon --trace-warnings --watch src --exec babel-node -- src/index.js",
+    "start": "nodemon --trace-warnings --watch ./src --exec babel-node -- src/index.js",
     "build": "babel src -d build && cp -r ./templates  ./build/templates",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncData.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
+    "import-files-prod": "node build/jobs/syncFilesProd.js",
     "generate-testdata": "node build/jobs/generateTestdata.js"
   },
   "keywords": [],
@@ -63,6 +64,7 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "sharp": "^0.33.2",
+    "watch": "^1.0.2",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
   }

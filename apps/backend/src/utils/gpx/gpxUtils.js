@@ -73,14 +73,16 @@ export const createImagesFromMap = async (ids) => {
                ...addParam
             });
 
-
-            let url = process.env.NODE_ENV === "production" ? 
-            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
-            :
-            "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
-        
-
-
+            let url = "";
+            let dir_go_up = "";
+            if(process.env.NODE_ENV == "production"){ 
+                dir_go_up = "../../"; 
+                url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
+            }
+            else {
+                dir_go_up = "../../../";
+                url = "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
+            }
             const chunkSize = 3;
             let counter = 1;
             for (let i = 0; i < ids.length; i += chunkSize) {
@@ -89,32 +91,13 @@ export const createImagesFromMap = async (ids) => {
 
                     let filePath = undefined;
                     let filePathSmall = undefined;
-                    if(process.env.NODE_ENV == "production"){
-                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePath)){ 
-                            fs.mkdirSync(filePath);
-                        }
-                        filePath = path.join(filePath, ch+"_gpx.jpg");
 
-                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePathSmall)){ 
-                            fs.mkdirSync(filePathSmall);
-                        }
-                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
-                    } else {
-                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePath)){ 
-                            fs.mkdirSync(filePath);
-                        }
-                        filePath = path.join(filePath, ch+"_gpx.jpg");
-
-                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePathSmall)){ 
-                            fs.mkdirSync(filePathSmall);cd
-                        }
-                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
+                    filePath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
+                    if (!fs.existsSync(filePath)){ 
+                        fs.mkdirSync(filePath);
                     }
-
+                    filePathSmall = path.join(filePath, ch+"_gpx_small.jpg"); // has to be first
+                    filePath = path.join(filePath, ch+"_gpx.jpg"); // has to be second
 
                     if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
                         // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
