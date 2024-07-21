@@ -1,10 +1,10 @@
 {
   "name": "zuugle-api",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "v20.3.0",
+    "node": "20.3.0",
     "npm": ">=9.5"
   },
   "bugs": {
@@ -63,7 +63,7 @@
     "random": "^4.1.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
-    "sharp": "^0.33.2",
+    "sharp": "^0.33.4",
     "watch": "^1.0.2",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
