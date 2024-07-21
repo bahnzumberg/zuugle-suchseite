@@ -7,7 +7,7 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams,useParams } from "react-router-dom";
 import {
   loadTour,
   loadTourConnectionsExtended,
@@ -109,7 +109,8 @@ const DetailReworked = (props) => {
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false)
-
+  const {cityOne,idOne} = useParams()
+console.log("city=============>",cityOne,idOne)
 
   // Translation-related
   const { t } = useTranslation();
@@ -227,12 +228,17 @@ useEffect(() => {
 
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
+     
     const shareId = searchParams.get("share") ?? null;
-    const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
-
+   let city ;
+   if(cityOne){
+    city=cityOne
+   }else{
+     city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
+   }
     //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
     // detail page --> city : amstetten
-
+  
     //Redirects to according page when it is a share link
     if (shareId !== null) {
 
@@ -280,10 +286,16 @@ useEffect(() => {
 
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
-
+    let tourId
+    if(idOne){
+      tourId=idOne
+      console.log("id=============>",tourId,idOne)
+    }else{
+    tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+  }
     if (!!tourId) {
       setIsTourLoading(true);
+      
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -313,21 +325,24 @@ useEffect(() => {
     }
     if (tourId && city && !connections) {
       setIsTourLoading(true);
+   
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
+        
         if (res && res.data) {
           !!res.data.result && setConnections(res.data.result);
-          
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
+      }).catch(err=>{
+        console.error("error",err)
       })
       .finally(() => {
         setIsTourLoading(false);
       });
     }
-  }, [searchParams]);
+  }, [searchParams,cityOne,idOne]);
 
 
   useEffect(() => {
@@ -717,7 +732,7 @@ useEffect(() => {
                 }}
               />
             </Box>
-            {!searchParams.get("city") && (
+            {(!searchParams.get("city") && !cityOne) && (
               <Box
                 sx={{
                   position: "fixed",
@@ -743,8 +758,8 @@ useEffect(() => {
               border: "2px solid #ddd",
               width: "100%",
               maxWidth: {
-                xs: !searchParams.get("city") ? "360px" : "325px",
-                md: !searchParams.get("city") ? "376px" : "600px",
+                xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
+                md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
               },
               boxSizing: "border-box",
               boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
