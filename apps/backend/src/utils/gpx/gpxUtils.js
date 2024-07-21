@@ -123,9 +123,7 @@ export const createImagesFromMap = async (ids) => {
                                 }
 
                             } catch(e){
-                                if(process.env.NODE_ENV !== "production"){
-                                    console.error("gpxUtils error :",e);
-                                }
+                                console.error("gpxUtils error :",e);
                             }
                         }
                         else {
