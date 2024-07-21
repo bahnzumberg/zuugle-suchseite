@@ -164,8 +164,103 @@ const listWrapper = async (req, res) => {
     let new_search_where_range = ``
     let new_search_where_type = ``
     let new_search_where_provider = ``
-    let new_search_where_map = `` 
-    
+    let new_search_where_map = ``
+    let new_search_where_language = `` 
+    let new_filter_where_singleDayTour = ``
+    let new_filter_where_multipleDayTour = ``
+    let new_filter_where_summerSeason = ``
+    let new_filter_where_winterSeason = ``
+    let new_filter_where_traverse = ``
+    let new_filter_where_minAscent = ``
+    let new_filter_where_maxAscent = ``
+    let new_filter_where_minDescent = ``
+    let new_filter_where_maxDescent = ``
+    let new_filter_where_minTransportDuration = ``
+    let new_filter_where_maxTransportDuration = ``
+    let new_filter_where_minDistance = ``
+    let new_filter_where_maxDistance = ``
+    let new_filter_where_ranges = ``
+    let new_filter_where_types = ``
+    let new_filter_where_languages = ``
+
+    let filter_string = filter;
+    let filterJSON = undefined;
+    try {
+        filterJSON = JSON.parse(filter_string);
+    }
+    catch(e) {
+        filterJSON = undefined
+    }
+    if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
+        console.log("filterJSON: ", filterJSON)
+
+        if(filterJSON['singleDayTour'] && !filterJSON['multipleDayTour']){
+            new_filter_where_singleDayTour = `AND t.number_of_days=1 `
+        }
+
+        if(!filterJSON['singleDayTour'] && filterJSON['multipleDayTour']){
+            new_filter_where_multipleDayTour = `AND t.number_of_days>=2 `
+        }
+
+        if(filterJSON['summerSeason'] && !filterJSON['winterSeason']){
+            new_filter_where_summerSeason = `AND (t.season='s' OR t.season='g') `
+        }
+
+        if(!filterJSON['summerSeason'] && filterJSON['winterSeason']){
+            new_filter_where_winterSeason = `AND (t.season='w' OR t.season='g') `
+        }
+
+        if(filterJSON['traverse']){
+            new_filter_where_traverse = `AND t.traverse=1 `
+        }
+
+        // difficulty not implemented - dialog in frontend has to be changed to 3 checkboxes
+
+        if(filterJSON['minAscent'] && filterJSON['minAscent']>0){
+            new_filter_where_minAscent = `AND t.ascent>=${filterJSON['minAscent']} `
+        }
+
+        if(filterJSON['maxAscent'] && filterJSON['maxAscent']>0){
+            new_filter_where_maxAscent = `AND t.ascent<=${filterJSON['maxAscent']} `
+        }
+
+        if(filterJSON['minDescent'] && filterJSON['minDescent']>0){
+            new_filter_where_minDescent = `AND t.descent>=${filterJSON['minDescent']} `
+        }
+
+        if(filterJSON['maxDescent'] && filterJSON['maxDescent']>0){
+            new_filter_where_maxDescent = `AND t.descent<=${filterJSON['maxDescent']} `
+        }
+
+        if(filterJSON['minTransportDuration'] && filterJSON['minTransportDuration']>0){
+            new_filter_where_minTransportDuration = `AND c2t.min_connection_duration>=${filterJSON['minTransportDuration']} `
+        }
+
+        if(filterJSON['maxTransportDuration'] && filterJSON['maxTransportDuration']>0){
+            new_filter_where_maxTransportDuration = `AND c2t.min_connection_duration<=${filterJSON['maxTransportDuration']} `
+        }
+
+        if(filterJSON['minDistance'] && filterJSON['minDistance']>0){
+            new_filter_where_minDistance = `AND t.distance>=${filterJSON['minDistance']} `
+        }
+
+        if(filterJSON['maxDistance'] && filterJSON['maxDistance']>0){
+            new_filter_where_maxDistance = `AND t.distance<=${filterJSON['maxDistance']} `
+        }
+
+        if(filterJSON['ranges']){
+            new_filter_where_ranges = `AND t.range IN ${JSON.stringify(filterJSON['ranges']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+        }
+
+        if(filterJSON['types']){
+            new_filter_where_types = `AND t.type IN ${JSON.stringify(filterJSON['types']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+        }
+
+        if(filterJSON['languages']){
+            new_filter_where_languages = `AND t.text_lang IN ${JSON.stringify(filterJSON['languages']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+        }
+    }
+
     const tld = get_domain_country(domain);
 
     if(!!city && city.length > 0){
@@ -213,6 +308,10 @@ const listWrapper = async (req, res) => {
     
     if(!!provider && provider.length > 0){
         new_search_where_provider = `AND country='${provider}' `
+    }
+
+    if(!!language && language.length > 0){
+        new_search_where_language = `AND text_lang='${language}'  `
     }
 
     //filters the tours by coordinates
@@ -274,7 +373,23 @@ const listWrapper = async (req, res) => {
                         ${new_search_where_country}
                         ${new_search_where_type}
                         ${new_search_where_provider}
+                        ${new_search_where_language}
                         ${new_search_where_map}
+                        ${new_filter_where_singleDayTour}
+                        ${new_filter_where_multipleDayTour}
+                        ${new_filter_where_summerSeason}
+                        ${new_filter_where_winterSeason}
+                        ${new_filter_where_traverse}
+                        ${new_filter_where_minAscent}
+                        ${new_filter_where_maxAscent}
+                        ${new_filter_where_minDescent}
+                        ${new_filter_where_maxDescent}
+                        ${new_filter_where_minTransportDuration}
+                        ${new_filter_where_maxTransportDuration}
+                        ${new_filter_where_minDistance}
+                        ${new_filter_where_ranges}
+                        ${new_filter_where_types}
+                        ${new_filter_where_languages}
                         ORDER BY t.month_order ASC, 
                         order_lang_${currLanguage} DESC,  
                         ${new_search_order_searchterm}
@@ -287,7 +402,7 @@ const listWrapper = async (req, res) => {
                         t.id 
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -306,7 +421,23 @@ const listWrapper = async (req, res) => {
                                     ${new_search_where_country}
                                     ${new_search_where_type}
                                     ${new_search_where_provider}
+                                    ${new_search_where_language}
                                     ${new_search_where_map}
+                                    ${new_filter_where_singleDayTour}
+                                    ${new_filter_where_multipleDayTour}
+                                    ${new_filter_where_summerSeason}
+                                    ${new_filter_where_winterSeason}
+                                    ${new_filter_where_traverse}
+                                    ${new_filter_where_minAscent}
+                                    ${new_filter_where_maxAscent}
+                                    ${new_filter_where_minDescent}
+                                    ${new_filter_where_maxDescent}
+                                    ${new_filter_where_minTransportDuration}
+                                    ${new_filter_where_maxTransportDuration}
+                                    ${new_filter_where_minDistance}
+                                    ${new_filter_where_ranges}
+                                    ${new_filter_where_types}
+                                    ${new_filter_where_languages}
                                     `); 
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
@@ -324,7 +455,7 @@ const listWrapper = async (req, res) => {
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
     try {
-        result = await knex.raw(new_search_sql);// fire the DB call here
+        result = await knex.raw(new_search_sql); // fire the DB call here
         if (result && result.rows) {
             result = result.rows;
         } else {
@@ -347,7 +478,23 @@ const listWrapper = async (req, res) => {
                                         ${new_search_where_country}
                                         ${new_search_where_type}
                                         ${new_search_where_provider}
+                                        ${new_search_where_language}
                                         ${new_search_where_map}
+                                        ${new_filter_where_singleDayTour}
+                                        ${new_filter_where_multipleDayTour}
+                                        ${new_filter_where_summerSeason}
+                                        ${new_filter_where_winterSeason}
+                                        ${new_filter_where_traverse}
+                                        ${new_filter_where_minAscent}
+                                        ${new_filter_where_maxAscent}
+                                        ${new_filter_where_minDescent}
+                                        ${new_filter_where_maxDescent}
+                                        ${new_filter_where_minTransportDuration}
+                                        ${new_filter_where_maxTransportDuration}
+                                        ${new_filter_where_minDistance}
+                                        ${new_filter_where_ranges}
+                                        ${new_filter_where_types}
+                                        ${new_filter_where_languages}
                                         AND c2t.connection_arrival_stop_lat IS NOT NULL 
                                         AND c2t.connection_arrival_stop_lon IS NOT NULL
                                         `); // fire the DB call here
@@ -524,7 +671,6 @@ const filterWrapper = async (req, res) => {
         where.language = language;
     }
 
-    console.log("tour.js provider: ", provider)
     /** provider search */
     if(!!provider && provider.length > 0){
         where.provider = provider;
@@ -557,6 +703,10 @@ const filterWrapper = async (req, res) => {
 
     /** load full result for filter */
     let filterResultList = await queryForFilter;
+
+    // const tourIds = await query.pluck('id');
+    // const return_string = tourIds.join(',');
+    // console.log("return_string: ", return_string)
 
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
