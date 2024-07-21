@@ -43,7 +43,8 @@ export default function TourCardContainer({
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
 
-  console.log(`searchParams.get("p"): `, searchParams.get("p"))
+  console.log(`TourCardContainer searchParams.get("p"): `, searchParams.get("p"))
+  console.log(`TourCardContainer provider: `, provider)
   
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
