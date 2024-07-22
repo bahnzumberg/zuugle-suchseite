@@ -30,7 +30,7 @@ export default function TourCard({
   // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
-  let tourLink=`/tour/${tour.id}/`
+  let tourLink=`/tour/${tour.id}/${city}`
   if (!!city && city != null){
     tourLink=`/tour/${tour.id}/${city}`;
   } 
