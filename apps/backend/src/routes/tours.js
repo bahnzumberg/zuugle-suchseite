@@ -303,11 +303,11 @@ const listWrapper = async (req, res) => {
     }
 
     if(!!type && type.length > 0){
-        new_search_where_type = `AND country='${type}' `
+        new_search_where_type = `AND type='${type}' `
     }
     
     if(!!provider && provider.length > 0){
-        new_search_where_provider = `AND country='${provider}' `
+        new_search_where_provider = `AND provider='${provider}' `
     }
 
     if(!!language && language.length > 0){
