@@ -214,16 +214,21 @@ if (host.indexOf("www2.zuugle.at") >= 0) {
 		},
 		{
 			id: 1,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 2,
 			name: "UAT Zuugle.de",
 			url: "https://www2.zuugle.de",
 		},
 		{
-			id: 2,
+			id: 3,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -244,11 +249,16 @@ else if (host.indexOf("www2.zuugle.de") >= 0) {
 		},
 		{
 			id: 2,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -319,27 +329,27 @@ else if (host.indexOf("www2.zuugle.ch") >= 0) {
 	listOfDomains = [
 		{
 			id: 0,
-			name: "Zuugle.at",
-			url: "https://www2.zuugle.at",
-		},
-		{
-			id: 1,
 			name: "UAT Zuugle.ch",
 			url: "https://www2.zuugle.ch",
 		},
 		{
+			id: 1,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
 			id: 2,
-			name: "Zuugle.de",
+			name: "UAT Zuugle.de",
 			url: "https://www2.zuugle.de",
 		},
 		{
 			id: 3,
-			name: "Zuugle.it",
+			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
 			id: 4,
-			name: "Zuugle.si",
+			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
 	];
