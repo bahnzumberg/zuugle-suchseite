@@ -44,7 +44,8 @@ export default function TourCard({
 
   useEffect(() => {
     console.log("tour.image_url: ", tour.image_url)
-    if (tour.image_url==='null') {
+    console.log("typeof(tour.image_url): ", typeof(tour.image_url))
+    if (tour.image_url=='null') {
       setImage("/app_static/img/dummy.jpg")
     }
     else {
