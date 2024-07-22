@@ -297,7 +297,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
 const mapDispatchToProps = {
     loadGPX,
-    loadTourPdf,
+    // loadTourPdf,
     loadTourGpx
 };
 

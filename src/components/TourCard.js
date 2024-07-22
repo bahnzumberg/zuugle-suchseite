@@ -30,7 +30,10 @@ export default function TourCard({
   // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
-  let tourLink = `/tour/${tour.id}/${city}`;
+  let tourLink=`/tour/${tour.id}/`
+  if (!!city && city != null){
+    tourLink=`/tour/${tour.id}/${city}`;
+  } 
 
   // i18next
   const { t } = useTranslation();

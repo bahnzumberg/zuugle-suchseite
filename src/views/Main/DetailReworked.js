@@ -866,7 +866,7 @@ useEffect(() => {
               </div>
             </div>
             <div></div>
-            <Divider variant="middle" />
+            
           </Box>
           <Footer></Footer>
         </>
