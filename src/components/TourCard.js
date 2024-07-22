@@ -27,7 +27,7 @@ export default function TourCard({
   const [returns, setReturns] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
+  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
   let tourLink=``
@@ -43,7 +43,12 @@ export default function TourCard({
   const hm = t("details.hm_hoehenmeter");
 
   useEffect(() => {
-    setImage(tour.image_url);
+    if (JSON.stringify(tour.image_url)=='null') {
+      setImage("/app_static/img/dummy.jpg")
+    }
+    else {
+      setImage(tour.image_url);
+    }
   }, [tour]);
 
   useEffect(() => {
