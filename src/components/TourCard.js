@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Chip } from "@mui/material";
 
-const DEFAULT_IMAGE = "/app_static/img/train_placeholder.webp";
+const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 
 export default function TourCard({
   tour,
