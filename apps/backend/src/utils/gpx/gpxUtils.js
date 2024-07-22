@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs-extra');
 let sharp = require('sharp');
 const convertXML = require('xml-js');
-const { create, builder } = require('xmlbuilder2');
+const { create } = require('xmlbuilder2');
 import moment from "moment";
 import {setTimeout} from "node:timers/promises";
+import knex from "../../knex";
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -46,13 +47,35 @@ const minimal_args = [
 ];
 
 
+const setTourImageURL = async (tour_id, image_url) => {
+    if (!!tour_id) {
+        if (image_url.length > 0) {
+            try {
+                await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+            }
+            catch(e) {
+                console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)
+            }
+        }
+    }
+}
+
 export const createImagesFromMap = async (ids) => {
     if(!!ids){
         let browser;
         try {
             let addParam = {};
-               if(process.env.NODE_ENV == "production"){
+            let url = "";
+            let dir_go_up = "";
+            if(process.env.NODE_ENV == "production"){ 
+                dir_go_up = "../../"; 
+                url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
+            }
+            else {
+                dir_go_up = "../../../";
+                url = "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
             }
 
             browser = await puppeteer.launch({
@@ -61,80 +84,72 @@ export const createImagesFromMap = async (ids) => {
                 defaultViewport: {width: 1200, height: 800},
                 ...addParam
             });
-
-            let url = process.env.NODE_ENV === "production" ? 
-            "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/" 
-            :
-            "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
-        
-
-
+ 
             const chunkSize = 3;
-            let counter = 1;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 const chunk = ids.slice(i, i + chunkSize);
                 await Promise.all(chunk.map(ch => new Promise(async resolve => {
-
-                    let filePath = undefined;
-                    let filePathSmall = undefined;
-                    if(process.env.NODE_ENV == "production"){
-                        filePath = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePath)){ 
-                            fs.mkdirSync(filePath);
-                        }
-                        filePath = path.join(filePath, ch+"_gpx.jpg");
-
-                        filePathSmall = path.join(__dirname, "../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePathSmall)){ 
-                            fs.mkdirSync(filePathSmall);
-                        }
-                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
-                    } else {
-                        filePath = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePath)){ 
-                            fs.mkdirSync(filePath);
-                        }
-                        filePath = path.join(filePath, ch+"_gpx.jpg");
-
-                        filePathSmall = path.join(__dirname, "../../../", "public/gpx-image/"+last_two_characters(ch)+"/")
-                        if (!fs.existsSync(filePathSmall)){ 
-                            fs.mkdirSync(filePathSmall);cd
-                        }
-                        filePathSmall = path.join(filePathSmall, ch+"_gpx_small.jpg");
+                    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
+                    if (!fs.existsSync(dirPath)){ 
+                        fs.mkdirSync(dirPath);
                     }
+                    
+                    let filePath = path.join(dirPath, ch+"_gpx.jpg");
+                    let filePathSmall = path.join(dirPath, ch+"_gpx_small.jpg");
 
-                    if (!!filePath && !!!fs.existsSync(filePath)) {
-                        // console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap to create ${filePath}`);
-                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 80);
+                    if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
+                        console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap for tour.id=${ch} to create ${filePath}`);
+                        let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
+                        let hashed_url_query = await knex.raw(hashed_url_sql);
+                        let hashed_url = hashed_url_query.rows[0].hashed_url;
+
+                        await createImageFromMap(browser, filePath, url + last_two_characters(hashed_url) + "/" + hashed_url + ".gpx", 80);
 
                         if (fs.existsSync(filePath)){
-                            console.log(moment().format('HH:mm:ss'), ' Gpx image file created: ' + filePath);
                             try {
+                                // console.log("filePath=", filePath)
+                                // console.log("filePathSmall=", filePathSmall)
                                 await sharp(filePath).resize({
                                     width: 600,
                                     height: 400,
                                     fit: "inside"
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
+                            }
+                            catch(e) {
+                                console.error("gpxUtils.sharp.resize error: ",e)
+                            }
 
+                            try {
                                 if (fs.existsSync(filePathSmall)){
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    await fs.unlink(filePath);
+
+                                    // Now we want to insert the correct image_url into table tour
+                                    await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                                 }
                                 else {
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
+
+                                    // In this case we set '/app_static/img/train_placeholder.webp'
+                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
                                 }
 
                             } catch(e){
-                                if(process.env.NODE_ENV !== "production"){
-                                    console.error("gpxUtils error :",e);
-                                }
+                                console.error("gpxUtils error: ",e);
                             }
                         }
                         else {
-                            console.log(moment().format('HH:mm:ss'), ' Gpx image file NOT created: ' + filePath);
-                        }
+                            console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
+                            
+                            // In this case we set '/app_static/img/train_placeholder.webp'
+                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                        } 
+                    }
+                    else {
+                        // The gpx_small.jpg already exists and doesn't have to be regenerated.   
+                        await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                     }
                     
-                    counter++;
                     resolve();
                 })));
             }
@@ -149,8 +164,6 @@ export const createImagesFromMap = async (ids) => {
 }
 
 
-
-
 export const createImageFromMap = async (browser, filePath,  url, picquality) => {
     try {
         if(!!filePath){
@@ -163,6 +176,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.bringToFront();
                 await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
+                // console.log("Created "+filePath)
             }
         }
     } catch (err) {
@@ -171,13 +185,22 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
     }
 }
 
-function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
+export function last_two_characters(h_url) {
+    if (!!h_url) {
+        const hashed_url = "" + h_url;
+
+        if (hashed_url.length >= 2) {
+            return hashed_url.substring(hashed_url.length - 2).toString();
+        }
+        else if (hashed_url.length == 1) {
+            return "0" + hashed_url;
+        }
+        else {
+            return "00";    
+        }
     }
     else {
-        return "undefined";
+        return "00";
     }
 }
 

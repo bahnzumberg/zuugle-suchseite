@@ -204,7 +204,6 @@ export function formatToHHMM(durationString) {
 }
 
 export function jsonToStringArray(connection, toFrom = "to"){
-    // consoleLog("L1 : connection : ",connection), get connection as an object
     // toFrom is "to" or "from" , to use the right text in end or begining of array
     // this is done by using either "totour_track_duration" or "fromtour_track_duration"
     // if(!!connection && !!connection.connection_description_json && !!connection.return_description_json ){
@@ -246,13 +245,22 @@ export function jsonToStringArray(connection, toFrom = "to"){
     return stringArray;   
 }
 
-export function last_two_characters(h_url) {
-    const hashed_url = h_url.toString();
-    if (hashed_url.length >= 2) {
-        return hashed_url.substr(hashed_url.length - 2).toString();
+function last_two_characters(h_url) {
+    if (!!h_url) {
+        const hashed_url = "" + h_url;
+
+        if (hashed_url.length >= 2) {
+            return hashed_url.substring(hashed_url.length - 2).toString();
+        }
+        else if (hashed_url.length == 1) {
+            return "0" + hashed_url;
+        }
+        else {
+            return "00";    
+        }
     }
     else {
-        return "undefined";
+        return "00";
     }
 }
 
