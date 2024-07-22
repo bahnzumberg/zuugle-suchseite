@@ -21,14 +21,14 @@ import { useSearchParams } from "react-router-dom";
 // import debounce from "lodash/debounce";
 import { loadGPX } from "../../actions/fileActions.js";
 import { useDispatch, useSelector } from "react-redux";
-import { consoleLog } from "../../utils/globals.js";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
 // import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
 import { orderedArraysEqual } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
-import { isArray } from "lodash";
+// import { isArray } from "lodash";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const PopupCard = lazy(() => import("./PopupCard"));
 
@@ -53,6 +53,9 @@ function TourMapContainer({
   const markers = useSelector((state) => state.tours.markers); // move to props
   const isMasterMarkersSet = useRef(false);
 
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
@@ -60,22 +63,23 @@ function TourMapContainer({
     }
   }, []);
 
-  const createIcon = () => {
+  const createStartMarker = () => {
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
-      shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      // iconSize: [30, 41], //size of the icon
-      iconSize: [40, 51], //size of the icon
+      // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+      iconSize: [30, 40], //size of the icon
       iconAnchor: [15, 41],
     });
   };
 
-  let StartIcon = L.icon({
-    iconUrl: "app_static/img/pin-icon-start.png", //the acutal picture
-    shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-    iconSize: [30, 41], //size of the icon
-    iconAnchor: [15, 41],
-  });
+  // const createEndMarker = () => {
+  //   return L.icon({
+  //     iconUrl: "app_static/img/zielpunkt.png", //the acutal picture
+  //     shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+  //     iconSize: [30, 40], //size of the icon
+  //     iconAnchor: [15, 41],
+  //   });
+  // };
 
   const mapRef = useRef();
   const clusterRef = useRef();
@@ -170,6 +174,12 @@ function TourMapContainer({
   // eslint-disable-next-line no-use-before-define
   }, [mapBounds]);  
 
+  useEffect(() => {
+    if (activeMarker && mapRef.current) {
+      const { lat, lon } = activeMarker;
+      mapRef.current.setView([lat, lon], 15); 
+    }
+  }, [activeMarker]);
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
@@ -250,9 +260,8 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L290 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
+          
             setGpxTrack(track);
           }
         }
@@ -274,9 +283,7 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setTotourGpxTrack(track);
           }
         }
@@ -298,9 +305,7 @@ function TourMapContainer({
           let gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            consoleLog("L316 gpx.tracks[0].points : ");// consoleLog(gpx.tracks[0])
             let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            //consoleLog("L193 track[0][0] : ")//consoleLog(track[0][0]) //  [47.639424, 15.830512]
             setFromtourGpxTrack(track);
           }
         }
@@ -398,11 +403,10 @@ function TourMapContainer({
     initiateFilter(bounds);
   }
 
-  const debouncedStoppedMoving = makeDebounced(stoppedMoving, 300); //Calls makeDebounce with the function you want to debounce and the debounce time
+  const debouncedStoppedMoving = useMemo(() => makeDebounced(stoppedMoving, 1000), []); //Calls makeDebounce with the function you want to debounce and the debounce time
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
-    // consoleLog("L205  filter", filter['singleDayTour']);  // seems to give the rights values when zoom in or out
     const filterValues = {
       //All Values in the URL
       coordinatesSouthWest: bounds?._southWest,
@@ -440,8 +444,7 @@ function TourMapContainer({
   return (
     <Box
       style={{
-        // height: "500px",
-        height: "calc(60vh - 50px)",
+        height: !isMobile ? "calc(80vh - 50px)" : "calc(75vh - 50px)",
         width: "100%",
         position: "relative",
         overflow: "hidden",
@@ -472,6 +475,7 @@ function TourMapContainer({
 
           {activeMarker && selectedTour && (
             <Popup
+              key={`popup_${activeMarker.id}`}
               minWidth={350}
               maxWidth={400}
               minHeight={300}
@@ -491,7 +495,7 @@ function TourMapContainer({
               )}
             </Popup>
           )}
-
+          {/* orange color  (tour track) */}
           {!!gpxTrack &&
             gpxTrack.length > 0 && [
               <Polyline
@@ -500,7 +504,26 @@ function TourMapContainer({
               />,
             ]
           }
+          
+          {/* blue color  (fromtour) */}
+          {!!fromtourGpxTrack &&
+            fromtourGpxTrack.length > 0 && [
+              <Polyline
+                pathOptions={{ 
+                  weight: 6, 
+                  color: "#FF7663",
+                  opacity: 1,
+                  // opacity: !!totourGpxTrack ? 0.5 : 1,
+                  lineCap: 'square',
+                  dashArray: '5,10',
+                  dashOffset: '0' 
+                }}
+                positions={fromtourGpxTrack}
+              />,
+            ]
+          }
 
+          {/* orange color  (totour) */}
           {!!totourGpxTrack &&
             totourGpxTrack.length > 0 && [
               <Polyline
@@ -513,23 +536,6 @@ function TourMapContainer({
                   lineCap: 'square',
                 }}
                 positions={totourGpxTrack}
-              />,
-            ]
-          }
-          {/* blue color  */}
-          {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && [
-              <Polyline
-                pathOptions={{ 
-                  weight: 6, 
-                  color: "#4A91FF",
-                  opacity: 1,
-                  // opacity: !!totourGpxTrack ? 0.5 : 1,
-                  lineCap: 'square',
-                  dashArray: '5,10',
-                  dashOffset: '0' 
-                }}
-                positions={fromtourGpxTrack}
               />,
             ]
           }
@@ -549,7 +555,7 @@ function TourMapContainer({
                   key={mark.id}
                   position={[mark.lat, mark.lon]}
                   ref={markerRef}
-                  icon={createIcon()}
+                  icon={createStartMarker()}
                   eventHandlers={{
                     click: () => handleMarkerClick(mark, mark.id),
                   }}

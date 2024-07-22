@@ -1,8 +1,8 @@
 /* @import '~material-design-icons/iconfont/material-icons.css' */
 
-/* html, body {
+html, body {
   overflow-x: hidden;
-} */
+}
 
 body * {
   -webkit-font-smoothing: subpixel-antialiased !important;
@@ -686,7 +686,8 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 
   .map-container {
-    margin-top: 165px;
+    margin-top: 110px;
+    /* margin-top: 165px; */
   }
 }
 
@@ -701,7 +702,8 @@ body ::-webkit-scrollbar-thumb:hover {
   }
   .map-container {
     z-index: 100;
-    margin-top: 20px; /* Adjust this value based on your layout and header height */
+    /* margin-top: 20px; Adjust this value based on your layout and header height */
+    margin-top: 110px
   }
 }
 
@@ -869,7 +871,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .tour-detail-itinerary > div:nth-of-type(2) > div > div > div {
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: auto;
 }
 
 .tour-detail-itinerary-header {
@@ -980,6 +982,22 @@ body ::-webkit-scrollbar-thumb:hover {
   height: 41px;
   width: 41px;
   z-index: -1;
+}
+
+@media only screen and (max-width: 600px) {
+  .tour-detail-itinerary {
+    max-width: 300px;
+  }
+  .tour-detail-itinerary-calendar {
+    max-width: 400px;
+  }
+  .tour-detail-itinerary-calendar-grid {
+    grid-template-columns: repeat(7, 38px);
+    height: 85px;
+    padding: 10px 10px;
+  }
+
+
 }
 
 .tour-detail-action-btns-container {
@@ -1688,7 +1706,8 @@ top:250px; */
   }
 
   .blueDiv {
-    padding: 50px 15px 45px 15px;
+    /* padding: 50px 15px 45px 15px; */
+    padding: 20px 15px 45px 15px;
   }
 
   .languageMenu {

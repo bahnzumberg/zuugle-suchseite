@@ -4,7 +4,6 @@ import {
   NO_DATA_AVAILABLE,
   NO_TOURS_AVAILABLE,
 } from "./types";
-import { consoleLog } from "../utils/globals";
 
 export async function loadFile(
   dispatch,
@@ -31,11 +30,7 @@ export async function loadFile(
   }
   try {
     //when clicking "pdf" button on detail page.
-    if(process.env.NODE_ENV !== "production"){
-      // consoleLog("L 33 crudActions / loadFile : route :", route);//example: "tours/1971/pdf"
-      // consoleLog("L 34 crudActions / loadFile : data :", data, true);//example: {id: 1971, connection_id: 957752, connection_return_id: 957752, connection_return_ids: Array(1), connectionDate: '2024-01-11T00:00:00+01:00'}
-      // consoleLog("L 36 crudActions / loadFile : responseType :", responseType); //'buffer'
-    }
+
     let res = await axios.get(route, {
       // data: {},
       data: data,
@@ -263,7 +258,6 @@ export function loadShareParams(shareId, city) {
       },
     })
     .then((res) => {
-      consoleLog("L252 crudActions --> res.data: ", res.data, true); 
       // city : "amstetten"
       // date : "2024-01-16T23:00:00.000Z"
       // success : true
@@ -275,12 +269,6 @@ export function loadShareParams(shareId, city) {
 
 //generateShareLink generates a new sharing link to the corresponding tour on a specific date, the city is saved to later on always get connections, a shareId will be returned
 export function generateShareLink(provider, hashedUrl, date, city) {
-  // consoleLog("From inside generateShareLink", null , false)
-  // consoleLog("provider :", provider)
-  // consoleLog("hashedUrl :", hashedUrl)
-  // consoleLog("date :", date)
-  // consoleLog("city :", city)
-  // consoleLog("=====================================", null , false)
   return axios
     .post("/shares", {
       provider: provider,

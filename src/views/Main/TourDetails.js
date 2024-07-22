@@ -12,7 +12,7 @@ import {useEffect, useState} from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {loadGPX} from "../../actions/fileActions";
-import {loadTourGpx, loadTourPdf} from "../../actions/tourActions";
+import {loadTourGpx} from "../../actions/tourActions";
 let gpxParser = require('gpxparser');
 var fileDownload = require('js-file-download');
 import {Buffer} from 'buffer';
@@ -297,7 +297,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
 
 const mapDispatchToProps = {
     loadGPX,
-    loadTourPdf,
+    // loadTourPdf,
     loadTourGpx
 };
 

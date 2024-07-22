@@ -11,6 +11,7 @@ module.exports = {
 	output: {
 		path: BUILD_DIR,
 		filename: "./app_static/[name].bundle.js",
+		publicPath: "/", // Added this line to set the publicPath
 	},
 
 	devServer: {
@@ -65,12 +66,13 @@ module.exports = {
 				use: ["@svgr/webpack", "url-loader"],
 			},
 			{
-				test: /\.(png|jpg|jpeg|gif|ico)$/,
+				test: /\.(png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/,
 				use: [
 					{
 						loader: "file-loader",
 						options: {
 							name: "./img/[name].[hash].[ext]",
+							publicPath: "/", // Ensures the correct public path
 						},
 					},
 				],

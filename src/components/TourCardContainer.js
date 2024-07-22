@@ -7,7 +7,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
-import { consoleLog } from "../utils/globals";
 
 export default function TourCardContainer({
   tours,
@@ -43,7 +42,7 @@ export default function TourCardContainer({
   let sort = searchParams.get("sort");
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
-
+  
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
       filterRef.current = filterValues

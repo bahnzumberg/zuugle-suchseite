@@ -22,13 +22,9 @@ import {
   LOAD_TOURS_DONE,
   SET_SELECTED_DATE,
   SET_TOUR_ID,
-  // NO_DATA_AVAILABLE,
-  // NO_TOURS_AVAILABLE,
-  // LOAD_DATA_ERROR,
 } from "./types";
 import { loadFile, loadList, loadOne, loadOneReturnAll, getMapData } from "./crudActions";
 import i18next from "i18next";
-import { consoleLog } from "../utils/globals";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
@@ -41,8 +37,7 @@ export function loadTours(data = {}) {
 export function loadFilter(data = {}) {
 
   const language = i18next.resolvedLanguage;
-  // consoleLog("L44 data /tourActions", JSON.stringify(data), true)
-  return (dispatch, getState) => {
+    return (dispatch, getState) => {
     return loadList(
       dispatch,
       getState,
@@ -133,8 +128,6 @@ export function loadTourConnectionsExtended(data) {
 }
 
 export function loadFavouriteTours(data = {}) {
-  // data && consoleLog("L155 -> data passed to loadFavouriteTours :")
-  // data && consoleLog(data)
   const language = i18next.resolvedLanguage;
   return (dispatch, getState) => {
     data.domain = window.location.host;

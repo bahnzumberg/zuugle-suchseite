@@ -9,7 +9,7 @@ import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
 import { loadRegions } from "../../actions/regionActions";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
@@ -73,6 +73,7 @@ export function Search({
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
+  const {cityOne,idOne} = useParams()
   const [city, setCity] = useState({
     label: cityParam,
     value: cityParam,
@@ -103,7 +104,12 @@ export function Search({
     if(!!mapBounds) return ; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
 
     // pull out values from URL params
-    let city = searchParams.get("city");
+    let city
+    if(cityOne){
+      city = cityOne
+    }else{
+     city = searchParams.get("city");
+    }
     let range = searchParams.get("range"); 
     let state = searchParams.get("state"); 
     let country = searchParams.get("country"); 
@@ -218,6 +224,7 @@ export function Search({
   }, [
     // useEffect dependencies
     searchParams && searchParams.get("city"),
+    cityOne,
     searchParams && searchParams.get("filter"),
     searchParams && searchParams.get("sort"),
     searchParams && searchParams.get("search"),
@@ -372,7 +379,7 @@ export function Search({
       initialCity: cityInput,
       onSelect: async (city) => {
         hideModal();
-        if (!!city) {
+        if (!!city ) {
           setCityInput(city.label);
           setCity(city);
           pageKey==="start" && updateCapCity(city.label);
@@ -399,7 +406,7 @@ export function Search({
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
       onSearchSuggestion: getSearchSuggestion,
-      city: city,
+      city: city ? city: cityOne,
       language: language,
       title: "",
       sourceCall: "search",
@@ -530,7 +537,7 @@ export function Search({
                         ? cityInput
                         : t("start.heimatbahnhof")}
                     </span>
-                  ) : !cityInput && pageKey === "detail" ? (
+                  ) : (!cityInput ) && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
                       sx={{
@@ -568,7 +575,7 @@ export function Search({
                 }}
                 className="filter-icon-container"
               >
-                {!!isMain ? (
+                {(!!isMain ) ? (
                   <IconButton
                     onClick={() => openFilter()}
                   >

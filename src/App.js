@@ -8,16 +8,14 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import DetailReworked from "./views/Main/DetailReworked";
-import DetailReworkedMin from "./views/Main/DetailReworkedMin";
 import Search from "./components/Search/Search";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 
 const Main = lazy(() => import("./views/Main/Main"));
-const About = lazy(() => import("./views/Pages/About"));
+// const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader';
 
 
 
@@ -74,9 +72,8 @@ function App() {
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
               <Route path="/suche" element={<Main />} />
-              <Route path="/about" element={<About />} />
+              <Route path="/tour/:idOne/:cityOne" element={<DetailReworked />} />
               <Route path="/tour" element={<DetailReworked />} />
-              <Route path="/tour/:id/:city" element={<DetailReworkedMin />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />
               <Route path="/imprint" element={<Impressum />} />
               <Route path="/privacy" element={<Privacy />} />

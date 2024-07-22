@@ -7,7 +7,7 @@ import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams,useParams } from "react-router-dom";
 import {
   loadTour,
   loadTourConnectionsExtended,
@@ -24,13 +24,12 @@ import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
 import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
-import { consoleLog, parseFileName } from "../../utils/globals";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
-import PdfIcon from "../../icons/PdfIcon";
+// import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
@@ -52,7 +51,6 @@ import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
-// import { set } from "lodash";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
 
@@ -67,12 +65,12 @@ const DetailReworked = (props) => {
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    allCities,
+    // allCities,
     tour,
     loadCities,
     loadAllCities,
-    showMobileMenu,
-    setShowMobileMenu,
+    // showMobileMenu,
+    // setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
@@ -111,7 +109,7 @@ const DetailReworked = (props) => {
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false)
-
+  const {cityOne,idOne} = useParams()
 
   // Translation-related
   const { t } = useTranslation();
@@ -124,9 +122,9 @@ const DetailReworked = (props) => {
   };
   
   // pdf buttons shows up only when menu language is German
-  let pdfLanguagePermit = i18next.resolvedLanguage === "de";
-  // Because of https://github.com/orgs/bahnzumberg/projects/2/views/6?pane=issue&itemId=67291173, PDF button will be deactivated for everyone
-  // let pdfLanguagePermit = i18next.resolvedLanguage === "none";
+  // let pdfLanguagePermit = i18next.resolvedLanguage === "de";
+  // PDF is deactivated
+  let pdfLanguagePermit = i18next.resolvedLanguage === "none";
 
   const handleCloseTab = () => {
     window.close()
@@ -229,15 +227,17 @@ useEffect(() => {
 
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
+     
     const shareId = searchParams.get("share") ?? null;
-    const city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
-
-    !!shareId && consoleLog("detail page --> shareId :", shareId); 
+   let city ;
+   if(cityOne){
+    city=cityOne
+   }else{
+     city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
+   }
     //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
-    
-    !!city && consoleLog("detail page --> city :", city); 
     // detail page --> city : amstetten
-
+  
     //Redirects to according page when it is a share link
     if (shareId !== null) {
 
@@ -266,7 +266,6 @@ useEffect(() => {
 
             localStorage.setItem("tourId", res.tourId);
 
-            // consoleLog('URL redirect : /tour?', `/tour?${redirectSearchParams.toString()}`); 
             //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
             navigate(`/tour?${redirectSearchParams.toString()}`);
        
@@ -286,10 +285,15 @@ useEffect(() => {
 
     loadAllCities();
     loadCities({ limit: 5 });
-    const tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
-
+    let tourId
+    if(idOne){
+      tourId=idOne
+    }else{
+    tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+  }
     if (!!tourId) {
       setIsTourLoading(true);
+      
       loadTour(tourId, city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -319,32 +323,35 @@ useEffect(() => {
     }
     if (tourId && city && !connections) {
       setIsTourLoading(true);
+   
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
+        
         if (res && res.data) {
           !!res.data.result && setConnections(res.data.result);
-          
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
+      }).catch(err=>{
+        console.error("error",err)
       })
       .finally(() => {
         setIsTourLoading(false);
       });
     }
-  }, [searchParams]);
+  }, [searchParams,cityOne,idOne]);
 
 
   useEffect(() => {
     if (tour) {
-      if (!tour.cities_object[searchParams.get("city")]) {
-      } else {
+      // if (!tour.cities_object[searchParams.get("city")]) {
+      // } else {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
         setRenderImage(!!tour?.image_url);
-      }
+      // }
     }
   }, [tour]);
 
@@ -723,7 +730,7 @@ useEffect(() => {
                 }}
               />
             </Box>
-            {!searchParams.get("city") && (
+            {(!searchParams.get("city") && !cityOne) && (
               <Box
                 sx={{
                   position: "fixed",
@@ -749,8 +756,8 @@ useEffect(() => {
               border: "2px solid #ddd",
               width: "100%",
               maxWidth: {
-                xs: !searchParams.get("city") ? "360px" : "325px",
-                md: !searchParams.get("city") ? "376px" : "600px",
+                xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
+                md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
               },
               boxSizing: "border-box",
               boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
@@ -857,7 +864,7 @@ useEffect(() => {
               </div>
             </div>
             <div></div>
-            <Divider variant="middle" />
+            
           </Box>
           <Footer></Footer>
         </>

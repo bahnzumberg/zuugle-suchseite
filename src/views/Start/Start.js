@@ -25,7 +25,6 @@ import {
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
-import { consoleLog } from "../../utils/globals";
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
 );
@@ -90,8 +89,6 @@ function Start({
     const loadData = async () => {
       try {
         totalTourRef.current = await loadTotalTours(requestConfig);
-        // consoleLog(`L92 : ${JSON.stringify(totalTourRef.current.data['total_tours'])}`)
-        //consoleLog(`L92 : ${totalTourRef.current.data['total_tours']}`)
         await loadAllCities(requestConfig);
         await loadRanges(
           { ignore_limit: true, remove_duplicates: true },
@@ -115,11 +112,7 @@ function Start({
           requestConfig
         );
       } catch (error) {
-        if (error.name === "AbortError") {
-          consoleLog("Request was canceled:", error.message);
-        } else {
-          console.error("Error loading data:", error);
-        }
+          console.error("Error loading data");
       }
     };
 

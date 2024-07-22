@@ -3,24 +3,11 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-// import CustomStarRating from "./CustomStarRating";
-import {
-  checkIfImageExists,
-  consoleLog,
-  convertNumToTime,
-  formatNumber,
-} from "../utils/globals";
-import { Fragment, useEffect, useState } from "react";
+import {convertNumToTime} from "../utils/globals";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-// import LinearProgress from "@mui/material/LinearProgress";
-// import TourConnectionCardNew from "./TourConnectionCardNew";
-// import TourConnectionReturnCardNew from "./TourConnectionReturnCardNew";
-// import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from "react-i18next";
-// import { tourTypes } from "../utils/language_Utils";
 import { useSearchParams } from "react-router-dom";
-// import { consoleLog } from "../utils/globals";
-// import { BorderLeft, Padding } from "@mui/icons-material";
 import { Chip } from "@mui/material";
 
 const DEFAULT_IMAGE = "/app_static/img/train_placeholder.webp";
@@ -40,52 +27,27 @@ export default function TourCard({
   const [returns, setReturns] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
+  // const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
-  let tourLink = `/tour?id=${tour.id}&city=${city}`;
+  // let tourLink = `/tour?id=${tour.id}&city=${city}`;
+  let tourLink=``
+  if (!!city && city != null){
+    tourLink = `/tour/${tour.id}/${city}`;
+  } 
+  else {
+    tourLink = `/tour/${tour.id}/no-city`
+  }
 
   // i18next
   const { t } = useTranslation();
-
   const hm = t("details.hm_hoehenmeter");
 
-  //description
-  //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
   useEffect(() => {
-    if (!!tour.image_url && tour.provider === "bahnzumberg") {
-      checkIfImageExists(tour.image_url).then((exists) => {
-        if (!!exists) {
-          setImage(tour.image_url);
-        } else if (!!tour.gpx_image_file_small) {
-          checkIfImageExists(tour.gpx_image_file_small).then((gpxExists) => {
-            if (!!gpxExists) {
-              setImage(tour.gpx_image_file_small);
-            } else {
-              setImage(DEFAULT_IMAGE);
-            }
-          });
-        }
-      });
-    } else if (!!tour.gpx_image_file_small) {
-      checkIfImageExists(tour.gpx_image_file_small).then((gpxExists) => {
-        if (!!gpxExists) {
-          setImage(tour.gpx_image_file_small);
-        } else {
-          setImage(DEFAULT_IMAGE);
-        }
-      });
-    } else {
-      setImage(DEFAULT_IMAGE);
-    }
+    setImage(tour.image_url);
   }, [tour]);
 
   useEffect(() => {
-    if (
-      !!loadTourConnections &&
-      !!city &&
-      tour.cities &&
-      tour.cities.length > 0
-    ) {
+    if (!!loadTourConnections && !!city) {
       setConnectionLoading(true);
       loadTourConnections({ id: tour.id, city: city }).then((res) => {
         setConnectionLoading(false);
@@ -98,18 +60,8 @@ export default function TourCard({
     }
   }, [tour]);
 
-  let value_best_connection_duration = 0
-  let value_connection_no_of_transfers = 0
-  
-  if (city !== null) {
-    for (let i in tour.cities) {
-      if(tour.cities[i].city_slug === city){    
-        value_best_connection_duration = tour.cities[i].best_connection_duration
-        value_connection_no_of_transfers = tour.cities[i].connection_no_of_transfers
-        break;
-      } 
-    }
-  }
+  let value_best_connection_duration = tour.min_connection_duration;
+  let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
 
   const renderProps = () => {
     const values = [];
