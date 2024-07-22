@@ -28,16 +28,21 @@ if(process.env.NODE_ENV === "development") {
 			},
 			{
 				id: 2,
+				name: "Zuugle.ch",
+				url: "https://www.zuugle.ch",
+			},
+			{
+				id: 3,
 				name: "Zuugle.de",
 				url: "https://www.zuugle.de",
 			},
 			{
-				id: 3,
+				id: 4,
 				name: "Zuugle.it",
 				url: "https://www.zuugle.it",
 			},
 			{
-				id: 4,
+				id: 5,
 				name: "Zuugle.si",
 				url: "https://www.zuugle.si",
 			},
@@ -55,16 +60,21 @@ if (host.indexOf("www.zuugle.at") >= 0) {
 		},
 		{
 			id: 1,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
+		},
+		{
+			id: 2,
 			name: "Zuugle.de",
 			url: "https://www.zuugle.de",
 		},
 		{
-			id: 2,
+			id: 3,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -82,6 +92,11 @@ else if (host.indexOf("www.zuugle.de") >= 0) {
 			id: 1,
 			name: "Zuugle.at",
 			url: "https://www.zuugle.at",
+		},
+		{
+			id: 2,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
 		},
 		{
 			id: 2,
@@ -110,11 +125,16 @@ else if (host.indexOf("www.zuugle.si") >= 0) {
 		},
 		{
 			id: 2,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "Zuugle.de",
 			url: "https://www.zuugle.de",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
@@ -135,11 +155,16 @@ else if (host.indexOf("www.zuugle.it") >= 0) {
 		},
 		{
 			id: 2,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "Zuugle.de",
 			url: "https://www.zuugle.de",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -147,7 +172,33 @@ else if (host.indexOf("www.zuugle.it") >= 0) {
 }
 else if (host.indexOf("www.zuugle.ch") >= 0) {
 	domain = 'www.zuugle.ch';
-	
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
+		},
+		{
+			id: 1,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			id: 2,
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+		{
+			id: 3,
+			name: "Zuugle.it",
+			url: "https://www.zuugle.it",
+		},
+		{
+			id: 4,
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+	];
 }
 else if (host.indexOf("www.zuugle.fr") >= 0) {
 	domain = 'www.zuugle.fr';
@@ -163,16 +214,21 @@ if (host.indexOf("www2.zuugle.at") >= 0) {
 		},
 		{
 			id: 1,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 2,
 			name: "UAT Zuugle.de",
 			url: "https://www2.zuugle.de",
 		},
 		{
-			id: 2,
+			id: 3,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -193,11 +249,16 @@ else if (host.indexOf("www2.zuugle.de") >= 0) {
 		},
 		{
 			id: 2,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -218,11 +279,16 @@ else if (host.indexOf("www2.zuugle.si") >= 0) {
 		},
 		{
 			id: 2,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "UAT Zuugle.de",
 			url: "https://www2.zuugle.de",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
@@ -243,11 +309,16 @@ else if (host.indexOf("www2.zuugle.it") >= 0) {
 		},
 		{
 			id: 2,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 3,
 			name: "UAT Zuugle.de",
 			url: "https://www2.zuugle.de",
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -255,7 +326,33 @@ else if (host.indexOf("www2.zuugle.it") >= 0) {
 }
 else if (host.indexOf("www2.zuugle.ch") >= 0) {
 	domain = 'www2.zuugle.ch';
-
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			id: 2,
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+		{
+			id: 3,
+			name: "UAT Zuugle.it",
+			url: "https://www2.zuugle.it",
+		},
+		{
+			id: 4,
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+	];
 }
 else if (host.indexOf("www2.zuugle.fr") >= 0) {
 	domain = 'www2.zuugle.fr';
