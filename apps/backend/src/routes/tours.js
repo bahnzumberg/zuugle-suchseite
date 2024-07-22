@@ -307,7 +307,7 @@ const listWrapper = async (req, res) => {
     }
     
     if(!!provider && provider.length > 0){
-        new_search_where_provider = `AND provider='${provider}' `
+        new_search_where_provider = `AND t.provider='${provider}' `
     }
 
     if(!!language && language.length > 0){
