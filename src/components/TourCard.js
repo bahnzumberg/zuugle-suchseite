@@ -43,9 +43,7 @@ export default function TourCard({
   const hm = t("details.hm_hoehenmeter");
 
   useEffect(() => {
-    console.log("tour.image_url: ", JSON.stringify(tour.image_url))
-    console.log("typeof(tour.image_url): ", typeof(JSON.stringify(tour.image_url)))
-    if (tour.image_url=='null') {
+    if (JSON.stringify(tour.image_url)=='null') {
       setImage("/app_static/img/dummy.jpg")
     }
     else {
