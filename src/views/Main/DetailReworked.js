@@ -110,7 +110,6 @@ const DetailReworked = (props) => {
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false)
   const {cityOne,idOne} = useParams()
-// console.log("city=============>",cityOne,idOne)
 
   // Translation-related
   const { t } = useTranslation();
@@ -289,7 +288,6 @@ useEffect(() => {
     let tourId
     if(idOne){
       tourId=idOne
-      // console.log("id=============>",tourId,idOne)
     }else{
     tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
   }
