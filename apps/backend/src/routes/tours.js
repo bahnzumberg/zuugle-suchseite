@@ -172,13 +172,9 @@ const listWrapper = async (req, res) => {
     let new_filter_where_winterSeason = ``
     let new_filter_where_traverse = ``
     let new_filter_where_minAscent = ``
-    let new_filter_where_maxAscent = ``
     let new_filter_where_minDescent = ``
-    let new_filter_where_maxDescent = ``
     let new_filter_where_minTransportDuration = ``
-    let new_filter_where_maxTransportDuration = ``
     let new_filter_where_minDistance = ``
-    let new_filter_where_maxDistance = ``
     let new_filter_where_ranges = ``
     let new_filter_where_types = ``
     let new_filter_where_languages = ``
@@ -192,7 +188,7 @@ const listWrapper = async (req, res) => {
         filterJSON = undefined
     }
     if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
-        console.log("filterJSON: ", filterJSON)
+        // console.log("filterJSON: ", filterJSON)
 
         if(filterJSON['singleDayTour'] && !filterJSON['multipleDayTour']){
             new_filter_where_singleDayTour = `AND t.number_of_days=1 `
@@ -216,36 +212,20 @@ const listWrapper = async (req, res) => {
 
         // difficulty not implemented - dialog in frontend has to be changed to 3 checkboxes
 
-        if(filterJSON['minAscent'] && filterJSON['minAscent']>0){
-            new_filter_where_minAscent = `AND t.ascent>=${filterJSON['minAscent']} `
+        if(filterJSON['minAscent'] && filterJSON['minAscent']>0 && filterJSON['maxAscent'] && filterJSON['maxAscent']>0){
+            new_filter_where_minAscent = `AND t.ascent BETWEEN ${filterJSON['minAscent']} AND ${filterJSON['maxAscent']} `
         }
 
-        if(filterJSON['maxAscent'] && filterJSON['maxAscent']>0){
-            new_filter_where_maxAscent = `AND t.ascent<=${filterJSON['maxAscent']} `
+        if(filterJSON['minDescent'] && filterJSON['minDescent']>0 && filterJSON['maxDescent'] && filterJSON['maxDescent']>0){
+            new_filter_where_minDescent = `AND t.descent BETWEEN ${filterJSON['minDescent']} AND ${filterJSON['maxDescent']} `
         }
 
-        if(filterJSON['minDescent'] && filterJSON['minDescent']>0){
-            new_filter_where_minDescent = `AND t.descent>=${filterJSON['minDescent']} `
+        if(filterJSON['minTransportDuration'] && filterJSON['minTransportDuration']>0 && filterJSON['maxTransportDuration'] && filterJSON['maxTransportDuration']>0){
+            new_filter_where_minTransportDuration = `AND c2t.min_connection_duration BETWEEN ${filterJSON['minTransportDuration']*60} AND ${filterJSON['maxTransportDuration']*60} `
         }
 
-        if(filterJSON['maxDescent'] && filterJSON['maxDescent']>0){
-            new_filter_where_maxDescent = `AND t.descent<=${filterJSON['maxDescent']} `
-        }
-
-        if(filterJSON['minTransportDuration'] && filterJSON['minTransportDuration']>0){
-            new_filter_where_minTransportDuration = `AND c2t.min_connection_duration>=${filterJSON['minTransportDuration']} `
-        }
-
-        if(filterJSON['maxTransportDuration'] && filterJSON['maxTransportDuration']>0){
-            new_filter_where_maxTransportDuration = `AND c2t.min_connection_duration<=${filterJSON['maxTransportDuration']} `
-        }
-
-        if(filterJSON['minDistance'] && filterJSON['minDistance']>0){
-            new_filter_where_minDistance = `AND t.distance>=${filterJSON['minDistance']} `
-        }
-
-        if(filterJSON['maxDistance'] && filterJSON['maxDistance']>0){
-            new_filter_where_maxDistance = `AND t.distance<=${filterJSON['maxDistance']} `
+        if(filterJSON['minDistance'] && filterJSON['minDistance']>0 && filterJSON['maxDistance'] && filterJSON['maxDistance']>0){
+            new_filter_where_minDistance = `AND t.distance BETWEEN ${filterJSON['minDistance']} AND ${filterJSON['maxDistance']} `
         }
 
         if(filterJSON['ranges']){
@@ -381,11 +361,8 @@ const listWrapper = async (req, res) => {
                         ${new_filter_where_winterSeason}
                         ${new_filter_where_traverse}
                         ${new_filter_where_minAscent}
-                        ${new_filter_where_maxAscent}
                         ${new_filter_where_minDescent}
-                        ${new_filter_where_maxDescent}
                         ${new_filter_where_minTransportDuration}
-                        ${new_filter_where_maxTransportDuration}
                         ${new_filter_where_minDistance}
                         ${new_filter_where_ranges}
                         ${new_filter_where_types}
@@ -402,7 +379,7 @@ const listWrapper = async (req, res) => {
                         t.id 
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    console.log("new_search_sql: ", new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -429,11 +406,8 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_winterSeason}
                                     ${new_filter_where_traverse}
                                     ${new_filter_where_minAscent}
-                                    ${new_filter_where_maxAscent}
                                     ${new_filter_where_minDescent}
-                                    ${new_filter_where_maxDescent}
                                     ${new_filter_where_minTransportDuration}
-                                    ${new_filter_where_maxTransportDuration}
                                     ${new_filter_where_minDistance}
                                     ${new_filter_where_ranges}
                                     ${new_filter_where_types}
@@ -486,11 +460,8 @@ const listWrapper = async (req, res) => {
                                         ${new_filter_where_winterSeason}
                                         ${new_filter_where_traverse}
                                         ${new_filter_where_minAscent}
-                                        ${new_filter_where_maxAscent}
                                         ${new_filter_where_minDescent}
-                                        ${new_filter_where_maxDescent}
                                         ${new_filter_where_minTransportDuration}
-                                        ${new_filter_where_maxTransportDuration}
                                         ${new_filter_where_minDistance}
                                         ${new_filter_where_ranges}
                                         ${new_filter_where_types}
@@ -1087,237 +1058,7 @@ const buildFilterResult = (result, city, params) => {
     };
 }
 
-const buildWhereFromFilter = (params, query, print = false) => {
-  try {
 
-    //clg: query
-    // logger("L1137 query at entry to buildWhereFromFilter :");
-    // logger(query.toSQL().sql) 
-    
-    // Description:
-    // if params.filter contains ONLY {ignore_filter : 'true'} OR if params.filter does not exist return.
-    
-    if (!!params.filter && typeof params.filter === 'string') {
-        try {
-            const parsedFilter = JSON.parse(params.filter);
-            //check if flter is ignored
-            let filterIgnored = (() => {
-                if (
-                    !!parsedFilter &&
-                    typeof(parsedFilter) === 'object' &&  // Fixed this line
-                    Object.keys(parsedFilter).length === 1 &&
-                    parsedFilter.hasOwnProperty('ignore_filter') &&
-                    parsedFilter['ignore_filter'] === 'true'
-                ) {
-                    // console.log("L1089: filterIgnored : TRUE");
-                    return true; 
-                } else {
-                    // console.log("L1091: filterIgnored : FALSE");
-                    return false; 
-                }
-            })();  // filterIgnored() is a self-invocked function
-            if (filterIgnored) return query;
-            
-        } catch (error) {
-            console.error("Error parsing filter:", error.message);
-            return query
-        }
-    }else {
-        // console.log("params.filter is not a string");
-        return query
-    };
-    
-
-    let filter ;
-    if(typeof(params.filter) === 'string') {
-        // console.log("params.filter is a string");        
-        filter = JSON.parse(params.filter) ;
-    }else if(typeof(params.filter) === 'object'){
-        // console.log("params.filter is an object");        
-        filter = params.filter;
-    }else{
-        // console.log("params.filter is neither");
-        filter={};
-    }
-    // console.log("L1101 filter.singleDayTour :", filter.singleDayTour)
-
-    const {
-        singleDayTour,
-        multipleDayTour,
-        summerSeason,
-        winterSeason,
-        traverse,
-        difficulty,
-        minAscent,
-        maxAscent,
-        minDescent,
-        maxDescent,
-        minTransportDuration,
-        maxTransportDuration,
-        minDistance,
-        maxDistance,
-        ranges,
-        types,
-        languages // includes languages in the filter
-      } = filter;
-
- 
-    //** Wintertour oder Sommertour, Ganzjahrestour oder Nicht zutreffend*/
-    if(summerSeason === true && winterSeason === true){
-        query = query.whereIn('season', ['g', 's', 'w']);
-    } else if(summerSeason === true && winterSeason === false){
-        query = query.whereIn('season', ['g', 's']);
-    } else if(winterSeason === true && summerSeason === false){
-        query = query.whereIn('season', ['g', 'w']);
-    } else if(summerSeason === false && winterSeason === false){
-        query = query.whereIn('season', ['x']);
-    }
-
-
-    /** Eintagestouren bzw. Mehrtagestouren */
-    if(singleDayTour === true && multipleDayTour === true){
-
-    } else if(singleDayTour === true && multipleDayTour === false){
-        query = query.where({number_of_days: 1});
-    } else if(singleDayTour === false && multipleDayTour === true){
-        query = query.whereRaw('number_of_days > 1 ')
-    } else if(singleDayTour === false && multipleDayTour === false){
-        query = query.whereRaw('number_of_days = -1 ')
-    }
-
-    /** Überschreitung */
-    if (!!(traverse)) {
-        let val=0;
-        val = traverse == true ? 1 : 0 ;
-        query = query.where({ traverse: val });
-    }
-
-
-    /** Aufstieg, Abstieg */
-    if(!!minAscent){
-        query = query.whereRaw('ascent >= ' + minAscent);
-    }
-    if(!!maxAscent){
-        let _ascent = maxAscent;
-        if(_ascent == 3000){
-            _ascent = 100000;
-        }
-        query = query.whereRaw('ascent <= ' + _ascent);
-    }
-
-    if(!!minDescent){
-        query = query.whereRaw('descent >= ' + minDescent);
-    }
-    if(!!maxDescent){
-        let _descent = maxDescent;
-        if(_descent == 3000){
-            _descent = 100000;
-        }
-        query = query.whereRaw('descent <= ' + _descent);
-    }
-
-
-    /** distanz */
-    if(!!minDistance){
-        query = query.whereRaw('distance >= ' + minDistance);
-    }
-    if(!!maxDistance){
-       let _distance = maxDistance;
-        if(_distance == 80){
-            _distance = 1000;
-        }
-        query = query.whereRaw('distance <= ' + _distance);
-    }
-
-    /** schwierigkeit */
-    if (!!difficulty) {
-        query = query.whereRaw("difficulty <= " + difficulty);
-    }
-
-
-    if (!!ranges) {
-        let newRanges;
-        if(typeof(ranges) == "object" && !Array.isArray(ranges))  { 
-            newRanges = Object.values(ranges)
-        }else{
-            newRanges = ranges;
-        }
-
-      const nullEntry = newRanges.find((r) => r == "Keine Angabe");
-      let _ranges = newRanges.map((r) => "'" + r + "'");
-      if (!!nullEntry) {
-        query = query.whereRaw(
-          `(range in (${_ranges}) OR range IS NULL OR range = '')`
-        );
-
-    } else {
-        query = query.whereRaw(`(range in (${_ranges}))`);
-      }
-    }
-    // clgs
-    // console.log("................................................................")
-    // console.log("L1342 query / after Ranges:");
-    // console.log(query.toSQL().sql);
-
-    if(!!types){
-        const nullEntry = types.find(r => r == "Keine Angabe");
-        let _types = types.map(r => '\'' + r + '\'');
-        if(!!nullEntry){
-            query = query.whereRaw(`(type in (${_types}) OR type IS NULL OR type = '')`);
-        } else {
-            query = query.whereRaw(`(type in (${_types}))`);
-        }
-    }
-    // clgs
-    // console.log("................................................................")
-    // console.log("L1356 query / after Types:");
-    // console.log(query.toSQL().sql);
-
-    // includes a statement that asks for the specific languages in the where-clause
-      if(!!languages){
-          const nullEntry = languages.find(r => r == "Keine Angabe");
-          let _languages = languages.map(r => '\'' + r + '\'');
-          if(!!nullEntry){
-              query = query.whereRaw(`(text_lang in (${_languages}) OR text_lang IS NULL OR text_lang = '')`);
-          } else {
-              query = query.whereRaw(`(text_lang in (${_languages}))`);
-          }
-      }
-
-    /** Anfahrtszeit */
-    if(!!minTransportDuration && !!params.city){
-        let transportDurationMin = minTransportDuration * 60;
-        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int >= ${transportDurationMin}`);
-    }
-
-    if(!!maxTransportDuration && !!params.city){
-        let transportDurationMin = maxTransportDuration * 60;
-        query = query.whereRaw(`(cities_object->'${params.city}'->>'best_connection_duration')::int <= ${transportDurationMin}`);
-    }
-  } catch (error) {
-    console.log("error :", error.message);
-  }
-//   clgs
-//   console.log("................................................................")
-//   console.log("L1375 query / min/max Transport Duration:");
-//   console.log(query.toSQL().sql);
-
-//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-//   console.log("1385, returned query buildWhereFromFilter  :")
-//   console.log(query.toSQL().sql)
-//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-//   let ret_value = {query: query, sql_query: sql_query }
-//   console.log("L1390 ret_value.sql_query :");
-//   console.log(ret_value.sql_query);
-//   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-  return query;
-};
-
-const parseTrueFalseQueryParam = (param) => {
-    return !!param;
-}
 
 const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
@@ -1334,16 +1075,8 @@ const tourPdfWrapper = async (req, res) => {
     if (!tour){
         res.status(404).json({success: false});
         return;
-    }else{
-        // logger(`L1324 : tour with id ${id} found`)
-        // if(process.env.NODE_ENV != "production"){
-        //     logger("-----------------------------------------------")
-        //     logger("-----------------------------------------------")
-        //     console.log("-----------------------------------------------")
-        //     console.log(`L1324 : tour with id ${id} found`)
-        //     console.log("-----------------------------------------------")
-        // }
     }
+
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }
@@ -1376,7 +1109,6 @@ const tourPdfWrapper = async (req, res) => {
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
         //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
-            // console.log("L1022 tours.js : fileName passed to tourPdfWrapper : ", "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf")
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
             return;
         }
