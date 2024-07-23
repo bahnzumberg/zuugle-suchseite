@@ -13,6 +13,7 @@ import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
+  getTopLevelDomain
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -108,7 +109,7 @@ export function Search({
     if (cityOne) {
       city = cityOne
     } 
-    else if (host.indexOf("www.zuugle.li") >= 0) { 
+    else if ( getTopLevelDomain() == 'li') { 
       city = 'vaduz' 
     }
     else {
