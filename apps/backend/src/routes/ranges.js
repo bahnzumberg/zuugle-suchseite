@@ -30,6 +30,7 @@ const listWrapper = async (req, res) => {
         else if (domain.indexOf('zuugle.it')) { tld='IT' }
         else if (domain.indexOf('zuugle.ch')) { tld='CH' }
         else if (domain.indexOf('zuugle.fr')) { tld='FR' }
+        else if (domain.indexOf('zuugle.li')) { tld='LI' }
         else { tld='AT' }
         
         sql += "WHERE t.range IS NOT NULL ";

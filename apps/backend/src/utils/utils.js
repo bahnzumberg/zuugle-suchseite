@@ -105,6 +105,8 @@ export const getTldFromDomain = (domain) => {
             return "IT";
         } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
             return "SI";
+        } else if(!!domain && domain.indexOf('zuugle.li') >= 0){
+            return "LI";
         } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
             return "FR";
         } else {
