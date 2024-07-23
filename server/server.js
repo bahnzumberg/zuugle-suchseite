@@ -66,6 +66,9 @@ app.get([ '/*' ], function(req, res) {
 	else if(host.indexOf('zuugle.ch') >= 0) {
 		res.sendFile(path.join(__dirname, '../app/index-ch.html'));
 	}
+	else if(host.indexOf('zuugle.li') >= 0) {
+		res.sendFile(path.join(__dirname, '../app/index-li.html'));
+	}
 	else {
 	  res.sendFile(path.join(__dirname, '../app/index.html'));
 	}

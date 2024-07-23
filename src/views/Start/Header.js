@@ -23,6 +23,7 @@ export default function Header({
   
   const [searchParams, setSearchParams] = useSearchParams();
   let city = searchParams.get("city");
+
   const [capCity, setCapCity] = useState(city);
   const [totalToursFromCity, setTotalToursFromCity] = React.useState(0);
 
@@ -36,6 +37,9 @@ export default function Header({
     tld = "it";
   } else if (domain.indexOf("zuugle.ch") > 0) {
     tld = "ch";
+  } else if (domain.indexOf("zuugle.li") > 0) {
+    tld = "li";
+    city = 'vaduz'
   } else if (domain.indexOf("zuugle.fr") > 0) {
     tld = "fr";
   } else {

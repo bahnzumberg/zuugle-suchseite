@@ -122,6 +122,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let provider = searchParams.get('p');
         let language = searchParams.get('language');
 
+        if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
+        
         loadFilter({
             city: city,
             range: range,

@@ -136,6 +136,7 @@ const DetailReworked = (props) => {
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
+    if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 

@@ -43,6 +43,11 @@ if(process.env.NODE_ENV === "development") {
 			},
 			{
 				id: 5,
+				name: "Zuugle.li",
+				url: "https://www.zuugle.li",
+			},
+			{
+				id: 6,
 				name: "Zuugle.si",
 				url: "https://www.zuugle.si",
 			},
@@ -75,6 +80,11 @@ if (host.indexOf("www.zuugle.at") >= 0) {
 		},
 		{
 			id: 4,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 5,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -99,12 +109,17 @@ else if (host.indexOf("www.zuugle.de") >= 0) {
 			url: "https://www.zuugle.ch",
 		},
 		{
-			id: 2,
+			id: 3,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 3,
+			id: 4,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 5,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -138,6 +153,11 @@ else if (host.indexOf("www.zuugle.si") >= 0) {
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
+		{
+			id: 5,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
 	];
 }
 else if (host.indexOf("www.zuugle.it") >= 0) {
@@ -165,6 +185,11 @@ else if (host.indexOf("www.zuugle.it") >= 0) {
 		},
 		{
 			id: 4,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 5,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -195,6 +220,46 @@ else if (host.indexOf("www.zuugle.ch") >= 0) {
 		},
 		{
 			id: 4,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 5,
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www.zuugle.li") >= 0) {
+	domain = 'www.zuugle.li';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 1,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
+		},
+		{
+			id: 2,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			id: 3,
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+		{
+			id: 4,
+			name: "Zuugle.it",
+			url: "https://www.zuugle.it",
+		},
+		{
+			id: 5,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},

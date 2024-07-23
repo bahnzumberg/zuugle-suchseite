@@ -105,10 +105,14 @@ export function Search({
 
     // pull out values from URL params
     let city
-    if(cityOne){
+    if (cityOne) {
       city = cityOne
-    }else{
-     city = searchParams.get("city");
+    } 
+    else if (host.indexOf("www.zuugle.li") >= 0) { 
+      city = 'vaduz' 
+    }
+    else {
+      city = searchParams.get("city");
     }
     let range = searchParams.get("range"); 
     let state = searchParams.get("state"); 
