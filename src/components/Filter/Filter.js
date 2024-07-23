@@ -12,7 +12,7 @@ import NumberInput from "../NumberInput";
 import Button from "@mui/material/Button";
 import {Fragment, useEffect, useState} from "react";
 import TextWithIcon from "../TextWithIcon";
-import {convertNumToTime, getFilterProp} from "../../utils/globals";
+import {convertNumToTime, getFilterProp, getTopLevelDomain} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 import {loadFilter, loadTourConnections, loadTourConnectionsExtended, loadTours} from "../../actions/tourActions";
 import {loadAllCities} from "../../actions/cityActions";
@@ -121,6 +121,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let search = searchParams.get('search');
         let provider = searchParams.get('p');
         let language = searchParams.get('language');
+
+        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
 
         loadFilter({
             city: city,

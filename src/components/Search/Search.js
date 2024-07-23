@@ -13,6 +13,7 @@ import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
+  getTopLevelDomain
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -105,10 +106,14 @@ export function Search({
 
     // pull out values from URL params
     let city
-    if(cityOne){
+    if (cityOne) {
       city = cityOne
-    }else{
-     city = searchParams.get("city");
+    } 
+    else if ( getTopLevelDomain() == 'li') { 
+      city = 'vaduz' 
+    }
+    else {
+      city = searchParams.get("city");
     }
     let range = searchParams.get("range"); 
     let state = searchParams.get("state"); 

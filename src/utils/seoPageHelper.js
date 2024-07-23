@@ -218,6 +218,8 @@ export const getCountryName = () => {
     return "Deutschland";
   } else if (host.indexOf("zuugle.it") >= 0) {
     return "Italien";
+  } else if (host.indexOf("zuugle.li") >= 0) {
+    return "Liechtenstein";
   } else if (host.indexOf("zuugle.fr") >= 0) {
     return "Frankreich";
   } else if (host.indexOf("zuugle.si") >= 0) {
@@ -236,6 +238,8 @@ export const getTranslatedCountryName = () => {
     return "start.deutschland";
   } else if (host.indexOf("zuugle.it") >= 0) {
     return "start.italien";
+  } else if (host.indexOf("zuugle.li") >= 0) {
+    return "start.liechtenstein";
   } else if (host.indexOf("zuugle.fr") >= 0) {
     return "start.frankreich";
   } else if (host.indexOf("zuugle.si") >= 0) {

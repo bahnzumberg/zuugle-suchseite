@@ -114,6 +114,8 @@ export const getDomainText = () => {
         return "Zuugle.de"
     } else if(host.indexOf('www.zuugle.ch') >= 0){
         return "Zuugle.ch"
+    } else if(host.indexOf('www.zuugle.li') >= 0){
+        return "Zuugle.li"
     } else if(host.indexOf('www.zuugle.it') >= 0){
         return "Zuugle.it"
     } else if(host.indexOf('www.zuugle.fr') >= 0){
@@ -302,6 +304,8 @@ export const getValuesFromParams = (searchParams)=>{
 
     if(!!searchParams){//extract values and add to one data variable
         let city = searchParams.get("city"); 
+        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
+
         let range = searchParams.get("range"); 
         let state = searchParams.get("state"); 
         let country = searchParams.get("country"); 
