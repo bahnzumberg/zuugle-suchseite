@@ -39,7 +39,6 @@ export default function Header({
     tld = "ch";
   } else if (domain.indexOf("zuugle.li") > 0) {
     tld = "li";
-    city = 'vaduz'
   } else if (domain.indexOf("zuugle.fr") > 0) {
     tld = "fr";
   } else {

@@ -109,9 +109,6 @@ export function Search({
     if (cityOne) {
       city = cityOne
     } 
-    else if ( getTopLevelDomain() == 'li') { 
-      city = 'vaduz' 
-    }
     else {
       city = searchParams.get("city");
     }

@@ -122,7 +122,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let provider = searchParams.get('p');
         let language = searchParams.get('language');
 
-        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
+        // if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
 
         loadFilter({
             city: city,
