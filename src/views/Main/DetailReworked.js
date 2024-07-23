@@ -52,6 +52,7 @@ import Close from "../../icons/Close";
 import { shortenText } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
+import { getTopLevelDomain } from "../../utils/globals";
 
 
 const DetailReworked = (props) => {
@@ -136,7 +137,7 @@ const DetailReworked = (props) => {
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
-    if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
+    if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 

@@ -21,6 +21,7 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
+import { getTopLevelDomain } from "../../utils/globals";
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
@@ -122,8 +123,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         let provider = searchParams.get('p');
         let language = searchParams.get('language');
 
-        if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
-        
+        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
+
         loadFilter({
             city: city,
             range: range,

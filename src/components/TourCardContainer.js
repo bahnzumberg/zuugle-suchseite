@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
+import { getTopLevelDomain } from "../utils/globals";
 
 export default function TourCardContainer({
   tours,
@@ -43,7 +44,7 @@ export default function TourCardContainer({
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
   
-  if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
+  if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
 
   useEffect(() => {
     if (!!hasMore && !!filterValues) {

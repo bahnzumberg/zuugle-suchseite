@@ -1,5 +1,6 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { getTopLevelDomain } from "./utils/globals";
 
 
 export function convertNumToTime(number, nonseparate = false) {
@@ -304,8 +305,8 @@ export const getValuesFromParams = (searchParams)=>{
 
     if(!!searchParams){//extract values and add to one data variable
         let city = searchParams.get("city"); 
-        if (host.indexOf("www.zuugle.li") >= 0) { city = 'vaduz' }
-        
+        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
+
         let range = searchParams.get("range"); 
         let state = searchParams.get("state"); 
         let country = searchParams.get("country"); 
