@@ -320,6 +320,7 @@ function TourMapContainer({
 
   const handleMarkerClick = useCallback(
     async (tourInfo, tourId) => {
+      if(!mapInitialized) return;
       setSelectedTour(null);
       setIsLoading(true);
       setActiveMarker(tourInfo);
@@ -339,7 +340,7 @@ function TourMapContainer({
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [city]
+    [city, mapInitialized]
   );
 
   const createClusterCustomIcon = function (cluster) {
