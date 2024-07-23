@@ -1,6 +1,5 @@
 import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { getTopLevelDomain } from "./utils/globals";
 
 
 export function convertNumToTime(number, nonseparate = false) {

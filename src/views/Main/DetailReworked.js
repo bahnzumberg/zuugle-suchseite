@@ -49,10 +49,9 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText } from "../../utils/globals";
+import { shortenText, getTopLevelDomain } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
-import { getTopLevelDomain } from "../../utils/globals";
 
 
 const DetailReworked = (props) => {

@@ -12,7 +12,7 @@ import NumberInput from "../NumberInput";
 import Button from "@mui/material/Button";
 import {Fragment, useEffect, useState} from "react";
 import TextWithIcon from "../TextWithIcon";
-import {convertNumToTime, getFilterProp} from "../../utils/globals";
+import {convertNumToTime, getFilterProp, getTopLevelDomain} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 import {loadFilter, loadTourConnections, loadTourConnectionsExtended, loadTours} from "../../actions/tourActions";
 import {loadAllCities} from "../../actions/cityActions";
@@ -21,7 +21,6 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
-import { getTopLevelDomain } from "../../utils/globals";
 
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
