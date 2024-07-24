@@ -319,24 +319,32 @@ function TourMapContainer({
   };
 
   const handleMarkerClick = useCallback(
-    async (tourInfo, tourId) => {
+    async (e, tourId) => {
+      // e.preventDefault();
+      let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
+      // e && console.log("L330 / mark (e) value :", e)
+      // e.latlng && console.log("L331 / mark (e.latlng) value :", e.latlng)
+      // tourId && console.log("L332 / mark.id (tourId) value :", tourId)
+      // tourInfo && console.log("L333 / (tourInfo) value :", tourInfo)
       if(!mapInitialized) return;
       setSelectedTour(null);
       setIsLoading(true);
       setActiveMarker(tourInfo);
 
       if (!tourId || !city) return; // exit if not both parameters available
-      try {
-        const _tourDetail = await onSelectTour(tourId);
-        const _tour = _tourDetail.data.tour;
-        if (_tour) setSelectedTour(_tour);
-        if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
-        if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
-        if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
-      } catch (error) {
-        console.error("Error fetching tour details:", error);
-      } finally {
-        setIsLoading(false);
+      if(!!tourId){
+        try {
+          const _tourDetail = await onSelectTour(tourId);
+          const _tour = _tourDetail.data.tour;
+          if (_tour) setSelectedTour(_tour);
+          if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
+          if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
+          if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
+        } catch (error) {
+          console.error("Error fetching tour details:", error);
+        } finally {
+          setIsLoading(false);
+        }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
@@ -558,7 +566,7 @@ function TourMapContainer({
                   ref={markerRef}
                   icon={createStartMarker()}
                   eventHandlers={{
-                    click: () => mapInitialized && handleMarkerClick(mark, mark.id),
+                    click: (e) => mapInitialized && handleMarkerClick(e, mark.id),
                   }}
                 ></Marker>
               );
