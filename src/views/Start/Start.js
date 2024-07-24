@@ -33,14 +33,6 @@ const ScrollingTourCardContainer = lazy(() =>
 );
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
 
-const AboutZuugleContainer = lazy(() =>
-  import("../../components/AboutZuugleContainer")
-);
-
-const SponsoringContainer = lazy(() =>
-  // import("../../components/SponsoringContainer")
-);
-
 function Start({
   loadFavouriteTours,
   favouriteTours,
@@ -262,14 +254,6 @@ function Start({
                 onSelectTour={onSelectRange}
               />
             </Box>
-
-            {/* <Box sx={{ marginTop: "20px" }}>
-              <AboutZuugleContainer />
-            </Box> }
-
-            {<Box sx={{ marginTop: "20px" }}>
-              <SponsoringContainer />
-            </Box> }
 
             {/* <Box sx={{ marginTop: "20px" }}>
               <KPIContainer
