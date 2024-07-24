@@ -134,7 +134,7 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
       if (link == "null") {
         return [];
       }
-      link = parseRangeToUrl(link);
+      link = encodeURI(link);
       if (!!searchParams && !!searchParams.get("p")) {
         link = `${link}?p=${searchParams.get("p")}`;
       }
@@ -165,65 +165,24 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
   return [];
 };
 
-const translatedCountry = () => {
-  let country = getCountryName();
-  country = getTranslatedCountry(country);
-  return country;
-};
-
-export const getTranslatedCountry = (name) => {
-  switch (name) {
-    case "Schweiz":
-      return t("start.schweiz");
-    case "Österreich":
-      return t("start.oesterreich");
-    case "Deutschland":
-      return t("start.deutschland");
-    case "Frankreich":
-      return t("start.frankreich");
-    case "Slowenien":
-      return t("start.slowenien");
-    case "Italien":
-      return t("start.italien");
-    default:
-      return t("start.oesterreich");
-  }
-};
-
-export const getCountryKey = (name) => {
-  switch (name) {
-    case "Schweiz":
-      return "schweiz";
-    case "Österreich":
-      return "oesterreich";
-    case "Deutschland":
-      return "deutschland";
-    case "Frankreich":
-      return "frankreich";
-    case "Slowenien":
-      return "slowenien";
-    case "Italien":
-      return "italien";
-    default:
-      return "oesterreich";
-  }
-};
 
 export const getCountryName = () => {
   let host = window.location.host;
 
   if (host.indexOf("zuugle.ch") >= 0) {
-    return "Schweiz";
+    return t("start.schweiz");
   } else if (host.indexOf("zuugle.de") >= 0) {
-    return "Deutschland";
+    return t("start.deutschland");
   } else if (host.indexOf("zuugle.it") >= 0) {
-    return "Italien";
+    return t("start.italien");
+  } else if (host.indexOf("zuugle.li") >= 0) {
+    return t("start.liechtenstein");
   } else if (host.indexOf("zuugle.fr") >= 0) {
-    return "Frankreich";
+    return t("start.frankreich");
   } else if (host.indexOf("zuugle.si") >= 0) {
-    return "Slowenien";
+    return t("start.slowenien");
   } else {
-    return "Österreich";
+    return t("start.oesterreich");
   }
 };
 
@@ -236,6 +195,8 @@ export const getTranslatedCountryName = () => {
     return "start.deutschland";
   } else if (host.indexOf("zuugle.it") >= 0) {
     return "start.italien";
+  } else if (host.indexOf("zuugle.li") >= 0) {
+    return "start.liechtenstein";
   } else if (host.indexOf("zuugle.fr") >= 0) {
     return "start.frankreich";
   } else if (host.indexOf("zuugle.si") >= 0) {
@@ -243,13 +204,4 @@ export const getTranslatedCountryName = () => {
   } else {
     return "start.oesterreich";
   }
-};
-
-
-const parseRangeFromUrl = (text) => {
-  return decodeURI(text);
-};
-
-const parseRangeToUrl = (text) => {
-  return encodeURI(text);
 };
