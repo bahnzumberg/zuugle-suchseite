@@ -32,14 +32,13 @@ const ScrollingTourCardContainer = lazy(() =>
   import("../../components/ScrollingTourCardContainer")
 );
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
+
 const AboutZuugleContainer = lazy(() =>
   import("../../components/AboutZuugleContainer")
 );
-const UserRecommendationContainer = lazy(() =>
-  import("../../components/UserRecommendationContainer")
-);
+
 const SponsoringContainer = lazy(() =>
-  import("../../components/SponsoringContainer")
+  // import("../../components/SponsoringContainer")
 );
 
 function Start({
@@ -136,9 +135,6 @@ function Start({
     }
   };
 
-  // const goToStartPage = () => {
-  //   navigate(`/?${searchParams.toString()}`);
-  // };
 
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id) {
@@ -269,15 +265,11 @@ function Start({
 
             {/* <Box sx={{ marginTop: "20px" }}>
               <AboutZuugleContainer />
-            </Box> */}
+            </Box> }
 
-            {/* <Box sx={{ marginTop: "20px" }}>
-              <UserRecommendationContainer />
-            </Box>
-
-            <Box sx={{ marginTop: "20px" }}>
+            {<Box sx={{ marginTop: "20px" }}>
               <SponsoringContainer />
-            </Box> */}
+            </Box> }
 
             {/* <Box sx={{ marginTop: "20px" }}>
               <KPIContainer
@@ -294,16 +286,11 @@ function Start({
 
         {!showMobileMenu && (
           <MapBtn
-            // onClick={handleClick}
             onClick={onClickMap}
             mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
             btnSource="start"
           ></MapBtn>
         )}
-
-        {/* {!showMobileMenu && (
-          <FooterLinks links={listAllCityLinks(allCities, searchParams)} />
-        )} */}
 
         {!showMobileMenu && <Footer />}
       </Box>
