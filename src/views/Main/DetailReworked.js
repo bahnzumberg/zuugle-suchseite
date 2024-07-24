@@ -810,11 +810,7 @@ useEffect(() => {
                     }}
                   >
                     <div className="tour-detail-provider-icon">
-                      <img
-                        src={`/app_static/logos/${tour.provider}.png`}    
-                        alt={tour.provider_name}
-                        style={{ borderRadius: "100%", height: "18px", width: "18px" }}
-                      />
+                      <ProviderLogo provider={tour?.provider} />
                     </div>
                     <div className="tour-detail-provider-name-link">
                       <span className="tour-detail-provider-name">
