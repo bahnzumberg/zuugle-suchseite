@@ -27,7 +27,7 @@ export default function TourCard({
   const [returns, setReturns] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [imgSrc, setImgSrc] = useState("/logos/fallback.png");
+  // const [imgSrc, setImgSrc] = useState("/logos/fallback.png");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
   let tourLink=``
@@ -149,7 +149,7 @@ export default function TourCard({
           }}
         >
           <img
-            src={`/app_static/logos/${tour.provider}.svg`}    
+            src={`/app_static/logos/${tour.provider}.png`}    
             alt={tour.provider_name}
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
