@@ -810,8 +810,8 @@ useEffect(() => {
                   >
                     <div className="tour-detail-provider-icon">
                       <img
-                        src="/app_static/logos/${tour.provider}.png"    
-                        alt="${tour.provider_name}"
+                        src="/app_static/logos/{tour?.provider}.png"    
+                        alt="{tour?.provider_name}"
                         style={{ borderRadius: "100%", height: "40px", width: "40px" }}
                       />
                     </div>
