@@ -500,7 +500,7 @@ function TourMapContainer({
             maxNativeZoom={19}
           />
 
-          {activeMarker && selectedTour && mapInitialized && (
+          {activeMarker && selectedTour && (
             <Popup
               key={`popup_${activeMarker.id}`}
               minWidth={350}
