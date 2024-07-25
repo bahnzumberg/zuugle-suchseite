@@ -419,6 +419,41 @@ else if (host.indexOf("www2.zuugle.ch") >= 0) {
 		},
 	];
 }
+else if (host.indexOf("www2.zuugle.li") >= 0) {
+	domain = 'www2.zuugle.li';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.li",
+			url: "https://www2.zuugle.li",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 2,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			id: 3,
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+		{
+			id: 4,
+			name: "UAT Zuugle.it",
+			url: "https://www2.zuugle.it",
+		},
+		{
+			id: 5,
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+	];
+}
 else if (host.indexOf("www2.zuugle.fr") >= 0) {
 	domain = 'www2.zuugle.fr';
 
