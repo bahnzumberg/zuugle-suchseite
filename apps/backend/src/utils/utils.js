@@ -43,10 +43,7 @@ export function get_domain_country(domain) {
 }
 
 export function get_country_lanuage_from_domain(domain) {
-    if (domain == null) { return ["de"] } // domain is undefined or null
-    else if (domain.indexOf("zuugle.ch") >= 0){
-        return ["de"];
-    } else if(domain.indexOf("zuugle.it") >= 0){
+    if (domain.indexOf("zuugle.it") >= 0){
         return ["it"]; 
     } else if(domain.indexOf("zuugle.si") >= 0){
         return ["sl"];
