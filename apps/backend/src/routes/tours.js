@@ -376,7 +376,7 @@ const listWrapper = async (req, res) => {
                         t.traverse DESC, 
                         t.quality_rating DESC, 
                         t.duration ASC, 
-                        t.id 
+                        t.id % EXTRACT(DAY FROM CURRENT_DATE)
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
     // console.log("new_search_sql: ", new_search_sql)
