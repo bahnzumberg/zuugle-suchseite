@@ -82,9 +82,9 @@ export function Main({
   const [showCardContainer, setShowCardContainer] = useState(true)
   
    // filter values in localStorage:
-  let filterCountLocal = !!localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
+  // let filterCountLocal = !!localStorage.getItem("filterCount")
+  //   ? localStorage.getItem("filterCount")
+  //   : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
@@ -148,13 +148,22 @@ export function Main({
 
   //updates the state of activeFilter, filterValues based on the searchParams and filter values whenever there is a change in either searchParams or filter.
   useEffect(() => {
-    !!filterCountLocal && filterCountLocal > 0
+    let _filterCountLocal = getFilterCount();
+    !!_filterCountLocal && _filterCountLocal > 0
       ? setActiveFilter(true)
       : setActiveFilter(false);
     !!filterValuesLocal
       ? setFilterValues(filterValuesLocal)
       : setFilterValues({});
-  }, [filterCountLocal, filterValuesLocal, searchParams]);
+  }, [ filterValuesLocal, searchParams]);
+
+  const getFilterCount = ()=>{
+    let filterCountLocal = !!localStorage.getItem("filterCount")
+    ? localStorage.getItem("filterCount")
+    : null;
+
+    return filterCountLocal;
+  }
 
   const backBtnHandler = (e) => {
     e.preventDefault();
@@ -320,8 +329,7 @@ const handleShowCardContainer = useCallback((value) => {
               {!!showCardContainer? Number(totalTours).toLocaleString() : 0}{" "}
               {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {(!!filterCountLocal && filterCountLocal > 0 )   
-            // {(!!filterCountLocal && filterCountLocal > 0 && (!!!onlyMapParams) )   
+            {(getFilterCount() && getFilterCount() > 0 )   
             && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;

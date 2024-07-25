@@ -64,9 +64,6 @@ export function Search({
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
-  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
-  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
-
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
   const [cityInput, setCityInput] = useState("");
@@ -87,6 +84,29 @@ export function Search({
 
   const markers = useSelector((state) => state.tours.markers);
   const isMasterMarkersSet = useRef(false);
+
+  const getFilterCount = ()=>{
+    let filterCountLocal = !!localStorage.getItem("filterCount")
+    ? localStorage.getItem("filterCount")
+    : null;
+
+    return filterCountLocal;
+  }
+
+  useEffect(() => {
+    let _filterCountLocal = !!localStorage.getItem("filterCount")
+    ? localStorage.getItem("filterCount")
+    : null;
+
+    !!_filterCountLocal && _filterCountLocal > 0
+      ? setActiveFilter(true)
+      : setActiveFilter(false);
+    
+  });
+
+  useEffect(()=>{
+    console.log("L108 activeFilter state :", activeFilter)
+  }, [activeFilter]);
 
   useEffect(() => {
     if (scrollToTop) {
@@ -196,8 +216,10 @@ export function Search({
       };
     }
     // flag active filter if count > 0
-    !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
-    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
+
+    let _filterCountLocal = getFilterCount();
+
+    !!_filterCountLocal && setActiveFilter(_filterCountLocal > 0);
      
     const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
 
