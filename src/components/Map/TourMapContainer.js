@@ -333,7 +333,6 @@ function TourMapContainer({
       if(!!mapInitialized) {
         console.log("L334 inside the conditonal stat ' if(!!mapInitialized)'  ")
         console.log("L335 /  tourId :", tourId)
-        // let cityName = searchParams('city') ? searchParams('city') : localStorage.getItem('city')
         console.log("L336 /  city :", city)
 
         // e.preventDefault();
@@ -345,7 +344,8 @@ function TourMapContainer({
         setIsLoading(true);
         // setActiveMarker(tourInfo);
 
-        //if (!tourId || !city) return; // exit if not both parameters available
+        if (!tourId || !city) return; // exit if not both parameters available
+
         if(!!tourId && city ){
           try {
             console.log("L347 /  tourId :", tourId)
@@ -500,7 +500,7 @@ function TourMapContainer({
             maxNativeZoom={19}
           />
 
-          {activeMarker && selectedTour && (
+          {activeMarker && selectedTour && mapInitialized && (
             <Popup
               key={`popup_${activeMarker.id}`}
               minWidth={350}
@@ -524,7 +524,7 @@ function TourMapContainer({
           )}
           {/* orange color  (tour track) */}
           {!!gpxTrack &&
-            gpxTrack.length > 0 && activeMarker &&[
+            gpxTrack.length > 0 && activeMarker && mapInitialized && [
               <Polyline
                 pathOptions={{ weight: 6, color: "#FF7663"}}
                 positions={gpxTrack}
@@ -534,7 +534,7 @@ function TourMapContainer({
           
           {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && activeMarker && [
+            fromtourGpxTrack.length > 0 && activeMarker && mapInitialized && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
@@ -552,7 +552,7 @@ function TourMapContainer({
 
           {/* orange color  (totour) */}
           {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && activeMarker && [
+            totourGpxTrack.length > 0 && activeMarker && mapInitialized && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
