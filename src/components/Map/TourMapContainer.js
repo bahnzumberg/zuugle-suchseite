@@ -84,12 +84,14 @@ function TourMapContainer({
   const mapRef = useRef();
   const clusterRef = useRef();
   const markerRef = useRef(null);
+  const activeMarkerRef = useRef(null)
 
   const [gpxTrack, setGpxTrack] = useState([]);
   const [totourGpxTrack, setTotourGpxTrack] = useState([]);
   const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeMarker, setActiveMarker] = useState(null);
+
 
   const initialCity = !!searchParams.get("city")
     ? searchParams.get("city")
@@ -175,11 +177,15 @@ function TourMapContainer({
   }, [mapBounds]);  
 
   useEffect(() => {
-    if (activeMarker && mapRef.current) {
-      const { lat, lon } = activeMarker;
+    console.log("L180 activeMarkerRef.current: ", activeMarkerRef.current)
+    // if (activeMarker && mapRef.current) {
+    if (activeMarkerRef.current && mapRef.current) {
+      // const { lat, lon } = activeMarker;
+      const { lat, lon } = activeMarkerRef.current;
       mapRef.current.setView([lat, lon], 15); 
     }
-  }, [activeMarker]);
+  }, [activeMarkerRef]);
+  // }, [activeMarker]);
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
@@ -214,8 +220,9 @@ function TourMapContainer({
   };
 
   useEffect(() => {
-    console.log("L217 -> Active Marker Updated:", activeMarker);
-  }, [activeMarker]);
+    console.log("L217 -> Active Marker Ref Updated:", activeMarkerRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMarkerRef.current]);
   
   useEffect(() => {
     console.log("L221 -> Selected Tour Updated:", selectedTour);
@@ -338,11 +345,11 @@ function TourMapContainer({
         // e.preventDefault();
 
         let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
-        setActiveMarker(tourInfo);
+        // setActiveMarker(tourInfo); // mark for deletion
+        activeMarkerRef.current = tourInfo;
 
         setSelectedTour(null);
         setIsLoading(true);
-        // setActiveMarker(tourInfo);
 
         if (!tourId || !city) return; // exit if not both parameters available
 
@@ -500,9 +507,11 @@ function TourMapContainer({
             maxNativeZoom={19}
           />
 
-          {activeMarker && selectedTour && mapInitialized && (
+          {/* {activeMarker && selectedTour && mapInitialized && ( */}
+          { !!activeMarkerRef.current && selectedTour && mapInitialized && (
             <Popup
-              key={`popup_${activeMarker.id}`}
+              // key={`popup_${activeMarker.id}`}
+              key={`popup_${activeMarkerRef.current.id}`}
               minWidth={350}
               maxWidth={400}
               minHeight={300}
@@ -510,21 +519,26 @@ function TourMapContainer({
               className="request-popup"
               offset={L.point([0, -25])}
               position={[
-                parseFloat(activeMarker.lat),
-                parseFloat(activeMarker.lon),
+                parseFloat(activeMarkerRef.current.lat),
+                parseFloat(activeMarkerRef.current.lon),
+                // parseFloat(activeMarker.lat),
+                // parseFloat(activeMarker.lon),
               ]}
               eventHandlers={{
-                remove: () => setActiveMarker(null),
+                remove: () => activeMarkerRef.current = null,
+                // remove: () => setActiveMarker(null),
               }}
             >
-              {selectedTour?.id === activeMarker.id && (
+              {/* {selectedTour?.id === activeMarker.id && ( */}
+              {selectedTour?.id === activeMarkerRef.current.id && (
                 <PopupCard tour={selectedTour} />
               )}
             </Popup>
           )}
           {/* orange color  (tour track) */}
           {!!gpxTrack &&
-            gpxTrack.length > 0 && activeMarker && mapInitialized && [
+            gpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
+            // gpxTrack.length > 0 && activeMarker && mapInitialized && [
               <Polyline
                 pathOptions={{ weight: 6, color: "#FF7663"}}
                 positions={gpxTrack}
@@ -534,7 +548,8 @@ function TourMapContainer({
           
           {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && activeMarker && mapInitialized && [
+            // fromtourGpxTrack.length > 0 && activeMarker && mapInitialized && [
+            fromtourGpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
@@ -552,7 +567,8 @@ function TourMapContainer({
 
           {/* orange color  (totour) */}
           {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && activeMarker && mapInitialized && [
+            totourGpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
+            // totourGpxTrack.length > 0 && activeMarker && mapInitialized && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
