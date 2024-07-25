@@ -299,7 +299,8 @@ export function Search({
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
     setFilterValues(null);  // reset state in parent Main
-    resetFilterLocalStorage()
+    resetFilterLocalStorage();
+    window.location.reload()
   };
 
   const handleFilterChange = (entry) => {

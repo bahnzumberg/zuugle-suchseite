@@ -38,12 +38,8 @@ function TourMapContainer({
   setMapInitialized,
   mapInitialized,
   onSelectTour, // use for Popup content
-  //onMarkersSubListChange,//handler for change in markers list, sets the state in Main.js
-  markersSubList,
   handleMapBounds,
   handleChangedMarkers,
-  setMarkersSubList,
-  setMapBounds,
   mapBounds,
   handleShowCardContainer
 }) {
@@ -131,7 +127,7 @@ function TourMapContainer({
   }, [mapInitialized, setMapInitialized]);
 
   useEffect(() => {
-    if (mapRef.current && mapBounds) {  // +++++++ if needed add mapInitialized in the condition 
+    if (mapRef.current && mapBounds && mapInitialized) {  // +++++++ if needed add mapInitialized in the condition 
       let _masterMarkers = {};
 
       // Retrieve master markers from local storage if available
@@ -161,7 +157,6 @@ function TourMapContainer({
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
 
       if (!!check && !!visibleMarkersObj && !!visibleMarkersArray) { 
-        setMarkersSubList(visibleMarkersArray); // set the state of "markersSubList" defined inside Main
         localStorage.setItem("visibleMarkers", JSON.stringify(visibleMarkersArray));
         handleChangedMarkers(true); // *** handle the Boolean flag in Main /make new call in card container
 
@@ -418,6 +413,7 @@ function TourMapContainer({
 
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
+    const searchTerm = !!searchParams.get('search') ? searchParams.get('search') : null;
     const filterValues = {
       //All Values in the URL
       coordinatesSouthWest: bounds?._southWest,
@@ -438,7 +434,9 @@ function TourMapContainer({
       maxDistance: filter.maxDistance,
       ranges: filter.ranges,
       types: filter.types,
+      search: searchTerm
     };
+    console.log("L444 filterVaues :", filterValues)
     if (filterValues == null) {
       searchParams.delete("filter");
       setSearchParams(searchParams);
