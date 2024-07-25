@@ -51,6 +51,8 @@ function TourMapContainer({
 
   const isMobile = useMediaQuery("(max-width:600px)");
 
+  const time = useMemo(() => new Date().getTime(), []) // used for MapContainer
+
 
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
@@ -462,6 +464,7 @@ function TourMapContainer({
     >
       {mapInitialized && (
         <MapContainer
+          key={time}
           className="leaflet-container"
           ref={mapRef}
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
