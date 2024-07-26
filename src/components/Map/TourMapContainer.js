@@ -569,7 +569,7 @@ function TourMapContainer({
                   ref={markerRef}
                   icon={createStartMarker()}
                   eventHandlers={{
-                    click: (e) => mapInitialized && handleMarkerClick(e, mark.id),
+                    click: (e) => handleMarkerClick(e, mark.id),
                   }}
                 ></Marker>
               );
