@@ -376,10 +376,10 @@ const listWrapper = async (req, res) => {
                         t.traverse DESC, 
                         t.quality_rating DESC, 
                         t.duration ASC, 
-                        t.id % EXTRACT(DAY FROM CURRENT_DATE)
+                        MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -433,8 +433,9 @@ const listWrapper = async (req, res) => {
         if (result && result.rows) {
             result = result.rows;
         } else {
-            logger('knex.raw(new_search_sql): result or result.rows is null or undefined.');
+            console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
         }
+        console.log("result.rows: ", result.rows)
    
         // markers-related / searchIncluded
         markers_result = await knex.raw(`SELECT 
@@ -474,11 +475,11 @@ const listWrapper = async (req, res) => {
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows;   // This is to be passed to the response below
             } else {
-                logger('markers_result is null or undefined');
+                console.log('markers_result is null or undefined');
             }         
     } 
     catch (error) {
-           logger("tours.js: error retrieving results or markers_result:" + error);
+           console.log("tours.js: error retrieving results or markers_result:" + error);
     }
 
     
