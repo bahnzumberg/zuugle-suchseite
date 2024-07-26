@@ -304,7 +304,6 @@ export const getValuesFromParams = (searchParams)=>{
 
     if(!!searchParams){//extract values and add to one data variable
         let city = searchParams.get("city"); 
-        if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
 
         let range = searchParams.get("range"); 
         let state = searchParams.get("state"); 

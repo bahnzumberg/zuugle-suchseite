@@ -27,8 +27,6 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
-import { countFilterActive } from "../../utils/globals"
-import { CircularProgress } from "@mui/material";
 
 
 export function Search({
@@ -49,12 +47,6 @@ export function Search({
   setFilterValues, 
   filterValues,
   mapBounds
-  // showMobileMenu, setShowMobileMenu,
-  // loadCities,
-  // cities,
-  // regions,
-  // isCityLoading,
-  // loadFavouriteTours,
 }) {
 
 
@@ -65,7 +57,6 @@ export function Search({
   let language = i18next.resolvedLanguage;
 
   let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
-  let filterValuesLocal = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : null; 
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
@@ -74,11 +65,15 @@ export function Search({
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
-  const {cityOne,idOne} = useParams()
+  const {cityOne, idOne} = useParams()
   const [city, setCity] = useState({
     label: cityParam,
     value: cityParam,
   });
+
+  if ( getTopLevelDomain() == 'li') { 
+    setCityInput('vaduz') 
+  }
 
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
