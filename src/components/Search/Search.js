@@ -104,10 +104,6 @@ export function Search({
     
   });
 
-  useEffect(()=>{
-    console.log("L108 activeFilter state :", activeFilter)
-  }, [activeFilter]);
-
   useEffect(() => {
     if (scrollToTop) {
       window.scrollTo({ top: 0 , behavior: 'smooth'});
@@ -165,7 +161,7 @@ export function Search({
     }
     // todo : note that this code here checks if there is a search param ONLY if there is NO range param
     else if (!!search) {
-      setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
+      setSearchPhrase(search);  
 
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
