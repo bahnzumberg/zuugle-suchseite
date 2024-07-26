@@ -175,6 +175,7 @@ function TourMapContainer({
   // eslint-disable-next-line no-use-before-define
   }, [mapBounds]);  
 
+  /*
   useEffect(() => {
     if (activeMarkerRef.current && mapRef.current) {
       const { lat, lon } = activeMarkerRef.current;
@@ -182,7 +183,8 @@ function TourMapContainer({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMarkerRef.current]);
-
+  */
+ 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
 
