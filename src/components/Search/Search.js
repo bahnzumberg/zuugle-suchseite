@@ -71,17 +71,20 @@ export function Search({
     value: cityParam,
   });
 
-  if ( getTopLevelDomain() == 'li') { 
-    setCityInput('vaduz') 
-  }
-
+  
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false)
   const [scrollToTop, setScrollToTop] = useState(false);
 
-  const markers = useSelector((state) => state.tours.markers);
   const isMasterMarkersSet = useRef(false);
+
+  useEffect(() => {
+    if ( getTopLevelDomain() == 'li') { 
+      setCityInput('vaduz');
+      setCity({label:'Vaduz', value:'vaduz'});
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollToTop) {
