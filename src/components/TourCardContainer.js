@@ -44,7 +44,7 @@ export default function TourCardContainer({
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
   
-  // if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
+  if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
 
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
