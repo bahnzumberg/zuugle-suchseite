@@ -258,7 +258,8 @@ const handleShowCardContainer = useCallback((value) => {
       />
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, tours, totalTours, mapBounds]);
+  }, [filter, tours, totalTours]);
+  // }, [filter, tours, totalTours, mapBounds]);
 
   const toggleMapHandler = () => {
     if (searchParams.has("map") && searchParams.get("map") === "true") {
