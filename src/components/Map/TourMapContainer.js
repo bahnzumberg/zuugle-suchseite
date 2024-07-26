@@ -169,16 +169,16 @@ function TourMapContainer({
         handleChangedMarkers(false);
       }
     }
-  // eslint-disable-next-line no-use-before-define
+  // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
   }, [mapBounds]);  
 
-  useEffect(() => {
-    if (activeMarkerRef.current && mapRef.current) {
-      const { lat, lon } = activeMarkerRef.current;
-      mapRef.current.setView([lat, lon], 15); 
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMarkerRef.current]);
+  // useEffect(() => {
+  //   if (activeMarkerRef.current && mapRef.current) {
+  //     const { lat, lon } = activeMarkerRef.current;
+  //     mapRef.current.setView([lat, lon], 15); 
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [activeMarkerRef.current]);
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
