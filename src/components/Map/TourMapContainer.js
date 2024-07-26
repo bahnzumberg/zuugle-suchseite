@@ -509,7 +509,7 @@ function TourMapContainer({
           )}
           {/* orange color  (tour track) */}
           {!!gpxTrack &&
-            gpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
+            gpxTrack.length > 0 && activeMarkerRef.current && [
               <Polyline
                 pathOptions={{ weight: 6, color: "#FF7663"}}
                 positions={gpxTrack}
@@ -519,7 +519,7 @@ function TourMapContainer({
           
           {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
+            fromtourGpxTrack.length > 0 && activeMarkerRef.current && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
@@ -537,7 +537,7 @@ function TourMapContainer({
 
           {/* orange color  (totour) */}
           {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && activeMarkerRef.current && mapInitialized && [
+            totourGpxTrack.length > 0 && activeMarkerRef.current && [
               <Polyline
                 pathOptions={{ 
                   weight: 6, 
