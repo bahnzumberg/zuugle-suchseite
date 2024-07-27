@@ -54,12 +54,19 @@ function TourMapContainer({
   const time = useMemo(() => new Date().getTime(), []) // used for MapContainer
 
 
+  // storing masterMarkers list inside localStorage
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
+      let masterMarkers = localStorage.getItem('masterMarkers')
+      console.log("L59 localStorage.getItem('masterMarkers') ::")
+      console.log(masterMarkers)
+      console.log("L60 markers  :")
+      console.log(markers)
+
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
       isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
     }
-  }, []);
+  }, [markers]);
 
   const createStartMarker = () => {
     return L.icon({
@@ -276,8 +283,6 @@ function TourMapContainer({
     [dispatch]
   );
   
-   
-  
 
   const handleTotourGpxTrack = useCallback(
     async (url) => {
@@ -359,7 +364,6 @@ function TourMapContainer({
           }
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [city, mapInitialized, onSelectTour, handleGpxTrack, handleTotourGpxTrack, handleFromtourGpxTrack]
   );
@@ -452,7 +456,7 @@ function TourMapContainer({
       types: filter.types,
       search: searchTerm
     };
-    console.log("L444 filterVaues :", filterValues)
+    // console.log("L444 filterVaues :", filterValues)
     if (filterValues == null) {
       searchParams.delete("filter");
       setSearchParams(searchParams);
