@@ -445,7 +445,8 @@ export function Search({
       isMasterMarkersSet.current = false ;
     }
     search();
-    // window.location.reload();
+    console.log("GO BOTTON CLICKED !")
+    window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);
   }
@@ -462,6 +463,7 @@ export function Search({
     suggestion = autoSuggestion;
     hideModal();
     search();
+    window.location.reload();
   };
 
   return (
