@@ -379,42 +379,43 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
     // ****************************************************************
     let sql_count = 0;
     try {
-        let count_query = knex.raw(`SELECT COUNT(*) AS row_count
-                                    FROM city2tour AS c2t 
-                                    INNER JOIN tour AS t 
-                                    ON c2t.tour_id=t.id 
-                                    WHERE c2t.reachable_from_country='${tld}' 
-                                    ${new_search_where_city}
-                                    ${new_search_where_searchterm}
-                                    ${new_search_where_range}
-                                    ${new_search_where_state}
-                                    ${new_search_where_country}
-                                    ${new_search_where_type}
-                                    ${new_search_where_provider}
-                                    ${new_search_where_language}
-                                    ${new_search_where_map}
-                                    ${new_filter_where_singleDayTour}
-                                    ${new_filter_where_multipleDayTour}
-                                    ${new_filter_where_summerSeason}
-                                    ${new_filter_where_winterSeason}
-                                    ${new_filter_where_traverse}
-                                    ${new_filter_where_minAscent}
-                                    ${new_filter_where_minDescent}
-                                    ${new_filter_where_minTransportDuration}
-                                    ${new_filter_where_minDistance}
-                                    ${new_filter_where_ranges}
-                                    ${new_filter_where_types}
-                                    ${new_filter_where_languages}
-                                    `); 
+        const count_sql = `SELECT COUNT(*) AS row_count
+                            FROM city2tour AS c2t 
+                            INNER JOIN tour AS t 
+                            ON c2t.tour_id=t.id 
+                            WHERE c2t.reachable_from_country='${tld}' 
+                            ${new_search_where_city}
+                            ${new_search_where_searchterm}
+                            ${new_search_where_range}
+                            ${new_search_where_state}
+                            ${new_search_where_country}
+                            ${new_search_where_type}
+                            ${new_search_where_provider}
+                            ${new_search_where_language}
+                            ${new_search_where_map}
+                            ${new_filter_where_singleDayTour}
+                            ${new_filter_where_multipleDayTour}
+                            ${new_filter_where_summerSeason}
+                            ${new_filter_where_winterSeason}
+                            ${new_filter_where_traverse}
+                            ${new_filter_where_minAscent}
+                            ${new_filter_where_minDescent}
+                            ${new_filter_where_minTransportDuration}
+                            ${new_filter_where_minDistance}
+                            ${new_filter_where_ranges}
+                            ${new_filter_where_types}
+                            ${new_filter_where_languages}`
+        let count_query = knex.raw(count_sql); 
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
+        console.log("count_sql: ", count_sql)
     } catch (error) {
         console.log("Error retrieving count:", error);
     }
@@ -438,38 +439,39 @@ const listWrapper = async (req, res) => {
         // console.log("result.rows: ", result.rows)
    
         // markers-related / searchIncluded
-        markers_result = await knex.raw(`SELECT 
-                                        t.id, 
-                                        c2t.connection_arrival_stop_lat,
-                                        c2t.connection_arrival_stop_lon
-                                        FROM city2tour AS c2t 
-                                        INNER JOIN tour AS t 
-                                        ON c2t.tour_id=t.id 
-                                        WHERE c2t.reachable_from_country='${tld}' 
-                                        ${new_search_where_city}
-                                        ${new_search_where_searchterm}
-                                        ${new_search_where_range}
-                                        ${new_search_where_state}
-                                        ${new_search_where_country}
-                                        ${new_search_where_type}
-                                        ${new_search_where_provider}
-                                        ${new_search_where_language}
-                                        ${new_search_where_map}
-                                        ${new_filter_where_singleDayTour}
-                                        ${new_filter_where_multipleDayTour}
-                                        ${new_filter_where_summerSeason}
-                                        ${new_filter_where_winterSeason}
-                                        ${new_filter_where_traverse}
-                                        ${new_filter_where_minAscent}
-                                        ${new_filter_where_minDescent}
-                                        ${new_filter_where_minTransportDuration}
-                                        ${new_filter_where_minDistance}
-                                        ${new_filter_where_ranges}
-                                        ${new_filter_where_types}
-                                        ${new_filter_where_languages}
-                                        AND c2t.connection_arrival_stop_lat IS NOT NULL 
-                                        AND c2t.connection_arrival_stop_lon IS NOT NULL
-                                        `); // fire the DB call here
+        const markers_sql= `SELECT 
+                            t.id, 
+                            c2t.connection_arrival_stop_lat,
+                            c2t.connection_arrival_stop_lon
+                            FROM city2tour AS c2t 
+                            INNER JOIN tour AS t 
+                            ON c2t.tour_id=t.id 
+                            WHERE c2t.reachable_from_country='${tld}' 
+                            ${new_search_where_city}
+                            ${new_search_where_searchterm}
+                            ${new_search_where_range}
+                            ${new_search_where_state}
+                            ${new_search_where_country}
+                            ${new_search_where_type}
+                            ${new_search_where_provider}
+                            ${new_search_where_language}
+                            ${new_search_where_map}
+                            ${new_filter_where_singleDayTour}
+                            ${new_filter_where_multipleDayTour}
+                            ${new_filter_where_summerSeason}
+                            ${new_filter_where_winterSeason}
+                            ${new_filter_where_traverse}
+                            ${new_filter_where_minAscent}
+                            ${new_filter_where_minDescent}
+                            ${new_filter_where_minTransportDuration}
+                            ${new_filter_where_minDistance}
+                            ${new_filter_where_ranges}
+                            ${new_filter_where_types}
+                            ${new_filter_where_languages}
+                            AND c2t.connection_arrival_stop_lat IS NOT NULL 
+                            AND c2t.connection_arrival_stop_lon IS NOT NULL;`
+        markers_result = await knex.raw(markers_sql); // fire the DB call here
+        console.log("markers_sql: ", markers_sql)
 
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
@@ -550,7 +552,7 @@ const listWrapper = async (req, res) => {
                             LIMIT 10`
         
         range_result = await knex.raw(range_sql)
-        // console.log("range_sql: ", range_sql)
+        console.log("range_sql: ", range_sql)
         
         if (!!range_result && !!range_result.rows) {
             rangeList = range_result.rows;

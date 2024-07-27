@@ -50,13 +50,11 @@ CREATE TABLE tour (
       cities JSONB DEFAULT NULL,
       cities_object JSONB DEFAULT NULL,
       full_text TEXT,
-	  search_column tsvector,
- 	  separator smallint,
-	  gpx_data JSONB,
-	  max_ele INT default 0,
-	  text_lang VARCHAR(2) default 'de',
-      connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-      connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
+	search_column tsvector,
+ 	separator smallint,
+	gpx_data JSONB,
+	max_ele INT default 0,
+	text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
 );
 
