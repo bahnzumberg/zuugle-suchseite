@@ -379,7 +379,7 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    console.log("new_search_sql: ", new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -435,7 +435,7 @@ const listWrapper = async (req, res) => {
         } else {
             console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
         }
-        console.log("result.rows: ", result.rows)
+        // console.log("result.rows: ", result.rows)
    
         // markers-related / searchIncluded
         markers_result = await knex.raw(`SELECT 
@@ -515,59 +515,60 @@ const listWrapper = async (req, res) => {
     }
 
     /** add ranges to result */
-    //This code prepares the response to a HTTP request.
-    //The ranges array is populated with data about the tours ranges. The showRanges variable is a boolean that is passed in the request to determine whether to return the ranges or not. If showRanges is true, then the code queries the database to get a list of the distinct ranges and their image urls. It then loops through the results to create an array of range objects containing the range name and the corresponding image URL. The code then queries the database to get all states of each range and adds them to the states array of each range object.
+    // This code prepares the response to a HTTP request.
+    // The ranges array is populated with data about the tours ranges. The showRanges variable is a 
+    // boolean that is passed in the request to determine whether to return the ranges or not. 
+    // If showRanges is true, then the code queries the database to get a list of the distinct ranges
+    // and their image urls. It then loops through the results to create an array of range objects
+    // containing the range name and the corresponding image URL. The code then queries the database
+    // to get all states of each range and adds them to the states array of each range object.
     let ranges = [];
+    let rangeList = [];
+    let range_result = undefined
 
-    let rangeQuery = knex('tour').select(['month_order', 'range_slug']).distinct(['range']);
-    
     if(!!showRanges){    
-        //describe:
-        //query 'rangeQuery' is modified to restrict the selection to a particular city.
+        const months = [
+            "jan", "feb", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "oct", "nov", "dec"
+          ];  
+        const shortMonth = months[new Date().getMonth()];
+        const range_sql  = `SELECT 
+                            t.state,
+                            t.range_slug,
+                            t.range,
+                            image_url,
+                            SUM(1.0/(c2t.min_connection_no_of_transfers+1)) AS attract
+                            FROM city2tour AS c2t 
+                            INNER JOIN tour AS t 
+                            ON c2t.tour_id=t.id 
+                            WHERE c2t.reachable_from_country='${tld}'
+                            ${new_search_where_city}
+                            AND ${shortMonth}='true'
+                            AND t.range_slug IS NOT NULL
+                            GROUP BY t.state, t.range_slug, t.range, image_url
+                            ORDER BY SUM(1.0/(c2t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
+                            LIMIT 10`
         
-        if(!!city && city.length > 0){
-            rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `);
-            // console.log("rangeQuery=", rangeQuery.toSQL().toNative())
+        range_result = await knex.raw(range_sql)
+        // console.log("range_sql: ", range_sql)
+        
+        if (!!range_result && !!range_result.rows) {
+            rangeList = range_result.rows;
         }
 
-        //describe:
-        //query is modified to order the results by month_order in ascending order, and to limit the number of rows returned to 10.
-        rangeQuery = rangeQuery.orderBy("month_order", 'asc').limit(10);
-        //describe:
-        //the query is executed by calling await on the rangeQuery object, which returns an array of objects representing the rows returned by the query.
-        let rangeList = await rangeQuery;
-    
         //describe:
         //a loop is performed over each object in rangeList. For each object, it is checked if both tour and tour.range properties are defined and truthy. If they are, it is checked if there is no object in the ranges array that has a range property equal to tour.range. If there isn't, a new object is constructed with a range property equal to tour.range, and an image_url property equal to a string constructed with the getHost function on the domain parameter, the "/public/range-image/" path, and the tour.range_slug value. The new object is then pushed onto the ranges array.
         rangeList.forEach(tour => {
             if(!!tour && !!tour.range){
                 if(!!!ranges.find(r => r.range === tour.range)){
                     ranges.push({
+                        states: tour.state,
                         range: tour.range,
                         image_url: `${getHost(domain)}/public/range-image/${tour.range_slug}.jpg`
                     });
                 }
             }
         });
-        //describe:
-        //In summary, this block of code loops through each range object in the ranges array and retrieves a list of states associated with that range from the tour table, using Knex.js. It then adds a new states property to the range object, which contains the list of states.
-        if(!!ranges){
-            // describe:
-            // For each object, a new query is created using the knex instance, with the following conditions:
-            // The select method retrieves the state column from the tour table.
-            // The where method is used to filter the results to only include tours where the range column matches the range property of the current object in the loop.
-            // The whereNotNull method is used to exclude any tours where the state column is null.
-            // The groupBy method is used to group the results by the state column.
-            for(let i=0; i<ranges.length;i++){
-                let r = ranges[i];
-                let states = await knex('tour').select('state').where({range: r.range}).whereNotNull('state').groupBy('state');
-                //Overall, this last line is used to extract the state values from the states array and assign them to the states property of each object in the ranges array.
-                ranges[i].states = states.filter(s => !!s.state).map(s => s.state);
-            }
-        }
-    }
-    else {
-        rangeQuery = rangeQuery.whereRaw(` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country="${tld}") `);
     }
 
     //describe:
@@ -580,9 +581,9 @@ const listWrapper = async (req, res) => {
     
     //parse lat and lon before adding markers to response
     markers_array = markers_array.map((marker) => ({
-    id: marker.id,
-    lat: parseFloat(marker.connection_arrival_stop_lat),
-    lon: parseFloat(marker.connection_arrival_stop_lon),
+        id: marker.id,
+        lat: parseFloat(marker.connection_arrival_stop_lat),
+        lon: parseFloat(marker.connection_arrival_stop_lon),
     }));
         
     res
