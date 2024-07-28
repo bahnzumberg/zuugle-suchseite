@@ -370,6 +370,7 @@ const listWrapper = async (req, res) => {
                         ORDER BY t.month_order ASC, 
                         order_lang_${currLanguage} DESC,  
                         ${new_search_order_searchterm}
+                        t.number_of_days ASC,
                         TRUNC(c2t.min_connection_no_of_transfers*c2t.min_connection_no_of_transfers/2) ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC,
                         TRUNC(c2t.min_connection_duration / 60, 0) ASC, 
