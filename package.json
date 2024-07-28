@@ -24,7 +24,6 @@
     "buffer": "^6.0.3",
     "express-rate-limit": "^7.1.4",
     "gpxparser": "^3.0.0",
-    "history": "^5.3.0",
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.2.0",
@@ -50,6 +49,7 @@
     "uuid": "^9.0.0",
     "watch": "^1.0.2",
     "web-vitals": "^3.3.0",
+    "webpack-cli": "^5.1.4",
     "wepack-cli": "^0.0.1-security"
   },
   "overrides": {
@@ -73,7 +73,6 @@
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-react": "^7.23.3",
-    "@svgr/plugin-svgo": "^8.1.0",
     "@svgr/webpack": "^8.1.0",
     "babel-loader": "^9.1.2",
     "copy-webpack-plugin": "^11.0.0",
@@ -83,13 +82,9 @@
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
     "react-scripts": "^5.0.1",
-    "react-svg-loader": "^3.0.0",
     "source-map-loader": "^4.0.1",
-    "style-loader": "^3.3.2",
     "terser-webpack-plugin": "^5.3.7",
     "url-loader": "^4.1.1",
-    "webpack": "^5.77.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.13.2"
+    "webpack": "^5.77.0"
   }
 }
