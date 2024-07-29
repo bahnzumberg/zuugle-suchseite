@@ -201,6 +201,8 @@ export default function PopupCard({tour}){
 
     let value_best_connection_duration = tour.min_connection_duration;
     let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
+
+    console.log("L205 value_best_connection_duration ", value_best_connection_duration )
       
     
       return (
