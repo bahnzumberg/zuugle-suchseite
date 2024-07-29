@@ -253,7 +253,7 @@ function Start({
               />
             </Box>
 
-            <Box sx={{ marginTop: "20px" }}>
+            <Box sx={{ marginTop: "80px" }}>
               <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}

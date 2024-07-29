@@ -22,7 +22,7 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
         borderRadius: '24px'
     }}>
         <Box className={"kpi-container"} sx={{textAlign: "center"}}>
-            <Box sx={{maxWidth: '800px', marginLeft: "auto", marginRight: "auto"}}>
+            <Box sx={{maxWidth: '600px', marginLeft: "auto", marginRight: "auto"}}>
                 <Typography variant={"subtitle1"} color={"#FFFFFF"}>Zuugle</Typography>
                     <Typography variant={"h3"} sx={{marginTop: "20px"}}>
                         {t('start.ziel_von_zuugle')} 
@@ -30,9 +30,6 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
                 <Box sx={{textAlign: "center", marginTop: "20px"}}>
                         <Typography variant={"text"} color={"#FFFFFF"}> {t('start.weil_es_braucht_kein_auto')} </Typography>
                 </Box>
-                    <Button variant={"contained"} onClick={goto} className={"button-tour-planen"} sx={{marginTop: "20px", color: "main.primary"}} color={"white"}>
-                        {t('start.jetzt_oeffitour_suchen')}
-                    </Button>
             </Box>
 
             <Box sx={{height: '1px', backgroundColor: '#6AA6FF', marginTop: '50px'}}>
