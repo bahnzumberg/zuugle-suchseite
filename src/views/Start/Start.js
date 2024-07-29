@@ -16,13 +16,11 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import {
   getPageHeader,
   getTranslatedCountryName,
-  listAllCityLinks,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
 const RangeCardContainer = lazy(() => import("../../components/RangeCardContainer"));
@@ -45,14 +43,12 @@ function Start({
   allCities,
   totalProvider,
   loadRanges,
-  allRanges,
-  noDataAvailable,
   noToursAvailable,
-  error,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { t } = useTranslation();
   const abortController = new AbortController();
@@ -98,8 +94,10 @@ function Start({
           },
           requestConfig
         );
+        setIsLoading(false);
       } catch (error) {
           console.error("Error loading data");
+          setIsLoading(false);
       }
     };
 
@@ -233,6 +231,8 @@ function Start({
                 onSelectTour={onSelectTour}
                 loadTourConnections={loadTourConnections}
                 city={searchParams.get("city")}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
               />
             </Box>
 

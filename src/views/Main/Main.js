@@ -46,16 +46,7 @@ export function Main({
   pageTours,
   loading,
   allCities,
-  loadRanges,
-  tour,
-  // clearTours,
-  // allRanges,
-  // showModal,
-  // hideModal,
-  // loadFilter,
-  // isLoadingFilter,
-  // loadTour,
-  // loadTourConnectionsExtended,
+  loadRanges
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,8 +64,6 @@ export function Main({
   const [mapInitialized, setMapInitialized] = useState(false);
 
   const markers = useSelector((state) => state.tours.markers); // move to props
-
-  const [scrollToTop, setScrollToTop] = useState(false);
 
   const [showMap, setShowMap] = useState(false);
   const [markersSubList, setMarkersSubList] = useState(createIdArray(markers));
@@ -94,12 +83,7 @@ export function Main({
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
 
-  // useEffect(() => {
-  //   if (scrollToTop) {
-  //     window.scrollTo({ top: 0 , behavior: 'smooth'});
-  //   }
-  // }, [scrollToTop]);
-  
+
   
   useEffect(() => {
     loadAllCities();
