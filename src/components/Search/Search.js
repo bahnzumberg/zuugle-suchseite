@@ -8,7 +8,6 @@ import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
-import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
@@ -30,7 +29,6 @@ import TransportTrain from "../../icons/TransportTrain";
 
 
 export function Search({
-  loadRegions,
   loadTours,
   goto,
   page,
@@ -129,9 +127,6 @@ export function Search({
         setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
         setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
-
-        /** load regions initially */
-        loadRegions({ city: city });
       }
     }
 
@@ -616,7 +611,6 @@ export function Search({
 
 const mapDispatchToProps = {
   loadCities,
-  loadRegions,
   loadTours,
   loadFavouriteTours,
   showModal,
@@ -629,9 +623,7 @@ const mapStateToProps = (state) => {
     cities: state.cities.cities,
     allCities: state.cities.all_cities,
     filter: state.tours.filter,
-    regions: state.regions.regions,
     isCityLoading: state.cities.loading,
-    isRegionLoading: state.regions.loading,
   };
 };
 
