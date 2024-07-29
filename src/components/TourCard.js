@@ -17,7 +17,6 @@ export default function TourCard({
   onSelectTour,
   loadTourConnections,
   city,
-  mapCard,
 }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
