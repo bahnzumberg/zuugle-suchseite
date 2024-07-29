@@ -25,13 +25,9 @@ import {
   listAllCityLinks,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
-const RangeCardContainer = lazy(() =>
-  import("../../components/RangeCardContainer")
-);
-const ScrollingTourCardContainer = lazy(() =>
-  import("../../components/ScrollingTourCardContainer")
-);
+const RangeCardContainer = lazy(() => import("../../components/RangeCardContainer"));
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
+const ScrollingTourCardContainer = lazy(() => import("../../components/ScrollingTourCardContainer"));
 
 function Start({
   loadFavouriteTours,
@@ -257,7 +253,7 @@ function Start({
               />
             </Box>
 
-            {/* <Box sx={{ marginTop: "20px" }}>
+            <Box sx={{ marginTop: "20px" }}>
               <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}
@@ -266,7 +262,7 @@ function Start({
                 city={searchParams.get("city")}
                 totalProvider={totalProvider}
               />
-            </Box> */}
+            </Box>
           </Box>
         )}
 
