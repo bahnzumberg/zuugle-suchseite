@@ -24,9 +24,6 @@ const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
 export default function PopupCard({tour}){
 
-    console.log("tour ")
-    console.log(tour )
-
     const [image, setImage] = useState(DEFAULT_IMAGE);
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -205,7 +202,6 @@ export default function PopupCard({tour}){
     let value_best_connection_duration = tour.min_connection_duration;
     let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
 
-    console.log("L205 value_best_connection_duration ", value_best_connection_duration )
       
     
       return (

@@ -320,14 +320,7 @@ function TourMapContainer({
     } else {
       setGpxTrack([]);
     }
-  };
-
-  useEffect(() => {
-    console.log("tour:")
-    console.log(selectedTour)
-  
-  }, [selectedTour])
-  
+  }; 
 
   const handleMarkerClick = useCallback(
     async (e, tourId) => {
