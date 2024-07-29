@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import tours from './routes/tours';
 import cities from './routes/cities';
-import regions from './routes/regions';
 import ranges from './routes/ranges';
 import language from './routes/language';
 import authenticate from "./middlewares/authenticate";
@@ -45,7 +44,6 @@ app.use("/public", cors(corsOptions), express.static('public'));
 
 app.use('/api/tours', cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
-app.use('/api/regions', cors(corsOptions), hostMiddleware, authenticate, regions);
 app.use('/api/ranges', cors(corsOptions), hostMiddleware, authenticate, ranges);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
 app.use('/api/searchPhrases', cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
