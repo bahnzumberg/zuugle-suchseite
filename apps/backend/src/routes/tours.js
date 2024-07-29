@@ -72,6 +72,7 @@ const getWrapper = async (req, res) => {
     // console.log(" req.query from getWrapper : ", (req.query) )
     // console.log("===================") 
     const domain = req.query.domain;
+    const tld = get_domain_country(domain);
 
     if (isNaN(id)) {
         res.status(400).json({ success: false, message: "Invalid tour ID" });
@@ -83,29 +84,44 @@ const getWrapper = async (req, res) => {
         return
     }
     
-    // let selects = ['id', 'url', 'provider', 'hashed_url', 'description', 'image_url', 'ascent', 'descent', 'difficulty', 'difficulty_orig' , 'duration', 'distance', 'title', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele'];
-    // let entryQuery = knex('tour').select(selects).where({id: id}).first();
+    let new_search_where_city = `AND c2t.stop_selector='y' `;
+    if(!!city && city.length > 0){
+        new_search_where_city = `AND c2t.city_slug='${city}' `
+    }
 
     try {
         // let entry = await entryQuery;
-        const sql = "SELECT id, url, provider, hashed_url, description, image_url, ascent, \
-                    descent, difficulty, difficulty_orig , duration, distance, title, type, \
-                    number_of_days, traverse, country, state, range_slug, range, season, \
-                    month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele \
-                    FROM ( \
-                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
-                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
-                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season, \
-                    t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele, 1 AS prio \
-                    FROM tour as t WHERE t.id=" + id +
-                    " UNION \
-                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, \
-                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, \
-                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, \
-                    'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, \
-                    null as cities_object, 0 as max_ele, 2 AS prio \
-                    FROM tour_inactive as t WHERE t.id=" + id +
-                    " ORDER BY prio ASC LIMIT 1) as a"
+        const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
+                    descent, difficulty, difficulty_orig , duration, distance, title, type, 
+                    number_of_days, traverse, country, state, range_slug, range, season, 
+                    month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
+                    min_connection_duration,
+                    min_connection_no_of_transfers
+                    FROM ( 
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
+                    t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
+                    1 AS prio,
+                    c2t.min_connection_duration,
+                    c2t.min_connection_no_of_transfers
+                    FROM tour as t 
+                    INNER JOIN city2tour AS c2t 
+                    ON c2t.tour_id=t.id 
+                    WHERE c2t.reachable_from_country='${tld}' 
+                    ${new_search_where_city}
+                    AND t.id=${id}
+                    UNION 
+                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
+                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
+                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
+                    'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
+                    null as cities_object, 0 as max_ele, 
+                    2 AS prio,
+                    0 as min_connection_duration,
+                    0 as min_connection_no_of_transfers
+                    FROM tour_inactive as t WHERE t.id=${id}
+                    ORDER BY prio ASC LIMIT 1) as a`
         let entry2 = await knex.raw(sql)
         let entry = entry2.rows[0]
 
@@ -380,7 +396,7 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    console.log("new_search_sql: ", new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -416,7 +432,7 @@ const listWrapper = async (req, res) => {
         let count_query = knex.raw(count_sql); 
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
-        console.log("count_sql: ", count_sql)
+        // console.log("count_sql: ", count_sql)
     } catch (error) {
         console.log("Error retrieving count:", error);
     }
@@ -472,7 +488,7 @@ const listWrapper = async (req, res) => {
                             AND c2t.connection_arrival_stop_lat IS NOT NULL 
                             AND c2t.connection_arrival_stop_lon IS NOT NULL;`
         markers_result = await knex.raw(markers_sql); // fire the DB call here
-        console.log("markers_sql: ", markers_sql)
+        // console.log("markers_sql: ", markers_sql)
 
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
@@ -553,7 +569,7 @@ const listWrapper = async (req, res) => {
                             LIMIT 10`
         
         range_result = await knex.raw(range_sql)
-        console.log("range_sql: ", range_sql)
+        // console.log("range_sql: ", range_sql)
         
         if (!!range_result && !!range_result.rows) {
             rangeList = range_result.rows;
