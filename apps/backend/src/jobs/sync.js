@@ -758,7 +758,6 @@ const readAndInsertFahrplan = async (bundle) => {
 
         let data = result[0].map(row => ({ ...row }));
 
-        // !!data && Array.isArray(data) && console.log("L557 data[0]:", data[0])
         
         if (!!data && Array.isArray(data) && data.length > 0) {
             insert_sql = `INSERT INTO fahrplan (tour_provider,
@@ -923,8 +922,6 @@ export async function syncTours(){
     await knex.raw(`TRUNCATE tour;`);
 
     let limit = 500;
-    let offset = 0;
-    let counter = 0;
     const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
 
     let count = 0;
@@ -988,8 +985,6 @@ export async function syncTours(){
         if(!!result && result.length > 0 && result[0].length > 0){
             bulk_insert_tours(result[0]);
         }
-        // offset = offset + limit;
-        // counter++;
     }
 }
 
