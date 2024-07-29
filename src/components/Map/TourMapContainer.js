@@ -57,12 +57,6 @@ function TourMapContainer({
   // storing masterMarkers list inside localStorage
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
-      let masterMarkers = localStorage.getItem('masterMarkers')
-      console.log("L59 localStorage.getItem('masterMarkers') ::")
-      console.log(masterMarkers)
-      console.log("L60 markers  :")
-      console.log(markers)
-
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
       isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
     }
