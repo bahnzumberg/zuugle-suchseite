@@ -24,6 +24,9 @@ const DEFAULT_IMAGE = '/app_static/img/train_placeholder.webp';
 
 export default function PopupCard({tour}){
 
+    console.log("tour ")
+    console.log(tour )
+    
     const [image, setImage] = useState(DEFAULT_IMAGE);
     const [searchParams, setSearchParams] = useSearchParams();
 

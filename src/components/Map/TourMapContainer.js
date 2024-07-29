@@ -322,6 +322,13 @@ function TourMapContainer({
     }
   };
 
+  useEffect(() => {
+    console.log("tour:")
+    console.log(selectedTour)
+  
+  }, [selectedTour])
+  
+
   const handleMarkerClick = useCallback(
     async (e, tourId) => {
 
