@@ -19,10 +19,12 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
 
     return  <Paper sx={{
         bgcolor: 'primary.main',
-        borderRadius: '24px'
+        borderRadius: '24px',
+        width: '68vw',
+        margin: "auto"
     }}>
         <Box className={"kpi-container"} sx={{textAlign: "center"}}>
-            <Box sx={{maxWidth: '600px', marginLeft: "auto", marginRight: "auto", width: '66vw'}}>
+            <Box sx={{ marginLeft: "auto", marginRight: "auto"}}>
                 <Typography variant={"h3"} sx={{marginTop: "20px"}}>
                     {t('start.ziel_von_zuugle')} 
                 </Typography>
