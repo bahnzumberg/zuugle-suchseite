@@ -22,18 +22,13 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
         borderRadius: '24px'
     }}>
         <Box className={"kpi-container"} sx={{textAlign: "center"}}>
-            <Box sx={{maxWidth: '600px', marginLeft: "auto", marginRight: "auto"}}>
-                <Typography variant={"subtitle1"} color={"#FFFFFF"}>Zuugle</Typography>
-                    <Typography variant={"h3"} sx={{marginTop: "20px"}}>
-                        {t('start.ziel_von_zuugle')} 
-                    </Typography>
+            <Box sx={{maxWidth: '600px', marginLeft: "auto", marginRight: "auto", width: '66vw'}}>
+                <Typography variant={"h3"} sx={{marginTop: "20px"}}>
+                    {t('start.ziel_von_zuugle')} 
+                </Typography>
                 <Box sx={{textAlign: "center", marginTop: "20px"}}>
-                        <Typography variant={"text"} color={"#FFFFFF"}> {t('start.weil_es_braucht_kein_auto')} </Typography>
+                    <Typography variant={"text"} color={"#FFFFFF"}> {t('start.weil_es_braucht_kein_auto')} </Typography>
                 </Box>
-            </Box>
-
-            <Box sx={{height: '1px', backgroundColor: '#6AA6FF', marginTop: '50px'}}>
-
             </Box>
 
             <Box sx={{marginTop: '50px'}}>
