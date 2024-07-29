@@ -13,6 +13,17 @@ import moment from "moment";
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 
+
+async function countCrunchyTours(){
+    const query_count = await knexTourenDb('vw_gpx_to_search').count('* as anzahl'); 
+    return query_count[0]["anzahl"];
+}
+
+async function countTourZuugle(){
+    const query_count = await knex('tour').count('* as anzahl');
+    return query_count[0]["anzahl"];
+}
+
 console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' FULL LOAD');
 
 let breakTheLoop = false;
@@ -56,8 +67,9 @@ while (!breakTheLoop) {
     breakTheLoop = true;
 
     // 1. Check: 
-    const countTourCrunchy = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
-    const countTourZuugle = await knex('tour').count('* as anzahl');
+    const countTourCrunchy = countCrunchyTours();
+    const countTourZuugle  = countTourZuugle();
+
     if (countTourCrunchy != countTourZuugle) {
         // The table tour is always truncated. So we do not have to change anything here.
         console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' CHECK table tour NOK. Starting an new loop');
