@@ -500,10 +500,10 @@ function TourMapContainer({
           { !!activeMarkerRef.current && selectedTour  && (
             <Popup
               key={`popup_${activeMarkerRef.current.id}`}
-              minWidth={350}
-              maxWidth={400}
-              minHeight={300}
-              maxHeight={300}
+              // minWidth={350}
+              maxWidth={280}
+              // minHeight={300}
+              maxHeight={210}
               className="request-popup"
               offset={L.point([0, -25])}
               position={[

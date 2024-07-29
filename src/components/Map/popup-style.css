@@ -1,6 +1,6 @@
 /* Base styles for .leaflet-popup-content to remove background and adjust layout */
 .request-popup {
-    padding-top: 5%;
+    padding-top: 2%;
 }
 .leaflet-popup-content {
     background: transparent; /* Remove white background */
@@ -19,7 +19,7 @@
   .leaflet-popup-content-wrapper {
     background: white; /* Remove background from wrapper */
     box-shadow: none; /* Remove box shadow */
-    padding:10px;
+    /* padding:10px; */
     border-radius: 20px;
   }
   

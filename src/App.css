@@ -1770,9 +1770,9 @@ top:250px; */
   /* Add any other styles that match the h4 variant */
 }
 .updated-title {
-  font-size: 20px; /* Equivalent to h4 in Material-UI */
+  font-size: 14px; /* Equivalent to h4 in Material-UI */
   font-weight: 700; /* Equivalent to h4 in Material-UI */
-  line-height: 22px; /* Adjust as needed */
+  line-height: 18px; /* Adjust as needed */
   width: 100%;
   text-decoration: none;
   color: rgb(16, 16, 16);
