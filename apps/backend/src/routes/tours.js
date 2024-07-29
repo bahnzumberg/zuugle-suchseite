@@ -386,12 +386,12 @@ const listWrapper = async (req, res) => {
                         ORDER BY t.month_order ASC, 
                         order_lang_${currLanguage} DESC,  
                         ${new_search_order_searchterm}
-                        t.number_of_days ASC, 
+                        t.number_of_days ASC,
+                        CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
                         TRUNC(c2t.min_connection_no_of_transfers*c2t.min_connection_no_of_transfers/2) ASC,
-                        CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC,
                         TRUNC(c2t.min_connection_duration / 60, 0) ASC, 
-                        t.traverse DESC, 
-                        t.quality_rating DESC, 
+                        t.quality_rating DESC,
+                        t.traverse DESC,  
                         t.duration ASC, 
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
@@ -555,7 +555,6 @@ const listWrapper = async (req, res) => {
                             t.state,
                             t.range_slug,
                             t.range,
-                            image_url,
                             SUM(1.0/(c2t.min_connection_no_of_transfers+1)) AS attract
                             FROM city2tour AS c2t 
                             INNER JOIN tour AS t 
@@ -564,7 +563,7 @@ const listWrapper = async (req, res) => {
                             ${new_search_where_city}
                             AND ${shortMonth}='true'
                             AND t.range_slug IS NOT NULL
-                            GROUP BY t.state, t.range_slug, t.range, image_url
+                            GROUP BY t.state, t.range_slug, t.range
                             ORDER BY SUM(1.0/(c2t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
                             LIMIT 10`
         
@@ -1228,29 +1227,6 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
 
     entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
-    // entry.gpx_image_file = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx.jpg`;
-
-    /*
-    let dir_go_up = "";
-    if(process.env.NODE_ENV == "production"){ 
-        dir_go_up = "../../"; 
-    }
-    else {
-        dir_go_up = "../../../";
-    }
-    let filePathSmall_old = path.join(__dirname, dir_go_up, "public/gpx-image/" + last_two_characters(entry.hashed_url) + "/" + entry.hashed_url + "_gpx_small.jpg")
-    let filePathSmall_new = path.join(__dirname, dir_go_up, "public/gpx-image/" + last_two_characters(entry.id) + "/" + entry.id + "_gpx_small.jpg")
-    
-    if (fs.existsSync(filePathSmall_new)){
-        entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.id)}/${entry.id}_gpx_small.jpg`;
-    }
-    else if (fs.existsSync(filePathSmall_old)){
-        entry.gpx_image_file_small = `${getHost(domain)}/public/gpx-image/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}_gpx_small.jpg`;
-    }
-    else {
-        entry.gpx_image_file_small = `${getHost(domain)}/app_static/img/train_placeholder.webp`;
-    }
-    */
 
     if(!!addDetails){
         try {
