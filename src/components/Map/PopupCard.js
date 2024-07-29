@@ -26,7 +26,7 @@ export default function PopupCard({tour}){
 
     console.log("tour ")
     console.log(tour )
-    
+
     const [image, setImage] = useState(DEFAULT_IMAGE);
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -265,7 +265,7 @@ export default function PopupCard({tour}){
                     <>
                         <span style={{ fontSize: "13px" }}>
                         {convertNumToTime(value_best_connection_duration/60, true)}
-                        </span>)
+                        </span>
                     </>
                     :
                     <div className='mt-2'>
