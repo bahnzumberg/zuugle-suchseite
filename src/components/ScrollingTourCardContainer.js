@@ -78,7 +78,7 @@ export default function ScrollingTourCardContainer({
       }}
     >
     {isLoading ? (
-      <p>Loading first set of tours...</p>
+      <><p>&nbsp;</p><p>&nbsp;</p></>
       ) : (
       <>
       {firstSet.map((tour) => (
