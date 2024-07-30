@@ -93,7 +93,7 @@ module.exports = {
 		new CopyWebpackPlugin({
 			patterns: [
 				{ from: "./public", to: "app_static" },
-				{ from: "src/icons/svg/provider", to: "app_static/icons/provider" },
+				{ from: "./src/icons/svg/provider", to: "app_static/icons/provider" },
 			],
 		}),
 		new MiniCssExtractPlugin({
