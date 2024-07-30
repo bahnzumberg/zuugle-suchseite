@@ -11,6 +11,7 @@ export default function ScrollingTourCardContainer({
   onSelectTour,
   loadTourConnections,
   city,
+  isLoading,
 }) {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -76,6 +77,10 @@ export default function ScrollingTourCardContainer({
         gap: "20px",
       }}
     >
+    {isLoading ? (
+      <div style={{height: "400px", width: "100%"}}></div>
+      ) : (
+      <>
       {firstSet.map((tour) => (
         <Card
           key={tour.id}
@@ -98,6 +103,8 @@ export default function ScrollingTourCardContainer({
         />
       ))}
       {renderFourth()}
+      </>
+    )}
     </Box>
   );
 }

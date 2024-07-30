@@ -100,6 +100,11 @@ module.exports = {
 			filename: 'index-it.html',
 			template: './public/index-it.html',
 		}),
+		new HtmlWebpackPlugin({
+			inject: true,
+			filename: 'index-li.html',
+			template: './public/index-li.html',
+		}),
 		new CopyWebpackPlugin({
 			patterns: [{ from: './public', to: 'app_static' }],
 		}),

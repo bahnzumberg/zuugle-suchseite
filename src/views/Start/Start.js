@@ -16,22 +16,16 @@ import { connect } from "react-redux";
 import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router";
-import FooterLinks from "../../components/Footer/FooterLinks";
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import {
   getPageHeader,
   getTranslatedCountryName,
-  listAllCityLinks,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
-const RangeCardContainer = lazy(() =>
-  import("../../components/RangeCardContainer")
-);
-const ScrollingTourCardContainer = lazy(() =>
-  import("../../components/ScrollingTourCardContainer")
-);
+const RangeCardContainer = lazy(() => import("../../components/RangeCardContainer"));
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
+const ScrollingTourCardContainer = lazy(() => import("../../components/ScrollingTourCardContainer"));
 
 function Start({
   loadFavouriteTours,
@@ -49,14 +43,12 @@ function Start({
   allCities,
   totalProvider,
   loadRanges,
-  allRanges,
-  noDataAvailable,
   noToursAvailable,
-  error,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { t } = useTranslation();
   const abortController = new AbortController();
@@ -102,8 +94,10 @@ function Start({
           },
           requestConfig
         );
+        setIsLoading(false);
       } catch (error) {
           console.error("Error loading data");
+          setIsLoading(false);
       }
     };
 
@@ -151,10 +145,12 @@ function Start({
     }
   };
 
+
   const getRangeText = () => {
     if (!!_city && _city.length > 0) {
       return t("start.schoene_wanderungen_nahe");
-    } else {
+    } 
+    else {
       return t("start.schoene_wanderungen");
     }
   };
@@ -235,6 +231,8 @@ function Start({
                 onSelectTour={onSelectTour}
                 loadTourConnections={loadTourConnections}
                 city={searchParams.get("city")}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
               />
             </Box>
 
@@ -255,7 +253,7 @@ function Start({
               />
             </Box>
 
-            {/* <Box sx={{ marginTop: "20px" }}>
+            <Box sx={{ marginTop: "80px" }}>
               <KPIContainer
                 totalTours={totalTours}
                 totalConnections={totalConnections}
@@ -264,7 +262,7 @@ function Start({
                 city={searchParams.get("city")}
                 totalProvider={totalProvider}
               />
-            </Box> */}
+            </Box>
           </Box>
         )}
 

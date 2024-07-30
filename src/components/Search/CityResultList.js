@@ -17,42 +17,13 @@ export function CityResultList({
   setCityInput,
   onFocusCity,
   isCityLoading,
-  loadRegions,
   loadFavouriteTours,
-  setOpenCitySearch,
   searchParams,
   setSearchParams,
   showNotFoundEntry = true,
   onSelect,
 }) {
-  const [sliceCities, setSliceCities] = useState(true);
 
-
-  const generateLinkEntry = (url, linkText, label) => {
-    return (
-      <ListItem
-        onMouseDown={() => {
-          window.location.href = url;
-        }} //sets up a redirect to the specified URL when the mouse button is pressed down on the ListItem.
-        sx={{ borderBottom: "1px solid #ECECEC" }}
-        className={"cursor-link"}
-        secondaryAction={
-          <IconButton
-            edge="end"
-            aria-label="go"
-            onMouseDown={() => {
-              window.location.href = url;
-            }}
-          >
-            <Typography>{linkText}</Typography>
-            <ChevronRightLight />
-          </IconButton>
-        }
-      >
-        <ListItemText primary={label} />
-      </ListItem>
-    );
-  };
 
   const notFoundEntry = () => {
     return (
@@ -104,9 +75,6 @@ export function CityResultList({
 
               searchParams.set("city", _city.value);
               setSearchParams(searchParams);
-
-              //load regions initially
-              loadRegions({ city: _city.value });
 
               //wenn startseite lade touren
               if (!!_city && !!_city.value) {

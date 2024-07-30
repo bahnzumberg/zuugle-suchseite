@@ -19,24 +19,18 @@ export default function KPIContainer({totalTours, totalConnections, totalRanges,
 
     return  <Paper sx={{
         bgcolor: 'primary.main',
-        borderRadius: '24px'
+        borderRadius: '24px',
+        width: '68vw',
+        margin: "auto"
     }}>
         <Box className={"kpi-container"} sx={{textAlign: "center"}}>
-            <Box sx={{maxWidth: '800px', marginLeft: "auto", marginRight: "auto"}}>
-                <Typography variant={"subtitle1"} color={"#FFFFFF"}>Zuugle</Typography>
-                    <Typography variant={"h3"} sx={{marginTop: "20px"}}>
-                        {t('start.ziel_von_zuugle')} 
-                    </Typography>
+            <Box sx={{ marginLeft: "auto", marginRight: "auto"}}>
+                <Typography variant={"h3"} sx={{marginTop: "20px"}}>
+                    {t('start.ziel_von_zuugle')} 
+                </Typography>
                 <Box sx={{textAlign: "center", marginTop: "20px"}}>
-                        <Typography variant={"text"} color={"#FFFFFF"}> {t('start.weil_es_braucht_kein_auto')} </Typography>
+                    <Typography variant={"text"} color={"#FFFFFF"}> {t('start.weil_es_braucht_kein_auto')} </Typography>
                 </Box>
-                    <Button variant={"contained"} onClick={goto} className={"button-tour-planen"} sx={{marginTop: "20px", color: "main.primary"}} color={"white"}>
-                        {t('start.jetzt_oeffitour_suchen')}
-                    </Button>
-            </Box>
-
-            <Box sx={{height: '1px', backgroundColor: '#6AA6FF', marginTop: '50px'}}>
-
             </Box>
 
             <Box sx={{marginTop: '50px'}}>

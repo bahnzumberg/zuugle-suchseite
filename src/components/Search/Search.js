@@ -8,7 +8,6 @@ import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
-import { loadRegions } from "../../actions/regionActions";
 import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
@@ -27,12 +26,9 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
-import { countFilterActive } from "../../utils/globals"
-import { CircularProgress } from "@mui/material";
 
 
 export function Search({
-  loadRegions,
   loadTours,
   goto,
   page,
@@ -49,12 +45,6 @@ export function Search({
   setFilterValues, 
   filterValues,
   mapBounds
-  // showMobileMenu, setShowMobileMenu,
-  // loadCities,
-  // cities,
-  // regions,
-  // isCityLoading,
-  // loadFavouriteTours,
 }) {
 
 
@@ -64,6 +54,8 @@ export function Search({
   const { t } = useTranslation();
   let language = i18next.resolvedLanguage;
 
+  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
   const [cityInput, setCityInput] = useState("");
@@ -71,38 +63,26 @@ export function Search({
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
-  const {cityOne,idOne} = useParams()
+  const {cityOne, idOne} = useParams()
   const [city, setCity] = useState({
     label: cityParam,
     value: cityParam,
   });
 
+  
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false)
   const [scrollToTop, setScrollToTop] = useState(false);
 
-  const markers = useSelector((state) => state.tours.markers);
   const isMasterMarkersSet = useRef(false);
 
-  const getFilterCount = ()=>{
-    let filterCountLocal = !!localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
-
-    return filterCountLocal;
-  }
-
   useEffect(() => {
-    let _filterCountLocal = !!localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
-
-    !!_filterCountLocal && _filterCountLocal > 0
-      ? setActiveFilter(true)
-      : setActiveFilter(false);
-    
-  });
+    if ( getTopLevelDomain() == 'li') { 
+      setCityInput('vaduz');
+      setCity({label:'Vaduz', value:'vaduz'});
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollToTop) {
@@ -147,9 +127,6 @@ export function Search({
         setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
         setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
         writeCityToLocalStorage(city); // store the city NAME in local storage
-
-        /** load regions initially */
-        loadRegions({ city: city });
       }
     }
 
@@ -639,7 +616,6 @@ export function Search({
 
 const mapDispatchToProps = {
   loadCities,
-  loadRegions,
   loadTours,
   loadFavouriteTours,
   showModal,
@@ -652,9 +628,7 @@ const mapStateToProps = (state) => {
     cities: state.cities.cities,
     allCities: state.cities.all_cities,
     filter: state.tours.filter,
-    regions: state.regions.regions,
     isCityLoading: state.cities.loading,
-    isRegionLoading: state.regions.loading,
   };
 };
 

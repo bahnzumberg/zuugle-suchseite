@@ -201,6 +201,7 @@ export default function PopupCard({tour}){
 
     let value_best_connection_duration = tour.min_connection_duration;
     let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
+
       
     
       return (
@@ -260,7 +261,7 @@ export default function PopupCard({tour}){
                     <>
                         <span style={{ fontSize: "13px" }}>
                         {convertNumToTime(value_best_connection_duration/60, true)}
-                        </span>)
+                        </span>
                     </>
                     :
                     <div className='mt-2'>

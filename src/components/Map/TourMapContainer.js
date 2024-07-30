@@ -173,14 +173,16 @@ function TourMapContainer({
   // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
   }, [mapBounds]);  
 
-  // useEffect(() => {
-  //   if (activeMarkerRef.current && mapRef.current) {
-  //     const { lat, lon } = activeMarkerRef.current;
-  //     mapRef.current.setView([lat, lon], 15); 
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [activeMarkerRef.current]);
-
+  /*
+  useEffect(() => {
+    if (activeMarkerRef.current && mapRef.current) {
+      const { lat, lon } = activeMarkerRef.current;
+      mapRef.current.setView([lat, lon], 15); 
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMarkerRef.current]);
+  */
+ 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
 
@@ -251,84 +253,72 @@ function TourMapContainer({
     }
   };
 
-  const handleGpxTrack = useCallback(
-    async (url) => {
-      if (!!url) {
-        try {
-          const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-          const res = await loadGpxFunction(dispatch); // Execute the inner function with dispatch
-          if (!!res && !!res.data) {
-            let gpx = new gpxParser(); //Create gpxParser Object
-            gpx.parse(res.data);
-            if (gpx.tracks.length > 0) {
-              let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-
-              setGpxTrack(track);
-            }
+  const handleGpxTrack = async (url) => {
+    if (!!url) {
+      try {
+        const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+          
+            setGpxTrack(track);
           }
-        } catch (error) {
-          console.error("Error loading GPX:", error);
-          setGpxTrack([]);
         }
-      } else {
+      } catch (error) {
+        console.error("Error loading GPX:", error);
         setGpxTrack([]);
       }
-    },
-    [dispatch]
-  );
-  
+    } else {
+      setGpxTrack([]);
+    }
+  };
 
-  const handleTotourGpxTrack = useCallback(
-    async (url) => {
-      if (!!url) {
-        try {
-          const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-          const res = await loadTotourGpxFunction(dispatch); // Execute the inner function with dispatch
-          if (!!res && !!res.data) {
-            let gpx = new gpxParser(); //Create gpxParser Object
-            gpx.parse(res.data);
-            if (gpx.tracks.length > 0) {
-              let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-              setTotourGpxTrack(track);
-            }
+  const handleTotourGpxTrack = async (url) => {
+    if (!!url) {
+      try {
+        const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadTotourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            setTotourGpxTrack(track);
           }
-        } catch (error) {
-          console.error("Error loading GPX:", error);
-          setTotourGpxTrack([]);
         }
-      } else {
-        setTotourGpxTrack([]);
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
       }
-    },
-    [dispatch, setTotourGpxTrack],
-  )
-  
+    } else {
+      setGpxTrack([]);
+    }
+  };
 
-  const handleFromtourGpxTrack = useCallback(
-    async (url) => {
-      if (!!url) {
-        try {
-          const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-          const res = await loadFromtourGpxFunction(dispatch); // Execute the inner function with dispatch
-          if (!!res && !!res.data) {
-            let gpx = new gpxParser(); //Create gpxParser Object
-            gpx.parse(res.data);
-            if (gpx.tracks.length > 0) {
-              let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-              setFromtourGpxTrack(track);
-            }
+  const handleFromtourGpxTrack = async (url) => {
+    if (!!url) {
+      try {
+        const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
+        const res = await loadFromtourGpxFunction(dispatch); // Execute the inner function with dispatch
+        if (!!res && !!res.data) {
+          let gpx = new gpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            setFromtourGpxTrack(track);
           }
-        } catch (error) {
-          console.error("Error loading GPX:", error);
-          setFromtourGpxTrack([]);
         }
-      } else {
-        setFromtourGpxTrack([]);
+      } catch (error) {
+        console.error("Error loading GPX:", error);
+        setGpxTrack([]);
       }
-    },
-    [dispatch],
-  )
-  ;
+    } else {
+      setGpxTrack([]);
+    }
+  }; 
 
   const handleMarkerClick = useCallback(
     async (e, tourId) => {

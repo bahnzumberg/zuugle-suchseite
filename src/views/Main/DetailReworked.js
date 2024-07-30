@@ -136,7 +136,6 @@ const DetailReworked = (props) => {
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
-    // if ( getTopLevelDomain() == 'li') { city = 'vaduz' }
     navigate(`/?${!!city ? "city=" + city : ""}`);
   };
 
