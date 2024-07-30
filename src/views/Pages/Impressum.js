@@ -2,11 +2,12 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
-import { getImpressumLabels } from "../../translations/translation.labels";
+import { useTranslation } from "react-i18next";
 
 function Impressum({}) {
 	//Translation related
 	const ImpressumLabels = getImpressumLabels();
+	const {t} = useTranslation();
 	
 	React.useEffect(() => {
 		var _mtm = window._mtm = window._mtm || [];
@@ -20,7 +21,7 @@ function Impressum({}) {
 			<Box className={"start-body-container static-container"}>
 				<Box style={{ textAlign: "left" }}>
 					<Typography variant={"h5"}>
-						{ImpressumLabels.verantwortlich_fuer_inhalt}
+						{t('impressum.verantwortlich_fuer_inhalt')}
 					</Typography>
 					<Typography>
 						Bahn zum Berg – Verein zur Förderung der nachhaltigen Mobilität bei
@@ -35,7 +36,7 @@ function Impressum({}) {
 					</Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.spendenkonto}
+						{t('impressum.spendenkonto')}
 					</Typography>
 
 					<Typography>Bahn zum Berg</Typography>
@@ -43,7 +44,7 @@ function Impressum({}) {
 					<Typography>BIC: GIBAATWWXXX</Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.kontakt}{" "}
+						{t('impressum.kontakt')}{" "}
 					</Typography>
 
 					<Typography>
@@ -53,7 +54,7 @@ function Impressum({}) {
 					</Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.vereinsvorstand}
+						{t('impressum.vereinsvorstand')}
 					</Typography>
 
 					<Typography> Martin Heppner (Obmann)</Typography>
@@ -62,32 +63,32 @@ function Impressum({}) {
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
 						{" "}
-						{ImpressumLabels.ziel_und_ausrichtung}{" "}
+						{t('impressum.ziel_und_ausrichtung')}{" "}
 					</Typography>
 
 					<Typography>
-						{ImpressumLabels.non_profit_org1}
+						{t('impressum.non_profit_org1')}
 					</Typography>
 
 					<Typography sx={{ marginTop: "10px" }}>
-						{ImpressumLabels.non_profit_org2}
+						{t('impressum.non_profit_org2')}
 					</Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.haftung_inhalte}
+						{t('impressum.haftung_inhalte')}
 					</Typography>
-					<Typography> {ImpressumLabels.beschreibungen_fotos} </Typography>
+					<Typography> {t('impressum.beschreibungen_fotos')} </Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.haftung_fuer_links}
+						{t('impressum.haftung_fuer_links')}
 					</Typography>
-					<Typography> {ImpressumLabels.verknuepfung_links} </Typography>
+					<Typography> {t('impressum.verknuepfung_links')} </Typography>
 
 					<Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-						{ImpressumLabels.lizenzbedingungen}
+						{t('impressum.lizenzbedingungen')}
 					</Typography>
 					<Typography>
-						{ImpressumLabels.anfuehrung_quellen}
+						{t('impressum.anfuehrung_quellen')}
 						<a
 							href={
 								"https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"
