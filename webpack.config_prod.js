@@ -106,7 +106,10 @@ module.exports = {
 			template: './public/index-li.html',
 		}),
 		new CopyWebpackPlugin({
-			patterns: [{ from: './public', to: 'app_static' }],
+			patterns: [
+				{ from: "./public", to: "app_static" },
+				{ from: "./src/icons/svg/provider", to: "app_static/icons/provider" },
+			],
 		}),
 		new MiniCssExtractPlugin({
 			filename: './app_static/[name].styles.css',
