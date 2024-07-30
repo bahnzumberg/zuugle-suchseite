@@ -1,6 +1,6 @@
 import * as React from 'react';
-// import {ReactComponent as BahnZumBergLogo} from './svg/provider/logo_bzb.svg';
-import {ReactComponent as BahnZumBergLogo} from '../../app_static/icons/provider/logo_bzb.svg';
+import {ReactComponent as BahnZumBergLogo} from './svg/provider/logo_bzb.svg';
+// import {ReactComponent as BahnZumBergLogo} from '../../app_static/icons/provider/logo_bzb.svg';
 import {ReactComponent as AlpenvereinAktivLogo} from './svg/provider/logo_alpenvereinaktiv.svg';
 import {ReactComponent as BergfexLogo} from './svg/provider/logo_bergfex.svg';
 import {ReactComponent as HoehenrauschLogo} from './svg/provider/logo_hoehenrausch.svg';
