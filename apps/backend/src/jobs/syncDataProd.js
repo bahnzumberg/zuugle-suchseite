@@ -67,10 +67,10 @@ while (!breakTheLoop) {
     breakTheLoop = true;
 
     // 1. Check: 
-    const countTourCrunchy = countCrunchyTours();
-    const countTourZuugle  = countTourZuugle();
+    const _countTourCrunchy = countCrunchyTours();
+    const _countTourZuugle  = countTourZuugle();
 
-    if (countTourCrunchy != countTourZuugle) {
+    if (_countTourCrunchy != _countTourZuugle) {
         // The table tour is always truncated. So we do not have to change anything here.
         console.log(moment().format('YYYY.MM.DD HH:mm:ss'), ' CHECK table tour NOK. Starting an new loop');
         breakTheLoop = false;
