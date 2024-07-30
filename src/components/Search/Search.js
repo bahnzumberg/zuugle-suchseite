@@ -189,10 +189,8 @@ export function Search({
       };
     }
     // flag active filter if count > 0
-
-    let _filterCountLocal = getFilterCount();
-
-    !!_filterCountLocal && setActiveFilter(_filterCountLocal > 0);
+    !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
+    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
      
     const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
 
