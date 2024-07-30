@@ -931,7 +931,7 @@ export async function syncTours(){
 
     const modulo = Math.ceil( count / limit, 0 );
 
-    for (let i=0; i<modulo; i++) {
+    for (let i=59; i<modulo; i++) {
     // while((counter *  limit) <= count){
         const query = knexTourenDb.raw(`SELECT
                                         t.id,
@@ -966,7 +966,7 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        t.full_text,
+                                        REPLACE(CONVERT(t.full_text USING utf8), '\0', ' 0') as full_text,
                                         t.quality_rating,
                                         t.user_rating_avg,
                                         t.difficulty_orig,
@@ -978,8 +978,6 @@ export async function syncTours(){
                                         t.maxele
                                         from vw_touren_to_search as t
                                         WHERE t.id % ${modulo} = ${i};`);
-                                        
-                                        // from vw_touren_to_search as t limit ${limit} offset ${offset};`);
 
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
@@ -1160,12 +1158,18 @@ const bulk_insert_tours = async (entries) => {
         }
         entry.gpx_data = JSON.stringify(gpxData);
 
+        let _title = entry.title;
+        _title = _title.replace(/[\u{0080}-\u{FFFF}]/gu, "");
+        let _description = entry.description;
+        _description = _description.replace(/[\u{0080}-\u{FFFF}]/gu, "");
+        
+
         queries.push({
             id: entry.id,
             url: entry.url,
             provider: entry.provider,
             hashed_url: entry.hashed_url,
-            description: entry.description,
+            description: _description,
             image_url: entry.image_url,
             ascent: entry.ascent,
             descent: entry.descent,
@@ -1173,7 +1177,7 @@ const bulk_insert_tours = async (entries) => {
             difficulty_orig: entry.difficulty_orig,
             duration: entry.duration,
             distance: entry.distance,
-            title: entry.title,
+            title: _title,
             type: entry.typ,
             country: entry.country,
             state: entry.state,
