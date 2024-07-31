@@ -1229,14 +1229,14 @@ ul.about-bullets {
 
 .custom-marker-cluster {
   background: #4992ff;
-  border: 10px solid #4992ff;
+  border: 20px solid #4992ff;
   border-radius: 50%;
   color: #fff;
-  height: 33px;
-  line-height: 32px;
+  height: 40px;
+  line-height: 40px;
   text-align: center;
-  width: 33px;
-  font-weight: bold;
+  width: 40px;
+  font-weight: 800;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
   font-size: 15px;

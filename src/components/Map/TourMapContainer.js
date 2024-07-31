@@ -361,17 +361,19 @@ function TourMapContainer({
 
     // Calculate icon size based on formatted count length
     const iconSize = L.point(
-      Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
-      Math.max(33, formattedCount.length * 10 + 5), // Minimum 33px, adjust padding
+      Math.max(40, formattedCount.length * 10 + 10), // Minimum 33px, adjust padding
+      Math.max(40, formattedCount.length * 10 + 10), // Minimum 33px, adjust padding
       true // Anchor point flag :  center the icon on the cluster center position
     );
-
+    // console.log("L368 iconSize used for cluster:", iconSize)
     return L.divIcon({
       html: `<span style='display: flex; justify-content: center; align-items: center; height: 100%;'>${formattedCount}</span>`,
       className: "custom-marker-cluster",
       iconSize: iconSize,
     });
   };
+
+  
 
   const MyComponent = () => {
     const map = useMapEvents({
@@ -489,9 +491,7 @@ function TourMapContainer({
           { !!activeMarkerRef.current && selectedTour && mapInitialized && (
             <Popup
               key={`popup_${activeMarkerRef.current.id}`}
-              // minWidth={350}
               maxWidth={280}
-              // minHeight={300}
               maxHeight={210}
               className="request-popup"
               offset={L.point([0, -25])}
@@ -526,7 +526,6 @@ function TourMapContainer({
                   weight: 6, 
                   color: "#FF7663",
                   opacity: 1,
-                  // opacity: !!totourGpxTrack ? 0.5 : 1,
                   lineCap: 'square',
                   dashArray: '5,10',
                   dashOffset: '0' 
