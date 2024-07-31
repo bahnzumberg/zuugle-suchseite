@@ -931,8 +931,7 @@ export async function syncTours(){
 
     const modulo = Math.ceil( count / limit, 0 );
 
-    for (let i=59; i<modulo; i++) {
-    // while((counter *  limit) <= count){
+    for (let i=0; i<modulo; i++) {
         const query = knexTourenDb.raw(`SELECT
                                         t.id,
                                         t.url,
