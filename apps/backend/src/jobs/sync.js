@@ -966,7 +966,7 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        REPLACE(CONVERT(t.full_text USING utf8), '\0', ' 0') as full_text,
+                                        REPLACE(t.full_text, '\0', ' 0') as full_text,
                                         t.quality_rating,
                                         t.user_rating_avg,
                                         t.difficulty_orig,
