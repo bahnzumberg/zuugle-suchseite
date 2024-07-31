@@ -60,7 +60,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <div className="App">
+        <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Suspense
             fallback={
               <div style={{ height: "100%", width: "100%", padding: "20px" }}>
