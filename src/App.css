@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+html, body, #root, .App {
+  height: 100%;
+}
+
 html, body {
   overflow-x: hidden;
 }
@@ -14,9 +18,7 @@ body * {
   text-rendering: optimizeLegibility !important;
 }
 
-html, body, #root, .App {
-  height: 100%;
-}
+
 
 .App {
   text-align: center;
