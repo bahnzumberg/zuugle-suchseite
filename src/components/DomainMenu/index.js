@@ -485,6 +485,7 @@ const secondMenu = [
 						color: "#FFF",
 						lineHeight: "21px",
 						marginLeft: "5px",
+						whiteSpace: "nowrap",
 					}}
 				>
 					{getDomainText()}
