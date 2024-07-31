@@ -937,7 +937,7 @@ export async function syncTours(){
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
-                                        t.description,
+                                        REPLACE(t.description, '\0', ' 0') as description,
                                         t.country,
                                         t.state,
                                         t.range_slug,
@@ -948,7 +948,7 @@ export async function syncTours(){
                                         t.difficulty,
                                         t.duration,
                                         t.distance,
-                                        t.title,
+                                        REPLACE(t.title, '\0', ' 0') as title,
                                         t.typ,
                                         t.number_of_days,
                                         t.traverse,
@@ -1157,18 +1157,12 @@ const bulk_insert_tours = async (entries) => {
         }
         entry.gpx_data = JSON.stringify(gpxData);
 
-        let _title = entry.title;
-        _title = _title.replace(/[\u{0080}-\u{FFFF}]/gu, "");
-        let _description = entry.description;
-        _description = _description.replace(/[\u{0080}-\u{FFFF}]/gu, "");
-        
-
         queries.push({
             id: entry.id,
             url: entry.url,
             provider: entry.provider,
             hashed_url: entry.hashed_url,
-            description: _description,
+            description: entry.description,
             image_url: entry.image_url,
             ascent: entry.ascent,
             descent: entry.descent,
@@ -1176,7 +1170,7 @@ const bulk_insert_tours = async (entries) => {
             difficulty_orig: entry.difficulty_orig,
             duration: entry.duration,
             distance: entry.distance,
-            title: _title,
+            title: entry.title,
             type: entry.typ,
             country: entry.country,
             state: entry.state,
