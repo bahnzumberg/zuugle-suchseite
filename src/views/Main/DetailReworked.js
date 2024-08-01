@@ -827,7 +827,9 @@ useEffect(() => {
                           onError={() => {
                             setRenderImage(false);
                           }}
+                          alt="tour"
                         />
+
                       </div>
                     </Box>
                   )}
@@ -852,6 +854,7 @@ useEffect(() => {
                         onError={() => {
                           setRenderImage(false);
                         }}
+                        alt="tour"
                       />
                     </div>
                   </Box>

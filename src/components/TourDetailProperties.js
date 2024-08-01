@@ -28,35 +28,74 @@ const TourDetailProperties = ({tour}) => {
         return translatedType;
     };
 
-    return <>
-        {tour && <div className="tour-detail-properties">
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t('main.sportart')} {" "} </Typography>
-                <Typography variant={"h5alt"}>{tour && translateTourType(tour.type)}</Typography>
+    return (
+      <>
+        {tour && (
+          <div className="tour-detail-properties">
+            <div className="tour-detail-row">
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>
+                  {t("main.sportart")}{" "}
+                </Typography>
+                <Typography variant={"h5alt"}>
+                  {tour && translateTourType(tour.type)}
+                </Typography>
+              </div>
+              <div className="vertical-separator"></div>
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>{t("main.dauer")} </Typography>
+                <Typography variant={"h5alt"}>
+                  {tour?.number_of_days > 1
+                    ? tour?.number_of_days + " " + t("details.tage")
+                    : convertNumToTime(tour?.total_tour_duration, true)}
+                </Typography>
+              </div>
             </div>
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t("main.dauer")} {" "}</Typography>
-                <Typography
-                    variant={"h5alt"}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(tour?.total_tour_duration, true)}</Typography>
+            <div className="horizontal-separator"></div>
+            <div className="tour-detail-row">
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>
+                  {t("main.distanz")}{" "}
+                </Typography>
+                <Typography variant={"h5alt"}>
+                  {formatNumber(tour?.distance) + " " + km}
+                </Typography>
+              </div>
+              <div className="vertical-separator"></div>
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>
+                  {" "}
+                  {t("main.maximale_hoehe")}{" "}
+                </Typography>
+                <Typography variant={"h5alt"}>
+                  {tour?.max_ele ? formatNumber(tour.max_ele) + " " + m : "-"}
+                </Typography>
+              </div>
             </div>
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t('main.distanz')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.distance) + ' ' + km }</Typography>
+            <div className="horizontal-separator"></div>
+            <div className="tour-detail-row">
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>
+                  {t("main.aufstieg")}{" "}
+                </Typography>
+                <Typography variant={"h5alt"}>
+                  {formatNumber(tour?.ascent, " " + hm)}
+                </Typography>
+              </div>
+              <div className="vertical-separator"></div>
+              <div className="tour-detail-properties-el">
+                <Typography variant={"infoKey"}>
+                  {t("main.abstieg")}{" "}
+                </Typography>
+                <Typography variant={"h5alt"}>
+                  {formatNumber(tour?.descent, " " + hm)}
+                </Typography>
+              </div>
             </div>
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}> {t('main.maximale_hoehe')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{tour?.max_ele ? formatNumber(tour.max_ele) + ' ' + m : "-"}</Typography>
-            </div>
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t('main.aufstieg')} {" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.ascent, ' ' + hm)}</Typography>
-            </div>
-            <div className="tour-detail-properties-el">
-                <Typography variant={"infoKey"}>{t('main.abstieg')}{" "}</Typography>
-                <Typography variant={"h5alt"}>{formatNumber(tour?.descent, ' ' + hm)}</Typography>
-            </div>
-        </div>}
-    </>;
+          </div>
+        )}
+      </>
+    );
 }
 
 export default TourDetailProperties;
