@@ -110,8 +110,8 @@ export const createImagesFromMap = async (ids) => {
                                 // console.log("filePath=", filePath)
                                 // console.log("filePathSmall=", filePathSmall)
                                 await sharp(filePath).resize({
-                                    width: 600,
-                                    height: 400,
+                                    width: 500,
+                                    height: 333,
                                     fit: "inside"
                                 }).jpeg({quality: 30}).toFile(filePathSmall);
                             }
@@ -121,7 +121,7 @@ export const createImagesFromMap = async (ids) => {
 
                             try {
                                 if (fs.existsSync(filePathSmall)){
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
