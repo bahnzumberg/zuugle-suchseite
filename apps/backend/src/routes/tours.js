@@ -1083,7 +1083,8 @@ const tourPdfWrapper = async (req, res) => {
     const id = req.params.id;
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
-    const connectionId = req.query.connection_id; logger("L1319 : connectionId :", connectionId)
+    const connectionId = req.query.connection_id; 
+    // logger("L1319 : connectionId :", connectionId)
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
@@ -1099,7 +1100,7 @@ const tourPdfWrapper = async (req, res) => {
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }
-    logger("L1343 , connection :")
+    // logger("L1343 , connection :")
     logger(connection)
     if(!!connectionReturnId){
         connectionReturn = await knex('fahrplan').select().where({id: connectionReturnId}).first();
