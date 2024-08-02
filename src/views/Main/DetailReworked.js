@@ -58,7 +58,6 @@ const DetailReworked = (props) => {
 
   const {
     loadTour,
-    loadTours,
     loadTourConnectionsExtended,
     loadGPX,
     loadTourGpx,
@@ -109,7 +108,9 @@ const DetailReworked = (props) => {
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false)
-  const {cityOne,idOne} = useParams()
+  const {cityOne,idOne} = useParams();
+
+  const validTour = !!tour && tour?.active ;
 
   // Translation-related
   const { t } = useTranslation();
@@ -239,7 +240,7 @@ useEffect(() => {
     // detail page --> city : amstetten
   
     //Redirects to according page when it is a share link
-    if (shareId !== null) {
+    if (shareId !== null && !!validTour) {
 
       setIsTourLoading(true);
 
@@ -291,7 +292,7 @@ useEffect(() => {
     }else{
     tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
   }
-    if (!!tourId) {
+    if (!!tourId && !!validTour) {
       setIsTourLoading(true);
       
       loadTour(tourId, city)
@@ -321,7 +322,7 @@ useEffect(() => {
           }
         });
     }
-    if (tourId && city && !connections) {
+    if (tourId && city && !connections && !!validTour) {
       setIsTourLoading(true);
    
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
@@ -344,7 +345,7 @@ useEffect(() => {
 
 
   useEffect(() => {
-    if (tour) {
+    if (tour && !!validTour) {
       // if (!tour.cities_object[searchParams.get("city")]) {
       // } else {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
@@ -357,7 +358,7 @@ useEffect(() => {
 
   useEffect(() => {
     let index = dateIndex;
-    if (connections) {
+    if (connections && !!validTour) {
       let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
       if (date.isValid()) {
         if (
@@ -384,47 +385,50 @@ useEffect(() => {
   }, [!!connections]);
 
   async function onDownload() {
-    const connectionDate = activeConnection?.date;
-    try {
-      const response = await loadTourPdf({
-        id: tour?.id,
-        connection_id: !!activeConnection?.connections[0]
-          ? activeConnection?.connections[0].id
-          : undefined,
-        connection_return_id: !!activeReturnConnection
-          ? activeReturnConnection.id
-          : undefined,
-        connection_return_ids: !!activeConnection.returns
-          ? activeConnection.returns.map((e) => e.id)
-          : [],
-        connectionDate,
-      });
-      if (response) {
-        let pdf = undefined;
-        if (!!response.data) {
-          response.data = JSON.parse(response.data);
-          if (!!response.data.pdf) {
-            pdf = response.data.pdf;
+    if(!!validTour) {
+      const connectionDate = activeConnection?.date;
+      try {
+        const response = await loadTourPdf({
+          id: tour?.id,
+          connection_id: !!activeConnection?.connections[0]
+            ? activeConnection?.connections[0].id
+            : undefined,
+          connection_return_id: !!activeReturnConnection
+            ? activeReturnConnection.id
+            : undefined,
+          connection_return_ids: !!activeConnection.returns
+            ? activeConnection.returns.map((e) => e.id)
+            : [],
+          connectionDate,
+        });
+        if (response) {
+          let pdf = undefined;
+          if (!!response.data) {
+            response.data = JSON.parse(response.data);
+            if (!!response.data.pdf) {
+              pdf = response.data.pdf;
+            }
+          } else if (!response.data || !response.data.pdf) {
+            console.log("no response");
           }
-        } else if (!response.data || !response.data.pdf) {
-          console.log("no response");
-        }
 
-        if (!!pdf) {
-          const fileName = response.data.fileName ? response.data.fileName : "";
-          const buf = Buffer.from(pdf, "base64");
-          fileDownload(buf, fileName, "application/pdf");
+          if (!!pdf) {
+            const fileName = response.data.fileName ? response.data.fileName : "";
+            const buf = Buffer.from(pdf, "base64");
+            fileDownload(buf, fileName, "application/pdf");
+          }
+        } else {
+          console.log("no response is returned");
         }
-      } else {
-        console.log("no response is returned");
+      } catch (error) {
+        console.log("error : ", error);
       }
-    } catch (error) {
-      console.log("error : ", error);
     }
   }
 
   const onDownloadGpx = () => {
     if (
+      !!validTour && 
       !!activeReturnConnection &&
       activeReturnConnection.fromtour_track_key &&
       !!activeConnection &&
@@ -783,13 +787,17 @@ useEffect(() => {
                 sx={{ width: "100%", position: "relative" }}
                 className="tour-detail-map-container"
               >
-                <InteractiveMap
-                  gpxPositions={!!gpxPositions && gpxPositions}
-                  anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-                  abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-                  scrollWheelZoom={false}
-                  tourTitle={!!tour?.title && tour.title}
-                />
+                {
+                  !!validTour && (
+                    <InteractiveMap
+                      gpxPositions={!!gpxPositions && gpxPositions}
+                      anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                      abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                      scrollWheelZoom={false}
+                      tourTitle={!!tour?.title && tour.title}
+                    />
+                  )
+                }
               </Box>
               <div className="tour-detail-data-container">
                 <Box>
@@ -818,7 +826,7 @@ useEffect(() => {
                       <span className="tour-detail-provider-link">{tour?.url}</span>
                     </div>
                   </div>
-                  {renderImage && (
+                  {renderImage && validTour &&(
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
@@ -833,9 +841,13 @@ useEffect(() => {
                       </div>
                     </Box>
                   )}
-                  <Box className="tour-detail-conditional-desktop">
-                    {actionButtonPart}
-                  </Box>
+                  {
+                    validTour && (
+                      <Box className="tour-detail-conditional-desktop">
+                        {actionButtonPart}
+                      </Box>
+                    )
+                  }
                 </Box>
                 <Box className="tour-detail-itinerary-container">
                   <Itinerary
@@ -845,7 +857,7 @@ useEffect(() => {
                     tour={tour}
                   ></Itinerary>
                 </Box>
-                {renderImage && (
+                {renderImage && !!validTour && (
                   <Box className="tour-detail-conditional-mobile">
                     <Divider variant="middle" />
                     <div className="tour-detail-img-container">
@@ -860,9 +872,11 @@ useEffect(() => {
                   </Box>
                 )}
                 {
-                  <Box className="tour-detail-conditional-mobile">
+                  !!validTour && (
+                    <Box className="tour-detail-conditional-mobile">
                     {actionButtonPart}
                   </Box>
+                  )
                 }
               </div>
             </div>
