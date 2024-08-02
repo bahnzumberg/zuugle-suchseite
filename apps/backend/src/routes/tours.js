@@ -90,19 +90,19 @@ const getWrapper = async (req, res) => {
     }
 
     try {
-        // let entry = await entryQuery;
         const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
                     descent, difficulty, difficulty_orig , duration, distance, title, type, 
                     number_of_days, traverse, country, state, range_slug, range, season, 
                     month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
                     min_connection_duration,
-                    min_connection_no_of_transfers
+                    min_connection_no_of_transfers,
+                    active
                     FROM ( 
                     SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
                     t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
                     t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
                     t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
-                    1 AS prio,
+                    1 AS active,
                     c2t.min_connection_duration,
                     c2t.min_connection_no_of_transfers
                     FROM tour as t 
@@ -117,11 +117,11 @@ const getWrapper = async (req, res) => {
                     t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
                     'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
                     null as cities_object, 0 as max_ele, 
-                    2 AS prio,
+                    0 AS active,
                     0 as min_connection_duration,
                     0 as min_connection_no_of_transfers
                     FROM tour_inactive as t WHERE t.id=${id}
-                    ORDER BY prio ASC LIMIT 1) as a`
+                    ORDER BY active DESC LIMIT 1) as a`
         let entry2 = await knex.raw(sql)
         let entry = entry2.rows[0]
 
@@ -1262,37 +1262,5 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     }
     return entry;
 }
-
-//************ TESTING AREA / BAUSTELLE **************/
-
-const mapWrapper = async (req, res) => {
-    // const tld = req.query.tld;
-  
-    // 1. pull all param values in FE and add it to req.query over there 
-    // 2. req.query or req.params which should be used ?
-    // 3. below in the knex call , let where be escaped and filters tours by coordinates see below
-  
-    // console.log("req.query is : ", req.query)
-    // console.log("req.query.filter is : ", req.query.filter);
-    let selects = ['id', 'connection_arrival_stop_lat','connection_arrival_stop_lon'];
-  
-    try {
-    //   await knex('tour')   //tour table
-    //       .select(selects)  
-    //       .count('* as count') // is it useful ? => Count all rows as 'count'
-    //     //   .where('country_code', tld) // see point 3 above
-    //     //   .groupBy('menu_lang')
-    //     //   .orderBy('count', 'desc') // Order by id ?
-    //     //   .limit(1);  // limit is what ? 10000 ?
-  
-  
-      res.status(200).json({ success: true , data_received : "yes sir !"});
-    } catch (error) {
-      console.error('Error retrieving map data:', error);
-      res.status(500).json({ success: false, error: 'Failed to retrieve map data' });
-    }
-  };
-  //************ END OF TESTING AREA **************/
-
 
 export default router;
