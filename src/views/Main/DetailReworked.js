@@ -823,7 +823,7 @@ useEffect(() => {
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
                         <img
-                          src={tour?.image_url && tour?.image_url.length > 0 }
+                          src={(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}
                           onError={() => {
                             setRenderImage(false);
                           }}
