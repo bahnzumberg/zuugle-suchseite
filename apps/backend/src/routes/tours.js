@@ -135,7 +135,6 @@ const getWrapper = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
-
 }
 
 const listWrapper = async (req, res) => {
@@ -1259,6 +1258,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
+
+        console.log("entry.active: ", entry.active)
     }
     return entry;
 }
