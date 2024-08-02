@@ -49,7 +49,7 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText, getTopLevelDomain } from "../../utils/globals";
+import { shortenText, getTopLevelDomain, parseFileName } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
