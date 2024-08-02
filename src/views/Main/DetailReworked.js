@@ -110,11 +110,6 @@ const DetailReworked = (props) => {
   const {cityOne,idOne} = useParams();
   const [validTour, setValidTour] = useState(true);
 
-  // const validTour = !!tour && tour?.active ;
-  console.log(tour)
-  // !!tour && !!tour.active ? console.log("L114 tour.active :", tour.active) : console.log("L114 : tour.active not available")
-  // !!tour && !!tour.provider ? console.log("L115 tour.provider :", tour.provider) : console.log("L115 : tour.provider not available")
-
   // Translation-related
   const { t } = useTranslation();
   const translateDiff = (diff) => {
@@ -826,12 +821,11 @@ useEffect(() => {
                     }}
                   >
                     <div className="tour-detail-provider-icon">
-                      {/* {console.log("L827 tour.provider :", tour.provider)} */}
-                      {/* <img
+                       {!!tour && <img
                         src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
                         alt={tour.provider_name}
                         style={{ borderRadius: "100%", height: "48px", width: "48px" }}
-                      /> */}
+                      /> }
                     </div>
                     <div className="tour-detail-provider-name-link">
                       <span className="tour-detail-provider-name">
