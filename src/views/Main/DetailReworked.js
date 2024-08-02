@@ -27,7 +27,6 @@ import fileDownload from "js-file-download";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
 import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
@@ -237,7 +236,7 @@ useEffect(() => {
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
      
-    const shareId = searchParams.get("share") ?? null;
+   const shareId = searchParams.get("share") ?? null;
    let city ;
    if(cityOne){
     city=cityOne
@@ -825,7 +824,11 @@ useEffect(() => {
                     }}
                   >
                     <div className="tour-detail-provider-icon">
-                      <ProviderLogo provider={tour?.provider} />
+                      <img
+                        src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+                        alt={tour.provider_name}
+                        style={{ borderRadius: "100%", height: "48px", width: "48px" }}
+                      />
                     </div>
                     <div className="tour-detail-provider-name-link">
                       <span className="tour-detail-provider-name">
