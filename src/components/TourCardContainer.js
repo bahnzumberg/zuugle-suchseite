@@ -9,6 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
 import { getTopLevelDomain } from "../utils/globals";
 
+
 export default function TourCardContainer({
   tours,
   onSelectTour,
