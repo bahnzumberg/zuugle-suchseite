@@ -111,7 +111,9 @@ const DetailReworked = (props) => {
   const [validTour, setValidTour] = useState(true);
 
   // const validTour = !!tour && tour?.active ;
-  !! tour?.active ? console.log("L114 tour.active :", tour.active) : console.log("L114 : tour.active not available")
+  console.log(tour)
+  !!tour?.active ? console.log("L114 tour.active :", tour.active) : console.log("L114 : tour.active not available")
+  !!tour?.provider ? console.log("L115 tour.provider :", tour.provider) : console.log("L115 : tour.provider not available")
 
   // Translation-related
   const { t } = useTranslation();
@@ -172,7 +174,7 @@ const DetailReworked = (props) => {
   }, [tour]);
 
 useEffect(() => {
-  if (!!tour && tour.provider) {
+  if (!!tour && tour?.provider) {
     setIsTourLoading(true);
 
     // API call to check the provider's permit
@@ -824,6 +826,7 @@ useEffect(() => {
                     }}
                   >
                     <div className="tour-detail-provider-icon">
+                      {console.log("L827 tour.provider :", tour.provider)}
                       <img
                         src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
                         alt={tour.provider_name}
