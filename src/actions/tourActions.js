@@ -34,7 +34,6 @@ export function loadTours(data = {}) {
     };
 }
 
-
 export function loadFilter(data = {}) {
 
   const language = i18next.resolvedLanguage;
@@ -68,7 +67,6 @@ export function loadTour(id, city) {
       { city: city }
     )
       .then((res) => {
-        console.log("loadTour res: ", res)
         return res;
       })
       .catch((error) => {
