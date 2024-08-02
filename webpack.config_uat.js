@@ -101,7 +101,7 @@ module.exports = {
 			attributes: {},
 		}),
 		new webpack.DefinePlugin({
-			"process.env.REACT_APP_API_URL": JSON.stringify("https://dev.zuugle.at/api"),
+			"process.env.REACT_APP_API_URL": JSON.stringify("https://www2.zuugle.at/api"),
 		}),
 	],
 };

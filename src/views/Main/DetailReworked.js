@@ -163,7 +163,6 @@ const DetailReworked = (props) => {
 
   useEffect(()=>{
     if(!!tour ){
-      // console.log("L166 tour.active :", tour.active)
       console.log("L166 tour :", tour)
       if(tour.valid_tour === 1) {
         setValidTour(true);
