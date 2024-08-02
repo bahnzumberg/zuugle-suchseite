@@ -85,7 +85,7 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
-            const chunkSize = 3;
+            const chunkSize = 5;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 const chunk = ids.slice(i, i + chunkSize);
                 await Promise.all(chunk.map(ch => new Promise(async resolve => {
@@ -98,7 +98,6 @@ export const createImagesFromMap = async (ids) => {
                     let filePathSmall = path.join(dirPath, ch+"_gpx_small.jpg");
 
                     if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
-                        console.log(moment().format('HH:mm:ss'), ` Calling createImageFromMap for tour.id=${ch} to create ${filePath}`);
                         let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
                         let hashed_url_query = await knex.raw(hashed_url_sql);
                         let hashed_url = hashed_url_query.rows[0].hashed_url;
@@ -121,7 +120,7 @@ export const createImagesFromMap = async (ids) => {
 
                             try {
                                 if (fs.existsSync(filePathSmall)){
-                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
