@@ -165,7 +165,7 @@ const DetailReworked = (props) => {
     if(!!tour ){
       // console.log("L166 tour.active :", tour.active)
       console.log("L166 tour :", tour)
-      if(tour.active === 1) {
+      if(tour.valid_tour === 1) {
         setValidTour(true);
         }else{
         setValidTour(false);
