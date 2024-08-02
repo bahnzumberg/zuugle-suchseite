@@ -96,13 +96,13 @@ const getWrapper = async (req, res) => {
                     month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
                     min_connection_duration,
                     min_connection_no_of_transfers,
-                    active
+                    valid_tour
                     FROM ( 
                     SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
                     t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
                     t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
                     t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
-                    1 AS active,
+                    1 AS valid_tour,
                     c2t.min_connection_duration,
                     c2t.min_connection_no_of_transfers
                     FROM tour as t 
@@ -117,11 +117,11 @@ const getWrapper = async (req, res) => {
                     t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
                     'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
                     null as cities_object, 0 as max_ele, 
-                    0 AS active,
+                    0 AS valid_tour,
                     0 as min_connection_duration,
                     0 as min_connection_no_of_transfers
                     FROM tour_inactive as t WHERE t.id=${id}
-                    ORDER BY active DESC LIMIT 1) as a`
+                    ORDER BY valid_tour DESC LIMIT 1) as a`
         let entry2 = await knex.raw(sql)
         let entry = entry2.rows[0]
 
