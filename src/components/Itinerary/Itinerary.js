@@ -38,7 +38,7 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour }) => {
             </>
           )
           :
-          <Typography variant={"h5alt"}>
+          <Typography variant={"infoKey"}>
              {t('Details.oeffi_fahrplan_inactive_tour')}
           </Typography>
         }
