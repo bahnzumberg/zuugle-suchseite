@@ -107,11 +107,11 @@ const DetailReworked = (props) => {
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
-  const[showModal, setShowModal] =useState(false)
+  const[showModal, setShowModal] =useState(false);
   const {cityOne,idOne} = useParams();
+  const [validTour, setValidTour] = useState(true);
 
   // const validTour = !!tour && tour?.active ;
-  const validTour = true ;
   !! tour?.active ? console.log("L114 tour.active :", tour.active) : console.log("L114 : tour.active not available")
 
   // Translation-related
@@ -165,6 +165,12 @@ const DetailReworked = (props) => {
 
   const [providerPermit, setProviderPermit] = useState(true);
 
+  useEffect(()=>{
+    if(!!tour && tour?.active){
+      setValidTour(tour.active);
+    }
+
+  }, [tour]);
 
 useEffect(() => {
   if (!!tour && tour.provider) {
@@ -828,6 +834,7 @@ useEffect(() => {
                       <span className="tour-detail-provider-link">{tour?.url}</span>
                     </div>
                   </div>
+                  {console.log("L837 validTour : ", validTour)}
                   {renderImage && validTour &&(
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
