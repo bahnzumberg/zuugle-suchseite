@@ -110,10 +110,10 @@ export const createImagesFromMap = async (ids) => {
                                 // console.log("filePath=", filePath)
                                 // console.log("filePathSmall=", filePathSmall)
                                 await sharp(filePath).resize({
-                                    width: 500,
-                                    height: 333,
+                                    width: 392,
+                                    height: 261,
                                     fit: "inside"
-                                }).jpeg({quality: 30}).toFile(filePathSmall);
+                                }).jpeg({quality: 40}).toFile(filePathSmall);
                             }
                             catch(e) {
                                 console.error("gpxUtils.sharp.resize error: ",e)
