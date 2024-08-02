@@ -110,7 +110,9 @@ const DetailReworked = (props) => {
   const[showModal, setShowModal] =useState(false)
   const {cityOne,idOne} = useParams();
 
-  let validTour = true ;
+  // const validTour = !!tour && tour?.active ;
+  const validTour = true ;
+  !! tour?.active ? console.log("L114 tour.active :", tour.active) : console.log("L114 : tour.active not available")
 
   // Translation-related
   const { t } = useTranslation();
