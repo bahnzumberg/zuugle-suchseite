@@ -74,7 +74,8 @@ export default function TourCardContainer({
         provider: provider,
         bounds: bounds, // bounds added
       }).then((res) => {
-
+        console.log("L77 , res.data.tours ")
+        console.log(res.data.tours)
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
