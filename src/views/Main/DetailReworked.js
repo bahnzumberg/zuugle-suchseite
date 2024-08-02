@@ -159,14 +159,27 @@ const DetailReworked = (props) => {
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
-  const [providerPermit, setProviderPermit] = useState(true);
+  const [providerPermit, setProviderPermit] = useState(false);
 
   useEffect(()=>{
-    if(!!tour && tour?.active){
-      setValidTour(tour.active);
+    if(!!tour ){
+      // console.log("L166 tour.active :", tour.active)
+      console.log("L166 tour :", tour)
+      if(tour.active === 1) {
+        setValidTour(true);
+        }else{
+        setValidTour(false);
+      }
     }
 
   }, [tour]);
+
+  useEffect(() => {
+    console.log("validTour ", validTour)
+  
+  
+  }, [validTour])
+  
 
 useEffect(() => {
   if (!!tour && tour?.provider) {
@@ -834,7 +847,7 @@ useEffect(() => {
                       <span className="tour-detail-provider-link">{tour?.url}</span>
                     </div>
                   </div>
-                  {console.log("L837 validTour : ", validTour)}
+                  {/* {console.log("L837 validTour : ", validTour)} */}
                   {renderImage && validTour &&(
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
