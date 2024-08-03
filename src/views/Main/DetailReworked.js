@@ -72,16 +72,18 @@ const DetailReworked = (props) => {
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
-    loadGPX(url).then((res) => {
-      if (!!res && !!res.data) {
-        let gpx = new GpxParser(); //Create gpxParser Object
-        gpx.parse(res.data);
-        if (gpx.tracks.length > 0) {
-          const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-          _function(positions);
+    if(!!validTour){
+      loadGPX(url).then((res) => {
+        if (!!res && !!res.data) {
+          let gpx = new GpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            _function(positions);
+          }
         }
-      }
-    });
+      });
+    }
   };
 
   const [connections, setConnections] = useState(null);
@@ -108,7 +110,7 @@ const DetailReworked = (props) => {
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false);
   const {cityOne,idOne} = useParams();
-  const [validTour, setValidTour] = useState(true);
+  const [validTour, setValidTour] = useState(false);
 
   // Translation-related
   const { t } = useTranslation();
@@ -175,8 +177,6 @@ const DetailReworked = (props) => {
 
   useEffect(() => {
     console.log("validTour ", validTour)
-  
-  
   }, [validTour])
   
 
@@ -198,7 +198,6 @@ useEffect(() => {
         if (data.allow_gpx_download === 'n') {
           setProviderPermit(false); // Set the state accordingly
           setIsTourLoading(false);
-
         }
       })
       .catch((error) => {
@@ -256,7 +255,7 @@ useEffect(() => {
     // detail page --> city : amstetten
   
     //Redirects to according page when it is a share link
-    if (shareId !== null && !!validTour) {
+    if (shareId !== null) {
 
       setIsTourLoading(true);
 
@@ -308,7 +307,7 @@ useEffect(() => {
     }else{
     tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
   }
-    if (!!tourId && !!validTour) {
+    if (!!tourId) {
       setIsTourLoading(true);
       
       loadTour(tourId, city)
@@ -357,13 +356,13 @@ useEffect(() => {
         setIsTourLoading(false);
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams,cityOne,idOne]);
 
 
   useEffect(() => {
     if (tour && !!validTour) {
-      // if (!tour.cities_object[searchParams.get("city")]) {
-      // } else {
+      console.log("L365 , both tour & validTour available -> setGPXrack")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -375,7 +374,7 @@ useEffect(() => {
   useEffect(() => {
     let index = dateIndex;
     if (connections && !!validTour) {
-      let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
+      let date = moment(searchParams.get("datum")); 
       if (date.isValid()) {
         if (
           moment(date).isBetween(
@@ -443,50 +442,52 @@ useEffect(() => {
   }
 
   const onDownloadGpx = () => {
-    if (
-      !!validTour && 
-      !!activeReturnConnection &&
-      activeReturnConnection.fromtour_track_key &&
-      !!activeConnection &&
-      !!activeConnection?.connections[0]?.totour_track_key
-    ) {
-      loadTourGpx({
-        id: tour.id,
-        key_anreise: activeConnection.connections[0].totour_track_key,
-        key_abreise: activeReturnConnection.fromtour_track_key,
-        type: "all",
-      }).then(
-        (res) => {
-          if (!!res && !!res.data) {
-            fileDownload(
-              res.data,
-              parseFileName(tour.title, "zuugle_", ".gpx")
-            );
+    if(!!validTour){
+      if (
+        !!activeReturnConnection &&
+        activeReturnConnection.fromtour_track_key &&
+        !!activeConnection &&
+        !!activeConnection?.connections[0]?.totour_track_key
+      ) {
+        loadTourGpx({
+          id: tour.id,
+          key_anreise: activeConnection.connections[0].totour_track_key,
+          key_abreise: activeReturnConnection.fromtour_track_key,
+          type: "all",
+        }).then(
+          (res) => {
+            if (!!res && !!res.data) {
+              fileDownload(
+                res.data,
+                parseFileName(tour.title, "zuugle_", ".gpx")
+              );
+            }
+          },
+          (err) => {
+            console.log("error: ", err);
           }
-        },
-        (err) => {
-          console.log("error: ", err);
-        }
-      );
-    } else {
-      loadTourGpx({ id: tour.id }).then(
-        (res) => {
-          if (!!res && !!res.data) {
-            fileDownload(
-              res.data,
-              parseFileName(tour.title, "zuugle_", ".gpx")
-            );
+        );
+      } else {
+        loadTourGpx({ id: tour.id }).then(
+          (res) => {
+            if (!!res && !!res.data) {
+              fileDownload(
+                res.data,
+                parseFileName(tour.title, "zuugle_", ".gpx")
+              );
+            }
+          },
+          (err) => {
+            console.log("error: ", err);
           }
-        },
-        (err) => {
-          console.log("error: ", err);
-        }
-      );
+        );
+      }
     }
   };
 
   const downloadButtonsDisabled = () => {
     return (
+      !!!validTour ||
       !!!tour ||
       !!!tour.gpx_file ||
       !!!activeConnection ||
@@ -695,99 +696,102 @@ useEffect(() => {
       ) : (
         <>
           <Box className="newHeader" sx={{ position: "relative" }}>
-          <Box component={"div"} className="rowing blueDiv">
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box component={"div"} className="rowing blueDiv">
+              {/* close tab /modal in case no return history available  ###### section */}
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                  onClick={handleCloseTab}
+                >
+                  <ArrowBefore
+                    style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                  />
+                </Box>
+                <Modal
+                  open={showModal}
+                  onClose={handleModalClose}
+                  aria-labelledby="modal-title"
+                  aria-describedby="modal-description"
+                >
+                  <Box 
+                    sx={{ 
+                      p: 4, 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                      borderRadius: '8px', 
+                      margin: 'auto', 
+                      mt: '20vh', 
+                      width: '300px',
+                      boxShadow: 24,
+                    }}
+                  >
+                    <Typography id="modal-title" variant="h6" component="h2">
+                      Unable to close tab
+                    </Typography>
+                    <Typography id="modal-description" sx={{ mt: 2 }}>
+                      Please close this tab manually.
+                    </Typography>
+                    <Box sx={{ textAlign: 'center', mt: 4 }}>
+                      <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+                        Okay
+                      </button>
+                    </Box>
+                  </Box>
+                </Modal>
+                <DomainMenu />
+              </Box>
+              {/* arrow close tab  ###### section */}
               <Box
                 sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                 onClick={handleCloseTab}
               >
-                <ArrowBefore
-                  style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                <Close
+                  style={{
+                    stroke: "#fff",
+                    fill: "#fff",
+                    width: "24px",
+                    height: "24px",
+                  }}
                 />
               </Box>
-              <Modal
-                open={showModal}
-                onClose={handleModalClose}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-              >
-                <Box 
-                  sx={{ 
-                    p: 4, 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    borderRadius: '8px', 
-                    margin: 'auto', 
-                    mt: '20vh', 
-                    width: '300px',
-                    boxShadow: 24,
+              {(!searchParams.get("city") && !cityOne) && (
+                <Box
+                  sx={{
+                    position: "fixed",
+                    right: 0,
+                    bottom: 0,
+                    top: 0,
+                    left: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    zIndex: "1300",
                   }}
-                >
-                  <Typography id="modal-title" variant="h6" component="h2">
-                    Unable to close tab
-                  </Typography>
-                  <Typography id="modal-description" sx={{ mt: 2 }}>
-                    Please close this tab manually.
-                  </Typography>
-                  <Box sx={{ textAlign: 'center', mt: 4 }}>
-                    <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                      Okay
-                    </button>
-                  </Box>
-                </Box>
-              </Modal>
-              <DomainMenu />
+                />
+              )}
             </Box>
+            {/* search bar ###### section */}
             <Box
-              sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-              onClick={handleCloseTab}
+              sx={{
+                backgroundColor: "#FFF",
+                position: "absolute",
+                bottom: "0",
+                transform: "translate(-50%, 50%)",
+                display: "inline-flex",
+                borderRadius: "20px",
+                padding: "12px 15px",
+                border: "2px solid #ddd",
+                width: "100%",
+                maxWidth: {
+                  xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
+                  md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
+                },
+                boxSizing: "border-box",
+                boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+                zIndex: "1300",
+              }}
             >
-              <Close
-                style={{
-                  stroke: "#fff",
-                  fill: "#fff",
-                  width: "24px",
-                  height: "24px",
-                }}
-              />
-            </Box>
-            {(!searchParams.get("city") && !cityOne) && (
-              <Box
-                sx={{
-                  position: "fixed",
-                  right: 0,
-                  bottom: 0,
-                  top: 0,
-                  left: 0,
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  zIndex: "1300",
-                }}
-              />
-            )}
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: "#FFF",
-              position: "absolute",
-              bottom: "0",
-              transform: "translate(-50%, 50%)",
-              display: "inline-flex",
-              borderRadius: "20px",
-              padding: "12px 15px",
-              border: "2px solid #ddd",
-              width: "100%",
-              maxWidth: {
-                xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
-                md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
-              },
-              boxSizing: "border-box",
-              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-              zIndex: "1300",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <SearchContainer pageKey="detail" goto={"/suche"} />
-            </Box>
-          </Box> 
+              <Box sx={{ width: "100%" }}>
+                <SearchContainer pageKey="detail" goto={"/suche"} />
+              </Box>
+            </Box> 
           </Box>
           <Box>
             <Box className="tour-detail-header">
@@ -799,22 +803,22 @@ useEffect(() => {
               </Box>
             </Box>
             <div>
-              <Box
-                sx={{ width: "100%", position: "relative" }}
-                className="tour-detail-map-container"
-              >
-                {
-                  !!validTour && (
-                    <InteractiveMap
-                      gpxPositions={!!gpxPositions && gpxPositions}
-                      anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-                      abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-                      scrollWheelZoom={false}
-                      tourTitle={!!tour?.title && tour.title}
-                    />
-                  )
-                }
-              </Box>
+              {
+                !!validTour && (
+                <Box
+                  sx={{ width: "100%", position: "relative" }}
+                  className="tour-detail-map-container"
+                >
+                      <InteractiveMap
+                        gpxPositions={!!gpxPositions && gpxPositions}
+                        anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                        abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                        scrollWheelZoom={false}
+                        tourTitle={!!tour?.title && tour.title}
+                      />
+                </Box>
+                )
+              }
               <div className="tour-detail-data-container">
                 <Box>
                   <TourDetailProperties tour={tour}></TourDetailProperties>
