@@ -1811,7 +1811,7 @@ top:250px; */
   display: grid;
   grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
   max-width: 706px; /* Max width */
-  margin: 0 ; 
+  margin: 0; 
   gap: 0; /* No gap between grid items */
   height: 100%;
 }
@@ -1827,52 +1827,35 @@ top:250px; */
   height: 100%; /* allow children elements to adjust heights */
 }
 
-
-
 /* Reset margins for Typography elements */
 .tour-detail-properties-el .MuiTypography-root {
   margin: 0;
   padding: 0;
 }
 
-/* Styles for small screens (max-width: 678px) */
-@media (max-width: 678px) {
-  .tour-detail-properties {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .tour-detail-row {
-    flex-direction: row;
-    justify-content: center; /* Center horizontally */
-  }
-
-  .tour-detail-properties-el {
-    align-items: center; /* Center text horizontally */
-    margin-bottom: 1rem; /* Add space below each item */
-  }
-
-}
-
 /* Styles for desktop (min-width: 679px) */
 @media (min-width: 679px) {
   .tour-detail-properties {
-    display: grid;
-    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
-    max-width: 706px; /* Max width */
-    margin: 0 ; 
-    gap: 0; /* No gap between grid items */
-  }
-
-  .tour-detail-row {
-    display: contents; /* Ensure rows are treated as part of the grid */
+    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* 3 columns with vertical dividers */
   }
 
   .tour-detail-properties-el {
-    margin-bottom: 0; /* Ensure no extra space below */
-    padding-left: 1rem
+    padding-left: 1rem;
   }
-
 
 }
 
+/* Styles for small screens (max-width: 678px) */
+@media (max-width: 678px) {
+  .tour-detail-properties {
+    grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
+    grid-template-rows: auto auto auto auto; /* 4 rows */
+  }
+
+  .tour-detail-properties-el {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  
+}
