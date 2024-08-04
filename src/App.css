@@ -1802,93 +1802,77 @@ top:250px; */
 
 /* For desktop and mobile detail property section of detail page */
 /* styles for both Desktop and mobile */
+
+/* ==================================== */
+/* ==================================== */
+
+/* Common styles */
 .tour-detail-properties {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
+  max-width: 706px; /* Max width */
+  margin: 0 ; 
+  gap: 0; /* No gap between grid items */
+  height: 100%;
 }
 
-.tour-detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  padding: 0.5rem 0;
-}
-
+/* Ensure consistent spacing and alignment within each cell */
 .tour-detail-properties-el {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start; 
-  flex: 1;
+  align-items: flex-start; /* Align text to the left */
+  padding: 0.5rem;
+  margin-bottom: 0; /* Ensure no extra space below */
+  height: 100%; /* allow children elements to adjust heights */
 }
 
-.vertical-separator {
-  width: 1px;
-  background: #DDDDDD;
-  position: absolute;
-  top: 0;
+
+
+/* Reset margins for Typography elements */
+.tour-detail-properties-el .MuiTypography-root {
+  margin: 0;
+  padding: 0;
 }
 
-.horizontal-separator {
-  height: 1px;
-  background: #DDDDDD;
-  margin: 0.25rem 0; 
-}
-
-/* Styles for small screens (max-width: 768px) */
-@media (max-width: 768px) {
+/* Styles for small screens (max-width: 678px) */
+@media (max-width: 678px) {
   .tour-detail-properties {
+    display: flex;
     flex-direction: column;
   }
 
   .tour-detail-row {
     flex-direction: row;
-    justify-content: center; 
-    position: relative;
+    justify-content: center; /* Center horizontally */
   }
 
   .tour-detail-properties-el {
-    align-items: center; 
+    align-items: center; /* Center text horizontally */
+    margin-bottom: 1rem; /* Add space below each item */
   }
 
-  .vertical-separator {
-    height: 100%; 
-    left: 50%; 
-    transform: translateX(-50%);
-  }
-
-  .horizontal-separator {
-    width: 80%; 
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 
-/* Styles for desktop (min-width: 769px) */
-@media (min-width: 769px) {
+/* Styles for desktop (min-width: 679px) */
+@media (min-width: 679px) {
   .tour-detail-properties {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    /* grid-template-rows: 1fr 1fr; */
+    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
+    max-width: 706px; /* Max width */
+    margin: 0 ; 
+    gap: 0; /* No gap between grid items */
   }
 
   .tour-detail-row {
-    flex-direction: column;
-    padding: 1rem 0;
-  }
-
-  .vertical-separator {
-    display: none;
-  }
-
-  .horizontal-separator {
-    display: none;
+    display: contents; /* Ensure rows are treated as part of the grid */
   }
 
   .tour-detail-properties-el {
-    justify-content: flex-start;
-    align-items: flex-start;
-    margin-left: 0;
+    margin-bottom: 0; /* Ensure no extra space below */
+    padding-left: 1rem
   }
+
+
 }
+
