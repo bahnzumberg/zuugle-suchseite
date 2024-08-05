@@ -23,8 +23,8 @@ router.get('/:shareId', (req, res) => getCorrespondingLinkWrapper(req, res));
 //
 const newShareWrapper = async (req, res) => {
     //Generating shareId for unique link
-    // const shareId = crypto.randomUUID();
-    const shareId = crypto.createHash('sha256')
+    const shareId = crypto.randomUUID();
+    // const shareId = crypto.createHash('sha256')
     try {
         //Use this code as well, if you don't want to generate a new link if one already exists
         /*const doesExist = await knex('disposible')
