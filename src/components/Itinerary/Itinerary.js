@@ -4,12 +4,13 @@ import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineCon
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
 
-const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour }) => {
+const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTour }) => {
 
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
-  const validTour = !!tour && tour?.active ;
+  // const validTour = !!tour && tour?.active ;
+  
 
 
   return (

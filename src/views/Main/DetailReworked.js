@@ -246,8 +246,9 @@ useEffect(() => {
 
   //Creating a new share link
   useEffect(() => {
+      const shareCity = cityOne ? cityOne : searchParams.get("city") ? searchParams.get("city") : localStorage.get('city') ;
       if (isShareGenerating === true) {
-          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), shareCity)
               .then(res => {
                   if (res.success === true){
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
@@ -268,6 +269,7 @@ useEffect(() => {
   useEffect(() => {
    const shareId = searchParams.get("share") ?? null;
    let city ;
+   console.log("L271 cityOne :", cityOne)
    if(cityOne){
     city=cityOne
    }else{
@@ -304,12 +306,10 @@ useEffect(() => {
 
             localStorage.setItem("tourId", res.tourId);
 
-            if(!!cityOne && !!idOne){
-              navigate(`/tour/${idOne}/${cityOne}`);
-            }else{
+           
               //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-              navigate(`/tour?${redirectSearchParams.toString()}`);
-            }
+            navigate(`/tour?${redirectSearchParams.toString()}`);
+            
        
           } else {
             setIsTourLoading(false);
@@ -363,7 +363,12 @@ useEffect(() => {
           }
         });
     }
-    if (tourId && city && !connections && !!validTour) {
+    console.log("L366 validTOUR", validTour)
+    console.log("L366 tourId", tourId)
+    console.log("L366 city", city)
+    console.log("L366 connections", connections)
+    if (tourId && city && !connections && validTour) {
+      console.log("L367 =====")
       setIsTourLoading(true);
    
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
@@ -383,12 +388,11 @@ useEffect(() => {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams,cityOne,idOne]);
+  }, [searchParams,cityOne,idOne, validTour]);
 
 
   useEffect(() => {
     if (tour && !!validTour) {
-      console.log("L365 , both tour & validTour available -> setGPXrack")
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -468,6 +472,7 @@ useEffect(() => {
   }
 
   const onDownloadGpx = () => {
+    console.log("L475 validTour :", validTour)
     if(!!validTour){
       if (
         !!activeReturnConnection &&
@@ -893,7 +898,7 @@ useEffect(() => {
                     </Box>
                   )}
                   {
-                    validTour && (
+                    (
                       <Box className="tour-detail-conditional-desktop">
                         {actionButtonPart}
                       </Box>
@@ -906,6 +911,7 @@ useEffect(() => {
                     dateIndex={dateIndex}
                     onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
                     tour={tour}
+                    validTour={validTour}
                   ></Itinerary>
                 </Box>
                 {renderImage && !!validTour && (
