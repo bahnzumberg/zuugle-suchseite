@@ -1,4 +1,13 @@
 /* @import '~material-design-icons/iconfont/material-icons.css' */
+* {
+  margin: 0;
+  padding: 0;
+  
+}
+
+body, #root, .App {
+  height: 100%;
+}
 
 html, body {
   overflow-x: hidden;
@@ -8,6 +17,8 @@ body * {
   -webkit-font-smoothing: subpixel-antialiased !important;
   text-rendering: optimizeLegibility !important;
 }
+
+
 
 .App {
   text-align: center;
@@ -1408,7 +1419,7 @@ ul.about-bullets {
 }
 
 .domainItem {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 15.4457px;
@@ -1786,4 +1797,65 @@ top:250px; */
   text-transform: uppercase;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
   line-height: 1.334;
+}
+
+
+/* For desktop and mobile detail property section of detail page */
+/* styles for both Desktop and mobile */
+
+/* ==================================== */
+/* ==================================== */
+
+/* Common styles */
+.tour-detail-properties {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
+  max-width: 706px; /* Max width */
+  margin: 0; 
+  gap: 0; /* No gap between grid items */
+  height: 100%;
+}
+
+/* Ensure consistent spacing and alignment within each cell */
+.tour-detail-properties-el {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* Align text to the left */
+  padding: 0.5rem;
+  margin-bottom: 0; /* Ensure no extra space below */
+  height: 100%; /* allow children elements to adjust heights */
+}
+
+/* Reset margins for Typography elements */
+.tour-detail-properties-el .MuiTypography-root {
+  margin: 0;
+  padding: 0;
+}
+
+/* Styles for desktop (min-width: 679px) */
+@media (min-width: 679px) {
+  .tour-detail-properties {
+    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* 3 columns with vertical dividers */
+  }
+
+  .tour-detail-properties-el {
+    padding-left: 1rem;
+  }
+
+}
+
+/* Styles for small screens (max-width: 678px) */
+@media (max-width: 678px) {
+  .tour-detail-properties {
+    grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
+    grid-template-rows: auto auto auto ; /* 3 rows */
+  }
+
+  .tour-detail-properties-el {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  
 }

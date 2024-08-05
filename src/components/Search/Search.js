@@ -12,7 +12,8 @@ import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
-  getTopLevelDomain
+  getTopLevelDomain,
+  titleCase
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -373,14 +374,16 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        hideModal();
-        if (!!city ) {
+        if(!!cityOne && !!idOne && pageKey==="detail"){
+          setCityInput(city.label);
+          setCity(city.value)
+          navigate(`tour/${idOne}/${city.value}`);
+        }else if (!!city ) {
           setCityInput(city.label);
           setCity(city);
           pageKey==="start" && updateCapCity(city.label);
-          // pageKey=="detail" && window.location.reload();
-
         }
+        hideModal();
       },
       
       setSearchParams,
@@ -484,7 +487,7 @@ export function Search({
                       textAlign: "left",
                       ml: "14px",
                       color: "#101010",
-                      fontFamily: "Open Sans",
+                      fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                       fontSize: { xs: "14px", sm: "15px" },
                       fontWeight: "500",
                       lineHeight: "20px",
@@ -538,7 +541,7 @@ export function Search({
                       sx={{
                         cursor: "pointer",
                         color: "#4992FF !important",
-                        fontFamily: "Open Sans",
+                        fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                         fontSize: { xs: "14px", sm: "15px" },
                         fontWeight: "700",
                         lineHeight: "20px",

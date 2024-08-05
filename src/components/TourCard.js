@@ -7,7 +7,6 @@ import {convertNumToTime} from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 import { Chip } from "@mui/material";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
@@ -15,18 +14,16 @@ const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 export default function TourCard({
   tour,
   onSelectTour,
-  loadTourConnections,
+  // loadTourConnections,
   city,
 }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
 
-  const [connectionLoading, setConnectionLoading] = useState(true);
-  const [connections, setConnections] = useState([]);
-  const [returns, setReturns] = useState([]);
+  // const [connectionLoading, setConnectionLoading] = useState(true);
+  // const [connections, setConnections] = useState([]);
+  // const [returns, setReturns] = useState([]);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
   let tourLink=``
@@ -42,7 +39,7 @@ export default function TourCard({
   const hm = t("details.hm_hoehenmeter");
 
   useEffect(() => {
-    if (JSON.stringify(tour.image_url)=='null') {
+    if (JSON.stringify(tour.image_url) === 'null') {
       setImage("/app_static/img/dummy.jpg")
     }
     else {
@@ -50,19 +47,19 @@ export default function TourCard({
     }
   }, [tour]);
 
-  useEffect(() => {
-    if (!!loadTourConnections && !!city) {
-      setConnectionLoading(true);
-      loadTourConnections({ id: tour.id, city: city }).then((res) => {
-        setConnectionLoading(false);
-        setConnections(res?.data?.connections);
-        setReturns(res?.data?.returns);
-      });
-    } else if (!!!city) {
-      setConnections([]);
-      setReturns([]);
-    }
-  }, [tour]);
+  // useEffect(() => {
+  //   if (!!loadTourConnections && !!city) {
+  //     setConnectionLoading(true);
+  //     loadTourConnections({ id: tour.id, city: city }).then((res) => {
+  //       setConnectionLoading(false);
+  //       setConnections(res?.data?.connections);
+  //       setReturns(res?.data?.returns);
+  //     });
+  //   } else if (!!!city) {
+  //     setConnections([]);
+  //     setReturns([]);
+  //   }
+  // }, [tour]);
 
   let value_best_connection_duration = tour.min_connection_duration;
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
@@ -148,7 +145,7 @@ export default function TourCard({
           }}
         >
           <img
-            src={`/app_static/logos/${tour.provider}.svg`}    
+            src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
             alt={tour.provider_name}
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
