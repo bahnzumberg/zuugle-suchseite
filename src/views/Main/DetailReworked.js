@@ -246,7 +246,7 @@ useEffect(() => {
 
   //Creating a new share link
   useEffect(() => {
-      const shareCity = cityOne ? cityOne : searchParams.get("city") ? searchParams.get("city") : localStorage.get('city') ;
+      const shareCity = cityOne ? cityOne : searchParams.get("city") ;
       if (isShareGenerating === true) {
           generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), shareCity)
               .then(res => {
