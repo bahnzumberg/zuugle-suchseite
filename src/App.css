@@ -1849,7 +1849,7 @@ top:250px; */
 @media (max-width: 678px) {
   .tour-detail-properties {
     grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
-    grid-template-rows: auto auto auto auto; /* 4 rows */
+    grid-template-rows: auto auto auto ; /* 3 rows */
   }
 
   .tour-detail-properties-el {
