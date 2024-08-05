@@ -392,7 +392,7 @@ useEffect(() => {
 
 
   useEffect(() => {
-    if (tour && !!validTour) {
+    if (tour && tour.valid_tour === 1) {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -518,7 +518,7 @@ useEffect(() => {
 
   const downloadButtonsDisabled = () => {
     return (
-      !!!validTour ||
+      // !!!validTour ||
       !!!tour ||
       !!!tour.gpx_file ||
       !!!activeConnection ||
