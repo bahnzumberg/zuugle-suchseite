@@ -161,7 +161,7 @@ const DetailReworked = (props) => {
   //max number of characters used per specific UI element (buttons)
   const maxLength = 40;
 
-  const [providerPermit, setProviderPermit] = useState(false);
+  const [providerPermit, setProviderPermit] = useState(true);
 
   useEffect(()=>{
     if(!!tour ){
