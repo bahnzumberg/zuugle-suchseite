@@ -12,7 +12,8 @@ import { useSearchParams ,useParams} from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
-  getTopLevelDomain
+  getTopLevelDomain,
+  titleCase
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -373,14 +374,19 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        hideModal();
-        if (!!city ) {
+        if(!!cityOne && !!idOne && pageKey==="detail"){
+          setCityInput(city.label);
+          setCity(city.value)
+          console.log("L381 in search selected new city :",city)
+          navigate(`tour/${idOne}/${city.value}`);
+        }else if (!!city ) {
           setCityInput(city.label);
           setCity(city);
           pageKey==="start" && updateCapCity(city.label);
           // pageKey=="detail" && window.location.reload();
-
+          console.log("L383 city.label :", city.label)
         }
+        hideModal();
       },
       
       setSearchParams,

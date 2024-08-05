@@ -186,6 +186,21 @@ const DetailReworked = (props) => {
   useEffect(() => {
     console.log("activeConnection ", activeConnection)
   }, [activeConnection])
+
+  useEffect(() => {
+    if (idOne && cityOne) {
+      console.log("L194 cityOne :", cityOne);
+      console.log("L195 idOne :", idOne);
+      
+    } else {
+      const cityParam = searchParams.get('city');
+      const idParam = searchParams.get('id');
+      if (cityParam && idParam) {
+        console.log("L203 cityParam :", cityParam);
+        console.log("L204 idParam :", idParam);
+      }
+    }
+  }, [idOne, cityOne, searchParams]);
   
 
 useEffect(() => {
@@ -251,7 +266,6 @@ useEffect(() => {
 
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
-     
    const shareId = searchParams.get("share") ?? null;
    let city ;
    if(cityOne){
@@ -290,8 +304,12 @@ useEffect(() => {
 
             localStorage.setItem("tourId", res.tourId);
 
-            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-            navigate(`/tour?${redirectSearchParams.toString()}`);
+            if(!!cityOne && !!idOne){
+              navigate(`/tour/${idOne}/${cityOne}`);
+            }else{
+              //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+              navigate(`/tour?${redirectSearchParams.toString()}`);
+            }
        
           } else {
             setIsTourLoading(false);
