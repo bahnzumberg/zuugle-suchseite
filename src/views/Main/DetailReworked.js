@@ -178,6 +178,10 @@ const DetailReworked = (props) => {
   useEffect(() => {
     console.log("validTour ", validTour)
   }, [validTour])
+
+  useEffect(() => {
+    console.log("activeConnection ", activeConnection)
+  }, [activeConnection])
   
 
 useEffect(() => {
