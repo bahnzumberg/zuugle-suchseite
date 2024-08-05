@@ -377,14 +377,11 @@ export function Search({
         if(!!cityOne && !!idOne && pageKey==="detail"){
           setCityInput(city.label);
           setCity(city.value)
-          console.log("L381 in search selected new city :",city)
           navigate(`tour/${idOne}/${city.value}`);
         }else if (!!city ) {
           setCityInput(city.label);
           setCity(city);
           pageKey==="start" && updateCapCity(city.label);
-          // pageKey=="detail" && window.location.reload();
-          console.log("L383 city.label :", city.label)
         }
         hideModal();
       },

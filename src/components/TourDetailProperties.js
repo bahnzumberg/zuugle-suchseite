@@ -30,13 +30,7 @@ const TourDetailProperties = ({tour}) => {
     };
   }, []);
 
-  // useEffect(()=>{
-  //   console.log("L34 window size ", window.innerWidth)
-  //   console.log("L35 isDesktop ", isDesktop)
-  // }, [isDesktop])
-
-  
-  
+ 
 
   const translateTourType = (type) =>{
       let translatedType = null; 

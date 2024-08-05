@@ -165,7 +165,6 @@ const DetailReworked = (props) => {
 
   useEffect(()=>{
     if(!!tour ){
-      console.log("L166 tour :", tour)
       if(tour.valid_tour === 1) {
         setValidTour(true);
         }else{
@@ -175,34 +174,7 @@ const DetailReworked = (props) => {
 
   }, [tour]);
 
-  useEffect(() => {
-    console.log("validTour ", validTour)
-  }, [validTour])
-
-   useEffect(() => {
-    console.log("connections : ", connections)
-  }, [connections])
-
-  useEffect(() => {
-    console.log("activeConnection ", activeConnection)
-  }, [activeConnection])
-
-  useEffect(() => {
-    if (idOne && cityOne) {
-      console.log("L194 cityOne :", cityOne);
-      console.log("L195 idOne :", idOne);
-      
-    } else {
-      const cityParam = searchParams.get('city');
-      const idParam = searchParams.get('id');
-      if (cityParam && idParam) {
-        console.log("L203 cityParam :", cityParam);
-        console.log("L204 idParam :", idParam);
-      }
-    }
-  }, [idOne, cityOne, searchParams]);
   
-
 useEffect(() => {
   if (!!tour && tour?.provider) {
     setIsTourLoading(true);
@@ -269,7 +241,6 @@ useEffect(() => {
   useEffect(() => {
    const shareId = searchParams.get("share") ?? null;
    let city ;
-   console.log("L271 cityOne :", cityOne)
    if(cityOne){
     city=cityOne
    }else{
@@ -363,12 +334,8 @@ useEffect(() => {
           }
         });
     }
-    console.log("L366 validTOUR", validTour)
-    console.log("L366 tourId", tourId)
-    console.log("L366 city", city)
-    console.log("L366 connections", connections)
+
     if (tourId && city && !connections && validTour) {
-      console.log("L367 =====")
       setIsTourLoading(true);
    
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
@@ -472,7 +439,6 @@ useEffect(() => {
   }
 
   const onDownloadGpx = () => {
-    console.log("L475 validTour :", validTour)
     if(!!validTour){
       if (
         !!activeReturnConnection &&
@@ -881,7 +847,6 @@ useEffect(() => {
                       <span className="tour-detail-provider-link">{tour?.url}</span>
                     </div>
                   </div>
-                  {/* {console.log("L837 validTour : ", validTour)} */}
                   {renderImage && validTour &&(
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />

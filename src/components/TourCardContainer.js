@@ -7,7 +7,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import EndOfList from "./EndOfList";
-import { getTopLevelDomain } from "../utils/globals";
 
 export default function TourCardContainer({
   tours,
@@ -73,9 +72,6 @@ export default function TourCardContainer({
         map: map,
         provider: provider,
         bounds: bounds, // bounds added
-      }).then((res) => {
-        console.log("L77 , res.data.tours ")
-        console.log(res.data.tours)
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,8 +101,6 @@ export default function TourCardContainer({
       bounds: bounds, // bounds added
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      console.log("L107 , retrievedTours ")
-      console.log(retrievedTours)
     });
   };
 
