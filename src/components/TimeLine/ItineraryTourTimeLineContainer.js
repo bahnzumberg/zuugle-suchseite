@@ -532,11 +532,12 @@ export default function ItineraryTourTimeLineContainer({
                 <Typography
                   color="rgba(0, 0, 0, 0.56)"
                   textAlign="center"
-                  fontFamily="Open Sans"
                   fontSize={!isMobile ? "14.25px" : "12.47px"}
                   fontWeight={!isMobile ? 600 : 500}
                   lineHeight={!isMobile ? "22px" : "19.25px"}
-                  sx={{ textDecoration: "underline" }}
+                  sx={{ textDecoration: "underline",
+                        fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`
+                   }}
                 >
                   {returnEntries.length - 2} {" "}
                   {t("Details.rückreise_moeglichkeiten")}

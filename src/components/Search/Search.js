@@ -487,7 +487,7 @@ export function Search({
                       textAlign: "left",
                       ml: "14px",
                       color: "#101010",
-                      fontFamily: "Open Sans",
+                      fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                       fontSize: { xs: "14px", sm: "15px" },
                       fontWeight: "500",
                       lineHeight: "20px",
@@ -541,7 +541,7 @@ export function Search({
                       sx={{
                         cursor: "pointer",
                         color: "#4992FF !important",
-                        fontFamily: "Open Sans",
+                        fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                         fontSize: { xs: "14px", sm: "15px" },
                         fontWeight: "700",
                         lineHeight: "20px",

@@ -538,7 +538,7 @@ const secondMenu = [
 								</div>
 							) : (
 								<span
-									className="domainItem"
+									className="domainItem pointy"
 									key={item.id}
 									style={{ paddingTop: 12, paddingBottom: 12 }}
 									onClick={() => {

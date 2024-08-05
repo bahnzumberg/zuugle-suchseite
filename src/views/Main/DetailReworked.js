@@ -48,7 +48,7 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText, getTopLevelDomain, parseFileName } from "../../utils/globals";
+import { shortenText, parseFileName } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
@@ -63,12 +63,9 @@ const DetailReworked = (props) => {
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    // allCities,
     tour,
     loadCities,
     loadAllCities,
-    // showMobileMenu,
-    // setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
@@ -695,7 +692,7 @@ useEffect(() => {
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               {/* close tab /modal in case no return history available  ###### section */}
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center" }} >
                 <Box
                   sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                   onClick={handleCloseTab}
