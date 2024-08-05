@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-html, body, #root, .App {
+body, #root, .App {
   height: 100%;
 }
 
