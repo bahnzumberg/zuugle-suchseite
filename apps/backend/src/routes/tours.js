@@ -141,7 +141,8 @@ const getWrapper = async (req, res) => {
                 INNER JOIN city2tour AS c2t 
                 ON c2t.tour_id=t.id 
                 WHERE c2t.reachable_from_country='${tld}' 
-                AND t.id=${id}`
+                AND t.id=${id}
+                ORDER BY valid_tour DESC LIMIT 1) as a`
                 
 
     try {
