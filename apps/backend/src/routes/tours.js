@@ -85,7 +85,7 @@ const getWrapper = async (req, res) => {
     }
     
     let new_search_where_city = `AND c2t.stop_selector='y' `;
-    if(!!city && city.length > 0){
+    if(!!city && city.length > 0 && city!='no-city'){
         new_search_where_city = `AND c2t.city_slug='${city}' `
     }
 
