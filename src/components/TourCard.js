@@ -30,9 +30,13 @@ export default function TourCard({
   if (!!city && city != null){
     tourLink = `/tour/${tour.id}/${city}`;
   } 
-  else {
-    tourLink = `/tour/${tour.id}/no-city`
-  }
+  // if (!!city && city != null && city !=='no-city'){
+  //   tourLink = `/tour/${tour.id}/${city}`;
+  // } 
+  // else {
+  //   let _city = 'no-city'
+  //   tourLink = `/tour/${tour.id}/${_city}`
+  // }
 
   // i18next
   const { t } = useTranslation();
