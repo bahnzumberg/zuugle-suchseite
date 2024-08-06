@@ -89,45 +89,75 @@ const getWrapper = async (req, res) => {
         new_search_where_city = `AND c2t.city_slug='${city}' `
     }
 
+    const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
+                descent, difficulty, difficulty_orig , duration, distance, title, type, 
+                number_of_days, traverse, country, state, range_slug, range, season, 
+                month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
+                min_connection_duration,
+                min_connection_no_of_transfers,
+                valid_tour
+                FROM ( 
+                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
+                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
+                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
+                t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
+                1 AS valid_tour,
+                c2t.min_connection_duration,
+                c2t.min_connection_no_of_transfers
+                FROM tour as t 
+                INNER JOIN city2tour AS c2t 
+                ON c2t.tour_id=t.id 
+                WHERE c2t.reachable_from_country='${tld}' 
+                ${new_search_where_city}
+                AND t.id=${id}
+                UNION 
+                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
+                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
+                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
+                'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
+                null as cities_object, 0 as max_ele, 
+                0 AS valid_tour,
+                0 as min_connection_duration,
+                0 as min_connection_no_of_transfers
+                FROM tour_inactive as t WHERE t.id=${id}
+                ORDER BY valid_tour DESC LIMIT 1) as a`
+
+    const sql3= `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
+                descent, difficulty, difficulty_orig , duration, distance, title, type, 
+                number_of_days, traverse, country, state, range_slug, range, season, 
+                month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
+                min_connection_duration,
+                min_connection_no_of_transfers,
+                valid_tour
+                FROM ( 
+                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
+                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
+                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
+                t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
+                2 AS valid_tour,
+                c2t.min_connection_duration,
+                c2t.min_connection_no_of_transfers
+                FROM tour as t 
+                INNER JOIN city2tour AS c2t 
+                ON c2t.tour_id=t.id 
+                WHERE c2t.reachable_from_country='${tld}' 
+                AND t.id=${id}`
+                
+
     try {
-        const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
-                    descent, difficulty, difficulty_orig , duration, distance, title, type, 
-                    number_of_days, traverse, country, state, range_slug, range, season, 
-                    month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
-                    min_connection_duration,
-                    min_connection_no_of_transfers,
-                    valid_tour
-                    FROM ( 
-                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
-                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
-                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
-                    t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
-                    1 AS valid_tour,
-                    c2t.min_connection_duration,
-                    c2t.min_connection_no_of_transfers
-                    FROM tour as t 
-                    INNER JOIN city2tour AS c2t 
-                    ON c2t.tour_id=t.id 
-                    WHERE c2t.reachable_from_country='${tld}' 
-                    ${new_search_where_city}
-                    AND t.id=${id}
-                    UNION 
-                    SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
-                    t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
-                    t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
-                    'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
-                    null as cities_object, 0 as max_ele, 
-                    0 AS valid_tour,
-                    0 as min_connection_duration,
-                    0 as min_connection_no_of_transfers
-                    FROM tour_inactive as t WHERE t.id=${id}
-                    ORDER BY valid_tour DESC LIMIT 1) as a`
         let entry2 = await knex.raw(sql)
         let entry = entry2.rows[0]
 
         if (!entry) {
-            res.status(404).json({ success: false, message: "Tour not found" });
-            return;
+            // If above sql is empty, it might be, that the selected city has no working connection to the tour 
+            // So the query checks the active tours without city and returns 2 as valid_tour
+            entry2 = await knex.raw(sql3)
+            entry = entry2.rows[0]
+
+            if (!entry) {
+                res.status(404).json({ success: false, message: "Tour not found" });
+                return;
+            }
         }
 
         entry = await prepareTourEntry(entry, city, domain, true);
