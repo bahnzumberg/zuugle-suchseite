@@ -10,10 +10,7 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTo
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
-
-  useEffect(() => {
-    console.log("L15 validTour :", validTour);
-  }, [validTour])
+  // const validTour = !!tour && tour?.active ;
   
   console.log("Itinerary.js city: ", city)
 
