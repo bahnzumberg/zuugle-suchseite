@@ -27,9 +27,9 @@ import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime} from "../../utils/globals";
-import { useSearchParams , useParams } from "react-router-dom";
-import { hideModal, showModal } from "../../actions/modalActions";
-import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
+// import { useSearchParams , useParams } from "react-router-dom";
+// import { hideModal, showModal } from "../../actions/modalActions";
+// import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
 
 
 
@@ -56,22 +56,22 @@ export default function ItineraryTourTimeLineContainer({
 
   const { t } = useTranslation();
 
-  const cityFromURL = ()=>{
-     if(!!city && city.length > 0 ){
-      return city;
-     }
-     if(!!cityOne && cityOne.length > 0 ){
-      return cityOne;
-     }
+  // const cityFromURL = ()=>{
+  //    if(!!city && city.length > 0 ){
+  //     return city;
+  //    }
+  //    if(!!cityOne && cityOne.length > 0 ){
+  //     return cityOne;
+  //    }
 
-     return null;
-  }
+  //    return null;
+  // }
 
-  const cityURL = cityFromURL();
+  // const cityURL = cityFromURL();
 
-  useEffect(() => {
-    console.log("cityURL :",cityFromURL())
-  }, [])
+  // useEffect(() => {
+  //   console.log("cityURL :",cityFromURL())
+  // }, [])
   
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
@@ -149,37 +149,37 @@ export default function ItineraryTourTimeLineContainer({
   extractReturns();
 
 
-  const showCityModal = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: FullScreenCityInput,
-      searchParams,
-      initialCity: cityInput,
-      onSelect: async (city) => {
-        // if(!!cityOne && !!idOne){
-        //   setCityInput(city.label);
-        //   setCity(city.value)
-        //   // navigate(`tour/${idOne}/${city.value}`);
-        // }else if (!!city ) {
-        //   setCityInput(city.label);
-        //   setCity(city);
-          console.log("inside OnSelect , city ", city)
-        // }
-        // hideModal();
-      },
+  // const showCityModal = () => {
+  //   showModal("MODAL_COMPONENT", {
+  //     CustomComponent: FullScreenCityInput,
+  //     searchParams,
+  //     initialCity: cityInput,
+  //     onSelect: async (city) => {
+  //       // if(!!cityOne && !!idOne){
+  //       //   setCityInput(city.label);
+  //       //   setCity(city.value)
+  //       //   // navigate(`tour/${idOne}/${city.value}`);
+  //       // }else if (!!city ) {
+  //       //   setCityInput(city.label);
+  //       //   setCity(city);
+  //         console.log("inside OnSelect , city ", city)
+  //       // }
+  //       // hideModal();
+  //     },
       
-      setSearchParams,
-      title: "",
-      sourceCall: "city",
-      // page: page,
-      srhBoxScrollH: document
-        .querySelector(".main-search-bar")
-        .getBoundingClientRect().top,
-      modalSize: "lg",
-      onBack: () => {
-        hideModal();
-      },
-    });
-  };
+  //     setSearchParams,
+  //     title: "",
+  //     sourceCall: "city",
+  //     // page: page,
+  //     srhBoxScrollH: document
+  //       .querySelector(".main-search-bar")
+  //       .getBoundingClientRect().top,
+  //     modalSize: "lg",
+  //     onBack: () => {
+  //       hideModal();
+  //     },
+  //   });
+  // };
 
   //when connections/connections.connections/or connections.connections[0] do not exist
   if (!!!getSingleConnection()) {
