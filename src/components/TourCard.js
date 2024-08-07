@@ -14,15 +14,10 @@ const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 export default function TourCard({
   tour,
   onSelectTour,
-  // loadTourConnections,
   city,
 }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
-
-  // const [connectionLoading, setConnectionLoading] = useState(true);
-  // const [connections, setConnections] = useState([]);
-  // const [returns, setReturns] = useState([]);
 
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
@@ -46,20 +41,6 @@ export default function TourCard({
       setImage(tour.image_url);
     }
   }, [tour]);
-
-  // useEffect(() => {
-  //   if (!!loadTourConnections && !!city) {
-  //     setConnectionLoading(true);
-  //     loadTourConnections({ id: tour.id, city: city }).then((res) => {
-  //       setConnectionLoading(false);
-  //       setConnections(res?.data?.connections);
-  //       setReturns(res?.data?.returns);
-  //     });
-  //   } else if (!!!city) {
-  //     setConnections([]);
-  //     setReturns([]);
-  //   }
-  // }, [tour]);
 
   let value_best_connection_duration = tour.min_connection_duration;
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
@@ -141,7 +122,6 @@ export default function TourCard({
             gap: "10px",
             paddingBottom: "5px",
             alignItems: "center",
-            // justifyContent: "center",
           }}
         >
           <img

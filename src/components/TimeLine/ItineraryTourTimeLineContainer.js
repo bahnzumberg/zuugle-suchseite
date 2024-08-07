@@ -33,7 +33,8 @@ export default function ItineraryTourTimeLineContainer({
   connections,
   loading,
   duration,
-  tour
+  tour,
+  city
 }) {
   
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -43,6 +44,7 @@ export default function ItineraryTourTimeLineContainer({
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
+  const [city_selected, setCity_selected] = useState(true)
 
   // the following two vars filled by fcn extractReturns
   const twoReturns = []; 
@@ -59,12 +61,23 @@ export default function ItineraryTourTimeLineContainer({
   }, [connections]);
   
   const formatDuration = (duration) => { 
-    
     let _time = " ";
     _time = !!duration && convertNumToTime(duration, true);
     _time = _time.replace(/\s*h\s*$/, '');
     return _time;
   }
+
+  useEffect(() => {
+    if (city=='no-city'){
+      setCity_selected(false);
+    }
+    else {
+      setCity_selected(true);
+    }
+    console.log("city_selected: ", city_selected)
+    console.log("city: ", city)
+  }, [city]);
+
 
   useEffect(() => {
     if(!!duration && typeof(duration) == "string"){
@@ -125,10 +138,20 @@ export default function ItineraryTourTimeLineContainer({
           textAlign: "center",
         }}
       >
+      {
+      !city_selected ? (
+        <>
+        <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+          <p>List of Cities</p>
+        </Typography>
+        </>
+      )
+      :
         <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
           {" "}
           {t("details.keine_verbindungen")}{" "}
         </Typography>
+      }
       </Box>
     );
   }
