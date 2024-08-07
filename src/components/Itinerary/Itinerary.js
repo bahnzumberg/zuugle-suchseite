@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect } from "react";
 import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import { useTranslation } from "react-i18next";
@@ -9,7 +10,10 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTo
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
-  // const validTour = !!tour && tour?.active ;
+
+  useEffect(() => {
+    console.log("L15 validTour :", validTour);
+  }, [validTour])
   
 
 

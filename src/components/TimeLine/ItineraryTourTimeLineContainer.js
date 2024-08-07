@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime} from "../../utils/globals";
+import { useSearchParams , useParams } from "react-router-dom";
 
 
 export default function ItineraryTourTimeLineContainer({
@@ -43,12 +44,29 @@ export default function ItineraryTourTimeLineContainer({
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
+  const [searchParams, setSearchParams] = useSearchParams();
+  let {idOne, cityOne} = useParams();
+  
+  const city = searchParams.get("city");
 
   // the following two vars filled by fcn extractReturns
   const twoReturns = []; 
   const remainingReturns = [];
 
   const { t } = useTranslation();
+
+  const cityFromURL = ()=>{
+     if(!!city && city.length > 0 ){
+      return city;
+     }
+     if(!!cityOne && cityOne.length > 0 ){
+      return cityOne;
+     }
+
+     return null;
+  }
+
+  const cityURL = cityFromURL();
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
@@ -124,12 +142,35 @@ export default function ItineraryTourTimeLineContainer({
           position: "relative",
           textAlign: "center",
         }}
-      >
-        <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-          {" "}
-          {t("details.keine_verbindungen")}{" "}
-        </Typography>
+        >
+        {/* // if no connection AND city is not defined then show "keine_verbindungen" AND cities Modal */}
+        {
+          (!!cityURL) ? (
+            <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+              {" "}
+              {t("details.keine_verbindungen")}{" "}
+            </Typography>
+          )
+          :
+          ( !!cityURL && (cityURL === 'no-city'))
+          (
+            <>
+              <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                {" "}
+                {t("details.keine_verbindungen")}{" "}
+              </Typography>
+              <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+                {" "}
+               CITIES MODAL HERE
+              </Typography>
+              
+            </>
+          )
+        }
+        
       </Box>
+
+
     );
   }
 
