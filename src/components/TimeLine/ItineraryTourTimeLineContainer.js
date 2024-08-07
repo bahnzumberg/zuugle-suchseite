@@ -5,7 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  // Button,
+  Grid,
   Divider,
   Typography,
 } from "@mui/material";
@@ -28,6 +28,9 @@ import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime} from "../../utils/globals";
 import { useSearchParams , useParams } from "react-router-dom";
+import { hideModal, showModal } from "../../actions/modalActions";
+import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
+
 
 
 export default function ItineraryTourTimeLineContainer({
@@ -46,6 +49,7 @@ export default function ItineraryTourTimeLineContainer({
   const [formattedDuration, setformattedDuration] = useState("n/a");
   const [searchParams, setSearchParams] = useSearchParams();
   let {idOne, cityOne} = useParams();
+  const [cityInput, setCityInput] = useState("");
   
   const city = searchParams.get("city");
 
@@ -67,6 +71,11 @@ export default function ItineraryTourTimeLineContainer({
   }
 
   const cityURL = cityFromURL();
+
+  useEffect(() => {
+    console.log("cityURL :",cityFromURL())
+  }, [])
+  
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
@@ -131,6 +140,39 @@ export default function ItineraryTourTimeLineContainer({
   };
   extractReturns();
 
+
+  const showCityModal = () => {
+    showModal("MODAL_COMPONENT", {
+      CustomComponent: FullScreenCityInput,
+      searchParams,
+      initialCity: cityInput,
+      onSelect: async (city) => {
+        // if(!!cityOne && !!idOne){
+        //   setCityInput(city.label);
+        //   setCity(city.value)
+        //   // navigate(`tour/${idOne}/${city.value}`);
+        // }else if (!!city ) {
+        //   setCityInput(city.label);
+        //   setCity(city);
+          console.log("inside OnSelect , city ", city)
+        // }
+        // hideModal();
+      },
+      
+      setSearchParams,
+      title: "",
+      sourceCall: "city",
+      // page: page,
+      srhBoxScrollH: document
+        .querySelector(".main-search-bar")
+        .getBoundingClientRect().top,
+      modalSize: "lg",
+      onBack: () => {
+        hideModal();
+      },
+    });
+  };
+
   //when connections/connections.connections/or connections.connections[0] do not exist
   if (!!!getSingleConnection()) {
     return (
@@ -143,26 +185,66 @@ export default function ItineraryTourTimeLineContainer({
           textAlign: "center",
         }}
         >
-        {/* // if no connection AND city is not defined then show "keine_verbindungen" AND cities Modal */}
+        {/* // if no connection AND city is not defined or "no-city" then show "keine_verbindungen" AND cities Modal */}
         {
-          (!!cityURL) ? (
+          (!!cityURL && (cityURL !== 'no-city')) ? (
             <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
               {" "}
               {t("details.keine_verbindungen")}{" "}
             </Typography>
           )
           :
-          ( !!cityURL && (cityURL === 'no-city'))
+          ( !!cityURL && (cityURL === 'no-city')) &&
           (
             <>
               <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                 {" "}
                 {t("details.keine_verbindungen")}{" "}
               </Typography>
+              <Divider sx={{ mt: "24px" }} />
               <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                 {" "}
                CITIES MODAL HERE
               </Typography>
+              <Grid
+                item
+                sm={12}
+                md={6}
+                onClick={showCityModal}
+                display="flex"
+                alignItems="center"
+              >
+                <Box
+                  sx={{
+                    borderLeft: {
+                      sm: 0,
+                      md:
+                        !cityInput 
+                          ? 0
+                          : "2px solid #DDDDDD",
+                    },
+                    paddingLeft: "14px",
+                  }}
+                >
+                  {(!cityInput ) ? (
+                    <Box
+                      className="search-bar--city"
+                      sx={{
+                        cursor: "pointer",
+                        color: "#4992FF !important",
+                        fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
+                        fontSize: { xs: "14px", sm: "15px" },
+                        fontWeight: "700",
+                        lineHeight: "20px",
+                      }}
+                    >
+                      {t("search.waehle_dein_heimatbahnhof")}
+                    </Box>
+                  ) : (
+                    <Box className="search-bar--city">{cityInput}</Box>
+                  )}
+                </Box>
+              </Grid>
               
             </>
           )
