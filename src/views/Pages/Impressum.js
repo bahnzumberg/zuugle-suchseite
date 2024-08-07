@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 
 function Impressum({}) {
 	//Translation related
-	const ImpressumLabels = getImpressumLabels();
 	const {t} = useTranslation();
 	
 	React.useEffect(() => {
