@@ -210,7 +210,7 @@ function Start({
             <Box
               sx={{
                 marginTop: "20px",
-                padding: "30px 40px",
+                padding: "30px 10px",
                 background: "#EBEBEB",
                 borderBottomLeftRadius: "30px",
                 borderBottomRightRadius: "30px",
