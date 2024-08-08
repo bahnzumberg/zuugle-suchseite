@@ -1,14 +1,15 @@
 import * as React from "react";
+import {useParams, useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
-import { Divider, Typography } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Typography } from "@mui/material";
+// import { Fragment, useState } from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import ChevronRightLight from "../../icons/ChevronRight";
+// import IconButton from "@mui/material/IconButton";
+// import ChevronRightLight from "../../icons/ChevronRight";
 import CircularProgress from "@mui/material/CircularProgress";
 
 export function CityResultList({
@@ -22,8 +23,12 @@ export function CityResultList({
   setSearchParams,
   showNotFoundEntry = true,
   onSelect,
+  idOne,
+  cityOne
 }) {
 
+  // const {cityOne, idOne} = useParams();
+  const navigate = useNavigate();
 
   const notFoundEntry = () => {
     return (
@@ -60,6 +65,7 @@ export function CityResultList({
         </ListItem>
       )}
       {cities.map((_city, index) => {
+        // console.log("L63 _city :", _city)
         return (
           <ListItem
             key={index}
@@ -72,12 +78,21 @@ export function CityResultList({
               if (!!onSelect) {
                 onSelect(_city);
               }
-
-              searchParams.set("city", _city.value);
-              setSearchParams(searchParams);
+              console.log("L79 cityOne", cityOne)
+              console.log("L80 idOne", idOne)
+              
+              if(!!idOne){
+                // code needed here 
+                writeCityToLocalStorage(_city.value);
+                let _path = `/tour/${idOne.idOne}/${_city.value}`;
+                navigate(_path)
+              }else{
+                searchParams.set("city", _city.value);
+                setSearchParams(searchParams);
+              }
 
               //wenn startseite lade touren
-              if (!!_city && !!_city.value) {
+              if (!!_city && !!_city.value && !idOne) {
                 loadFavouriteTours({
                   city: _city.value,
                   limit: 10,
