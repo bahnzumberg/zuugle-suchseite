@@ -18,6 +18,7 @@ export default function TourCardContainer({
   filterValues,
   markersChanged,
   mapBounds,
+  isMobile
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -107,11 +108,10 @@ export default function TourCardContainer({
         dataLength={tours.length}
         next={_loadTours}
         hasMore={true}
-        // hasMore={hasMore}
         loader={!!loading && <CircularProgress />}
         endMessage={<EndOfList />}
       >
-        <Grid container spacing={2}>
+        <Grid container spacing={2} style={{  marginLeft: `${!isMobile ? '35px' : null}` }}>
           {tours.map((tour, index) => (
             <Grid
               key={index}
