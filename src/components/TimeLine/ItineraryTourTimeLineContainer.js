@@ -178,7 +178,7 @@ export default function ItineraryTourTimeLineContainer({
       !city_selected ? (
         <>
         <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-          <p>List of Cities</p>
+          <p>{t("details.bitte_stadt_waehlen")}</p>
         </Typography>
         </>
       )
