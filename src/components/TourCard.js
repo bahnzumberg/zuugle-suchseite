@@ -44,6 +44,7 @@ export default function TourCard({
 
   let value_best_connection_duration = tour.min_connection_duration;
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
+  let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
   const renderProps = () => {
     const values = [];
@@ -150,7 +151,7 @@ export default function TourCard({
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
-            width: "100%",
+            width: "97%",
             gap: "8px",
             position: "absolute",
             bottom: "20px",
@@ -178,7 +179,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
             {t("main.dauer")} <br />
-            <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(tour?.total_tour_duration, true)}</span>
+            <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(value_avg_total_tour_duration, true)}</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>

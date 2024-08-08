@@ -56,23 +56,6 @@ export default function ItineraryTourTimeLineContainer({
 
   const { t } = useTranslation();
 
-  // const cityFromURL = ()=>{
-  //    if(!!city && city.length > 0 ){
-  //     return city;
-  //    }
-  //    if(!!cityOne && cityOne.length > 0 ){
-  //     return cityOne;
-  //    }
-
-  //    return null;
-  // }
-
-  // const cityURL = cityFromURL();
-
-  // useEffect(() => {
-  //   console.log("cityURL :",cityFromURL())
-  // }, [])
-  
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
@@ -96,8 +79,6 @@ export default function ItineraryTourTimeLineContainer({
     else {
       setCity_selected(true);
     }
-    console.log("city_selected: ", city_selected)
-    console.log("city: ", city)
   }, [city]);
 
 

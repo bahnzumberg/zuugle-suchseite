@@ -12,13 +12,10 @@ export default function TourCardContainer({
   tours,
   onSelectTour,
   loadTourConnections,
-  // city,
   loadTours,
   pageTours,
   loading,
   filterValues,
-  // setFilterValues,
-  // showMap,
   markersChanged,
   mapBounds,
 }) {

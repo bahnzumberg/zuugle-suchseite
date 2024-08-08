@@ -30,7 +30,6 @@ const TourDetailProperties = ({tour}) => {
     };
   }, []);
 
- 
 
   const translateTourType = (type) =>{
       let translatedType = null; 
@@ -63,7 +62,7 @@ const TourDetailProperties = ({tour}) => {
         <Typography variant={"h5alt"}>
           {tour?.number_of_days > 1
             ? tour?.number_of_days + " " + t("details.tage")
-            : convertNumToTime(tour?.total_tour_duration, true)}
+            : convertNumToTime(tour?.avg_total_tour_duration, true)}
         </Typography>
       </div>
       {/* only mobile: we need the horizontal divider here below to be visible */}

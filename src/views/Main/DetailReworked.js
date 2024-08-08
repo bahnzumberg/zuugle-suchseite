@@ -92,7 +92,6 @@ const DetailReworked = (props) => {
   const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
-  // const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
   //Triggers the generating of a new link
   const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -340,7 +339,7 @@ useEffect(() => {
             goToStartPageUnavailableTour();
             // return
           } else {
-            console.error("Error:", error);
+            console.error("Other error:", error);
             // TODO: Handle other errors
           }
         });

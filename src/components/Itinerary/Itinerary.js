@@ -12,7 +12,6 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTo
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
   // const validTour = !!tour && tour?.active ;
   
-  console.log("Itinerary.js city: ", city)
 
   return (
     <div className="tour-detail-itinerary-container">
