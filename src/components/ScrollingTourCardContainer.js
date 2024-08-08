@@ -12,9 +12,10 @@ export default function ScrollingTourCardContainer({
   loadTourConnections,
   city,
   isLoading,
+  isMobile
 }) {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery("(max-width:600px)");
+  // const isMobile = useMediaQuery("(max-width:600px)");
   const firstSet = tours.slice(0, 4);
   const secondSet = tours.slice(4, 7);
 
@@ -75,6 +76,7 @@ export default function ScrollingTourCardContainer({
         width: "screen",
         gridTemplateColumns: isMobile ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
         gap: "20px",
+        marginLeft: !isMobile ? "45px" : null
       }}
     >
     {isLoading ? (
