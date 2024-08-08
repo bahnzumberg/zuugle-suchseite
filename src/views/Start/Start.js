@@ -212,8 +212,9 @@ function Start({
                 marginTop: "20px",
                 padding: "30px 10px",
                 background: "#EBEBEB",
-                borderBottomLeftRadius: "30px",
-                borderBottomRightRadius: "30px",
+                borderRadius: "30px",
+                // borderBottomLeftRadius: "30px",
+                // borderBottomRightRadius: "30px",
               }}
             >
               <Typography
