@@ -27,6 +27,7 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
+import { capitalize } from "lodash";
 
 
 export function Search({
@@ -66,10 +67,18 @@ export function Search({
   const cityParam = urlSearchParams.get("city");
   const {cityOne, idOne} = useParams()
   const [city, setCity] = useState({
-    label: cityParam,
+    label: cityParam || capitalize(cityOne),
     value: cityParam,
   });
-
+  
+  useEffect(() => {
+    console.log("L72 Search/ cityParam :", cityParam)
+    console.log("L73 Search/ capitalize(cityOne)", capitalize(cityOne))
+    console.log("**************************************************")
+    console.log("L74 Search/ cityOne", cityOne)
+    console.log("L75 Search/ idOne", idOne)
+  }, [cityParam, cityOne, idOne])
+  
   
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
@@ -144,7 +153,7 @@ export function Search({
       if (city === null && !search.includes(' ')) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        let cityEntry = allCities.find((e) => e.value === search.toLowerCase()); // find the city object in array "allCities"
+        let cityEntry = allCities.find((e) => e.value === search.toLowerCase().replace('ü', 'ue')); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
@@ -374,6 +383,7 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
+        // console.log("L379 Search / cityOne :", cityOne)
         if(!!cityOne && !!idOne && pageKey==="detail"){
           setCityInput(city.label);
           setCity(city.value)
@@ -385,7 +395,8 @@ export function Search({
         }
         hideModal();
       },
-      
+      cityOne : {cityOne},
+      idOne : {idOne},
       setSearchParams,
       title: "",
       sourceCall: "city",

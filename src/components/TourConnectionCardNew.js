@@ -56,14 +56,6 @@ export default function TourConnectionCardNew({connection}){
             return departureStop + ' - ' + arrivalStop;
         }
     }
-    // const from_to = () => {
-    //     if (connection.connection_departure_stop === connection.connection_arrival_stop) {
-    //         return connection.connection_departure_stop;
-    //     }
-    //     else {
-    //         return connection.connection_departure_stop + ' - ' + connection.connection_arrival_stop;
-    //     }
-    // }
 
     const duration_and_transfers = () => {
         // if (connection.connection_departure_stop === connection.connection_arrival_stop) {

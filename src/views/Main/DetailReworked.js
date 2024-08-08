@@ -92,7 +92,6 @@ const DetailReworked = (props) => {
   const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
-  // const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
   //Triggers the generating of a new link
   const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -106,8 +105,22 @@ const DetailReworked = (props) => {
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
   const[showModal, setShowModal] =useState(false);
-  const {cityOne,idOne} = useParams();
+  const {cityOne, idOne} = useParams();
   const [validTour, setValidTour] = useState(false);
+  
+  let _city = '';
+  if (!!cityOne){
+    _city = cityOne;
+  }
+  else {
+    let cityfromparam = searchParams.get("city");
+    if (!!cityfromparam){
+      _city = cityfromparam;
+    }
+  }
+  const [cityI, setCityI] = useState(_city);
+ 
+  
 
   // Translation-related
   const { t } = useTranslation();
@@ -237,12 +250,12 @@ useEffect(() => {
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
    const shareId = searchParams.get("share") ?? null;
-   let city ;
-   if(cityOne){
-    city=cityOne
-   }else{
-     city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
-   }
+      let city = '';
+      if(cityOne){
+         city=cityOne
+      }else{
+         city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
+      }
     //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
     // detail page --> city : amstetten
   
@@ -326,7 +339,7 @@ useEffect(() => {
             goToStartPageUnavailableTour();
             // return
           } else {
-            console.error("Error:", error);
+            console.error("Other error:", error);
             // TODO: Handle other errors
           }
         });
@@ -352,7 +365,7 @@ useEffect(() => {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams,cityOne,idOne, validTour]);
+  }, [searchParams, cityOne, idOne, validTour]);
 
 
   useEffect(() => {
@@ -874,6 +887,7 @@ useEffect(() => {
                     onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
                     tour={tour}
                     validTour={validTour}
+                    city={cityI}
                   ></Itinerary>
                 </Box>
                 {renderImage && !!validTour && (

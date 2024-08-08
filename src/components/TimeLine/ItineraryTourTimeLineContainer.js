@@ -5,7 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  // Button,
+  Grid,
   Divider,
   Typography,
 } from "@mui/material";
@@ -27,13 +27,18 @@ import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime} from "../../utils/globals";
+// import { useSearchParams , useParams } from "react-router-dom";
+// import { hideModal, showModal } from "../../actions/modalActions";
+// import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
+
 
 
 export default function ItineraryTourTimeLineContainer({
   connections,
   loading,
   duration,
-  tour
+  tour,
+  city
 }) {
   
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -43,12 +48,14 @@ export default function ItineraryTourTimeLineContainer({
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
+  const [city_selected, setCity_selected] = useState(true)
 
   // the following two vars filled by fcn extractReturns
   const twoReturns = []; 
   const remainingReturns = [];
 
   const { t } = useTranslation();
+
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
@@ -59,12 +66,21 @@ export default function ItineraryTourTimeLineContainer({
   }, [connections]);
   
   const formatDuration = (duration) => { 
-    
     let _time = " ";
     _time = !!duration && convertNumToTime(duration, true);
     _time = _time.replace(/\s*h\s*$/, '');
     return _time;
   }
+
+  useEffect(() => {
+    if (city=='no-city'){
+      setCity_selected(false);
+    }
+    else {
+      setCity_selected(true);
+    }
+  }, [city]);
+
 
   useEffect(() => {
     if(!!duration && typeof(duration) == "string"){
@@ -113,6 +129,39 @@ export default function ItineraryTourTimeLineContainer({
   };
   extractReturns();
 
+
+  // const showCityModal = () => {
+  //   showModal("MODAL_COMPONENT", {
+  //     CustomComponent: FullScreenCityInput,
+  //     searchParams,
+  //     initialCity: cityInput,
+  //     onSelect: async (city) => {
+  //       // if(!!cityOne && !!idOne){
+  //       //   setCityInput(city.label);
+  //       //   setCity(city.value)
+  //       //   // navigate(`tour/${idOne}/${city.value}`);
+  //       // }else if (!!city ) {
+  //       //   setCityInput(city.label);
+  //       //   setCity(city);
+  //         console.log("inside OnSelect , city ", city)
+  //       // }
+  //       // hideModal();
+  //     },
+      
+  //     setSearchParams,
+  //     title: "",
+  //     sourceCall: "city",
+  //     // page: page,
+  //     srhBoxScrollH: document
+  //       .querySelector(".main-search-bar")
+  //       .getBoundingClientRect().top,
+  //     modalSize: "lg",
+  //     onBack: () => {
+  //       hideModal();
+  //     },
+  //   });
+  // };
+
   //when connections/connections.connections/or connections.connections[0] do not exist
   if (!!!getSingleConnection()) {
     return (
@@ -125,11 +174,23 @@ export default function ItineraryTourTimeLineContainer({
           textAlign: "center",
         }}
       >
+      {
+      !city_selected ? (
+        <>
+        <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
+          <p>{t("details.bitte_stadt_waehlen")}</p>
+        </Typography>
+        </>
+      )
+      :
         <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
           {" "}
           {t("details.keine_verbindungen")}{" "}
         </Typography>
+      }
       </Box>
+
+
     );
   }
 

@@ -1,17 +1,17 @@
 import React from "react";
+import { useEffect } from "react";
 import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
 
-const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTour }) => {
+const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTour, city }) => {
 
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
   // const validTour = !!tour && tour?.active ;
   
-
 
   return (
     <div className="tour-detail-itinerary-container">
@@ -34,6 +34,7 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTo
                   loading={false}
                   duration={tourDuration}
                   tour={tour}
+                  city={city}
                 />
               )}
             </>

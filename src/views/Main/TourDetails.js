@@ -277,7 +277,7 @@ function TourDetails({tour, loadGPX, loadTourPdf, isPdfLoading, connection, retu
                         <TourProperty title={distance_label} text={formatNumber(tour.distance) + ' km'} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TourProperty title={duration_label} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + days_label) : convertNumToTime(tour.total_tour_duration)} />
+                        <TourProperty title={duration_label} text={(!!tour.number_of_days && tour.number_of_days > 1) ? (tour.number_of_days + days_label) : convertNumToTime(tour.avg_total_tour_duration, true)} />
                     </Grid>
                     <Grid item xs={6}>
                         <TourProperty title={ascent_label} text={formatNumber(tour.ascent, ' hm')} />

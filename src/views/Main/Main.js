@@ -1,6 +1,7 @@
 import * as React from "react";
 import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import {
@@ -70,6 +71,9 @@ export function Main({
   const [mapBounds, setMapBounds] = useState(null);
   const [markersChanged, setMarkersChanged] = useState(false);
   const [showCardContainer, setShowCardContainer] = useState(true)
+
+  const isMobile = useMediaQuery("(max-width:678px)");
+
   
    // filter values in localStorage:
   let filterCountLocal = !!localStorage.getItem("filterCount")
@@ -279,6 +283,7 @@ const handleShowCardContainer = useCallback((value) => {
         showMap={showMap} //to be used for other features
         mapBounds={mapBounds}
         markersChanged={markersChanged}
+        isMobile={isMobile}
       />
     </Box>
   );

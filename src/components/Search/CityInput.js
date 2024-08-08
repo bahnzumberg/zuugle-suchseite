@@ -35,7 +35,6 @@ export default function CityInput({
   onFocus,
   isOpen,
   showRightIcon = true,
-  onClick,
   disabled,
 }) {
 
@@ -78,7 +77,6 @@ export default function CityInput({
       }}
       onFocus={() => !!onFocus && onFocus(true)}
       onBlur={() => !!onFocus && onFocus(false)}
-      onClick={() => !!onClick && onClick()}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
