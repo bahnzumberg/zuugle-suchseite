@@ -47,8 +47,6 @@ CREATE TABLE tour (
       month_order int DEFAULT 12,
       quality_rating integer DEFAULT 5,
       user_rating_avg decimal(6,2) DEFAULT NULL,
-      cities JSONB DEFAULT NULL,
-      cities_object JSONB DEFAULT NULL,
       full_text TEXT,
 	search_column tsvector,
  	separator smallint,
@@ -61,8 +59,6 @@ CREATE TABLE tour (
 
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
-CREATE INDEX ON tour (cities);
-CREATE INDEX ON tour (cities_object);
 CREATE INDEX ON tour (month_order);
 CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
@@ -233,7 +229,7 @@ CREATE TABLE city2tour (
       city_slug varchar(64) NOT NULL,
       reachable_from_country varchar(2) NOT NULL,
       min_connection_duration int DEFAULT 200,
-      min_connection_no_of_transfers INTEGER DEFAULT 4,
+      min_connection_no_of_transfers INTEGER DEFAULT 4, 
       avg_total_tour_duration decimal(6,2) DEFAULT NULL,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
       connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,

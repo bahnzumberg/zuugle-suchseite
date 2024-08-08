@@ -841,79 +841,6 @@ const readAndInsertFahrplan = async (bundle) => {
 
 
 
-const readAndInsertFahrplan_del = (bundle, where = {}) => {
-    return new Promise(async resolve => {
-        const result = await knexTourenDb('vw_fplan_to_search').select('trigger_id').where(where).andWhere('trigger_id', '>=', bundle.from).andWhere('trigger_id', '<', bundle.to);
-        if(!!result && result.length > 0){
-            await insertFahrplanMultiple_del(result);
-        }
-        resolve();
-    })
-}
-
-
-const insertFahrplanMultiple = async (entries) => {
-
-    let attrToRemove = [
-        "trigger_datetime",
-        "tour_duration",
-        "tour_hiking_days",
-        "tour_title",
-        "delta_type",
-    ];
-
-
-    let _entries = entries.map(entry => {
-        attrToRemove.forEach(attr => {
-            delete entry[attr];
-        });
-
-        if(!!entry.trigger_id){
-            entry.id = ""+entry.trigger_id;
-            delete entry.trigger_id;
-        }
-
-        if (!!entry.provider) {
-            entry = {
-                ...entry, 
-                tour_provider: entry.provider, 
-            };
-            delete entry.provider; // Delete the original "provider" property
-        }
-
-        return entry;
-    });
-
-    try {
-        await knex.raw(knex('fahrplan').insert([..._entries]).toString()+" ON CONFLICT(id) DO NOTHING");
-        return true;
-    } catch(err){
-        console.log('error insertFahrplanMultiple: ', err)
-        return false;
-    }
-}
-
-
-const insertFahrplanMultiple_del = async (entries) => {
-
-    let _entries = entries.map(entry => {
-        if(!!entry.trigger_id){
-            entry.id = ""+entry.trigger_id;
-            delete entry.trigger_id;
-        }
-        return entry;
-    });
-
-    try {
-        await knex('fahrplan_del').insert([..._entries]);
-        return true;
-    } catch(err){
-        console.log('error: ', err)
-        return false;
-    }
-}
-
-
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
@@ -967,7 +894,6 @@ export async function syncTours(){
                                         t.dec,
                                         REPLACE(t.full_text, '\0', ' 0') as full_text,
                                         t.quality_rating,
-                                        t.user_rating_avg,
                                         t.difficulty_orig,
                                         t.text_lang,
                                         t.lat_start,
@@ -985,92 +911,7 @@ export async function syncTours(){
     }
 }
 
-export async function mergeToursWithFahrplan(){
-    const tours = await knex('tour').select(['hashed_url', 'duration']);
-    
-    if(!!tours){
 
-        for(let i=0;i<tours.length;i++){
-
-            let entry = tours[i];
-            let fahrplan = await knex('fahrplan').select(['city_slug']).where({hashed_url: entry.hashed_url}).groupBy('city_slug');
-            if(!!fahrplan && fahrplan.length > 0){
-                await Promise.all(fahrplan.map(fp => new Promise(async resolve => {
-
-                    const values = await knex('fahrplan')
-                        .avg('fromtour_track_duration as avg_fromtour_track_duration')
-                        .avg('totour_track_duration as avg_totour_track_duration')
-                        .min('best_connection_duration as min_best_connection_duration')
-                        .min('connection_no_of_transfers as min_connection_no_of_transfers')
-                        .where({hashed_url: entry.hashed_url, city_slug: fp.city_slug})
-                        .andWhereNot("connection_duration", null)
-                        .andWhereNot('best_connection_duration', null)
-                        .first();
-                    
-                    if (!!values)  {
-                        // min_best_connection_duration must be kept in minutes, as an integer, as it is used with the search as a weight.
-                        fp.best_connection_duration = round(minutesFromMoment(moment(values.min_best_connection_duration, "HH:mm:ss")),0);
-                        fp.connection_no_of_transfers = values.min_connection_no_of_transfers;
-                    }
-                    else {
-                        fp.best_connection_duration = getDurationValue(0);
-                        fp.connection_no_of_transfers = 0;
-                    }
-                    // fp.durations = durations;
-
-                    fp.total_tour_duration = round((
-                        Number(entry.duration)
-                        + getDurationValue(values.avg_totour_track_duration)
-                        + getDurationValue(values.avg_fromtour_track_duration)), 2);
-                    resolve(fp);
-                })));
-
-                let fahrplanObject = {}
-                fahrplan.forEach(fp => {
-                    fahrplanObject[fp.city_slug] = {
-                        // durations: {...fp.durations},
-                        best_connection_duration: fp.best_connection_duration,
-                        total_tour_duration: fp.total_tour_duration,
-                        connection_no_of_transfers: fp.connection_no_of_transfers
-                    };
-                })
-
-                await knex('tour').update({
-                    cities: JSON.stringify(fahrplan),
-                    cities_object: JSON.stringify(fahrplanObject)
-                })
-                .where({hashed_url: entry.hashed_url});
-
-            }
-        }
-    }
-}
-
-const getDurationValue = (value) => {
-    let _valueMinutes = parsePostgresIntervalToMoment(value) / 60;
-    if(_valueMinutes < 5){
-        return 0;
-    }
-    return round(_valueMinutes / 60, 2);
-}
-
-const parsePostgresIntervalToMoment = (value) => {
-    let result = 0; //seconds
-    if(!!value && !!value.hours){
-        result += value.hours * 60 * 60;
-    }
-    if(!!value && !!value.minutes){
-        result += value.minutes * 60;
-    }
-    if(!!value && !!value.seconds){
-        result += value.seconds;
-    }
-    return result;
-}
-
-const roundTo10 = (value) => {
-    return Math.ceil(value / 10) * 10;
-}
 
 export async function syncCities(){
     const query = knexTourenDb('vw_cities_to_search').select();
@@ -1193,7 +1034,6 @@ const bulk_insert_tours = async (entries) => {
             month_order: calcMonthOrder(entry),
             traverse: entry.traverse,
             quality_rating: entry.quality_rating,
-            user_rating_avg: entry.user_rating_avg,
             full_text: entry.full_text,
             gpx_data: entry.gpx_data,
             text_lang: entry.text_lang,

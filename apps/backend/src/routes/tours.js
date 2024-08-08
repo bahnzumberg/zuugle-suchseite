@@ -2,10 +2,9 @@ import express from 'express';
 let router = express.Router();
 import knex from "../knex";
 import {createImageFromMap, mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
-import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import moment from "moment";
-// import {tourPdf} from "../utils/pdf/tourPdf";
-import {getHost, replaceFilePath, round, get_domain_country, get_country_lanuage_from_domain, getAllLanguages } from "../utils/utils";
+import {getHost, replaceFilePath, round, get_domain_country } from "../utils/utils";
+import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 import logger from '../utils/logger';
 import { jsonToStringArray } from '../utils/pdf/utils';
@@ -92,18 +91,20 @@ const getWrapper = async (req, res) => {
     const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
                 descent, difficulty, difficulty_orig , duration, distance, title, type, 
                 number_of_days, traverse, country, state, range_slug, range, season, 
-                month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
+                month_order, quality_rating, max_ele,
                 min_connection_duration,
                 min_connection_no_of_transfers,
+                ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                 valid_tour
                 FROM ( 
                 SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
                 t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
                 t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
-                t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
+                t.month_order, t.quality_rating, t.max_ele,
                 1 AS valid_tour,
                 c2t.min_connection_duration,
-                c2t.min_connection_no_of_transfers
+                c2t.min_connection_no_of_transfers,
+                c2t.avg_total_tour_duration
                 FROM tour as t 
                 INNER JOIN city2tour AS c2t 
                 ON c2t.tour_id=t.id 
@@ -114,29 +115,32 @@ const getWrapper = async (req, res) => {
                 SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
                 t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
                 t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
-                'g' as season, 0 as month_order, 0 as quality_rating, 0 as user_rating_avg, null ascities, 
-                null as cities_object, 0 as max_ele, 
+                'g' as season, 0 as month_order, 0 as quality_rating, 
+                0 as max_ele, 
                 0 AS valid_tour,
                 0 as min_connection_duration,
-                0 as min_connection_no_of_transfers
+                0 as min_connection_no_of_transfers,
+                0 as avg_total_tour_duration
                 FROM tour_inactive as t WHERE t.id=${id}
                 ORDER BY valid_tour DESC LIMIT 1) as a`
 
     const sql3= `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
                 descent, difficulty, difficulty_orig , duration, distance, title, type, 
                 number_of_days, traverse, country, state, range_slug, range, season, 
-                month_order, quality_rating, user_rating_avg, cities, cities_object, max_ele,
+                month_order, quality_rating, max_ele,
                 min_connection_duration,
                 min_connection_no_of_transfers,
+                ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                 valid_tour
                 FROM ( 
                 SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
                 t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
                 t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
-                t.month_order, t.quality_rating, t.user_rating_avg, t.cities, t.cities_object, t.max_ele,
+                t.month_order, t.quality_rating, t.max_ele,
                 2 AS valid_tour,
                 c2t.min_connection_duration,
-                c2t.min_connection_no_of_transfers
+                c2t.min_connection_no_of_transfers,
+                c2t.avg_total_tour_duration
                 FROM tour as t 
                 INNER JOIN city2tour AS c2t 
                 ON c2t.tour_id=t.id 
@@ -377,6 +381,7 @@ const listWrapper = async (req, res) => {
                         CASE WHEN t.text_lang='it' THEN 1 ELSE 0 END AS order_lang_it,
                         c2t.min_connection_duration,
                         c2t.min_connection_no_of_transfers, 
+                        ROUND(c2t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                         t.ascent, 
                         t.descent, 
                         t.difficulty, 
@@ -385,9 +390,7 @@ const listWrapper = async (req, res) => {
                         t.number_of_days, 
                         t.traverse, 
                         t.quality_rating,
-                        t.month_order,
-                        t.cities,
-                        t.cities_object
+                        t.month_order
                         FROM city2tour AS c2t 
                         INNER JOIN tour AS t 
                         ON c2t.tour_id=t.id 
@@ -657,7 +660,7 @@ const filterWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // gets the languages from the query
 
-    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'user_rating_avg', 'cities', 'cities_object', 'max_ele', 'text_lang']);
+    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang']);
 
     let where = {};
     let whereRaw = null;
@@ -1260,18 +1263,6 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
 
     if(!!addDetails){
-        try {
-            if(!!city && !!entry.cities_object[city] && !!entry.cities_object[city].total_tour_duration){
-                entry.total_tour_duration = entry.cities_object[city].total_tour_duration
-            } else {
-                entry.total_tour_duration = entry.duration;
-            }
-        }
-        catch (error) {
-            logger(`Error in prepareTourEntry: ${error}`);
-            entry.total_tour_duration = entry.duration;
-        }
-
         if(!!city){
             const toTour = await knex('fahrplan').select('totour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('totour_track_key').first();
             const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
@@ -1290,8 +1281,6 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
-
-        console.log("entry.active: ", entry.active)
     }
     return entry;
 }
