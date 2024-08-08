@@ -213,7 +213,7 @@ function Start({
             <Box
               sx={{
                 marginTop: "20px",
-                padding: "30px 10px",
+                padding: isMobile ? '30px 20px' : '30px 10px' ,
                 background: "#EBEBEB",
                 borderRadius: "30px",
               }}
