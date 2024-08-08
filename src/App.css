@@ -121,6 +121,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 /* Ensuring the icon and text display correctly within the limited space */
 .tour-card-map .MuiBox-root {
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
