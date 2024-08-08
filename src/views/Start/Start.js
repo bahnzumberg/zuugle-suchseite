@@ -224,7 +224,7 @@ function Start({
                   textAlign: "left",
                   paddingTop: "20px",
                   paddingBottom: "15px",
-                  marginLeft: !isMobile ? "45px" : null
+                  marginLeft: !isMobile ? "64px" : null
                 }}
               >
                 {getFavouriteToursText()}

@@ -73,8 +73,8 @@ export default function ScrollingTourCardContainer({
         display: "grid",
         width: "screen",
         gridTemplateColumns: isMobile ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
-        gap: "40px",
-        marginLeft: !isMobile ? "45px" : null
+        gap: "25px",
+        marginLeft: !isMobile ? "64px" : null
       }}
     >
     {isLoading ? (
