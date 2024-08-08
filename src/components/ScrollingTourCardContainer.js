@@ -1,7 +1,6 @@
 import * as React from "react";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useTranslation } from "react-i18next";
@@ -15,7 +14,6 @@ export default function ScrollingTourCardContainer({
   isMobile
 }) {
   const { t } = useTranslation();
-  // const isMobile = useMediaQuery("(max-width:600px)");
   const firstSet = tours.slice(0, 4);
   const secondSet = tours.slice(4, 7);
 
@@ -75,7 +73,7 @@ export default function ScrollingTourCardContainer({
         display: "grid",
         width: "screen",
         gridTemplateColumns: isMobile ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
-        gap: "20px",
+        gap: "40px",
         marginLeft: !isMobile ? "45px" : null
       }}
     >
