@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
-import {useRef} from "react";
+import { useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
@@ -8,12 +8,12 @@ import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
-import { useSearchParams ,useParams} from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
   getTopLevelDomain,
-  titleCase
+  titleCase,
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -27,7 +27,9 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
-
+import { capitalize } from "lodash";
+import { Modal, Typography, useMediaQuery } from "@mui/material";
+import Close from "../../icons/Close";
 
 export function Search({
   loadTours,
@@ -43,76 +45,86 @@ export function Search({
   filter,
   counter,
   setCounter,
-  setFilterValues, 
+  setFilterValues,
   filterValues,
-  mapBounds
+  mapBounds,
 }) {
-
-
   //navigation
   const navigate = useNavigate();
   // Translation
   const { t } = useTranslation();
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   let language = i18next.resolvedLanguage;
 
-  let filterCountLocal = !!localStorage.getItem("filterCount") ? localStorage.getItem("filterCount") : null;
+  let filterCountLocal = !!localStorage.getItem("filterCount")
+    ? localStorage.getItem("filterCount")
+    : null;
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
   const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
+  const [showMobileModal, setShowMobileModal] = useState(false);
+
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
-  const {cityOne, idOne} = useParams()
+  const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
-    label: cityParam,
+    label: cityParam || capitalize(cityOne),
     value: cityParam,
   });
 
-  
+  useEffect(() => {
+    console.log("L72 Search/ cityParam :", cityParam);
+    console.log("L73 Search/ capitalize(cityOne)", capitalize(cityOne));
+    console.log("**************************************************");
+    console.log("L74 Search/ cityOne", cityOne);
+    console.log("L75 Search/ idOne", idOne);
+  }, [cityParam, cityOne, idOne]);
+
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
-  const [activeFilter, setActiveFilter] = useState(false)
+  const [activeFilter, setActiveFilter] = useState(false);
   const [scrollToTop, setScrollToTop] = useState(false);
 
   const isMasterMarkersSet = useRef(false);
 
   useEffect(() => {
-    if ( getTopLevelDomain() == 'li') { 
-      setCityInput('vaduz');
-      setCity({label:'Vaduz', value:'vaduz'});
+    if (getTopLevelDomain() == "li") {
+      setCityInput("vaduz");
+      setCity({ label: "Vaduz", value: "vaduz" });
     }
   }, []);
 
   useEffect(() => {
     if (scrollToTop) {
-      window.scrollTo({ top: 0 , behavior: 'smooth'});
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [scrollToTop]);
-  
+
   useEffect(() => {
-    const filterParamValue = searchParams.get('filter');
+    const filterParamValue = searchParams.get("filter");
     if (filterParamValue) {
       setActiveFilter(!!counter && counter > 0);
     }
   }, [searchParams, counter]);
 
   useEffect(() => {
-    if(!!mapBounds) return ; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
+    if (!!mapBounds) return; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
 
     // pull out values from URL params
-    let city
+    let city;
     if (cityOne) {
-      city = cityOne
-    } 
-    else {
+      city = cityOne;
+    } else {
       city = searchParams.get("city");
     }
-    let range = searchParams.get("range"); 
-    let state = searchParams.get("state"); 
-    let country = searchParams.get("country"); 
-    let type = searchParams.get("type"); 
+    let range = searchParams.get("range");
+    let state = searchParams.get("state");
+    let country = searchParams.get("country");
+    let type = searchParams.get("type");
     let search = searchParams.get("search");
     let filter = searchParams.get("filter");
     let sort = searchParams.get("sort");
@@ -139,12 +151,14 @@ export function Search({
     }
     // todo : note that this code here checks if there is a search param ONLY if there is NO range param
     else if (!!search) {
-      setSearchPhrase(search);  //TODO : do we need to do actual search if search is a city? see line 138 comment
+      setSearchPhrase(search); //TODO : do we need to do actual search if search is a city? see line 138 comment
 
-      if (city === null && !search.includes(' ')) {
+      if (city === null && !search.includes(" ")) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
-        // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city. 
-        let cityEntry = allCities.find((e) => e.value === search.toLowerCase().replace('ü', 'ue')); // find the city object in array "allCities"
+        // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city.
+        let cityEntry = allCities.find(
+          (e) => e.value === search.toLowerCase().replace("ü", "ue")
+        ); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
@@ -153,18 +167,15 @@ export function Search({
           setSearchParams(searchParams);
         }
       }
-    }
-    else if (!!state) {
+    } else if (!!state) {
       // state might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(state);
       setRegion({ value: state, label: state, type: "state" });
-    }
-    else if (!!country) {
+    } else if (!!country) {
       // country might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(country);
       setRegion({ value: country, label: country, type: "country" });
-    }
-    else if (!!type) {
+    } else if (!!type) {
       // type might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(type);
       setRegion({ value: type, label: type, type: "type" });
@@ -172,10 +183,10 @@ export function Search({
 
     //Remaining code in this useEffect is for Main page only .
     //=======================================================
-    if (!!!isMain ) {
+    if (!!!isMain) {
       return;
-    }else{
-      isMasterMarkersSet.current = false ;
+    } else {
+      isMasterMarkersSet.current = false;
     }
 
     let _filter = !!filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
@@ -192,29 +203,41 @@ export function Search({
     // flag active filter if count > 0
     !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
     // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
-     
-    const bounds = (!!searchParams.get("map") && searchParams.get("map") === true && !!mapBounds) ? mapBounds : null; 
+
+    const bounds =
+      !!searchParams.get("map") &&
+      searchParams.get("map") === true &&
+      !!mapBounds
+        ? mapBounds
+        : null;
 
     let result = loadTours({
       city: city,
-      range: range, 
-      state: state, 
-      country: country, 
-      type: type, 
+      range: range,
+      state: state,
+      country: country,
+      type: type,
       search: search,
-      filter: filterValues ? filterValues : filter,  // get this from Filter.js (through Search and Main)
+      filter: filterValues ? filterValues : filter, // get this from Filter.js (through Search and Main)
       sort: sort,
       provider: provider,
       map: searchParams.get("map"),
-      bounds: bounds
+      bounds: bounds,
     });
 
     result.then((res) => {
       let importedMarkersArray = res.data.markers;
-      
-      if (!isMasterMarkersSet.current && importedMarkersArray && importedMarkersArray.length > 0) {
-        localStorage.setItem('masterMarkers', JSON.stringify(importedMarkersArray));
-        isMasterMarkersSet.current = true;  // Set the flag to true to avoid future updates
+
+      if (
+        !isMasterMarkersSet.current &&
+        importedMarkersArray &&
+        importedMarkersArray.length > 0
+      ) {
+        localStorage.setItem(
+          "masterMarkers",
+          JSON.stringify(importedMarkersArray)
+        );
+        isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
       }
     });
   }, [
@@ -230,7 +253,7 @@ export function Search({
     searchParams && searchParams.get("map"),
     searchParams && searchParams.get("p"),
     searchParams,
-    setSearchParams
+    setSearchParams,
   ]); // end useEffect
 
   // store city in localstorage
@@ -241,7 +264,7 @@ export function Search({
   const resetFilterLocalStorage = () => {
     localStorage.removeItem("filterValues");
     localStorage.setItem("filterCount", 0);
-  }
+  };
 
   // Filter modal constructed here
   const openFilter = () => {
@@ -267,33 +290,30 @@ export function Search({
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
   const handleFilterSubmit = ({ filterValues, filterCount }) => {
-    
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
       setCounter(filterCount);
       setActiveFilter(true);
-      !!filterValues && setFilterValues(filterValues)
+      !!filterValues && setFilterValues(filterValues);
       localStorage.setItem("filterValues", JSON.stringify(filterValues));
       localStorage.setItem("filterCount", filterCount);
-      window.location.reload(); 
+      window.location.reload();
     } else {
       setActiveFilter(false);
       searchParams.delete("filter");
       localStorage.removeItem("filterValues");
       localStorage.setItem("filterCount", 0);
-
     }
   };
-
 
   const handleResetFilter = () => {
     hideModal();
     handleFilterChange(null);
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
-    setFilterValues(null);  // reset state in parent Main
-    resetFilterLocalStorage()
+    setFilterValues(null); // reset state in parent Main
+    resetFilterLocalStorage();
   };
 
   const handleFilterChange = (entry) => {
@@ -309,7 +329,7 @@ export function Search({
   };
 
   // search handling function
-  
+
   const search = async (tempRegion = null) => {
     let values = {};
     if (!!city && !!city.value) {
@@ -324,16 +344,14 @@ export function Search({
       values[_region.type] = _region.value;
     }
     // assign values.search
-    values.search = suggestion
-      ? suggestion
-      : searchPhrase
-      ? searchPhrase
-      : "";
+    values.search = suggestion ? suggestion : searchPhrase ? searchPhrase : "";
 
     // values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
-    values.map = searchParams.get("map"); 
+    values.map = searchParams.get("map");
     values.provider = searchParams.get("p");
-    values.filter = !!searchParams.get("filter") ?  searchParams.get("filter") : null;
+    values.filter = !!searchParams.get("filter")
+      ? searchParams.get("filter")
+      : null;
 
     setOrRemoveSearchParam(searchParams, "city", values.city);
     setOrRemoveSearchParam(searchParams, "range", values.range);
@@ -343,20 +361,22 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
     // added for issue #208
-    pageKey !== "detail" && setOrRemoveSearchParam(searchParams, "filter", values.filter);
+    pageKey !== "detail" &&
+      setOrRemoveSearchParam(searchParams, "filter", values.filter);
     // if(pageKey === "detail") {
     //   resetFilterLocalStorage();
     // }
 
     setSearchParams(searchParams);
-    
-    if (!!goto) { // goto = "/suche"  comes from Start->Header->SearchContainer->Search->search() and from detail page
+
+    if (!!goto) {
+      // goto = "/suche"  comes from Start->Header->SearchContainer->Search->search() and from detail page
       navigate(`${goto}?${searchParams.toString()}`);
       // window.location.reload();
-    } else { // coming in from Main filter submit  
+    } else {
+      // coming in from Main filter submit
       await loadTours(values).then((res) => {
-
-        if(pageKey === "detail") {
+        if (pageKey === "detail") {
           navigate(`/suche?${searchParams.toString()}`);
         }
         //if markers received then assign markers array to localStorage('masterMarkers')
@@ -367,26 +387,65 @@ export function Search({
     }
   }; // end search()
 
-
   const showCityModal = () => {
+    if (isMobile) {
+      setShowMobileModal(true)
+    }else{
+
     showModal("MODAL_COMPONENT", {
       CustomComponent: FullScreenCityInput,
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        
-        if (!!city && pageKey !== "detail") {
+        // console.log("L379 Search / cityOne :", cityOne)
+        if (!!cityOne && !!idOne && pageKey === "detail") {
+          setCityInput(city.label);
+          setCity(city.value);
+          navigate(`tour/${idOne}/${city.value}`);
+        } else if (!!city) {
           setCityInput(city.label);
           setCity(city);
-          pageKey==="start" && updateCapCity(city.label);
-          searchParams.set("city", city.value);
-          setSearchParams(searchParams);
+          pageKey === "start" && updateCapCity(city.label);
         }
         hideModal();
       },
-      idOne,
-      cityOne, 
-      pageKey,
+      cityOne: { cityOne },
+      idOne: { idOne },
+      setSearchParams,
+      title: "",
+      sourceCall: "city",
+      page: page,
+      srhBoxScrollH: document
+        .querySelector(".main-search-bar")
+        .getBoundingClientRect().top,
+      modalSize: "lg",
+      onBack: () => {
+        hideModal();
+      },
+    });
+  }
+
+  };
+  const showCityModalMobile = () => {
+    showModal("MODAL_COMPONENT", {
+      CustomComponent: FullScreenCityInput,
+      searchParams,
+      initialCity: cityInput,
+      onSelect: async (city) => {
+        // console.log("L379 Search / cityOne :", cityOne)
+        if (!!cityOne && !!idOne && pageKey === "detail") {
+          setCityInput(city.label);
+          setCity(city.value);
+          navigate(`tour/${idOne}/${city.value}`);
+        } else if (!!city) {
+          setCityInput(city.label);
+          setCity(city);
+          pageKey === "start" && updateCapCity(city.label);
+        }
+        hideModal();
+      },
+      cityOne: { cityOne },
+      idOne: { idOne },
       setSearchParams,
       title: "",
       sourceCall: "city",
@@ -400,12 +459,31 @@ export function Search({
       },
     });
   };
-  
+
   const showSearchModal = () => {
+    if (isMobile) {
+      setShowMobileModal(true);
+    } else {
+      showModal("MODAL_COMPONENT", {
+        CustomComponent: AutosuggestSearchTour,
+        onSearchSuggestion: getSearchSuggestion,
+        city: city ? city : cityOne,
+        language: language,
+        title: "",
+        sourceCall: "search",
+        page: page,
+        srhBoxScrollH: document
+          .querySelector(".main-search-bar")
+          .getBoundingClientRect().top,
+        modalSize: "lg",
+      });
+    }
+  };
+  const showSearchModalMobile = () => {
     showModal("MODAL_COMPONENT", {
       CustomComponent: AutosuggestSearchTour,
       onSearchSuggestion: getSearchSuggestion,
-      city: city ? city: cityOne,
+      city: city ? city : cityOne,
       language: language,
       title: "",
       sourceCall: "search",
@@ -417,20 +495,18 @@ export function Search({
     });
   };
 
-    
-  const handleGoButton = () =>  {
-    if (!!isMain ) {
-      isMasterMarkersSet.current = false ;
+  const handleGoButton = () => {
+    if (!!isMain) {
+      isMasterMarkersSet.current = false;
     }
     search();
     // window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);
-  }
-    
- 
+  };
+
   const getSearchSuggestion = (autoSuggestion) => {
-    if (autoSuggestion === '') {
+    if (autoSuggestion === "") {
       searchParams.delete("search");
       setSearchPhrase("");
       setSearchParams(searchParams);
@@ -442,8 +518,248 @@ export function Search({
     search();
   };
 
+  const MobileModal = () => {
+    const style = {
+      overflowY: "scroll",
+      overflowX: "hidden",
+      display: "block",
+      position: "absolute",
+      top: {
+        xs: 0,
+      },
+      bottom: { xs: "0", sm: "auto" },
+      left: "50%",
+      transform: {
+        xs: "translate(-50%, 0)",
+        sm: "translate(-50%, 0)",
+      },
+      width: "100%",
+      maxWidth: "618px",
+      minHeight: "484px",
+      bgcolor: "#EBEBEB",
+      boxShadow: "0px 2px 15px 0px rgba(0, 0, 0, 0.15)",
+      border: "0",
+      outline: "none",
+      borderRadius: "18px",
+      padding: "20px 25px",
+      boxSizing: "border-box",
+    };
+
+    return (
+      <Modal
+        open={showMobileModal}
+        onClose={() => {
+          setShowMobileModal(false);
+        }}
+      >
+        <Box sx={style} className={"my-modal"}>
+          <Box
+            sx={{
+              position: "absolute",
+              right: "20px",
+              top: "20px",
+              display: "flex",
+              flexDirection: "row",
+              
+            }}
+          >
+            <Typography
+              sx={{
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontFamily: "Open Sans",
+                fontSize: "13px",
+                fontWeight: "600",
+                lineHeight: "18px",
+              }}
+              onClick={() => {
+                setShowMobileModal(false);
+              }}
+              mr={1}
+              mt={1}
+            >
+              {t("search.abbrechen")}
+            </Typography>
+            <Box
+              sx={{
+                padding: "8px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "12px"
+              }}
+              onClick={() => {
+                setShowMobileModal(false);
+              }}
+            >
+              <Close style={{ stroke: "#000000", strokeWidth: 1 }} />
+            </Box>
+          </Box>
+          <div
+            onClick={() => {
+              setShowMobileModal(false);
+              showSearchModalMobile();
+            }}
+            style={{
+              backgroundColor: "white",
+              paddingTop: 12,
+              paddingBottom: 18,
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 15,
+              marginTop: 100,
+            }}
+          >
+            <div
+              style={{
+                marginLeft: 8,
+                marginBottom: 20,
+              }}
+            >
+              <span className="search-bar--searchPhase" style={{}}>
+               {t("start.suche")}
+              </span>
+            </div>
+            <Box
+              sx={{
+                width: "90%",
+                display: "flex",
+                alignItems: "center",
+                borderWidth: "1px",
+                borderColor: "#DDDDDD",
+                borderStyle: "solid",
+                padding: 2,
+                borderRadius: 10,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <SearchIcon
+                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+                />
+                <Box
+                  sx={{
+                    width: {
+                      xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
+                      md: !cityInput && pageKey === "detail" ? "100%" : "486px",
+                    },
+                  }}
+                >
+                  <Grid container>
+                    <Grid
+                      item
+                      xs={12}
+                      md={!cityInput && pageKey === "detail" ? 12 : 12}
+                      sx={{
+                        paddingRight: "16px",
+                        padding: 0,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          paddingLeft: "14px",
+                          justifyContent: "flex-start",
+                          display: "flex",
+                        }}
+                      >
+                        <span className="search-bar--searchPhase">
+                          {searchParams.get("search")
+                            ? searchParams.get("search")
+                            : t("start.suche")}
+                        </span>
+                      </Box>
+                    </Grid>
+                    {/* city -----   modal ----  below */}
+                  </Grid>
+                </Box>
+              </Box>
+            </Box>
+          </div>
+          <div
+            onClick={() => {
+              setShowMobileModal(false);
+              showCityModalMobile();
+            }}
+            style={{
+              backgroundColor: "white",
+              paddingTop: 12,
+              paddingBottom: 18,
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 15,
+              marginTop: 60,
+            }}
+          >
+            <div
+              style={{
+                marginLeft: 8,
+                marginBottom: 20,
+              }}
+            >
+              <span className="search-bar--searchPhase" style={{}}>
+                {t("start.heimatbahnhof")}
+              </span>
+            </div>
+            <Box
+              sx={{
+                width: "90%",
+                display: "flex",
+                alignItems: "center",
+                borderWidth: "1px",
+                borderColor: "#DDDDDD",
+                borderStyle: "solid",
+                padding: 2,
+                borderRadius: 10,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <SearchIcon
+                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+                />
+                <Box
+                  sx={{
+                    width: {
+                      xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
+                      md: !cityInput && pageKey === "detail" ? "100%" : "486px",
+                    },
+                  }}
+                >
+                  <Grid container>
+                    <Grid
+                      item
+                      xs={12}
+                      md={!cityInput && pageKey === "detail" ? 12 : 12}
+                      sx={{
+                        paddingRight: "16px",
+                        padding: 0,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          paddingLeft: "14px",
+                          justifyContent: "flex-start",
+                          display: "flex",
+                        }}
+                      >
+                        <span className="search-bar--searchPhase">
+                          {cityInput.length > 0
+                            ? cityInput
+                            : t("start.heimatbahnhof")}
+                        </span>
+                      </Box>
+                    </Grid>
+                    {/* city -----   modal ----  below */}
+                  </Grid>
+                </Box>
+              </Box>
+            </Box>
+          </div>
+        </Box>
+      </Modal>
+    );
+  };
+
   return (
     <Fragment>
+      <MobileModal />
       <Box
         className="main-search-bar"
         sx={{
@@ -504,9 +820,11 @@ export function Search({
                     display: "flex",
                   }}
                 >
-                    <span className="search-bar--searchPhase">
-                      {searchParams.get("search") ? searchParams.get("search") : t("start.suche")}
-                    </span>
+                  <span className="search-bar--searchPhase">
+                    {searchParams.get("search")
+                      ? searchParams.get("search")
+                      : t("start.suche")}
+                  </span>
                 </Box>
               </Grid>
               {/* city -----   modal ----  below */}
@@ -536,7 +854,7 @@ export function Search({
                         ? cityInput
                         : t("start.heimatbahnhof")}
                     </span>
-                  ) : (!cityInput ) && pageKey === "detail" ? (
+                  ) : !cityInput && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
                       sx={{
@@ -564,8 +882,8 @@ export function Search({
           <Box>
             {!cityInput && pageKey === "detail" ? (
               ""
-            ) :  (
-            // ) : !!initialIsMapView ? null : (
+            ) : (
+              // ) : !!initialIsMapView ? null : (
               <Box
                 sx={{
                   marginLeft: "10px",
@@ -574,10 +892,8 @@ export function Search({
                 }}
                 className="filter-icon-container"
               >
-                {(!!isMain ) ? (
-                  <IconButton
-                    onClick={() => openFilter()}
-                  >
+                {!!isMain ? (
+                  <IconButton onClick={() => openFilter()}>
                     <FilterIcon
                       sx={{
                         transition: "stroke 0.3s",
