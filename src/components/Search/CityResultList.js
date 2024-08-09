@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useNavigate} from "react-router"
 import Box from "@mui/material/Box";
 import { Divider, Typography } from "@mui/material";
 import { Fragment, useState } from "react";
@@ -22,6 +23,8 @@ export function CityResultList({
   setSearchParams,
   showNotFoundEntry = true,
   onSelect,
+  idOne,
+  cityOne
 }) {
 
 
@@ -49,6 +52,7 @@ export function CityResultList({
     localStorage.setItem("city", city);
   };
 
+  const navigate = useNavigate();
 
   return (
     <List>
@@ -72,12 +76,31 @@ export function CityResultList({
               if (!!onSelect) {
                 onSelect(_city);
               }
+              console.log("L75 ListItem, idOne :", idOne)
+              console.log("L76 ListItem, cityOne :", cityOne)
 
-              searchParams.set("city", _city.value);
-              setSearchParams(searchParams);
+              if(!!cityOne && !!idOne ){
+                setCityInput(_city.label);
+                setCity(_city.value)
+                navigate(`tour/${idOne}/${_city.value}`);
+                window.location.reload()
+              }
+
+              // if(!!cityOne && !!idOne && pageKey==="detail"){
+              //   setCityInput(city.label);
+              //   setCity(city.value)
+              //   navigate(`tour/${idOne}/${city.value}`);
+              // }else if (!!city ) {
+              //   setCityInput(city.label);
+              //   setCity(city);
+              //   pageKey==="start" && updateCapCity(city.label);
+              // }
+              // searchParams.set("city", _city.value);
+              // setSearchParams(searchParams);
 
               //wenn startseite lade touren
-              if (!!_city && !!_city.value) {
+              if (!!_city && !!_city.value && loadFavouriteTours) {
+                console.log("L85 loadFavouriteTours is true ")
                 loadFavouriteTours({
                   city: _city.value,
                   limit: 10,

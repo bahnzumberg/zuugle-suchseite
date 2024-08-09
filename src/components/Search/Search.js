@@ -374,20 +374,19 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        if(!!cityOne && !!idOne && pageKey==="detail"){
-          setCityInput(city.label);
-          setCity(city.value)
-          navigate(`tour/${idOne}/${city.value}`);
-        }else if (!!city ) {
+        
+        if (!!city && pageKey !== "detail") {
           setCityInput(city.label);
           setCity(city);
           pageKey==="start" && updateCapCity(city.label);
+          searchParams.set("city", city.value);
+          setSearchParams(searchParams);
         }
         hideModal();
       },
       idOne,
       cityOne, 
-      
+      pageKey,
       setSearchParams,
       title: "",
       sourceCall: "city",

@@ -145,6 +145,11 @@ const DetailReworked = (props) => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setCityI(_city)
+  }, [_city]);
+  
+
   const goToStartPage = () => {
     let city = searchParams.get("city");
     navigate(`/?${!!city ? "city=" + city : ""}`);
@@ -286,10 +291,14 @@ useEffect(() => {
             );
 
             localStorage.setItem("tourId", res.tourId);
-
-           
+            console.log("L294 Detail idOne :", idOne)
+            console.log("L295 Detail cityOne :", cityOne)
+            if(!!idOne && !!cityOne){
+              navigate(`/tour/${idOne}/${_city.value}`);
+            }else{
               //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-            navigate(`/tour?${redirectSearchParams.toString()}`);
+              navigate(`/tour?${redirectSearchParams.toString()}`);
+            }
             
        
           } else {

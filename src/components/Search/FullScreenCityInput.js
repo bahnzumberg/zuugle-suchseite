@@ -22,7 +22,8 @@ function FullScreenCityInput({
   initialCity,
   onSelect,
   cityOne,
-  idOne
+  idOne,
+  pageKey
 }) {
   const [cityInput, setCityInput] = useState("");
   const [city, setCity] = useState(null);
@@ -53,7 +54,7 @@ function FullScreenCityInput({
           setCity={setCity}
           setCityInput={setCityInput}
           isCityLoading={isCityLoading}
-          loadFavouriteTours={loadFavouriteTours}
+          loadFavouriteTours={!!pageKey && pageKey==='start' && loadFavouriteTours}
           loadRanges={loadRanges}
           setOpenCitySearch={setOpenCitySearch}
           searchParams={searchParams}
