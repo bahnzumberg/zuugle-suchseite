@@ -28,14 +28,6 @@ function FullScreenCityInput({
   const [city, setCity] = useState(null);
   const [openCitySearch, setOpenCitySearch] = useState(false);
 
-  // const {cityOne, idOne} = useParams();
-  // const navigate = useNavigate();
-
-
-  console.log("L33 FullScreen / cityOne", cityOne.cityOne)
-  console.log("L34 FullScreen / initialCity", initialCity)
-  console.log("L35 FullScreen / idOne", idOne)
-
   useEffect(() => {
     setCityInput(initialCity);
   }, [initialCity]);
