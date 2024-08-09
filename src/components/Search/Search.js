@@ -385,6 +385,8 @@ export function Search({
         }
         hideModal();
       },
+      idOne,
+      cityOne, 
       
       setSearchParams,
       title: "",
