@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useEffect } from "react";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
@@ -28,11 +27,6 @@ export default function ScrollingTourCardContainer({
       <img src={imageSrc} alt="Advertisment" className="tour_card_Image" />
     </Box>
   );
-
-
- // useEffect(()=>{
- //
- // },[city])
 
   const renderFourth = () => (
     <Box

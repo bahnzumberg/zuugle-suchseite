@@ -51,16 +51,23 @@ function Start({
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  let city = "";
+  let _city = searchParams.get("city");
+  const [cityState, setCityState] = useState(_city);
+
   const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
-  let city = "";
-
-  let _city = searchParams.get("city");
+ 
   let totalTourRef = useRef(0);
 
   const isMobile = useMediaQuery("(max-width:678px)");
+
+ // useEffect(()=>{
+
+   // setCityState()
+ // })
 
   useEffect(() => {
     // matomo
@@ -112,7 +119,7 @@ function Start({
       abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   const getCity = () => {
     searchParamCity = searchParams.get("city");
