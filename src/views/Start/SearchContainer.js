@@ -9,6 +9,8 @@ export default function SearchContainer({
   showMobileMenu,
   setShowMobileMenu,
   updateCapCity,
+  idOne,
+  cityOne
 }) {
 
   return (
@@ -21,6 +23,8 @@ export default function SearchContainer({
         showMobileMenu={showMobileMenu ?? true}
         setShowMobileMenu={setShowMobileMenu ?? true}
         updateCapCity={updateCapCity}
+        idOne={idOne}
+        cityOne={cityOne}
       />
     </Box>
   );

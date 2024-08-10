@@ -8,7 +8,7 @@ import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
@@ -48,6 +48,8 @@ export function Search({
   setFilterValues,
   filterValues,
   mapBounds,
+  idOne,
+  cityOne
 }) {
   //navigation
   const navigate = useNavigate();
@@ -70,19 +72,17 @@ export function Search({
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
-  const { cityOne, idOne } = useParams();
+  // const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
     label: cityParam || capitalize(cityOne),
     value: cityParam,
   });
 
   useEffect(() => {
-    console.log("L72 Search/ cityParam :", cityParam);
-    console.log("L73 Search/ capitalize(cityOne)", capitalize(cityOne));
     console.log("**************************************************");
     console.log("L74 Search/ cityOne", cityOne);
     console.log("L75 Search/ idOne", idOne);
-  }, [cityParam, cityOne, idOne]);
+  }, []);
 
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
@@ -432,11 +432,13 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        // console.log("L379 Search / cityOne :", cityOne)
+        console.log("L435 Search / cityOne :", cityOne)
+        console.log("L436 Search / idOne :", idOne)
         if (!!cityOne && !!idOne && pageKey === "detail") {
+          console.log("YOU ARE AT L438 !")
           setCityInput(city.label);
           setCity(city.value);
-          navigate(`tour/${idOne}/${city.value}`);
+          navigate(`tour/${idOne.idOne}/${city.value}`);
         } else if (!!city) {
           setCityInput(city.label);
           setCity(city);

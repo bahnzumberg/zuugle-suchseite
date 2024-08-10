@@ -73,7 +73,7 @@ export default function ItineraryTourTimeLineContainer({
   }
 
   useEffect(() => {
-    if (city=='no-city'){
+    if (city ==='no-city'){
       setCity_selected(false);
     }
     else {

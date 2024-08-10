@@ -803,7 +803,7 @@ useEffect(() => {
               }}
             >
               <Box sx={{ width: "100%" }}>
-                <SearchContainer pageKey="detail" goto={"/suche"} />
+                <SearchContainer pageKey="detail" goto={"/suche"} idOne={idOne} cityOne={cityOne} />
               </Box>
             </Box> 
           </Box>
