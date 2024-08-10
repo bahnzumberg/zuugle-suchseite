@@ -454,7 +454,8 @@ export function Search({
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
-          
+          searchParams.set("city", city.value);
+          setSearchParams(searchParams);
 
         }
         hideModal();
