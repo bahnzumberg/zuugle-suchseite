@@ -8,7 +8,7 @@ import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import { loadCities } from "../../actions/cityActions";
 import { Fragment, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
@@ -48,8 +48,8 @@ export function Search({
   setFilterValues,
   filterValues,
   mapBounds,
-  idOne,
-  cityOne
+  // idOne,
+  // cityOne
 }) {
   //navigation
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export function Search({
   let suggestion; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
   const cityParam = urlSearchParams.get("city");
-  // const { cityOne, idOne } = useParams();
+  const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
     label: capitalize(cityParam) || capitalize(cityOne),
     value: cityParam,
@@ -85,7 +85,7 @@ export function Search({
     console.log("L75 Search/ cityParam", cityParam);
     console.log("L75 Search/ city", city);
 
-  }, []);
+  }, [city, cityParam]);
 
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
@@ -449,7 +449,7 @@ export function Search({
           console.log("YOU ARE AT L438 !")
           setCityInput(city.label);
           setCity(city.value);
-          navigate(`tour/${idOne.idOne}/${city.value}`);
+          navigate(`tour/${idOne}/${city.value}`);
         } else if (!!city) {
           setCityInput(city.label);
           setCity(city);
@@ -459,8 +459,8 @@ export function Search({
         }
         hideModal();
       },
-      cityOne: { cityOne },
-      idOne: { idOne },
+      cityOne:  cityOne ,
+      idOne:  idOne ,
       setSearchParams,
       title: "",
       sourceCall: "city",

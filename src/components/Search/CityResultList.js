@@ -80,6 +80,7 @@ export function CityResultList({
               console.log("L76 ListItem, cityOne :", cityOne)
 
               if(!!cityOne && !!idOne ){
+                console.log("L83 ==> idOne :", idOne)
                 setCityInput(_city.label);
                 setCity(_city.value)
                 navigate(`tour/${idOne}/${_city.value}`);
