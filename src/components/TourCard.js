@@ -7,7 +7,6 @@ import {convertNumToTime} from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 import { Chip } from "@mui/material";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
@@ -15,26 +14,19 @@ const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 export default function TourCard({
   tour,
   onSelectTour,
-  loadTourConnections,
   city,
 }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
 
-  const [connectionLoading, setConnectionLoading] = useState(true);
-  const [connections, setConnections] = useState([]);
-  const [returns, setReturns] = useState([]);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [imgSrc, setImgSrc] = useState("/logos/fallback.svg");
 
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
   let tourLink=``
-  if (!!city && city != null){
+  if (!!city && city != null && city !=='no-city'){
     tourLink = `/tour/${tour.id}/${city}`;
   } 
   else {
-    tourLink = `/tour/${tour.id}/no-city`
+     tourLink = `/tour/${tour.id}/no-city`
   }
 
   // i18next
@@ -42,7 +34,7 @@ export default function TourCard({
   const hm = t("details.hm_hoehenmeter");
 
   useEffect(() => {
-    if (JSON.stringify(tour.image_url)=='null') {
+    if (JSON.stringify(tour.image_url) === 'null') {
       setImage("/app_static/img/dummy.jpg")
     }
     else {
@@ -50,22 +42,9 @@ export default function TourCard({
     }
   }, [tour]);
 
-  useEffect(() => {
-    if (!!loadTourConnections && !!city) {
-      setConnectionLoading(true);
-      loadTourConnections({ id: tour.id, city: city }).then((res) => {
-        setConnectionLoading(false);
-        setConnections(res?.data?.connections);
-        setReturns(res?.data?.returns);
-      });
-    } else if (!!!city) {
-      setConnections([]);
-      setReturns([]);
-    }
-  }, [tour]);
-
   let value_best_connection_duration = tour.min_connection_duration;
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
+  let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
   const renderProps = () => {
     const values = [];
@@ -144,11 +123,10 @@ export default function TourCard({
             gap: "10px",
             paddingBottom: "5px",
             alignItems: "center",
-            // justifyContent: "center",
           }}
         >
           <img
-            src={`/app_static/logos/${tour.provider}.svg`}    
+            src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
             alt={tour.provider_name}
             style={{ borderRadius: "100%", height: "18px", width: "18px" }}
           />
@@ -173,7 +151,7 @@ export default function TourCard({
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
-            width: "100%",
+            width: "97%",
             gap: "8px",
             position: "absolute",
             bottom: "20px",
@@ -201,7 +179,7 @@ export default function TourCard({
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
             {t("main.dauer")} <br />
-            <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(tour?.total_tour_duration, true)}</span>
+            <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(value_avg_total_tour_duration, true)}</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import {
@@ -69,6 +70,9 @@ export function Main({
   const [mapBounds, setMapBounds] = useState(null);
   const [markersChanged, setMarkersChanged] = useState(false);
   const [showCardContainer, setShowCardContainer] = useState(true)
+
+  const isMobile = useMediaQuery("(max-width:678px)");
+
   
    // filter values in localStorage:
   // let filterCountLocal = !!localStorage.getItem("filterCount")
@@ -285,28 +289,25 @@ const handleShowCardContainer = useCallback((value) => {
         showMap={showMap} //to be used for other features
         mapBounds={mapBounds}
         markersChanged={markersChanged}
+        isMobile={isMobile}
       />
     </Box>
   );
 
-  let marginTopCards = showMap ? "20px" : "255px";
-  const paddingTopValue = showMap ? "3.3%" : "10.2%";
-  const largeScreenPaddingTop = showMap ? "1.42%" : "2.36%";
-  const paddingBottomValue = "25.5px";
+  let marginTopCards = showMap ? "20px" : "180px";
 
   const totalToursHeader = () => (
-    <Box elevation={0} className={"header-line-main"}>
+    <Box elevation={0} className={"header-line-main"} sx={{ width: "100%" }}>
           <Box
             sx={{
-              // paddingTop: paddingTop,
-              paddingTop: paddingTopValue,
-              // paddingBottom: "25.5px",
-              paddingBottom: paddingBottomValue,
+              paddingTop: showMap ? "3.3%" : "10.2%",
+              paddingBottom: "5.5px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               '@media (min-width: 900px)': {
-                paddingTop: largeScreenPaddingTop,
+                paddingTop: showMap ? "1.42%" : "2.36%",
+                // paddingTop: largeScreenPaddingTop,
               },
             }}
           >
@@ -357,7 +358,6 @@ const handleShowCardContainer = useCallback((value) => {
           sx={{
             height: {
               xs: "110px",
-              // md: "165px",
               md: "110px",
             },
           }}
@@ -425,6 +425,7 @@ const handleShowCardContainer = useCallback((value) => {
         </Box>
         {!showMap && totalToursHeader()}
       </Box>
+
       {/* {!!tours && tours.length > 0 && ( */}
       {!!totalTours && totalTours > 0 ? (
         <>

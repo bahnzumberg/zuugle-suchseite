@@ -91,14 +91,17 @@ module.exports = {
 			template: "./public/index.html",
 		}),
 		new CopyWebpackPlugin({
-			patterns: [{ from: "./public", to: "app_static" }],
+			patterns: [
+				{ from: "./public", to: "app_static" },
+				{ from: "./src/icons/svg/provider", to: "app_static/icons/provider" },
+			],
 		}),
 		new MiniCssExtractPlugin({
 			filename: "./app_static/[name].styles.css",
 			attributes: {},
 		}),
 		new webpack.DefinePlugin({
-			"process.env.REACT_APP_API_URL": JSON.stringify("https://dev.zuugle.at/api"),
+			"process.env.REACT_APP_API_URL": JSON.stringify("https://www2.zuugle.at/api"),
 		}),
 	],
 };

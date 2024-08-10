@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const BUILD_DIR = path.resolve(__dirname, 'build');
 // const SRC_DIR = path.resolve(__dirname, 'src');
@@ -14,6 +15,7 @@ module.exports = {
 		path: BUILD_DIR,
 		filename: './app_static/[name].bundle.js',
 		publicPath: "/", 
+		clean: true,
 	},
 	watch: true,
 	devServer: {
@@ -69,6 +71,9 @@ module.exports = {
 		],
 	},
 	plugins: [
+		new CleanWebpackPlugin({
+			cleanAfterEveryBuildPatterns: ['*.LICENSE.txt'],
+		}),
 		new webpack.HotModuleReplacementPlugin(),
 		new HtmlWebpackPlugin({
 			inject: true,
@@ -106,7 +111,11 @@ module.exports = {
 			template: './public/index-li.html',
 		}),
 		new CopyWebpackPlugin({
-			patterns: [{ from: './public', to: 'app_static' }],
+			patterns: [
+				{ from: "./public", to: "app_static" },
+				{ from: "./src/icons/svg/provider", to: "app_static/icons/provider" },
+				// { from: "./src/icons/svg", to: "app_static/icons" },
+			],
 		}),
 		new MiniCssExtractPlugin({
 			filename: './app_static/[name].styles.css',
@@ -131,7 +140,12 @@ module.exports = {
 		minimize: true,
 		minimizer: [
 			new TerserPlugin({
-				extractComments: 'all',
+				terserOptions: {
+					format: {
+						comments: false,
+					},	
+				},
+				extractComments: false,
 				parallel: true,
 			}),
 		],

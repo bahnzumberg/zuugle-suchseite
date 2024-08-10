@@ -17,7 +17,7 @@ export default function Footer({}) {
       <Grid container spacing={2}  sx={{ paddingBottom: "10px" }}>
         <Grid
           item
-          xs={6}
+          xs={12} sm={12} md={6} lg={6} xl={6}
           justifySelf="center"
           alignItems="center"
           style={{ alignItems: "flex-end" }}
@@ -32,7 +32,7 @@ export default function Footer({}) {
         </Grid>
         <Grid
           item
-          xs={6}
+          xs={12} sm={12} md={6} lg={6} xl={6}
           justifySelf="center"
           alignItems="center"
           style={{ alignItems: "flex-end" }}

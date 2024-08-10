@@ -1,6 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { lazy, useEffect, useState, useRef } from "react";
 import {
   loadTour,
@@ -50,14 +51,23 @@ function Start({
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  let city = "";
+  let _city = searchParams.get("city");
+  const [cityState, setCityState] = useState(_city);
+
   const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
-  let city = "";
-
-  let _city = searchParams.get("city");
+ 
   let totalTourRef = useRef(0);
+
+  const isMobile = useMediaQuery("(max-width:678px)");
+
+ // useEffect(()=>{
+
+   // setCityState()
+ // })
 
   useEffect(() => {
     // matomo
@@ -109,7 +119,7 @@ function Start({
       abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   const getCity = () => {
     searchParamCity = searchParams.get("city");
@@ -195,7 +205,7 @@ function Start({
           />
         )}
 
-        {!showMobileMenu && (
+        { (
           <Box elevation={0} className={"header-line"}>
             <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
               <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
@@ -205,15 +215,14 @@ function Start({
             </Box>
           </Box>
         )}
-        {!showMobileMenu && (
+        { (
           <Box className={"start-body-container"}>
             <Box
               sx={{
                 marginTop: "20px",
-                padding: "30px 40px",
+                padding: isMobile ? '30px 20px' : '30px 10px' ,
                 background: "#EBEBEB",
-                borderBottomLeftRadius: "30px",
-                borderBottomRightRadius: "30px",
+                borderRadius: "30px",
               }}
             >
               <Typography
@@ -222,6 +231,7 @@ function Start({
                   textAlign: "left",
                   paddingTop: "20px",
                   paddingBottom: "15px",
+                  marginLeft: !isMobile ? "64px" : null
                 }}
               >
                 {getFavouriteToursText()}
@@ -233,6 +243,7 @@ function Start({
                 city={searchParams.get("city")}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
+                isMobile={isMobile}
               />
             </Box>
 
@@ -266,7 +277,7 @@ function Start({
           </Box>
         )}
 
-        {!showMobileMenu && (
+        { (
           <MapBtn
             onClick={onClickMap}
             mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
@@ -274,7 +285,7 @@ function Start({
           ></MapBtn>
         )}
 
-        {!showMobileMenu && <Footer />}
+        { <Footer />}
       </Box>
     );
   }

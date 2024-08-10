@@ -2,21 +2,22 @@ import * as React from "react";
 import "./App.css";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { theme } from "./theme";
-import Start from "./views/Start/Start";
 import ModalRoot from "./components/ModalRoot";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import DetailReworked from "./views/Main/DetailReworked";
-import Search from "./components/Search/Search";
+// import Start from "./views/Start/Start";
+// import DetailReworked from "./views/Main/DetailReworked";
+// import Search from "./components/Search/Search";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 
 const Main = lazy(() => import("./views/Main/Main"));
-// const About = lazy(() => import("./views/Pages/About"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
-
+const DetailReworked  = lazy(() => import("./views/Main/DetailReworked"));
+const Search  = lazy(() => import("./components/Search/Search"));
+const Start  = lazy(() => import("./views/Start/Start"));
 
 
 
@@ -60,7 +61,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <div className="App">
+        <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Suspense
             fallback={
               <div style={{ height: "100%", width: "100%", padding: "20px" }}>

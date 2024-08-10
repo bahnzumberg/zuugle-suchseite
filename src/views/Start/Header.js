@@ -134,7 +134,7 @@ export default function Header({
         sx={{ position: "relative" }}
         style={{ backgroundImage: backgroundImage }}
       >
-        <Box component={"div"} className="rowing countryDiv">
+        <Box component={"div"} className="rowing blueDiv">
           <DomainMenu />
           <LanguageMenu />
         </Box>

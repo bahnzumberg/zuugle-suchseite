@@ -27,9 +27,8 @@ import fileDownload from "js-file-download";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import ProviderLogo from "../../icons/ProviderLogo";
 import DownloadIcon from "../../icons/DownloadIcon";
-// import PdfIcon from "../../icons/PdfIcon";
+import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
@@ -49,7 +48,7 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText, getTopLevelDomain } from "../../utils/globals";
+import { shortenText, parseFileName } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
 
@@ -58,32 +57,30 @@ const DetailReworked = (props) => {
 
   const {
     loadTour,
-    loadTours,
     loadTourConnectionsExtended,
     loadGPX,
     loadTourGpx,
     isGpxLoading,
     loadTourPdf,
     isPdfLoading,
-    // allCities,
     tour,
     loadCities,
     loadAllCities,
-    // showMobileMenu,
-    // setShowMobileMenu,
   } = props;
 
   const setGpxTrack = (url, loadGPX, _function) => {
-    loadGPX(url).then((res) => {
-      if (!!res && !!res.data) {
-        let gpx = new GpxParser(); //Create gpxParser Object
-        gpx.parse(res.data);
-        if (gpx.tracks.length > 0) {
-          const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-          _function(positions);
+    if(!!validTour){
+      loadGPX(url).then((res) => {
+        if (!!res && !!res.data) {
+          let gpx = new GpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            _function(positions);
+          }
         }
-      }
-    });
+      });
+    }
   };
 
   const [connections, setConnections] = useState(null);
@@ -95,7 +92,6 @@ const DetailReworked = (props) => {
   const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
-  // const [tourDifficultyOrig, setTourDifficultyOrig] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
   //Triggers the generating of a new link
   const [isShareGenerating, setIsShareGenerating] = useState(false);
@@ -108,8 +104,23 @@ const DetailReworked = (props) => {
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
-  const[showModal, setShowModal] =useState(false)
-  const {cityOne,idOne} = useParams()
+  const[showModal, setShowModal] =useState(false);
+  const {cityOne, idOne} = useParams();
+  const [validTour, setValidTour] = useState(false);
+  
+  let _city = '';
+  if (!!cityOne){
+    _city = cityOne;
+  }
+  else {
+    let cityfromparam = searchParams.get("city");
+    if (!!cityfromparam){
+      _city = cityfromparam;
+    }
+  }
+  const [cityI, setCityI] = useState(_city);
+ 
+  
 
   // Translation-related
   const { t } = useTranslation();
@@ -133,6 +144,11 @@ const DetailReworked = (props) => {
   };
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setCityI(_city)
+  }, [_city]);
+  
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
@@ -162,9 +178,20 @@ const DetailReworked = (props) => {
 
   const [providerPermit, setProviderPermit] = useState(true);
 
+  useEffect(()=>{
+    if(!!tour ){
+      if(tour.valid_tour === 1) {
+        setValidTour(true);
+        }else{
+        setValidTour(false);
+      }
+    }
 
+  }, [tour]);
+
+  
 useEffect(() => {
-  if (!!tour && tour.provider) {
+  if (!!tour && tour?.provider) {
     setIsTourLoading(true);
 
     // API call to check the provider's permit
@@ -181,7 +208,6 @@ useEffect(() => {
         if (data.allow_gpx_download === 'n') {
           setProviderPermit(false); // Set the state accordingly
           setIsTourLoading(false);
-
         }
       })
       .catch((error) => {
@@ -207,8 +233,9 @@ useEffect(() => {
 
   //Creating a new share link
   useEffect(() => {
+      const shareCity = cityOne ? cityOne : searchParams.get("city") ;
       if (isShareGenerating === true) {
-          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), searchParams.get("city"))
+          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), shareCity)
               .then(res => {
                   if (res.success === true){
                       setShareLink(window.location.origin + "/tour?share=" + res.shareId);
@@ -227,14 +254,13 @@ useEffect(() => {
 
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
-     
-    const shareId = searchParams.get("share") ?? null;
-   let city ;
-   if(cityOne){
-    city=cityOne
-   }else{
-     city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
-   }
+   const shareId = searchParams.get("share") ?? null;
+      let city = '';
+      if(cityOne){
+         city=cityOne
+      }else{
+         city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
+      }
     //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
     // detail page --> city : amstetten
   
@@ -265,9 +291,13 @@ useEffect(() => {
             );
 
             localStorage.setItem("tourId", res.tourId);
-
-            //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-            navigate(`/tour?${redirectSearchParams.toString()}`);
+            if(!!idOne && !!cityOne){
+              navigate(`/tour/${idOne}/${_city.value}`);
+            }else{
+              //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
+              navigate(`/tour?${redirectSearchParams.toString()}`);
+            }
+            
        
           } else {
             setIsTourLoading(false);
@@ -316,12 +346,13 @@ useEffect(() => {
             goToStartPageUnavailableTour();
             // return
           } else {
-            console.error("Error:", error);
+            console.error("Other error:", error);
             // TODO: Handle other errors
           }
         });
     }
-    if (tourId && city && !connections) {
+
+    if (tourId && city && !connections && validTour) {
       setIsTourLoading(true);
    
       loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
@@ -340,13 +371,12 @@ useEffect(() => {
         setIsTourLoading(false);
       });
     }
-  }, [searchParams,cityOne,idOne]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, cityOne, idOne, validTour]);
 
 
   useEffect(() => {
-    if (tour) {
-      // if (!tour.cities_object[searchParams.get("city")]) {
-      // } else {
+    if (tour && tour.valid_tour === 1) {
         setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
         setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
         setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
@@ -357,8 +387,8 @@ useEffect(() => {
 
   useEffect(() => {
     let index = dateIndex;
-    if (connections) {
-      let date = moment(searchParams.get("datum")); // TODO : why do we need this date in the params ? 
+    if (connections && !!validTour) {
+      let date = moment(searchParams.get("datum")); 
       if (date.isValid()) {
         if (
           moment(date).isBetween(
@@ -384,89 +414,94 @@ useEffect(() => {
   }, [!!connections]);
 
   async function onDownload() {
-    const connectionDate = activeConnection?.date;
-    try {
-      const response = await loadTourPdf({
-        id: tour?.id,
-        connection_id: !!activeConnection?.connections[0]
-          ? activeConnection?.connections[0].id
-          : undefined,
-        connection_return_id: !!activeReturnConnection
-          ? activeReturnConnection.id
-          : undefined,
-        connection_return_ids: !!activeConnection.returns
-          ? activeConnection.returns.map((e) => e.id)
-          : [],
-        connectionDate,
-      });
-      if (response) {
-        let pdf = undefined;
-        if (!!response.data) {
-          response.data = JSON.parse(response.data);
-          if (!!response.data.pdf) {
-            pdf = response.data.pdf;
+    if(!!validTour) {
+      const connectionDate = activeConnection?.date;
+      try {
+        const response = await loadTourPdf({
+          id: tour?.id,
+          connection_id: !!activeConnection?.connections[0]
+            ? activeConnection?.connections[0].id
+            : undefined,
+          connection_return_id: !!activeReturnConnection
+            ? activeReturnConnection.id
+            : undefined,
+          connection_return_ids: !!activeConnection.returns
+            ? activeConnection.returns.map((e) => e.id)
+            : [],
+          connectionDate,
+        });
+        if (response) {
+          let pdf = undefined;
+          if (!!response.data) {
+            response.data = JSON.parse(response.data);
+            if (!!response.data.pdf) {
+              pdf = response.data.pdf;
+            }
+          } else if (!response.data || !response.data.pdf) {
+            console.log("no response");
           }
-        } else if (!response.data || !response.data.pdf) {
-          console.log("no response");
-        }
 
-        if (!!pdf) {
-          const fileName = response.data.fileName ? response.data.fileName : "";
-          const buf = Buffer.from(pdf, "base64");
-          fileDownload(buf, fileName, "application/pdf");
+          if (!!pdf) {
+            const fileName = response.data.fileName ? response.data.fileName : "";
+            const buf = Buffer.from(pdf, "base64");
+            fileDownload(buf, fileName, "application/pdf");
+          }
+        } else {
+          console.log("no response is returned");
         }
-      } else {
-        console.log("no response is returned");
+      } catch (error) {
+        console.log("error : ", error);
       }
-    } catch (error) {
-      console.log("error : ", error);
     }
   }
 
   const onDownloadGpx = () => {
-    if (
-      !!activeReturnConnection &&
-      activeReturnConnection.fromtour_track_key &&
-      !!activeConnection &&
-      !!activeConnection?.connections[0]?.totour_track_key
-    ) {
-      loadTourGpx({
-        id: tour.id,
-        key_anreise: activeConnection.connections[0].totour_track_key,
-        key_abreise: activeReturnConnection.fromtour_track_key,
-        type: "all",
-      }).then(
-        (res) => {
-          if (!!res && !!res.data) {
-            fileDownload(
-              res.data,
-              parseFileName(tour.title, "zuugle_", ".gpx")
-            );
+    if(!!validTour){
+      if (
+        !!activeReturnConnection &&
+        activeReturnConnection.fromtour_track_key &&
+        !!activeConnection &&
+        !!activeConnection?.connections[0]?.totour_track_key
+      ) {
+        loadTourGpx({
+          id: tour.id,
+          key_anreise: activeConnection.connections[0].totour_track_key,
+          key_abreise: activeReturnConnection.fromtour_track_key,
+          type: "all",
+        }).then(
+          (res) => {
+            if (!!res && !!res.data) {
+              fileDownload(
+                res.data,
+                parseFileName(tour.title, "zuugle_", ".gpx")
+              );
+            }
+          },
+          (err) => {
+            console.log("error: ", err);
           }
-        },
-        (err) => {
-          console.log("error: ", err);
-        }
-      );
-    } else {
-      loadTourGpx({ id: tour.id }).then(
-        (res) => {
-          if (!!res && !!res.data) {
-            fileDownload(
-              res.data,
-              parseFileName(tour.title, "zuugle_", ".gpx")
-            );
+        );
+      } else {
+        loadTourGpx({ id: tour.id }).then(
+          (res) => {
+            if (!!res && !!res.data) {
+              fileDownload(
+                res.data,
+                parseFileName(tour.title, "zuugle_", ".gpx")
+              );
+            }
+          },
+          (err) => {
+            console.log("error: ", err);
           }
-        },
-        (err) => {
-          console.log("error: ", err);
-        }
-      );
+        );
+      }
     }
   };
 
   const downloadButtonsDisabled = () => {
     return (
+      // !!!validTour ||
       !!!tour ||
       !!!tour.gpx_file ||
       !!!activeConnection ||
@@ -675,99 +710,102 @@ useEffect(() => {
       ) : (
         <>
           <Box className="newHeader" sx={{ position: "relative" }}>
-          <Box component={"div"} className="rowing blueDiv">
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box component={"div"} className="rowing blueDiv">
+              {/* close tab /modal in case no return history available  ###### section */}
+              <Box sx={{ display: "flex", alignItems: "center" }} >
+                <Box
+                  sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                  onClick={handleCloseTab}
+                >
+                  <ArrowBefore
+                    style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                  />
+                </Box>
+                <Modal
+                  open={showModal}
+                  onClose={handleModalClose}
+                  aria-labelledby="modal-title"
+                  aria-describedby="modal-description"
+                >
+                  <Box 
+                    sx={{ 
+                      p: 4, 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                      borderRadius: '8px', 
+                      margin: 'auto', 
+                      mt: '20vh', 
+                      width: '300px',
+                      boxShadow: 24,
+                    }}
+                  >
+                    <Typography id="modal-title" variant="h6" component="h2">
+                      Unable to close tab
+                    </Typography>
+                    <Typography id="modal-description" sx={{ mt: 2 }}>
+                      Please close this tab manually.
+                    </Typography>
+                    <Box sx={{ textAlign: 'center', mt: 4 }}>
+                      <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+                        Okay
+                      </button>
+                    </Box>
+                  </Box>
+                </Modal>
+                <DomainMenu />
+              </Box>
+              {/* arrow close tab  ###### section */}
               <Box
                 sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                 onClick={handleCloseTab}
               >
-                <ArrowBefore
-                  style={{ stroke: "#fff", width: "34px", height: "34px" }}
+                <Close
+                  style={{
+                    stroke: "#fff",
+                    fill: "#fff",
+                    width: "24px",
+                    height: "24px",
+                  }}
                 />
               </Box>
-              <Modal
-                open={showModal}
-                onClose={handleModalClose}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-              >
-                <Box 
-                  sx={{ 
-                    p: 4, 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    borderRadius: '8px', 
-                    margin: 'auto', 
-                    mt: '20vh', 
-                    width: '300px',
-                    boxShadow: 24,
+              {(!searchParams.get("city") && !cityOne) && (
+                <Box
+                  sx={{
+                    position: "fixed",
+                    right: 0,
+                    bottom: 0,
+                    top: 0,
+                    left: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    zIndex: "1300",
                   }}
-                >
-                  <Typography id="modal-title" variant="h6" component="h2">
-                    Unable to close tab
-                  </Typography>
-                  <Typography id="modal-description" sx={{ mt: 2 }}>
-                    Please close this tab manually.
-                  </Typography>
-                  <Box sx={{ textAlign: 'center', mt: 4 }}>
-                    <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                      Okay
-                    </button>
-                  </Box>
-                </Box>
-              </Modal>
-              <DomainMenu />
+                />
+              )}
             </Box>
+            {/* search bar ###### section */}
             <Box
-              sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-              onClick={handleCloseTab}
+              sx={{
+                backgroundColor: "#FFF",
+                position: "absolute",
+                bottom: "0",
+                transform: "translate(-50%, 50%)",
+                display: "inline-flex",
+                borderRadius: "20px",
+                padding: "12px 15px",
+                border: "2px solid #ddd",
+                width: "100%",
+                maxWidth: {
+                  xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
+                  md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
+                },
+                boxSizing: "border-box",
+                boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+                zIndex: "1300",
+              }}
             >
-              <Close
-                style={{
-                  stroke: "#fff",
-                  fill: "#fff",
-                  width: "24px",
-                  height: "24px",
-                }}
-              />
-            </Box>
-            {(!searchParams.get("city") && !cityOne) && (
-              <Box
-                sx={{
-                  position: "fixed",
-                  right: 0,
-                  bottom: 0,
-                  top: 0,
-                  left: 0,
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  zIndex: "1300",
-                }}
-              />
-            )}
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: "#FFF",
-              position: "absolute",
-              bottom: "0",
-              transform: "translate(-50%, 50%)",
-              display: "inline-flex",
-              borderRadius: "20px",
-              padding: "12px 15px",
-              border: "2px solid #ddd",
-              width: "100%",
-              maxWidth: {
-                xs: (!searchParams.get("city") && !cityOne) ? "360px" : "325px",
-                md: (!searchParams.get("city") && !cityOne) ? "376px" : "600px",
-              },
-              boxSizing: "border-box",
-              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-              zIndex: "1300",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <SearchContainer pageKey="detail" goto={"/suche"} />
-            </Box>
-          </Box> 
+              <Box sx={{ width: "100%" }}>
+                <SearchContainer pageKey="detail" goto={"/suche"} />
+              </Box>
+            </Box> 
           </Box>
           <Box>
             <Box className="tour-detail-header">
@@ -779,18 +817,22 @@ useEffect(() => {
               </Box>
             </Box>
             <div>
-              <Box
-                sx={{ width: "100%", position: "relative" }}
-                className="tour-detail-map-container"
-              >
-                <InteractiveMap
-                  gpxPositions={!!gpxPositions && gpxPositions}
-                  anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-                  abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-                  scrollWheelZoom={false}
-                  tourTitle={!!tour?.title && tour.title}
-                />
-              </Box>
+              {
+                !!validTour && (
+                <Box
+                  sx={{ width: "100%", position: "relative" }}
+                  className="tour-detail-map-container"
+                >
+                      <InteractiveMap
+                        gpxPositions={!!gpxPositions && gpxPositions}
+                        anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                        abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                        scrollWheelZoom={false}
+                        tourTitle={!!tour?.title && tour.title}
+                      />
+                </Box>
+                )
+              }
               <div className="tour-detail-data-container">
                 <Box>
                   <TourDetailProperties tour={tour}></TourDetailProperties>
@@ -809,7 +851,11 @@ useEffect(() => {
                     }}
                   >
                     <div className="tour-detail-provider-icon">
-                      <ProviderLogo provider={tour?.provider} />
+                       {!!tour && <img
+                        src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+                        alt={tour.provider_name}
+                        style={{ borderRadius: "100%", height: "48px", width: "48px" }}
+                      /> }
                     </div>
                     <div className="tour-detail-provider-name-link">
                       <span className="tour-detail-provider-name">
@@ -818,22 +864,28 @@ useEffect(() => {
                       <span className="tour-detail-provider-link">{tour?.url}</span>
                     </div>
                   </div>
-                  {renderImage && (
+                  {renderImage && validTour &&(
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
                         <img
-                          src={tour?.image_url}
+                          src={(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}
                           onError={() => {
                             setRenderImage(false);
                           }}
+                          alt="tour"
                         />
+
                       </div>
                     </Box>
                   )}
-                  <Box className="tour-detail-conditional-desktop">
-                    {actionButtonPart}
-                  </Box>
+                  {
+                    (
+                      <Box className="tour-detail-conditional-desktop">
+                        {actionButtonPart}
+                      </Box>
+                    )
+                  }
                 </Box>
                 <Box className="tour-detail-itinerary-container">
                   <Itinerary
@@ -841,9 +893,11 @@ useEffect(() => {
                     dateIndex={dateIndex}
                     onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
                     tour={tour}
+                    validTour={validTour}
+                    city={cityI}
                   ></Itinerary>
                 </Box>
-                {renderImage && (
+                {renderImage && !!validTour && (
                   <Box className="tour-detail-conditional-mobile">
                     <Divider variant="middle" />
                     <div className="tour-detail-img-container">
@@ -852,14 +906,17 @@ useEffect(() => {
                         onError={() => {
                           setRenderImage(false);
                         }}
+                        alt="tour"
                       />
                     </div>
                   </Box>
                 )}
                 {
-                  <Box className="tour-detail-conditional-mobile">
+                  !!validTour && (
+                    <Box className="tour-detail-conditional-mobile">
                     {actionButtonPart}
                   </Box>
+                  )
                 }
               </div>
             </div>
