@@ -9,7 +9,9 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
-- package-ecosystem: "npm" # See documentation for possible values
+      target-branch: "uat"
+  - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      target-branch: "uat"
