@@ -82,7 +82,7 @@ export function CityResultList({
               if(!!cityOne && !!idOne ){
                 setCityInput(_city.label);
                 setCity(_city.value)
-                navigate(`tour/${idOne.idOne}/${_city.value}`);
+                navigate(`tour/${idOne}/${_city.value}`);
                 window.location.reload()
               }
 

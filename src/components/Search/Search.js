@@ -74,7 +74,7 @@ export function Search({
   const cityParam = urlSearchParams.get("city");
   // const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
-    label: cityParam || capitalize(cityOne),
+    label: capitalize(cityParam) || capitalize(cityOne),
     value: cityParam,
   });
 
@@ -82,6 +82,9 @@ export function Search({
     console.log("**************************************************");
     console.log("L74 Search/ cityOne", cityOne);
     console.log("L75 Search/ idOne", idOne);
+    console.log("L75 Search/ cityParam", cityParam);
+    console.log("L75 Search/ city", city);
+
   }, []);
 
   const [region, setRegion] = useState(null);
@@ -397,20 +400,28 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        // console.log("L379 Search / cityOne :", cityOne)
+        console.log("L402 Search / cityParam :", cityParam)
+        console.log("L403 Search / city inside onSelect :", city)
+        console.log("L404 , Search / city.value :", city.value)
+        console.log("L405 , Search / cityOne :", cityOne)
+        console.log("L406 , Search / idOne :", idOne)
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
           navigate(`tour/${idOne}/${city.value}`);
         } else if (!!city) {
+          console.log("L413 Search / else if inside onSelect :", city)
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
+          searchParams.set('city', city.value);
+          setSearchParams(searchParams)
+          window.location.reload()
         }
         hideModal();
       },
-      cityOne: { cityOne },
-      idOne: { idOne },
+      cityOne:  cityOne ,
+      idOne:  idOne ,
       setSearchParams,
       title: "",
       sourceCall: "city",
@@ -443,6 +454,8 @@ export function Search({
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
+          
+
         }
         hideModal();
       },

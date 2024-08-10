@@ -321,6 +321,7 @@ useEffect(() => {
     }else{
     tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
   }
+  console.log("L324 tourId :", tourId)
     if (!!tourId) {
       setIsTourLoading(true);
       
@@ -809,7 +810,7 @@ useEffect(() => {
               }}
             >
               <Box sx={{ width: "100%" }}>
-                <SearchContainer pageKey="detail" goto={"/suche"} idOne={idOne} cityOne={cityOne} />
+                <SearchContainer pageKey="detail" goto={"/suche"} idOne={idOne? idOne : null} cityOne={cityOne? cityOne : null} />
               </Box>
             </Box> 
           </Box>
