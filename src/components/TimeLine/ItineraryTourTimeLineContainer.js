@@ -130,38 +130,6 @@ export default function ItineraryTourTimeLineContainer({
   extractReturns();
 
 
-  // const showCityModal = () => {
-  //   showModal("MODAL_COMPONENT", {
-  //     CustomComponent: FullScreenCityInput,
-  //     searchParams,
-  //     initialCity: cityInput,
-  //     onSelect: async (city) => {
-  //       // if(!!cityOne && !!idOne){
-  //       //   setCityInput(city.label);
-  //       //   setCity(city.value)
-  //       //   // navigate(`tour/${idOne}/${city.value}`);
-  //       // }else if (!!city ) {
-  //       //   setCityInput(city.label);
-  //       //   setCity(city);
-  //         console.log("inside OnSelect , city ", city)
-  //       // }
-  //       // hideModal();
-  //     },
-      
-  //     setSearchParams,
-  //     title: "",
-  //     sourceCall: "city",
-  //     // page: page,
-  //     srhBoxScrollH: document
-  //       .querySelector(".main-search-bar")
-  //       .getBoundingClientRect().top,
-  //     modalSize: "lg",
-  //     onBack: () => {
-  //       hideModal();
-  //     },
-  //   });
-  // };
-
   //when connections/connections.connections/or connections.connections[0] do not exist
   if (!!!getSingleConnection()) {
     return (

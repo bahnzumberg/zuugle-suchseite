@@ -291,8 +291,6 @@ useEffect(() => {
             );
 
             localStorage.setItem("tourId", res.tourId);
-            console.log("L294 Detail idOne :", idOne)
-            console.log("L295 Detail cityOne :", cityOne)
             if(!!idOne && !!cityOne){
               navigate(`/tour/${idOne}/${_city.value}`);
             }else{
