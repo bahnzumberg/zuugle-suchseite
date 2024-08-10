@@ -352,6 +352,12 @@ useEffect(() => {
         });
     }
 
+
+    console.log("L355 , idOne :", idOne);
+    console.log("L356 , tourId :", tourId);
+    console.log("L357 , city :", city);
+    console.log("L356 , !!connections :", !!connections);
+
     if (tourId && city && !connections && validTour) {
       setIsTourLoading(true);
    
@@ -372,7 +378,7 @@ useEffect(() => {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, cityOne, idOne, validTour]);
+  }, [ cityOne, idOne, validTour]);
 
 
   useEffect(() => {
