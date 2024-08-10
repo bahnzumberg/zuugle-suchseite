@@ -46,22 +46,6 @@ export default function TourCard({
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
   let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
-  let len_str_1 = t("details.anreisedauer").length;
-  let len_str_2 = t("start.umstiege").length;
-  let len_str_3 = t("main.dauer").length;
-  let len_str_4 = t("filter.anstieg").length;
-  let len_too_long = false;
-
-  let text_anreisedauer = t("details.anreisedauer"); 
-  let text_umstiege = t("start.umstiege");
-  let text_dauer = t("main.dauer");
-  let text_anstieg = t("filter.anstieg");
-
-
-  if (len_str_1 > 14 || len_str_2 > 14 || len_str_3 > 14 || len_str_4 > 14){
-    len_too_long = true;
-  }
-
   const renderProps = () => {
     const values = [];
 
@@ -177,14 +161,7 @@ export default function TourCard({
             variant="blueP"
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
-            {len_too_long && text_anreisedauer.length <= 14 ? (
-            <>
-              {text_anreisedauer}<br />
-            </>
-            ) : (
-              text_anreisedauer
-            )}
-            <br />
+            {t("details.anreisedauer")} <br />
             <span style={{ fontSize: "18px" }}>
               {convertNumToTime(value_best_connection_duration/60, true)}
             </span>
@@ -193,14 +170,7 @@ export default function TourCard({
             variant="blueP"
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
-            {len_too_long && text_umstiege.length <= 14 ? (
-            <>
-              {text_umstiege}<br />
-            </>
-            ) : (
-              text_umstiege
-            )}
-            <br />
+            {t("start.umstiege")} <br />
             <span style={{ fontSize: "18px" }}>{value_connection_no_of_transfers}</span>
           </Typography>
 
@@ -208,26 +178,12 @@ export default function TourCard({
             variant="blackP"
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
-            {len_too_long && text_dauer.length <= 14 ? (
-            <>
-              {text_dauer}<br />
-            </>
-            ) : (
-              text_dauer
-            )}
-            <br />
+            {t("main.dauer")} <br />
             <span style={{ fontSize: "18px" }}>{(tour?.number_of_days > 1) ? (tour?.number_of_days + " " + t('details.tage')) : convertNumToTime(value_avg_total_tour_duration, true)}</span>
           </Typography>
 
           <Typography variant="blackP" styles={{}}>
-            {len_too_long && text_anstieg.length <= 14 ? (
-            <>
-              {text_anstieg}<br />
-            </>
-            ) : (
-              text_anstieg
-            )}
-            <br />
+            {t("filter.anstieg")} <br />
             <span style={{ fontSize: "18px" }}>{tour.ascent} {hm}</span>
           </Typography>
         </Box>
