@@ -78,15 +78,6 @@ export function Search({
     value: cityParam,
   });
 
-  useEffect(() => {
-    console.log("**************************************************");
-    console.log("L74 Search/ cityOne", cityOne);
-    console.log("L75 Search/ idOne", idOne);
-    console.log("L75 Search/ cityParam", cityParam);
-    console.log("L75 Search/ city", city);
-
-  }, [city, cityParam]);
-
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
   const [activeFilter, setActiveFilter] = useState(false);
@@ -400,17 +391,11 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        console.log("L402 Search / cityParam :", cityParam)
-        console.log("L403 Search / city inside onSelect :", city)
-        console.log("L404 , Search / city.value :", city.value)
-        console.log("L405 , Search / cityOne :", cityOne)
-        console.log("L406 , Search / idOne :", idOne)
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
           navigate(`tour/${idOne}/${city.value}`);
         } else if (!!city) {
-          console.log("L413 Search / else if inside onSelect :", city)
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
@@ -443,10 +428,7 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        console.log("L435 Search / cityOne :", cityOne)
-        console.log("L436 Search / idOne :", idOne)
         if (!!cityOne && !!idOne && pageKey === "detail") {
-          console.log("YOU ARE AT L438 !")
           setCityInput(city.label);
           setCity(city.value);
           navigate(`tour/${idOne}/${city.value}`);
@@ -516,7 +498,6 @@ export function Search({
       isMasterMarkersSet.current = false;
     }
     search();
-    console.log("GO BOTTON CLICKED !")
     window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);

@@ -321,7 +321,6 @@ useEffect(() => {
     }else{
     tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
   }
-  console.log("L324 tourId :", tourId)
     if (!!tourId) {
       setIsTourLoading(true);
       
@@ -352,12 +351,6 @@ useEffect(() => {
           }
         });
     }
-
-
-    console.log("L355 , idOne :", idOne);
-    console.log("L356 , tourId :", tourId);
-    console.log("L357 , city :", city);
-    console.log("L356 , !!connections :", !!connections);
 
     if (tourId && city && !connections && validTour) {
       setIsTourLoading(true);

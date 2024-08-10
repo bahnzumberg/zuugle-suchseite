@@ -76,32 +76,16 @@ export function CityResultList({
               if (!!onSelect) {
                 onSelect(_city);
               }
-              console.log("L75 ListItem, idOne :", idOne)
-              console.log("L76 ListItem, cityOne :", cityOne)
 
               if(!!cityOne && !!idOne ){
-                console.log("L83 ==> idOne :", idOne)
                 setCityInput(_city.label);
                 setCity(_city.value)
                 navigate(`tour/${idOne}/${_city.value}`);
                 window.location.reload()
               }
 
-              // if(!!cityOne && !!idOne && pageKey==="detail"){
-              //   setCityInput(city.label);
-              //   setCity(city.value)
-              //   navigate(`tour/${idOne}/${city.value}`);
-              // }else if (!!city ) {
-              //   setCityInput(city.label);
-              //   setCity(city);
-              //   pageKey==="start" && updateCapCity(city.label);
-              // }
-              // searchParams.set("city", _city.value);
-              // setSearchParams(searchParams);
-
               //wenn startseite lade touren
               if (!!_city && !!_city.value && loadFavouriteTours) {
-                console.log("L85 loadFavouriteTours is true ")
                 loadFavouriteTours({
                   city: _city.value,
                   limit: 10,

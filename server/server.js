@@ -73,8 +73,4 @@ app.get([ '/*' ], function(req, res) {
 	  res.sendFile(path.join(__dirname, '../app/index.html'));
 	}
 
-	console.log("*********************************************");
-	console.log('Rate limit headers:', res.getHeaders());
-	console.log("*********************************************");
-
 });

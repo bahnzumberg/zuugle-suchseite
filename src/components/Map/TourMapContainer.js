@@ -440,7 +440,7 @@ function TourMapContainer({
       types: filter.types,
       search: searchTerm
     };
-    // console.log("L444 filterVaues :", filterValues)
+    
     if (filterValues == null) {
       searchParams.delete("filter");
       setSearchParams(searchParams);
