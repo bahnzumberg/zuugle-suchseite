@@ -73,15 +73,15 @@ export function CityResultList({
               if (!!onFocusCity) {
                 onFocusCity(false);
               }
-              if (!!onSelect) {
-                onSelect(_city);
-              }
-
+              //this handler is for use at detail page (using useParams hook)
               if(!!cityOne && !!idOne ){
                 setCityInput(_city.label);
                 setCity(_city.value)
                 navigate(`tour/${idOne}/${_city.value}`);
                 window.location.reload()
+              }else if (!!onSelect) {
+                // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
+                onSelect(_city);
               }
 
               //wenn startseite lade touren

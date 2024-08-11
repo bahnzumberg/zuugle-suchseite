@@ -75,7 +75,7 @@ export function Search({
   const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
     label: capitalize(cityParam) || capitalize(cityOne),
-    value: cityParam,
+    value: cityParam || cityOne,
   });
 
   const [region, setRegion] = useState(null);
@@ -391,11 +391,9 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        if (!!cityOne && !!idOne && pageKey === "detail") {
-          setCityInput(city.label);
-          setCity(city.value);
-          navigate(`tour/${idOne}/${city.value}`);
-        } else if (!!city) {
+        
+        if (!!city) {
+          console.log("L413 Search / else if inside onSelect :", city)
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
@@ -403,6 +401,7 @@ export function Search({
           setSearchParams(searchParams)
           window.location.reload()
         }
+
         hideModal();
       },
       cityOne:  cityOne ,
@@ -428,6 +427,7 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
+        
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
