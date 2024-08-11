@@ -29,12 +29,10 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
-import { createIdArray } from "../../utils/map_utils";
+import '/src/config.js';
 
 const Search = lazy(() => import("../../components/Search/Search"));
-const TourCardContainer = lazy(() =>
-  import("../../components/TourCardContainer")
-);
+const TourCardContainer = lazy(() => import("../../components/TourCardContainer"));
 
 export function Main({
   loadTours,

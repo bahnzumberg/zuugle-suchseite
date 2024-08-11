@@ -9,6 +9,7 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
+import '/src/config.js';
 
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";

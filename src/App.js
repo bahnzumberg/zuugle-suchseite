@@ -11,6 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 // import Search from "./components/Search/Search";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
+import '/src/config.js';
 
 const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
