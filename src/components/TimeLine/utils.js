@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { Typography } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import moment from "moment";
 import {
   convertNumToTime,
@@ -26,18 +27,33 @@ import { v4 as uuidv4 } from 'uuid';
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 
-export const getDepartureText = (connection, t) => {
+export const GetDepartureText = (connection, t) => {
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
 
+  let depTime = (connection.connection_departure_datetime).slice(11, 16)
+  console.log("L35 depTime : ",depTime)
+  // depTime = moment(connection.depTime).format("HH:mm");
+  // console.log("L36 depTime : ",depTime)
+
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;
+    `${depTime} - ${moment(connection.connection_arrival_datetime).format("HH:mm")}`;
 
   return (
-    <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
+    <Typography sx={{ color: "#000000", fontWeight: 600, paddingTop: "3px", width: "300px", 
+
+      lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
+    }}>
       {departureText}
+      {
+      // console.log("L41 departureText :", departureText)
+      console.log("L41 connection.connection_departure_datetime :", (connection.connection_departure_datetime).slice(11, 16))
+      
+      }
     </Typography>
   );
 };

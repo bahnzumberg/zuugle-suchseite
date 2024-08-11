@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     createEntries,
     createReturnEntries,
-    getDepartureText,
+    GetDepartureText,
     getReturnText,
     getNumberOfTransfers
 } from "./utils";
@@ -170,7 +170,7 @@ export default function ItineraryTourTimeLineContainer({
     if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
     } else {
-      return t("Details.beste_anreise_kurz");
+      return `${t("Details.beste_anreise_kurz")}  (${convertNumToTime(connection.connection_duration_minutes / 60, true)})`;
     }
   };
 
@@ -246,11 +246,11 @@ export default function ItineraryTourTimeLineContainer({
                     />
                   </Box>
                 </Box>
-                <Box sx={{ paddingLeft: "10px", textAlign: "left" }}> {/* TODO : padding value is appropriate? */}
-                  <Typography sx={{ lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
+                <Box sx={{ paddingLeft: "10px", textAlign: "left" }}> 
+                  <Typography sx={{ lineHeight: !isMobile ? "18px" : "14px", fontWeight: 500, fontSize: "14px", color:"#8B8B8B"  }}>
                     {_getDepartureText()}
                   </Typography>
-                  {getDepartureText(getSingleConnection(), t)}
+                    {GetDepartureText(getSingleConnection(), t)}
                 </Box>
                 <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                   <Shuffle
