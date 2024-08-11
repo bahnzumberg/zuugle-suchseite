@@ -19,6 +19,7 @@ import {Buffer} from 'buffer';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useSearchParams} from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import '/src/config.js';
 
 const setGpxTrack = (url, loadGPX, _function) => {
     loadGPX(url).then(res => {

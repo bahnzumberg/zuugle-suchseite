@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Chip } from "@mui/material";
+import '/src/config.js';
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 

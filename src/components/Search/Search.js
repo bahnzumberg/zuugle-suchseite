@@ -30,6 +30,7 @@ import TransportTrain from "../../icons/TransportTrain";
 import { capitalize } from "lodash";
 import { Modal, Typography, useMediaQuery } from "@mui/material";
 import Close from "../../icons/Close";
+import '/src/config.js';
 
 export function Search({
   loadTours,

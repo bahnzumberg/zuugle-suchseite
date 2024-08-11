@@ -18,17 +18,15 @@ import gpxParser from "gpxparser";
 import { connect } from "react-redux";
 import { LOAD_MAP_FILTERS } from "../../actions/types.js";
 import { useSearchParams } from "react-router-dom";
-// import debounce from "lodash/debounce";
 import { loadGPX } from "../../actions/fileActions.js";
 import { useDispatch, useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
-// import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
 import { orderedArraysEqual } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
-// import { isArray } from "lodash";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import '/src/config.js';
 
 const PopupCard = lazy(() => import("./PopupCard"));
 

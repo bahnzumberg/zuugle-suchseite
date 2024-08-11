@@ -1,16 +1,15 @@
 import * as React from "react";
 import {useNavigate} from "react-router"
 import Box from "@mui/material/Box";
-import { Divider, Typography } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import ChevronRightLight from "../../icons/ChevronRight";
+
 import CircularProgress from "@mui/material/CircularProgress";
+import '/src/config.js';
 
 export function CityResultList({
   cities,

@@ -51,6 +51,7 @@ import Close from "../../icons/Close";
 import { shortenText, parseFileName } from "../../utils/globals";
 import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
+import '/src/config.js';
 
 
 const DetailReworked = (props) => {
