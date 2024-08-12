@@ -11,7 +11,7 @@ module.exports = {
 	output: {
 		path: BUILD_DIR,
 		filename: "./app_static/[name].bundle.js",
-		publicPath: "./public", // Added this line to set the publicPath
+		publicPath: "/", // Added this line to set the publicPath
 	},
 
 	devServer: {
@@ -72,7 +72,7 @@ module.exports = {
 						loader: "file-loader",
 						options: {
 							name: "./img/[name].[hash].[ext]",
-							publicPath: "./public", // Ensures the correct public path
+							publicPath: "/", // Ensures the correct public path
 						},
 					},
 				],
