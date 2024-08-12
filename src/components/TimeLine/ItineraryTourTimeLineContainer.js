@@ -174,13 +174,13 @@ export default function ItineraryTourTimeLineContainer({
     }
   };
 
-  const _getReturnText = (index) => {
-    let connection =
-      !!connections && !!connections.returns && connections.returns.length > 0;
-    if (!!!connection) {
+  const _getReturnText = (index, retObj) => {
+    // let connection =
+    //   !!connections && !!connections.returns && connections.returns.length > 0;
+    if (!!!retObj) {
       return <Fragment></Fragment>;
-    }
-    return `${t("Details.rückreise")} ${index + 1}`;
+    }else if(!!retObj.return_duration_minutes ){
+    return `${t("Details.rückreise")} ${index + 1}  (${simpleConvertNumToTime(retObj.return_duration_minutes / 60, true)})`;}
   };
 
 
@@ -401,10 +401,14 @@ export default function ItineraryTourTimeLineContainer({
                     </Box>
                   </Box>
                   <Box sx={{ paddingLeft: "10px", textAlign: "left" }}> {/* TODO padding value is appropriate? */}
-                    <Typography sx={{ lineHeight:!isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 }}>
-                      {_getReturnText(index)}
+                    <Typography sx={{ lineHeight: !isMobile ? "18px" : "14px", fontWeight: 500, fontSize: "14px", color:"#8B8B8B"  }}>
+                      {_getReturnText(index, retObj)}
                     </Typography>
+                    <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
+                    lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
+                  }}>
                     {getReturnText(retObj, t)}
+                  </Typography>
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                     <Shuffle
@@ -495,13 +499,14 @@ export default function ItineraryTourTimeLineContainer({
                       </Box>
                     </Box>
                     <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>{/* TODO padding value is appropriate? */}
-                      <Typography 
-                        sx={{ 
-                          lineHeight: !isMobile ? "16px" : "14px", fontWeight: !isMobile ? 600 : 500 
-                        }}>
-                        {_getReturnText(index+2)}
+                    <Typography sx={{ lineHeight: !isMobile ? "18px" : "14px", fontWeight: 500, fontSize: "14px", color:"#8B8B8B"  }}>
+                        {_getReturnText(index+2, retObj)}
                       </Typography>
+                      <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
+                        lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
+                      }}>
                       {getReturnText(retObj, t )}
+                      </Typography>
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                       <Shuffle

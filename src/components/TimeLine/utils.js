@@ -4,6 +4,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import moment from "moment";
 import {
   convertNumToTime,
+  simpleConvertNumToTime,
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
 } from "../../utils/globals";
@@ -35,9 +36,9 @@ export const GetDepartureText = (connection, t) => {
   }
 
   let depTime = (connection.connection_departure_datetime).slice(11, 16)
-  console.log("L35 depTime : ",depTime)
+  // console.log("L35 depTime : ",depTime)
   // depTime = moment(connection.depTime).format("HH:mm");
-  // console.log("L36 depTime : ",depTime)
+  // console.log("L36 connection.connection_departure_datetime : ",connection.connection_departure_datetime)
 
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
@@ -51,7 +52,8 @@ export const GetDepartureText = (connection, t) => {
       {departureText}
       {
       // console.log("L41 departureText :", departureText)
-      console.log("L41 connection.connection_departure_datetime :", (connection.connection_departure_datetime).slice(11, 16))
+      // console.log("L41 connection.connection_departure_datetime :", (connection.connection_departure_datetime).slice(11, 16))
+      console.log("L56 simpleConvertNumToTime(connection.connection_duration_minutes / 60, true)", simpleConvertNumToTime(connection.connection_duration_minutes / 60, true))
       
       }
     </Typography>
@@ -62,16 +64,13 @@ export const getReturnText = (connection, t) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
-
+  let retDepTime = (connection.return_departure_datetime).slice(11, 16)
   const returnText = connection.return_duration_minutes === 0 ? 
     moment(connection.return_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.return_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.return_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.return_duration_minutes / 60)})`;
+    `${retDepTime} - ${moment(connection.return_arrival_datetime).format("HH:mm")} `;
 
-  return (
-    <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
-      {returnText}
-    </Typography>
-  );
+  return returnText;
+
 };
 
 export const getNumberOfTransfers = (
