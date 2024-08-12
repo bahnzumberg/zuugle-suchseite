@@ -72,7 +72,7 @@ module.exports = {
 						loader: "file-loader",
 						options: {
 							name: "./img/[name].[hash].[ext]",
-							publicPath: "./app_static", // Ensures the correct public path
+							publicPath: "/", // Ensures the correct public path
 						},
 					},
 				],
