@@ -293,14 +293,12 @@ useEffect(() => {
             );
             const todayDate = new Date();
 
-            console.log("L296 :", todayDate < date ) // 
             const redirectUrl = todayDate < date ? `/tour/${res.tourId}/${res.city}/?datum=${moment(date).format("YYYY-MM-DD")}` :
             `/tour/${res.tourId}/${res.city}`            
             
 
             localStorage.setItem("tourId", res.tourId);
-            console.log("L295 ", res.tourId)
-            console.log("L296 ", res.City)
+            
             if(!!res.tourId && !!res.city){
               navigate(redirectUrl);
             }else{
