@@ -284,16 +284,25 @@ useEffect(() => {
             }
             const redirectSearchParams = new URLSearchParams();
             const date = moment(res.date);
+
             redirectSearchParams.set("id", res.tourId);
             redirectSearchParams.set("city", res.city);
             redirectSearchParams.set(
               "datum",
               moment(date).format("YYYY-MM-DD")
             );
+            const todayDate = new Date();
+
+            
+            const redirectUrl = todayDate >= date ? `/tour/${res.tourId}/${res.city}/?datum=${moment(date).format("YYYY-MM-DD")}` :
+            `/tour/${res.tourId}/${res.city}`            
+            
 
             localStorage.setItem("tourId", res.tourId);
-            if(!!idOne && !!cityOne){
-              navigate(`/tour/${idOne}/${_city.value}`);
+            console.log("L295 ", res.tourId)
+            console.log("L296 ", res.City)
+            if(!!res.tourId && !!res.city){
+              navigate(redirectUrl);
             }else{
               //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
               navigate(`/tour?${redirectSearchParams.toString()}`);
