@@ -61,6 +61,7 @@ useEffect(() => {
     } else if (gpxPositions && gpxPositions.length > 0) {
       return <StartMarker position={gpxPositions[0]} />;
     }
+    
   }
   const getEndMarker = () => {
     if (!!abreiseGpxPositions && abreiseGpxPositions.length > 0) {
@@ -78,7 +79,7 @@ useEffect(() => {
       scrollWheelZoom={scrollWheelZoom}
       maxZoom={15}
       center={[47.800499, 13.04441]}
-      zoom={13}
+      zoom={12}
       style={{ height: "100%", width: "100%" }}
       // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
