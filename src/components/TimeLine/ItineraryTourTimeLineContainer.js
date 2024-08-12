@@ -84,8 +84,8 @@ function ItineraryTourTimeLineContainer({
       try {
         const res = await loadCities({ limit: 5 }, requestConfig); 
         citiesList.current = res; 
-        console.log("L75 ======= res:")
-        console.log(res)
+        // console.log("L75 ======= res:")
+        // console.log(res)
 
       } catch (error) {
         console.error("Error loading data", error);
@@ -103,12 +103,6 @@ function ItineraryTourTimeLineContainer({
     return () => abortController.abort();
   }, []);
 
-  useEffect(() => {
-    console.log("===== cities state ====")
-    console.log(cities)
-  
-  }, [cities])
-  
 
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
