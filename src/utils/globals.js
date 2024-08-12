@@ -2,7 +2,7 @@ import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 
-export function convertNumToTime(number, nonseparate = false) {
+export function convertNumToTime(number, nonseparate = 1) {
     // Check sign of given number
     var sign = (number >= 0) ? 1 : -1;
 
@@ -25,6 +25,12 @@ export function convertNumToTime(number, nonseparate = false) {
     }
 
     return (!nonseparate) ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
+}
+
+export const  simpleConvertNumToTime = (number)=> {
+    let timeStr = convertNumToTime(number);
+    timeStr = timeStr.replace(/ h/g, '').replace(/ min/g, '');
+    return timeStr;
 }
 
 export function formatNumber(number, postfix = ""){

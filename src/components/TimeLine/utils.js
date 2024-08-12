@@ -44,7 +44,7 @@ export const GetDepartureText = (connection, t) => {
     `${depTime} - ${moment(connection.connection_arrival_datetime).format("HH:mm")}`;
 
   return (
-    <Typography sx={{ color: "#000000", fontWeight: 600, paddingTop: "3px", width: "300px", 
+    <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
 
       lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
     }}>

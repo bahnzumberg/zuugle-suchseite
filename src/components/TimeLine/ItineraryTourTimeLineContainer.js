@@ -26,7 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import {convertNumToTime} from "../../utils/globals";
+import {convertNumToTime, simpleConvertNumToTime} from "../../utils/globals";
 // import { useSearchParams , useParams } from "react-router-dom";
 // import { hideModal, showModal } from "../../actions/modalActions";
 // import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
@@ -170,7 +170,7 @@ export default function ItineraryTourTimeLineContainer({
     if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
     } else {
-      return `${t("Details.beste_anreise_kurz")}  (${convertNumToTime(connection.connection_duration_minutes / 60, true)})`;
+      return `${t("Details.beste_anreise_kurz")}  (${simpleConvertNumToTime(connection.connection_duration_minutes / 60, true)})`;
     }
   };
 
