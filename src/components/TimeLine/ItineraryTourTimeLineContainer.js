@@ -216,8 +216,8 @@ export default function ItineraryTourTimeLineContainer({
                   position: "relative",
                   width: !isMobile ? '100%' : 'calc(100% - 10px)',
                   boxSizing: 'border-box',
-                  margin: !isMobile  && "0 auto", // Center horizontally if mobile
-                  // maxWidth: "260px",
+                  margin: !isMobile  ?  "0 auto" : "0 40px", // Center horizontally if mobile
+                  maxWidth: isMobile ? "260px" : null,
                 }}
               >
                 <Box
@@ -371,7 +371,8 @@ export default function ItineraryTourTimeLineContainer({
                     position: "relative",
                     width: !isMobile ? '100%' : 'calc(100% - 10px)',
                     boxSizing: 'border-box',
-                    margin: !isMobile  && "0 auto", // Center horizontally if mobile
+                    margin: !isMobile  ?  "0 auto" : "0 40px", // Center horizontally if mobile
+                    maxWidth: isMobile ? "260px" : null,
                   }}
                 >
                   <Box
@@ -469,7 +470,8 @@ export default function ItineraryTourTimeLineContainer({
                       position: "relative",
                       width: !isMobile ? '100%' : 'calc(100% - 10px)',
                       boxSizing: 'border-box',
-                      margin: !isMobile  && "0 auto", // Center horizontally if mobile
+                      margin: !isMobile  ?  "0 auto" : "0 40px", // Center horizontally if mobile
+                      maxWidth: isMobile ? "260px" : null,
                     }}
                   >
                     <Box
