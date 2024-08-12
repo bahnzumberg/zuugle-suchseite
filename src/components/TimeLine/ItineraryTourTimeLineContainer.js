@@ -248,7 +248,7 @@ function ItineraryTourTimeLineContainer({
               },
             }}
           >
-            <a href= {`${window.location.host}/tour/${idOne}/${_city.value}`} >
+            <a href= {`/tour/${idOne}/${_city.value}`} >
              <ListItemAvatar>
               <Avatar sx={{ borderRadius: "11px", background: "#DDD" }}>
                 <svg
