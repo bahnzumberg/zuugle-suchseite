@@ -62,8 +62,6 @@ export function Main({
 
   const [mapInitialized, setMapInitialized] = useState(false);
 
-  const markers = useSelector((state) => state.tours.markers); // move to props
-
   const [showMap, setShowMap] = useState(false);
   const [mapBounds, setMapBounds] = useState(null);
   const [markersChanged, setMarkersChanged] = useState(false);
