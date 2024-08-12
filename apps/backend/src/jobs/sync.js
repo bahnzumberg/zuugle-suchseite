@@ -996,7 +996,7 @@ const bulk_insert_tours = async (entries) => {
                 typ: "last"
             });
         }
-        entry.gpx_data = JSON.stringify(gpxData);
+        // entry.gpx_data = JSON.stringify(gpxData);
 
         queries.push({
             id: entry.id,
@@ -1035,7 +1035,7 @@ const bulk_insert_tours = async (entries) => {
             traverse: entry.traverse,
             quality_rating: entry.quality_rating,
             full_text: entry.full_text,
-            gpx_data: entry.gpx_data,
+            // gpx_data: entry.gpx_data,
             text_lang: entry.text_lang,
             max_ele: entry.maxele
         });
