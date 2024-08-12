@@ -480,7 +480,7 @@ function TourMapContainer({
           }}
         >
           <TileLayer 
-            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" 
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" 
             maxZoom={16}
             maxNativeZoom={19}
           />

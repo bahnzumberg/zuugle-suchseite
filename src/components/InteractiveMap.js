@@ -76,13 +76,13 @@ useEffect(() => {
       // key={()=>generateKey()}
       ref={mapRef}
       scrollWheelZoom={scrollWheelZoom}
-      maxZoom={17}
+      maxZoom={15}
       center={[47.800499, 13.04441]}
       zoom={13}
       style={{ height: "100%", width: "100%" }}
       // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
-      <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
+      <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" />
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
           ref={polyRef}
