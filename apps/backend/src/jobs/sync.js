@@ -472,7 +472,7 @@ export async function syncGPX(){
     let allTours = null;
     let promises = null;
     for (let i=0; i<10; i++) {
-        // console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
+        console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
         allTours = await knex('tour').select(["title", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
               
         if(!!allTours && allTours.length > 0){
@@ -480,11 +480,11 @@ export async function syncGPX(){
                 promises = allTours.map(entry => {
                     return _syncGPX(entry.hashed_url, entry.title);
                 });
+                await Promise.all(promises);
             }
             catch(e) {
                 console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
             }    
-            // await Promise.all(promises);
         }
     }
     return true;
@@ -544,7 +544,7 @@ async function _syncGPX(h_url, title){
 
                     if (!fs.existsSync(filePathName)) {
                         // Something went wrong before. Let's try one more time.
-                        // console.log(`Trying to generate ${filePathName} a second time`)
+                        console.log(`Trying to generate ${filePathName} a second time`)
                         await createFileFromGpx(waypoints, filePathName, title);
                     }
                 }
