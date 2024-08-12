@@ -293,8 +293,8 @@ useEffect(() => {
             );
             const todayDate = new Date();
 
-            
-            const redirectUrl = todayDate >= date ? `/tour/${res.tourId}/${res.city}/?datum=${moment(date).format("YYYY-MM-DD")}` :
+            console.log("L296 :", todayDate < date ) // 
+            const redirectUrl = todayDate < date ? `/tour/${res.tourId}/${res.city}/?datum=${moment(date).format("YYYY-MM-DD")}` :
             `/tour/${res.tourId}/${res.city}`            
             
 
