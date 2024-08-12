@@ -157,6 +157,12 @@ function TourMapContainer({
       const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
 
+      console.log("===================")
+      console.log("L161 check : ", check)
+      console.log("L162 visibleMarkersObj : ", visibleMarkersObj)
+      console.log("L163 visibleMarkersArray : ", visibleMarkersArray)
+      console.log("===================");
+
       if (!!check && !!visibleMarkersObj && !!visibleMarkersArray) { 
         localStorage.setItem("visibleMarkers", JSON.stringify(visibleMarkersArray));
         handleChangedMarkers(true); // *** handle the Boolean flag in Main /make new call in card container
