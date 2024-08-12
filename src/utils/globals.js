@@ -28,14 +28,11 @@ export function convertNumToTime(number, nonseparate = false) {
 }
 
 export const  simpleConvertNumToTime = (number)=> {
-    console.log("L31 number :", number)
     let timeStr = convertNumToTime(number);
-    console.log("L32 timeStr :", timeStr)
     timeStr = timeStr.replace(/ h/g, '').replace(/ min/g, '');
     if (!timeStr.includes(':')) {
         timeStr = timeStr.replace(/(\d+)\s+(\d+)/, '$1:$2');
     }
-    console.log("L33 timeStr-2 :", timeStr)
     return timeStr;
 }
 

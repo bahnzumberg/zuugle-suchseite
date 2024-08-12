@@ -36,9 +36,6 @@ export const GetDepartureText = (connection, t) => {
   }
 
   let depTime = (connection.connection_departure_datetime).slice(11, 16)
-  // console.log("L35 depTime : ",depTime)
-  // depTime = moment(connection.depTime).format("HH:mm");
-  // console.log("L36 connection.connection_departure_datetime : ",connection.connection_departure_datetime)
 
   const departureText = connection.connection_duration_minutes === 0 ? 
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
@@ -50,12 +47,6 @@ export const GetDepartureText = (connection, t) => {
       lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
     }}>
       {departureText}
-      {
-      // console.log("L41 departureText :", departureText)
-      // console.log("L41 connection.connection_departure_datetime :", (connection.connection_departure_datetime).slice(11, 16))
-      console.log("L56 simpleConvertNumToTime(connection.connection_duration_minutes / 60, true)", simpleConvertNumToTime(connection.connection_duration_minutes / 60, true))
-      
-      }
     </Typography>
   );
 };
