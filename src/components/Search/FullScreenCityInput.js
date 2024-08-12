@@ -9,7 +9,6 @@ import { loadRanges } from "../../actions/rangeActions";
 import { hideModal, showModal } from "../../actions/modalActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import {useParams, useNavigate} from "react-router-dom";
 
 
 function FullScreenCityInput({

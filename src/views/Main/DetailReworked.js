@@ -722,7 +722,7 @@ useEffect(() => {
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Box>
-                <Modal
+                {/* <Modal
                   open={showModal}
                   onClose={handleModalClose}
                   aria-labelledby="modal-title"
@@ -751,7 +751,7 @@ useEffect(() => {
                       </button>
                     </Box>
                   </Box>
-                </Modal>
+                </Modal> */}
                 <DomainMenu />
               </Box>
               {/* arrow close tab  ###### section */}

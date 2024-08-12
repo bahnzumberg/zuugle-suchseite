@@ -1,6 +1,10 @@
 import * as React from "react";
+import {useRef} from "react";
+import { compose } from "redux";
+import { connect } from "react-redux";
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
 import {
   Accordion,
   AccordionDetails,
@@ -9,6 +13,10 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 import { Fragment, useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
@@ -27,18 +35,20 @@ import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime, simpleConvertNumToTime} from "../../utils/globals";
-// import { useSearchParams , useParams } from "react-router-dom";
+import { loadCities } from "../../actions/cityActions";
+import {useParams } from "react-router-dom";
 // import { hideModal, showModal } from "../../actions/modalActions";
 // import FullScreenCityInput from "../../components/Search/FullScreenCityInput";
 
 
 
-export default function ItineraryTourTimeLineContainer({
+function ItineraryTourTimeLineContainer({
   connections,
   loading,
   duration,
   tour,
-  city
+  city,
+  cities
 }) {
   
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -49,12 +59,54 @@ export default function ItineraryTourTimeLineContainer({
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
   const [city_selected, setCity_selected] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
+  const abortController = new AbortController();
+
 
   // the following two vars filled by fcn extractReturns
   const twoReturns = []; 
   const remainingReturns = [];
 
+  let citiesList = useRef();
+
+  const {idOne, cityOne} = useParams();
+
   const { t } = useTranslation();
+
+  const requestConfig = {
+    params: { domain: window.location.host },
+    signal: abortController.signal,
+  };
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await loadCities({ limit: 5 }, requestConfig); 
+        citiesList.current = res; 
+        console.log("L75 ======= res:")
+        console.log(res)
+
+      } catch (error) {
+        console.error("Error loading data", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+
+    // console.log("L83 ======= citiesList.current :")
+    // console.log(citiesList.current)
+
+    // Cleanup on component unmount
+    return () => abortController.abort();
+  }, []);
+
+  useEffect(() => {
+    console.log("===== cities state ====")
+    console.log(cities)
+  
+  }, [cities])
+  
 
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
@@ -71,6 +123,9 @@ export default function ItineraryTourTimeLineContainer({
     _time = _time.replace(/\s*h\s*$/, '');
     return _time;
   }
+  // console.log("L128 window.location.host :", `${window.location.host}/tour/${idOne}/${_city.value}`)
+  // console.log("L128 window.location.host :", `${window.location.host}/tour/319/wien`)
+  // console.log("L128 window.location.host :", `https://www2.zuugle.at/tour/319/wien`)
 
   useEffect(() => {
     if (city ==='no-city'){
@@ -133,6 +188,7 @@ export default function ItineraryTourTimeLineContainer({
   //when connections/connections.connections/or connections.connections[0] do not exist
   if (!!!getSingleConnection()) {
     return (
+    <>
       <Box
         sx={{
           bgcolor: "#FFFFFF",
@@ -148,6 +204,7 @@ export default function ItineraryTourTimeLineContainer({
         <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
           <p>{t("details.bitte_stadt_waehlen")}</p>
         </Typography>
+        
         </>
       )
       :
@@ -157,6 +214,82 @@ export default function ItineraryTourTimeLineContainer({
         </Typography>
       }
       </Box>
+      {
+        !city_selected && (
+          <Box
+        sx={{
+          bgcolor: "#FFFFFF",
+          borderRadius: "16px",
+          padding: "20px",
+          position: "relative",
+          textAlign: "center",
+          marginTop: "20px"
+        }}
+      >
+        <List>
+      {!!isLoading && (
+        <ListItem sx={{ backgroundColor: "#FFFFFF" }}>
+          <Box sx={{ padding: "20px" }}>
+            <CircularProgress />
+          </Box>
+        </ListItem>
+      )}
+      {cities.map((_city, index) => {
+        return (
+          <ListItem
+            key={index}
+            sx={{
+              borderRadius: "12px",
+              padding: "5px",
+              mb: "5px",
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: "#EBEBEB",
+              },
+            }}
+          >
+            <a href= {`${window.location.host}/tour/${idOne}/${_city.value}`} >
+             <ListItemAvatar>
+              <Avatar sx={{ borderRadius: "11px", background: "#DDD" }}>
+                <svg
+                  width="22"
+                  height="16"
+                  viewBox="0 0 22 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M0.879883 1.29848C0.879883 0.872922 1.23279 0.52002 1.65834 0.52002H9.96193C13.5117 0.52002 16.2934 1.36076 18.2032 2.80351C20.1338 4.26701 21.1199 6.31177 21.1199 8.56412C21.1199 9.32183 20.8189 10.0484 20.2791 10.5777C19.7394 11.1175 19.0128 11.4185 18.2655 11.4185H1.65834C1.23279 11.4185 0.879883 11.0656 0.879883 10.64C0.879883 10.4428 0.952539 10.256 1.07709 10.121C0.952539 9.98611 0.879883 9.79928 0.879883 9.60207V1.29848ZM6.06963 2.07694H2.43681V5.70976H6.06963V2.07694ZM7.62655 5.70976V2.07694H9.96193C10.4083 2.07694 10.8442 2.08732 11.2594 2.11846V5.70976H7.62655ZM12.8163 5.70976V2.29491C14.7157 2.6063 16.1896 3.22907 17.2587 4.04905C17.9022 4.53688 18.4108 5.09737 18.7845 5.70976H12.8163ZM19.4176 7.26669C19.5111 7.68187 19.563 8.1178 19.563 8.56412C19.563 8.90664 19.428 9.23879 19.1789 9.47752C18.9402 9.71625 18.608 9.86156 18.2655 9.86156H2.39529C2.42643 9.77852 2.43681 9.69549 2.43681 9.60207V7.26669H19.4176Z"
+                    fill="#101010"
+                  />
+                  <path
+                    d="M1.65834 14.0134C1.23279 14.0134 0.879883 14.3663 0.879883 14.7918C0.879883 15.2174 1.23279 15.5703 1.65834 15.5703H20.3414C20.767 15.5703 21.1199 15.2174 21.1199 14.7918C21.1199 14.3663 20.767 14.0134 20.3414 14.0134H1.65834Z"
+                    fill="#101010"
+                  />
+                </svg>
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={_city.label} />
+            </a>
+          </ListItem>
+        );
+      })}
+      
+      {!cities.length && (
+        <ListItem>
+          <ListItemText secondary={"Did not find anything?"} />
+        </ListItem>
+      )}
+    </List>
+         
+      </Box>
+        )
+      }
+      
+    
+    </>
 
 
     );
@@ -588,3 +721,15 @@ export default function ItineraryTourTimeLineContainer({
     </Box>
   );
 }
+
+const mapDispatchToProps = {
+  loadCities,
+};
+
+const mapStateToProps = (state) => {
+  return {
+    cities: state.cities.cities,
+  };
+};
+
+export default compose(connect(mapStateToProps, mapDispatchToProps))(ItineraryTourTimeLineContainer);
