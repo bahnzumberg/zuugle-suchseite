@@ -251,6 +251,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGpxTrack = async (url) => {
     if (!!url) {
       try {
@@ -274,6 +275,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleTotourGpxTrack = async (url) => {
     if (!!url) {
       try {
@@ -296,6 +298,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFromtourGpxTrack = async (url) => {
     if (!!url) {
       try {
