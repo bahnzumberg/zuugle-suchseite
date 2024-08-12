@@ -12,6 +12,7 @@ import {
   Grid,
   Divider,
   Typography,
+  Link
 } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -236,6 +237,7 @@ function ItineraryTourTimeLineContainer({
       )}
       {cities.map((_city, index) => {
         return (
+          <Link href= {`/tour/${idOne}/${_city.value}`} >
           <ListItem
             key={index}
             sx={{
@@ -248,8 +250,8 @@ function ItineraryTourTimeLineContainer({
               },
             }}
           >
-            <a href= {`/tour/${idOne}/${_city.value}`} >
              <ListItemAvatar>
+            
               <Avatar sx={{ borderRadius: "11px", background: "#DDD" }}>
                 <svg
                   width="22"
@@ -272,8 +274,8 @@ function ItineraryTourTimeLineContainer({
               </Avatar>
             </ListItemAvatar>
             <ListItemText primary={_city.label} />
-            </a>
           </ListItem>
+          </Link>
         );
       })}
       
