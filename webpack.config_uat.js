@@ -65,18 +65,23 @@ module.exports = {
 				issuer: /\.[jt]sx?$/,
 				use: ["@svgr/webpack", "url-loader"],
 			},
+			// {
+			// 	test: /\.(png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/,
+			// 	use: [
+			// 		{
+			// 			loader: "file-loader",
+			// 			options: {
+			// 				name: "./img/[name].[hash].[ext]",
+			// 				publicPath: "/", // Ensures the correct public path
+			// 			},
+			// 		},
+			// 	],
+			// },
 			{
-				test: /\.(png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/,
-				use: [
-					{
-						loader: "file-loader",
-						options: {
-							name: "./img/[name].[hash].[ext]",
-							publicPath: "/", // Ensures the correct public path
-						},
-					},
-				],
-			},
+				test: /\.woff2?$/i,
+				type: 'asset/resource',
+				dependency: { not: ['url'] },
+			}, 
 			{
 				test: /\.js$/,
 				enforce: "pre",
