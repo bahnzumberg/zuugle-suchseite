@@ -52,7 +52,7 @@ function ItineraryTourTimeLineContainer({
   city,
   cities
 }) {
-  
+  console.log("L55 / connections : ", connections)
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const [entries, setEntries] = useState([]); //PARSED array[of strings], related to only one object, a departure description

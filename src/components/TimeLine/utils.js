@@ -35,10 +35,10 @@ export const GetDepartureText = (connection, t) => {
     return <Fragment></Fragment>;
   }
 
-  let depTime = (connection.connection_departure_datetime).slice(11, 16)
-
+  let depTime = (connection.connection_departure_datetime_entry).slice(11, 16)
+  
   const departureText = connection.connection_duration_minutes === 0 ? 
-    moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
+    moment(connection.connection_departure_datetime_entry).format("DD.MM HH:mm") :
     `${depTime} - ${moment(connection.connection_arrival_datetime).format("HH:mm")}`;
 
   return (
