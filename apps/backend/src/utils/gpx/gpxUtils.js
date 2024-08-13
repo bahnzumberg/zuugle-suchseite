@@ -85,7 +85,7 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
-            const chunkSize = 5;
+            const chunkSize = 2;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 const chunk = ids.slice(i, i + chunkSize);
                 await Promise.all(chunk.map(ch => new Promise(async resolve => {
@@ -94,25 +94,35 @@ export const createImagesFromMap = async (ids) => {
                         fs.mkdirSync(dirPath);
                     }
                     
-                    let filePath = path.join(dirPath, ch+"_gpx.jpg");
+                    // let filePath = path.join(dirPath, ch+"_gpx.jpg");
+                    let filePath = path.join(dirPath, ch+"_gpx.png");
                     let filePathSmall = path.join(dirPath, ch+"_gpx_small.jpg");
+                    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
 
-                    if (!!filePathSmall && !!!fs.existsSync(filePathSmall)) {
+                    if (!!filePathSmallWebp && !!!fs.existsSync(filePathSmallWebp)) {
                         let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
                         let hashed_url_query = await knex.raw(hashed_url_sql);
                         let hashed_url = hashed_url_query.rows[0].hashed_url;
 
-                        await createImageFromMap(browser, filePath, url + last_two_characters(hashed_url) + "/" + hashed_url + ".gpx", 80);
+                        await createImageFromMap(browser, filePath, url + last_two_characters(hashed_url) + "/" + hashed_url + ".gpx", 100);
 
                         if (fs.existsSync(filePath)){
                             try {
                                 // console.log("filePath=", filePath)
                                 // console.log("filePathSmall=", filePathSmall)
                                 await sharp(filePath).resize({
-                                    width: 392,
-                                    height: 261,
+                                    width: 784, // 392,
+                                    height: 523, // 261,
                                     fit: "inside"
-                                }).jpeg({quality: 40}).toFile(filePathSmall);
+                                }).jpeg({quality: 15}).toFile(filePathSmall);
+
+                                await sharp(filePath).resize({
+                                    width: 784, // 392,
+                                    height: 523, // 261,
+                                    fit: "inside"
+                                    }).webp({quality: 15}) // Change to WebP format
+                                    .toFile(filePathSmallWebp);
+
                             }
                             catch(e) {
                                 console.error("gpxUtils.sharp.resize error: ",e)
@@ -173,7 +183,8 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); 
                 await setTimeout(10000);
                 await page.bringToFront();
-                await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
+                await page.screenshot({ path: filePath, type: 'png' });
+                // await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
                 // console.log("Created "+filePath)
             }
@@ -259,7 +270,7 @@ export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackK
             // await page.waitForTimeout(20);
             await setTimeout(20);
             await page.bringToFront();
-            await page.screenshot({path: filePath, type: "jpeg", quality: 90});
+            await page.screenshot({path: filePath, type: "jpeg", quality: 100});
             await page.close();
             return baseFilePath;
         }

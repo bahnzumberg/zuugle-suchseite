@@ -4,6 +4,8 @@ build
 node_modules
 public/gpx/*/*.gpx
 public/gpx-image/*/*.jpg
+public/gpx-image/*/*.png
+public/gpx-image/*/*.webp
 public/gpx-image-with-track/*.jpg
 public/gpx-track/totour/*/*.gpx
 public/gpx-track/fromtour/*/*.gpx

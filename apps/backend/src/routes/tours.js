@@ -907,7 +907,6 @@ const mapConnectionReturnToFrontend = (connection) => {
 
     let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-    connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
     return connection;
 }
