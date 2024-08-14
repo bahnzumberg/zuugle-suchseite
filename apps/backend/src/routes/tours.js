@@ -11,6 +11,7 @@ import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
 const path = require('path');
+const momenttz = require('moment-timezone');
 
 router.get('/', (req, res) => listWrapper(req, res));
 router.get('/filter', (req, res) => filterWrapper(req, res));
@@ -748,17 +749,23 @@ const connectionsWrapper = async (req, res) => {
         return;
     }
 
-    const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
+    // const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
+    // const connections = await query_con;
 
-    const connections = await query_con;
+    let connections = [];
+    const fahrplan_sql = `SELECT * FROM fahrplan WHERE hashed_url='${tour.hashed_url}' AND city_slug='${city}';`;
+    const fahrplan_result = await knex.raw(fahrplan_sql)    
+    if (!!fahrplan_result && !!fahrplan_result.rows) {
+        connections = fahrplan_result.rows;
+    }
+
     let missing_days = getMissingConnectionDays(connections);
+
     await Promise.all(connections.map(connection => new Promise(resolve => {
-        connection.best_connection_duration_minutes = minutesFromMoment(moment(connection.best_connection_duration, 'HH:mm:ss'));
-        connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
-        connection.return_duration_minutes = minutesFromMoment(moment(connection.return_duration, 'HH:mm:ss'));
+        connection.best_connection_duration_minutes = minutesFromMoment( moment(connection.best_connection_duration, 'HH:mm:ss') );
+        connection.connection_duration_minutes = minutesFromMoment( moment(connection.connection_duration, 'HH:mm:ss') );
+        connection.return_duration_minutes = minutesFromMoment( moment(connection.return_duration, 'HH:mm:ss') );
         connection.missing_days = missing_days;
-        // connection.connection_departure_stop = 'XX departure_stop XX'
-        // connection.connection_arrival_stop = 'YY arrival_stop YY'
         resolve(connection);
     })));
 
@@ -809,7 +816,19 @@ const connectionsExtendedWrapper = async (req, res) => {
         return;
     }
 
-    const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city}).orderBy('return_row', 'asc');
+    // const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city}).orderBy('return_row', 'asc');
+    
+    // The following SQL should only return the columns used in ItineraryTourTimeLineContainer
+
+    let connections = [];
+    const fahrplan_sql = `SELECT * FROM fahrplan WHERE hashed_url='${tour.hashed_url}' AND city_slug='${city}' ORDER BY return_row ASC;`;
+    const fahrplan_result = await knex.raw(fahrplan_sql)    
+    if (!!fahrplan_result && !!fahrplan_result.rows) {
+        connections = fahrplan_result.rows.map(connection => {
+            connection.return_departure_datetime = momenttz(connection.return_departure_datetime).tz('Europe/Berlin').format();
+            return connection;
+        });
+    }
 
     const today = moment().set('hour', 0).set('minute', 0).set('second', 0);
     let end = moment().add(7, 'day');
@@ -819,7 +838,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     while(today.isBefore(end)){
         const byWeekday  = connections.filter(conn => moment(conn.calendar_date).format('DD.MM.YYYY') == today.format('DD.MM.YYYY'))
         const duplicatesRemoved = [];
-
+        
         byWeekday.forEach(t => {
             let e = {...t}
             e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
@@ -856,13 +875,6 @@ const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
     let _connections = [];
     let _duplicatesRemoved = [];
 
-    /*if(!!tour.number_of_days && tour.number_of_days > 1){
-        let nextDay = today.clone();
-        nextDay.add(tour.number_of_days - 1, 'days');
-        _connections = connections.filter(conn => moment(conn.calendar_date).format('DD.MM.YYYY') == nextDay.format('DD.MM.YYYY'))
-    } else {
-        _connections = connections.filter(conn => moment(conn.calendar_date).format('DD.MM.YYYY') == today.format('DD.MM.YYYY'))
-    }*/
     _connections = connections.filter(conn => moment(conn.calendar_date).format('DD.MM.YYYY') == today.format('DD.MM.YYYY'))
 
 
@@ -907,7 +919,7 @@ const mapConnectionReturnToFrontend = (connection) => {
 
     let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
     connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-    connection.return_description_parsed = parseReturnConnectionDescription(connection);
+    // connection.return_description_parsed = parseReturnConnectionDescription(connection);
 
     return connection;
 }
