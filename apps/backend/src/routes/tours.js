@@ -844,7 +844,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             let e = {...t}
             e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
-            e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
+            // e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
 
             // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
             if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
