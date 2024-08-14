@@ -41,7 +41,7 @@ jobs:
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
             rm /root/suchseite/backup/api.tar.gz
-            tar -zcvf /root/suchseite/backup/api.tar.gz --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx-image --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}/public/gpx-track ${{ secrets.PROD_REMOTE_TARGET_API }} 
+            tar -zcvf /root/suchseite/backup/api.tar.gz --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-image --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-track ${{ secrets.PROD_REMOTE_TARGET_API }} 
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       with:
