@@ -825,6 +825,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     const fahrplan_result = await knex.raw(fahrplan_sql)    
     if (!!fahrplan_result && !!fahrplan_result.rows) {
         connections = fahrplan_result.rows.map(connection => {
+            connection.connection_departure_datetime = momenttz(connection.connection_departure_datetime).tz('Europe/Berlin').format();
             connection.return_departure_datetime = momenttz(connection.return_departure_datetime).tz('Europe/Berlin').format();
             return connection;
         });
