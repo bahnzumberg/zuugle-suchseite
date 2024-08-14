@@ -329,7 +329,7 @@ body ::-webkit-scrollbar-thumb:hover {
   > div
   #react-select-5-placeholder {
   color: #000;
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -340,7 +340,7 @@ body ::-webkit-scrollbar-thumb:hover {
 .main-search-bar > div > div > div > div > div > div > div > div > div > input {
   color: #000 !important;
   font-weight: 600 !important;
-  font-family: "Open Sans" !important;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif !important;
   font-size: 16px !important;
   line-height: 22.736px !important;
   letter-spacing: -0.16px !important;
@@ -1367,7 +1367,7 @@ ul.about-bullets {
 }
 
 .languageItem {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1551,7 +1551,7 @@ top:250px; */
 }
 
 .searchFirstText {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 16px;
@@ -1573,7 +1573,7 @@ top:250px; */
 }
 
 .searchSecondText {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 16px;
@@ -1584,7 +1584,7 @@ top:250px; */
 }
 
 .goBtn {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
@@ -1610,7 +1610,7 @@ top:250px; */
 }
 
 .boldTxt {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 16px;
@@ -1639,11 +1639,11 @@ top:250px; */
   width: 460px;
   outline: none;
   border: none;
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
 }
 
 .searchSuggestions {
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   border-radius: 12px;
   text-align: left;
   width: 87%;
@@ -1678,7 +1678,7 @@ top:250px; */
   justify-content: center;
   display: flex;
   text-decoration: underline;
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   z-index: 99;
 }
 
@@ -1688,7 +1688,7 @@ top:250px; */
   align-items: center;
   justify-content: center;
   display: flex;
-  font-family: "Open Sans";
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
   background-color: #4992ff;
   border-radius: 12px;
   color: #fff;
