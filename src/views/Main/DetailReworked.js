@@ -519,11 +519,11 @@ useEffect(() => {
     );
   };
 
-  const updateActiveConnectionIndex = (index) => {
-    setDateIndex(index);
-    setActiveConnection(connections[index]);
-    setActiveReturnConnection(connections[index].returns[0]);
-  };
+  // const updateActiveConnectionIndex = (index) => {
+  //   setDateIndex(index);
+  //   setActiveConnection(connections[index]);
+  //   setActiveReturnConnection(connections[index].returns[0]);
+  // };
 
   const shareButtonHandler = (event) => {
   	const clickedElement = event.target;
@@ -899,10 +899,13 @@ useEffect(() => {
                   <Itinerary
                     connectionData={connections}
                     dateIndex={dateIndex}
-                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
                     tour={tour}
                     validTour={validTour}
                     city={cityI}
+                    setDateIndex={setDateIndex}
+                    setActiveConnection={setActiveConnection}
+                    setActiveReturnConnection={setActiveReturnConnection}
+                    
                   ></Itinerary>
                 </Box>
                 {renderImage && !!validTour && (

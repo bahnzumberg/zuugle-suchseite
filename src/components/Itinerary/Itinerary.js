@@ -5,13 +5,18 @@ import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineCon
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
 
-const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTour, city }) => {
+const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTour, city, setDateIndex, setActiveConnection, setActiveReturnConnection }) => {
 
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
   // const validTour = !!tour && tour?.active ;
   
+  // const updateActiveConnectionIndex = (index) => {
+  //   setDateIndex(index);
+  //   setActiveConnection(connections[index]);
+  //   setActiveReturnConnection(connections[index].returns[0]);
+  // };
 
   return (
     <div className="tour-detail-itinerary-container">
@@ -25,7 +30,10 @@ const Itinerary = ({ connectionData, dateIndex, onDateIndexUpdate, tour, validTo
               <ItineraryCalendar
               connectionData={connectionData}
               dateIndex={dateIndex}
-              onDateIndexUpdate={onDateIndexUpdate}
+              setDateIndex={setDateIndex}
+              setActiveConnection={setActiveConnection}
+              setActiveReturnConnection={setActiveReturnConnection}
+
               ></ItineraryCalendar>
               <Divider sx={{ my: "24px" }} />
               {!!connectionData && (
