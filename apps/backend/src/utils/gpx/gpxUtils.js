@@ -129,15 +129,16 @@ export const createImagesFromMap = async (ids) => {
                             }
 
                             try {
-                                if (fs.existsSync(filePathSmall)){
+                                if (fs.existsSync(filePathSmallWebp)){
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
-                                    await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
+                                    // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
+                                    await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
                                 }
                                 else {
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmall);
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmallWebp);
 
                                     // In this case we set '/app_static/img/train_placeholder.webp'
                                     await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
@@ -156,7 +157,8 @@ export const createImagesFromMap = async (ids) => {
                     }
                     else {
                         // The gpx_small.jpg already exists and doesn't have to be regenerated.   
-                        await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
+                        // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
+                        await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
                     }
                     
                     resolve();
