@@ -69,20 +69,7 @@ const DetailReworked = (props) => {
     loadAllCities,
   } = props;
 
-  const setGpxTrack = (url, loadGPX, _function) => {
-    if(!!validTour){
-      loadGPX(url).then((res) => {
-        if (!!res && !!res.data) {
-          let gpx = new GpxParser(); //Create gpxParser Object
-          gpx.parse(res.data);
-          if (gpx.tracks.length > 0) {
-            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            _function(positions);
-          }
-        }
-      });
-    }
-  };
+  
 
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
@@ -109,12 +96,13 @@ const DetailReworked = (props) => {
   const {cityOne, idOne} = useParams();
   const [validTour, setValidTour] = useState(false);
   
+  let cityfromparam = searchParams.get("city");
+  
   let _city = '';
   if (!!cityOne){
     _city = cityOne;
   }
   else {
-    let cityfromparam = searchParams.get("city");
     if (!!cityfromparam){
       _city = cityfromparam;
     }
@@ -149,6 +137,10 @@ const DetailReworked = (props) => {
   useEffect(() => {
     setCityI(_city)
   }, [_city]);
+  
+  useEffect(() => {
+    console.log("L154 : dateIndex : ", dateIndex )
+  }, [dateIndex])
   
 
   const goToStartPage = () => {
@@ -369,6 +361,7 @@ useEffect(() => {
           !!res.data.result && setConnections(res.data.result);
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
+            console.log("L372 : res.data.result", res.data.result)
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
@@ -525,6 +518,21 @@ useEffect(() => {
   //   setActiveReturnConnection(connections[index].returns[0]);
   // };
 
+  const setGpxTrack = (url, loadGPX, _function) => {
+    if(!!validTour){
+      loadGPX(url).then((res) => {
+        if (!!res && !!res.data) {
+          let gpx = new GpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            _function(positions);
+          }
+        }
+      });
+    }
+  };
+  
   const shareButtonHandler = (event) => {
   	const clickedElement = event.target;
   	const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
@@ -905,6 +913,7 @@ useEffect(() => {
                     setDateIndex={setDateIndex}
                     setActiveConnection={setActiveConnection}
                     setActiveReturnConnection={setActiveReturnConnection}
+                    idOne={idOne}
                     
                   ></Itinerary>
                 </Box>
