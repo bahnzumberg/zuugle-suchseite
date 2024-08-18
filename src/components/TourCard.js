@@ -114,6 +114,7 @@ export default function TourCard({
         <CardMedia
           component="img"
           height="140"
+          alt="{tour.provider_name}: {tour.title}"
           image={image}
           style={{ opacity: imageOpacity, zIndex: "40" }}
         />

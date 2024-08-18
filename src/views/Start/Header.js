@@ -111,7 +111,7 @@ export default function Header({
               src={`/app_static/img/logo-white.png`}
               height={"16px"}
               width={"29px"}
-              alt="logo"
+              alt="Zuugle"
             />
             <Typography
               style={{
