@@ -30,8 +30,11 @@ const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 
 export const GetDepartureText = (connection, t) => {
-  const isMobile = useMediaQuery('(max-width:600px)');
+  let isMobile = window.innerWidth <= 600;
 
+  window.addEventListener('resize', () => {
+    isMobile = window.innerWidth <= 600;
+  });
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
@@ -43,7 +46,7 @@ export const GetDepartureText = (connection, t) => {
     // moment(connection.connection_departure_datetime_entry).format("DD.MM HH:mm") :
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
     `${depTime} - ${moment(connection.connection_arrival_datetime).format("HH:mm")}`;
-
+    
   return (
     <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
 
