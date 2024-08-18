@@ -18,7 +18,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 // import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
@@ -52,7 +52,8 @@ function ItineraryTourTimeLineContainer({
   idOne
 }) {
   //set connections to single one
-  connections = connections[dateIndex]
+  // connections = connections[dateIndex];
+
   let emptyConnArray = !connections || (!!connections && Array.isArray(connections.connections) && connections.connections.length === 0)
 
   // console.log(`L57 / city : `, city) ; // 
@@ -69,7 +70,9 @@ function ItineraryTourTimeLineContainer({
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
-  const [city_selected, setCity_selected] = useState(true)
+  const [city_selected, setCity_selected] = useState(true);
+
+  const connectionsRef = useRef((!!connections && !!dateIndex) ? connections[dateIndex] : null);
 
 
 
@@ -79,6 +82,11 @@ function ItineraryTourTimeLineContainer({
 
   const { t } = useTranslation();
 
+  useEffect(() => {
+    connectionsRef.current = connections[dateIndex]
+  
+  }, [dateIndex, connections])
+  
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
 
