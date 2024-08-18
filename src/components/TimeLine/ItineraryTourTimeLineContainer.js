@@ -161,7 +161,7 @@ function ItineraryTourTimeLineContainer({
     }
     return null;
   };
-  // extractReturns();
+   extractReturns();
 
 
 
@@ -170,7 +170,7 @@ function ItineraryTourTimeLineContainer({
 
     let connection = getSingleConnection();
     if (!!!connection) {
-      console.log("L169 inside --> if (!!!connection) ")
+      console.log("L169 (NO CONNECION) ")
       return <Fragment></Fragment>;
     }
     if (connection.connection_duration_minutes === 0) {
