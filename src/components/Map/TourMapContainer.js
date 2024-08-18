@@ -64,8 +64,8 @@ function TourMapContainer({
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      iconSize: [30, 40], //size of the icon
-      iconAnchor: [15, 41],
+      iconSize: [33, 45], //size of the icon
+      iconAnchor: [16, 46],
     });
   };
 

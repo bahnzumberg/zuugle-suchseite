@@ -10,13 +10,13 @@ export default function InteractiveMap({ tourTitle, gpxPositions, anreiseGpxPosi
 
   const startIcon = L.icon({
     iconUrl: '/app_static/img/startpunkt.png',
-    iconSize: [30, 40],
-    iconAnchor: [15, 41],
+    iconSize: [33, 45],
+    iconAnchor: [16, 46],
   });
   const endIcon = L.icon({
     iconUrl: '/app_static/img/zielpunkt.png',
-    iconSize: [30, 40],
-    iconAnchor: [15, 41],
+    iconSize: [33, 45],
+    iconAnchor: [16, 46],
   });
 
   const StartMarker = ({ position }) => {
