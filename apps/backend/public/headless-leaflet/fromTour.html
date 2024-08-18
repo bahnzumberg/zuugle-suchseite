@@ -45,6 +45,7 @@
 
     var map = L.map('map', {zoomControl: false}).setView([51.505, -0.09], 14);
 
+    // We use deliberately png instead of webp here, because the png is higher quality
     var tiles = L.tileLayer('https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png', {
         maxZoom: 17,
         id: 'mapbox/streets-v11',
@@ -56,17 +57,17 @@
         new L.GPX(gpxTrackUrls[0], {
             async: true,
             marker_options: {
-                startIconUrl: 'pin-icon-end.png',
+                startIconUrl: 'zielpunkt.png',
                 endIconUrl: 'pin-stopsign.png',
-                shadowUrl: 'pin-shadow.png'
+                // shadowUrl: 'pin-shadow.png'
             },
             polyline_options: {
                 weight: 6, 
-                color: "#4A91FF", 
+                color: "#FF7663", 
                 dashArray: '5,10', 
                 dashOffset: '1' ,
                 opacity: 1,
-                lineCap: 'square',
+                lineCap: 'round',
             }
         }).on('loaded', function(e) {
             map.fitBounds(e.target.getBounds().pad(0.15));
