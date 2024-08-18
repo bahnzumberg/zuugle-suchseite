@@ -52,7 +52,7 @@ function ItineraryTourTimeLineContainer({
   idOne
 }) {
   //set connections to single one
-  // connections = connections[dateIndex];
+  connections = connections[dateIndex];
 
   let emptyConnArray = !connections || (!!connections && Array.isArray(connections.connections) && connections.connections.length === 0)
 
