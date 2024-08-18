@@ -62,6 +62,13 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
+    "plugins":[
+      "react-hooks"
+    ],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error", 
+      "react-hooks/exhaustive-deps": "warn" 
+    },
     "extends": [
       "react-app",
       "react-app/jest"
@@ -78,6 +85,7 @@
     "css-loader": "^6.7.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "file-loader": "^6.2.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
