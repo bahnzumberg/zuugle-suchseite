@@ -22,7 +22,7 @@
     "axios": "^1.6.2",
     "buffer": "^6.0.3",
     "gpxparser": "^3.0.0",
-    "i18next": "^22.4.15",
+    "i18next": "^23.14.0",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.2.0",
     "js-file-download": "^0.4.12",
