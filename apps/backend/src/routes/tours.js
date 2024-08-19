@@ -667,16 +667,16 @@ const filterWrapper = async (req, res) => {
                 .select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang', 'min_connection_duration'])
 
     let where = {};
-    let whereRaw = null;
-
-    const tld = get_domain_country(domain);
-    whereRaw = ` city2tour.reachable_from_country='${tld}' `;
+    let tld = get_domain_country(domain);
+    let whereRaw = ` city2tour.reachable_from_country='${tld}' `;
 
     /** city search */
     if(!!city && city.length > 0){
         whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
     }
 
+    logger("whereRaw: ", whereRaw)
+    logger("domain: ", domain)
 
     /** region search */
     if(!!range && range.length > 0){
@@ -731,10 +731,6 @@ const filterWrapper = async (req, res) => {
 
     /** load full result for filter */
     let filterResultList = await queryForFilter;
-
-    // const tourIds = await query.pluck('id');
-    // const return_string = tourIds.join(',');
-    // console.log("return_string: ", return_string)
 
     res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
 }
@@ -1081,8 +1077,6 @@ const buildFilterResult = (result, city, params) => {
             maxDistance = 80;
         }
         
-        
-        console.log("tour.min_connection_duration: ", tour.min_connection_duration)
 
         if(!!tour.min_connection_duration){
             if(parseFloat(tour.min_connection_duration) > maxTransportDuration){
