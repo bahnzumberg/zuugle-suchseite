@@ -56,13 +56,6 @@ function ItineraryTourTimeLineContainer({
 
   let emptyConnArray = !connections || (!!connections && Array.isArray(connections.connections) && connections.connections.length === 0)
 
-  // console.log(`L57 / city : `, city) ; // 
-  console.log(`L58 / connections : `, connections) ; // 
-  // console.log(`L59 / Array.isArray(connections.connections) : `, Array.isArray(connections.connections))  
-  // console.log(`L60 / connections.connections.length === 0 : `, connections.connections.length === 0)  
-  // console.log(`L61 / emptyConnArray: ============>  `, emptyConnArray)  
-  // !!connections.connections[0] && console.log(`L62 / connections[dateIndex : ${dateIndex}].connections[0] : `, connections.connections[0]) // actual single connection
-
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const [entries, setEntries] = useState([]); //PARSED array[of strings], related to only one object, a departure description
@@ -89,12 +82,8 @@ function ItineraryTourTimeLineContainer({
   
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
-
-    console.log("useEffect no. 1")
     if(!emptyConnArray){
-      console.log("L88 - 1")
       let settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
-      // console.log("L92 settingEnt ", settingEnt)
       setEntries(settingEnt);
       setReturnEntries(connections.returns);
       extractReturns();
@@ -103,8 +92,6 @@ function ItineraryTourTimeLineContainer({
   
 
   useEffect(() => {
-    console.log("useEffect no. 2")
-
     if (city ==='no-city'){
       setCity_selected(false);
     }
@@ -115,8 +102,6 @@ function ItineraryTourTimeLineContainer({
 
 
   useEffect(() => {
-    console.log("useEffect no. 3")
-
     if(!!duration && typeof(duration) == "string"){
       setformattedDuration(formatDuration(duration));
     }
@@ -134,7 +119,6 @@ function ItineraryTourTimeLineContainer({
   const getSingleConnection = () => {
     if(!emptyConnArray)
     {
-      console.log("L159 connections.connections[0]", connections.connections[0])
       return connections.connections[0]
     }else return null;
   };
@@ -174,11 +158,8 @@ function ItineraryTourTimeLineContainer({
 
 
   const _getDepartureText = () => {
-    console.log("L165 - 2")
-
     let connection = getSingleConnection();
     if (!!!connection) {
-      console.log("L169 (NO CONNECION) ")
       return <Fragment></Fragment>;
     }
     if (connection.connection_duration_minutes === 0) {
@@ -304,7 +285,6 @@ if(emptyConnArray){
     >
       {!loading && getSingleConnection() && (
         <Fragment>
-        {console.log("L296 - 3")}
           {/* ... first accordion ... */}
           <Accordion 
             sx={{ borderRadius: "18px !important" }}
@@ -366,7 +346,6 @@ if(emptyConnArray){
                     {_getDepartureText()}
                   </Typography>
                   {GetDepartureText(getSingleConnection(), t)}
-                  {console.log("L357 - 4")}
                 </Box>
                 <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                   <Shuffle
@@ -388,7 +367,6 @@ if(emptyConnArray){
                       lineHeight: !isMobile ? "16px" : "14px",
                     }}
                   >
-                    {console.log("L379 - 5")}
                     {getNumberOfTransfers(getSingleConnection())}{" "}
                     {t("details.umstiege")}
                   </Box>
@@ -397,7 +375,6 @@ if(emptyConnArray){
             </AccordionSummary>
             <AccordionDetails>
               <Timeline key={randomKey(7)}>
-                {console.log("L388 - 6")}
                 {createEntries(entries, getSingleConnection(), t)}
               </Timeline>
             </AccordionDetails>

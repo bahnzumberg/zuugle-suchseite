@@ -128,8 +128,6 @@ const DetailReworked = (props) => {
 
   const handleCloseTab = () => {
     window.close()
-    // let ableToClose = window.close();
-    // !ableToClose && setShowModal(true)
   };
 
   const navigate = useNavigate();
@@ -137,11 +135,6 @@ const DetailReworked = (props) => {
   useEffect(() => {
     setCityI(_city)
   }, [_city]);
-  
-  useEffect(() => {
-    console.log("L154 : dateIndex : ", dateIndex )
-  }, [dateIndex])
-  
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
@@ -361,7 +354,7 @@ useEffect(() => {
           !!res.data.result && setConnections(res.data.result);
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            console.log("L372 : res.data.result", res.data.result)
+            // console.log("L372 : res.data.result", res.data.result)
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
@@ -512,11 +505,11 @@ useEffect(() => {
     );
   };
 
-  // const updateActiveConnectionIndex = (index) => {
-  //   setDateIndex(index);
-  //   setActiveConnection(connections[index]);
-  //   setActiveReturnConnection(connections[index].returns[0]);
-  // };
+  const updateConnIndex = (index) => {
+    setDateIndex(index);
+    setActiveConnection(connections[index]);
+    setActiveReturnConnection(connections[index].returns[0]);
+  };
 
   const setGpxTrack = (url, loadGPX, _function) => {
     if(!!validTour){
@@ -543,10 +536,6 @@ useEffect(() => {
   	}
   };
 
-  const handleModalClose = ()=>{
-    setShowModal(false)
-  }
-  
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
@@ -737,36 +726,6 @@ useEffect(() => {
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Box>
-                {/* <Modal
-                  open={showModal}
-                  onClose={handleModalClose}
-                  aria-labelledby="modal-title"
-                  aria-describedby="modal-description"
-                >
-                  <Box 
-                    sx={{ 
-                      p: 4, 
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                      borderRadius: '8px', 
-                      margin: 'auto', 
-                      mt: '20vh', 
-                      width: '300px',
-                      boxShadow: 24,
-                    }}
-                  >
-                    <Typography id="modal-title" variant="h6" component="h2">
-                      Unable to close tab
-                    </Typography>
-                    <Typography id="modal-description" sx={{ mt: 2 }}>
-                      Please close this tab manually.
-                    </Typography>
-                    <Box sx={{ textAlign: 'center', mt: 4 }}>
-                      <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                        Okay
-                      </button>
-                    </Box>
-                  </Box>
-                </Modal> */}
                 <DomainMenu />
               </Box>
               {/* arrow close tab  ###### section */}
@@ -907,15 +866,12 @@ useEffect(() => {
                   <Itinerary
                     connectionData={connections}
                     dateIndex={dateIndex}
+                    updateConnIndex={updateConnIndex}
                     tour={tour}
                     validTour={validTour}
                     city={cityI}
-                    setDateIndex={setDateIndex}
-                    setActiveConnection={setActiveConnection}
-                    setActiveReturnConnection={setActiveReturnConnection}
                     idOne={idOne}
-                    
-                  ></Itinerary>
+                  />
                 </Box>
                 {renderImage && !!validTour && (
                   <Box className="tour-detail-conditional-mobile">
