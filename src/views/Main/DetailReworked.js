@@ -848,7 +848,7 @@ useEffect(() => {
                           onError={() => {
                             setRenderImage(false);
                           }}
-                          alt="{tour?.provider_name}: tour.title"
+                          alt={tour?.title}
                         />
 
                       </div>
@@ -882,7 +882,7 @@ useEffect(() => {
                         onError={() => {
                           setRenderImage(false);
                         }}
-                        alt="{tour?.provider_name}: tour.title"
+                        alt={tour?.title}
                       />
                     </div>
                   </Box>
