@@ -307,26 +307,35 @@ const handleShowCardContainer = useCallback((value) => {
               },
             }}
           >
-            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
-              {!!showCardContainer? Number(totalTours).toLocaleString() : 0}{" "}
-              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
-            </Typography>
-            {(getFilterCount() && getFilterCount() > 0 )   
-            && (
-              <Box display={"flex"} alignItems={"center"}>
-                &nbsp;{" - "}&nbsp;
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    color: "#FF7663",
-                    fontWeight: "600",
-                    mr: "2px",
-                  }}
-                >
-                  {t("filter.filter")}
+            {
+              !!totalTours && (
+                <>
+                
+               
+                <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
+                  {!!showCardContainer? Number(totalTours).toLocaleString() : " "}{" "}
+                  {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
                 </Typography>
-              </Box>
-            )}
+                {(getFilterCount() && getFilterCount() > 0 )   
+                && (
+                  <Box display={"flex"} alignItems={"center"}>
+                    &nbsp;{" - "}&nbsp;
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        color: "#FF7663",
+                        fontWeight: "600",
+                        mr: "2px",
+                      }}
+                    >
+                      {t("filter.filter")}
+                    </Typography>
+                  </Box>
+                )}
+
+              </>
+              )
+            }
           </Box>
     </Box>
   );

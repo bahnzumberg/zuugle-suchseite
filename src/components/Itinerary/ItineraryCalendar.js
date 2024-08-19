@@ -36,7 +36,7 @@ const isSelectedDay = (date, selectedDay) => {
 const ItineraryCalendar = ({
   connectionData,
   dateIndex,
-  onDateIndexUpdate,
+  updateConnIndex
 }) => {
   const { t, i18n } = useTranslation();
   let selectedDay = dateIndex;
@@ -47,10 +47,6 @@ const ItineraryCalendar = ({
   } else {
     days = _.map(connectionData, (con) => moment(con.date));
   }
-
-  const setSelectedDay = (index) => {
-    onDateIndexUpdate(index);
-  };
 
   return (
     <div className="tour-detail-itinerary-calendar">
@@ -78,7 +74,7 @@ const ItineraryCalendar = ({
                 ? "tour-detail-itinerary-calendar-grid-selected"
                 : "tour-detail-itinerary-calendar-date"
             }`}
-            onClick={() => setSelectedDay(index)}
+            onClick={() => updateConnIndex(index)}
           >
             {dd.date()}
           </div>

@@ -69,20 +69,7 @@ const DetailReworked = (props) => {
     loadAllCities,
   } = props;
 
-  const setGpxTrack = (url, loadGPX, _function) => {
-    if(!!validTour){
-      loadGPX(url).then((res) => {
-        if (!!res && !!res.data) {
-          let gpx = new GpxParser(); //Create gpxParser Object
-          gpx.parse(res.data);
-          if (gpx.tracks.length > 0) {
-            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-            _function(positions);
-          }
-        }
-      });
-    }
-  };
+  
 
   const [connections, setConnections] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
@@ -109,12 +96,13 @@ const DetailReworked = (props) => {
   const {cityOne, idOne} = useParams();
   const [validTour, setValidTour] = useState(false);
   
+  let cityfromparam = searchParams.get("city");
+  
   let _city = '';
   if (!!cityOne){
     _city = cityOne;
   }
   else {
-    let cityfromparam = searchParams.get("city");
     if (!!cityfromparam){
       _city = cityfromparam;
     }
@@ -140,8 +128,6 @@ const DetailReworked = (props) => {
 
   const handleCloseTab = () => {
     window.close()
-    // let ableToClose = window.close();
-    // !ableToClose && setShowModal(true)
   };
 
   const navigate = useNavigate();
@@ -149,7 +135,6 @@ const DetailReworked = (props) => {
   useEffect(() => {
     setCityI(_city)
   }, [_city]);
-  
 
   const goToStartPage = () => {
     let city = searchParams.get("city");
@@ -369,6 +354,7 @@ useEffect(() => {
           !!res.data.result && setConnections(res.data.result);
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
+            // console.log("L372 : res.data.result", res.data.result)
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
@@ -519,12 +505,27 @@ useEffect(() => {
     );
   };
 
-  const updateActiveConnectionIndex = (index) => {
+  const updateConnIndex = (index) => {
     setDateIndex(index);
     setActiveConnection(connections[index]);
     setActiveReturnConnection(connections[index].returns[0]);
   };
 
+  const setGpxTrack = (url, loadGPX, _function) => {
+    if(!!validTour){
+      loadGPX(url).then((res) => {
+        if (!!res && !!res.data) {
+          let gpx = new GpxParser(); //Create gpxParser Object
+          gpx.parse(res.data);
+          if (gpx.tracks.length > 0) {
+            const positions = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            _function(positions);
+          }
+        }
+      });
+    }
+  };
+  
   const shareButtonHandler = (event) => {
   	const clickedElement = event.target;
   	const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
@@ -535,10 +536,6 @@ useEffect(() => {
   	}
   };
 
-  const handleModalClose = ()=>{
-    setShowModal(false)
-  }
-  
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
@@ -729,36 +726,6 @@ useEffect(() => {
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Box>
-                {/* <Modal
-                  open={showModal}
-                  onClose={handleModalClose}
-                  aria-labelledby="modal-title"
-                  aria-describedby="modal-description"
-                >
-                  <Box 
-                    sx={{ 
-                      p: 4, 
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                      borderRadius: '8px', 
-                      margin: 'auto', 
-                      mt: '20vh', 
-                      width: '300px',
-                      boxShadow: 24,
-                    }}
-                  >
-                    <Typography id="modal-title" variant="h6" component="h2">
-                      Unable to close tab
-                    </Typography>
-                    <Typography id="modal-description" sx={{ mt: 2 }}>
-                      Please close this tab manually.
-                    </Typography>
-                    <Box sx={{ textAlign: 'center', mt: 4 }}>
-                      <button onClick={handleModalClose} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                        Okay
-                      </button>
-                    </Box>
-                  </Box>
-                </Modal> */}
                 <DomainMenu />
               </Box>
               {/* arrow close tab  ###### section */}
@@ -881,7 +848,7 @@ useEffect(() => {
                           onError={() => {
                             setRenderImage(false);
                           }}
-                          alt="tour"
+                          alt={tour?.title}
                         />
 
                       </div>
@@ -899,11 +866,12 @@ useEffect(() => {
                   <Itinerary
                     connectionData={connections}
                     dateIndex={dateIndex}
-                    onDateIndexUpdate={(di) => updateActiveConnectionIndex(di)}
+                    updateConnIndex={updateConnIndex}
                     tour={tour}
                     validTour={validTour}
                     city={cityI}
-                  ></Itinerary>
+                    idOne={idOne}
+                  />
                 </Box>
                 {renderImage && !!validTour && (
                   <Box className="tour-detail-conditional-mobile">
@@ -914,7 +882,7 @@ useEffect(() => {
                         onError={() => {
                           setRenderImage(false);
                         }}
-                        alt="tour"
+                        alt={tour?.title}
                       />
                     </div>
                   </Box>

@@ -16,7 +16,6 @@ const LINEAR_GRADIENT =
 
 export default function Header({
   totalTours,
-  // getCity,
   allCities,
   showMobileMenu,
   setShowMobileMenu,
@@ -27,6 +26,7 @@ export default function Header({
 
   const [capCity, setCapCity] = useState(city);
   const [totalToursFromCity, setTotalToursFromCity] = React.useState(0);
+  const [loading, setLoading] = useState(false);
 
   let tld = "";
   let domain = window.location.hostname;
@@ -57,16 +57,19 @@ export default function Header({
   }
 
   useEffect(() => {
-    getCity();
-    if (!!city) {
+    let _city = getCity();
+    if (!!_city) {
+      setLoading(true);
       getTotalCityTours(city).then((data) => {
         setTotalToursFromCity(data.tours_city);
+        if(!!data.tours_city && data.tours_city > 0) setLoading(false);
       });
     }
+    
   }, [city]);
 
   useEffect(() => {
-    city = searchParams.get("city");
+    // city = searchParams.get("city");
     if (!!city && !!allCities && allCities.length > 0) {
       const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
       if (!!cityObj) {
@@ -89,12 +92,9 @@ export default function Header({
   }, [_isMobile, tld]);
 
   const getCity = () => {
-    city = localStorage.getItem("city");
-    if (!!city) {
-      return city;
-    } else {
-      return "XXX";
-    }
+    let _city = searchParams.get("city") ? searchParams.get("city") : localStorage.getItem("city") ? localStorage.getItem("city") : null;
+    
+    return _city;
   };
 
   if (totalTours === 0) {
@@ -111,7 +111,7 @@ export default function Header({
               src={`/app_static/img/logo-white.png`}
               height={"16px"}
               width={"29px"}
-              alt="logo"
+              alt="Zuugle"
             />
             <Typography
               style={{
@@ -140,17 +140,30 @@ export default function Header({
           <LanguageMenu />
         </Box>
         <Box className={"header-text"}>
-          <Typography variant={"h1"} height={"162px"}>
-            {!!totalToursFromCity && totalToursFromCity !== 0
-              ? totalToursFromCity.toLocaleString() +
-                " " +
-                t("start.tourenanzahl_untertitel_city", { capCity })
-              : !!totalTours &&
-                totalTours !== 0 &&
-                totalTours.toLocaleString() +
-                  " " +
-                  t("start.tourenanzahl_untertitel")}
-          </Typography>
+          <>
+          {
+            !loading && !!totalTours && (totalToursFromCity === 0 ) && (
+              <Typography variant={"h1"} height={"162px"}>
+                {!!totalTours &&
+                    totalTours !== 0 &&
+                    totalTours.toLocaleString() +
+                      " " +
+                    t("start.tourenanzahl_untertitel")}
+              </Typography>
+            )
+          }
+          {
+            !loading && !!totalToursFromCity && (
+              <Typography variant={"h1"} height={"162px"}>
+                {!!totalToursFromCity && totalToursFromCity !== 0
+                  && totalToursFromCity.toLocaleString() +
+                    " " +
+                    t("start.tourenanzahl_untertitel_city", { capCity })
+                }
+              </Typography>
+            )
+          }
+          </>
         </Box>
         {!!allCities && allCities.length > 0 && (
           <Box

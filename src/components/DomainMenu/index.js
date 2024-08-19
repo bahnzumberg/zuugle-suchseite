@@ -477,7 +477,7 @@ const secondMenu = [
 					src={`/app_static/img/logo-white.png`}
 					height={"19px"}
 					width={"34px"}
-					alt="logo white"
+					alt="Logo Zuugle"
 				/>
 				<Typography
 					style={{
@@ -512,7 +512,7 @@ const secondMenu = [
 										src={`/app_static/img/logo30.png`}
 										height={"19px"}
 										width={"34px"}
-										alt="logo30"
+										alt="Logo Zuugle"
 										onClick={() => {
 											setShowDomainMenu(false);
 											window.location.replace(item.url);

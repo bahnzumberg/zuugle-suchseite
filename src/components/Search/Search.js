@@ -893,7 +893,9 @@ export function Search({
                 className="filter-icon-container"
               >
                 {!!isMain ? (
-                  <IconButton onClick={() => openFilter()}>
+                  <IconButton 
+                    onClick={() => openFilter()}
+                    aria-label="Filter">
                     <FilterIcon
                       sx={{
                         transition: "stroke 0.3s",
@@ -905,6 +907,7 @@ export function Search({
                 ) : (
                   <IconButton
                     onClick={handleGoButton}
+                    aria-label="Go"
                     sx={{
                       "&:hover": {
                         background: "#7aa8ff",
