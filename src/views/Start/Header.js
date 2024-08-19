@@ -58,7 +58,6 @@ export default function Header({
 
   useEffect(() => {
     let _city = getCity();
-    console.log("L62 _city :", _city)
     if (!!_city) {
       setLoading(true);
       getTotalCityTours(city).then((data) => {
@@ -142,8 +141,6 @@ export default function Header({
         </Box>
         <Box className={"header-text"}>
           <>
-          {console.log("L149 totalTours", totalTours)}
-          {console.log("L150 totalToursFromCity", totalToursFromCity)}
           {
             !loading && !!totalTours && (totalToursFromCity === 0 ) && (
               <Typography variant={"h1"} height={"162px"}>
@@ -155,8 +152,6 @@ export default function Header({
               </Typography>
             )
           }
-          {console.log("L159 totalToursFromCity", totalToursFromCity)}
-          {console.log("L160 loading", loading)}
           {
             !loading && !!totalToursFromCity && (
               <Typography variant={"h1"} height={"162px"}>
