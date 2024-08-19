@@ -675,8 +675,8 @@ const filterWrapper = async (req, res) => {
         whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
     }
 
-    logger("whereRaw: ", whereRaw)
-    logger("domain: ", domain)
+    logger("whereRaw: " + whereRaw)
+    logger("domain: " + domain)
 
     /** region search */
     if(!!range && range.length > 0){
