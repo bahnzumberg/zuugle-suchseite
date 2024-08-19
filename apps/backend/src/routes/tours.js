@@ -6,7 +6,7 @@ import moment from "moment";
 import {getHost, replaceFilePath, round, get_domain_country } from "../utils/utils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
-import logger from '../utils/logger';
+// import logger from '../utils/logger';
 import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
@@ -431,8 +431,8 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    console.log("new_search_sql: ", new_search_sql)
-    logger(new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql)
+
     
     // ****************************************************************
     // GET THE COUNT 
