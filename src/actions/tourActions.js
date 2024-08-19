@@ -38,19 +38,20 @@ export function loadFilter(data = {}) {
 
   const language = i18next.resolvedLanguage;
     return (dispatch, getState) => {
-    return loadList(
-      dispatch,
-      getState,
-      LOAD_TOUR_FILTER,
-      LOAD_TOUR_FILTER_DONE,
-      "tours",
-      data,
-      "tours/filter",
-      "filter",
-      false,
-      undefined,
-      language
-    );
+      data.domain = window.location.host;
+      return loadList(
+        dispatch,
+        getState,
+        LOAD_TOUR_FILTER,
+        LOAD_TOUR_FILTER_DONE,
+        "tours",
+        data,
+        "tours/filter",
+        "filter",
+        false,
+        undefined,
+        language
+      );
   };
 }
 
