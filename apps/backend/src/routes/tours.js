@@ -661,19 +661,22 @@ const filterWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // gets the languages from the query
 
-    let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang']);
+    // let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang']);
+    let query = knex('tour')
+                .join('city2tour', 'city2tour.tour_id', 'tour.id')
+                .select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang', 'min_connection_duration'])
 
     let where = {};
     let whereRaw = null;
 
+    const tld = get_domain_country(domain);
+    whereRaw = ` city2tour.reachable_from_country='${tld}' `;
+
     /** city search */
     if(!!city && city.length > 0){
-        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE city_slug='${city}') `;
+        whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
     }
-    else {
-        const tld = get_domain_country(domain);
-        whereRaw = ` id IN (SELECT tour_id FROM city2tour WHERE reachable_from_country='${tld}') `;
-    }
+
 
     /** region search */
     if(!!range && range.length > 0){
@@ -1077,17 +1080,16 @@ const buildFilterResult = (result, city, params) => {
         if(maxDistance > 80){
             maxDistance = 80;
         }
+        
+        
+        console.log("tour.min_connection_duration: ", tour.min_connection_duration)
 
-        if(tour.cities && !!city){
-            const _city = tour.cities.find(c => c.city_slug == city);
-
-            if(!!_city && !!_city.best_connection_duration){
-                if(parseFloat(_city.best_connection_duration) > maxTransportDuration){
-                    maxTransportDuration = parseFloat(_city.best_connection_duration);
-                }
-                if(parseFloat(_city.best_connection_duration) < minTransportDuration){
-                    minTransportDuration = parseFloat(_city.best_connection_duration);
-                }
+        if(!!tour.min_connection_duration){
+            if(parseFloat(tour.min_connection_duration) > maxTransportDuration){
+                maxTransportDuration = parseFloat(tour.min_connection_duration);
+            }
+            if(parseFloat(tour.min_connection_duration) < minTransportDuration){
+                minTransportDuration = parseFloat(tour.min_connection_duration);
             }
         }
 
