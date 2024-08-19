@@ -26,6 +26,7 @@ router.get('/:id/pdf', (req, res) => tourPdfWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id/:city', (req, res) => getWrapper(req, res));
 
+
 const providerWrapper = async (req, res) => {
     const provider = req.params.provider; 
     const approved = await knex('provider').select('allow_gpx_download').where({ provider: provider }).first();
@@ -430,7 +431,8 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
+    logger(new_search_sql)
     
     // ****************************************************************
     // GET THE COUNT 
@@ -674,9 +676,10 @@ const filterWrapper = async (req, res) => {
     if(!!city && city.length > 0){
         whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
     }
+    else {
+        whereRaw = whereRaw + ` AND city2tour.stop_selector='y' `;
+    }
 
-    logger("whereRaw: " + whereRaw)
-    logger("domain: " + domain)
 
     /** region search */
     if(!!range && range.length > 0){
@@ -1127,12 +1130,10 @@ const tourPdfWrapper = async (req, res) => {
    
     const datum = !!req.query.datum ? req.query.datum : moment().format();
     const connectionId = req.query.connection_id; 
-    // logger("L1319 : connectionId :", connectionId)
     const connectionReturnId = req.query.connection_return_id;
     const connectionReturnIds = req.query.connection_return_ids;
 
     const tour = await knex('tour').select().where({id: id}).first();
-    // logger("L1319: query is completed")
     let connection, connectionReturn, connectionReturns = null;
 
     if (!tour){
@@ -1143,8 +1144,7 @@ const tourPdfWrapper = async (req, res) => {
     if(!!connectionId){
         connection = await knex('fahrplan').select().where({id: connectionId}).first();
     }
-    // logger("L1343 , connection :")
-    logger(connection)
+
     if(!!connectionReturnId){
         connectionReturn = await knex('fahrplan').select().where({id: connectionReturnId}).first();
     }
@@ -1167,10 +1167,7 @@ const tourPdfWrapper = async (req, res) => {
     }
 
     if(!!tour){
-        // logger('L1363 tours.js/ mapConnectionToFrontend(connection, datum) :')
-        // logger(mapConnectionToFrontend(connection, datum))
         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-        //logger(`L1019 tours /tourPdfWrapper / pdf value : ${!!pdf}`); // value : true
         if(!!pdf){
             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
             return;
