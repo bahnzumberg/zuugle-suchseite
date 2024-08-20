@@ -1,7 +1,7 @@
 INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code)
 SELECT
 LOWER(a.term) AS phrase,
-COUNT(hashed_url) AS num_results,
+COUNT(f.hashed_url) AS num_results,
 f.city_slug,
 LOWER(a.text_lang) AS menu_lang,
 UPPER(city.city_country) AS country_code

@@ -45,6 +45,7 @@
 
     var map = L.map('map', {zoomControl: false}).setView([51.505, -0.09], 14);
 
+    // We use deliberately png instead of webp here, because the png is higher quality
     var tiles = L.tileLayer('https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png', {
         maxZoom: 17,
         id: 'mapbox/streets-v11',
@@ -57,7 +58,7 @@
             async: true,
             marker_options: {
                 startIconUrl: 'pin-stopsign.png',
-                endIconUrl: 'zielpunkt.png',
+                endIconUrl: 'startpunkt.png',
                 shadowUrl: 'pin-shadow.png'
             },
             polyline_options: {

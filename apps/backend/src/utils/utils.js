@@ -24,8 +24,9 @@ export function listOfDays(startDate, endDate) {
 };
 
 export function get_domain_country(domain) {
-    if (domain == null) { return "AT" } // domain is undefined or null
-    else if (domain.indexOf("zuugle.de") >= 0){
+    if (domain == null) { 
+        return "AT" // domain is undefined or null
+    } else if (domain.indexOf("zuugle.de") >= 0){
         return "DE";
     } else if(domain.indexOf("zuugle.ch") >= 0){
         return "CH";
@@ -35,23 +36,24 @@ export function get_domain_country(domain) {
         return "SI";
     } else if(domain.indexOf("zuugle.fr") >= 0){
         return "FR";
+    } else if(domain.indexOf("zuugle.li") >= 0){
+        return "LI";
     } else {
         return "AT"; // localhost and zuugle.at
     }
 }
 
 export function get_country_lanuage_from_domain(domain) {
-    if (domain == null) { return ["de"] } // domain is undefined or null
-    else if (domain.indexOf("zuugle.ch") >= 0){
-        return ["de","fr","it"];
-    } else if(domain.indexOf("zuugle.it") >= 0){
+    if (domain == null ) {
+        return ["de"]
+    } else if (domain.indexOf("zuugle.it") >= 0){
         return ["it"]; 
     } else if(domain.indexOf("zuugle.si") >= 0){
         return ["sl"];
     } else if(domain.indexOf("zuugle.fr") >= 0){
         return ["fr"];
     } else {
-        return ["de"];   // for both TLDs .at and .de and localhost
+        return ["de"];   // for TLDs .at, .de, .li and localhost
     }
 }
 
@@ -103,6 +105,8 @@ export const getTldFromDomain = (domain) => {
             return "IT";
         } else if(!!domain && domain.indexOf('zuugle.si') >= 0){
             return "SI";
+        } else if(!!domain && domain.indexOf('zuugle.li') >= 0){
+            return "LI";
         } else if(!!domain && domain.indexOf('zuugle.fr') >= 0){
             return "FR";
         } else {

@@ -1,4 +1,4 @@
-import {fixTours, mergeToursWithFahrplan, syncCities, syncFahrplan, syncTours} from "./sync";
+import {fixTours, syncCities, syncFahrplan, syncTours} from "./sync";
 import moment from "moment";
 
 
@@ -12,9 +12,6 @@ export const syncDataApplicationSide = async () => {
     console.log('START SYNC CITIES: ', moment().format('HH:mm:ss'));
     await syncCities();
     console.log('DONE SYNC CITIES: ', moment().format('HH:mm:ss'));
-    console.log('START MERGE FAHRPLAN: ', moment().format('HH:mm:ss'));
-    await mergeToursWithFahrplan();
-    console.log('DONE MERGE FAHRPLAN: ', moment().format('HH:mm:ss'));
     console.log('START FIX TOURS: ', moment().format('HH:mm:ss'));
     await fixTours();
     console.log('DONE FIX TOURS: ', moment().format('HH:mm:ss'));

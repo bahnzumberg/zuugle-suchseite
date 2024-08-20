@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS kpi;
 -- DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS provider;
 DROP TABLE IF EXISTS tour;
+DROP TABLE IF EXISTS tour_inactive;
 DROP TABLE IF EXISTS city2tour;
 DROP TABLE IF EXISTS disposible;
 DROP TABLE IF EXISTS gpx;
@@ -46,25 +47,16 @@ CREATE TABLE tour (
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
       quality_rating integer DEFAULT 5,
-      user_rating_avg decimal(6,2) DEFAULT NULL,
-      cities JSONB DEFAULT NULL,
-      cities_object JSONB DEFAULT NULL,
       full_text TEXT,
-	  search_column tsvector,
- 	  separator smallint,
-	  gpx_data JSONB,
-	  max_ele INT default 0,
-	  text_lang VARCHAR(2) default 'de',
-      connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
-      connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
+	search_column tsvector,
+	max_ele INT default 0,
+	text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
 );
 
 
 CREATE INDEX ON tour (provider);
 CREATE INDEX ON tour (hashed_url);
-CREATE INDEX ON tour (cities);
-CREATE INDEX ON tour (cities_object);
 CREATE INDEX ON tour (month_order);
 CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
@@ -235,6 +227,8 @@ CREATE TABLE city2tour (
       city_slug varchar(64) NOT NULL,
       reachable_from_country varchar(2) NOT NULL,
       min_connection_duration int DEFAULT 200,
+      min_connection_no_of_transfers INTEGER DEFAULT 4, 
+      avg_total_tour_duration decimal(6,2) DEFAULT NULL,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
       connection_arrival_stop_lat decimal(12,9) DEFAULT NULL,
       stop_selector char(1) DEFAULT 'n'
