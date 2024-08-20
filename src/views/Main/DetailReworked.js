@@ -230,8 +230,9 @@ useEffect(() => {
   }, [isShareGenerating, shareLink]);
 
   useEffect(() => {
-    setIsShareGenerating(false);
-    setSocialMediaDropDownToggle((current) => !current);
+    // setIsShareGenerating(false);
+    // setSocialMediaDropDownToggle((current) => !current);
+    setSocialMediaDropDownToggle(false);
   }, [dateIndex]);
 
   //using a shareID if found in url to load the corresponding tour
@@ -494,7 +495,7 @@ useEffect(() => {
   	if (svgButton) {
       console.log("inside svgBtn, socialMediaDropDownToggle ", socialMediaDropDownToggle)
   		// setIsShareGenerating(true);
-  		setSocialMediaDropDownToggle(true);
+  		setSocialMediaDropDownToggle(current => !current);
   	}
   };
 
