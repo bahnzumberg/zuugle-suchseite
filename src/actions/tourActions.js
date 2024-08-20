@@ -154,24 +154,25 @@ export function setSelectedDate(date) {
   };
 }
 
-export const loadTourPdf = (data) => async (dispatch, getState) => {
-  try {
-    let response = await loadFile(
-      dispatch,
-      getState,
-      LOAD_TOUR_PDF,
-      LOAD_TOUR_PDF_DONE,
-      "tours",
-      data,
-      "tours/" + data.id + "/pdf",
-      "pdf",
-      "buffer"
-    );
-    return response;
-  } catch (error) {
-      throw error;
-  }
-};
+//Remove
+// export const loadTourPdf = (data) => async (dispatch, getState) => {
+//   try {
+//     let response = await loadFile(
+//       dispatch,
+//       getState,
+//       LOAD_TOUR_PDF,
+//       LOAD_TOUR_PDF_DONE,
+//       "tours",
+//       data,
+//       "tours/" + data.id + "/pdf",
+//       "pdf",
+//       "buffer"
+//     );
+//     return response;
+//   } catch (error) {
+//       throw error;
+//   }
+// };
 
 export function loadTourGpx(data) {
   return (dispatch, getState) => {

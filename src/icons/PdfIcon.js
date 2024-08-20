@@ -5,3 +5,5 @@ import {styles} from "./defaults";
 export default function PdfIcon(props){
     return <Icon style={{...props.style, width: "25px", height: "25px"}}/>
 }
+
+// Remove file

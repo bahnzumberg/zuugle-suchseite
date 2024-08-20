@@ -22,13 +22,13 @@ import GpxParser from "gpxparser";
 import { Divider } from "@mui/material";
 import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DownloadIcon from "../../icons/DownloadIcon";
-import PdfIcon from "../../icons/PdfIcon";
+// import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
@@ -407,47 +407,48 @@ useEffect(() => {
     }
   }, [!!connections]);
 
-  async function onDownload() {
-    if(!!validTour) {
-      const connectionDate = activeConnection?.date;
-      try {
-        const response = await loadTourPdf({
-          id: tour?.id,
-          connection_id: !!activeConnection?.connections[0]
-            ? activeConnection?.connections[0].id
-            : undefined,
-          connection_return_id: !!activeReturnConnection
-            ? activeReturnConnection.id
-            : undefined,
-          connection_return_ids: !!activeConnection.returns
-            ? activeConnection.returns.map((e) => e.id)
-            : [],
-          connectionDate,
-        });
-        if (response) {
-          let pdf = undefined;
-          if (!!response.data) {
-            response.data = JSON.parse(response.data);
-            if (!!response.data.pdf) {
-              pdf = response.data.pdf;
-            }
-          } else if (!response.data || !response.data.pdf) {
-            console.log("no response");
-          }
+  // Remove
+  // async function onDownload() {
+  //   if(!!validTour) {
+  //     const connectionDate = activeConnection?.date;
+  //     try {
+  //       const response = await loadTourPdf({
+  //         id: tour?.id,
+  //         connection_id: !!activeConnection?.connections[0]
+  //           ? activeConnection?.connections[0].id
+  //           : undefined,
+  //         connection_return_id: !!activeReturnConnection
+  //           ? activeReturnConnection.id
+  //           : undefined,
+  //         connection_return_ids: !!activeConnection.returns
+  //           ? activeConnection.returns.map((e) => e.id)
+  //           : [],
+  //         connectionDate,
+  //       });
+  //       if (response) {
+  //         let pdf = undefined;
+  //         if (!!response.data) {
+  //           response.data = JSON.parse(response.data);
+  //           if (!!response.data.pdf) {
+  //             pdf = response.data.pdf;
+  //           }
+  //         } else if (!response.data || !response.data.pdf) {
+  //           console.log("no response");
+  //         }
 
-          if (!!pdf) {
-            const fileName = response.data.fileName ? response.data.fileName : "";
-            const buf = Buffer.from(pdf, "base64");
-            fileDownload(buf, fileName, "application/pdf");
-          }
-        } else {
-          console.log("no response is returned");
-        }
-      } catch (error) {
-        console.log("error : ", error);
-      }
-    }
-  }
+  //         if (!!pdf) {
+  //           const fileName = response.data.fileName ? response.data.fileName : "";
+  //           const buf = Buffer.from(pdf, "base64");
+  //           fileDownload(buf, fileName, "application/pdf");
+  //         }
+  //       } else {
+  //         console.log("no response is returned");
+  //       }
+  //     } catch (error) {
+  //       console.log("error : ", error);
+  //     }
+  //   }
+  // }
 
   const onDownloadGpx = () => {
     if(!!validTour){
@@ -562,7 +563,7 @@ useEffect(() => {
             )}
           </Button>
         )}
-        {pdfLanguagePermit && providerPermit && (
+        {/* Remove {pdfLanguagePermit && providerPermit && (
           <Button
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
@@ -588,7 +589,7 @@ useEffect(() => {
               </span>
             )}
           </Button>
-        )}
+        )} */}
 
         {/*
         Share button
