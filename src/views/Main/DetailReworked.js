@@ -104,7 +104,13 @@ const DetailReworked = (props) => {
   }
   const [cityI, setCityI] = useState(_city);
  
-  
+  const shareUrl = ()=>{
+    let _shareUrl = '';
+    if(!!_city && _city !== "no-city" && !!idOne){
+      _shareUrl = `${window.location.host}/${idOne}/${_city} `
+    }
+    return _shareUrl
+  }
 
   // Translation-related
   const { t } = useTranslation();
@@ -225,7 +231,7 @@ useEffect(() => {
 
   useEffect(() => {
     setIsShareGenerating(false);
-    setSocialMediaDropDownToggle(false);
+    setSocialMediaDropDownToggle((current) => !current);
   }, [dateIndex]);
 
   //using a shareID if found in url to load the corresponding tour
@@ -397,6 +403,12 @@ useEffect(() => {
     }
   }, [!!connections]);
 
+  useEffect(() => {
+    console.log("L407 socialMediaDropDownToggle ",socialMediaDropDownToggle )
+  
+  }, [socialMediaDropDownToggle])
+  
+
  
   const onDownloadGpx = () => {
     if(!!validTour){
@@ -480,8 +492,9 @@ useEffect(() => {
   	const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
 
   	if (svgButton) {
-  		setIsShareGenerating(true);
-  		setSocialMediaDropDownToggle((current) => !current);
+      console.log("inside svgBtn, socialMediaDropDownToggle ", socialMediaDropDownToggle)
+  		// setIsShareGenerating(true);
+  		setSocialMediaDropDownToggle(true);
   	}
   };
 
@@ -530,14 +543,14 @@ useEffect(() => {
           </span>
         </Button> 
 
-        {socialMediaDropDownToggle && shareLink !== null && (
+        {socialMediaDropDownToggle && shareUrl() !== null && (
           <div>
             <TwitterShareButton
               windowWidth={800}
               windowHeight={800}
               className="tour-detail-action-btns"
               style={{ borderRadius: "12px", backgroundColor: "#00aced" }}
-              url={shareLink}
+              url={shareUrl()}
               title={t("details.teilen_text")}
             >
               <TwitterIcon size={40} round={true} />
@@ -552,7 +565,7 @@ useEffect(() => {
               windowHeight={800}
               className="tour-detail-action-btns"
               style={{ borderRadius: "12px", backgroundColor: "#7f7f7f" }}
-              url={shareLink}
+              url={shareUrl()}
               subject={"Zuugle Tour"}
               body={t("details.teilen_text")}
             >
@@ -569,7 +582,7 @@ useEffect(() => {
               windowHeight={800}
               className="tour-detail-action-btns"
               style={{ borderRadius: "12px", backgroundColor: "#3b5998" }}
-              url={shareLink}
+              url={shareUrl()}
               quote={t("details.teilen_text")}
               hashtag={"Zuugle"}
             >
@@ -585,7 +598,7 @@ useEffect(() => {
               windowHeight={800}
               className="tour-detail-action-btns"
               style={{ borderRadius: "12px", backgroundColor: "#25d366" }}
-              url={shareLink}
+              url={shareUrl()}
               title={t("details.teilen_text")}
             >
               <WhatsappIcon size={40} round={true} />
@@ -603,7 +616,7 @@ useEffect(() => {
                 border: "none",
               }}
               onClick={() => {
-                navigator.clipboard.writeText(shareLink);
+                navigator.clipboard.writeText(shareUrl());
               }}
             >
               <ContentPasteIcon color="white"></ContentPasteIcon>
