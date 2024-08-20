@@ -107,7 +107,7 @@ const DetailReworked = (props) => {
   const shareUrl = ()=>{
     let _shareUrl = '';
     if(!!_city && _city !== "no-city" && !!idOne){
-      _shareUrl = `${window.location.host}/${idOne}/${_city} `
+      _shareUrl = `https://${window.location.host}/tour/${idOne}/${_city} `
     }
     return _shareUrl
   }
