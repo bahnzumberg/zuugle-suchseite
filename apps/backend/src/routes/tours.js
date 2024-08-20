@@ -1124,59 +1124,6 @@ const buildFilterResult = (result, city, params) => {
 }
 
 
-
-// const tourPdfWrapper = async (req, res) => {
-//     const id = req.params.id;
-   
-//     const datum = !!req.query.datum ? req.query.datum : moment().format();
-//     const connectionId = req.query.connection_id; 
-//     const connectionReturnId = req.query.connection_return_id;
-//     const connectionReturnIds = req.query.connection_return_ids;
-
-//     const tour = await knex('tour').select().where({id: id}).first();
-//     let connection, connectionReturn, connectionReturns = null;
-
-//     if (!tour){
-//         res.status(404).json({success: false});
-//         return;
-//     }
-
-//     if(!!connectionId){
-//         connection = await knex('fahrplan').select().where({id: connectionId}).first();
-//     }
-
-//     if(!!connectionReturnId){
-//         connectionReturn = await knex('fahrplan').select().where({id: connectionReturnId}).first();
-//     }
-
-//     if(!!connectionReturnIds){
-//         connectionReturns = await knex('fahrplan').select().whereIn('id', connectionReturnIds).orderBy('return_row', 'asc');
-//         if(!!connectionReturns){
-//             connectionReturns = connectionReturns.map(e => {
-//                 e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
-//                 return mapConnectionReturnToFrontend(e, datum);
-//             })
-//         }
-//     }
-
-//     if(!!connection){
-//         connection.connection_duration_minutes = minutesFromMoment(moment(connection.connection_duration, 'HH:mm:ss'));
-//     }
-//     if(!!connectionReturn){
-//         connectionReturn.return_duration_minutes = minutesFromMoment(moment(connectionReturn.return_duration, 'HH:mm:ss'));
-//     }
-
-//     if(!!tour){
-//         const pdf = await tourPdf({tour, connection: mapConnectionToFrontend(connection, datum), connectionReturn: mapConnectionReturnToFrontend(connectionReturn, datum), datum, connectionReturns});
-//         if(!!pdf){
-//             res.status(200).json({ success: true, pdf: pdf, fileName: "Zuugle_" + tour.title.replace(/ /g, '') + ".pdf" });
-//             return;
-//         }
-//     }
-//     res.status(500).json({ success: false });
-// }
-
-
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
     const type = !!req.query.type ? req.query.type : "gpx";
