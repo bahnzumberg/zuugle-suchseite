@@ -186,7 +186,7 @@ export default function Header({
               <SearchContainer
                 pageKey="start"
                 page="start"
-                goto={"/suche"}
+                goto={"/search"}
                 showMobileMenu={showMobileMenu}
                 setShowMobileMenu={setShowMobileMenu}
                 updateCapCity={updateCapCity}

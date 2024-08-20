@@ -365,14 +365,14 @@ export function Search({
     setSearchParams(searchParams);
 
     if (!!goto) {
-      // goto = "/suche"  comes from Start->Header->SearchContainer->Search->search() and from detail page
+      // goto = "/search"  comes from Start->Header->SearchContainer->Search->search() and from detail page
       navigate(`${goto}?${searchParams.toString()}`);
       // window.location.reload();
     } else {
       // coming in from Main filter submit
       await loadTours(values).then((res) => {
         if (pageKey === "detail") {
-          navigate(`/suche?${searchParams.toString()}`);
+          navigate(`/search?${searchParams.toString()}`);
         }
         //if markers received then assign markers array to localStorage('masterMarkers')
 

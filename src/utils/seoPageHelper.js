@@ -82,7 +82,7 @@ export const checkIfSeoPageCity = (location, cities) => {
 
   let citySlug = extractCityFromLocation(location,cities); // this is the city extracted from city param and not from location.pathname
  
-  if (!!location && !!location.pathname && location.pathname == "/suche") {
+  if (!!location && !!location.pathname && location.pathname == "/search") {
     return null;
   } else if (!!location && !!location.pathname && cities.length > 0) {
     const found = cities.find(
@@ -144,7 +144,7 @@ export const listAllRangeLinks = (ranges, searchParams = null) => {
       return (
         <Grid key={index} item xs={12} sm={6} md={4}>
           <a
-            href={`/suche?range=${link}${!!city ? "&city=" + city : ""}`}
+            href={`/search?range=${link}${!!city ? "&city=" + city : ""}`}
             className={"seo-city-link"}
           >
             {range.range}

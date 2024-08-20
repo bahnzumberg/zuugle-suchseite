@@ -73,7 +73,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
-              <Route path="/suche" element={<Main />} />
+              <Route path="/search" element={<Main />} />
               <Route path="/tour/:idOne/:cityOne" element={<DetailReworked />} />
               <Route path="/tour" element={<DetailReworked />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />

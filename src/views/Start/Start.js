@@ -147,7 +147,7 @@ function Start({
 
   const onSelectRange = (range) => {
     if (!!range && !!range.range) {
-      navigate(`/suche?range=${range.range}${!!_city ? "&city=" + _city : ""}`);
+      navigate(`/search?range=${range.range}${!!_city ? "&city=" + _city : ""}`);
     }
   };
 
