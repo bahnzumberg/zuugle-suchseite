@@ -104,7 +104,7 @@ CREATE INDEX ON city (city_slug);
 
 
 CREATE TABLE fahrplan (
-     id SERIAL,
+     id INT,
      tour_provider varchar(30)  NOT NULL,
      hashed_url varchar(100) NOT NULL,
      calendar_date timestamp NOT NULL,
