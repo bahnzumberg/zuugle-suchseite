@@ -634,7 +634,7 @@ export async function syncFahrplan(mode='dev'){
     }
     
     // Now add new lines
-    let limit = 2000; // not more than 5000;
+    let limit = 1000; // not more than 5000;
     let counter = 0;
     
     let chunksizer = 0;
