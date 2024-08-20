@@ -130,7 +130,7 @@ export const createImagesFromMap = async (ids) => {
 
                             try {
                                 if (fs.existsSync(filePathSmallWebp)){
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
