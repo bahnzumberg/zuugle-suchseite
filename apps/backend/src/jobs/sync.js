@@ -827,13 +827,13 @@ const readAndInsertFahrplan = async (bundle) => {
 
             try {
                 await knex.raw(insert_sql);
-                resolve(true);
             } catch (err) {
                 logger('############### Error with this SQL ###############');
                 logger(`Insert sql into fahrplan table: ${insert_sql}`);
                 logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
+            resolve(true);
         } else {
             resolve();
         }
