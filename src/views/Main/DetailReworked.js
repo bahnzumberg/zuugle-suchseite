@@ -1,11 +1,10 @@
 import * as React from "react";
 import axios from "../../axios";
-import { lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../../components/Footer/Footer";
 import SearchContainer from "../Start/SearchContainer";
 import InteractiveMap from "../../components/InteractiveMap";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import { useSearchParams,useParams } from "react-router-dom";
 import {
@@ -31,7 +30,6 @@ import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
 import { useNavigate } from "react-router";
 import DomainMenu from "../../components/DomainMenu";
-import { generateShareLink, loadShareParams } from "../../actions/crudActions";
 import {
   EmailShareButton,
   EmailIcon,
@@ -46,7 +44,6 @@ import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText, parseFileName } from "../../utils/globals";
-import i18next from "i18next";
 import transformToDescriptionDetail from "../../utils/transformJson";
 import '/src/config.js';
 
@@ -87,7 +84,6 @@ const DetailReworked = (props) => {
   const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
-  const[showModal, setShowModal] =useState(false);
   const {cityOne, idOne} = useParams();
   const [validTour, setValidTour] = useState(false);
   
@@ -213,96 +209,13 @@ useEffect(() => {
   }, [tour]);
 
 
-  //Creating a new share link
   useEffect(() => {
-      const shareCity = cityOne ? cityOne : searchParams.get("city") ;
-      if (isShareGenerating === true) {
-          generateShareLink(tour.provider, tour.hashed_url, moment(activeConnection?.date).format('YYYY-MM-DD'), shareCity)
-              .then(res => {
-                  if (res.success === true){
-                      setShareLink(window.location.origin + "/tour?share=" + res.shareId);
-                  } else {
-                      console.log("Share link didn't generate as expected.");
-                  }
-              });
-          setIsShareGenerating(false);
-      }
-  }, [isShareGenerating, shareLink]);
-
-  useEffect(() => {
-    // setIsShareGenerating(false);
-    // setSocialMediaDropDownToggle((current) => !current);
     setSocialMediaDropDownToggle(false);
   }, [dateIndex]);
 
   //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
-   const shareId = searchParams.get("share") ?? null;
-      let city = '';
-      if(cityOne){
-         city=cityOne
-      }else{
-         city = !!searchParams.get("city") ? searchParams.get("city") : !!localStorage.getItem("city") ? localStorage.getItem("city") : null;
-      }
-    //e.g. detail page --> shareId : 16a77890-49fb-4cbb-b1ab-1051b7b30732
-    // detail page --> city : amstetten
-  
-    //Redirects to according page when it is a share link
-    if (shareId !== null) {
-
-      setIsTourLoading(true);
-
-      loadShareParams(shareId, city)
-        .then((res) => {
-          // city : "amstetten"
-          // date : "2024-01-16T23:00:00.000Z"
-          // success : true
-          // tourId : 2708
-          // usedCityOfCookie : true
-          setIsTourLoading(false);
-          if (res.success === true) {
-            if (res.usedCityOfCookie === false) {
-              setShowDifferentStationUsedWarning(true);
-            }
-            const redirectSearchParams = new URLSearchParams();
-            const date = moment(res.date);
-
-            redirectSearchParams.set("id", res.tourId);
-            redirectSearchParams.set("city", res.city);
-            redirectSearchParams.set(
-              "datum",
-              moment(date).format("YYYY-MM-DD")
-            );
-            const todayDate = new Date();
-
-            const redirectUrl = todayDate < date ? `/tour/${res.tourId}/${res.city}/?datum=${moment(date).format("YYYY-MM-DD")}` :
-            `/tour/${res.tourId}/${res.city}`            
-            
-
-            localStorage.setItem("tourId", res.tourId);
-            
-            if(!!res.tourId && !!res.city){
-              navigate(redirectUrl);
-            }else{
-              //URL redirect : /tour? id=2690&city=amstetten&datum=2024-01-17
-              navigate(`/tour?${redirectSearchParams.toString()}`);
-            }
-            
-       
-          } else {
-            setIsTourLoading(false);
-            city && searchParams.set("city", city);
-            goToStartPage();
-          }
-        })
-        .catch((err) => {
-          setIsTourLoading(false);
-          console.log("error: " + err)
-          city && searchParams.set("city", city);
-          goToStartPage();
-        });
-    }
-
+   
     loadAllCities();
     loadCities({ limit: 5 });
     let tourId
@@ -314,7 +227,7 @@ useEffect(() => {
     if (!!tourId) {
       setIsTourLoading(true);
       
-      loadTour(tourId, city)
+      loadTour(tourId, _city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
             setIsTourLoading(false);
@@ -342,10 +255,10 @@ useEffect(() => {
         });
     }
 
-    if (tourId && city && !connections && validTour) {
+    if (tourId && _city && !connections && validTour) {
       setIsTourLoading(true);
    
-      loadTourConnectionsExtended({ id: tourId, city: city }).then((res) => {
+      loadTourConnectionsExtended({ id: tourId, city: _city }).then((res) => {
         
         if (res && res.data) {
           !!res.data.result && setConnections(res.data.result);
@@ -374,6 +287,7 @@ useEffect(() => {
         setRenderImage(!!tour?.image_url);
       // }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour]);
 
   useEffect(() => {
