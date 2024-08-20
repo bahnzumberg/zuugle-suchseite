@@ -7,6 +7,7 @@
   "version": "3.0.0",
   "private": true,
   "dependencies": {
+    "@alwaysmeticulous/recorder-loader": "^2.146.1",
     "@babel/traverse": "^7.23.2",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
@@ -16,6 +17,7 @@
     "@mui/material": "^5.16.7",
     "@mui/x-date-pickers": "^6.17.0",
     "@react-leaflet/core": "^2.1.0",
+    "@reduxjs/toolkit": "^2.2.7",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.2",
@@ -62,12 +64,12 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "plugins":[
+    "plugins": [
       "react-hooks"
     ],
     "rules": {
-      "react-hooks/rules-of-hooks": "error", 
-      "react-hooks/exhaustive-deps": "warn" 
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn"
     },
     "extends": [
       "react-app",
