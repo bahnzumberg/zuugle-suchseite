@@ -263,39 +263,3 @@ function last_two_characters(h_url) {
         return "00";
     }
 }
-
-// **************
-// description 1:
-// **************
-
-// This file appears to be a JavaScript module. It defines several functions related to generating and writing PDF files using handlebars templates and Puppeteer.
-
-// Here's a breakdown of the code:
-
-// - The module imports the `BrowserService` from the `./BrowserService` file and other required modules (`fs`, `path`, `handlebars`).
-// - The module exports a function called `writePdf` as the main entry point. This function takes several parameters: `data`, `TEMPLATE`, `saveToDisk`, `fileName`, `landscape`, and `toSaveFolder`.
-// - The `writePdf` function starts by calling the `readTemplate` function with the provided `TEMPLATE` parameter to read the template file.
-// - If the template is successfully read, the function registers a helper function in Handlebars called `breaklines`, which replaces line breaks in the text with `<br>` tags.
-// - It then compiles the template using Handlebars and generates the HTML content by applying the compiled template to the provided `data`.
-// - Next, it calls the `htmlToPdf` function, passing the generated HTML, `saveToDisk`, `fileName`, `landscape`, and `toSaveFolder` parameters.
-// - The `htmlToPdf` function creates an options object with various configurations for the PDF generation, such as the format, margin, header, footer, etc.
-// - It then calls the `getInstance` function from `BrowserService` to obtain a Puppeteer instance.
-// - If the instance is available, it creates a new page and sets the HTML content using `page.setContent`.
-// - Finally, it generates the PDF using `page.pdf` with the provided options and returns the base64-encoded string of the PDF.
-
-// The code also includes helper functions like `readTemplate`, `readFile`, and `getLogoBase64`, which are used to read template files, read regular files, and get the base64 representation of a logo image, respectively.
-
-// Please note that without the context of the imported modules and their implementations, it's difficult to provide a complete understanding of the code's functionality.
-
-// **************
-// description 2:
-// **************
-// The function writePdf within this file is called by the tourPdf.js file which is a module that provides functions for creating a PDF file from HTML data. 
-// writePdf function depends on several modules, including:
-// * fs: A module for reading and writing files on the file system.
-// * path: A module for working with file and directory paths.
-// * handlebars: A module for working with Handlebars templates.
-// * puppeteer: A headless Chrome browser automation library.
-// The main function exported by this module is writePdf, which takes as input an object data that contains the data to be rendered in the Handlebars template, the name of the template to use, and a boolean saveToDisk that indicates whether the resulting PDF should be saved to disk. If saveToDisk is set to true, the function also takes as input a fileName and a toSaveFolder path, which specify the name and location where the PDF file should be saved. The function returns a base64-encoded string representing the PDF file.
-// The writePdf function uses the handlebars module to compile the Handlebars template with the input data, resulting in an HTML string. This HTML string is then passed to the htmlToPdf function, which uses the puppeteer module to convert the HTML to a PDF file. If saveToDisk is set to true, the htmlToPdf function will save the PDF file to disk using the fs module.
-// The readTemplate function is used to read the Handlebars template file from disk. The getLogoBase64 function returns a base64-encoded string representation of an image.

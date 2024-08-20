@@ -254,14 +254,3 @@ export const getIconFromText = (text) => {
         return BASE + "ic_transport_walk.svg";
     }
 }
-// Description:
-// This code exports a function named tourPdf that generates a PDF file with details about a tour.
-// The function takes an object as an argument, which contains information about the tour and some related data, such as connections, returns, and the referral.
-// The function starts by defining a constant TEMPLATE, which is a string with the value "tour-details".  
-// The code then defines an array properties, which contains information about the tour, such as its difficulty, type, distance, duration, ascent, descent, whether it's suitable for children, and whether it's a traverse.
-// The function then declares some variables that will hold the base64-encoded image data of the tour and its connections/returns.
-// It then creates the file paths for the images of the tour, the connection, and the returns. The code creates the images of the tour and the connection by calling the createSingleImageFromMap function with the relevant parameters, while the return images are not created in this code.
-// The function then calls the parseImageToValidBase64 function to convert the images to base64-encoded format, and stores the results in the variables declared earlier.
-// The code then processes the connection description detail and creates an array connectionEntries of connection details.
-// It then processes the return description detail and creates an array allReturn of return details.
-// Finally, the code creates an object data with all the information and data needed to generate the PDF, and returns it.
