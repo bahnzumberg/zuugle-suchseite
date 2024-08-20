@@ -6,7 +6,6 @@ import cities from './routes/cities';
 import ranges from './routes/ranges';
 import language from './routes/language';
 import authenticate from "./middlewares/authenticate";
-import share from "./routes/share";
 import {BrowserService} from "./utils/pdf/BrowserService";
 import {getZuugleCors, hostMiddleware} from "./utils/zuugleCors";
 import searchPhrases from "./routes/searchPhrases";
@@ -47,7 +46,6 @@ app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
 app.use('/api/ranges', cors(corsOptions), hostMiddleware, authenticate, ranges);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
 app.use('/api/searchPhrases', cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
-app.use('/api/shares', cors(corsOptions), hostMiddleware, authenticate, share);
 
 
 app.listen(port, () => console.log('Running on localhost:' + port));

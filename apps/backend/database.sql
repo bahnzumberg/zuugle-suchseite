@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS provider;
 DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS tour_inactive;
 DROP TABLE IF EXISTS city2tour;
-DROP TABLE IF EXISTS disposible;
 DROP TABLE IF EXISTS gpx;
 
 CREATE TABLE tour (
@@ -185,19 +184,6 @@ CREATE TABLE logsearchphrase (
 	 country_code VARCHAR(2) default NULL,
      PRIMARY KEY (id)
 );
-
-
-CREATE TABLE disposible (
-      provider varchar(30) NOT NULL,
-      hashed_url varchar(100) NOT NULL,
-      link varchar(100) NOT NULL,
-      calendar_date timestamp NOT NULL,
-      city_slug varchar(100) NOT NULL
-);
-
-CREATE INDEX ON disposible (hashed_url);
-CREATE INDEX ON disposible (link);
-CREATE INDEX ON disposible (city_slug);
 
 
 CREATE TABLE gpx (
