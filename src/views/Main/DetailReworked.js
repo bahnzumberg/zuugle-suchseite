@@ -62,8 +62,8 @@ const DetailReworked = (props) => {
     loadGPX,
     loadTourGpx,
     isGpxLoading,
-    loadTourPdf,
-    isPdfLoading,
+    // loadTourPdf, // Remove
+    // isPdfLoading, // Remove
     tour,
     loadCities,
     loadAllCities,
@@ -915,14 +915,14 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadGPX,
   loadTourGpx,
-  loadTourPdf,
+  // loadTourPdf, // Remove
   loadCities,
   loadAllCities,
 };
 
 function mapStateToProps(state) {
   return {
-    isPdfLoading: state.tours.isPdfLoading,
+    // isPdfLoading: state.tours.isPdfLoading,
     isGpxLoading: state.tours.isGpxLoading,
     cities: state.cities.cities,
     allCities: state.cities.all_cities,

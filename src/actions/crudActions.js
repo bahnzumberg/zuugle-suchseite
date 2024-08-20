@@ -5,55 +5,54 @@ import {
   NO_TOURS_AVAILABLE,
 } from "./types";
 
-// Remove
-// export async function loadFile(
-//   dispatch,
-//   getState,
-//   typeBefore,
-//   typeDone,
-//   stateName,
-//   data,
-//   route,
-//   entityName,
-//   responseType = "buffer"
-// ) {
-//   dispatch({ type: typeBefore, ...data });
-//   const state = getState()[stateName];
-//   let params = {};
-//   if (state) {
-//     params = {
-//       page: state.page,
-//       page_size: state.pageSize,
-//       order_id: state.orderId,
-//       order_desc: state.orderDesc,
-//       ...data,
-//     };
-//   }
-//   try {
-//     //when clicking "pdf" button on detail page.
+export async function loadFile(
+  dispatch,
+  getState,
+  typeBefore,
+  typeDone,
+  stateName,
+  data,
+  route,
+  entityName,
+  responseType = "buffer"
+) {
+  dispatch({ type: typeBefore, ...data });
+  const state = getState()[stateName];
+  let params = {};
+  if (state) {
+    params = {
+      page: state.page,
+      page_size: state.pageSize,
+      order_id: state.orderId,
+      order_desc: state.orderDesc,
+      ...data,
+    };
+  }
+  try {
+    //when clicking "pdf" button on detail page.
 
-//     let res = await axios.get(route, {
-//       // data: {},
-//       data: data,
-//       // responseType: 'arraybuffer',
-//       responseType: responseType,
-//       params: params,
-//       timeout: 60000,
-//       headers: {
-//         "authorization": "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
-//       },
-//     });
+    let res = await axios.get(route, {
+      // data: {},
+      data: data,
+      // responseType: 'arraybuffer',
+      responseType: responseType,
+      params: params,
+      timeout: 60000,
+      headers: {
+        "authorization": "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
+      },
+    });
 
-//     dispatch({
-//       type: typeDone,
-//     });
+    dispatch({
+      type: typeDone,
+    });
 
-//     return res;
-//   } catch (error) {
-//       console.log(" error:, ", error.message);
-//       throw error;
-//   }
-// }
+    return res;
+  } catch (error) {
+      console.log(" error:, ", error.message);
+      throw error;
+  }
+}
 
 export function loadList(
   dispatch,                                                   
