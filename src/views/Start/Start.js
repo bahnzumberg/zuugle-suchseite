@@ -24,6 +24,8 @@ import {
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
+import '/src/config.js';
+
 const RangeCardContainer = lazy(() => import("../../components/RangeCardContainer"));
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
 const ScrollingTourCardContainer = lazy(() => import("../../components/ScrollingTourCardContainer"));
@@ -59,15 +61,9 @@ function Start({
   const abortController = new AbortController();
 
   let searchParamCity = "";
- 
   let totalTourRef = useRef(0);
-
   const isMobile = useMediaQuery("(max-width:678px)");
 
- // useEffect(()=>{
-
-   // setCityState()
- // })
 
   useEffect(() => {
     // matomo

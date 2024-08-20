@@ -27,6 +27,7 @@ export default function Footer({}) {
               src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.png"
               height="122px"
               width="206px"
+              alt="Funded by www.bmk.gv.at"
             />
           </a>
         </Grid>
@@ -42,6 +43,7 @@ export default function Footer({}) {
               src="/app_static/img/Alpenkonvention_logo_gruen.png"
               height="75px"
               width="317px"
+              alt="Logo Alpenkonvention"
             />
           </a>
         </Grid>
@@ -70,6 +72,7 @@ export default function Footer({}) {
                 src={`/app_static/img/logo140.png`}
                 height={"20px"}
                 width={"36px"}
+                alt="Logo Zuugle"
               />
             </Grid>
             <Grid item xs md={3} >
@@ -123,6 +126,7 @@ export default function Footer({}) {
                 window.open("https://www.facebook.com/bahnzumberg/")
               }
               loading="lazy"
+              alt="Facebook"
             />{" "}
             &nbsp;{" "}
             <img
@@ -135,6 +139,7 @@ export default function Footer({}) {
                 window.open("https://www.instagram.com/bahnzumberg/")
               }
               loading="lazy"
+              alt="Instagram"
             />{" "}
             &nbsp;{" "}
             <img
@@ -145,6 +150,7 @@ export default function Footer({}) {
               style={{ marginLeft: "5px" }}
               onClick={() => window.open("https://github.com/bahnzumberg/")}
               loading="lazy"
+              alt="GitHub"
             />
           </Box>
         </Grid>

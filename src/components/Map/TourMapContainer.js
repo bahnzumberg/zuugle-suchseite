@@ -18,17 +18,15 @@ import gpxParser from "gpxparser";
 import { connect } from "react-redux";
 import { LOAD_MAP_FILTERS } from "../../actions/types.js";
 import { useSearchParams } from "react-router-dom";
-// import debounce from "lodash/debounce";
 import { loadGPX } from "../../actions/fileActions.js";
 import { useDispatch, useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
-// import CustomMarker from './CustomMarker.js';
 import "./popup-style.css";
 import { orderedArraysEqual } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
-// import { isArray } from "lodash";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import '/src/config.js';
 
 const PopupCard = lazy(() => import("./PopupCard"));
 
@@ -66,8 +64,8 @@ function TourMapContainer({
     return L.icon({
       iconUrl: "app_static/img/startpunkt.png", //the acutal picture
       // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      iconSize: [30, 40], //size of the icon
-      iconAnchor: [15, 41],
+      iconSize: [33, 45], //size of the icon
+      iconAnchor: [16, 46],
     });
   };
 
@@ -158,6 +156,12 @@ function TourMapContainer({
 
       const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
+
+      console.log("===================")
+      console.log("L161 check : ", check)
+      console.log("L162 visibleMarkersObj : ", visibleMarkersObj)
+      console.log("L163 visibleMarkersArray : ", visibleMarkersArray)
+      console.log("===================");
 
       if (!!check && !!visibleMarkersObj && !!visibleMarkersArray) { 
         localStorage.setItem("visibleMarkers", JSON.stringify(visibleMarkersArray));
@@ -253,6 +257,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGpxTrack = async (url) => {
     if (!!url) {
       try {
@@ -276,6 +281,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleTotourGpxTrack = async (url) => {
     if (!!url) {
       try {
@@ -298,6 +304,7 @@ function TourMapContainer({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFromtourGpxTrack = async (url) => {
     if (!!url) {
       try {
@@ -482,7 +489,7 @@ function TourMapContainer({
           }}
         >
           <TileLayer 
-            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" 
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" 
             maxZoom={16}
             maxNativeZoom={19}
           />

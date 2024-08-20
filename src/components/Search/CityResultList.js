@@ -1,16 +1,15 @@
 import * as React from "react";
 import {useNavigate} from "react-router"
 import Box from "@mui/material/Box";
-import { Divider, Typography } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import ChevronRightLight from "../../icons/ChevronRight";
+
 import CircularProgress from "@mui/material/CircularProgress";
+import '/src/config.js';
 
 export function CityResultList({
   cities,
@@ -73,15 +72,15 @@ export function CityResultList({
               if (!!onFocusCity) {
                 onFocusCity(false);
               }
-              if (!!onSelect) {
-                onSelect(_city);
-              }
-
+              //this handler is for use at detail page (using useParams hook)
               if(!!cityOne && !!idOne ){
                 setCityInput(_city.label);
                 setCity(_city.value)
                 navigate(`tour/${idOne}/${_city.value}`);
                 window.location.reload()
+              }else if (!!onSelect) {
+                // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
+                onSelect(_city);
               }
 
               //wenn startseite lade touren

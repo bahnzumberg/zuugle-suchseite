@@ -1,10 +1,13 @@
 import { Fragment } from "react";
 import { Typography } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import moment from "moment";
 import {
   convertNumToTime,
+  simpleConvertNumToTime,
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
+  randomKey,
 } from "../../utils/globals";
 import * as React from "react";
 import TransportTrain from "../../icons/TransportTrain";
@@ -26,17 +29,29 @@ import { v4 as uuidv4 } from 'uuid';
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(),uuidv4()];
 
-export const getDepartureText = (connection, t) => {
+export const GetDepartureText = (connection, t) => {
+  let isMobile = window.innerWidth <= 600;
+
+  window.addEventListener('resize', () => {
+    isMobile = window.innerWidth <= 600;
+  });
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
 
+  // let depTime = (connection.connection_departure_datetime_entry).slice(11, 16)
+  let depTime = (connection.connection_departure_datetime).slice(11, 16)
+  
   const departureText = connection.connection_duration_minutes === 0 ? 
+    // moment(connection.connection_departure_datetime_entry).format("DD.MM HH:mm") :
     moment(connection.connection_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.connection_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.connection_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.connection_duration_minutes / 60)})`;
-
+    `${depTime} - ${moment(connection.connection_arrival_datetime).format("HH:mm")}`;
+    
   return (
-    <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
+    <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
+
+      lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px", 
+    }}>
       {departureText}
     </Typography>
   );
@@ -46,16 +61,13 @@ export const getReturnText = (connection, t) => {
   if (!!!connection) {
     return <Fragment></Fragment>;
   }
-
+  let retDepTime = (connection.return_departure_datetime).slice(11, 16)
   const returnText = connection.return_duration_minutes === 0 ? 
     moment(connection.return_departure_datetime).format("DD.MM HH:mm") :
-    `${moment(connection.return_departure_datetime).format("DD.MM HH:mm")} ${t('details.bis')} ${moment(connection.return_arrival_datetime).format("HH:mm")} (${convertNumToTime(connection.return_duration_minutes / 60)})`;
+    `${retDepTime} - ${moment(connection.return_arrival_datetime).format("HH:mm")} `;
 
-  return (
-    <Typography sx={{ color: "#8B8B8B", fontWeight: 600, paddingTop: "3px", width: "300px" }}>
-      {returnText}
-    </Typography>
-  );
+  return returnText;
+
 };
 
 export const getNumberOfTransfers = (
@@ -186,7 +198,7 @@ export const createEntries = (entries, connection, t) => {
 
 export const getDetailEntry = (entry, index, length) => {
   return (
-    <TimelineItem key={index} >
+    <TimelineItem key={randomKey(7)} >
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -218,7 +230,7 @@ export const getDetailEntry = (entry, index, length) => {
 
 export const getStationEntry = (entry , isLast = false, index) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }} key={index}>
+    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{
@@ -266,7 +278,7 @@ export const getStationEntry = (entry , isLast = false, index) => {
 
 export const getDepartureEntry = (entry) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }}>
+    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{
@@ -301,7 +313,7 @@ export const getDepartureEntry = (entry) => {
 
 export const getArrivalEntry = (entry) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }}>
+    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, paddingTop: "24px", paddingBottom: 0 }}
@@ -361,7 +373,7 @@ export const getDetailedEntries = (
 
   return entries.map((entry, index) => {
     return (
-      <TimelineItem key={index}>
+      <TimelineItem key={randomKey(7)}>
         <TimelineOppositeContent
           color="text.secondary"
           sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -410,7 +422,7 @@ export const getWalkEntry = (
 
   if (!!from) {
     return [
-      <TimelineItem sx={{ minHeight: 0 }}>
+      <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
         <TimelineOppositeContent
           color="text.secondary"
           sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -435,7 +447,7 @@ export const getWalkEntry = (
           Ankunft bei Tourende
         </TimelineContent>
       </TimelineItem>,
-      <TimelineItem>
+      <TimelineItem key={randomKey(7)}>
         <TimelineOppositeContent
           color="text.secondary"
           sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -470,7 +482,7 @@ export const getWalkEntry = (
   }
 
   return [
-    <TimelineItem>
+    <TimelineItem key={randomKey(7)}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -499,7 +511,7 @@ export const getWalkEntry = (
         </Typography>
       </TimelineContent>
     </TimelineItem>,
-    <TimelineItem sx={{ minHeight: 0 }}>
+    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, paddingTop: "24px", paddingBottom: 0 }}

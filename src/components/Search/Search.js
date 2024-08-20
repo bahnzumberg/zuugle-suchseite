@@ -30,6 +30,7 @@ import TransportTrain from "../../icons/TransportTrain";
 import { capitalize } from "lodash";
 import { Modal, Typography, useMediaQuery } from "@mui/material";
 import Close from "../../icons/Close";
+import '/src/config.js';
 
 export function Search({
   loadTours,
@@ -75,7 +76,7 @@ export function Search({
   const { cityOne, idOne } = useParams();
   const [city, setCity] = useState({
     label: capitalize(cityParam) || capitalize(cityOne),
-    value: cityParam,
+    value: cityParam || cityOne,
   });
 
   const [region, setRegion] = useState(null);
@@ -391,11 +392,9 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        if (!!cityOne && !!idOne && pageKey === "detail") {
-          setCityInput(city.label);
-          setCity(city.value);
-          navigate(`tour/${idOne}/${city.value}`);
-        } else if (!!city) {
+        
+        if (!!city) {
+          console.log("L413 Search / else if inside onSelect :", city)
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
@@ -403,6 +402,7 @@ export function Search({
           setSearchParams(searchParams)
           window.location.reload()
         }
+
         hideModal();
       },
       cityOne:  cityOne ,
@@ -428,6 +428,7 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
+        
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
@@ -892,7 +893,9 @@ export function Search({
                 className="filter-icon-container"
               >
                 {!!isMain ? (
-                  <IconButton onClick={() => openFilter()}>
+                  <IconButton 
+                    onClick={() => openFilter()}
+                    aria-label="Filter">
                     <FilterIcon
                       sx={{
                         transition: "stroke 0.3s",
@@ -904,6 +907,7 @@ export function Search({
                 ) : (
                   <IconButton
                     onClick={handleGoButton}
+                    aria-label="Go"
                     sx={{
                       "&:hover": {
                         background: "#7aa8ff",

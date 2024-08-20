@@ -29,12 +29,10 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
-import { createIdArray } from "../../utils/map_utils";
+import '/src/config.js';
 
 const Search = lazy(() => import("../../components/Search/Search"));
-const TourCardContainer = lazy(() =>
-  import("../../components/TourCardContainer")
-);
+const TourCardContainer = lazy(() => import("../../components/TourCardContainer"));
 
 export function Main({
   loadTours,
@@ -63,8 +61,6 @@ export function Main({
   const [counter, setCounter] = useState(0);
 
   const [mapInitialized, setMapInitialized] = useState(false);
-
-  const markers = useSelector((state) => state.tours.markers); // move to props
 
   const [showMap, setShowMap] = useState(false);
   const [mapBounds, setMapBounds] = useState(null);
@@ -311,26 +307,35 @@ const handleShowCardContainer = useCallback((value) => {
               },
             }}
           >
-            <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
-              {!!showCardContainer? Number(totalTours).toLocaleString() : 0}{" "}
-              {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
-            </Typography>
-            {(getFilterCount() && getFilterCount() > 0 )   
-            && (
-              <Box display={"flex"} alignItems={"center"}>
-                &nbsp;{" - "}&nbsp;
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    color: "#FF7663",
-                    fontWeight: "600",
-                    mr: "2px",
-                  }}
-                >
-                  {t("filter.filter")}
+            {
+              !!totalTours && (
+                <>
+                
+               
+                <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
+                  {!!showCardContainer? Number(totalTours).toLocaleString() : " "}{" "}
+                  {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
                 </Typography>
-              </Box>
-            )}
+                {(getFilterCount() && getFilterCount() > 0 )   
+                && (
+                  <Box display={"flex"} alignItems={"center"}>
+                    &nbsp;{" - "}&nbsp;
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        color: "#FF7663",
+                        fontWeight: "600",
+                        mr: "2px",
+                      }}
+                    >
+                      {t("filter.filter")}
+                    </Typography>
+                  </Box>
+                )}
+
+              </>
+              )
+            }
           </Box>
     </Box>
   );

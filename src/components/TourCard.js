@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Chip } from "@mui/material";
+import '/src/config.js';
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
 
@@ -113,6 +114,7 @@ export default function TourCard({
         <CardMedia
           component="img"
           height="140"
+          alt={`${tour?.title}`}
           image={image}
           style={{ opacity: imageOpacity, zIndex: "40" }}
         />
