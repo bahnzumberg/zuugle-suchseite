@@ -10,8 +10,6 @@ import {
   LOAD_TOUR_FILTER_DONE,
   LOAD_TOUR_GPX,
   LOAD_TOUR_GPX_DONE,
-  LOAD_TOUR_PDF,
-  LOAD_TOUR_PDF_DONE,
   LOAD_TOURS,
   LOAD_TOURS_DONE,
   SET_SELECTED_DATE,
@@ -35,7 +33,6 @@ const initialState = {
   favouriteTours: [],
   filter: null,
   selectedDate: null,
-  isPdfLoading: false,
   total_tours: 0,
   favouriteRanges: [],
   isLoadingFilter: false,
@@ -111,16 +108,6 @@ export default ((state = initialState, action = {}) => {
       return {
         ...state,
         selectedDate: action.date,
-      };
-    case LOAD_TOUR_PDF:
-      return {
-        ...state,
-        isPdfLoading: true,
-      };
-    case LOAD_TOUR_PDF_DONE:
-      return {
-        ...state,
-        isPdfLoading: false,
       };
     case LOAD_TOTAL_TOURS:
       return {

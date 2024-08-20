@@ -12,7 +12,6 @@ import {
   loadTour,
   loadTourConnectionsExtended,
   loadTourGpx,
-  loadTourPdf,
   loadTours,
 } from "../../actions/tourActions";
 import { compose } from "redux";
@@ -22,13 +21,11 @@ import GpxParser from "gpxparser";
 import { Divider } from "@mui/material";
 import TourDetailProperties from "../../components/TourDetailProperties";
 import moment from "moment/moment";
-// import { Buffer } from "buffer";
 import fileDownload from "js-file-download";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DownloadIcon from "../../icons/DownloadIcon";
-// import PdfIcon from "../../icons/PdfIcon";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { useTranslation } from "react-i18next";
 import Itinerary from "../../components/Itinerary/Itinerary";
@@ -62,8 +59,6 @@ const DetailReworked = (props) => {
     loadGPX,
     loadTourGpx,
     isGpxLoading,
-    // loadTourPdf, // Remove
-    // isPdfLoading, // Remove
     tour,
     loadCities,
     loadAllCities,
@@ -121,11 +116,6 @@ const DetailReworked = (props) => {
     } else return t("start.mittel");
   };
   
-  // pdf buttons shows up only when menu language is German
-  // let pdfLanguagePermit = i18next.resolvedLanguage === "de";
-  // PDF is deactivated
-  let pdfLanguagePermit = i18next.resolvedLanguage === "none";
-
   const handleCloseTab = () => {
     window.close()
   };
@@ -407,49 +397,7 @@ useEffect(() => {
     }
   }, [!!connections]);
 
-  // Remove
-  // async function onDownload() {
-  //   if(!!validTour) {
-  //     const connectionDate = activeConnection?.date;
-  //     try {
-  //       const response = await loadTourPdf({
-  //         id: tour?.id,
-  //         connection_id: !!activeConnection?.connections[0]
-  //           ? activeConnection?.connections[0].id
-  //           : undefined,
-  //         connection_return_id: !!activeReturnConnection
-  //           ? activeReturnConnection.id
-  //           : undefined,
-  //         connection_return_ids: !!activeConnection.returns
-  //           ? activeConnection.returns.map((e) => e.id)
-  //           : [],
-  //         connectionDate,
-  //       });
-  //       if (response) {
-  //         let pdf = undefined;
-  //         if (!!response.data) {
-  //           response.data = JSON.parse(response.data);
-  //           if (!!response.data.pdf) {
-  //             pdf = response.data.pdf;
-  //           }
-  //         } else if (!response.data || !response.data.pdf) {
-  //           console.log("no response");
-  //         }
-
-  //         if (!!pdf) {
-  //           const fileName = response.data.fileName ? response.data.fileName : "";
-  //           const buf = Buffer.from(pdf, "base64");
-  //           fileDownload(buf, fileName, "application/pdf");
-  //         }
-  //       } else {
-  //         console.log("no response is returned");
-  //       }
-  //     } catch (error) {
-  //       console.log("error : ", error);
-  //     }
-  //   }
-  // }
-
+ 
   const onDownloadGpx = () => {
     if(!!validTour){
       if (
@@ -563,34 +511,7 @@ useEffect(() => {
             )}
           </Button>
         )}
-        {/* Remove {pdfLanguagePermit && providerPermit && (
-          <Button
-            className="tour-detail-action-btns"
-            disabled={downloadButtonsDisabled()}
-            onClick={onDownload}
-          >
-            <PdfIcon />
-            <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
-              PDF
-            </span>
-            {!!isPdfLoading ? (
-              <CircularProgress
-                sx={{ width: "20px", height: "20px" }}
-                size={"small"}
-              />
-            ) : (
-              <span style={{ color: "#8B8B8B" }}>
-                {" "}
-                {shortenText(
-                  t("Details.pdf_loading_notice"),
-                  0,
-                  maxLength
-                )}{" "}
-              </span>
-            )}
-          </Button>
-        )} */}
-
+    
         {/*
         Share button
         When clicked, a link will be generated and the social media options will be shown
@@ -915,14 +836,12 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadGPX,
   loadTourGpx,
-  // loadTourPdf, // Remove
   loadCities,
   loadAllCities,
 };
 
 function mapStateToProps(state) {
   return {
-    // isPdfLoading: state.tours.isPdfLoading,
     isGpxLoading: state.tours.isGpxLoading,
     cities: state.cities.cities,
     allCities: state.cities.all_cities,

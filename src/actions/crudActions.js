@@ -29,12 +29,10 @@ export async function loadFile(
     };
   }
   try {
-    //when clicking "pdf" button on detail page.
+    //when clicking "gpx" button on detail page.
 
     let res = await axios.get(route, {
-      // data: {},
       data: data,
-      // responseType: 'arraybuffer',
       responseType: responseType,
       params: params,
       timeout: 60000,

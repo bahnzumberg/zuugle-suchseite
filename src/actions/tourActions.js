@@ -2,8 +2,6 @@ import {
   CLEAR_TOURS,
   LOAD_FAVOURITE_TOURS,
   LOAD_FAVOURITE_TOURS_DONE,
-  // LOAD_MAP_TOURS,
-  // LOAD_MAP_TOURS_DONE,
   LOAD_TOTAL_TOURS,
   LOAD_TOTAL_TOURS_DONE,
   LOAD_TOUR,
@@ -16,8 +14,6 @@ import {
   LOAD_TOUR_FILTER_DONE,
   LOAD_TOUR_GPX,
   LOAD_TOUR_GPX_DONE,
-  LOAD_TOUR_PDF,
-  LOAD_TOUR_PDF_DONE,
   LOAD_TOURS,
   LOAD_TOURS_DONE,
   SET_SELECTED_DATE,
@@ -154,25 +150,6 @@ export function setSelectedDate(date) {
   };
 }
 
-//Remove
-// export const loadTourPdf = (data) => async (dispatch, getState) => {
-//   try {
-//     let response = await loadFile(
-//       dispatch,
-//       getState,
-//       LOAD_TOUR_PDF,
-//       LOAD_TOUR_PDF_DONE,
-//       "tours",
-//       data,
-//       "tours/" + data.id + "/pdf",
-//       "pdf",
-//       "buffer"
-//     );
-//     return response;
-//   } catch (error) {
-//       throw error;
-//   }
-// };
 
 export function loadTourGpx(data) {
   return (dispatch, getState) => {

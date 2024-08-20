@@ -117,7 +117,6 @@ export function Search({
       city = searchParams.get("city");
     }
     let range = searchParams.get("range");
-    let state = searchParams.get("state");  // Remove
     let country = searchParams.get("country");
     let type = searchParams.get("type");
     let search = searchParams.get("search");
@@ -138,15 +137,8 @@ export function Search({
       }
     }
 
-    // Remove range related
     //setting searchPhrase to the value of the search parameter
-    //if there is a range selected then set searchPhrase to that range name
-    if (!!range) {
-      setSearchPhrase(range);
-      setRegion({ value: range, label: range, type: "range" });
-    }
-    else 
-    
+      
     if (!!search) {
       setSearchPhrase(search); //TODO : do we need to do actual search if search is a city? see line 138 comment
 
@@ -164,10 +156,6 @@ export function Search({
           setSearchParams(searchParams);
         }
       }
-    } else if (!!state) {    // Remove "state" related code
-      // state might be useful for future enhancement or new feature related to Klimaticket
-      setSearchPhrase(state);
-      setRegion({ value: state, label: state, type: "state" });
     } else if (!!country) {
       // country might be useful for future enhancement or new feature related to Klimaticket
       setSearchPhrase(country);
@@ -211,7 +199,6 @@ export function Search({
     let result = loadTours({
       city: city,
       range: range,
-      state: state,  // Remove
       country: country,
       type: type,
       search: search,
@@ -353,7 +340,6 @@ export function Search({
     setOrRemoveSearchParam(searchParams, "city", values.city);
     setOrRemoveSearchParam(searchParams, "range", values.range);
     setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "state", values.state);  // Remove
     setOrRemoveSearchParam(searchParams, "country", values.country);
     setOrRemoveSearchParam(searchParams, "type", values.type);
 
