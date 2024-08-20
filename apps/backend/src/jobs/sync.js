@@ -796,7 +796,8 @@ const readAndInsertFahrplan = async (bundle) => {
                                             return_firstregular_departure_datetime) VALUES `;
  
 
-            for (let i = 0; i < data.length; i++) {
+            // for (let i = 0; i < data.length; i++) {
+            for (let i = 0; i < 2; i++) {
                 insert_sql += '(';
 
                 Object.keys(data[i]).forEach(column => {
@@ -826,11 +827,15 @@ const readAndInsertFahrplan = async (bundle) => {
             }   
 
             try {
+                let testKnex = knex.raw(insert_sql);
+                logger('############### ###############');
+                logger(`Query from Knex: ${testKnex.toString()}`);
+                logger('############### End of error with this SQL ###############');
                 await knex.raw(insert_sql);
             } catch (err) {
-                logger('############### Error with this SQL ###############');
-                logger(`Insert sql into fahrplan table: ${insert_sql}`);
-                logger('############### End of error with this SQL ###############');
+                // logger('############### Error with this SQL ###############');
+                // logger(`Insert sql into fahrplan table: ${insert_sql}`);
+                // logger('############### End of error with this SQL ###############');
                 resolve(false);
             }
             resolve(true);
