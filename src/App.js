@@ -12,6 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 import '/src/config.js';
+import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
@@ -21,8 +22,16 @@ const Search  = lazy(() => import("./components/Search/Search"));
 const Start  = lazy(() => import("./views/Start/Start"));
 
 
-
 function App() {
+  if (!isProduction()) {
+    // Start the Meticulous recorder before you initialise your app.
+    // Note: all errors are caught and logged, so no need to surround with try/catch
+    tryLoadAndStartRecorder({
+      projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
+      isProduction: false,
+    });
+  }
+
   //check if first visit and change code to domain language
   if(!localStorage.getItem('visited')) {
 
@@ -57,6 +66,9 @@ function App() {
     _mtm.push({'language': language});
   });
 
+  function isProduction() {
+    return window.location.hostname.indexOf("www.zuugle.") > -1;
+  }
 
 
   return (
@@ -73,7 +85,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Start />} />
               <Route path="/total" element={<Start />} />
-              <Route path="/suche" element={<Main />} />
+              <Route path="/search" element={<Main />} />
               <Route path="/tour/:idOne/:cityOne" element={<DetailReworked />} />
               <Route path="/tour" element={<DetailReworked />} />
               <Route path="/provider/:provider" element={<DetailReworked />} />

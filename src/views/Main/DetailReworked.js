@@ -628,7 +628,7 @@ useEffect(() => {
               }}
             >
               <Box sx={{ width: "100%" }}>
-                <SearchContainer pageKey="detail" goto={"/suche"} idOne={idOne? idOne : null} cityOne={cityOne? cityOne : null} />
+                <SearchContainer pageKey="detail" goto={"/search"} idOne={idOne? idOne : null} cityOne={cityOne? cityOne : null} />
               </Box>
             </Box> 
           </Box>
