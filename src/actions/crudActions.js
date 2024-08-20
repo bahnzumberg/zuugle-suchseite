@@ -183,6 +183,7 @@ export function loadOne(
 
 export function loadOneReturnAll(
   dispatch,
+  getState,
   typeBefore,
   typeDone,
   id,
