@@ -306,12 +306,6 @@ useEffect(() => {
     }
   }, [!!connections]);
 
-  useEffect(() => {
-    console.log("L407 socialMediaDropDownToggle ",socialMediaDropDownToggle )
-  
-  }, [socialMediaDropDownToggle])
-  
-
  
   const onDownloadGpx = () => {
     if(!!validTour){
