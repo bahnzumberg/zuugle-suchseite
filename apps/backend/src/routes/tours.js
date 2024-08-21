@@ -89,10 +89,31 @@ const getWrapper = async (req, res) => {
         new_search_where_city = `AND c2t.city_slug='${city}' `
     }
 
-    const sql = `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
-                descent, difficulty, difficulty_orig , duration, distance, title, type, 
-                number_of_days, traverse, country, state, range_slug, range, season, 
-                month_order, quality_rating, max_ele,
+    const sql = `SELECT 
+                id, 
+                url, 
+                provider, 
+                hashed_url, 
+                description, 
+                image_url, 
+                ascent, 
+                descent, 
+                difficulty, 
+                difficulty_orig, 
+                duration, 
+                distance, 
+                title, 
+                type, 
+                number_of_days, 
+                traverse, 
+                country, 
+                state, 
+                range_slug, 
+                range, 
+                season, 
+                month_order, 
+                quality_rating, 
+                max_ele,
                 min_connection_duration,
                 min_connection_no_of_transfers,
                 ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
@@ -125,10 +146,31 @@ const getWrapper = async (req, res) => {
                 FROM tour_inactive as t WHERE t.id=${id}
                 ORDER BY valid_tour DESC LIMIT 1) as a`
 
-    const sql3= `SELECT id, url, provider, hashed_url, description, image_url, ascent, 
-                descent, difficulty, difficulty_orig , duration, distance, title, type, 
-                number_of_days, traverse, country, state, range_slug, range, season, 
-                month_order, quality_rating, max_ele,
+    const sql3= `SELECT 
+                id, 
+                url, 
+                provider, 
+                hashed_url, 
+                description, 
+                image_url, 
+                ascent, 
+                descent, 
+                difficulty, 
+                difficulty_orig, 
+                duration, 
+                distance, 
+                title, 
+                type, 
+                number_of_days, 
+                traverse, 
+                country, 
+                state, 
+                range_slug, 
+                range, 
+                season, 
+                month_order, 
+                quality_rating, 
+                max_ele,
                 min_connection_duration,
                 min_connection_no_of_transfers,
                 ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
@@ -166,6 +208,7 @@ const getWrapper = async (req, res) => {
             }
         }
 
+        // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
         entry = await prepareTourEntry(entry, city, domain, true);
         res.status(200).json({ success: true, tour: entry });
     } catch (error) {
@@ -175,7 +218,7 @@ const getWrapper = async (req, res) => {
 
 const listWrapper = async (req, res) => {
 
-    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'en'; 
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'de'; 
 
     const search = req.query.search; 
     const showRanges = !!req.query.ranges;
@@ -362,7 +405,6 @@ const listWrapper = async (req, res) => {
                         t.hashed_url, 
                         t.url, 
                         t.title, 
-                        -- t.description,
                         t.image_url,
                         t.type, 
                         t.country, 
@@ -375,11 +417,6 @@ const listWrapper = async (req, res) => {
                         t.max_ele,
                         c2t.connection_arrival_stop_lon,
                         c2t.connection_arrival_stop_lat,
-                        CASE WHEN t.text_lang='de' THEN 1 ELSE 0 END AS order_lang_de, 
-                        CASE WHEN t.text_lang='en' THEN 1 ELSE 0 END AS order_lang_en, 
-                        CASE WHEN t.text_lang='fr' THEN 1 ELSE 0 END AS order_lang_fr, 
-                        CASE WHEN t.text_lang='sl' THEN 1 ELSE 0 END AS order_lang_sl, 
-                        CASE WHEN t.text_lang='it' THEN 1 ELSE 0 END AS order_lang_it,
                         c2t.min_connection_duration,
                         c2t.min_connection_no_of_transfers, 
                         ROUND(c2t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
@@ -418,7 +455,7 @@ const listWrapper = async (req, res) => {
                         ${new_filter_where_types}
                         ${new_filter_where_languages}
                         ORDER BY t.month_order ASC, 
-                        order_lang_${currLanguage} DESC,  
+                        CASE WHEN t.text_lang='${currLanguage}' THEN 1 ELSE 0 END DESC,  
                         ${new_search_order_searchterm}
                         t.number_of_days ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
@@ -475,7 +512,7 @@ const listWrapper = async (req, res) => {
 
 
     // ****************************************************************
-    // CALLING DATABASE
+    // CALLING DATABASE FOR MARKERS
     // ****************************************************************
     let result = '';
     let markers_result = ''; //markers-related : to return map markers positions from database
@@ -493,8 +530,8 @@ const listWrapper = async (req, res) => {
         // markers-related / searchIncluded
         const markers_sql= `SELECT 
                             t.id, 
-                            c2t.connection_arrival_stop_lat,
-                            c2t.connection_arrival_stop_lon
+                            c2t.connection_arrival_stop_lat as lat,
+                            c2t.connection_arrival_stop_lon as lon
                             FROM city2tour AS c2t 
                             INNER JOIN tour AS t 
                             ON c2t.tour_id=t.id 
@@ -525,16 +562,17 @@ const listWrapper = async (req, res) => {
         markers_result = await knex.raw(markers_sql); // fire the DB call here
         // console.log("markers_sql: ", markers_sql)
 
-            // markers-related
-            if (!!markers_result && !!markers_result.rows) {
-                markers_array = markers_result.rows;   // This is to be passed to the response below
-            } else {
-                console.log('markers_result is null or undefined');
-            }         
+        // markers-related
+        if (!!markers_result && !!markers_result.rows) {
+            markers_array = markers_result.rows;   // This is to be passed to the response below
+        } else {
+            console.log('markers_result is null or undefined');
+        }         
     } 
     catch (error) {
            console.log("tours.js: error retrieving results or markers_result:" + error);
     }
+
 
     
     //logsearchphrase
@@ -562,9 +600,11 @@ const listWrapper = async (req, res) => {
     // returning the final result array.
     if(result && Array.isArray(result)){
         await Promise.all(result.map(entry => new Promise(async resolve => {
+
+            // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
             entry = await prepareTourEntry(entry, city, domain, addDetails);
-            // entry.is_map_entry = !!map;
             resolve(entry);
+
         })));
     }
 
@@ -631,13 +671,6 @@ const listWrapper = async (req, res) => {
     // the tours array, the total count of tours returned by the main query, the current page, and the 
     // ranges array (if showRanges is true).
 
-    
-    //parse lat and lon before adding markers to response
-    markers_array = markers_array.map((marker) => ({
-        id: marker.id,
-        lat: parseFloat(marker.connection_arrival_stop_lat),
-        lon: parseFloat(marker.connection_arrival_stop_lon),
-    }));
         
     res
       .status(200)
@@ -650,6 +683,7 @@ const listWrapper = async (req, res) => {
         markers: markers_array,
       });
 }
+
 
 const filterWrapper = async (req, res) => {
     const search = req.query.search;
@@ -1231,7 +1265,9 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
     }
-    return entry;
+
+    const { ["hashed_url"]: remove, ...rest } = entry;
+    return rest;
 }
 
 export default router;
