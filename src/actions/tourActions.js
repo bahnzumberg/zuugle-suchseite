@@ -21,6 +21,7 @@ import {
 } from "./types";
 import { loadFile, loadList, loadOne, loadOneReturnAll, getMapData } from "./crudActions";
 import i18next from "i18next";
+import '/src/config.js';
 
 export function loadTours(data = {}) {
   console.log("L26 data :", data)
@@ -28,8 +29,8 @@ export function loadTours(data = {}) {
   return (dispatch, getState) => {
     data.domain = window.location.host;
     console.log("L31 data :", data)
-        return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
-    };
+    return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
+  };
 }
 
 export function loadFilter(data = {}) {

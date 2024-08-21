@@ -129,9 +129,7 @@ export default function TourCard({
             fontSize: "12px",
           }}
           label={`${tour?.range}`}
-        >
-          {" "}
-        </Chip>
+        />
       </a>
       <CardContent>
         <div
