@@ -528,7 +528,7 @@ const listWrapper = async (req, res) => {
             } else {
                 console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
             }
-            // console.log("result.rows: ", result.rows)
+            console.log("map: ", map)
     
             if (!!map) {
               // markers-related / searchIncluded
@@ -564,10 +564,10 @@ const listWrapper = async (req, res) => {
                 AND c2t.connection_arrival_stop_lat IS NOT NULL 
                 AND c2t.connection_arrival_stop_lon IS NOT NULL;`;
               markers_result = await knex.raw(markers_sql); // fire the DB call here
-              // console.log("markers_sql: ", markers_sql)
-
+              
               // markers-related
               if (!!markers_result && !!markers_result.rows) {
+                console.log("markers_result: ", markers_result)
                 markers_array = markers_result.rows; // This is to be passed to the response below
               } else {
                 console.log("markers_result is null or undefined");
