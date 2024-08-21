@@ -362,7 +362,7 @@ const listWrapper = async (req, res) => {
                         t.hashed_url, 
                         t.url, 
                         t.title, 
-                        t.description,
+                        -- t.description,
                         t.image_url,
                         t.type, 
                         t.country, 
@@ -546,7 +546,7 @@ const listWrapper = async (req, res) => {
             searchparam = search.replace(/'/g, "''").toLowerCase();
 
             if (!!sql_count && sql_count > 1) {
-                await knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${sql_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
+                knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${sql_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
             }
         }
     } catch (e) {
@@ -803,36 +803,33 @@ const connectionsExtendedWrapper = async (req, res) => {
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
-    const tour = await knex('tour').select().where({id: id}).first();
-    if(!!!tour || !!!city){
+    if(!!!id || !!!city){
         res.status(404).json({success: false});
         return;
     }
 
-    // const connections = await knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city}).orderBy('return_row', 'asc');
-    
-    // The following SQL should only return the columns used in ItineraryTourTimeLineContainer
-
     let connections = [];
     const fahrplan_sql = `SELECT 
-                          calendar_date,
-                          connection_departure_datetime,
-                          connection_duration,
-                          connection_no_of_transfers,
-                          connection_returns_trips_back,
-                          return_departure_datetime,
-                          return_duration,
-                          return_no_of_transfers,
-                          return_arrival_datetime,
-                          totour_track_duration,
-                          fromtour_track_duration,
-                          connection_description_json,
-                          return_description_json,
-                          totour_track_key,
-                          fromtour_track_key
-                          FROM fahrplan 
-                          WHERE hashed_url='${tour.hashed_url}' 
-                          AND city_slug='${city}' 
+                          f.calendar_date,
+                          f.connection_departure_datetime,
+                          f.connection_duration,
+                          f.connection_no_of_transfers,
+                          f.connection_returns_trips_back,
+                          f.return_departure_datetime,
+                          f.return_duration,
+                          f.return_no_of_transfers,
+                          f.return_arrival_datetime,
+                          f.totour_track_duration,
+                          f.fromtour_track_duration,
+                          f.connection_description_json,
+                          f.return_description_json,
+                          f.totour_track_key,
+                          f.fromtour_track_key
+                          FROM tour as t
+                          INNER JOIN fahrplan as f
+                          ON f.hashed_url=t.hashed_url
+                          WHERE t.id='${id}' 
+                          AND f.city_slug='${city}' 
                           ORDER BY return_row ASC;`;
     const fahrplan_result = await knex.raw(fahrplan_sql)    
     
@@ -868,7 +865,7 @@ const connectionsExtendedWrapper = async (req, res) => {
         result.push({
             date: today.format(),
             connections: duplicatesRemoved,
-            returns: getReturnConnectionsByConnection(tour, connections, domain, today),
+            returns: getReturnConnectionsByConnection(connections, domain, today),
         })
         today.add(1, "day");
     }
@@ -884,7 +881,7 @@ const connectionsExtendedWrapper = async (req, res) => {
 }
 
 
-const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
+const getReturnConnectionsByConnection = (connections, domain, today) => {
     let _connections = [];
     let _duplicatesRemoved = [];
 
@@ -1131,14 +1128,13 @@ const tourGpxWrapper = async (req, res) => {
     const keyAnreise = req.query.key_anreise;
     const keyAbreise = req.query.key_abreise;
 
-    const entry = await knex('tour').select(['provider', 'hashed_url']).where({id: id}).first();
     res.setHeader('content-type', 'application/gpx+xml');
     res.setHeader('Cache-Control', 'public, max-age=31557600');
 
     try {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if(type == "all"){
-            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`));
+            let filePathMain = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`));
             let filePathAbreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour/${last_two_characters(keyAbreise)}/${keyAbreise}.gpx`));
             let filePathAnreise = replaceFilePath(path.join(__dirname, BASE_PATH, `/public/gpx-track/totour/${last_two_characters(keyAnreise)}/${keyAnreise}.gpx`));
 
@@ -1150,7 +1146,7 @@ const tourGpxWrapper = async (req, res) => {
             }
 
         } else {
-            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`);
+            let filePath = path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`);
             if(type == "abreise" && !!key){
                 filePath = path.join(__dirname, BASE_PATH, `/public/gpx-track/fromtour/${last_two_characters(key)}/${key}.gpx`);
             } else if(type == "anreise" && !!key){
@@ -1213,7 +1209,7 @@ const getConnectionsByWeekday = (connections, weekday) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
 
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.hashed_url)}/${entry.hashed_url}.gpx`;
+    entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
 
     if(!!addDetails){
         if(!!city){

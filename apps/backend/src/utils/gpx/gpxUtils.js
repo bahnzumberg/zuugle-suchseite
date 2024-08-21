@@ -100,11 +100,7 @@ export const createImagesFromMap = async (ids) => {
                     let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
 
                     if (!!filePathSmallWebp && !!!fs.existsSync(filePathSmallWebp)) {
-                        let hashed_url_sql = `SELECT hashed_url FROM tour WHERE id=CAST(${ch} AS INTEGER);`
-                        let hashed_url_query = await knex.raw(hashed_url_sql);
-                        let hashed_url = hashed_url_query.rows[0].hashed_url;
-
-                        await createImageFromMap(browser, filePath, url + last_two_characters(hashed_url) + "/" + hashed_url + ".gpx", 100);
+                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 100);
 
                         if (fs.existsSync(filePath)){
                             try {
@@ -216,84 +212,6 @@ export function last_two_characters(h_url) {
     }
 }
 
-export const createSingleImageFromMap = async (providerhashedUrl, fromTourTrackKey, toTourTrackKey, template = "index.html", fileNamePostfix = "", addBaseGpx = true) => {
-    let browser = null;
-    try {
-
-        let LEAFLET_BASE =  process.env.NODE_ENV === "production" ?     `https://www.zuugle.at/public/headless-leaflet/${template}` 
-        :                                                               `http://localhost:8080/public/headless-leaflet/${template}`;
-
-        let BASE_GPX_URL =  process.env.NODE_ENV === "production" ?     "https://www.zuugle.at/public/gpx/" 
-        :                                                                "http://localhost:8080/public/gpx/";
-
-        let BASE_GPX_TRACK_URL = process.env.NODE_ENV === "production" ? "https://www.zuugle.at/public/gpx-track/" 
-        :                                                                "http://localhost:8080/public/gpx-track/";
-
-        let url = "";
-
-        url = LEAFLET_BASE + (!!addBaseGpx ? "?gpx=" + BASE_GPX_URL + last_two_characters(providerhashedUrl) + "/" + providerhashedUrl + ".gpx" : "");
-
-        if(!!fromTourTrackKey){
-            url = url + (!!addBaseGpx ? "&" : "?") + "gpx1=" + BASE_GPX_TRACK_URL + "fromtour/" + last_two_characters(fromTourTrackKey) + "/" + fromTourTrackKey + ".gpx";
-        }
-        if(!!toTourTrackKey){
-            url = url + (!!addBaseGpx ? "&" : "?") + "gpx2=" + BASE_GPX_TRACK_URL + "totour/" + last_two_characters(toTourTrackKey) + "/" + toTourTrackKey + ".gpx";
-        }
-
-        let addParam = {};
-        if(process.env.NODE_ENV == "production"){
-            addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
-        }
-
-        let filePath = undefined;
-        let baseFilePath = "public/gpx-image-with-track/"+last_two_characters(providerhashedUrl)+"/"+providerhashedUrl+ "_"+ getValidUndefinedFileName(toTourTrackKey) + "_" + getValidUndefinedFileName(fromTourTrackKey) + fileNamePostfix +"_gpx.jpg";
-        if(process.env.NODE_ENV == "production"){
-            filePath = path.join(__dirname, "../../", baseFilePath);
-        } else {
-            filePath = path.join(__dirname, "../../../", baseFilePath);
-        }
-
-        if (!!filePath && !!fs.existsSync(filePath)) {
-            return baseFilePath;
-        }
-
-        browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
-            defaultViewport: {width: 1200, height: 800},
-            ...addParam
-        });
-
-        if(!!filePath){
-            const page = await browser.newPage();
-
-            await page.emulateMediaType('print');
-            await page.setCacheEnabled(false);
-            await page.goto(url, { timeout: 1000000, waitUntil: 'networkidle0' });
-            // await page.waitForTimeout(20);
-            await setTimeout(20);
-            await page.bringToFront();
-            await page.screenshot({path: filePath, type: "jpeg", quality: 100});
-            await page.close();
-            return baseFilePath;
-        }
-
-    } catch (err) {
-        console.log('createSingleImageFromMap error: ', err);
-        console.log(err.message);
-    } finally {
-        if (browser) {
-            await browser.close();
-        }
-    }
-}
-
-const getValidUndefinedFileName = (entry) => {
-    if(!!entry){
-        return entry;
-    } else {
-        return "unknown"
-    }
-}
 
 export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => {
     let trackAnreise = await getSequenceFromFile(fileAnreise);

@@ -131,57 +131,6 @@ function getConnectionTypeString(CT) {
     return connectionTypes[CT];
 }
 
-// export default function transformToDescriptionDetail(descriptionJSON, toFrom = "to") {
-//     let descriptionDetail = "";
-
-//     let totalTransferTime = 0;
-//     let isReturn = false;
-
-//     if(Array.isArray(descriptionJSON) && descriptionJSON.length > 0){
-//         for (let i = 0; i < descriptionJSON.length; i++) {
-//             const connection = descriptionJSON[i];
-//             const connectionType = getConnectionTypeString(connection.CT);
-//             const connectionName = connection.CN;
-//             const duration = !!connection.CD ? connection.CD : "N/A"; // CD = Connection Duration
-    
-//             if (i === 0) {
-//                 descriptionDetail += `${connection.DT} ${connection.DS}\n`;
-//             } else if (connection.T === "C") {
-//                 const transferInfo = connection.CI ? ` (${connection.CI})` : '';
-//                 descriptionDetail += `  |  ${duration} Std mit ${connectionType} ${connectionName} nach${transferInfo}\n`;
-//             } else if (connection.T === "T") {
-//                 totalTransferTime += getMinutesFromDuration(duration);
-//                 descriptionDetail += `  =  ${duration} Std Umstiegszeit\n`;
-//             } else if (connection.T === "A") {
-//                 if (!isReturn) {
-//                     const remainingTransferTime = totalTransferTime;
-//                     descriptionDetail += `  >  ${formatDuration(remainingTransferTime)} Std Zustiegsdauer zum Touren-Ausgangspunkt\n`;
-//                     isReturn = true;
-//                 } else {
-//                     const remainingTransferTime = fromTourTrackDuration;
-//                     descriptionDetail += `  <  ${formatDuration(remainingTransferTime)} Std Rückstiegsdauer vom Touren-Ausgangspunkt\n`;
-//                 }
-//             }
-//         }
-//     }
-
-//     return descriptionDetail;
-// }
-
-// export function jsonToText(connection, toFrom = "to") {
-    
-//     let descString = '';
-
-//     const strArr = jsonToStringArray(connection, toFrom);
-    
-//     for (let i = 0; i < strArr.length; i++) {
-//         descString =+ strArr[i] + '/n' ;
-//     }
-//     logger("L184 utils/descString");
-//     logger(JSON.stringify(descString));
-
-//     return descString;
-// }
 
 export function jsonToText(connection, toFrom = "to") {
     let descString = '';

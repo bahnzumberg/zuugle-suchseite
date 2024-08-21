@@ -465,17 +465,16 @@ export async function syncGPX(){
     // First we call the directory preparation step
     prepareDirectories();
 
-    // const allTours = await knex('tour').select(["title", "hashed_url"])
     let allTours = null;
     let promises = null;
     for (let i=0; i<10; i++) {
         console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
-        allTours = await knex('tour').select(["title", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
+        allTours = await knex('tour').select(["title", "id", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
               
         if(!!allTours && allTours.length > 0){
             try {
                 promises = allTours.map(entry => {
-                    return _syncGPX(entry.hashed_url, entry.title);
+                    return _syncGPX(entry.id, entry.hashed_url, entry.title);
                 });
                 await Promise.all(promises);
             }
@@ -510,15 +509,15 @@ export async function syncGPXImage(){
 
 }
 
-async function _syncGPX(h_url, title){
+async function _syncGPX(id, h_url, title){
     return new Promise(async resolve => {
         try {
-            let fileName = h_url + '.gpx';
+            let fileName = id + '.gpx';
             let filePath = '';
             if(process.env.NODE_ENV == "production"){
-                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(h_url), "/");
+                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
             } else {
-                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(h_url), "/");
+                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
             }
 
             if (!fs.existsSync(filePath)){
