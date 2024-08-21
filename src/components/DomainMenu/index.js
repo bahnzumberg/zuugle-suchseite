@@ -38,16 +38,21 @@ if(process.env.NODE_ENV === "development") {
 			},
 			{
 				id: 4,
+				name: "Zuugle.fr",
+				url: "https://www.zuugle.fr",
+			},
+			{
+				id: 5,
 				name: "Zuugle.it",
 				url: "https://www.zuugle.it",
 			},
 			{
-				id: 5,
+				id: 6,
 				name: "Zuugle.li",
 				url: "https://www.zuugle.li",
 			},
 			{
-				id: 6,
+				id: 7,
 				name: "Zuugle.si",
 				url: "https://www.zuugle.si",
 			},
@@ -75,16 +80,21 @@ if (host.indexOf("www.zuugle.at") >= 0) {
 		},
 		{
 			id: 3,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Zuugle.li",
 			url: "https://www.zuugle.li",
 		},
 		{
-			id: 5,
+			id: 6,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -110,16 +120,21 @@ else if (host.indexOf("www.zuugle.de") >= 0) {
 		},
 		{
 			id: 3,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Zuugle.li",
 			url: "https://www.zuugle.li",
 		},
 		{
-			id: 5,
+			id: 6,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -150,11 +165,16 @@ else if (host.indexOf("www.zuugle.si") >= 0) {
 		},
 		{
 			id: 4,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 5,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 5,
+			id: 6,
 			name: "Zuugle.li",
 			url: "https://www.zuugle.li",
 		},
@@ -185,11 +205,16 @@ else if (host.indexOf("www.zuugle.it") >= 0) {
 		},
 		{
 			id: 4,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 5,
 			name: "Zuugle.li",
 			url: "https://www.zuugle.li",
 		},
 		{
-			id: 5,
+			id: 6,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -215,16 +240,21 @@ else if (host.indexOf("www.zuugle.ch") >= 0) {
 		},
 		{
 			id: 3,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "Zuugle.it",
 			url: "https://www.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Zuugle.li",
 			url: "https://www.zuugle.li",
 		},
 		{
-			id: 5,
+			id: 6,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
@@ -240,13 +270,53 @@ else if (host.indexOf("www.zuugle.li") >= 0) {
 		},
 		{
 			id: 1,
+			name: "Zuugle.at",
+			url: "https://www.zuugle.at",
+		},
+		{
+			id: 2,
 			name: "Zuugle.ch",
 			url: "https://www.zuugle.ch",
 		},
 		{
-			id: 2,
+			id: 3,
+			name: "Zuugle.de",
+			url: "https://www.zuugle.de",
+		},
+		{
+			id: 4,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 5,
+			name: "Zuugle.it",
+			url: "https://www.zuugle.it",
+		},
+		{
+			id: 6,
+			name: "Zuugle.si",
+			url: "https://www.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www.zuugle.fr") >= 0) {
+	domain = 'www.zuugle.fr';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "Zuugle.fr",
+			url: "https://www.zuugle.fr",
+		},
+		{
+			id: 1,
 			name: "Zuugle.at",
 			url: "https://www.zuugle.at",
+		},
+		{
+			id: 2,
+			name: "Zuugle.ch",
+			url: "https://www.zuugle.ch",
 		},
 		{
 			id: 3,
@@ -260,13 +330,15 @@ else if (host.indexOf("www.zuugle.li") >= 0) {
 		},
 		{
 			id: 5,
+			name: "Zuugle.li",
+			url: "https://www.zuugle.li",
+		},
+		{
+			id: 6,
 			name: "Zuugle.si",
 			url: "https://www.zuugle.si",
 		},
-	];
-}
-else if (host.indexOf("www.zuugle.fr") >= 0) {
-	domain = 'www.zuugle.fr';
+	]
 
 }
 if (host.indexOf("www2.zuugle.at") >= 0) {
@@ -289,11 +361,16 @@ if (host.indexOf("www2.zuugle.at") >= 0) {
 		},
 		{
 			id: 3,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -319,11 +396,16 @@ else if (host.indexOf("www2.zuugle.de") >= 0) {
 		},
 		{
 			id: 3,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -354,6 +436,11 @@ else if (host.indexOf("www2.zuugle.si") >= 0) {
 		},
 		{
 			id: 4,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 5,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
@@ -384,6 +471,11 @@ else if (host.indexOf("www2.zuugle.it") >= 0) {
 		},
 		{
 			id: 4,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 5,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -409,11 +501,16 @@ else if (host.indexOf("www2.zuugle.ch") >= 0) {
 		},
 		{
 			id: 3,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 4,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "UAT Zuugle.si",
 			url: "https://www2.zuugle.si",
 		},
@@ -444,6 +541,46 @@ else if (host.indexOf("www2.zuugle.li") >= 0) {
 		},
 		{
 			id: 4,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 5,
+			name: "UAT Zuugle.it",
+			url: "https://www2.zuugle.it",
+		},
+		{
+			id: 6,
+			name: "UAT Zuugle.si",
+			url: "https://www2.zuugle.si",
+		},
+	];
+}
+else if (host.indexOf("www2.zuugle.fr") >= 0) {
+	domain = 'www2.zuugle.fr';
+	listOfDomains = [
+		{
+			id: 0,
+			name: "UAT Zuugle.fr",
+			url: "https://www2.zuugle.fr",
+		},
+		{
+			id: 1,
+			name: "UAT Zuugle.at",
+			url: "https://www2.zuugle.at",
+		},
+		{
+			id: 2,
+			name: "UAT Zuugle.ch",
+			url: "https://www2.zuugle.ch",
+		},
+		{
+			id: 3,
+			name: "UAT Zuugle.de",
+			url: "https://www2.zuugle.de",
+		},
+		{
+			id: 4,
 			name: "UAT Zuugle.it",
 			url: "https://www2.zuugle.it",
 		},
@@ -453,9 +590,6 @@ else if (host.indexOf("www2.zuugle.li") >= 0) {
 			url: "https://www2.zuugle.si",
 		},
 	];
-}
-else if (host.indexOf("www2.zuugle.fr") >= 0) {
-	domain = 'www2.zuugle.fr';
 
 }
 
