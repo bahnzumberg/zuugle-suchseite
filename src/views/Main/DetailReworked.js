@@ -73,15 +73,8 @@ const DetailReworked = (props) => {
   const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState(null);
   const [renderImage, setRenderImage] = useState(null);
-  //Triggers the generating of a new link
-  const [isShareGenerating, setIsShareGenerating] = useState(false);
-  //Complete share link
-  const [shareLink, setShareLink] = useState(null);
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
-    useState(false);
-  //Whether a warning that says that your local trainstation has not been used, should be shown
-  const [showDifferentStationUsedWarning, setShowDifferentStationUsedWarning] =
     useState(false);
   const [isTourLoading, setIsTourLoading] = useState(false);
   const {cityOne, idOne} = useParams();
@@ -213,7 +206,6 @@ useEffect(() => {
     setSocialMediaDropDownToggle(false);
   }, [dateIndex]);
 
-  //using a shareID if found in url to load the corresponding tour
   useEffect(() => {
    
     loadAllCities();
@@ -245,12 +237,9 @@ useEffect(() => {
           console.error("Tour not found:", error);
           if (error.response && error.response.status === 404) {
             console.error("Tour not found:", error);
-            // Handle the 404 error scenario
             goToStartPageUnavailableTour();
-            // return
           } else {
             console.error("Other error:", error);
-            // TODO: Handle other errors
           }
         });
     }
@@ -264,7 +253,6 @@ useEffect(() => {
           !!res.data.result && setConnections(res.data.result);
           if (res?.data?.result?.[0]?.connections?.[0]?.connection_description_json) {
             let connectJson = res.data.result[0].connections[0].connection_description_json;
-            // console.log("L372 : res.data.result", res.data.result)
             Array.isArray(connectJson) && transformToDescriptionDetail(connectJson);  
           }
         }
@@ -317,12 +305,6 @@ useEffect(() => {
       setActiveReturnConnection(connections[index].returns[0]);
     }
   }, [!!connections]);
-
-  useEffect(() => {
-    console.log("L407 socialMediaDropDownToggle ",socialMediaDropDownToggle )
-  
-  }, [socialMediaDropDownToggle])
-  
 
  
   const onDownloadGpx = () => {
@@ -408,7 +390,6 @@ useEffect(() => {
 
   	if (svgButton) {
       console.log("inside svgBtn, socialMediaDropDownToggle ", socialMediaDropDownToggle)
-  		// setIsShareGenerating(true);
   		setSocialMediaDropDownToggle(current => !current);
   	}
   };
