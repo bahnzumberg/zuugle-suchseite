@@ -819,7 +819,6 @@ const connectionsExtendedWrapper = async (req, res) => {
                           connection_departure_datetime,
                           connection_duration,
                           connection_no_of_transfers,
-                          connection_arrival_datetime,
                           connection_returns_trips_back,
                           return_departure_datetime,
                           return_duration,
@@ -828,7 +827,9 @@ const connectionsExtendedWrapper = async (req, res) => {
                           totour_track_duration,
                           fromtour_track_duration,
                           connection_description_json,
-                          return_description_json
+                          return_description_json,
+                          totour_track_key,
+                          fromtour_track_key
                           FROM fahrplan 
                           WHERE hashed_url='${tour.hashed_url}' 
                           AND city_slug='${city}' 
@@ -856,9 +857,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             let e = {...t}
             e.connection_duration_minutes = minutesFromMoment(moment(e.connection_duration, 'HH:mm:ss'));
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
-            // e.connection_departure_datetime_entry = setMomentToSpecificDate(e.connection_departure_datetime, today.format());
 
-            // if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt)) && moment(e.valid_thru).isSameOrAfter(today)){
             if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
                 e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
@@ -883,6 +882,7 @@ const connectionsExtendedWrapper = async (req, res) => {
 
     res.status(200).json({success: true, result: result});
 }
+
 
 const getReturnConnectionsByConnection = (tour, connections, domain, today) => {
     let _connections = [];
@@ -938,22 +938,12 @@ const mapConnectionReturnToFrontend = (connection) => {
 }
 
 
-const setMomentToSpecificDate = (date, _input) => {
-    let mom = moment(date);
-    let input = moment(_input);
-    mom.set("date", input.get("date"));
-    mom.set("month", input.get("month"));
-    mom.set("year", input.get("year"));
-    return mom.format();
-}
 
 const compareConnections = (trans1, trans2) => {
     return trans1 != null
         && trans2 != null
         && moment(trans1.connection_departure_datetime).isSame(moment(trans2.connection_departure_datetime))
         && moment(trans1.connection_arrival_datetime).isSame(moment(trans2.connection_arrival_datetime))
-        // && trans1.connection_departure_stop == trans2.connection_departure_stop
-        // && trans1.connection_rank == trans2.connection_rank;
 }
 
 const compareConnectionReturns = (conn1, conn2) => {
