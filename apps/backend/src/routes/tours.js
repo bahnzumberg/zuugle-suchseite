@@ -1,7 +1,7 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
-import {createImageFromMap, mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
+import {mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
 import moment from "moment";
 import {getHost, replaceFilePath, round, get_domain_country } from "../utils/utils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
@@ -19,7 +19,7 @@ router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
-router.get('/gpx', (req, res) => gpxWrapper(req, res));
+// router.get('/gpx', (req, res) => gpxWrapper(req, res));
 router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
@@ -518,60 +518,61 @@ const listWrapper = async (req, res) => {
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
-    try {
-        result = await knex.raw(new_search_sql); // fire the DB call here
-        if (result && result.rows) {
-            result = result.rows;
-        } else {
-            console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
-        }
-        // console.log("result.rows: ", result.rows)
-   
-        // markers-related / searchIncluded
-        const markers_sql= `SELECT 
-                            t.id, 
-                            c2t.connection_arrival_stop_lat as lat,
-                            c2t.connection_arrival_stop_lon as lon
-                            FROM city2tour AS c2t 
-                            INNER JOIN tour AS t 
-                            ON c2t.tour_id=t.id 
-                            WHERE c2t.reachable_from_country='${tld}' 
-                            ${new_search_where_city}
-                            ${new_search_where_searchterm}
-                            ${new_search_where_range}
-                            ${new_search_where_state}
-                            ${new_search_where_country}
-                            ${new_search_where_type}
-                            ${new_search_where_provider}
-                            ${new_search_where_language}
-                            ${new_search_where_map}
-                            ${new_filter_where_singleDayTour}
-                            ${new_filter_where_multipleDayTour}
-                            ${new_filter_where_summerSeason}
-                            ${new_filter_where_winterSeason}
-                            ${new_filter_where_traverse}
-                            ${new_filter_where_minAscent}
-                            ${new_filter_where_minDescent}
-                            ${new_filter_where_minTransportDuration}
-                            ${new_filter_where_minDistance}
-                            ${new_filter_where_ranges}
-                            ${new_filter_where_types}
-                            ${new_filter_where_languages}
-                            AND c2t.connection_arrival_stop_lat IS NOT NULL 
-                            AND c2t.connection_arrival_stop_lon IS NOT NULL;`
-        markers_result = await knex.raw(markers_sql); // fire the DB call here
-        // console.log("markers_sql: ", markers_sql)
+    
+        try {
+            result = await knex.raw(new_search_sql); // fire the DB call here
+            if (result && result.rows) {
+                result = result.rows;
+            } else {
+                console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
+            }
+            // console.log("result.rows: ", result.rows)
+    
+            // markers-related / searchIncluded
+            const markers_sql= `SELECT 
+                                t.id, 
+                                c2t.connection_arrival_stop_lat as lat,
+                                c2t.connection_arrival_stop_lon as lon
+                                FROM city2tour AS c2t 
+                                INNER JOIN tour AS t 
+                                ON c2t.tour_id=t.id 
+                                WHERE c2t.reachable_from_country='${tld}' 
+                                ${new_search_where_city}
+                                ${new_search_where_searchterm}
+                                ${new_search_where_range}
+                                ${new_search_where_state}
+                                ${new_search_where_country}
+                                ${new_search_where_type}
+                                ${new_search_where_provider}
+                                ${new_search_where_language}
+                                ${new_search_where_map}
+                                ${new_filter_where_singleDayTour}
+                                ${new_filter_where_multipleDayTour}
+                                ${new_filter_where_summerSeason}
+                                ${new_filter_where_winterSeason}
+                                ${new_filter_where_traverse}
+                                ${new_filter_where_minAscent}
+                                ${new_filter_where_minDescent}
+                                ${new_filter_where_minTransportDuration}
+                                ${new_filter_where_minDistance}
+                                ${new_filter_where_ranges}
+                                ${new_filter_where_types}
+                                ${new_filter_where_languages}
+                                AND c2t.connection_arrival_stop_lat IS NOT NULL 
+                                AND c2t.connection_arrival_stop_lon IS NOT NULL;`
+            markers_result = await knex.raw(markers_sql); // fire the DB call here
+            // console.log("markers_sql: ", markers_sql)
 
-        // markers-related
-        if (!!markers_result && !!markers_result.rows) {
-            markers_array = markers_result.rows;   // This is to be passed to the response below
-        } else {
-            console.log('markers_result is null or undefined');
-        }         
-    } 
-    catch (error) {
-           console.log("tours.js: error retrieving results or markers_result:" + error);
-    }
+            // markers-related
+            if (!!markers_result && !!markers_result.rows) {
+                markers_array = markers_result.rows;   // This is to be passed to the response below
+            } else {
+                console.log('markers_result is null or undefined');
+            }         
+        } 
+        catch (error) {
+            console.log("tours.js: error retrieving results or markers_result:" + error);
+        }
 
 
     
@@ -617,7 +618,6 @@ const listWrapper = async (req, res) => {
     // containing the range name and the corresponding image URL. The code then queries the database
     // to get all states of each range and adds them to the states array of each range object.
     let ranges = [];
-    let rangeList = [];
     let range_result = undefined
 
     if(!!showRanges){    
@@ -626,10 +626,10 @@ const listWrapper = async (req, res) => {
             "jul", "aug", "sep", "oct", "nov", "dec"
           ];  
         const shortMonth = months[new Date().getMonth()];
-        const range_sql  = `SELECT 
-                            t.state,
+        const range_sql  = `SELECT
                             t.range_slug,
                             t.range,
+                            CONCAT('${getHost(domain)}/public/range-image/', t.range_slug, '.jpg') as image_url,
                             SUM(1.0/(c2t.min_connection_no_of_transfers+1)) AS attract
                             FROM city2tour AS c2t 
                             INNER JOIN tour AS t 
@@ -638,7 +638,8 @@ const listWrapper = async (req, res) => {
                             ${new_search_where_city}
                             AND ${shortMonth}='true'
                             AND t.range_slug IS NOT NULL
-                            GROUP BY t.state, t.range_slug, t.range
+                            AND t.range IS NOT NULL
+                            GROUP BY 1, 2, 3
                             ORDER BY SUM(1.0/(c2t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
                             LIMIT 10`
         
@@ -646,22 +647,8 @@ const listWrapper = async (req, res) => {
         // console.log("range_sql: ", range_sql)
         
         if (!!range_result && !!range_result.rows) {
-            rangeList = range_result.rows;
+            ranges = range_result.rows;
         }
-
-        //describe:
-        //a loop is performed over each object in rangeList. For each object, it is checked if both tour and tour.range properties are defined and truthy. If they are, it is checked if there is no object in the ranges array that has a range property equal to tour.range. If there isn't, a new object is constructed with a range property equal to tour.range, and an image_url property equal to a string constructed with the getHost function on the domain parameter, the "/public/range-image/" path, and the tour.range_slug value. The new object is then pushed onto the ranges array.
-        rangeList.forEach(tour => {
-            if(!!tour && !!tour.range){
-                if(!!!ranges.find(r => r.range === tour.range)){
-                    ranges.push({
-                        states: tour.state,
-                        range: tour.range,
-                        image_url: `${getHost(domain)}/public/range-image/${tour.range_slug}.jpg`
-                    });
-                }
-            }
-        });
     }
 
     //describe:
@@ -938,10 +925,10 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
 }
 
 // TODO : gpxWrapper seems to be dead code / check if gpxWrapper is being used in a client api call
-const gpxWrapper = async (req, res) => {
-    createImageFromMap();
-    res.status(200).json({success: true });
-}
+// const gpxWrapper = async (req, res) => {
+//    createImageFromMap();
+//    res.status(200).json({success: true });
+// }
 
 const mapConnectionToFrontend = (connection) => {
     if(!!!connection){
