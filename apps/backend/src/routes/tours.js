@@ -22,7 +22,6 @@ router.get('/total', (req, res) => totalWrapper(req, res));
 router.get('/gpx', (req, res) => gpxWrapper(req, res));
 router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
-// router.get('/:id/pdf', (req, res) => tourPdfWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id/:city', (req, res) => getWrapper(req, res));
 
@@ -804,14 +803,6 @@ const connectionsExtendedWrapper = async (req, res) => {
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
-    // console.log("===================") 
-    // console.log(" city from req.query.city /connectionsExtendedWrapper : ", req.query.city )
-    // console.log(" city from req.params.city /connectionsExtendedWrapper : ", req.params.city )
-    // console.log(" req.params from connectionsExtendedWrapper : ", req.params )
-    // console.log("===================") 
-    // console.log(" req.query from connectionsExtendedWrapper : ", (req.query) )
-    // console.log("===================") 
-
     const tour = await knex('tour').select().where({id: id}).first();
     if(!!!tour || !!!city){
         res.status(404).json({success: false});
@@ -823,8 +814,27 @@ const connectionsExtendedWrapper = async (req, res) => {
     // The following SQL should only return the columns used in ItineraryTourTimeLineContainer
 
     let connections = [];
-    const fahrplan_sql = `SELECT * FROM fahrplan WHERE hashed_url='${tour.hashed_url}' AND city_slug='${city}' ORDER BY return_row ASC;`;
+    const fahrplan_sql = `SELECT 
+                          calendar_date,
+                          connection_departure_datetime,
+                          connection_duration,
+                          connection_no_of_transfers,
+                          connection_arrival_datetime,
+                          connection_returns_trips_back,
+                          return_departure_datetime,
+                          return_duration,
+                          return_no_of_transfers,
+                          return_arrival_datetime,
+                          totour_track_duration,
+                          fromtour_track_duration,
+                          connection_description_json,
+                          return_description_json
+                          FROM fahrplan 
+                          WHERE hashed_url='${tour.hashed_url}' 
+                          AND city_slug='${city}' 
+                          ORDER BY return_row ASC;`;
     const fahrplan_result = await knex.raw(fahrplan_sql)    
+    
     if (!!fahrplan_result && !!fahrplan_result.rows) {
         connections = fahrplan_result.rows.map(connection => {
             connection.connection_departure_datetime = momenttz(connection.connection_departure_datetime).tz('Europe/Berlin').format();
