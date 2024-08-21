@@ -233,6 +233,8 @@ const listWrapper = async (req, res) => {
     const language = req.query.language; 
     const filter = req.query.filter;
     const bounds = req.query.bounds;
+    const map = req.query.map;
+
 
     let parsedBounds;
 
@@ -528,47 +530,49 @@ const listWrapper = async (req, res) => {
             }
             // console.log("result.rows: ", result.rows)
     
-            // markers-related / searchIncluded
-            const markers_sql= `SELECT 
-                                t.id, 
-                                c2t.connection_arrival_stop_lat as lat,
-                                c2t.connection_arrival_stop_lon as lon
-                                FROM city2tour AS c2t 
-                                INNER JOIN tour AS t 
-                                ON c2t.tour_id=t.id 
-                                WHERE c2t.reachable_from_country='${tld}' 
-                                ${new_search_where_city}
-                                ${new_search_where_searchterm}
-                                ${new_search_where_range}
-                                ${new_search_where_state}
-                                ${new_search_where_country}
-                                ${new_search_where_type}
-                                ${new_search_where_provider}
-                                ${new_search_where_language}
-                                ${new_search_where_map}
-                                ${new_filter_where_singleDayTour}
-                                ${new_filter_where_multipleDayTour}
-                                ${new_filter_where_summerSeason}
-                                ${new_filter_where_winterSeason}
-                                ${new_filter_where_traverse}
-                                ${new_filter_where_minAscent}
-                                ${new_filter_where_minDescent}
-                                ${new_filter_where_minTransportDuration}
-                                ${new_filter_where_minDistance}
-                                ${new_filter_where_ranges}
-                                ${new_filter_where_types}
-                                ${new_filter_where_languages}
-                                AND c2t.connection_arrival_stop_lat IS NOT NULL 
-                                AND c2t.connection_arrival_stop_lon IS NOT NULL;`
-            markers_result = await knex.raw(markers_sql); // fire the DB call here
-            // console.log("markers_sql: ", markers_sql)
+            if (!!map) {
+              // markers-related / searchIncluded
+              const markers_sql = `SELECT 
+                t.id, 
+                c2t.connection_arrival_stop_lat as lat,
+                c2t.connection_arrival_stop_lon as lon
+                FROM city2tour AS c2t 
+                INNER JOIN tour AS t 
+                ON c2t.tour_id=t.id 
+                WHERE c2t.reachable_from_country='${tld}' 
+                ${new_search_where_city}
+                ${new_search_where_searchterm}
+                ${new_search_where_range}
+                ${new_search_where_state}
+                ${new_search_where_country}
+                ${new_search_where_type}
+                ${new_search_where_provider}
+                ${new_search_where_language}
+                ${new_search_where_map}
+                ${new_filter_where_singleDayTour}
+                ${new_filter_where_multipleDayTour}
+                ${new_filter_where_summerSeason}
+                ${new_filter_where_winterSeason}
+                ${new_filter_where_traverse}
+                ${new_filter_where_minAscent}
+                ${new_filter_where_minDescent}
+                ${new_filter_where_minTransportDuration}
+                ${new_filter_where_minDistance}
+                ${new_filter_where_ranges}
+                ${new_filter_where_types}
+                ${new_filter_where_languages}
+                AND c2t.connection_arrival_stop_lat IS NOT NULL 
+                AND c2t.connection_arrival_stop_lon IS NOT NULL;`;
+              markers_result = await knex.raw(markers_sql); // fire the DB call here
+              // console.log("markers_sql: ", markers_sql)
 
-            // markers-related
-            if (!!markers_result && !!markers_result.rows) {
-                markers_array = markers_result.rows;   // This is to be passed to the response below
-            } else {
-                console.log('markers_result is null or undefined');
-            }         
+              // markers-related
+              if (!!markers_result && !!markers_result.rows) {
+                markers_array = markers_result.rows; // This is to be passed to the response below
+              } else {
+                console.log("markers_result is null or undefined");
+              }
+            }    
         } 
         catch (error) {
             console.log("tours.js: error retrieving results or markers_result:" + error);
