@@ -1,9 +1,8 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import {createImagesFromMap, last_two_characters} from "../utils/gpx/gpxUtils";
-import {round} from "../utils/utils";
+import {getHost, round} from "../utils/utils";
 import moment from "moment";
-import {minutesFromMoment} from "../utils/helper";
 const { create } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
@@ -503,7 +502,7 @@ export async function syncGPXImage(){
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
 
-        await knex.raw(`UPDATE tour SET image_url='/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
+        await knex.raw(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
     }
     return true;
 

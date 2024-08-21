@@ -7,6 +7,7 @@ const { create } = require('xmlbuilder2');
 import moment from "moment";
 import {setTimeout} from "node:timers/promises";
 import knex from "../../knex";
+import {getHost} from "../utils";
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -50,9 +51,13 @@ const minimal_args = [
 const setTourImageURL = async (tour_id, image_url) => {
     if (!!tour_id) {
         if (image_url.length > 0) {
+            if (image_url.substring(0,4) !== 'http') {
+                image_url = getHost('') + image_url;
+            }
+
             try {
                 await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
-                // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
             }
             catch(e) {
                 console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)

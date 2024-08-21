@@ -63,7 +63,12 @@ export function formatTime(date){
 
 export function getHost(origin){
     if(process.env.NODE_ENV === "production"){
-        return `https://${origin}`;
+        if (origin.length > 0) {
+            return `https://${origin}`;
+        }
+        else {
+            return `https://www.zuugle.at`;
+        }
     }
     return "http://localhost:8080";
 }
