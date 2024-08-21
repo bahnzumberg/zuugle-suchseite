@@ -12,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 import '/src/config.js';
-import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
+// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
@@ -23,14 +23,14 @@ const Start  = lazy(() => import("./views/Start/Start"));
 
 
 function App() {
-  if (!isProduction()) {
-    // Start the Meticulous recorder before you initialise your app.
-    // Note: all errors are caught and logged, so no need to surround with try/catch
-    tryLoadAndStartRecorder({
-      projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
-      isProduction: false,
-    });
-  }
+  // if (!isProduction()) {
+  //   // Start the Meticulous recorder before you initialise your app.
+  //   // Note: all errors are caught and logged, so no need to surround with try/catch
+  //   tryLoadAndStartRecorder({
+  //     projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
+  //     isProduction: false,
+  //   });
+  // }
 
   //check if first visit and change code to domain language
   if(!localStorage.getItem('visited')) {

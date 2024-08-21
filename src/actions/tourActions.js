@@ -23,6 +23,7 @@ import { loadFile, loadList, loadOne, loadOneReturnAll, getMapData } from "./cru
 import i18next from "i18next";
 
 export function loadTours(data = {}) {
+  console.log("L26 data :", data)
   const language = i18next.resolvedLanguage;
   return (dispatch, getState) => {
     data.domain = window.location.host;

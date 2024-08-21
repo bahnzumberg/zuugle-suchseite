@@ -275,7 +275,7 @@ const handleShowCardContainer = useCallback((value) => {
         tours={tours}
         loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
-        loadTours={(data = {}) => loadTours({ ...data, showMap })}
+        loadTours={loadTours}
         pageTours={pageTours}
         loading={loading}
         filterValues={filterValues}
