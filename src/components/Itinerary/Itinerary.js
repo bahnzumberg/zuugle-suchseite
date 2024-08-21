@@ -11,10 +11,6 @@ const Itinerary = ({ connectionData, dateIndex, updateConnIndex, tour, validTour
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
   
-  // console.log("L13 dateIndex :",dateIndex)
-  // console.log("L14 tourDuration :",tourDuration)
-  // console.log("L15 validTour :",validTour)
-
   return (
     <div className="tour-detail-itinerary-container">
       <div className="tour-detail-itinerary">
@@ -32,7 +28,6 @@ const Itinerary = ({ connectionData, dateIndex, updateConnIndex, tour, validTour
               <Divider sx={{ my: "24px" }} />
               {!!connectionData && (
                 <ItineraryTourTimeLineContainer
-                  // connections={connectionData[dateIndex]}
                   connections={connectionData}
                   dateIndex={dateIndex}
                   loading={false}
