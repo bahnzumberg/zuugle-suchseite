@@ -24,8 +24,9 @@ import i18next from "i18next";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
-    return (dispatch, getState) => {
-        data.domain = window.location.host;
+  return (dispatch, getState) => {
+    data.domain = window.location.host;
+    console.log("L31 data :", data)
         return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
     };
 }

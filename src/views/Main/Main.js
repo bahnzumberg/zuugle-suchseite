@@ -81,8 +81,6 @@ export function Main({
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
-
-
   
   useEffect(() => {
     loadAllCities();
@@ -277,7 +275,7 @@ const handleShowCardContainer = useCallback((value) => {
         tours={tours}
         loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
-        loadTours={loadTours}
+        loadTours={(data = {}) => loadTours({ ...data, showMap })}
         pageTours={pageTours}
         loading={loading}
         filterValues={filterValues}
