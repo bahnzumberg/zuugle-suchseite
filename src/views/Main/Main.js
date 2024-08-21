@@ -84,7 +84,7 @@ export function Main({
   
   useEffect(() => {
     loadAllCities();
-    loadRanges({ ignore_limit: true, remove_duplicates: true });
+    // loadRanges({ ignore_limit: true, remove_duplicates: true });
     let searchParamCity = searchParams.get("city");
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {

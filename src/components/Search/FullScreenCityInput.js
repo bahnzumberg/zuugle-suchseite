@@ -54,7 +54,7 @@ function FullScreenCityInput({
           setCityInput={setCityInput}
           isCityLoading={isCityLoading}
           loadFavouriteTours={!!pageKey && pageKey==='start' && loadFavouriteTours}
-          loadRanges={loadRanges}
+          // loadRanges={loadRanges}
           setOpenCitySearch={setOpenCitySearch}
           searchParams={searchParams}
           setSearchParams={setSearchParams}

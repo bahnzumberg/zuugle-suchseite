@@ -79,10 +79,10 @@ function Start({
       try {
         totalTourRef.current = await loadTotalTours(requestConfig);
         await loadAllCities(requestConfig);
-        await loadRanges(
-          { ignore_limit: true, remove_duplicates: true },
-          requestConfig
-        );
+        // await loadRanges(
+        //   { ignore_limit: true, remove_duplicates: true },
+        //   requestConfig
+        // );
         getCity();
 
         if (!!city && !!!searchParamCity) {
