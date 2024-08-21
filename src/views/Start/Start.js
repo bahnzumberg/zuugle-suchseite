@@ -175,7 +175,7 @@ function Start({
       searchParams.set("map", true);
       setSearchParams(searchParams);
     }
-    navigate(`suche?${searchParams.toString()}`);
+    navigate(`search?${searchParams.toString()}`);
   };
 
   const country = getTranslatedCountryName();

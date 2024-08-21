@@ -42,7 +42,7 @@ export const extractCityFromLocation = (location, cities) => {
   if (!!location && location.pathname.startsWith('/')) {
     const pathSegments = location.pathname.split('/').filter(segment => !!segment);
     
-    if (pathSegments.length === 1 && pathSegments[0] === 'suche') {
+    if (pathSegments.length === 1 && pathSegments[0] === 'search') {
       if (!!location && !!location.search) {
         const searchParams = new URLSearchParams(location.search);
         const cityParam = searchParams.get("city");
