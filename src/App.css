@@ -1111,9 +1111,7 @@ body ::-webkit-scrollbar-thumb:hover {
     justify-content: center;
     align-items: flex-start;
   }
-  .tour-detail-properties-el:nth-child(3n-2) {
-    padding: 1rem 0;
-  }
+
 
   .tour-detail-properties {
     display: grid;
