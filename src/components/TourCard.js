@@ -47,13 +47,14 @@ export default function TourCard({
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
   let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
-  let length_anreisedauer = t("details.anreisedauer").length;
-  let length_umstiege = t("start.umstiege").length;
-  let length_dauer = t("main.dauer").length;
-  let length_anstieg = t("filter.anstieg").length;
+  let anreisedauer_notlong = t("details.anreisedauer").length < 14;
+  let umstiege_notlong = t("start.umstiege").length < 14;
+  let dauer_notlong = t("main.dauer").length < 14;
+  let anstieg_notlong = t("filter.anstieg").length < 14;
   let len_too_long = false;
 
-  if (length_anreisedauer > 14 || length_umstiege > 14 || length_dauer > 14 || length_anstieg > 14){
+  // if at least one is too long, flag the "len_too_long" 
+  if ( !anreisedauer_notlong || !umstiege_notlong  || !dauer_notlong || !anstieg_notlong){
     len_too_long = true;
   }
 
@@ -169,9 +170,9 @@ export default function TourCard({
         >
           <Typography
             variant="blueP"
-            style={{ borderRight: "1px solid #DDDDDD" }}
+            style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
-            {len_too_long && t("details.anreisedauer").length <= 14 ? (
+            {len_too_long && anreisedauer_notlong ? (
             <>
               {t("details.anreisedauer")}<br />
             </>
@@ -187,7 +188,7 @@ export default function TourCard({
             variant="blueP"
             style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
           >
-            {len_too_long && t("start.umstiege").length <= 14 ? (
+            {len_too_long && umstiege_notlong ? (
             <>
               {t("start.umstiege")}<br />
             </>
@@ -202,7 +203,7 @@ export default function TourCard({
             variant="blackP"
             style={{ borderRight: "1px solid #DDDDDD" }}
           >
-            {len_too_long && t("main.dauer").length <= 14 ? (
+            {len_too_long && dauer_notlong ? (
             <>
               {t("main.dauer")}<br />
             </>
@@ -214,7 +215,7 @@ export default function TourCard({
           </Typography>
 
           <Typography variant="blackP" styles={{}}>
-            {len_too_long && t("filter.anstieg").length <= 14 ? (
+            {len_too_long && anstieg_notlong ? (
             <>
               {t("filter.anstieg")}<br />
             </>
