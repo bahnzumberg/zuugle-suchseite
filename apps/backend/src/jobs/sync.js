@@ -531,7 +531,7 @@ async function _syncGPX(id, h_url, title){
                     waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
                 }
                 catch(err) {
-                    console.log(`Error in _syncGPX while trying to execute waypoints query`)
+                    console.log(`Error in _syncGPX while trying to execute waypoints query: `, err)
                 }
                 
                 if(!!waypoints && waypoints.length > 0 && !!filePathName){
