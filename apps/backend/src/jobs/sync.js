@@ -1,7 +1,7 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import {createImagesFromMap, last_two_characters} from "../utils/gpx/gpxUtils";
-import {getHost, round} from "../utils/utils";
+import {getHost} from "../utils/utils";
 import moment from "moment";
 const { create } = require('xmlbuilder2');
 const fs = require('fs-extra');

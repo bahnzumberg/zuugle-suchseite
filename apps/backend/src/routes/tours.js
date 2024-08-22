@@ -401,6 +401,28 @@ const listWrapper = async (req, res) => {
         new_search_where_map = `AND c2t.connection_arrival_stop_lon between (${lngSW})::numeric and (${lngNE})::numeric AND c2t.connection_arrival_stop_lat between (${latSW})::numeric AND (${latNE})::numeric `;
     }
 
+    const global_where_condition = `${new_search_where_city}
+                                    ${new_search_where_searchterm}
+                                    ${new_search_where_range}
+                                    ${new_search_where_state}
+                                    ${new_search_where_country}
+                                    ${new_search_where_type}
+                                    ${new_search_where_provider}
+                                    ${new_search_where_language}
+                                    ${new_search_where_map}
+                                    ${new_filter_where_singleDayTour}
+                                    ${new_filter_where_multipleDayTour}
+                                    ${new_filter_where_summerSeason}
+                                    ${new_filter_where_winterSeason}
+                                    ${new_filter_where_traverse}
+                                    ${new_filter_where_minAscent}
+                                    ${new_filter_where_minDescent}
+                                    ${new_filter_where_minTransportDuration}
+                                    ${new_filter_where_minDistance}
+                                    ${new_filter_where_ranges}
+                                    ${new_filter_where_types}
+                                    ${new_filter_where_languages}`;
+
     new_search_sql = `SELECT 
                         t.id, 
                         t.provider, 
@@ -435,27 +457,7 @@ const listWrapper = async (req, res) => {
                         INNER JOIN tour AS t 
                         ON c2t.tour_id=t.id 
                         WHERE c2t.reachable_from_country='${tld}' 
-                        ${new_search_where_city}
-                        ${new_search_where_searchterm}
-                        ${new_search_where_range}
-                        ${new_search_where_state}
-                        ${new_search_where_country}
-                        ${new_search_where_type}
-                        ${new_search_where_provider}
-                        ${new_search_where_language}
-                        ${new_search_where_map}
-                        ${new_filter_where_singleDayTour}
-                        ${new_filter_where_multipleDayTour}
-                        ${new_filter_where_summerSeason}
-                        ${new_filter_where_winterSeason}
-                        ${new_filter_where_traverse}
-                        ${new_filter_where_minAscent}
-                        ${new_filter_where_minDescent}
-                        ${new_filter_where_minTransportDuration}
-                        ${new_filter_where_minDistance}
-                        ${new_filter_where_ranges}
-                        ${new_filter_where_types}
-                        ${new_filter_where_languages}
+                        ${global_where_condition}
                         ORDER BY t.month_order ASC, 
                         CASE WHEN t.text_lang='${currLanguage}' THEN 1 ELSE 0 END DESC,  
                         ${new_search_order_searchterm}
@@ -471,38 +473,32 @@ const listWrapper = async (req, res) => {
 
     // console.log("new_search_sql: ", new_search_sql)
 
+    let result_sql = null;
+    let result = [];
+    try {
+        result_sql = await knex.raw(new_search_sql); // fire the DB call here
+        if (result_sql && result_sql.rows) {
+            result = result_sql.rows;
+        } else {
+            console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
+        }
+    }
+    catch(error) {
+        console.log("Error firing new_search_sql:", error);
+    }
+
     
     // ****************************************************************
     // GET THE COUNT 
     // ****************************************************************
     let sql_count = 0;
     try {
-        const count_sql = `SELECT COUNT(*) AS row_count
+        const count_sql =  `SELECT COUNT(*) AS row_count
                             FROM city2tour AS c2t 
                             INNER JOIN tour AS t 
                             ON c2t.tour_id=t.id 
                             WHERE c2t.reachable_from_country='${tld}' 
-                            ${new_search_where_city}
-                            ${new_search_where_searchterm}
-                            ${new_search_where_range}
-                            ${new_search_where_state}
-                            ${new_search_where_country}
-                            ${new_search_where_type}
-                            ${new_search_where_provider}
-                            ${new_search_where_language}
-                            ${new_search_where_map}
-                            ${new_filter_where_singleDayTour}
-                            ${new_filter_where_multipleDayTour}
-                            ${new_filter_where_summerSeason}
-                            ${new_filter_where_winterSeason}
-                            ${new_filter_where_traverse}
-                            ${new_filter_where_minAscent}
-                            ${new_filter_where_minDescent}
-                            ${new_filter_where_minTransportDuration}
-                            ${new_filter_where_minDistance}
-                            ${new_filter_where_ranges}
-                            ${new_filter_where_types}
-                            ${new_filter_where_languages}`
+                            ${global_where_condition}`
         let count_query = knex.raw(count_sql); 
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
@@ -512,71 +508,39 @@ const listWrapper = async (req, res) => {
     }
 
 
-
     // ****************************************************************
     // CALLING DATABASE FOR MARKERS
     // ****************************************************************
-    let result = '';
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
     
-    
+    if (!!map) {
         try {
-            result = await knex.raw(new_search_sql); // fire the DB call here
-            if (result && result.rows) {
-                result = result.rows;
+            // markers-related / searchIncluded
+            const markers_sql = `SELECT 
+                            t.id, 
+                            c2t.connection_arrival_stop_lat as lat,
+                            c2t.connection_arrival_stop_lon as lon
+                            FROM city2tour AS c2t 
+                            INNER JOIN tour AS t 
+                            ON c2t.tour_id=t.id 
+                            WHERE c2t.reachable_from_country='${tld}' 
+                            ${global_where_condition}
+                            AND c2t.connection_arrival_stop_lat IS NOT NULL 
+                            AND c2t.connection_arrival_stop_lon IS NOT NULL;`;
+            markers_result = await knex.raw(markers_sql); // fire the DB call here
+            
+            // markers-related
+            if (!!markers_result && !!markers_result.rows) {
+            markers_array = markers_result.rows; // This is to be passed to the response below
             } else {
-                console.log('knex.raw(new_search_sql): result or result.rows is null or undefined.');
-            }
-            console.log("map: ", map)
-    
-            if (!!map) {
-              // markers-related / searchIncluded
-              const markers_sql = `SELECT 
-                t.id, 
-                c2t.connection_arrival_stop_lat as lat,
-                c2t.connection_arrival_stop_lon as lon
-                FROM city2tour AS c2t 
-                INNER JOIN tour AS t 
-                ON c2t.tour_id=t.id 
-                WHERE c2t.reachable_from_country='${tld}' 
-                ${new_search_where_city}
-                ${new_search_where_searchterm}
-                ${new_search_where_range}
-                ${new_search_where_state}
-                ${new_search_where_country}
-                ${new_search_where_type}
-                ${new_search_where_provider}
-                ${new_search_where_language}
-                ${new_search_where_map}
-                ${new_filter_where_singleDayTour}
-                ${new_filter_where_multipleDayTour}
-                ${new_filter_where_summerSeason}
-                ${new_filter_where_winterSeason}
-                ${new_filter_where_traverse}
-                ${new_filter_where_minAscent}
-                ${new_filter_where_minDescent}
-                ${new_filter_where_minTransportDuration}
-                ${new_filter_where_minDistance}
-                ${new_filter_where_ranges}
-                ${new_filter_where_types}
-                ${new_filter_where_languages}
-                AND c2t.connection_arrival_stop_lat IS NOT NULL 
-                AND c2t.connection_arrival_stop_lon IS NOT NULL;`;
-              markers_result = await knex.raw(markers_sql); // fire the DB call here
-              
-              // markers-related
-              if (!!markers_result && !!markers_result.rows) {
-                console.log("markers_result: ", markers_result)
-                markers_array = markers_result.rows; // This is to be passed to the response below
-              } else {
-                console.log("markers_result is null or undefined");
-              }
+            console.log("markers_result is null or undefined");
             }    
         } 
         catch (error) {
-            console.log("tours.js: error retrieving results or markers_result:" + error);
+            console.log("tours.js: error retrieving markers_result:" + error);
         }
+    }
 
 
     
@@ -605,11 +569,9 @@ const listWrapper = async (req, res) => {
     // returning the final result array.
     if(result && Array.isArray(result)){
         await Promise.all(result.map(entry => new Promise(async resolve => {
-
             // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
             entry = await prepareTourEntry(entry, city, domain, addDetails);
             resolve(entry);
-
         })));
     }
 
@@ -758,8 +720,13 @@ const filterWrapper = async (req, res) => {
 
     /** load full result for filter */
     let filterResultList = await queryForFilter;
+    let filterresult = buildFilterResult(filterResultList, city, req.query)
 
-    res.status(200).json({success: true, filter: buildFilterResult(filterResultList, city, req.query)});
+    // console.log("whereRaw: ", whereRaw)
+    // console.log("filterresult: ", filterresult)
+
+
+    res.status(200).json({success: true, filter: filterresult});
 }
 
 
@@ -928,11 +895,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
     return _duplicatesRemoved;
 }
 
-// TODO : gpxWrapper seems to be dead code / check if gpxWrapper is being used in a client api call
-// const gpxWrapper = async (req, res) => {
-//    createImageFromMap();
-//    res.status(200).json({success: true });
-// }
+
 
 const mapConnectionToFrontend = (connection) => {
     if(!!!connection){
