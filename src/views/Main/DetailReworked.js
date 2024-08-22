@@ -145,7 +145,7 @@ const DetailReworked = (props) => {
   );
 
   //max number of characters used per specific UI element (buttons)
-  const maxLength = 40;
+  const maxLength = 35;
 
   const [providerPermit, setProviderPermit] = useState(true);
 
@@ -414,7 +414,7 @@ useEffect(() => {
                 size={"small"}
               />
             ) : (
-              <span style={{ color: "#8B8B8B" }}>
+              <span style={{ color: "#8B8B8B", paddingLeft: "8px" }}>
                 {t("details.track_gps_geraet")}
               </span>
             )}
@@ -434,7 +434,7 @@ useEffect(() => {
           <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
             {t("details.teilen")}
           </span>
-          <span style={{ color: "#8B8B8B", marginLeft: "15px" }}>
+          <span style={{ color: "#8B8B8B", marginLeft: "15px" , paddingLeft: "8px"}}>
             {shortenText(t("details.teilen_description"), 0, maxLength)}
           </span>
         </Button> 
