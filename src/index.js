@@ -9,13 +9,20 @@ import { Helmet } from 'react-helmet';
 import { Provider } from 'react-redux';
 import "./translations/i18n";
 import {BrowserRouter} from "react-router-dom";
+import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+if (process.env.NODE_ENV === 'production' && window.location.href.indexOf("www.zuugle.") >= 0) {
+  tryLoadAndStartRecorder({
+    projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
+    isProduction: false,
+  });
+}
+
 export const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)
 ));
-
-
 
 //description:
 //This code is a workaround for a bug in Internet Explorer Mobile 10.0, where the viewport size is not calculated properly. The code detects if the user agent matches this version of IE Mobile and then injects a style tag into the HTML head, which sets the width of the viewport to "auto!important", overriding any previous CSS rules. This fixes the bug and allows the page to be displayed correctly on IE Mobile 10.0.
