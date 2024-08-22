@@ -4,7 +4,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { theme } from "./theme";
 import ModalRoot from "./components/ModalRoot";
 import { Route, Routes, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useCallback } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 // import Start from "./views/Start/Start";
 // import DetailReworked from "./views/Main/DetailReworked";
@@ -12,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import i18next from "i18next";
 import { getTopLevelDomain } from "./utils/globals";
 import '/src/config.js';
-// import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
+import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
@@ -22,15 +22,20 @@ const Search  = lazy(() => import("./components/Search/Search"));
 const Start  = lazy(() => import("./views/Start/Start"));
 
 
+
+
 function App() {
-  // if (!isProduction()) {
-  //   // Start the Meticulous recorder before you initialise your app.
-  //   // Note: all errors are caught and logged, so no need to surround with try/catch
-  //   tryLoadAndStartRecorder({
-  //     projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
-  //     isProduction: false,
-  //   });
-  // }
+  if (process.env.NODE_ENV === 'production' && window.location.href.indexOf("www.zuugle.") >= 0) {
+    handleMeticoulus();
+  }
+
+  const handleMeticoulus = useCallback(() => {
+    tryLoadAndStartRecorder({
+      projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
+      isProduction: false,
+    });
+  }, []);
+  
 
   //check if first visit and change code to domain language
   if(!localStorage.getItem('visited')) {
@@ -66,9 +71,6 @@ function App() {
     _mtm.push({'language': language});
   });
 
-  function isProduction() {
-    return window.location.hostname.indexOf("www.zuugle.") > -1;
-  }
 
 
   return (
