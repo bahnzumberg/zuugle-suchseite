@@ -685,7 +685,7 @@ useEffect(() => {
                       </div>
                     </Box>
                   )}
-                  {
+                  { (!!_city && _city !== "no-city" && !!idOne) &&
                     (
                       <Box className="tour-detail-conditional-desktop">
                         {actionButtonPart}
@@ -719,7 +719,7 @@ useEffect(() => {
                   </Box>
                 )}
                 {
-                  !!validTour && (
+                  !!validTour && (!!_city && _city !== "no-city" && !!idOne) && (
                     <Box className="tour-detail-conditional-mobile">
                     {actionButtonPart}
                   </Box>
