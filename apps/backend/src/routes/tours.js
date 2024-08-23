@@ -7,7 +7,6 @@ import {getHost, replaceFilePath, round, get_domain_country } from "../utils/uti
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
-import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
 const path = require('path');
@@ -766,8 +765,6 @@ const connectionsWrapper = async (req, res) => {
     let filteredConnections = [];
     connections.forEach(t => {
         if(!!!filteredConnections.find(tt => compareConnections(t, tt))){
-            t = mapConnectionToFrontend(t)
-
             filteredConnections.push(t);
         }
     })
@@ -776,7 +773,6 @@ const connectionsWrapper = async (req, res) => {
     getConnectionsByWeekday(connections, weekday).forEach(t => {
         /** Die Rückreisen werden nach aktuellem Tag gefiltert -> kann man machen, muss man aber nicht. Wenn nicht gefiltert, werden alle Rückreisen für alle Wochentage angezeigt, was eine falsche Anzahl an Rückreisen ausgibt */
         if(!!!filteredReturns.find(tt => compareConnectionReturns(t, tt))){
-            t = mapConnectionReturnToFrontend(t)
             t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(t.fromtour_track_key)}/${t.fromtour_track_key}.gpx`;
 
             filteredReturns.push(t);
@@ -850,7 +846,6 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
             if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
-                e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
             }
@@ -889,39 +884,11 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
         if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
-            e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
         }
     });
     return _duplicatesRemoved;
-}
-
-
-
-const mapConnectionToFrontend = (connection) => {
-    if(!!!connection){
-        return connection;
-    }
-    let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
-    // connection.connection_departure_arrival_datetime_string = `${moment(connection.connection_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.connection_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-
-    connection.connection_description_parsed = parseConnectionDescription(connection);
-    connection.return_description_parsed = parseReturnConnectionDescription(connection);
-
-    return connection;
-}
-
-const mapConnectionReturnToFrontend = (connection) => {
-    if(!!!connection){
-        return connection;
-    }
-
-    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
-    connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-    // connection.return_description_parsed = parseReturnConnectionDescription(connection);
-
-    return connection;
 }
 
 
@@ -956,25 +923,7 @@ const getWeekday = (date) => {
     }
 }
 
-const parseConnectionDescription = (connection) => {
-    if(!!connection && !!connection.connection_description_json){
-        let splitted = jsonToStringArray(connection, 'to');  
-        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
 
-        return splitted;
-    }
-    return [];
-}
-
-const parseReturnConnectionDescription = (connection) => {
-    if(!!connection && !!connection.return_description_json){
-        let splitted = jsonToStringArray(connection, 'from');  
-        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
-        
-        return splitted;
-    }
-    return [];
-}
 
 const buildFilterResult = (result, city, params) => {
     let types = [];
