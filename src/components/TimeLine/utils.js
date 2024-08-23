@@ -183,6 +183,10 @@ export const createEntries = (entries, connection, t) => {
     }
     let newStart = "     ";
     if (!!connection.totour_track_duration) {
+
+      console.log("connection: ", connection)
+      console.log("connection.connection_arrival_datetime: ", connection.connection_arrival_datetime)
+      
       newStart = moment(connection.connection_arrival_datetime).add(
         moment(connection["totour_track_duration"], "HH:mm:ss").minutes(),
         "minutes"
@@ -361,50 +365,6 @@ export const getBorder = (index, length) => {
   }
 };
 
-export const getDetailedEntries = (
-  connection,
-  field1 = "connection_description_parsed"
-) => {
-  if (!!!connection || !!!connection[field1] || connection[field1].length < 2) {
-    return <Fragment></Fragment>;
-  }
-
-  let entries = connection[field1].slice(1);
-
-  return entries.map((entry, index) => {
-    return (
-      <TimelineItem key={randomKey(7)}>
-        <TimelineOppositeContent
-          color="text.secondary"
-          sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
-          className={"timeline-opposite-container"}
-        >
-          <div>{getIconFromText(entry)}</div>
-        </TimelineOppositeContent>
-        <TimelineSeparator sx={{ minWidth: "12px" }}>
-          <TimelineConnector
-            sx={{ backgroundColor: "#4992FF", width: "3px" }}
-          />
-        </TimelineSeparator>
-        <TimelineContent
-          sx={{
-            ...getBorder(index, entries.length),
-            paddingTop: "16px",
-            paddingBottom: "16px",
-          }}
-        >
-          <Typography
-            variant={"text"}
-            color={"#8B8B8B"}
-            sx={{ fontSize: "14px", lineHeight: "16px" }}
-          >
-            {entry}
-          </Typography>
-        </TimelineContent>
-      </TimelineItem>
-    );
-  });
-};
 
 export const getWalkEntry = (
   connection,
