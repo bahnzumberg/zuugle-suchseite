@@ -804,6 +804,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     const fahrplan_sql = `SELECT 
                           f.calendar_date,
                           f.connection_departure_datetime,
+                          f.connection_arrival_datetime,
                           f.connection_duration,
                           f.connection_no_of_transfers,
                           f.connection_returns_trips_back,
@@ -828,6 +829,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     if (!!fahrplan_result && !!fahrplan_result.rows) {
         connections = fahrplan_result.rows.map(connection => {
             connection.connection_departure_datetime = momenttz(connection.connection_departure_datetime).tz('Europe/Berlin').format();
+            connection.connection_arrival_datetime = momenttz(connection.connection_arrival_datetime).tz('Europe/Berlin').format();
             connection.return_departure_datetime = momenttz(connection.return_departure_datetime).tz('Europe/Berlin').format();
             return connection;
         });
@@ -902,7 +904,7 @@ const mapConnectionToFrontend = (connection) => {
         return connection;
     }
     let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
-    connection.connection_departure_arrival_datetime_string = `${moment(connection.connection_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.connection_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
+    // connection.connection_departure_arrival_datetime_string = `${moment(connection.connection_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.connection_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
 
     connection.connection_description_parsed = parseConnectionDescription(connection);
     connection.return_description_parsed = parseReturnConnectionDescription(connection);
@@ -975,7 +977,6 @@ const parseReturnConnectionDescription = (connection) => {
 }
 
 const buildFilterResult = (result, city, params) => {
-
     let types = [];
     let ranges = [];
     let languages = [];
