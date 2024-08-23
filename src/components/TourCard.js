@@ -47,10 +47,10 @@ export default function TourCard({
   let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
   let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
-  let anreisedauer_notlong = t("details.anreisedauer").length < 14;
-  let umstiege_notlong = t("start.umstiege").length < 14;
-  let dauer_notlong = t("main.dauer").length < 14;
-  let anstieg_notlong = t("filter.anstieg").length < 14;
+  let anreisedauer_notlong = t("details.anreisedauer").length < 100;
+  let umstiege_notlong = t("start.umstiege").length < 100;
+  let dauer_notlong = t("main.dauer").length < 100;
+  let anstieg_notlong = t("filter.anstieg").length < 100;
   let len_too_long = false;
 
   // if at least one is too long, flag the "len_too_long" 
