@@ -263,12 +263,6 @@ if(emptyConnArray){
                   </Link>
                 );
               })}
-
-              {/* {!cities || (!!cities && cities.length === 0) && (
-                <ListItem key={randomKey(7)}>
-                  <ListItemText secondary={"Did not find anything?"} />
-                </ListItem>
-              )} */}
             </List>
           </Box>
         )}

@@ -9,16 +9,8 @@ import { Helmet } from 'react-helmet';
 import { Provider } from 'react-redux';
 import "./translations/i18n";
 import {BrowserRouter} from "react-router-dom";
-import { tryLoadAndStartRecorder } from '@alwaysmeticulous/recorder-loader'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-if (process.env.NODE_ENV === 'production' && window.location.href.indexOf("www.zuugle.") >= 0) {
-  tryLoadAndStartRecorder({
-    projectId: '0HjVPphxK3XDsQ4ka8QMwfxlMW204RtKu2bL92KO',
-    isProduction: false,
-  });
-}
 
 export const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)

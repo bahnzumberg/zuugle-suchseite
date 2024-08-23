@@ -20,32 +20,11 @@ export function CityResultList({
   loadFavouriteTours,
   searchParams,
   setSearchParams,
-  showNotFoundEntry = true,
   onSelect,
   idOne,
   cityOne
 }) {
 
-
-  const notFoundEntry = () => {
-    return (
-      <ListItem className={"not-found-entry"}>
-        <ListItemText
-          primary={
-            <Typography>
-              <Typography sx={{ fontWeight: 800 }}>
-                Deinen nahegelegenen Bahnhof nicht gefunden?
-              </Typography>
-              <Typography sx={{ maxWidth: "700px" }}>
-                Wir erweitern laufend die verfügbaren Ausgangspunkte und die
-                Touren.
-              </Typography>
-            </Typography>
-          }
-        />
-      </ListItem>
-    );
-  };
 
   const writeCityToLocalStorage = (city) => {
     localStorage.setItem("city", city);
@@ -130,14 +109,14 @@ export function CityResultList({
         );
       })}
       
+      /*
+      // Either this get's a proper translation, or we leave it out
       {!cities.length && (
         <ListItem>
           <ListItemText secondary={"Did not find anything?"} />
         </ListItem>
       )}
-
-      {/* {renderLinksBasedOnHost()} */}
-      {!!showNotFoundEntry && notFoundEntry()}
+      */
     </List>
   );
 }

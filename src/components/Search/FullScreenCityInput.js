@@ -58,7 +58,6 @@ function FullScreenCityInput({
           setOpenCitySearch={setOpenCitySearch}
           searchParams={searchParams}
           setSearchParams={setSearchParams}
-          showNotFoundEntry={false}
           onSelect={onSelect}
           idOne={idOne}
           cityOne={cityOne}
