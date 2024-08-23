@@ -5,7 +5,6 @@ import tours from './routes/tours';
 import cities from './routes/cities';
 import language from './routes/language';
 import authenticate from "./middlewares/authenticate";
-import {BrowserService} from "./utils/pdf/BrowserService";
 import {getZuugleCors, hostMiddleware} from "./utils/zuugleCors";
 import searchPhrases from "./routes/searchPhrases";
 
@@ -47,40 +46,3 @@ app.use('/api/searchPhrases', cors(corsOptions), hostMiddleware, authenticate, s
 
 
 app.listen(port, () => console.log('Running on localhost:' + port));
-
-(async () => {
-    await BrowserService.getInstance();
-})();
-
-process.on ('SIGTERM', async () => {
-    await shutdownBrowser();
-});
-process.on ('SIGINT', async () => {
-    await shutdownBrowser();
-});
-process.on('exit',  async () => {
-    await shutdownBrowser();
-});
-
-if(process.env.NODE_ENV !== "production"){
-    process.once('SIGUSR2', async function () {
-        await shutdownBrowser();
-        process.kill(process.pid, 'SIGUSR2');
-    });
-}
-
-const shutdownBrowser = async () => {
-    try {
-        const instance = await BrowserService.getInstance();
-        if(!!instance){
-            const browser = instance.getBrowser();
-            if(!!browser){
-                await browser.close();
-                console.log('pupeteer browser successfully closed...')
-            }
-        }
-    } catch(e){
-        console.log('error closing pupeteer browser: ', e)
-    }
-}
-

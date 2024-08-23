@@ -7,7 +7,6 @@ import {getHost, replaceFilePath, round, get_domain_country } from "../utils/uti
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
-import { jsonToStringArray } from '../utils/pdf/utils';
 
 const fs = require('fs');
 const path = require('path');
@@ -810,8 +809,6 @@ const connectionsWrapper = async (req, res) => {
     let filteredConnections = [];
     connections.forEach(t => {
         if(!!!filteredConnections.find(tt => compareConnections(t, tt))){
-            t = mapConnectionToFrontend(t)
-
             filteredConnections.push(t);
         }
     })
@@ -820,7 +817,6 @@ const connectionsWrapper = async (req, res) => {
     getConnectionsByWeekday(connections, weekday).forEach(t => {
         /** Die Rückreisen werden nach aktuellem Tag gefiltert -> kann man machen, muss man aber nicht. Wenn nicht gefiltert, werden alle Rückreisen für alle Wochentage angezeigt, was eine falsche Anzahl an Rückreisen ausgibt */
         if(!!!filteredReturns.find(tt => compareConnectionReturns(t, tt))){
-            t = mapConnectionReturnToFrontend(t)
             t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(t.fromtour_track_key)}/${t.fromtour_track_key}.gpx`;
 
             filteredReturns.push(t);
@@ -848,6 +844,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     const fahrplan_sql = `SELECT 
                           f.calendar_date,
                           f.connection_departure_datetime,
+                          f.connection_arrival_datetime,
                           f.connection_duration,
                           f.connection_no_of_transfers,
                           f.connection_returns_trips_back,
@@ -872,6 +869,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     if (!!fahrplan_result && !!fahrplan_result.rows) {
         connections = fahrplan_result.rows.map(connection => {
             connection.connection_departure_datetime = momenttz(connection.connection_departure_datetime).tz('Europe/Berlin').format();
+            connection.connection_arrival_datetime = momenttz(connection.connection_arrival_datetime).tz('Europe/Berlin').format();
             connection.return_departure_datetime = momenttz(connection.return_departure_datetime).tz('Europe/Berlin').format();
             return connection;
         });
@@ -892,7 +890,6 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
             if(!!!duplicatesRemoved.find(tt => compareConnections(e, tt))){
-                e = mapConnectionToFrontend(e, today.format());
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
             }
@@ -931,39 +928,11 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, 'HH:mm:ss'));
 
         if(!!!_duplicatesRemoved.find(tt => compareConnectionReturns(e, tt))){
-            e = mapConnectionToFrontend(e, today.format())
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
         }
     });
     return _duplicatesRemoved;
-}
-
-
-
-const mapConnectionToFrontend = (connection) => {
-    if(!!!connection){
-        return connection;
-    }
-    let durationFormatted = convertNumToTime(connection.connection_duration_minutes / 60);
-    connection.connection_departure_arrival_datetime_string = `${moment(connection.connection_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.connection_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-
-    connection.connection_description_parsed = parseConnectionDescription(connection);
-    connection.return_description_parsed = parseReturnConnectionDescription(connection);
-
-    return connection;
-}
-
-const mapConnectionReturnToFrontend = (connection) => {
-    if(!!!connection){
-        return connection;
-    }
-
-    let durationFormatted = convertNumToTime(connection.return_duration_minutes / 60); // returns a string : `${hour} h ${minute} min`
-    connection.return_departure_arrival_datetime_string = `${moment(connection.return_departure_datetime).format('DD.MM. HH:mm')}-${moment(connection.return_arrival_datetime).format('HH:mm')} (${durationFormatted})`;
-    // connection.return_description_parsed = parseReturnConnectionDescription(connection);
-
-    return connection;
 }
 
 
@@ -998,24 +967,139 @@ const getWeekday = (date) => {
     }
 }
 
-const parseConnectionDescription = (connection) => {
-    if(!!connection && !!connection.connection_description_json){
-        let splitted = jsonToStringArray(connection, 'to');  
-        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
 
-        return splitted;
-    }
-    return [];
-}
 
-const parseReturnConnectionDescription = (connection) => {
-    if(!!connection && !!connection.return_description_json){
-        let splitted = jsonToStringArray(connection, 'from');  
-        splitted = splitted.map(item => item.replace(/\s*\|\s*/, '').replace(/,/g, ', ') + '\n');
+const buildFilterResult = (result, city, params) => {
+    let types = [];
+    let ranges = [];
+    let languages = [];
+    let isSingleDayTourPossible = false;
+    let isMultipleDayTourPossible = false;
+    let isSummerTourPossible = false;
+    let isWinterTourPossible = false;
+    let maxAscent = 0;
+    let maxDescent = 0;
+    let minAscent = 10000;
+    let minDescent = 10000;
+    let maxDistance = 0;
+    let minDistance = 10000;
+    let isTraversePossible = false;
+    let minTransportDuration = 10000;
+    let maxTransportDuration = 0;
+
+    result.forEach(tour => {
+
+        if(!!!tour.type){
+            tour.type = "Keine Angabe"
+        }
+        if(!!!tour.range){
+            tour.range = "Keine Angabe"
+        }
+        if(!!!tour.text_lang){
+            tour.text_lang = "Keine Angabe"
+        }
+        if(!!tour.type && !!!types.find(t => tour.type === t)){
+            types.push(tour.type);
+        }
+        if(!!tour.range && !!!ranges.find(t => tour.range === t)){
+            ranges.push(tour.range);
+        }
+        if(!!tour.text_lang && !!!languages.find(t => tour.text_lang === t)){
+            languages.push(tour.text_lang);
+        }
+        if(!!!isSingleDayTourPossible && tour.number_of_days == 1){
+            isSingleDayTourPossible = true;
+        } else if(!!!isMultipleDayTourPossible && tour.number_of_days > 1){
+            isMultipleDayTourPossible = true;
+        }
+
+        if(!!!isSummerTourPossible && (tour.season == "s" || tour.season == "n") ){
+            isSummerTourPossible = true;
+        }
+        if(!!!isWinterTourPossible && (tour.season == "w" || tour.season == "n") ){
+            isWinterTourPossible = true;
+        }
+
+        if(tour.ascent > maxAscent){
+            maxAscent = tour.ascent;
+        }
+
+        if(tour.ascent < minAscent){
+            minAscent = tour.ascent;
+        }
+
+        if(tour.descent > maxDescent){
+            maxDescent = tour.descent;
+        }
+
+        if(tour.descent < minDescent){
+            minDescent = tour.descent;
+        }
+
+        if(parseFloat(tour.distance) > maxDistance){
+            maxDistance = parseFloat(tour.distance);
+        }
+
+        if(parseFloat(tour.distance) < minDistance){
+            minDistance = parseFloat(tour.distance);
+        }
+
+        if(!!!isTraversePossible && (tour.traverse == 1) ){
+            isTraversePossible = true;
+        }
+
+        if(maxAscent > 3000){
+            maxAscent = 3000;
+        }
+        if(maxDescent > 3000){
+            maxDescent = 3000;
+        }
+
+        if(maxDistance > 80){
+            maxDistance = 80;
+        }
         
-        return splitted;
+
+        if(!!tour.min_connection_duration){
+            if(parseFloat(tour.min_connection_duration) > maxTransportDuration){
+                maxTransportDuration = parseFloat(tour.min_connection_duration);
+            }
+            if(parseFloat(tour.min_connection_duration) < minTransportDuration){
+                minTransportDuration = parseFloat(tour.min_connection_duration);
+            }
+        }
+
+    });
+
+    if(!!types){
+        types.sort();
     }
-    return [];
+
+    if(!!ranges){
+        ranges.sort();
+    }
+    if(!!languages){
+        languages.sort();
+    }
+
+    return {
+        types,
+        ranges,
+        isSingleDayTourPossible,
+        isMultipleDayTourPossible,
+        isSummerTourPossible,
+        isWinterTourPossible,
+        maxAscent,
+        minAscent,
+        maxDescent,
+        minDescent,
+        maxDistance,
+        minDistance,
+        isTraversePossible,
+        minTransportDuration: round((minTransportDuration / 60), 2),
+        maxTransportDuration: round((maxTransportDuration / 60), 2),
+        languages
+    };
 }
 
 
