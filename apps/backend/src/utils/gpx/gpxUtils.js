@@ -101,7 +101,6 @@ export const createImagesFromMap = async (ids) => {
                     
                     // let filePath = path.join(dirPath, ch+"_gpx.jpg");
                     let filePath = path.join(dirPath, ch+"_gpx.png");
-                    let filePathSmall = path.join(dirPath, ch+"_gpx_small.jpg");
                     let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
 
                     if (!!filePathSmallWebp && !!!fs.existsSync(filePathSmallWebp)) {
@@ -109,21 +108,12 @@ export const createImagesFromMap = async (ids) => {
 
                         if (fs.existsSync(filePath)){
                             try {
-                                // console.log("filePath=", filePath)
-                                // console.log("filePathSmall=", filePathSmall)
-                                await sharp(filePath).resize({
-                                    width: 784, // 392,
-                                    height: 523, // 261,
-                                    fit: "inside"
-                                }).jpeg({quality: 15}).toFile(filePathSmall);
-
                                 await sharp(filePath).resize({
                                     width: 784, // 392,
                                     height: 523, // 261,
                                     fit: "inside"
                                     }).webp({quality: 15}) // Change to WebP format
                                     .toFile(filePathSmallWebp);
-
                             }
                             catch(e) {
                                 console.error("gpxUtils.sharp.resize error: ",e)
@@ -131,7 +121,7 @@ export const createImagesFromMap = async (ids) => {
 
                             try {
                                 if (fs.existsSync(filePathSmallWebp)){
-                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmall);
+                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
 
                                     // Now we want to insert the correct image_url into table tour
