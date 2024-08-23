@@ -96,6 +96,7 @@ export function loadTotalTours() {
 }
 
 export function loadTourConnections(data) {
+  // Used on the first page (Startpage)
   const language = i18next.resolvedLanguage;
   // output: {city: "wien", domain: "localhost:3000", id: 102411}
   return (dispatch, getState) => {
@@ -107,7 +108,7 @@ export function loadTourConnections(data) {
 }
 
 export function loadTourConnectionsExtended(data) {
-
+  // Used as the search page
   return (dispatch, getState) => {
     data.domain = window.location.host;
   

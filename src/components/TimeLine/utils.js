@@ -183,10 +183,7 @@ export const createEntries = (entries, connection, t) => {
     }
     let newStart = "     ";
     if (!!connection.totour_track_duration) {
-
-      console.log("connection: ", connection)
-      console.log("connection.connection_arrival_datetime: ", connection.connection_arrival_datetime)
-      
+    
       newStart = moment(connection.connection_arrival_datetime).add(
         moment(connection["totour_track_duration"], "HH:mm:ss").minutes(),
         "minutes"
