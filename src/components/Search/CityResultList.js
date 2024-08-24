@@ -109,14 +109,11 @@ export function CityResultList({
         );
       })}
       
-      /*
-      // Either this get's a proper translation, or we leave it out
       {!cities.length && (
         <ListItem>
-          <ListItemText secondary={"Did not find anything?"} />
+          <ListItemText secondary={""} />
         </ListItem>
       )}
-      */
     </List>
   );
 }
