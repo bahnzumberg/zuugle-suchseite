@@ -649,15 +649,39 @@ const filterWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // gets the languages from the query
 
+    console.log("req.query: ", req.query)
 
     // Where Condition is only depending on country, city and search term(s)
 
-    // let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang']);
-    let query = knex('tour')
-                .join('city2tour', 'city2tour.tour_id', 'tour.id')
-                .select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang', 'min_connection_duration'])
+    let filterresult = [];
+    let tld = get_domain_country(domain);
+    let where_city = ` AND c2t.stop_selector='y' `;
+    let new_search_where_searchterm = '';
 
-    let sql =  `SELECT 
+    if(!!city && city.length > 0){
+        where_city = ` AND c2t.city_slug='${city}' `;
+    }
+
+    if (!!search && !!search.length > 0) {
+        let postgresql_language_code = 'german'
+
+        if (language == 'sl') {
+            postgresql_language_code = 'simple'
+        }
+        else if (language == 'fr') {
+            postgresql_language_code = 'french'
+        }
+        else if (language == 'it') {
+            postgresql_language_code = 'italian'
+        }
+        else if (language == 'en') {
+            postgresql_language_code = 'english'
+        }
+
+        new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
+    }
+
+    let filter_sql =  `SELECT 
                 CASE WHEN MIN(t.number_of_days)=1 THEN TRUE ELSE FALSE END AS isSingleDayTourPossible,
                 CASE WHEN MAX(t.number_of_days)=2 THEN TRUE ELSE FALSE END AS isMultipleDayTourPossible,
                 CASE WHEN SUM(CASE WHEN t.season='s' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSummerTourPossible,
@@ -676,78 +700,18 @@ const filterWrapper = async (req, res) => {
                 ON c2t.tour_id=t.id  
                 INNER JOIN fahrplan AS f
                 ON f.hashed_url=t.hashed_url                           
-                WHERE c2t.reachable_from_country='AT'  
-                AND c2t.city_slug='wien';`
+                WHERE c2t.reachable_from_country='${tld}'  
+                ${where_city}
+                ${new_search_where_searchterm};`
+    console.log("filter_sql: ", filter_sql)            
 
-    let where = {};
-    let tld = get_domain_country(domain);
-    let whereRaw = ` city2tour.reachable_from_country='${tld}' `;
-
-    /** city search */
-    if(!!city && city.length > 0){
-        whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
-    }
-    else {
-        whereRaw = whereRaw + ` AND city2tour.stop_selector='y' `;
+    let filter_result = await knex.raw(filter_sql)
+    if (!!filter_result && !!filter_result.rows) {
+        filterresult = filter_result.rows;
     }
 
+    console.log("filterresult: ", filterresult)
 
-    /** region search */
-    if(!!range && range.length > 0){
-        where.range = range;
-    }
-    if(!!state && state.length > 0){
-        where.state = state;
-    }
-    if(!!country && country.length > 0){
-        where.country = country;
-    }
-
-    /** type search */
-    if(!!type && type.length > 0){
-        where.type = type;
-    }
-
-    /** language search */
-    if(!!language && language.length > 0){
-        where.language = language;
-    }
-
-    /** provider search */
-    if(!!provider && provider.length > 0){
-        where.provider = provider;
-    }
-
-    try {
-        /** fulltext search */
-        if(!!search && search.length > 0){
-            let _search = search.trim().toLowerCase();
-            if(_search.indexOf(' ') > 0){
-                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`
-            }
-            else {
-                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
-            }
-        }
-    } catch(e){
-        console.error('error creating fulltext search: ', e);
-    }
-
-    if(!!where && Object.keys(where).length > 0){
-        query = query.where(where);
-    }
-    if(!!whereRaw && whereRaw.length > 0){
-        query = query.andWhereRaw(whereRaw);
-    }
-
-    /** filter search */
-    let queryForFilter = query.clone();
-
-    /** load full result for filter */
-    let filterResultList = await queryForFilter;
-
-    // console.log("whereRaw: ", whereRaw)
-    // console.log("filterresult: ", filterresult)
 
     /*
     filterresult {
