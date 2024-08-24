@@ -89,8 +89,8 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const h = t('details.h_hour');
 
     let sportTypesArray = [
-        {"Bike & Hike": t('filter.bike_hike')},
-        {"Hochtour": t('filter.hochtour')},
+        { "Bike & Hike": t('filter.bike_hike')},
+        { "Hochtour": t('filter.hochtour')},
         { "Klettern" : t('filter.klettern')},
         { "Klettersteig" : t('filter.klettersteig')},
         { "Langlaufen" : t('filter.langlaufen')},
