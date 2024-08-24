@@ -22,6 +22,7 @@ import {connect} from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from 'react-i18next';
 
+
 function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoadingFilter, visibleToursGPXSouthWest, visibleToursGPXNorthEast}){
 
     const [singleDayTour, setSingleDayTour] = useState(true);
@@ -51,8 +52,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
     const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
     const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
 
-    
-    
 
     // Translation-related
     const {t} = useTranslation();
