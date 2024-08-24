@@ -382,7 +382,6 @@ export function Search({
       onSelect: async (city) => {
         
         if (!!city) {
-          console.log("L413 Search / else if inside onSelect :", city)
           setCityInput(city.label);
           setCity(city);
           pageKey === "start" && updateCapCity(city.label);
@@ -683,7 +682,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-                {t("start.heimatbahnhof")}
+              {t("start.heimatbahnhof")}
               </span>
             </div>
             <Box
