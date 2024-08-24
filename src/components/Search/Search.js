@@ -837,11 +837,26 @@ export function Search({
                   }}
                 >
                   {pageKey !== "detail" ? (
-                    <span className="search-bar--city">
-                      {cityInput.length > 0
-                        ? cityInput
-                        : t("start.heimatbahnhof")}
-                    </span>
+                    <Box
+                    className="search-bar--city"
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    {cityInput.length > 0 ? (
+                      <>
+                        <TransportTrain
+                          style={{
+                            strokeWidth: "1px",
+                            fill: "#000",
+                            stroke: "none",
+                            marginRight: "8px",  // optional spacing between SVG and text
+                          }}
+                        />
+                        {` ab ${cityInput}`}
+                      </>
+                    ) : (
+                      t("start.heimatbahnhof")
+                    )}
+                  </Box>
                   ) : !cityInput && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
