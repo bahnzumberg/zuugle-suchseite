@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import EndOfList from "./EndOfList";
 
 export default function TourCardContainer({
   tours,
@@ -109,7 +108,7 @@ export default function TourCardContainer({
         next={_loadTours}
         hasMore={true}
         loader={!!loading && <CircularProgress />}
-        endMessage={<EndOfList />}
+        endMessage={<p> </p>}
       >
         <Grid container spacing={2} style={{  marginLeft: `${!isMobile ? '35px' : null}` }}>
           {tours.map((tour, index) => (
