@@ -24,7 +24,7 @@ export default function Footer({}) {
         >
           <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
             <img
-              src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.png"
+              src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.webp"
               height="122px"
               width="206px"
               alt="Funded by www.bmk.gv.at"
@@ -40,7 +40,7 @@ export default function Footer({}) {
         >
           <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
             <img
-              src="/app_static/img/Alpenkonvention_logo_gruen.png"
+              src="/app_static/img/Alpenkonvention_logo_gruen.webp"
               height="75px"
               width="317px"
               alt="Logo Alpenkonvention"
