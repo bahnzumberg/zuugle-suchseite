@@ -216,6 +216,8 @@ const getWrapper = async (req, res) => {
 }
 
 const listWrapper = async (req, res) => {
+    const start_ts = Date.now();
+
     const showRanges = !!req.query.ranges;
     const page = req.query.page || 1;
     const map = req.query.map;
@@ -623,6 +625,8 @@ const listWrapper = async (req, res) => {
     // the tours array, the total count of tours returned by the main query, the current page, and the 
     // ranges array (if showRanges is true).
 
+    const end_ts = Date.now();
+    console.log("Duration listWrapper: ", end_ts-start_ts);
         
     res
       .status(200)
@@ -634,10 +638,13 @@ const listWrapper = async (req, res) => {
         ranges: ranges,
         markers: markers_array,
       });
-}
+} // end of listWrapper
 
 
 const filterWrapper = async (req, res) => {
+    const start_ts = Date.now();
+    console.log("start_ts: ", start_ts)
+
     const search = req.query.search;
     const city = req.query.city;
     const domain = req.query.domain;
@@ -739,6 +746,10 @@ const filterWrapper = async (req, res) => {
         _maxTransportDuration = parseFloat(element.maxtransportduration);
     }
 
+    const kpi_end_ts = Date.now();
+    console.log("kpi_end_ts duration: ", kpi_end_ts-start_ts)
+
+
     const temp_table = `temp_`+Date.now();
     // console.log("temp_table: ", temp_table)
     
@@ -827,8 +838,11 @@ const filterWrapper = async (req, res) => {
     let drop_sql = `DROP TABLE ${temp_table};`
     await knex.raw(drop_sql);
 
+
+    const end_ts = Date.now();
+    console.log("Duration filterWrapper: ", end_ts-start_ts);
     res.status(200).json({success: true, filter: filterresult});
-}
+} // end of filterWrapper
 
 
 const connectionsWrapper = async (req, res) => {
