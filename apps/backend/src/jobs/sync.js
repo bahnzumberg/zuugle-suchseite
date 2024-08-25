@@ -94,6 +94,22 @@ export async function fixTours(){
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
+
+    // Store for each tour and city the maximum connection duration to get to the hike start                
+    await knex.raw(`UPDATE city2tour AS c SET max_connection_duration = i.max_connection_dur
+        FROM (
+        SELECT 
+        f.tour_provider AS provider,
+        f.hashed_url,
+        f.city_slug,
+        EXTRACT(EPOCH FROM MAX(f.best_connection_duration))/60 AS max_connection_dur
+        FROM fahrplan AS f
+        WHERE f.city_any_connection='yes'
+        GROUP BY f.tour_provider, f.hashed_url, f.city_slug
+        ) AS i
+        WHERE i.hashed_url=c.hashed_url
+        AND i.city_slug=c.city_slug`);
+
     
     // Store for every tour and city the minimal number of transfers (changing between trains/busses)
     await knex.raw(`UPDATE city2tour AS c SET min_connection_no_of_transfers = i.min_connection_no_of_transfers
