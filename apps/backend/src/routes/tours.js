@@ -3,7 +3,7 @@ let router = express.Router();
 import knex from "../knex";
 import {mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
 import moment from "moment";
-import {getHost, replaceFilePath, round, get_domain_country } from "../utils/utils";
+import {getHost, replaceFilePath, round, get_domain_country, isNumber } from "../utils/utils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
@@ -232,8 +232,6 @@ const listWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // this referres to the column in table tour: The tour description is in which language
     const filter = req.query.filter;
-    
-    
 
 
     let parsedBounds;
@@ -283,6 +281,7 @@ const listWrapper = async (req, res) => {
     catch(e) {
         filterJSON = undefined
     }
+
     if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
         // console.log("filterJSON: ", filterJSON)
 
@@ -308,19 +307,19 @@ const listWrapper = async (req, res) => {
 
         // difficulty not implemented - dialog in frontend has to be changed to 3 checkboxes
 
-        if(filterJSON['minAscent'] && filterJSON['minAscent']>0 && filterJSON['maxAscent'] && filterJSON['maxAscent']>0){
+        if(isNumber(filterJSON['minAscent']) && filterJSON['minAscent']>=0 && isNumber(filterJSON['maxAscent']) && filterJSON['maxAscent']>=0){
             new_filter_where_minAscent = `AND t.ascent BETWEEN ${filterJSON['minAscent']} AND ${filterJSON['maxAscent']} `
         }
 
-        if(filterJSON['minDescent'] && filterJSON['minDescent']>0 && filterJSON['maxDescent'] && filterJSON['maxDescent']>0){
+        if(isNumber(filterJSON['minDescent']) && filterJSON['minDescent']>=0 && isNumber(filterJSON['maxDescent']) && filterJSON['maxDescent']>=0){
             new_filter_where_minDescent = `AND t.descent BETWEEN ${filterJSON['minDescent']} AND ${filterJSON['maxDescent']} `
         }
 
-        if(filterJSON['minTransportDuration'] && filterJSON['minTransportDuration']>0 && filterJSON['maxTransportDuration'] && filterJSON['maxTransportDuration']>0){
+        if(isNumber(filterJSON['minTransportDuration']) && filterJSON['minTransportDuration']>=0 && isNumber(filterJSON['maxTransportDuration']) && filterJSON['maxTransportDuration']>=0){
             new_filter_where_minTransportDuration = `AND c2t.min_connection_duration BETWEEN ${filterJSON['minTransportDuration']*60} AND ${filterJSON['maxTransportDuration']*60} `
         }
 
-        if(filterJSON['minDistance'] && filterJSON['minDistance']>0 && filterJSON['maxDistance'] && filterJSON['maxDistance']>0){
+        if(isNumber(filterJSON['minDistance']) && filterJSON['minDistance']>0 && isNumber(filterJSON['maxDistance']) && filterJSON['maxDistance']>0){
             new_filter_where_minDistance = `AND t.distance BETWEEN ${filterJSON['minDistance']} AND ${filterJSON['maxDistance']} `
         }
 
@@ -740,9 +739,15 @@ const filterWrapper = async (req, res) => {
         _maxTransportDuration = parseFloat(element.maxtransportduration);
     }
 
-
-    let types_sql = `SELECT 
-                    t.type
+    const temp_table = `temp_`+Date.now();
+    // console.log("temp_table: ", temp_table)
+    
+    let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
+                    SELECT 
+                    t.type,
+                    t.text_lang,
+                    t.range,
+                    t.range_slug
                     FROM city2tour AS c2t 
                     INNER JOIN tour AS t 
                     ON c2t.tour_id=t.id  
@@ -751,6 +756,17 @@ const filterWrapper = async (req, res) => {
                     WHERE c2t.reachable_from_country='${tld}'  
                     ${where_city}
                     ${new_search_where_searchterm}
+                    GROUP BY t.type, t.text_lang, t.range, t.range_slug;`
+    await knex.raw(temporary_sql);
+
+    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
+    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
+    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
+
+
+    let types_sql = `SELECT 
+                    t.type
+                    FROM ${temp_table} as t
                     GROUP BY t.type
                     ORDER BY t.type;`
 
@@ -763,14 +779,7 @@ const filterWrapper = async (req, res) => {
 
     let text_sql = `SELECT 
                     t.text_lang
-                    FROM city2tour AS c2t 
-                    INNER JOIN tour AS t 
-                    ON c2t.tour_id=t.id  
-                    INNER JOIN fahrplan AS f
-                    ON f.hashed_url=t.hashed_url                           
-                    WHERE c2t.reachable_from_country='${tld}'  
-                    ${where_city}
-                    ${new_search_where_searchterm}
+                    FROM ${temp_table} as t
                     GROUP BY t.text_lang
                     ORDER BY t.text_lang;`
 
@@ -783,15 +792,8 @@ const filterWrapper = async (req, res) => {
 
     let range_sql = `SELECT 
                     t.range
-                    FROM city2tour AS c2t 
-                    INNER JOIN tour AS t 
-                    ON c2t.tour_id=t.id  
-                    INNER JOIN fahrplan AS f
-                    ON f.hashed_url=t.hashed_url                           
-                    WHERE c2t.reachable_from_country='${tld}' 
-                    AND t.range_slug IS NOT NULL 
-                    ${where_city}
-                    ${new_search_where_searchterm}
+                    FROM ${temp_table} as t                       
+                    WHERE t.range_slug IS NOT NULL 
                     GROUP BY t.range
                     ORDER BY t.range;`
 
@@ -821,6 +823,9 @@ const filterWrapper = async (req, res) => {
         languages: text.map(textObj => textObj.text_lang),
     };
     // console.log("filterresult: ", filterresult)
+
+    let drop_sql = `DROP TABLE ${temp_table};`
+    await knex.raw(drop_sql);
 
     res.status(200).json({success: true, filter: filterresult});
 }
