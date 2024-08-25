@@ -57,6 +57,10 @@ export function get_country_lanuage_from_domain(domain) {
     }
 }
 
+export function isNumber(value) {
+    return typeof value === 'number';
+}
+
 export function formatTime(date){
     return !!date ? moment(date).format("HH:mm") : undefined;
 }
