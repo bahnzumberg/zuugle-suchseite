@@ -212,7 +212,8 @@ CREATE TABLE city2tour (
       hashed_url varchar(100) NOT NULL,
       city_slug varchar(64) NOT NULL,
       reachable_from_country varchar(2) NOT NULL,
-      min_connection_duration int DEFAULT 200,
+      min_connection_duration int DEFAULT 0,
+      max_connection_duration int DEFAULT 200
       min_connection_no_of_transfers INTEGER DEFAULT 4, 
       avg_total_tour_duration decimal(6,2) DEFAULT NULL,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,

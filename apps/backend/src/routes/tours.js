@@ -642,9 +642,6 @@ const listWrapper = async (req, res) => {
 
 
 const filterWrapper = async (req, res) => {
-    const start_ts = Date.now();
-    console.log("start_ts: ", start_ts)
-
     const search = req.query.search;
     const city = req.query.city;
     const domain = req.query.domain;
@@ -683,6 +680,50 @@ const filterWrapper = async (req, res) => {
         new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
     }
 
+    const temp_table = `temp_`+Date.now();
+    // console.log("temp_table: ", temp_table)
+    
+    let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
+                    SELECT 
+                    t.type,
+                    t.text_lang,
+                    t.range,
+                    t.range_slug,
+                    t.number_of_days,
+                    t.season,
+                    t.ascent,
+                    t.descent,
+                    t.distance,
+                    t.traverse,
+                    c2t.min_connection_duration,
+                    c2t.max_connection_duration
+                    FROM city2tour AS c2t 
+                    INNER JOIN tour AS t 
+                    ON c2t.tour_id=t.id                          
+                    WHERE c2t.reachable_from_country='${tld}'  
+                    ${where_city}
+                    ${new_search_where_searchterm}
+                    GROUP BY
+                    t.type,
+                    t.text_lang,
+                    t.range,
+                    t.range_slug,
+                    t.number_of_days,
+                    t.season,
+                    t.ascent,
+                    t.descent,
+                    t.distance,
+                    t.traverse,
+                    c2t.min_connection_duration,
+                    c2t.max_connection_duration;`;
+    await knex.raw(temporary_sql);
+
+    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
+    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
+    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
+
+    
+
     let kpi_sql=`SELECT 
                 CASE WHEN SUM(CASE WHEN t.number_of_days=1 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSingleDayTourPossible,
                 CASE WHEN SUM(CASE WHEN t.number_of_days=2 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isMultipleDayTourPossible,
@@ -695,20 +736,9 @@ const filterWrapper = async (req, res) => {
                 CASE WHEN MAX(t.distance) > 80 THEN 80.0 ELSE MAX(t.distance) END AS maxDistance,
                 MIN(t.distance) AS minDistance,
                 CASE WHEN SUM(t.traverse) > 0 THEN TRUE ELSE FALSE END AS isTraversePossible,
-                MIN(extract(hour from f.connection_duration::time) + 
-                    (extract(minute from f.connection_duration::time) / 60.0) + 
-                    (extract(second from f.connection_duration::time) / 3600.0)) AS minTransportDuration,
-                MAX(extract(hour from f.connection_duration::time) + 
-                    (extract(minute from f.connection_duration::time) / 60.0) + 
-                    (extract(second from f.connection_duration::time) / 3600.0)) AS maxTransportDuration
-                FROM city2tour AS c2t 
-                INNER JOIN tour AS t 
-                ON c2t.tour_id=t.id  
-                INNER JOIN fahrplan AS f
-                ON f.hashed_url=t.hashed_url                           
-                WHERE c2t.reachable_from_country='${tld}'  
-                ${where_city}
-                ${new_search_where_searchterm};`
+                MIN(t.min_connection_duration/60) AS minTransportDuration,
+                MAX(t.max_connection_duration/60) AS maxTransportDuration
+                FROM ${temp_table} t;`
     //console.log("kpi_sql: ", kpi_sql)            
 
     let kpi_result = await knex.raw(kpi_sql)
@@ -745,34 +775,6 @@ const filterWrapper = async (req, res) => {
         _minTransportDuration = parseFloat(element.mintransportduration);
         _maxTransportDuration = parseFloat(element.maxtransportduration);
     }
-
-    const kpi_end_ts = Date.now();
-    console.log("kpi_end_ts duration: ", kpi_end_ts-start_ts)
-
-
-    const temp_table = `temp_`+Date.now();
-    // console.log("temp_table: ", temp_table)
-    
-    let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
-                    SELECT 
-                    t.type,
-                    t.text_lang,
-                    t.range,
-                    t.range_slug
-                    FROM city2tour AS c2t 
-                    INNER JOIN tour AS t 
-                    ON c2t.tour_id=t.id  
-                    INNER JOIN fahrplan AS f
-                    ON f.hashed_url=t.hashed_url                           
-                    WHERE c2t.reachable_from_country='${tld}'  
-                    ${where_city}
-                    ${new_search_where_searchterm}
-                    GROUP BY t.type, t.text_lang, t.range, t.range_slug;`
-    await knex.raw(temporary_sql);
-
-    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
-    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
-    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
 
 
     let types_sql = `SELECT 
@@ -835,14 +837,11 @@ const filterWrapper = async (req, res) => {
     };
     // console.log("filterresult: ", filterresult)
 
-    let drop_sql = `DROP TABLE ${temp_table};`
-    await knex.raw(drop_sql);
+    await knex.raw(`DROP TABLE ${temp_table};`);
 
-
-    const end_ts = Date.now();
-    console.log("Duration filterWrapper: ", end_ts-start_ts);
     res.status(200).json({success: true, filter: filterresult});
 } // end of filterWrapper
+
 
 
 const connectionsWrapper = async (req, res) => {
