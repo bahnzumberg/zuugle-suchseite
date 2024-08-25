@@ -757,15 +757,9 @@ export function Search({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {!cityInput && pageKey ? (
-            <TransportTrain
-              style={{ strokeWidth: "1px", fill: "#000", stroke: "none" }}
-            />
-          ) : (
-            <SearchIcon
-              style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
-            />
-          )}
+          <SearchIcon
+            style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+          />
           <Box
             sx={{
               width: {
@@ -840,8 +834,8 @@ export function Search({
                       className="search-bar--city"
                       sx={{ display: "flex", alignItems: "center" }}
                     >
-                      {cityInput.length > 0 ? (
-                        <>
+                      <>
+                        {!isMobile && (
                           <TransportTrain
                             style={{
                               strokeWidth: "1px",
@@ -850,11 +844,11 @@ export function Search({
                               marginRight: "8px", // optional spacing between SVG and text
                             }}
                           />
-                          {` ${t("search.ab_heimatbahnhof")} ${cityInput}`}
-                        </>
-                      ) : (
-                        t("start.heimatbahnhof")
-                      )}
+                        )}
+                        {cityInput.length > 0
+                          ? `${t("search.ab_heimatbahnhof")} ${cityInput}`
+                          : t("start.heimatbahnhof")}
+                      </>
                     </Box>
                   ) : !cityInput && pageKey === "detail" ? (
                     <Box
