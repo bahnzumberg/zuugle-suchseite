@@ -421,7 +421,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_types}
                                     ${new_filter_where_languages}`;
 
-    const temp_table = `temp_`+Date.now();
+    const temp_table = `temp_`+tld+city+`_`+Date.now();
 
     const temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
                         SELECT 
@@ -570,7 +570,7 @@ const listWrapper = async (req, res) => {
     }
 
     try {
-        knex.raw(`DROP TABLE ${temp_table};`);
+        await knex.raw(`DROP TABLE ${temp_table};`);
     }
     catch (err) {
         console.log("Drop temp table failed: ", err)
@@ -709,7 +709,7 @@ const filterWrapper = async (req, res) => {
         new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
     }
 
-    const temp_table = `temp_`+Date.now();
+    const temp_table = `temp_`+tld+city+`_`+Date.now();
     // console.log("temp_table: ", temp_table)
     
     let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
@@ -867,7 +867,7 @@ const filterWrapper = async (req, res) => {
     // console.log("filterresult: ", filterresult)
 
     try {
-        knex.raw(`DROP TABLE ${temp_table};`);
+        await knex.raw(`DROP TABLE ${temp_table};`);
     }
     catch (err) {
         console.log("Drop temp table failed: ", err)
