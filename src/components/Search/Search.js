@@ -837,25 +837,25 @@ export function Search({
                 >
                   {pageKey !== "detail" ? (
                     <Box
-                    className="search-bar--city"
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    {cityInput.length > 0 ? (
-                      <>
-                        <TransportTrain
-                          style={{
-                            strokeWidth: "1px",
-                            fill: "#000",
-                            stroke: "none",
-                            marginRight: "8px",  // optional spacing between SVG and text
-                          }}
-                        />
-                        {` ab ${cityInput}`}
-                      </>
-                    ) : (
-                      t("start.heimatbahnhof")
-                    )}
-                  </Box>
+                      className="search-bar--city"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      {cityInput.length > 0 ? (
+                        <>
+                          <TransportTrain
+                            style={{
+                              strokeWidth: "1px",
+                              fill: "#000",
+                              stroke: "none",
+                              marginRight: "8px", // optional spacing between SVG and text
+                            }}
+                          />
+                          {` ${t("search.ab_heimatbahnhof")} ${cityInput}`}
+                        </>
+                      ) : (
+                        t("start.heimatbahnhof")
+                      )}
+                    </Box>
                   ) : !cityInput && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
@@ -895,9 +895,7 @@ export function Search({
                 className="filter-icon-container"
               >
                 {!!isMain ? (
-                  <IconButton 
-                    onClick={() => openFilter()}
-                    aria-label="Filter">
+                  <IconButton onClick={() => openFilter()} aria-label="Filter">
                     <FilterIcon
                       sx={{
                         transition: "stroke 0.3s",
