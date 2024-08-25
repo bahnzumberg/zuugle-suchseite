@@ -720,12 +720,15 @@ const filterWrapper = async (req, res) => {
                     t.range_slug,
                     t.number_of_days,
                     t.season,
-                    t.ascent,
-                    t.descent,
-                    t.distance,
                     t.traverse,
-                    c2t.min_connection_duration,
-                    c2t.max_connection_duration
+                    min(t.ascent) AS min_ascent,
+                    max(t.ascent) AS max_ascent,
+                    min(t.descent) AS min_descent,
+                    max(t.descent) AS max_descent,
+                    min(t.distance) AS min_distance,
+                    max(t.distance) AS max_distance,
+                    min(c2t.min_connection_duration) AS min_connection_duration,
+                    max(c2t.max_connection_duration) AS max_connection_duration
                     FROM city2tour AS c2t 
                     INNER JOIN tour AS t 
                     ON c2t.tour_id=t.id                          
@@ -739,12 +742,7 @@ const filterWrapper = async (req, res) => {
                     t.range_slug,
                     t.number_of_days,
                     t.season,
-                    t.ascent,
-                    t.descent,
-                    t.distance,
-                    t.traverse,
-                    c2t.min_connection_duration,
-                    c2t.max_connection_duration;`;
+                    t.traverse;`;
     await knex.raw(temporary_sql);
 
     await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
@@ -758,12 +756,12 @@ const filterWrapper = async (req, res) => {
                 CASE WHEN SUM(CASE WHEN t.number_of_days=2 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isMultipleDayTourPossible,
                 CASE WHEN SUM(CASE WHEN t.season='s' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSummerTourPossible,
                 CASE WHEN SUM(CASE WHEN t.season='w' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isWinterTourPossible,
-                CASE WHEN MAX(t.ascent) > 3000 THEN 3000 ELSE MAX(t.ascent) END AS maxAscent,
-                MIN(t.ascent) AS minAscent,
-                CASE WHEN MAX(t.descent) > 3000 THEN 3000 ELSE MAX(t.descent) END AS maxDescent,
-                MIN(t.descent) AS minDescent,
-                CASE WHEN MAX(t.distance) > 80 THEN 80.0 ELSE MAX(t.distance) END AS maxDistance,
-                MIN(t.distance) AS minDistance,
+                CASE WHEN MAX(t.max_ascent) > 3000 THEN 3000 ELSE MAX(t.max_ascent) END AS maxAscent,
+                MIN(t.min_ascent) AS minAscent,
+                CASE WHEN MAX(t.max_descent) > 3000 THEN 3000 ELSE MAX(t.max_descent) END AS maxDescent,
+                MIN(t.min_descent) AS minDescent,
+                CASE WHEN MAX(t.max_distance) > 80 THEN 80.0 ELSE MAX(t.max_distance) END AS maxDistance,
+                MIN(t.min_distance) AS minDistance,
                 CASE WHEN SUM(t.traverse) > 0 THEN TRUE ELSE FALSE END AS isTraversePossible,
                 MIN(t.min_connection_duration/60) AS minTransportDuration,
                 MAX(t.max_connection_duration/60) AS maxTransportDuration
