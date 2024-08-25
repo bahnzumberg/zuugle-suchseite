@@ -682,7 +682,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-              {t("start.heimatbahnhof")}
+              {t("search.dein_heimatbahnhof")}
               </span>
             </div>
             <Box
