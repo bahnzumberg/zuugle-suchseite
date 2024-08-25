@@ -462,7 +462,7 @@ const listWrapper = async (req, res) => {
                         ${global_where_condition};`;
     await knex.raw(temporary_sql);
 
-    knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+    await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
 
     const new_search_sql = `SELECT 
                         t.id, 
@@ -747,9 +747,9 @@ const filterWrapper = async (req, res) => {
                     c2t.max_connection_duration;`;
     await knex.raw(temporary_sql);
 
-    knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
-    knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
-    knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
+    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
+    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
+    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
 
     
 
