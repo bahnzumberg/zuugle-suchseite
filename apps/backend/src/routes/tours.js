@@ -216,8 +216,6 @@ const getWrapper = async (req, res) => {
 }
 
 const listWrapper = async (req, res) => {
-    const start_ts = Date.now();
-
     const showRanges = !!req.query.ranges;
     const page = req.query.page || 1;
     const map = req.query.map;
@@ -251,7 +249,6 @@ const listWrapper = async (req, res) => {
     //let addDetails = !!!map; // initialise with true
     let addDetails = true; 
 
-    let new_search_sql = `` 
     let new_search_where_searchterm = ``
     let new_search_order_searchterm = ``
     let new_search_where_city = ``
@@ -424,7 +421,10 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_types}
                                     ${new_filter_where_languages}`;
 
-    new_search_sql = `SELECT 
+    const temp_table = `temp_`+Date.now();
+
+    const temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
+                        SELECT 
                         t.id, 
                         t.provider, 
                         t.hashed_url, 
@@ -444,7 +444,47 @@ const listWrapper = async (req, res) => {
                         c2t.connection_arrival_stop_lat,
                         c2t.min_connection_duration,
                         c2t.min_connection_no_of_transfers, 
-                        ROUND(c2t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
+                        c2t.avg_total_tour_duration,
+                        t.ascent, 
+                        t.descent, 
+                        t.difficulty, 
+                        t.duration, 
+                        t.distance, 
+                        t.number_of_days, 
+                        t.traverse, 
+                        t.quality_rating,
+                        t.month_order,
+                        t.search_column
+                        FROM city2tour AS c2t 
+                        INNER JOIN tour AS t 
+                        ON c2t.tour_id=t.id 
+                        WHERE c2t.reachable_from_country='${tld}' 
+                        ${global_where_condition};`;
+    await knex.raw(temporary_sql);
+
+    knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+
+    const new_search_sql = `SELECT 
+                        t.id, 
+                        t.provider, 
+                        t.hashed_url, 
+                        t.url, 
+                        t.title, 
+                        t.image_url,
+                        t.type, 
+                        t.country, 
+                        t.state, 
+                        t.range_slug, 
+                        t.range, 
+                        t.text_lang, 
+                        t.difficulty_orig,
+                        t.season,
+                        t.max_ele,
+                        t.connection_arrival_stop_lon,
+                        t.connection_arrival_stop_lat,
+                        t.min_connection_duration,
+                        t.min_connection_no_of_transfers, 
+                        ROUND(t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                         t.ascent, 
                         t.descent, 
                         t.difficulty, 
@@ -454,18 +494,14 @@ const listWrapper = async (req, res) => {
                         t.traverse, 
                         t.quality_rating,
                         t.month_order
-                        FROM city2tour AS c2t 
-                        INNER JOIN tour AS t 
-                        ON c2t.tour_id=t.id 
-                        WHERE c2t.reachable_from_country='${tld}' 
-                        ${global_where_condition}
+                        FROM ${temp_table} AS t 
                         ORDER BY t.month_order ASC, 
                         CASE WHEN t.text_lang='${currLanguage}' THEN 1 ELSE 0 END DESC,  
                         ${new_search_order_searchterm}
                         t.number_of_days ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
-                        TRUNC(c2t.min_connection_no_of_transfers*c2t.min_connection_no_of_transfers/2) ASC,
-                        TRUNC(c2t.min_connection_duration / 60, 0) ASC, 
+                        TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,
+                        TRUNC(t.min_connection_duration / 60, 0) ASC, 
                         t.quality_rating DESC,
                         t.traverse DESC,  
                         t.duration ASC, 
@@ -494,13 +530,7 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let sql_count = 0;
     try {
-        const count_sql =  `SELECT COUNT(*) AS row_count
-                            FROM city2tour AS c2t 
-                            INNER JOIN tour AS t 
-                            ON c2t.tour_id=t.id 
-                            WHERE c2t.reachable_from_country='${tld}' 
-                            ${global_where_condition}`
-        let count_query = knex.raw(count_sql); 
+        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM ${temp_table};`); 
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
         // console.log("count_sql: ", count_sql)
@@ -520,15 +550,11 @@ const listWrapper = async (req, res) => {
             // markers-related / searchIncluded
             const markers_sql = `SELECT 
                             t.id, 
-                            c2t.connection_arrival_stop_lat as lat,
-                            c2t.connection_arrival_stop_lon as lon
-                            FROM city2tour AS c2t 
-                            INNER JOIN tour AS t 
-                            ON c2t.tour_id=t.id 
-                            WHERE c2t.reachable_from_country='${tld}' 
-                            ${global_where_condition}
-                            AND c2t.connection_arrival_stop_lat IS NOT NULL 
-                            AND c2t.connection_arrival_stop_lon IS NOT NULL;`;
+                            t.connection_arrival_stop_lat as lat,
+                            t.connection_arrival_stop_lon as lon
+                            FROM ${temp_table} AS t 
+                            WHERE t.connection_arrival_stop_lat IS NOT NULL 
+                            AND t.connection_arrival_stop_lon IS NOT NULL;`;
             markers_result = await knex.raw(markers_sql); // fire the DB call here
             
             // markers-related
@@ -543,7 +569,12 @@ const listWrapper = async (req, res) => {
         }
     }
 
-
+    try {
+        knex.raw(`DROP TABLE ${temp_table};`);
+    }
+    catch (err) {
+        console.log("Drop temp table failed: ", err)
+    }
     
     //logsearchphrase
     //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
@@ -618,6 +649,7 @@ const listWrapper = async (req, res) => {
         }
     }
 
+
     //describe:
     // The result array contains the list of tours returned from the database after executing the main query. 
     // This array is already looped through to transform each tour entry with additional data and metadata 
@@ -625,9 +657,6 @@ const listWrapper = async (req, res) => {
     // the tours array, the total count of tours returned by the main query, the current page, and the 
     // ranges array (if showRanges is true).
 
-    const end_ts = Date.now();
-    console.log("Duration listWrapper: ", end_ts-start_ts);
-        
     res
       .status(200)
       .json({
@@ -718,9 +747,9 @@ const filterWrapper = async (req, res) => {
                     c2t.max_connection_duration;`;
     await knex.raw(temporary_sql);
 
-    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
-    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
-    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
+    knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
+    knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
+    knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
 
     
 
@@ -837,7 +866,12 @@ const filterWrapper = async (req, res) => {
     };
     // console.log("filterresult: ", filterresult)
 
-    await knex.raw(`DROP TABLE ${temp_table};`);
+    try {
+        knex.raw(`DROP TABLE ${temp_table};`);
+    }
+    catch (err) {
+        console.log("Drop temp table failed: ", err)
+    }
 
     res.status(200).json({success: true, filter: filterresult});
 } // end of filterWrapper
