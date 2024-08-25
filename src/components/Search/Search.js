@@ -547,7 +547,6 @@ export function Search({
               top: "20px",
               display: "flex",
               flexDirection: "row",
-              
             }}
           >
             <Typography
@@ -572,7 +571,7 @@ export function Search({
                 padding: "8px",
                 width: "40px",
                 height: "40px",
-                borderRadius: "12px"
+                borderRadius: "12px",
               }}
               onClick={() => {
                 setShowMobileModal(false);
@@ -603,7 +602,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-               {t("start.suche")}
+                {t("start.suche")}
               </span>
             </div>
             <Box
@@ -682,7 +681,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-              {t("search.dein_heimatbahnhof")}
+                {t("search.dein_heimatbahnhof")}
               </span>
             </div>
             <Box
@@ -698,8 +697,13 @@ export function Search({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <SearchIcon
-                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+                <TransportTrain
+                  style={{
+                    strokeWidth: "1px",
+                    fill: "#000",
+                    stroke: "none",
+                    marginRight: "8px", // optional spacing between SVG and text
+                  }}
                 />
                 <Box
                   sx={{
