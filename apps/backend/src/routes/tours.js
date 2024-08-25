@@ -3,7 +3,7 @@ let router = express.Router();
 import knex from "../knex";
 import {mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
 import moment from "moment";
-import {getHost, replaceFilePath, round, get_domain_country, isNumber } from "../utils/utils";
+import {getHost, replaceFilePath, round, get_domain_country } from "../utils/utils";
 import {convertNumToTime, minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
@@ -216,22 +216,23 @@ const getWrapper = async (req, res) => {
 }
 
 const listWrapper = async (req, res) => {
-    const showRanges = !!req.query.ranges;
-    const page = req.query.page || 1;
-    const map = req.query.map;
-    const bounds = req.query.bounds;
+
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'de'; 
 
     const search = req.query.search; 
-    const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'de'; // this is the menue language the user selected
+    const showRanges = !!req.query.ranges;
     const city = req.query.city;    
     const range = req.query.range;
     const state = req.query.state;
     const country = req.query.country;
     const type = req.query.type;
+    const page = req.query.page || 1;
     const domain = req.query.domain; 
     const provider = req.query.provider;
-    const language = req.query.language; // this referres to the column in table tour: The tour description is in which language
+    const language = req.query.language; 
     const filter = req.query.filter;
+    const bounds = req.query.bounds;
+    const map = req.query.map;
 
 
     let parsedBounds;
@@ -281,7 +282,6 @@ const listWrapper = async (req, res) => {
     catch(e) {
         filterJSON = undefined
     }
-
     if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
         // console.log("filterJSON: ", filterJSON)
 
@@ -307,19 +307,19 @@ const listWrapper = async (req, res) => {
 
         // difficulty not implemented - dialog in frontend has to be changed to 3 checkboxes
 
-        if(isNumber(filterJSON['minAscent']) && filterJSON['minAscent']>=0 && isNumber(filterJSON['maxAscent']) && filterJSON['maxAscent']>=0){
+        if(filterJSON['minAscent'] && filterJSON['minAscent']>0 && filterJSON['maxAscent'] && filterJSON['maxAscent']>0){
             new_filter_where_minAscent = `AND t.ascent BETWEEN ${filterJSON['minAscent']} AND ${filterJSON['maxAscent']} `
         }
 
-        if(isNumber(filterJSON['minDescent']) && filterJSON['minDescent']>=0 && isNumber(filterJSON['maxDescent']) && filterJSON['maxDescent']>=0){
+        if(filterJSON['minDescent'] && filterJSON['minDescent']>0 && filterJSON['maxDescent'] && filterJSON['maxDescent']>0){
             new_filter_where_minDescent = `AND t.descent BETWEEN ${filterJSON['minDescent']} AND ${filterJSON['maxDescent']} `
         }
 
-        if(isNumber(filterJSON['minTransportDuration']) && filterJSON['minTransportDuration']>=0 && isNumber(filterJSON['maxTransportDuration']) && filterJSON['maxTransportDuration']>=0){
+        if(filterJSON['minTransportDuration'] && filterJSON['minTransportDuration']>0 && filterJSON['maxTransportDuration'] && filterJSON['maxTransportDuration']>0){
             new_filter_where_minTransportDuration = `AND c2t.min_connection_duration BETWEEN ${filterJSON['minTransportDuration']*60} AND ${filterJSON['maxTransportDuration']*60} `
         }
 
-        if(isNumber(filterJSON['minDistance']) && filterJSON['minDistance']>0 && isNumber(filterJSON['maxDistance']) && filterJSON['maxDistance']>0){
+        if(filterJSON['minDistance'] && filterJSON['minDistance']>0 && filterJSON['maxDistance'] && filterJSON['maxDistance']>0){
             new_filter_where_minDistance = `AND t.distance BETWEEN ${filterJSON['minDistance']} AND ${filterJSON['maxDistance']} `
         }
 
@@ -533,7 +533,7 @@ const listWrapper = async (req, res) => {
             if (!!markers_result && !!markers_result.rows) {
             markers_array = markers_result.rows; // This is to be passed to the response below
             } else {
-                console.log("markers_result is null or undefined");
+            console.log("markers_result is null or undefined");
             }    
         } 
         catch (error) {
@@ -640,192 +640,90 @@ const listWrapper = async (req, res) => {
 const filterWrapper = async (req, res) => {
     const search = req.query.search;
     const city = req.query.city;
+    const range = req.query.range;
+    const state = req.query.state;
+    const type = req.query.type;    
     const domain = req.query.domain;
-    const currLanguage = req.query.currLanguage; // gets the menu language (selected by visitor)
+    const country = req.query.country;
+    const provider = req.query.provider;
+    const language = req.query.language; // gets the languages from the query
 
-    // Where Condition is only depending on country, city and search term(s)
+    // let query = knex('tour').select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang']);
+    let query = knex('tour')
+                .join('city2tour', 'city2tour.tour_id', 'tour.id')
+                .select(['ascent', 'descent', 'difficulty', 'difficulty_orig', 'duration', 'distance', 'type', 'number_of_days', 'traverse', 'country', 'state', 'range_slug', 'range', 'season', 'month_order', 'quality_rating', 'max_ele', 'text_lang', 'min_connection_duration'])
 
-    let kpis = [];
-    let types = [];
-    let text = [];
-    let ranges = [];
+    let where = {};
     let tld = get_domain_country(domain);
-    let where_city = ` AND c2t.stop_selector='y' `;
-    let new_search_where_searchterm = '';
+    let whereRaw = ` city2tour.reachable_from_country='${tld}' `;
 
+    /** city search */
     if(!!city && city.length > 0){
-        where_city = ` AND c2t.city_slug='${city}' `;
+        whereRaw = whereRaw + ` AND city2tour.city_slug='${city}' `;
+    }
+    else {
+        whereRaw = whereRaw + ` AND city2tour.stop_selector='y' `;
     }
 
-    if (!!search && !!search.length > 0) {
-        let postgresql_language_code = 'german'
 
-        if (currLanguage == 'sl') {
-            postgresql_language_code = 'simple'
+    /** region search */
+    if(!!range && range.length > 0){
+        where.range = range;
+    }
+    if(!!state && state.length > 0){
+        where.state = state;
+    }
+    if(!!country && country.length > 0){
+        where.country = country;
+    }
+
+    /** type search */
+    if(!!type && type.length > 0){
+        where.type = type;
+    }
+
+    /** language search */
+    if(!!language && language.length > 0){
+        where.language = language;
+    }
+
+    /** provider search */
+    if(!!provider && provider.length > 0){
+        where.provider = provider;
+    }
+
+    try {
+        /** fulltext search */
+        if(!!search && search.length > 0){
+            let _search = search.trim().toLowerCase();
+            if(_search.indexOf(' ') > 0){
+                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '${_search}')`
+            }
+            else {
+                whereRaw = `${!!whereRaw ? whereRaw + " AND " : ""}search_column @@ websearch_to_tsquery('german', '"${_search}" ${_search}:*')`
+            }
         }
-        else if (currLanguage == 'fr') {
-            postgresql_language_code = 'french'
-        }
-        else if (currLanguage == 'it') {
-            postgresql_language_code = 'italian'
-        }
-        else if (currLanguage == 'en') {
-            postgresql_language_code = 'english'
-        }
-
-        new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
+    } catch(e){
+        console.error('error creating fulltext search: ', e);
     }
 
-    let kpi_sql=`SELECT 
-                CASE WHEN SUM(CASE WHEN t.number_of_days=1 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSingleDayTourPossible,
-                CASE WHEN SUM(CASE WHEN t.number_of_days=2 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isMultipleDayTourPossible,
-                CASE WHEN SUM(CASE WHEN t.season='s' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSummerTourPossible,
-                CASE WHEN SUM(CASE WHEN t.season='w' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isWinterTourPossible,
-                CASE WHEN MAX(t.ascent) > 3000 THEN 3000 ELSE MAX(t.ascent) END AS maxAscent,
-                MIN(t.ascent) AS minAscent,
-                CASE WHEN MAX(t.descent) > 3000 THEN 3000 ELSE MAX(t.descent) END AS maxDescent,
-                MIN(t.descent) AS minDescent,
-                CASE WHEN MAX(t.distance) > 80 THEN 80.0 ELSE MAX(t.distance) END AS maxDistance,
-                MIN(t.distance) AS minDistance,
-                CASE WHEN SUM(t.traverse) > 0 THEN TRUE ELSE FALSE END AS isTraversePossible,
-                MIN(extract(hour from f.connection_duration::time) + 
-                    (extract(minute from f.connection_duration::time) / 60.0) + 
-                    (extract(second from f.connection_duration::time) / 3600.0)) AS minTransportDuration,
-                MAX(extract(hour from f.connection_duration::time) + 
-                    (extract(minute from f.connection_duration::time) / 60.0) + 
-                    (extract(second from f.connection_duration::time) / 3600.0)) AS maxTransportDuration
-                FROM city2tour AS c2t 
-                INNER JOIN tour AS t 
-                ON c2t.tour_id=t.id  
-                INNER JOIN fahrplan AS f
-                ON f.hashed_url=t.hashed_url                           
-                WHERE c2t.reachable_from_country='${tld}'  
-                ${where_city}
-                ${new_search_where_searchterm};`
-    //console.log("kpi_sql: ", kpi_sql)            
-
-    let kpi_result = await knex.raw(kpi_sql)
-    if (!!kpi_result && !!kpi_result.rows) {
-        kpis = kpi_result.rows;
+    if(!!where && Object.keys(where).length > 0){
+        query = query.where(where);
+    }
+    if(!!whereRaw && whereRaw.length > 0){
+        query = query.andWhereRaw(whereRaw);
     }
 
-    let _isSingleDayTourPossible;
-    let _isMultipleDayTourPossible;
-    let _isSummerTourPossible;
-    let _isWinterTourPossible;
-    let _maxAscent;
-    let _minAscent;
-    let _maxDescent;
-    let _minDescent;
-    let _maxDistance;
-    let _minDistance;
-    let _isTraversePossible;
-    let _minTransportDuration;
-    let _maxTransportDuration;
+    /** filter search */
+    let queryForFilter = query.clone();
 
-    for (const element of kpis) {
-        _isSingleDayTourPossible = element.issingledaytourpossible;
-        _isMultipleDayTourPossible = element.ismultipledaytourpossible;
-        _isSummerTourPossible = element.issummertourpossible;
-        _isWinterTourPossible = element.iswintertourpossible;
-        _maxAscent = element.maxascent;
-        _minAscent = element.minascent;
-        _maxDescent = element.maxdescent;
-        _minDescent = element.mindescent;
-        _maxDistance = parseFloat(element.maxdistance);
-        _minDistance = parseFloat(element.mindistance);
-        _isTraversePossible = element.istraversepossible;
-        _minTransportDuration = parseFloat(element.mintransportduration);
-        _maxTransportDuration = parseFloat(element.maxtransportduration);
-    }
+    /** load full result for filter */
+    let filterResultList = await queryForFilter;
+    let filterresult = buildFilterResult(filterResultList, city, req.query)
 
-    const temp_table = `temp_`+Date.now();
-    // console.log("temp_table: ", temp_table)
-    
-    let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
-                    SELECT 
-                    t.type,
-                    t.text_lang,
-                    t.range,
-                    t.range_slug
-                    FROM city2tour AS c2t 
-                    INNER JOIN tour AS t 
-                    ON c2t.tour_id=t.id  
-                    INNER JOIN fahrplan AS f
-                    ON f.hashed_url=t.hashed_url                           
-                    WHERE c2t.reachable_from_country='${tld}'  
-                    ${where_city}
-                    ${new_search_where_searchterm}
-                    GROUP BY t.type, t.text_lang, t.range, t.range_slug;`
-    await knex.raw(temporary_sql);
-
-    await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
-    await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
-    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
-
-
-    let types_sql = `SELECT 
-                    t.type
-                    FROM ${temp_table} as t
-                    GROUP BY t.type
-                    ORDER BY t.type;`
-
-    let types_result = await knex.raw(types_sql)
-    if (!!types_result && !!types_result.rows) {
-        types = types_result.rows;
-    }
-    // console.log("types / Sportarten: ", types)
-
-
-    let text_sql = `SELECT 
-                    t.text_lang
-                    FROM ${temp_table} as t
-                    GROUP BY t.text_lang
-                    ORDER BY t.text_lang;`
-
-    let text_result = await knex.raw(text_sql)
-    if (!!text_result && !!text_result.rows) {
-        text = text_result.rows;
-    }
-    // console.log("text_lang: ", text)
-
-
-    let range_sql = `SELECT 
-                    t.range
-                    FROM ${temp_table} as t                       
-                    WHERE t.range_slug IS NOT NULL 
-                    GROUP BY t.range
-                    ORDER BY t.range;`
-
-    let range_result = await knex.raw(range_sql)
-    if (!!range_result && !!range_result.rows) {
-        ranges = range_result.rows;
-    }
-    // console.log("ranges: ", ranges)
-
-
-    let filterresult = {
-        types: types.map(typeObj => typeObj.type),
-        ranges: ranges.map(rangesObj => rangesObj.range),
-        isSingleDayTourPossible: _isSingleDayTourPossible,
-        isMultipleDayTourPossible: _isMultipleDayTourPossible,
-        isSummerTourPossible: _isSummerTourPossible,
-        isWinterTourPossible: _isWinterTourPossible,
-        maxAscent: _maxAscent,
-        minAscent: _minAscent,
-        maxDescent: _maxDescent,
-        minDescent: _minDescent,
-        maxDistance: _maxDistance,
-        minDistance: _minDistance,
-        isTraversePossible: _isTraversePossible,
-        minTransportDuration: _minTransportDuration,
-        maxTransportDuration: _maxTransportDuration,
-        languages: text.map(textObj => textObj.text_lang),
-    };
+    // console.log("whereRaw: ", whereRaw)
     // console.log("filterresult: ", filterresult)
 
-    let drop_sql = `DROP TABLE ${temp_table};`
-    await knex.raw(drop_sql);
 
     res.status(200).json({success: true, filter: filterresult});
 }
@@ -1023,6 +921,141 @@ const getWeekday = (date) => {
         case 6: return "sat";
         default: return "mon";
     }
+}
+
+
+
+const buildFilterResult = (result, city, params) => {
+    let types = [];
+    let ranges = [];
+    let languages = [];
+    let isSingleDayTourPossible = false;
+    let isMultipleDayTourPossible = false;
+    let isSummerTourPossible = false;
+    let isWinterTourPossible = false;
+    let maxAscent = 0;
+    let maxDescent = 0;
+    let minAscent = 10000;
+    let minDescent = 10000;
+    let maxDistance = 0;
+    let minDistance = 10000;
+    let isTraversePossible = false;
+    let minTransportDuration = 10000;
+    let maxTransportDuration = 0;
+
+    result.forEach(tour => {
+
+        if(!!!tour.type){
+            tour.type = "Keine Angabe"
+        }
+        if(!!!tour.range){
+            tour.range = "Keine Angabe"
+        }
+        if(!!!tour.text_lang){
+            tour.text_lang = "Keine Angabe"
+        }
+        if(!!tour.type && !!!types.find(t => tour.type === t)){
+            types.push(tour.type);
+        }
+        if(!!tour.range && !!!ranges.find(t => tour.range === t)){
+            ranges.push(tour.range);
+        }
+        if(!!tour.text_lang && !!!languages.find(t => tour.text_lang === t)){
+            languages.push(tour.text_lang);
+        }
+        if(!!!isSingleDayTourPossible && tour.number_of_days == 1){
+            isSingleDayTourPossible = true;
+        } else if(!!!isMultipleDayTourPossible && tour.number_of_days > 1){
+            isMultipleDayTourPossible = true;
+        }
+
+        if(!!!isSummerTourPossible && (tour.season == "s" || tour.season == "n") ){
+            isSummerTourPossible = true;
+        }
+        if(!!!isWinterTourPossible && (tour.season == "w" || tour.season == "n") ){
+            isWinterTourPossible = true;
+        }
+
+        if(tour.ascent > maxAscent){
+            maxAscent = tour.ascent;
+        }
+
+        if(tour.ascent < minAscent){
+            minAscent = tour.ascent;
+        }
+
+        if(tour.descent > maxDescent){
+            maxDescent = tour.descent;
+        }
+
+        if(tour.descent < minDescent){
+            minDescent = tour.descent;
+        }
+
+        if(parseFloat(tour.distance) > maxDistance){
+            maxDistance = parseFloat(tour.distance);
+        }
+
+        if(parseFloat(tour.distance) < minDistance){
+            minDistance = parseFloat(tour.distance);
+        }
+
+        if(!!!isTraversePossible && (tour.traverse == 1) ){
+            isTraversePossible = true;
+        }
+
+        if(maxAscent > 3000){
+            maxAscent = 3000;
+        }
+        if(maxDescent > 3000){
+            maxDescent = 3000;
+        }
+
+        if(maxDistance > 80){
+            maxDistance = 80;
+        }
+        
+
+        if(!!tour.min_connection_duration){
+            if(parseFloat(tour.min_connection_duration) > maxTransportDuration){
+                maxTransportDuration = parseFloat(tour.min_connection_duration);
+            }
+            if(parseFloat(tour.min_connection_duration) < minTransportDuration){
+                minTransportDuration = parseFloat(tour.min_connection_duration);
+            }
+        }
+
+    });
+
+    if(!!types){
+        types.sort();
+    }
+
+    if(!!ranges){
+        ranges.sort();
+    }
+    if(!!languages){
+        languages.sort();
+    }
+
+    return {
+        types,
+        ranges,
+        isSingleDayTourPossible,
+        isMultipleDayTourPossible,
+        isSummerTourPossible,
+        isWinterTourPossible,
+        maxAscent,
+        minAscent,
+        maxDescent,
+        minDescent,
+        maxDistance,
+        minDistance,
+        isTraversePossible,
+        minTransportDuration: round((minTransportDuration / 60), 2),
+        maxTransportDuration: round((maxTransportDuration / 60), 2),
+        languages
+    };
 }
 
 
