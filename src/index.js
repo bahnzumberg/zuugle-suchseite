@@ -44,9 +44,9 @@ root.render(
             />
         </Helmet>
       </div>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>
 );

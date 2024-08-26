@@ -5,7 +5,7 @@ import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 
-function LanguageMenu() {
+function LanguageMenu({pageKey}) {
 	const { i18n } = useTranslation();
 
 	var resolvedLanguage = i18n.language
@@ -19,14 +19,13 @@ function LanguageMenu() {
 		{ key: "sl", nativeName: "Slovenščina" },
 	]);
 	
-
 	useEffect(() =>	{
 		let currIndex = null;
-		if(!!currLanguage){ currIndex = Languages.findIndex(lang => lang.key == currLanguage); }
+		if(!!currLanguage){ currIndex = Languages.findIndex(lang => lang.key === currLanguage); }
 		const [ langObject] = Languages.splice(currIndex, 1);
 		Languages.sort((a,b) => a.key.localeCompare(b.key) ) ;
 		Languages.unshift(langObject);
-	},[currLanguage])
+	},[currLanguage, Languages])
 	
 	const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
 		i18n.language
@@ -36,6 +35,9 @@ function LanguageMenu() {
 		localStorage.setItem("lang", lng);
 		langChange(lng);
 		setShowLanguageMenu(false);
+		if(pageKey === "main" || pageKey === "start" ){
+			window.location.reload()
+		}
 	};
 
 	return (
@@ -95,7 +97,7 @@ function LanguageMenu() {
 									style={{
 										width: 140,
 										marginBottom: 5,
-										color: i18LangFormatted == item.key && "#4992FF",
+										color: i18LangFormatted === item.key && "#4992FF",
 									}}
 								>
 									{item.nativeName}

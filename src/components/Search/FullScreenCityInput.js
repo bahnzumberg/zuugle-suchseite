@@ -13,7 +13,6 @@ import { connect } from "react-redux";
 
 function FullScreenCityInput({
   loadCities,
-  loadRanges,
   cities,
   searchParams,
   setSearchParams,
@@ -54,7 +53,6 @@ function FullScreenCityInput({
           setCityInput={setCityInput}
           isCityLoading={isCityLoading}
           loadFavouriteTours={!!pageKey && pageKey==='start' && loadFavouriteTours}
-          // loadRanges={loadRanges}
           setOpenCitySearch={setOpenCitySearch}
           searchParams={searchParams}
           setSearchParams={setSearchParams}

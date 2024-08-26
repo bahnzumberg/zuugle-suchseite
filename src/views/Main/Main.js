@@ -65,7 +65,8 @@ export function Main({
   const [showMap, setShowMap] = useState(false);
   const [mapBounds, setMapBounds] = useState(null);
   const [markersChanged, setMarkersChanged] = useState(false);
-  const [showCardContainer, setShowCardContainer] = useState(true)
+  const [showCardContainer, setShowCardContainer] = useState(true);
+  const[filterOn, setFilterOn] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:678px)");
 
@@ -284,6 +285,9 @@ const handleShowCardContainer = useCallback((value) => {
         mapBounds={mapBounds}
         markersChanged={markersChanged}
         isMobile={isMobile}
+        filterOn={filterOn}
+        setFilterOn={setFilterOn}
+
       />
     </Box>
   );
@@ -383,7 +387,7 @@ const handleShowCardContainer = useCallback((value) => {
               </Box>
               <DomainMenu />
             </Box>
-            <LanguageMenu />
+            <LanguageMenu pageKey='main'/>
           </Box>
           {!!allCities && allCities.length > 0 && (
             <Box
@@ -421,6 +425,8 @@ const handleShowCardContainer = useCallback((value) => {
                   counter={counter}
                   setCounter={setCounter}
                   mapBounds={mapBounds}
+                  filterOn={filterOn}
+                  setFilterOn={setFilterOn}
                 />
               </Box>
             </Box>

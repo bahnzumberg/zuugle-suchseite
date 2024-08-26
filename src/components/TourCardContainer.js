@@ -17,7 +17,9 @@ export default function TourCardContainer({
   filterValues,
   markersChanged,
   mapBounds,
-  isMobile
+  isMobile,
+  filterOn,
+  setFilterOn
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -36,7 +38,6 @@ export default function TourCardContainer({
   let country = searchParams.get("country");
   let type = searchParams.get("type");
   let search = searchParams.get("search");
-  let sort = searchParams.get("sort");
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
   
@@ -65,7 +66,6 @@ export default function TourCardContainer({
         type: type,
         search: search,
         filter: filterRef.current,
-        sort: sort,
         map: map,
         provider: provider,
         bounds: bounds, // bounds added
@@ -91,7 +91,6 @@ export default function TourCardContainer({
       type: type,
       search: search,
       filter: filterRef.current,
-      sort: sort,
       map: map,
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
@@ -103,7 +102,9 @@ export default function TourCardContainer({
 
   return (
     <Box>
-      <InfiniteScroll
+     {
+      !filterOn && (
+        <InfiniteScroll
         dataLength={tours.length}
         next={_loadTours}
         hasMore={true}
@@ -132,6 +133,8 @@ export default function TourCardContainer({
 
         </Grid>
       </InfiniteScroll>
+      )
+     }
     </Box>
   );
 }

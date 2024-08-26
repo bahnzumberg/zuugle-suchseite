@@ -2,7 +2,7 @@ import * as React from "react";
 import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "../../icons/SearchIcon";
+import TransportTrain from "../../icons/TransportTrain";
 import ClearSearchIcon from "../../icons/ClearSearchIcon";
 
 const CssTextField = styled(TextField)({
@@ -82,7 +82,7 @@ export default function CityInput({
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <SearchIcon />
+            <TransportTrain />
           </InputAdornment>
         ),
         endAdornment: (

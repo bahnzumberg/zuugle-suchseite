@@ -70,7 +70,7 @@ export default function Header({
   useEffect(() => {
     // city = searchParams.get("city");
     if (!!city && !!allCities && allCities.length > 0) {
-      const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
+      const cityObj = allCities.find((e) => e.value === city); // find the city object in array "allCities"
       if (!!cityObj) {
         updateCapCity(cityObj.label);
         searchParams.set("city", city);
@@ -159,7 +159,7 @@ export default function Header({
         >
           <Box component={"div"} className="rowing blueDiv">
             <DomainMenu />
-            <LanguageMenu />
+            <LanguageMenu pageKey='start'/>
           </Box>
           <Box className={"header-text"}>
             <>

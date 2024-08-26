@@ -49,8 +49,8 @@ export function Search({
   setFilterValues,
   filterValues,
   mapBounds,
-  // idOne,
-  // cityOne
+  filterOn,
+  setFilterOn
 }) {
   //navigation
   const navigate = useNavigate();
@@ -210,7 +210,7 @@ export function Search({
     });
 
     result.then((res) => {
-      let importedMarkersArray = res.data.markers;
+      let importedMarkersArray = res?.data?.markers;
 
       if (
         !isMasterMarkersSet.current &&
@@ -250,22 +250,34 @@ export function Search({
     localStorage.setItem("filterCount", 0);
   };
 
-  // Filter modal constructed here
+
+  useEffect(()=>{
+    console.log("L245 filterOn  :", filterOn)
+  },[filterOn]);
+
   const openFilter = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: Filter,
-      title: t("filter.filter"),
-      page: "main",
-      modalSize: "lg",
-      doSubmit: handleFilterSubmit,
-      resetFilter: handleResetFilter,
-      onBack: () => {
-        hideModal();
-      },
-      searchParams,
-      setSearchParams,
-    });
+    setFilterOn(true)
   };
+
+  useEffect(() => {
+    if (filterOn) {
+      showModal("MODAL_COMPONENT", {
+        CustomComponent: Filter,
+        title: t("filter.filter"),
+        page: "main",
+        modalSize: "lg",
+        doSubmit: handleFilterSubmit,
+        resetFilter: handleResetFilter,
+        onBack: () => {
+          setFilterOn(false); // Reset filterOn when closing the modal
+          hideModal();
+        },
+        searchParams,
+        setSearchParams,
+        filterOn: filterOn, // Now filterOn is true when the modal opens
+      });
+    }
+  }, [filterOn]);
 
   //important:
   // state filterValues(from Main) should be set at submission here
@@ -298,6 +310,7 @@ export function Search({
     setCounter(0);
     setFilterValues(null); // reset state in parent Main
     resetFilterLocalStorage();
+    setFilterOn(false)
   };
 
   const handleFilterChange = (entry) => {
@@ -547,7 +560,6 @@ export function Search({
               top: "20px",
               display: "flex",
               flexDirection: "row",
-              
             }}
           >
             <Typography
@@ -572,7 +584,7 @@ export function Search({
                 padding: "8px",
                 width: "40px",
                 height: "40px",
-                borderRadius: "12px"
+                borderRadius: "12px",
               }}
               onClick={() => {
                 setShowMobileModal(false);
@@ -603,7 +615,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-               {t("start.suche")}
+                {t("start.suche")}
               </span>
             </div>
             <Box
@@ -682,7 +694,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-              {t("start.heimatbahnhof")}
+                {t("search.dein_heimatbahnhof")}
               </span>
             </div>
             <Box
@@ -698,8 +710,13 @@ export function Search({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <SearchIcon
-                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+                <TransportTrain
+                  style={{
+                    strokeWidth: "1px",
+                    fill: "#000",
+                    stroke: "none",
+                    marginRight: "8px", // optional spacing between SVG and text
+                  }}
                 />
                 <Box
                   sx={{
@@ -757,15 +774,9 @@ export function Search({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {!cityInput && pageKey ? (
-            <TransportTrain
-              style={{ strokeWidth: "1px", fill: "#000", stroke: "none" }}
-            />
-          ) : (
-            <SearchIcon
-              style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
-            />
-          )}
+          <SearchIcon
+            style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+          />
           <Box
             sx={{
               width: {
@@ -836,11 +847,26 @@ export function Search({
                   }}
                 >
                   {pageKey !== "detail" ? (
-                    <span className="search-bar--city">
-                      {cityInput.length > 0
-                        ? cityInput
-                        : t("start.heimatbahnhof")}
-                    </span>
+                    <Box
+                      className="search-bar--city"
+                      sx={{ display: "flex", textAlign: "left", alignItems:"center"  }}
+                    >
+                      <>
+                        {!isMobile && (
+                          <TransportTrain
+                            style={{
+                              strokeWidth: "1px",
+                              fill: "#000",
+                              stroke: "none",
+                              marginRight: "5px", 
+                            }}
+                          />
+                        )}
+                        {cityInput.length > 0
+                          ? `${t("search.ab_heimatbahnhof")} ${cityInput}`
+                          : t("start.heimatbahnhof")}
+                      </>
+                    </Box>
                   ) : !cityInput && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
@@ -880,9 +906,7 @@ export function Search({
                 className="filter-icon-container"
               >
                 {!!isMain ? (
-                  <IconButton 
-                    onClick={() => openFilter()}
-                    aria-label="Filter">
+                  <IconButton onClick={() => openFilter()} aria-label="Filter">
                     <FilterIcon
                       sx={{
                         transition: "stroke 0.3s",
