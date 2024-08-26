@@ -49,8 +49,8 @@ export function Search({
   setFilterValues,
   filterValues,
   mapBounds,
-  // idOne,
-  // cityOne
+  filterOn,
+  setFilterOn
 }) {
   //navigation
   const navigate = useNavigate();
@@ -250,22 +250,34 @@ export function Search({
     localStorage.setItem("filterCount", 0);
   };
 
-  // Filter modal constructed here
+
+  useEffect(()=>{
+    console.log("L245 filterOn  :", filterOn)
+  },[filterOn]);
+
   const openFilter = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: Filter,
-      title: t("filter.filter"),
-      page: "main",
-      modalSize: "lg",
-      doSubmit: handleFilterSubmit,
-      resetFilter: handleResetFilter,
-      onBack: () => {
-        hideModal();
-      },
-      searchParams,
-      setSearchParams,
-    });
+    setFilterOn(true)
   };
+
+  useEffect(() => {
+    if (filterOn) {
+      showModal("MODAL_COMPONENT", {
+        CustomComponent: Filter,
+        title: t("filter.filter"),
+        page: "main",
+        modalSize: "lg",
+        doSubmit: handleFilterSubmit,
+        resetFilter: handleResetFilter,
+        onBack: () => {
+          setFilterOn(false); // Reset filterOn when closing the modal
+          hideModal();
+        },
+        searchParams,
+        setSearchParams,
+        filterOn: filterOn, // Now filterOn is true when the modal opens
+      });
+    }
+  }, [filterOn]);
 
   //important:
   // state filterValues(from Main) should be set at submission here
@@ -298,6 +310,7 @@ export function Search({
     setCounter(0);
     setFilterValues(null); // reset state in parent Main
     resetFilterLocalStorage();
+    setFilterOn(false)
   };
 
   const handleFilterChange = (entry) => {
