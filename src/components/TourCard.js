@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Chip } from "@mui/material";
 import '/src/config.js';
 
-const DEFAULT_IMAGE = "/app_static/img/dummy.jpg";
+const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 
 export default function TourCard({
   tour,
@@ -36,7 +36,7 @@ export default function TourCard({
 
   useEffect(() => {
     if (JSON.stringify(tour.image_url) === 'null') {
-      setImage("/app_static/img/dummy.jpg")
+      setImage("/app_static/img/dummy.webp")
     }
     else {
       setImage(tour.image_url);

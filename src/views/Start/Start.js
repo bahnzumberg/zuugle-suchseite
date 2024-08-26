@@ -24,11 +24,15 @@ import {
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import MapBtn from "../../components/Search/MapBtn";
-import '/src/config.js';
+import "/src/config.js";
 
-const RangeCardContainer = lazy(() => import("../../components/RangeCardContainer"));
+const RangeCardContainer = lazy(() =>
+  import("../../components/RangeCardContainer")
+);
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-const ScrollingTourCardContainer = lazy(() => import("../../components/ScrollingTourCardContainer"));
+const ScrollingTourCardContainer = lazy(() =>
+  import("../../components/ScrollingTourCardContainer")
+);
 
 function Start({
   loadFavouriteTours,
@@ -63,7 +67,6 @@ function Start({
   let searchParamCity = "";
   let totalTourRef = useRef(0);
   const isMobile = useMediaQuery("(max-width:678px)");
-
 
   useEffect(() => {
     // matomo
@@ -102,8 +105,8 @@ function Start({
         );
         setIsLoading(false);
       } catch (error) {
-          console.error("Error loading data");
-          setIsLoading(false);
+        console.error("Error loading data");
+        setIsLoading(false);
       }
     };
 
@@ -127,7 +130,6 @@ function Start({
     }
   };
 
-
   const onSelectTour = (tour) => {
     if (!!tour && !!tour.id) {
       if (!!city) {
@@ -147,20 +149,19 @@ function Start({
 
   const onSelectRange = (range) => {
     if (!!range && !!range.range) {
-      navigate(`/search?range=${range.range}${!!_city ? "&city=" + _city : ""}`);
+      navigate(
+        `/search?range=${range.range}${!!_city ? "&city=" + _city : ""}`
+      );
     }
   };
-
 
   const getRangeText = () => {
     if (!!_city && _city.length > 0) {
       return t("start.schoene_wanderungen_nahe");
-    } 
-    else {
+    } else {
       return t("start.schoene_wanderungen");
     }
   };
-
 
   const getFavouriteToursText = () => {
     if (!!_city && _city.length > 0) {
@@ -191,7 +192,7 @@ function Start({
     return (
       <Box style={{ background: "#fff" }}>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
-        {!!allCities && allCities.length > 0 && (
+        {
           <Header
             getCity={getCity}
             totalTours={totalTours}
@@ -199,9 +200,9 @@ function Start({
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
-        )}
+        }
 
-        { (
+        {
           <Box elevation={0} className={"header-line"}>
             <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
               <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
@@ -210,13 +211,13 @@ function Start({
               </Typography>
             </Box>
           </Box>
-        )}
-        { (
+        }
+        {
           <Box className={"start-body-container"}>
             <Box
               sx={{
                 marginTop: "20px",
-                padding: isMobile ? '30px 20px' : '30px 10px' ,
+                padding: isMobile ? "30px 20px" : "30px 10px",
                 background: "#EBEBEB",
                 borderRadius: "30px",
               }}
@@ -227,7 +228,7 @@ function Start({
                   textAlign: "left",
                   paddingTop: "20px",
                   paddingBottom: "15px",
-                  marginLeft: !isMobile ? "64px" : null
+                  marginLeft: !isMobile ? "64px" : null,
                 }}
               >
                 {getFavouriteToursText()}
@@ -271,17 +272,17 @@ function Start({
               />
             </Box>
           </Box>
-        )}
+        }
 
-        { (
+        {
           <MapBtn
             onClick={onClickMap}
             mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
             btnSource="start"
           ></MapBtn>
-        )}
+        }
 
-        { <Footer />}
+        {<Footer />}
       </Box>
     );
   }
