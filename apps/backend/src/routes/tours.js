@@ -422,7 +422,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_languages}`;
 
     
-    const temp_table = '';
+    let temp_table = '';
     if (!!city) {
         temp_table = `temp_`+tld+city.replace(/-/g, '_')+`_`+Date.now();
     }
@@ -716,7 +716,7 @@ const filterWrapper = async (req, res) => {
         new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
     }
 
-    const temp_table = '';
+    let temp_table = '';
     if (!!city) {
         temp_table = `temp_`+tld+city.replace(/-/g, '_')+`_`+Date.now();
     }
