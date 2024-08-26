@@ -709,7 +709,8 @@ const filterWrapper = async (req, res) => {
         new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
     }
 
-    const temp_table = `temp_`+tld+city+`_`+Date.now();
+
+    const temp_table = `temp_`+tld+city.replace(/-/g, '_')+`_`+Date.now();
     // console.log("temp_table: ", temp_table)
     
     let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
