@@ -515,7 +515,7 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    console.log("new_search_sql: ", new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql)
 
     let result_sql = null;
     let result = [];
