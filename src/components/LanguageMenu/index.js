@@ -35,7 +35,7 @@ function LanguageMenu({pageKey}) {
 		localStorage.setItem("lang", lng);
 		langChange(lng);
 		setShowLanguageMenu(false);
-		if(pageKey === "main"){
+		if(pageKey === "main" || pageKey === "start" ){
 			window.location.reload()
 		}
 	};
@@ -97,7 +97,7 @@ function LanguageMenu({pageKey}) {
 									style={{
 										width: 140,
 										marginBottom: 5,
-										color: i18LangFormatted == item.key && "#4992FF",
+										color: i18LangFormatted === item.key && "#4992FF",
 									}}
 								>
 									{item.nativeName}
