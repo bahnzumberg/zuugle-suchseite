@@ -421,7 +421,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_types}
                                     ${new_filter_where_languages}`;
 
-    const temp_table = `temp_`+tld+city+`_`+Date.now();
+    const temp_table = `temp_`+tld+city.replace(/-/g, '_')+`_`+Date.now();
 
     const temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
                         SELECT 
@@ -508,7 +508,7 @@ const listWrapper = async (req, res) => {
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
 
     let result_sql = null;
     let result = [];
