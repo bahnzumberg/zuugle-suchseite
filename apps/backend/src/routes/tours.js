@@ -627,7 +627,7 @@ const listWrapper = async (req, res) => {
         const range_sql  = `SELECT
                             t.range_slug,
                             t.range,
-                            CONCAT('${getHost(domain)}/public/range-image/', t.range_slug, '.jpg') as image_url,
+                            CONCAT('${getHost(domain)}/public/range-image/', t.range_slug, '.webp') as image_url,
                             SUM(1.0/(c2t.min_connection_no_of_transfers+1)) AS attract
                             FROM city2tour AS c2t 
                             INNER JOIN tour AS t 
