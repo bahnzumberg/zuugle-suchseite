@@ -836,7 +836,7 @@ export function Search({
                   {pageKey !== "detail" ? (
                     <Box
                       className="search-bar--city"
-                      sx={{ display: "flex", alignItems: "center" }}
+                      sx={{ display: "flex", textAlign: "left", alignItems:"center"  }}
                     >
                       <>
                         {!isMobile && (
@@ -845,7 +845,7 @@ export function Search({
                               strokeWidth: "1px",
                               fill: "#000",
                               stroke: "none",
-                              marginRight: "8px", // optional spacing between SVG and text
+                              marginRight: "5px", 
                             }}
                           />
                         )}
