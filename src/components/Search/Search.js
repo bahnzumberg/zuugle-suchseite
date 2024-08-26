@@ -210,7 +210,7 @@ export function Search({
     });
 
     result.then((res) => {
-      let importedMarkersArray = res.data.markers;
+      let importedMarkersArray = res?.data?.markers;
 
       if (
         !isMasterMarkersSet.current &&
