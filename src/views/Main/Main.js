@@ -387,7 +387,7 @@ const handleShowCardContainer = useCallback((value) => {
               </Box>
               <DomainMenu />
             </Box>
-            <LanguageMenu />
+            <LanguageMenu pageKey='main'/>
           </Box>
           {!!allCities && allCities.length > 0 && (
             <Box
