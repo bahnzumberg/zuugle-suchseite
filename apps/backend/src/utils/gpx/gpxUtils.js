@@ -99,7 +99,6 @@ export const createImagesFromMap = async (ids) => {
                         fs.mkdirSync(dirPath);
                     }
                     
-                    // let filePath = path.join(dirPath, ch+"_gpx.jpg");
                     let filePath = path.join(dirPath, ch+"_gpx.png");
                     let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
 

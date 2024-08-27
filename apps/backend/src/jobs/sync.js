@@ -288,6 +288,31 @@ export async function fixTours(){
 }
 
 
+export async function copyRangeImage(){
+    // Check if all existing ranges have a valid image
+    let range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
+    range_result = range_result.rows;
+
+    let dir_go_up = "../../";
+    if(process.env.NODE_ENV == "production"){ 
+        dir_go_up = "../../"; 
+    }
+    if(!!range_result){     
+        for(let i=0; i<range_result.length; i++){
+            const range = range_result[i];
+            
+            const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
+            const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
+
+            if (!fs.existsSync(fs_target)){
+                fs.copyFile(fs_source, fs_target);
+                console.log("No image for range found. Copying from default: ", fs_target)
+            }    
+        }
+    }
+}
+
+
 const prepareDirectories = () => {
     // We need a basic set of directories, which are created now, if they do not exist yet
     let filePath='';
@@ -500,6 +525,7 @@ export async function syncGPX(){
     }
     return true;
 }
+
 
 export async function syncGPXImage(){
     // let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");

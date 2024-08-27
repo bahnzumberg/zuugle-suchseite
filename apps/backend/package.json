@@ -19,7 +19,7 @@
     "import-data-full": "node build/jobs/syncData.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
-    "import-files-prod": "node build/jobs/syncFilesProd.js",
+    "import-files-prod": "node build/jobs/syncFiles.js",
     "generate-testdata": "node build/jobs/generateTestdata.js"
   },
   "keywords": [],

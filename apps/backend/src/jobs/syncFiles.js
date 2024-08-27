@@ -1,5 +1,5 @@
 #!/usr/bin/node
-import {syncConnectionGPX, syncGPX, syncGPXImage} from "./sync";
+import {syncConnectionGPX, syncGPX, syncGPXImage, copyRangeImage} from "./sync";
 import moment from "moment";
 
 
@@ -12,7 +12,10 @@ syncGPX().then(res => {
         console.log('START CREATE GPX IMAGE FILES: ', moment().format('HH:mm:ss'));
         syncGPXImage().then(res2 => {
             console.log('END CREATE GPX IMAGE FILES: ', moment().format('HH:mm:ss'));
-            process.exit();
+            console.log('START COPYING RANGE IMAGE FILES: ', moment().format('HH:mm:ss'));
+            copyRangeImage().then(res3 => {
+                process.exit();
+            });
         })
     })
 })
