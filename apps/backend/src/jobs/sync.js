@@ -290,7 +290,7 @@ export async function copyRangeImage(){
     let dir_go_up = "../../";
     let ranges = [];
     if(process.env.NODE_ENV == "production"){ 
-        dir_go_up = "../../"; 
+        dir_go_up = "../"; 
     }
 
     try {
