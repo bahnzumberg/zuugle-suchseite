@@ -311,7 +311,7 @@ export async function copyRangeImage(){
     console.log("in copyRangeImage");
     try {
         // Check if all existing ranges have a valid image
-        const range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
+        const range_result = knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
         ranges = range_result.rows;
         console.log("after SQL");
     } catch (error) {
