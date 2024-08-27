@@ -303,6 +303,7 @@ export async function fixTours(){
 
 export async function copyRangeImage(){
     let dir_go_up = "../../";
+    let ranges = [];
     if(process.env.NODE_ENV == "production"){ 
         dir_go_up = "../../"; 
     }
@@ -311,23 +312,26 @@ export async function copyRangeImage(){
     try {
         // Check if all existing ranges have a valid image
         const range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
-        const ranges = range_result.rows;
+        ranges = range_result.rows;
         console.log("after SQL");
-        
-        for (const range of ranges) {
-          const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
-          const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
-    
-          if (!fs.existsSync(fs_target)) {
-            await fs.promises.copyFile(fs_source, fs_target);
-            console.log("No image for range found. Copying from default: ", fs_target);
-          }
-        }
     } catch (error) {
-        console.error("Error copying range images:", error);
-        // Handle the error appropriately, e.g., log it, retry the operation, or notify the user
+        console.error("Error querying the database:", error);
     } finally {
         await knex.destroy();
+    }        
+
+    try {
+        for (const range of ranges) {
+            const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
+            const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
+
+            if (!fs.existsSync(fs_target)) {
+            await fs.promises.copyFile(fs_source, fs_target);
+            console.log("No image for range found. Copying from default: ", fs_target);
+            }
+        }
+    } catch (error) {
+        console.error("Error querying the database:", error);
     }
 }
 
