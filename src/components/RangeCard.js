@@ -7,7 +7,7 @@ import { checkIfImageExists } from "../utils/globals";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 
 // const DEFAULT_IMAGE = `${window.location.origin}/app_static/img/default.jpg`;
-const DEFAULT_IMAGE = CONCAT('${window.location.origin}/public/range-image/default.webp')
+const DEFAULT_IMAGE = `${window.location.origin}/public/range-image/default.webp`
 
 export default function RangeCard({ range, onSelectTour }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
