@@ -101,18 +101,18 @@ export async function fixTours(){
 
     // Store for each tour and city the maximum connection duration to get to the hike start                
     await knex.raw(`UPDATE city2tour AS c SET max_connection_duration = i.max_connection_dur
-        FROM (
-        SELECT 
-        f.tour_provider AS provider,
-        f.hashed_url,
-        f.city_slug,
-        EXTRACT(EPOCH FROM MAX(f.best_connection_duration))/60 AS max_connection_dur
-        FROM fahrplan AS f
-        WHERE f.city_any_connection='yes'
-        GROUP BY f.tour_provider, f.hashed_url, f.city_slug
-        ) AS i
-        WHERE i.hashed_url=c.hashed_url
-        AND i.city_slug=c.city_slug`);
+                    FROM (
+                    SELECT 
+                    f.tour_provider AS provider,
+                    f.hashed_url,
+                    f.city_slug,
+                    EXTRACT(EPOCH FROM MAX(f.best_connection_duration))/60 AS max_connection_dur
+                    FROM fahrplan AS f
+                    WHERE f.city_any_connection='yes'
+                    GROUP BY f.tour_provider, f.hashed_url, f.city_slug
+                    ) AS i
+                    WHERE i.hashed_url=c.hashed_url
+                    AND i.city_slug=c.city_slug`);
     await knex.destroy();
 
     
@@ -302,31 +302,32 @@ export async function fixTours(){
 
 
 export async function copyRangeImage(){
-    // Check if all existing ranges have a valid image
-    console.log("vor SELECT in copyRangeImage")
-    let range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
-    range_result = range_result.rows;
-    await knex.destroy();
-
-    console.log("nach SELECT in copyRangeImage")
-
     let dir_go_up = "../../";
     if(process.env.NODE_ENV == "production"){ 
         dir_go_up = "../../"; 
     }
-    if(!!range_result){     
-        for(let i=0; i<range_result.length; i++){
-            const range = range_result[i];
-            
-            const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
-            const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
-            console.log("fs_target: ", fs_target)
 
-            if (!fs.existsSync(fs_target)){
-                fs.copyFile(fs_source, fs_target);
-                console.log("No image for range found. Copying from default: ", fs_target)
-            }    
+    console.log("in copyRangeImage");
+    try {
+        // Check if all existing ranges have a valid image
+        const range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
+        const ranges = range_result.rows;
+        console.log("after SQL");
+        
+        for (const range of ranges) {
+          const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
+          const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
+    
+          if (!fs.existsSync(fs_target)) {
+            await fs.promises.copyFile(fs_source, fs_target);
+            console.log("No image for range found. Copying from default: ", fs_target);
+          }
         }
+    } catch (error) {
+        console.error("Error copying range images:", error);
+        // Handle the error appropriately, e.g., log it, retry the operation, or notify the user
+    } finally {
+        await knex.destroy();
     }
 }
 
