@@ -270,6 +270,7 @@ export async function fixTours(){
                 try {
                     if (entry.image_url != encodeURI(entry.image_url).replace(/%5B/g, '[').replace(/%5D/g, ']')) {
                         await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`)
+                        await knex.destroy();
                         // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
                     }
                     else {
@@ -302,9 +303,12 @@ export async function fixTours(){
 
 export async function copyRangeImage(){
     // Check if all existing ranges have a valid image
+    console.log("vor SELECT in copyRangeImage")
     let range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
     range_result = range_result.rows;
     await knex.destroy();
+
+    console.log("nach SELECT in copyRangeImage")
 
     let dir_go_up = "../../";
     if(process.env.NODE_ENV == "production"){ 
@@ -316,6 +320,7 @@ export async function copyRangeImage(){
             
             const fs_source = path.join(__dirname, dir_go_up, 'public/range-image/default.webp');
             const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
+            console.log("fs_target: ", fs_target)
 
             if (!fs.existsSync(fs_target)){
                 fs.copyFile(fs_source, fs_target);
@@ -488,7 +493,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
                 trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                
                 if(!!trackPoints && trackPoints.length > 0){
-                    console.log("vor createFileFromGpx filePath=", filePath);
+                    // console.log("vor createFileFromGpx filePath=", filePath);
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
             }
@@ -498,7 +503,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
 }
 
 export async function syncConnectionGPX(mod=null){
-    console.log("vor toTourFahrplan");
+    // console.log("vor toTourFahrplan");
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
@@ -507,7 +512,7 @@ export async function syncConnectionGPX(mod=null){
         await Promise.all(promises);
     }
 
-    console.log("vor fromTourFahrplan");
+    // console.log("vor fromTourFahrplan");
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
