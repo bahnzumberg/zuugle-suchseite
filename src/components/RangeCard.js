@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { checkIfImageExists } from "../utils/globals";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 
-const DEFAULT_IMAGE = `${window.location.origin}/app_static/img/default.jpg`;
+// const DEFAULT_IMAGE = `${window.location.origin}/app_static/img/default.jpg`;
+const DEFAULT_IMAGE = `${window.location.origin}/public/range-image/default.webp`
 
 export default function RangeCard({ range, onSelectTour }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
@@ -27,18 +28,6 @@ export default function RangeCard({ range, onSelectTour }) {
     }
   }, [range]);
 
-  const getStates = () => {
-    if (!!range && !!range.states && range.states.length > 0) {
-      if (range.states.length > 2) {
-        return `${range.states[0]}, ${range.states[1]}, ...`;
-      } else if (range.states.length == 2) {
-        return `${range.states[0]}, ${range.states[1]}`;
-      } else {
-        return `${range.states[0]}`;
-      }
-    }
-    return "";
-  };
 
   return (
     <Paper
@@ -88,7 +77,6 @@ export default function RangeCard({ range, onSelectTour }) {
         >
           {range.range}
         </Typography>
-        {/* <Typography sx={{textAlign: 'left'}} color={'#FFFFFF'}>{getStates()}</Typography> */}
       </Box>
     </Paper>
   );
