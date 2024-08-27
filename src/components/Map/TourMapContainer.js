@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
 import "./popup-style.css";
-import { orderedArraysEqual } from "../../utils/globals.js";
+import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import '/src/config.js';
@@ -42,7 +42,6 @@ function TourMapContainer({
   handleShowCardContainer
 }) {
   const dispatch = useDispatch(); // Get dispatch function from Redux
-  // const getState = useSelector(state => state); // Get state from Redux
 
   const markers = useSelector((state) => state.tours.markers); // move to props
   const isMasterMarkersSet = useRef(false);
@@ -51,6 +50,46 @@ function TourMapContainer({
 
   const time = useMemo(() => new Date().getTime(), []) // used for MapContainer
 
+  let domain = getTopLevelDomain();
+
+  let default_LatNE, default_LngNE, default_LatSW, default_LngSW;
+  let centerLat, centerLng;
+
+  //initialise map bounds and center
+  switch (domain) {
+    case 'si':  // Slovenia
+      default_LatNE = 46.876;
+      default_LngNE = 16.609;
+      default_LatSW = 45.421;
+      default_LngSW = 13.383;
+      break;
+  
+    case 'fr':  // France
+      default_LatNE = 51.089;
+      default_LngNE = 9.559;
+      default_LatSW = 42.331;
+      default_LngSW = -5.142;
+      break;
+  
+    case 'it':  // North Italy only
+      default_LatNE = 46.5;
+      default_LngNE = 12.5;
+      default_LatSW = 44.0;
+      default_LngSW = 7.0;
+      break;
+  
+    default:  // Austria
+      default_LatNE = 49.019;
+      default_LngNE = 17.189;
+      default_LatSW = 46.372;
+      default_LngSW = 9.53;
+      break;
+  }
+  
+  // Default map center using default bounds
+  centerLat = (default_LatSW + default_LatNE) / 2;
+  centerLng = (default_LngSW + default_LngNE) / 2;
+    
 
   // storing masterMarkers list inside localStorage
   useEffect(() => {
@@ -68,15 +107,6 @@ function TourMapContainer({
       iconAnchor: [16, 46],
     });
   };
-
-  // const createEndMarker = () => {
-  //   return L.icon({
-  //     iconUrl: "app_static/img/zielpunkt.png", //the acutal picture
-  //     shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-  //     iconSize: [30, 40], //size of the icon
-  //     iconAnchor: [15, 41],
-  //   });
-  // };
 
   const mapRef = useRef();
   const clusterRef = useRef();
@@ -103,14 +133,6 @@ function TourMapContainer({
     : null;
   filter = !!filterValuesLocal ? filterValuesLocal : filter;
 
-  // default map bounds
-  const default_MapPositionLatNE = 49.019;
-  const default_MapPositionLngNE = 17.189;
-  const default_MapPositionLatSW = 46.372;
-  const default_MapPositionLngSW = 9.53;
-  //default center calculations
-  const centerLat = (default_MapPositionLatSW + default_MapPositionLatNE) / 2;
-  const centerLng = (default_MapPositionLngSW + default_MapPositionLngNE) / 2;
 
   //checks if page is reloaded
   // const pageAccessedByReload =
@@ -128,6 +150,9 @@ function TourMapContainer({
   }, [mapInitialized, setMapInitialized]);
 
   useEffect(() => {
+    console.log("L161 mapRef.current :", mapRef.current)
+    console.log("L162 mapBounds :", mapBounds)
+    console.log("L163 mapInitialized :", mapInitialized)
     if (mapRef.current && mapBounds && mapInitialized) {  // +++++++ if needed add mapInitialized in the condition 
       let _masterMarkers = {};
 
@@ -186,6 +211,15 @@ function TourMapContainer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMarkerRef.current]);
   */
+
+  useEffect(()=>{
+    if (markers && markers.length > 0 && mapRef.current) {
+        // console.log('Update bounds');
+        const bounds = getMarkersBounds(markers);
+        console.log("L219 bounds :", bounds)
+        !!bounds && mapRef.current.fitBounds(bounds);
+    }
+}, [markers]);
  
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
@@ -197,7 +231,8 @@ function TourMapContainer({
         }
       });
 
-      return _bounds;
+      return null;
+      // return _bounds;
     }else return null
   };
 
@@ -224,19 +259,19 @@ function TourMapContainer({
   const assignNewMapPosition = (position) => {
     localStorage.setItem(
       "MapPositionLatNE",
-      position?._northEast?.lat || default_MapPositionLatNE
+      position?._northEast?.lat || default_LatNE
     );
     localStorage.setItem(
       "MapPositionLngNE",
-      position?._northEast?.lng || default_MapPositionLngNE
+      position?._northEast?.lng || default_LngNE
     );
     localStorage.setItem(
       "MapPositionLatSW",
-      position?._southWest?.lat || default_MapPositionLatSW
+      position?._southWest?.lat || default_LatSW
     );
     localStorage.setItem(
       "MapPositionLngSW",
-      position?._southWest?.lng || default_MapPositionLngSW
+      position?._southWest?.lng || default_LngSW
     );
   };
 
@@ -481,7 +516,6 @@ function TourMapContainer({
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
           zoomSnap={1}
           maxZoom={15} //how many times you can zoom
-          //maxZoom={16} //how many times you can zoom
           center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map

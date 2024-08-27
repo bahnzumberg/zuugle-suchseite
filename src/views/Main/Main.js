@@ -190,7 +190,6 @@ export function Main({
       await loadTour(id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           retTour = tourExtracted;
-          console.log("L193 retTour / onSelectMapTour :", retTour)
           localStorage.setItem("tourId", id);
         } else {
           goToStartPage();
