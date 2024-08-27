@@ -168,7 +168,6 @@ export function Main({
   const onSelectTour = (tour) => {
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id) {
-      // if(!!city){
       loadTour(tour.id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           localStorage.setItem("tourId", tour.id);
@@ -191,6 +190,7 @@ export function Main({
       await loadTour(id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           retTour = tourExtracted;
+          console.log("L193 retTour / onSelectMapTour :", retTour)
           localStorage.setItem("tourId", id);
         } else {
           goToStartPage();

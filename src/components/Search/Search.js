@@ -251,9 +251,6 @@ export function Search({
   };
 
 
-  useEffect(()=>{
-    console.log("L245 filterOn  :", filterOn)
-  },[filterOn]);
 
   const openFilter = () => {
     setFilterOn(true)
