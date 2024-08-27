@@ -468,8 +468,8 @@ export async function generateTestdata(){
 
 async function _syncConnectionGPX(key, partFilePath, fileName, title){
     
-
     return new Promise(async resolve => {
+        console.log("Start _syncConnectionGPX");
         let filePath = '';
         if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../", partFilePath);
@@ -488,6 +488,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
                 trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
                
                 if(!!trackPoints && trackPoints.length > 0){
+                    console.log("vor createFileFromGpx filePath=", filePath);
                     await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
                 }
             }
@@ -497,8 +498,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title){
 }
 
 export async function syncConnectionGPX(mod=null){
-
-
+    console.log("vor toTourFahrplan");
     const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
     if(!!toTourFahrplan){
         const promises = toTourFahrplan.map(entry => {
@@ -507,6 +507,7 @@ export async function syncConnectionGPX(mod=null){
         await Promise.all(promises);
     }
 
+    console.log("vor fromTourFahrplan");
     const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
     if(!!fromTourFahrplan) {
         const promises = fromTourFahrplan.map(entry => {
