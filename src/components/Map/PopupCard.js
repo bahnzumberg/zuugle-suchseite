@@ -16,7 +16,7 @@ function isNumber(value) {
   return typeof value === 'number';
 }
 
-export default function PopupCard({tour}){
+export default function PopupCard({tour, city}){
 
     const [image, setImage] = useState(DEFAULT_IMAGE);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +24,7 @@ export default function PopupCard({tour}){
     if(searchParams.get('filter')) searchParams.delete("filter");
     if(searchParams.get('map')) searchParams.delete("map");
  
-    let tourLink = `/tour?id=${tour.id}&`+ searchParams.toString();
+    let tourLink = `/tour/${tour.id}/${city}`;
       
     // i18next
     const {t} = useTranslation();

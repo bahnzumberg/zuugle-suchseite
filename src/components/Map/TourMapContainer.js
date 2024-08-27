@@ -93,7 +93,7 @@ function TourMapContainer({
     ? searchParams.get("city")
     : localStorage.getItem("city")
     ? localStorage.getItem("city")
-    : null;
+    : "no-city";
   const [city, setCity] = useState(initialCity);
   const [selectedTour, setSelectedTour] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -203,13 +203,14 @@ function TourMapContainer({
 
   // city setting
   useEffect(() => {
-    if (
-      !!city &&
-      !!searchParams.get("city") &&
-      city !== searchParams.get("city")
-    ) {
-      setCity(searchParams.get("city"));
-    }
+    let _city = !!searchParams.get("city")
+    ? searchParams.get("city")
+    : localStorage.getItem("city")
+    ? localStorage.getItem("city")
+    : "no-city";
+
+    setCity(_city)
+
   }, [searchParams, city]);
 
   const checkMarkersChanges = (visibleMarkers, storedMarkers) => {
@@ -331,14 +332,15 @@ function TourMapContainer({
     async (e, tourId) => {
 
       if(!!mapInitialized) {
-       
+
+        if (!tourId) return;
+
         let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
         activeMarkerRef.current = tourInfo;
 
         setSelectedTour(null);
         setIsLoading(true);
 
-        if (!tourId || !city) return; // exit if not both parameters available
 
         if(!!tourId && city ){
           try {
@@ -497,9 +499,7 @@ function TourMapContainer({
           { !!activeMarkerRef.current && selectedTour  && (
             <Popup
               key={`popup_${activeMarkerRef.current.id}`}
-              // minWidth={350}
               maxWidth={280}
-              // minHeight={300}
               maxHeight={210}
               className="request-popup"
               offset={L.point([0, -25])}
@@ -512,7 +512,7 @@ function TourMapContainer({
               }}
             >
               {selectedTour?.id === activeMarkerRef.current.id && (
-                <PopupCard tour={selectedTour} />
+                <PopupCard tour={selectedTour} city={city} />
               )}
             </Popup>
           )}
