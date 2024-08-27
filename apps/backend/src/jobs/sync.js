@@ -42,7 +42,7 @@ async function update_tours_from_tracks() {
                     ) AS b
                     WHERE b.tour_id=c2t.tour_id
                     AND b.city_slug=c2t.city_slug`);
-
+    await knex.destroy();
 
 }
 
@@ -60,11 +60,13 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
+    await knex.destroy();
 
     // This step creates a table, which establishes the connection between cities and tours.
     // 1. You can filter on all tours reachable from this city (by filtering on city_slug).
     // 2. You can filter on all tours reachable from all cities in this country (by filtering on reachable_from_country).
     await knex.raw(`TRUNCATE city2tour;`);
+    await knex.destroy();
     await knex.raw(`INSERT INTO city2tour 
                     (tour_id, provider, hashed_url, city_slug, reachable_from_country)
                     SELECT DISTINCT
@@ -79,6 +81,7 @@ export async function fixTours(){
                     INNER JOIN tour
                     ON tour.hashed_url=fahrplan.hashed_url
                     WHERE fahrplan.city_any_connection='yes'`);
+    await knex.destroy();
 
     // Store for each tour and city the minimal connection duration to get to the hike start                
     await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
@@ -94,6 +97,7 @@ export async function fixTours(){
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
+    await knex.destroy();
 
     // Store for each tour and city the maximum connection duration to get to the hike start                
     await knex.raw(`UPDATE city2tour AS c SET max_connection_duration = i.max_connection_dur
@@ -109,6 +113,7 @@ export async function fixTours(){
         ) AS i
         WHERE i.hashed_url=c.hashed_url
         AND i.city_slug=c.city_slug`);
+    await knex.destroy();
 
     
     // Store for every tour and city the minimal number of transfers (changing between trains/busses)
@@ -123,6 +128,7 @@ export async function fixTours(){
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
+    await knex.destroy();
 
     // Store for every tour and city the total walking duration: bus stop to start of hike, hike, back to bus stop 
     await knex.raw(`UPDATE city2tour AS c SET avg_total_tour_duration = i.avg_total_tour_duration
@@ -140,7 +146,7 @@ export async function fixTours(){
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
-
+    await knex.destroy();
 
     
     if(process.env.NODE_ENV == "production"){
@@ -165,12 +171,14 @@ export async function fixTours(){
                             WHERE g.typ='first'
                         ) AS b
                         WHERE b.hashed_url=c2t.hashed_url`);
+        await knex.destroy();
 
         // Generating at least one point for the tracks
         await knex.raw(`TRUNCATE tracks`)
+        await knex.destroy();
 
         try {
-        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
                         SELECT
                         f.totour_track_key AS track_key,
                         ROW_NUMBER() OVER(PARTITION BY f.totour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
@@ -184,13 +192,14 @@ export async function fixTours(){
                         WHERE ct.connection_arrival_stop_lon IS NOT NULL
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+            await knex.destroy();
         }
         catch(e) {
             console.log(e)
         }
 
         try {
-        await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
+            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
                         SELECT
                         f.fromtour_track_key AS track_key,
                         ROW_NUMBER() OVER(PARTITION BY f.fromtour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
@@ -205,6 +214,7 @@ export async function fixTours(){
                         AND ct.connection_arrival_stop_lon IS NOT NULL
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
+            await knex.destroy();
         }
         catch(e) {
             console.log(e)
@@ -243,10 +253,12 @@ export async function fixTours(){
                         WHERE d.city_order=1
                     ) AS e
                     WHERE ct.tour_id=e.tour_id
-                    AND ct.city_slug=e.city_slug;`)
+                    AND ct.city_slug=e.city_slug;`);
+    await knex.destroy();
 
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
+    await knex.destroy();
 
     // Check all entries of column image_url in table tour
     // First, we remove all images producing 404, which are already stored there - mainly provider bahnzumberg 
@@ -292,6 +304,7 @@ export async function copyRangeImage(){
     // Check if all existing ranges have a valid image
     let range_result = await knex.raw(`SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`);
     range_result = range_result.rows;
+    await knex.destroy();
 
     let dir_go_up = "../../";
     if(process.env.NODE_ENV == "production"){ 
@@ -386,11 +399,14 @@ export async function writeKPIs(){
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_provider';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`);
+
+    await knex.destroy();
 }
 
 
 export async function getProvider(){
     await knex.raw(`TRUNCATE provider;`);
+    await knex.destroy();
     var query_result;
     try {
         query_result = await knexTourenDb('vw_provider_to_search').select();
@@ -441,6 +457,7 @@ export async function generateTestdata(){
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 4,'bozen', 'it', 'IT');`);
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hütte', 5,'ljubljana', 'sl', 'SI');`);
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Klettern', 1,'wien', 'fr', 'AT');`);
+        await knex.destroy();
     } catch(err){
         console.log('error: ', err);
         return false;
@@ -545,6 +562,7 @@ export async function syncGPXImage(){
         }
 
         await knex.raw(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
+        await knex.destroy();
     }
     return true;
 
@@ -630,6 +648,7 @@ export async function syncGPXdata(mode='dev'){
     // As we do a full load of the table "gpx" here, we empty it completely and fill it up afterwards
     try {
         await knex.raw(`TRUNCATE gpx;`);
+        await knex.destroy();
     } catch(err){
         console.log('error: ', err)
     }
@@ -665,6 +684,7 @@ export async function syncFahrplan(mode='dev'){
     
     try {
         await knex.raw(`TRUNCATE fahrplan;`);
+        await knex.destroy();
     } catch(err){
         console.log('error: ', err)
     }
@@ -733,6 +753,7 @@ const readAndInsertFahrplan = async (counter, chunksizer) => {
                     WHERE ABS(trigger_id) % ${chunksizer} = ${counter};`
                     
     const result = await knexTourenDb.raw(mysql_sql);
+    await knex.destroy();
     
     let data = result[0].map(row => ({ ...row }));
 
@@ -803,6 +824,7 @@ const readAndInsertFahrplan = async (counter, chunksizer) => {
 
         try {
             await knex.raw(insert_sql);
+            await knex.destroy();
         } catch (err) {
             logger('############### Error with this SQL ###############');
             logger(`Insert sql into fahrplan table: ${insert_sql}`);
@@ -817,9 +839,11 @@ const readAndInsertFahrplan = async (counter, chunksizer) => {
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
+    await knex.destroy();
 
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
+    await knex.destroy();
 
     let limit = 500;
     const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
@@ -878,6 +902,7 @@ export async function syncTours(){
                                         WHERE t.id % ${modulo} = ${i};`);
 
         const result = await query;
+        await knex.destroy();
         if(!!result && result.length > 0 && result[0].length > 0){
             bulk_insert_tours(result[0]);
         }
@@ -1016,6 +1041,7 @@ const bulk_insert_tours = async (entries) => {
 
     try {
         await knex('tour').insert(queries);
+        await knex.destroy();
         return true;
     } catch(err){
         console.log('error: ', err)
