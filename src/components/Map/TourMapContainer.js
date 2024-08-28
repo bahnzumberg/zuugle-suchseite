@@ -55,7 +55,7 @@ function TourMapContainer({
   let default_LatNE, default_LngNE, default_LatSW, default_LngSW;
   let centerLat, centerLng;
 
-  //initialise map bounds and center
+  //initialise map bounds and center according to domain country
   switch (domain) {
     case 'si':  // Slovenia
       default_LatNE = 46.876;
@@ -76,6 +76,20 @@ function TourMapContainer({
       default_LngNE = 12.5;
       default_LatSW = 44.0;
       default_LngSW = 7.0;
+      break;
+    
+    case 'de':  // Germany
+      default_LatNE = 55.058;
+      default_LngNE = 15.041;
+      default_LatSW = 47.270;
+      default_LngSW = 5.866;
+      break;
+
+    case 'ch':  // Switzerland
+      default_LatNE = 47.808;
+      default_LngNE = 10.491;
+      default_LatSW = 45.817;
+      default_LngSW = 5.955;
       break;
   
     default:  // Austria
