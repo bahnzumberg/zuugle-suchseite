@@ -551,6 +551,7 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
+    let markers_center = []; // markers-related : to be filled with the center point
     
     if (!!map) {
         try {
@@ -566,7 +567,29 @@ const listWrapper = async (req, res) => {
             
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
-            markers_array = markers_result.rows; // This is to be passed to the response below
+                markers_array = markers_result.rows; // This is to be passed to the response below
+            } else {
+                console.log("markers_result is null or undefined");
+            }    
+        } 
+        catch (error) {
+            console.log("tours.js: error retrieving markers_result:" + error);
+        }
+
+        // get the center of the markers from above
+        try {
+            // markers-related / searchIncluded
+            const markers_center_sql = `SELECT 
+                                    AVG(t.connection_arrival_stop_lat) as center_lat,
+                                    AVG(t.connection_arrival_stop_lon) as center_lon
+                                    FROM ${temp_table} AS t 
+                                    WHERE t.connection_arrival_stop_lat IS NOT NULL 
+                                    AND t.connection_arrival_stop_lon IS NOT NULL;`;
+            markers_result = await knex.raw(markers_center_sql); // fire the DB call here
+            
+            // markers-related
+            if (!!markers_result && !!markers_result.rows) {
+                markers_center = markers_result.rows; // This is to be passed to the response below
             } else {
                 console.log("markers_result is null or undefined");
             }    
@@ -673,6 +696,7 @@ const listWrapper = async (req, res) => {
         page: page,
         ranges: ranges,
         markers: markers_array,
+        markers_center: markers_center,
       });
 } // end of listWrapper
 
