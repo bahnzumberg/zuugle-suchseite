@@ -109,6 +109,7 @@ function TourMapContainer({
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
+      console.log("L112 inside markers useEffect")
       isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
     }
   }, [markers]);
@@ -131,6 +132,8 @@ function TourMapContainer({
   const [totourGpxTrack, setTotourGpxTrack] = useState([]);
   const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [mapLoaded, setMapLoaded] = useState(false);
+
 
 
   const initialCity = !!searchParams.get("city")
@@ -148,20 +151,24 @@ function TourMapContainer({
   filter = !!filterValuesLocal ? filterValuesLocal : filter;
 
 
-  //checks if page is reloaded
-  // const pageAccessedByReload =
-  //   (window.performance.getEntriesByType("navigation")[0] &&
-  //     window.performance.getEntriesByType("navigation")[0].type === 1) ||
-  //   window.performance
-  //     .getEntriesByType("navigation")
-  //     .map((nav) => nav.type)
-  //     .includes("reload");
-
   useEffect(() => {
     if (!mapInitialized) {
       setMapInitialized(true);
     }
   }, [mapInitialized, setMapInitialized]);
+
+  useEffect(() => {
+    // keep checking until mapRef.current is set
+    const interval = setInterval(() => {
+        if (mapRef.current) {
+            setMapLoaded(true); 
+            clearInterval(interval); 
+        }
+    }, 500);
+
+    // Cleanup on component unmount
+    return () => clearInterval(interval);
+}, [mapRef]);
 
   useEffect(() => {
     console.log("L161 mapRef.current :", mapRef.current)
@@ -214,39 +221,39 @@ function TourMapContainer({
       }
     }
   // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
-  }, [mapBounds]);  
+  }, [mapBounds, mapInitialized]);  
 
-  /*
-  useEffect(() => {
-    if (activeMarkerRef.current && mapRef.current) {
-      const { lat, lon } = activeMarkerRef.current;
-      mapRef.current.setView([lat, lon], 15); 
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMarkerRef.current]);
-  */
+
 
   useEffect(()=>{
-    if (markers && markers.length > 0 && mapRef.current) {
+    console.log("L230 mapRef.current:", mapRef.current)
+    console.log("L231 markers.length:", markers.length)
+    console.log("L232 mapLoaded:", mapLoaded)
+    if (markers && markers.length > 0 && mapLoaded) {
         // console.log('Update bounds');
         const bounds = getMarkersBounds(markers);
         console.log("L219 bounds :", bounds)
-        !!bounds && mapRef.current.fitBounds(bounds);
+        if(!!bounds && !!mapRef?.current) {
+          mapRef.current.fitBounds(bounds);
+        }
     }
-}, [markers]);
+}, [markers, mapRef, mapLoaded]);
  
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
+    console.log("L242 _bounds ", _bounds)
+
 
     if(!!markers){
+      console.log("L246 markers.length ", markers.length)
       markers.forEach((marker) => {
         if (marker.lat && marker.lon) {
           _bounds.extend([marker.lat, marker.lon]);
         }
       });
-
-      return null;
-      // return _bounds;
+      console.log("L252 _bounds ", _bounds)
+      
+      return _bounds;
     }else return null
   };
 
@@ -291,6 +298,7 @@ function TourMapContainer({
 
   // fitting bounds when cluster is clicked
   const updateBounds = () => {
+
     if (
       !!mapRef &&
       !!mapRef.current &&
