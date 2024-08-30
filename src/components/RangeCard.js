@@ -6,13 +6,12 @@ import SouthEastIcon from "@mui/icons-material/SouthEast";
 
 
 export default function RangeCard({ range, onSelectTour }) {
-  const imageUrl = range.image_url || `${window.location.origin}/public/range-image/default.webp`;
 
   return (
     <Paper
       sx={{
         height: "228px",
-        backgroundImage: `url('${imageUrl}')`,
+        backgroundImage: `url('${range.image_url}')`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         position: "relative",
