@@ -101,6 +101,7 @@ function TourMapContainer({
   }
   
   // Default map center using default bounds
+  // Use markers_center instead (https://github.com/bahnzumberg/zuugle-suchseite/issues/457)
   centerLat = (default_LatSW + default_LatNE) / 2;
   centerLng = (default_LngSW + default_LngNE) / 2;
     
