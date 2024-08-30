@@ -297,24 +297,7 @@ function TourMapContainer({
     );
   };
 
-  // fitting bounds when cluster is clicked
-  // const updateBounds = () => {
-
-  //   if (
-  //     !!mapRef &&
-  //     !!mapRef.current &&
-  //     !!tours &&
-  //     clusterRef &&
-  //     clusterRef.current
-  //   ) {
-  //     if (
-  //       clusterRef.current.getBounds() &&
-  //       clusterRef.current.getBounds().isValid()
-  //     ) {
-  //       mapRef.current.fitBounds(clusterRef.current.getBounds());
-  //     }
-  //   }
-  // };
+ 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGpxTrack = async (url) => {
@@ -543,9 +526,7 @@ function TourMapContainer({
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
           zoomControl={false}
-          // bounds={() => {
-          //   updateBounds();
-          // }}
+       
           whenReady={() => {
             if (mapRef.current && markers.length > 0) {
               const initialBounds = mapRef.current.getBounds();
