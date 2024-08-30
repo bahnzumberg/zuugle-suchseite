@@ -525,7 +525,7 @@ function TourMapContainer({
         margin: "auto",
       }}
     >
-      {mapInitialized && (
+      {mapInitialized && !!markers && (
         <MapContainer
           key={time}
           className="leaflet-container"
