@@ -2,7 +2,7 @@ import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import {checkIfImageExists, convertNumToTime, formatNumber} from "../../utils/globals";
+import {convertNumToTime} from "../../utils/globals";
 import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -35,61 +35,14 @@ export default function PopupCard({tour, city}){
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
     useEffect(() => {
-
-        if(!!tour.image_url && tour.provider==='bahnzumberg'){
-            checkIfImageExists(tour.image_url).then(exists => {
-                if(!!exists){
-                    setImage(tour.image_url);
-                } else if(!!tour.gpx_image_file_small){
-                    checkIfImageExists(tour.gpx_image_file_small).then(gpxExists => {
-                        if(!!gpxExists){
-                            setImage(tour.gpx_image_file_small);
-                        } else {
-                            setImage(DEFAULT_IMAGE);
-                        }
-                    })
-                }
-            })
-        } else if(!!tour.gpx_image_file_small){
-            checkIfImageExists(tour.gpx_image_file_small).then(gpxExists => {
-                if(!!gpxExists){
-                    setImage(tour.gpx_image_file_small);
-                } else {
-                    setImage(DEFAULT_IMAGE);
-                }
-            })
+        if(!!tour.gpx_image_file_small && !!gpxExists){
+            setImage(tour.gpx_image_file_small);
         } else {
             setImage(DEFAULT_IMAGE);
         }
     }, [tour])
 
-    const imageOpacity = 1;
-
     const isMobile_600px = useMediaQuery('(max-width:600px)');
-    if(isMobile_600px){
-        let iconStyle = { fill: "transparent", width: '25px', height: '25px' }
-    }
-
-
-    const shortened_url = () => {
-        let length = 45;
-        if (!!isMobile_600px) { 
-            length = 35; 
-        } 
-        let red_url = (!!tour.url?tour.url:"").replace("https://www.", "").replace("http://www.", "").split("/"), i;
-        let final_url = red_url[0];
-        
-        for (i = 1; i < red_url.length-1; i++) {
-            if (final_url.length + red_url[i].length <= length) {
-                final_url = final_url + " > " + red_url[i]
-            }
-            else {
-                return final_url;
-            }
-        }
-        return final_url;
-    }
-
 
     let value_best_connection_duration = tour.min_connection_duration;
     let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;

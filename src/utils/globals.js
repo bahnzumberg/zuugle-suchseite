@@ -40,24 +40,6 @@ export function formatNumber(number, postfix = ""){
     return parseFloat(number).toLocaleString('de-AT') + postfix;
 }
 
-export function checkIfImageExists(url) {
-    const img = new Image();
-    img.src = url;
-
-    return new Promise(resolve => {
-        if (img.complete) {
-            resolve(true);
-        } else {
-            img.onload = () => {
-                resolve(true);
-            };
-
-            img.onerror = () => {
-                resolve(false);
-            };
-        }
-    })
-}
 
 export function updateAllSearchParams(searchParams, values){
     for (const [key, value] of Object.entries(values)) {

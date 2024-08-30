@@ -3,10 +3,8 @@ import Typography from "@mui/material/Typography";
 import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { checkIfImageExists } from "../utils/globals";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 
-// const DEFAULT_IMAGE = `${window.location.origin}/app_static/img/default.jpg`;
 const DEFAULT_IMAGE = `${window.location.origin}/public/range-image/default.webp`
 
 export default function RangeCard({ range, onSelectTour }) {
@@ -14,17 +12,7 @@ export default function RangeCard({ range, onSelectTour }) {
 
   useEffect(() => {
     if (!!range) {
-      if (!!range.image_url) {
-        checkIfImageExists(range.image_url).then((exists) => {
-          if (!!exists) {
-            setImage(range.image_url);
-          } else {
-            setImage(DEFAULT_IMAGE);
-          }
-        });
-      } else {
-        setImage(DEFAULT_IMAGE);
-      }
+      setImage(range.image_url);
     }
   }, [range]);
 
