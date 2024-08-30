@@ -171,19 +171,6 @@ function TourMapContainer({
     return () => clearInterval(interval);
   }, [mapRef]);
 
-  // useEffect(() => {
-  //   if (mapRef.current) {
-  //       mapRef.current.on('load', () => {
-  //           setMapLoaded(true);  // Map is fully loaded
-  //       });
-  //   }
-  //   let currMapRef = mapRef.current
-  //   return () => {
-  //       if (currMapRef) {
-  //           currMapRef.off('load');
-  //       }
-  //   };
-  // }, [mapRef]);
 
 
 
@@ -550,7 +537,6 @@ function TourMapContainer({
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
           zoomControl={false}
-       
           whenReady={() => {
             if (mapRef.current && markers.length > 0) {
               const initialBounds = mapRef.current.getBounds();
@@ -558,77 +544,78 @@ function TourMapContainer({
             }
           }}
         >
-          <TileLayer 
-            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" 
+          <TileLayer
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp"
             maxZoom={16}
             maxNativeZoom={19}
           />
 
-          { !!activeMarkerRef.current && selectedTour  && (
-            <Popup
-              key={`popup_${activeMarkerRef.current.id}`}
-              maxWidth={280}
-              maxHeight={210}
-              className="request-popup"
-              offset={L.point([0, -25])}
-              position={[
-                parseFloat(activeMarkerRef.current.lat),
-                parseFloat(activeMarkerRef.current.lon),
-              ]}
-              eventHandlers={{
-                remove: () => activeMarkerRef.current = null,
-              }}
-            >
-              {selectedTour?.id === activeMarkerRef.current.id && (
-                <Suspense fallback={<div>Loading...</div>}>
-                    <PopupCard tour={selectedTour} city={city} />
-                </Suspense>              )}
-            </Popup>
+          {!!activeMarkerRef.current && selectedTour && (
+            <Suspense>
+              <Popup
+                key={`popup_${activeMarkerRef.current.id}`}
+                maxWidth={280}
+                maxHeight={210}
+                className="request-popup"
+                offset={L.point([0, -25])}
+                position={[
+                  parseFloat(activeMarkerRef.current.lat),
+                  parseFloat(activeMarkerRef.current.lon),
+                ]}
+                eventHandlers={{
+                  remove: () => (activeMarkerRef.current = null),
+                }}
+              >
+                {selectedTour?.id === activeMarkerRef.current.id && (
+                  <PopupCard tour={selectedTour} city={city} />
+                )}
+              </Popup>
+            </Suspense>
           )}
           {/* orange color  (tour track) */}
           {!!gpxTrack &&
-            gpxTrack.length > 0 && activeMarkerRef.current && [
+            gpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ weight: 6, color: "#FF7663"}}
+                pathOptions={{ weight: 6, color: "#FF7663" }}
                 positions={gpxTrack}
               />,
-            ]
-          }
-          
+            ]}
+
           {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && activeMarkerRef.current && [
+            fromtourGpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ 
-                  weight: 6, 
+                pathOptions={{
+                  weight: 6,
                   color: "#FF7663",
                   opacity: 1,
                   // opacity: !!totourGpxTrack ? 0.5 : 1,
-                  lineCap: 'square',
-                  dashArray: '5,10',
-                  dashOffset: '0' 
+                  lineCap: "square",
+                  dashArray: "5,10",
+                  dashOffset: "0",
                 }}
                 positions={fromtourGpxTrack}
               />,
-            ]
-          }
+            ]}
 
           {/* orange color  (totour) */}
           {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && activeMarkerRef.current && [
+            totourGpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ 
-                  weight: 6, 
-                  color: "#FF7663", 
-                  dashArray: '5,10', 
-                  dashOffset: '1' ,
+                pathOptions={{
+                  weight: 6,
+                  color: "#FF7663",
+                  dashArray: "5,10",
+                  dashOffset: "1",
                   opacity: 1,
-                  lineCap: 'square',
+                  lineCap: "square",
                 }}
                 positions={totourGpxTrack}
               />,
-            ]
-          }
+            ]}
 
           <MarkerClusterGroup
             // key={new Date().getTime()}
