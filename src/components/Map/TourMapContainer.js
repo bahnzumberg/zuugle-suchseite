@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useRef, useState, useMemo, lazy, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, lazy, useCallback, Suspense} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -105,7 +105,7 @@ function TourMapContainer({
   centerLat = (default_LatSW + default_LatNE) / 2;
   centerLng = (default_LngSW + default_LngNE) / 2;
     
-
+  
   // storing masterMarkers list inside localStorage
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
@@ -169,13 +169,35 @@ function TourMapContainer({
 
     // Cleanup on component unmount
     return () => clearInterval(interval);
-}, [mapRef]);
+  }, [mapRef]);
+
+  // useEffect(() => {
+  //   if (mapRef.current) {
+  //       mapRef.current.on('load', () => {
+  //           setMapLoaded(true);  // Map is fully loaded
+  //       });
+  //   }
+  //   let currMapRef = mapRef.current
+  //   return () => {
+  //       if (currMapRef) {
+  //           currMapRef.off('load');
+  //       }
+  //   };
+  // }, [mapRef]);
+
+
+
+  useEffect(() => {
+    console.log("L197 mapLoaded :", mapLoaded)
+
+  }, [mapLoaded])
+
 
   useEffect(() => {
     console.log("L161 mapRef.current :", mapRef.current)
     console.log("L162 mapBounds :", mapBounds)
     console.log("L163 mapInitialized :", mapInitialized)
-    if (mapRef.current && mapBounds && mapInitialized) {  // +++++++ if needed add mapInitialized in the condition 
+    if (mapRef.current && mapBounds && mapInitialized) {  
       let _masterMarkers = {};
 
       // Retrieve master markers from local storage if available
@@ -372,34 +394,36 @@ function TourMapContainer({
   const handleMarkerClick = useCallback(
     async (e, tourId) => {
 
-      if(!!mapInitialized) {
+      if (!mapLoaded || !mapInitialized) {
+        console.warn("Map is still loading, please wait.");
+        return;
+      }
+      if (!tourId) return;
 
-        if (!tourId) return;
+      let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
+      activeMarkerRef.current = tourInfo;
 
-        let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
-        activeMarkerRef.current = tourInfo;
-
-        setSelectedTour(null);
-        setIsLoading(true);
+      setSelectedTour(null);
+      setIsLoading(true);
 
 
-        if(!!tourId && city ){
-          try {
-            const _tourDetail = await onSelectTour(tourId);
-            const _tour = _tourDetail.data.tour;
-            if (_tour) setSelectedTour(_tour);
-            if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
-            if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
-            if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
-          } catch (error) {
-            console.error("Error fetching tour details:", error);
-          } finally {
-            setIsLoading(false);
-          }
+      if(!!tourId && city ){
+        try {
+          const _tourDetail = await onSelectTour(tourId);
+          const _tour = _tourDetail.data.tour;
+          if (_tour) setSelectedTour(_tour);
+          if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
+          if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
+          if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
+        } catch (error) {
+          console.error("Error fetching tour details:", error);
+        } finally {
+          setIsLoading(false);
         }
       }
+      
     },
-    [city, mapInitialized, onSelectTour, handleGpxTrack, handleTotourGpxTrack, handleFromtourGpxTrack]
+    [mapInitialized, mapLoaded, city, onSelectTour, handleGpxTrack, handleTotourGpxTrack, handleFromtourGpxTrack]
   );
 
   const createClusterCustomIcon = function (cluster) {
@@ -556,8 +580,9 @@ function TourMapContainer({
               }}
             >
               {selectedTour?.id === activeMarkerRef.current.id && (
-                <PopupCard tour={selectedTour} city={city} />
-              )}
+                <Suspense fallback={<div>Loading...</div>}>
+                    <PopupCard tour={selectedTour} city={city} />
+                </Suspense>              )}
             </Popup>
           )}
           {/* orange color  (tour track) */}
