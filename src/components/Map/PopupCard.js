@@ -35,7 +35,7 @@ export default function PopupCard({tour, city}){
     //description
     //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
     useEffect(() => {
-        if(!!tour.gpx_image_file_small && !!gpxExists){
+        if(!!tour.gpx_image_file_small ){
             setImage(tour.gpx_image_file_small);
         } else {
             setImage(DEFAULT_IMAGE);
