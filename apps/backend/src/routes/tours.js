@@ -18,7 +18,6 @@ router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
-// router.get('/gpx', (req, res) => gpxWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id/:city', (req, res) => getWrapper(req, res));
