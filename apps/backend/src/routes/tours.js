@@ -19,7 +19,6 @@ router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
 // router.get('/gpx', (req, res) => gpxWrapper(req, res));
-router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id/:city', (req, res) => getWrapper(req, res));
@@ -551,7 +550,6 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let markers_result = ''; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
-    let markers_center = []; // markers-related : to be filled with the center point
     
     if (!!map) {
         try {
@@ -568,28 +566,6 @@ const listWrapper = async (req, res) => {
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows; // This is to be passed to the response below
-            } else {
-                console.log("markers_result is null or undefined");
-            }    
-        } 
-        catch (error) {
-            console.log("tours.js: error retrieving markers_result:" + error);
-        }
-
-        // get the center of the markers from above
-        try {
-            // markers-related / searchIncluded
-            const markers_center_sql = `SELECT 
-                                    AVG(t.connection_arrival_stop_lat) as center_lat,
-                                    AVG(t.connection_arrival_stop_lon) as center_lon
-                                    FROM ${temp_table} AS t 
-                                    WHERE t.connection_arrival_stop_lat IS NOT NULL 
-                                    AND t.connection_arrival_stop_lon IS NOT NULL;`;
-            markers_result = await knex.raw(markers_center_sql); // fire the DB call here
-            
-            // markers-related
-            if (!!markers_result && !!markers_result.rows) {
-                markers_center = markers_result.rows; // This is to be passed to the response below
             } else {
                 console.log("markers_result is null or undefined");
             }    
@@ -696,7 +672,6 @@ const listWrapper = async (req, res) => {
         page: page,
         ranges: ranges,
         markers: markers_array,
-        markers_center: markers_center,
       });
 } // end of listWrapper
 
@@ -912,63 +887,6 @@ const filterWrapper = async (req, res) => {
 } // end of filterWrapper
 
 
-
-const connectionsWrapper = async (req, res) => {
-    const id = req.params.id;
-    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
-    const domain = req.query.domain;
-
-    const weekday = getWeekday(moment());
-    const tour = await knex('tour').select().where({id: id}).first();
-    if(!!!tour || !!!city){
-        res.status(404).json({success: false});
-        return;
-    }
-
-    // const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
-    // const connections = await query_con;
-
-    let connections = [];
-    const fahrplan_sql = `SELECT * FROM fahrplan WHERE hashed_url='${tour.hashed_url}' AND city_slug='${city}';`;
-    const fahrplan_result = await knex.raw(fahrplan_sql)    
-    if (!!fahrplan_result && !!fahrplan_result.rows) {
-        connections = fahrplan_result.rows;
-    }
-
-    let missing_days = getMissingConnectionDays(connections);
-
-    await Promise.all(connections.map(connection => new Promise(resolve => {
-        connection.best_connection_duration_minutes = minutesFromMoment( moment(connection.best_connection_duration, 'HH:mm:ss') );
-        connection.connection_duration_minutes = minutesFromMoment( moment(connection.connection_duration, 'HH:mm:ss') );
-        connection.return_duration_minutes = minutesFromMoment( moment(connection.return_duration, 'HH:mm:ss') );
-        connection.missing_days = missing_days;
-        resolve(connection);
-    })));
-
-
-    let filteredConnections = [];
-    connections.forEach(t => {
-        if(!!!filteredConnections.find(tt => compareConnections(t, tt))){
-            filteredConnections.push(t);
-        }
-    })
-
-    let filteredReturns = [];
-    getConnectionsByWeekday(connections, weekday).forEach(t => {
-        /** Die Rückreisen werden nach aktuellem Tag gefiltert -> kann man machen, muss man aber nicht. Wenn nicht gefiltert, werden alle Rückreisen für alle Wochentage angezeigt, was eine falsche Anzahl an Rückreisen ausgibt */
-        if(!!!filteredReturns.find(tt => compareConnectionReturns(t, tt))){
-            t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(t.fromtour_track_key)}/${t.fromtour_track_key}.gpx`;
-
-            filteredReturns.push(t);
-        }
-    })
-
-    filteredReturns.sort(function(x, y){
-        return moment(x.return_departure_datetime).unix() - moment(y.return_departure_datetime).unix();
-    })
-
-    res.status(200).json({success: true, connections: filteredConnections, returns: filteredReturns});
-}
 
 const connectionsExtendedWrapper = async (req, res) => {
     const id = req.params.id;
