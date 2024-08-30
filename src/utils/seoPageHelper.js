@@ -82,11 +82,11 @@ export const checkIfSeoPageCity = (location, cities) => {
 
   let citySlug = extractCityFromLocation(location,cities); // this is the city extracted from city param and not from location.pathname
  
-  if (!!location && !!location.pathname && location.pathname == "/search") {
+  if (!!location && !!location.pathname && location.pathname === "/search") {
     return null;
   } else if (!!location && !!location.pathname && cities.length > 0) {
     const found = cities.find(
-      (city) => city.value == citySlug
+      (city) => city.value === citySlug
     );
     return found;
   } else {
@@ -94,97 +94,6 @@ export const checkIfSeoPageCity = (location, cities) => {
   }
 };
 
-export const listAllCityLinks = (cities, searchParams = null) => {
-
-  const country = translatedCountry();
-
-  if (!!cities) {
-    const entries = cities.map((city, index) => {
-      let link = `${city.value}`;
-      if (!!searchParams && !!searchParams.get("p")) { // redundant if we do not use provider anymore
-        link = `${link}?p=${searchParams.get("p")}`;
-      }
-      return (
-        <Grid key={index} item xs={12} sm={6} md={4}>
-          <a href={`/${link}`} className={"seo-city-link"}>
-            {city.label}
-          </a>
-        </Grid>
-      );
-    });
-    return (
-      <Box sx={{ textAlign: "left" }}>
-        <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <>{country}</>
-        </Typography>
-        <Grid container>{entries}</Grid>
-      </Box>
-    );
-  }
-};
-
-export const listAllRangeLinks = (ranges, searchParams = null) => {
-
-  const country = translatedCountry();
-
-  if (!!ranges) {
-    const entries = ranges.map((range, index) => {
-      let city = "";
-      let link = `${range.range}`;
-      if (link == "null") {
-        return [];
-      }
-      link = encodeURI(link);
-      if (!!searchParams && !!searchParams.get("p")) {
-        link = `${link}?p=${searchParams.get("p")}`;
-      }
-      if (!!searchParams && !!searchParams.get("city")) {
-        city = searchParams.get("city");
-      }
-      return (
-        <Grid key={index} item xs={12} sm={6} md={4}>
-          <a
-            href={`/search?range=${link}${!!city ? "&city=" + city : ""}`}
-            className={"seo-city-link"}
-          >
-            {range.range}
-          </a>
-        </Grid>
-      );
-    });
-
-    return (
-      <Box sx={{ textAlign: "left" }}>
-        <Typography variant={"h4"} sx={{ marginBottom: "20px" }}>
-          <> {country} </>
-        </Typography>
-        <Grid container>{entries}</Grid>
-      </Box>
-    );
-  }
-  return [];
-};
-
-
-export const getCountryName = () => {
-  let host = window.location.host;
-
-  if (host.indexOf("zuugle.ch") >= 0) {
-    return t("start.schweiz");
-  } else if (host.indexOf("zuugle.de") >= 0) {
-    return t("start.deutschland");
-  } else if (host.indexOf("zuugle.it") >= 0) {
-    return t("start.italien");
-  } else if (host.indexOf("zuugle.li") >= 0) {
-    return t("start.liechtenstein");
-  } else if (host.indexOf("zuugle.fr") >= 0) {
-    return t("start.frankreich");
-  } else if (host.indexOf("zuugle.si") >= 0) {
-    return t("start.slowenien");
-  } else {
-    return t("start.oesterreich");
-  }
-};
 
 export const getTranslatedCountryName = () => {
   let host = window.location.host;

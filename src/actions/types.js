@@ -1,8 +1,6 @@
 //The exported constants are used as action types in the calls of corresponding reducers and actions files.
 // By using string constants for action types, you ensure that the action types are consistent throughout the application, and you can also catch type errors at compile time instead of runtime. This can make the code easier to maintain and debug.
 
-export const SET_CURRENT_USER = 'SET_CURRENT_USER';
-
 export const LOAD_TOURS = 'LOAD_TOURS';
 export const LOAD_TOURS_DONE = 'LOAD_TOURS_DONE';
 export const LOAD_TOUR = 'LOAD_TOUR';
@@ -15,8 +13,6 @@ export const LOAD_FAVOURITE_TOURS = 'LOAD_FAVOURITE_TOURS';
 export const LOAD_FAVOURITE_TOURS_DONE = 'LOAD_FAVOURITE_TOURS_DONE';
 export const SET_SELECTED_DATE = 'SET_SELECTED_DATE';
 
-export const LOAD_MAP_TOURS = 'LOAD_MAP_TOURS';
-export const LOAD_MAP_TOURS_DONE = 'LOAD_MAP_TOURS_DONE';
 
 export const CLEAR_TOURS = 'CLEAR_TOURS';
 

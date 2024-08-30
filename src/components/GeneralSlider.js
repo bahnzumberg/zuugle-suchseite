@@ -27,7 +27,7 @@ const EntitySlider = styled(Slider)(({ theme }) => ({
     }
 }));
 
-export default function GeneralSlider({defaultValue, sx, containerSx, value, onChange, min, max, step = 1}) {
+export default function GeneralSlider({defaultValue, containerSx, value, onChange, min, max, step = 1}) {
 
     return (
         <Box sx={containerSx}>

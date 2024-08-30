@@ -18,8 +18,6 @@ export function CityResultList({
   onFocusCity,
   isCityLoading,
   loadFavouriteTours,
-  searchParams,
-  setSearchParams,
   onSelect,
   idOne,
   cityOne

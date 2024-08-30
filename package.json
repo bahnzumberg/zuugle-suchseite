@@ -10,7 +10,6 @@
     "@babel/traverse": "^7.23.2",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mui/icons-material": "^5.14.15",
     "@mui/lab": "^5.0.0-alpha.71",
     "@mui/material": "^5.16.7",

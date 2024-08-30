@@ -33,8 +33,6 @@ export default function CityInput({
   city,
   setCity,
   onFocus,
-  isOpen,
-  showRightIcon = true,
   disabled,
 }) {
 

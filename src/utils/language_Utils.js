@@ -45,14 +45,6 @@ export const localMissingDays = (daysArr, lng) => {
 	return retDays;
 };
 
-//LinkText could be used for creating links to pass as object values to the attribute "components" in Trans of i18next
-export const LinkText = (props) => {
-	return (
-		<a href={props.to || "#"} target="_blank" rel="noreferrer" title={props.title || ""}>
-			{props.children}
-		</a>
-	);
-};
 
 export function langChange(language) {
 	i18n.changeLanguage(language, function () {
@@ -94,33 +86,3 @@ const extractLanguage = async () => {
 	}
 };
 
-export async function setLanguage() {
-	// setup for index.html file
-	const storedLanguage = localStorage.getItem("lang");
-
-	let newResolved = i18n.services.languageUtils.formatLanguageCode(
-		i18n.resolvedLanguage
-	);
-
-	if (storedLanguage) {
-		if (newResolved !== storedLanguage) {
-			langChange(storedLanguage);
-		}
-	} else {
-		try {
-			const extractedLang = await extractLanguage();
-
-			const formattedLang = i18n.services.languageUtils.formatLanguageCode(extractedLang);
-
-			langChange(formattedLang);
-			localStorage.setItem("lang", formattedLang);
-
-		} catch (error) {
-			// TODO : handle the error and set a fallback language?
-			console.error("Error retrieving extracted lang:", error);
-		}
-	}
-}
-
-//https://github.com/i18next/i18next/issues/1927
-//https://github.com/i18next/i18next-browser-languageDetector#detector-options

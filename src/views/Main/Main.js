@@ -5,12 +5,9 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import {
-  clearTours,
-  loadFilter,
   loadTour,
   loadTours,
 } from "../../actions/tourActions";
-import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -21,7 +18,6 @@ import {
   getPageHeader,
   getCityLabel,
 } from "../../utils/seoPageHelper";
-import { loadRanges } from "../../actions/rangeActions";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
@@ -42,7 +38,6 @@ export function Main({
   pageTours,
   loading,
   allCities,
-  loadRanges
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,7 +77,6 @@ export function Main({
   
   useEffect(() => {
     loadAllCities();
-    // loadRanges({ ignore_limit: true, remove_duplicates: true });
     let searchParamCity = searchParams.get("city");
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {
@@ -471,12 +465,7 @@ const handleShowCardContainer = useCallback((value) => {
 const mapDispatchToProps = {
   loadTours,
   loadAllCities,
-  showModal,
-  hideModal,
-  loadFilter,
   loadTour,
-  clearTours,
-  loadRanges,
 };
 
 const mapStateToProps = (state) => {

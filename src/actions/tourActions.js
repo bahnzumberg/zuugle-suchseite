@@ -135,13 +135,6 @@ export function loadFavouriteTours(data = {}) {
   };
 }
 
-export function setSelectedDate(date) {
-  return (dispatch, getState) => {
-    dispatch({ type: SET_SELECTED_DATE, date: date });
-  };
-}
-
-
 export function loadTourGpx(data) {
   return (dispatch, getState) => {
     return loadFile(
@@ -164,9 +157,6 @@ export function clearTours() {
   };
 }
 
-export function checkProviderApproval() {
-  // related to issue #65 in the project, given a provider name this function will return from the backend with a value of "Y" or "N" (to be used inside the Details page)
-}
 
 export const setTourID = (tourId) => {
   return {
@@ -175,31 +165,3 @@ export const setTourID = (tourId) => {
   };
 };
 
-// Passing marker Ids from map to retrieve corresponding tours
-export function loadMapTours(markersArray) {
-  return (dispatch) => {
-      const data = {
-        markerIds: markersArray, // this passed var should be already an array of ids
-      };
-
-      return getMapData(data)
-          .then((res) => {
-              const tours = res.tours;
-              dispatch({
-                type: LOAD_TOURS_DONE,
-                tours: tours,
-                total: res.total,
-                page: res.page,
-              });
-              return res;
-          })
-          .catch((err) => {
-              console.error(err);
-              dispatch({
-                  type: LOAD_TOURS_DONE,
-                  tours: [],
-                  total: 0,
-              });
-          });
-  };
-}
