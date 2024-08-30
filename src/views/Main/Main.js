@@ -8,7 +8,6 @@ import {
   clearTours,
   loadFilter,
   loadTour,
-  loadTourConnectionsExtended,
   loadTours,
 } from "../../actions/tourActions";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -474,7 +473,6 @@ const mapDispatchToProps = {
   loadAllCities,
   showModal,
   hideModal,
-  loadTourConnectionsExtended,
   loadFilter,
   loadTour,
   clearTours,

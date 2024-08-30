@@ -7,7 +7,6 @@ import {
   loadTour,
   loadFavouriteTours,
   loadTotalTours,
-  loadTourConnectionsExtended,
 } from "../../actions/tourActions";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
@@ -289,7 +288,6 @@ const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
   loadRanges,
-  loadTourConnectionsExtended,
   loadTotalTours,
   loadAllCities,
   loadTour,

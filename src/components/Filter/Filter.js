@@ -14,7 +14,7 @@ import {Fragment, useEffect, useState} from "react";
 import TextWithIcon from "../TextWithIcon";
 import {convertNumToTime, getFilterProp} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
-import {loadFilter, loadTourConnectionsExtended, loadTours} from "../../actions/tourActions";
+import {loadFilter, loadTours} from "../../actions/tourActions";
 import {loadAllCities} from "../../actions/cityActions";
 import {hideModal, showModal} from "../../actions/modalActions";
 import {compose} from "redux";
@@ -734,7 +734,6 @@ const mapDispatchToProps = {
     loadAllCities,
     showModal,
     hideModal,
-    loadTourConnectionsExtended,
     loadFilter
 };
 
