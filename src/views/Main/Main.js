@@ -8,7 +8,6 @@ import {
   clearTours,
   loadFilter,
   loadTour,
-  loadTourConnections,
   loadTourConnectionsExtended,
   loadTours,
 } from "../../actions/tourActions";
@@ -40,7 +39,6 @@ export function Main({
   loadAllCities,
   tours,
   totalTours,
-  loadTourConnections,
   filter,
   pageTours,
   loading,
@@ -273,7 +271,6 @@ const handleShowCardContainer = useCallback((value) => {
       <TourCardContainer
         onSelectTour={onSelectTour}
         tours={tours}
-        loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
         loadTours={loadTours}
         pageTours={pageTours}
@@ -477,7 +474,6 @@ const mapDispatchToProps = {
   loadAllCities,
   showModal,
   hideModal,
-  loadTourConnections,
   loadTourConnectionsExtended,
   loadFilter,
   loadTour,

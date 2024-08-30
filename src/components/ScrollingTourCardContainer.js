@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 export default function ScrollingTourCardContainer({
   tours,
   onSelectTour,
-  loadTourConnections,
   city,
   isLoading,
   isMobile
@@ -86,7 +85,6 @@ export default function ScrollingTourCardContainer({
           key={tour.id}
           tour={tour}
           onSelectTour={onSelectTour}
-          loadTourConnections={loadTourConnections}
           city={city}
         />
       ))}
@@ -98,7 +96,6 @@ export default function ScrollingTourCardContainer({
           key={tour.id}
           tour={tour}
           onSelectTour={onSelectTour}
-          loadTourConnections={loadTourConnections}
           city={city}
         />
       ))}
@@ -109,7 +106,7 @@ export default function ScrollingTourCardContainer({
   );
 }
 
-function Card({ tour, onSelectTour, loadTourConnections, city }) {
+function Card({ tour, onSelectTour, city }) {
   return (
     <Box
       className={"react-horizontal-scrolling-card"}
@@ -119,7 +116,6 @@ function Card({ tour, onSelectTour, loadTourConnections, city }) {
       <TourCard
         onSelectTour={onSelectTour}
         tour={tour}
-        loadTourConnections={loadTourConnections}
         city={city}
       />
     </Box>

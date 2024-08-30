@@ -95,17 +95,6 @@ export function loadTotalTours() {
   };
 }
 
-export function loadTourConnections(data) {
-  // Used on the first page (Startpage)
-  const language = i18next.resolvedLanguage;
-  // output: {city: "wien", domain: "localhost:3000", id: 102411}
-  return (dispatch, getState) => {
-    data.domain = window.location.host;
-    let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
-   
-    return returndataPromise;
-  };
-}
 
 export function loadTourConnectionsExtended(data) {
   // Used as the search page

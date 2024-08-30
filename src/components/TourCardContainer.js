@@ -10,7 +10,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 export default function TourCardContainer({
   tours,
   onSelectTour,
-  loadTourConnections,
   loadTours,
   pageTours,
   loading,
@@ -97,6 +96,7 @@ export default function TourCardContainer({
       bounds: bounds, // bounds added
     }).then((res) => {
       let retrievedTours = res?.data?.tours ? res.data.tours : [];
+      console.log("L100 retrievedTours[0]", retrievedTours[0])
     });
   };
 
@@ -124,7 +124,6 @@ export default function TourCardContainer({
               <TourCard
                 onSelectTour={onSelectTour}
                 tour={tour}
-                loadTourConnections={loadTourConnections}
                 city={city}
                 mapCard={false}
               />
