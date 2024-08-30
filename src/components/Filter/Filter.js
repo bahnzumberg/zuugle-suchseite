@@ -14,9 +14,7 @@ import {Fragment, useEffect, useState} from "react";
 import TextWithIcon from "../TextWithIcon";
 import {convertNumToTime, getFilterProp} from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
-import {loadFilter, loadTours} from "../../actions/tourActions";
-import {loadAllCities} from "../../actions/cityActions";
-import {hideModal, showModal} from "../../actions/modalActions";
+import {loadFilter} from "../../actions/tourActions";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import TextInput from "../TextInput";
@@ -716,7 +714,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
                         <Button variant={"contained"} onClick={submit} >
-                            {countFilterActive() == 0 ? '' : countFilterActive()} 
+                            {countFilterActive() === 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
                         </Button>
                     </Box>
@@ -730,10 +728,6 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
 };
 
 const mapDispatchToProps = {
-    loadTours,
-    loadAllCities,
-    showModal,
-    hideModal,
     loadFilter
 };
 
