@@ -151,12 +151,6 @@ export function loadTourGpx(data) {
   };
 }
 
-export function clearTours() {
-  return (dispatch, getState) => {
-    dispatch({ type: CLEAR_TOURS });
-  };
-}
-
 
 export const setTourID = (tourId) => {
   return {

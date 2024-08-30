@@ -49,23 +49,6 @@ export function setOrRemoveSearchParam(searchParams, key, value){
     }
 }
 
-export function formatOnlyTime(date, parsePattern = undefined){
-    if(!!parsePattern){
-        return moment(date, parsePattern).format("HH:mm");
-    }
-    return moment(date).format("HH:mm");
-}
-
-export function getFilterFromParams(searchParams){
-    if(!!searchParams && !!searchParams.get("filter")){
-        try {
-            const parsed = JSON.parse(searchParams.get("filter"));
-            return parsed;
-        } catch(e){
-            console.log("Error getting filter params")
-        }
-    }
-}
 
 export const getFilterProp = (filter, key, defaultValue = false) => {
     return !!filter ? filter[key] : defaultValue;
@@ -147,10 +130,6 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
     return "";
 }
 
-export const titleCase = (string = '') =>{
-    if(typeof string === 'string')
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
 
 export 	const shortenText = (text, atChar, maxLength) => {
     let shortText = text;
@@ -159,21 +138,6 @@ export 	const shortenText = (text, atChar, maxLength) => {
     }
     return shortText;
 };
-
-//TODO : add remaining values from filter
-//TODO : set values in a dynamic way (calls to the database/ tourActions )
-export const defaultFilterValues = [    //index
-    {difficulty: 10 },                  // : 0
-    {maxAscent: 3000 },                 // : 1
-    {minAscent: 0 },                    // : 2
-    {maxDescent: 3000 },                // : 3
-    {minDescent: 0 },                   // : 4
-    {maxDistance: 80 },                 // : 5
-    {minDistance: 0 },                  // : 6
-    {maxTransportDuration: 6 },         // : 7
-    {minTransportDuration: 0.18 },      // : 8
-    {ranges_length: 62 },               // : 9
-]
 
 
 // assuming a and b are ordered and equal length arrays; is of O(n) order 
