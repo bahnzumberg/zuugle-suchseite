@@ -2,26 +2,15 @@ import * as React from "react";
 import Typography from "@mui/material/Typography";
 import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 
-const DEFAULT_IMAGE = `${window.location.origin}/public/range-image/default.webp`
 
 export default function RangeCard({ range, onSelectTour }) {
-  const [image, setImage] = useState(DEFAULT_IMAGE);
-
-  useEffect(() => {
-    if (!!range) {
-      setImage(range.image_url);
-    }
-  }, [range]);
-
-
   return (
     <Paper
       sx={{
         height: "228px",
-        backgroundImage: `url('${image}')`,
+        backgroundImage: `url('${range.image_url}')`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         position: "relative",
