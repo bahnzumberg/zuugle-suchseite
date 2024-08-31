@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import Footer from "../../components/Footer/Footer";
 
 function Impressum({}) {
 	//Translation related
@@ -14,8 +15,13 @@ function Impressum({}) {
 	}, []);
 
 	return (
+		<>
 		<Box className={"about-container"} sx={{ paddingBottom: "80px" }}>
-			<Header title={"Impressum"} />
+			<Header 
+				title={"Impressum"} 
+				subTitle={""}
+                page={"Impressum"}
+			/>
 
 			<Box className={"start-body-container static-container"}>
 				<Box style={{ textAlign: "left" }}>
@@ -88,20 +94,22 @@ function Impressum({}) {
 					</Typography>
 					<Typography>
 						{t('impressum.anfuehrung_quellen')}
+						{" "}
 						<a
 							href={
 								"https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"
 							}
 							target={"_blank"}
-						>
-							{" "}
-							Bahn zum Berg
-						</a>
+						>Bahn zum Berg</a>
 					</Typography>
 					<Typography> </Typography>
 				</Box>
 			</Box>
 		</Box>
+		<Box style={{ background: "#fff" }}>
+			<Footer />
+	   	</Box>
+		</>
 	);
 }
 

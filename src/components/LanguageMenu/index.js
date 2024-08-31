@@ -3,14 +3,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { get_currLanguage } from "../../utils/globals"
 
 
 function LanguageMenu({pageKey}) {
 	const { i18n } = useTranslation();
 
-	var resolvedLanguage = i18n.language
-	const storedLanguage = localStorage.getItem("lang");
-	let currLanguage = storedLanguage || resolvedLanguage;
+	let currLanguage = get_currLanguage();
+
 	const [Languages, setLanguages] = useState([
 		{ key: "en", nativeName: "English" },
 		{ key: "fr", nativeName: "Français" },

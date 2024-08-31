@@ -23,6 +23,8 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
+import { Helmet } from "react-helmet";
+import { get_currLanguage, get_meta_data } from "../../utils/globals";
 import '/src/config.js';
 
 const Search = lazy(() => import("../../components/Search/Search"));
@@ -234,11 +236,9 @@ const handleShowCardContainer = useCallback((value) => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, tours, totalTours]);
-  // }, [filter, tours, totalTours, mapBounds]);
 
   const toggleMapHandler = () => {
     if (searchParams.has("map") && searchParams.get("map") === "true") {
-      // removeMapParam
       searchParams.delete("map");
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams);
@@ -286,7 +286,7 @@ const handleShowCardContainer = useCallback((value) => {
   let marginTopCards = showMap ? "20px" : "180px";
 
   const totalToursHeader = () => (
-    <Box elevation={0} className={"header-line-main"} sx={{ width: "100%" }}>
+      <Box elevation={0} className={"header-line-main"} sx={{ width: "100%" }}>
           <Box
             sx={{
               paddingTop: showMap ? "3.3%" : "10.2%",
@@ -302,9 +302,7 @@ const handleShowCardContainer = useCallback((value) => {
           >
             {
               !!totalTours && (
-                <>
-                
-               
+                <>        
                 <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
                   {!!showCardContainer? Number(totalTours).toLocaleString() : " "}{" "}
                   {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
@@ -330,8 +328,12 @@ const handleShowCardContainer = useCallback((value) => {
               )
             }
           </Box>
-    </Box>
+      </Box>
   );
+
+
+  const meta = get_meta_data('Main');
+  const currLanguage = get_currLanguage();
 
   return (
     <div>
@@ -349,8 +351,12 @@ const handleShowCardContainer = useCallback((value) => {
             </Typography>
           </Box>
         )}
-        {/* new top header */}
-        {/* {getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
+        
+        <Helmet>
+          {meta}
+          <title>Search - {t("start.helmet_title")}</title>
+          <meta http-equiv="content-language" content="{currLanguage}" />
+        </Helmet>
         <Box
           className="newHeader"
           sx={{

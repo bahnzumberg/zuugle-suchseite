@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import SearchContainer from "./SearchContainer";
 import { useEffect, useState } from "react";
-import { getDomainText, useResponsive } from "../../utils/globals";
+import { getDomainText, useResponsive, get_meta_data, getTopLevelDomain, get_currLanguage } from "../../utils/globals";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
@@ -28,27 +28,8 @@ export default function Header({
   const [totalToursFromCity, setTotalToursFromCity] = React.useState(0);
   const [loading, setLoading] = useState(false);
 
-  let tld = "";
-  let domain = window.location.hostname;
-  if (domain.indexOf("zuugle.de") > 0) {
-    tld = "de";
-  } else if (domain.indexOf("zuugle.si") > 0) {
-    tld = "si";
-  } else if (domain.indexOf("zuugle.it") > 0) {
-    tld = "it";
-  } else if (domain.indexOf("zuugle.ch") > 0) {
-    tld = "ch";
-  } else if (domain.indexOf("zuugle.li") > 0) {
-    tld = "li";
-  } else if (domain.indexOf("zuugle.fr") > 0) {
-    tld = "fr";
-  } else {
-    tld = "at";
-  }
-
-  // const [backgroundImage, setBackgroundImage] = useState(
-  //   `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
-  // );
+  let tld = getTopLevelDomain();
+  
   const _isMobile = useResponsive();
   const { t, i18n } = useTranslation();
 
@@ -68,7 +49,6 @@ export default function Header({
   }, [city]);
 
   useEffect(() => {
-    // city = searchParams.get("city");
     if (!!city && !!allCities && allCities.length > 0) {
       const cityObj = allCities.find((e) => e.value === city); // find the city object in array "allCities"
       if (!!cityObj) {
@@ -78,17 +58,7 @@ export default function Header({
     }
   }, [searchParams, city, allCities]);
 
-  // useEffect(() => {
-  //   if (!!_isMobile) {
-  //     setBackgroundImage(
-  //       `${LINEAR_GRADIENT} url(/app_static/img/background_start_mobil_${tld}.webp)`
-  //     );
-  //   } else {
-  //     setBackgroundImage(
-  //       `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`
-  //     );
-  //   }
-  // }, [_isMobile, tld]);
+
   const backgroundImage = !!_isMobile
     ? `${LINEAR_GRADIENT} url(/app_static/img/background_start_mobil_${tld}.webp)`
     : `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`;
@@ -96,6 +66,7 @@ export default function Header({
   const preloadUrl = !!_isMobile
     ? `/app_static/img/background_start_mobil_${tld}.webp`
     : `/app_static/img/background_start_small_${tld}.webp`;
+
   const getCity = () => {
     let _city = searchParams.get("city")
       ? searchParams.get("city")
@@ -106,11 +77,15 @@ export default function Header({
     return _city;
   };
 
+  const meta = get_meta_data('Start');
+  const currLanguage = get_currLanguage();
+
   if (totalTours === 0) {
     return (
       <>
         <Helmet>
           <link rel="preload" href={preloadUrl} as="image" />
+          {meta}
         </Helmet>
         <Box
           className={"header-container"}
@@ -151,6 +126,9 @@ export default function Header({
       <>
         <Helmet>
           <link rel="preload" href={preloadUrl} as="image" />
+          {meta}
+          <title>{t("start.helmet_title")}</title>
+          <meta http-equiv="content-language" content="{currLanguage}" />
         </Helmet>
         <Box
           className={"header-container"}
