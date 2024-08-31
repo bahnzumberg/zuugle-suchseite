@@ -49,7 +49,9 @@ export function Main({
 
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
 
-  const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
+  const [filterValues, setFilterValues] = useState(!!localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
+//initial value for filterValues should be 
+
   const [counter, setCounter] = useState(0);
 
   const [mapInitialized, setMapInitialized] = useState(false);
