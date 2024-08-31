@@ -713,7 +713,16 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                 }}>
                     <Box sx={{ pt: "18px" }}>
                         <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        <Button variant={"contained"} onClick={submit} >
+                        {/* <Button variant={"contained"} onClick={submit} >
+                            {countFilterActive() === 0 ? '' : countFilterActive()} 
+                            {" "}{filter_anwenden_label} 
+                        </Button> */}
+                        <Button
+                            variant={"contained"}
+                            onClick={submit}
+                            disabled={countFilterActive() === 0}
+                            className={countFilterActive() === 0 ? 'disabled-button' : ''}
+                            >
                             {countFilterActive() === 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
                         </Button>
