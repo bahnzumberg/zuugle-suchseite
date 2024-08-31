@@ -315,7 +315,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
         localStorage.setItem("filterValues", JSON.stringify(filterValues));
         localStorage.setItem("filterCount", countFilterActive());
-        doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
+        countFilterActive() > 0 && doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
 
     const checkIfCheckedFromCheckbox = (list, key) => {
@@ -712,12 +712,14 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     justifyContent: { xs: "center", sm: "end" }
                 }}>
                     <Box sx={{ pt: "18px" }}>
-                        <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
-                        {/* <Button variant={"contained"} onClick={submit} >
+                        <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} 
+                            onClick={resetFilter}> {filter_loeschen_label}
+                        </Button>
+                        <Button variant={"contained"} onClick={submit} >
                             {countFilterActive() === 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
-                        </Button> */}
-                        <Button
+                        </Button>
+                        {/* <Button
                             variant={"contained"}
                             onClick={submit}
                             disabled={countFilterActive() === 0}
@@ -725,7 +727,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                             >
                             {countFilterActive() === 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
-                        </Button>
+                        </Button> */}
                     </Box>
                 </Box>
             </Fragment>
