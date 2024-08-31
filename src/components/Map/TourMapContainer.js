@@ -399,9 +399,9 @@ function TourMapContainer({
           const _tourDetail = await onSelectTour(tourId);
           const _tour = _tourDetail.data.tour;
           if (_tour) setSelectedTour(_tour);
-          if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
-          if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
-          if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
+          if (_tour && _tour.gpx_file) await handleGpxTrack(_tour.gpx_file);
+          if (_tour && _tour.totour_gpx_file) await handleTotourGpxTrack(_tour.totour_gpx_file);
+          if (_tour && _tour.fromtour_gpx_file) await handleFromtourGpxTrack(_tour.fromtour_gpx_file);
         } catch (error) {
           console.error("Error fetching tour details:", error);
         } finally {
