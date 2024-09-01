@@ -538,10 +538,32 @@ useEffect(() => {
     </Box>
   );
 
+  const transform_canonical_url = () => {
+    let string = '';
+
+    if (!!tour && validTour) {
+      // <link rel="canonical" href="https://www.zuugle.at/tour/462/" hreflang="de-at"/>
+      // <link rel="alternate" href="https://www.zuugle.si/tour/462/" hreflang="sl-si"/>
+
+      for(let i=0; i < tour.canonical.length; i++){
+        let entry = tour.canonical[i];
+        if (entry.canonical_yn == 'y') {
+          string = string + '<link rel="canonical" ';
+        }
+        else {
+          string = string + '<link rel="alternate" ';
+        }
+        string = string + 'href="https://'+entry.zuugle_url+'" hreflang="'+entry.href_lang+'"/>';
+      }
+    }
+  
+    return '';
+  }
+
   const currLanguage = get_currLanguage();
   let page_title = 'Zuugle';
   if (!!tour) {
-    page_title = tour.title+' - '+tour.provider_name;
+    page_title = 'Zuugle: '+tour.title+' ('+tour.provider_name+')';
   } 
 
     return (
@@ -559,8 +581,9 @@ useEffect(() => {
             <meta property="og:image" content="{(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}" />
             <meta property="twitter:url" content="'+host+'" />
             <meta property="twitter:title" content="{page_title}" />
-            <meta property="twitter:description" content="" />
+            <meta property="twitter:description" content="{(tour?.description)}" />
             <meta property="twitter:image" content="{(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}" />
+            {transform_canonical_url()}
           </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
