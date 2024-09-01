@@ -557,7 +557,7 @@ useEffect(() => {
       }
     }
   
-    return '';
+    return string;
   }
 
   const currLanguage = get_currLanguage();
