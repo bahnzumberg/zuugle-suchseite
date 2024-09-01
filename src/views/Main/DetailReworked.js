@@ -45,6 +45,7 @@ import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
 import { shortenText, parseFileName } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
+import { Helmet } from 'react-helmet';
 import '/src/config.js';
 
 
@@ -538,13 +539,16 @@ useEffect(() => {
     </Box>
   );
 
+  
     return (
-
       <Box sx={{ backgroundColor: "#fff" }}>
            {isTourLoading ? (
         <LoadingSpinner />
       ) : (
         <>
+          <Helmet>
+            <title>{tour?.title}</title>
+          </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               {/* close tab /modal in case no return history available  ###### section */}
