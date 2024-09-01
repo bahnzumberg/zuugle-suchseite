@@ -188,7 +188,7 @@ export const get_meta_data = (page) => {
         meta.twitter = '<meta property="twitter:url" content="'+host+'"><meta property="twitter:title" content="Search - '+t("start.helmet_title")+'"><meta property="twitter:description" content="'+t("index.zuugle_description")+'"><meta property="twitter:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
     }
 
-    // console.log("meta: ", meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter)    
+    console.log("meta: ", meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter)    
     return meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter;
 }
 
