@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Header from "./Header";
 import {Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import Footer from "../../components/Footer/Footer";
 
 function Privacy({}){
     //translation related
@@ -16,17 +15,13 @@ function Privacy({}){
     }, []);
 
     
-    return (
-    <>
-    <Box className={"about-container"}>
-        <Header title={t('privacy.datenschutzerklaerung')} 
-                subTitle={"April 2022"}
-                page={"Privacy"}
-        />
+    return <Box className={"about-container"}>
+        <Header title={t('privacy.datenschutzerklaerung')} subTitle={"aktualisiert: April 2022"}/>
 
         <Box className={'start-body-container static-container'}>
             <Box style={{textAlign: "left"}}>
                 <Typography>{t('privacy.datenschutz_ist_uns_wichtig')}</Typography>
+
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>{t('privacy.welche_personenbezogenen_daten') }</Typography>
                 <Typography>{t('privacy.keine_personenbezogenen_daten') }</Typography>
@@ -42,6 +37,7 @@ function Privacy({}){
                 <Typography> {t('privacy.cookies_erklaerung1') }</Typography>
                 <Typography> {t('privacy.cookies_erklaerung2') }</Typography>
 
+
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}> {t('privacy.mit_wem_daten_teilen') } </Typography>
                 <Typography>{t('privacy.mit_niemandem') }</Typography>
 
@@ -51,13 +47,10 @@ function Privacy({}){
 
                 <Typography variant={"h5"} sx={{marginTop: "20px"}}>{t('privacy.welche_rechte') }</Typography>
                 <Typography>{t('privacy.nichts_von_dir_abspeichern') }</Typography>
+
             </Box>
         </Box>
     </Box>
-    <Box style={{ background: "#fff" }}>
-     <Footer />
-    </Box>
-    </>)
 }
 
 export default Privacy;

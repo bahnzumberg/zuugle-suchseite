@@ -1,5 +1,5 @@
+import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTranslation } from "react-i18next";
 
 
 export function convertNumToTime(number, nonseparate = false) {
@@ -25,14 +25,6 @@ export function convertNumToTime(number, nonseparate = false) {
     }
 
     return (!nonseparate) ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
-}
-
-export const get_currLanguage = () => {
-    const { i18n } = useTranslation();
-    var resolvedLanguage = i18n.language
-	const storedLanguage = localStorage.getItem("lang");
-	const currLanguage = storedLanguage || resolvedLanguage;
-    return currLanguage;
 }
 
 export const  simpleConvertNumToTime = (number)=> {
@@ -103,96 +95,6 @@ export const getDomainText = () => {
     }
 }
 
-
-export const get_meta_data = (page) => {
-    const { t } = useTranslation();
-
-    let meta = [];
-    const _domaintext = getDomainText();
-    const host = window.location.hostname;
-
-    meta.currLang = '<meta http-equiv="content-language" content="'+get_currLanguage()+'" />';
-
-    if (page === 'Start') {
-        if (_domaintext === "Zuugle.fr") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.fr" hreflang="fr-fr" />'            
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.si") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.si" hreflang="sl-si" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.de") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.de" hreflang="de-de" />'
-            meta.preconnect_bzb = '<link rel="preconnect" href="https://www.bahn-zum-berg.at" /> '
-        } else if (_domaintext === "Zuugle.it") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.it" hreflang="it-it" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.ch") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.ch" hreflang="de-ch" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.li") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.li" hreflang="de-li" />'
-            meta.preconnect_bzb = '';
-        } else {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.at" hreflang="de-at" />';
-            meta.preconnect_bzb = '<link rel="preconnect" href="https://www.bahn-zum-berg.at" /> ';
-        }    
-        meta.opengraph = '<meta property="og:url" content="'+host+'"><meta property="og:title" content="'+t("start.helmet_title")+'"><meta property="og:description" content="'+t("index.zuugle_description")+'"><meta property="og:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-        meta.twitter = '<meta property="twitter:url" content="'+host+'"><meta property="twitter:title" content="'+t("start.helmet_title")+'"><meta property="twitter:description" content="'+t("index.zuugle_description")+'"><meta property="twitter:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-    } else if (page === 'Impressum') {
-        meta.preconnect_bzb = '';
-        meta.canonical = '<link rel="alternate" href="https://www.zuugle.fr/imprint" hreflang="fr-fr" />'            
-                       + '<link rel="alternate" href="https://www.zuugle.si/imprint" hreflang="sl-si" />'
-                       + '<link rel="alternate" href="https://www.zuugle.de/imprint" hreflang="de-de" />'
-                       + '<link rel="alternate" href="https://www.zuugle.it/imprint" hreflang="it-it" />'
-                       + '<link rel="alternate" href="https://www.zuugle.ch/imprint" hreflang="de-ch" />'
-                       + '<link rel="alternate" href="https://www.zuugle.li/imprint" hreflang="de-li" />'
-                       + '<link rel="canonical" href="https://www.zuugle.at/imprint" hreflang="de-at" />';
-        meta.opengraph = '<meta property="og:url" content="'+host+'"><meta property="og:title" content="Impressum - '+t("start.helmet_title")+'"><meta property="og:description" content="'+t("index.zuugle_description")+'"><meta property="og:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-        meta.twitter = '<meta property="twitter:url" content="'+host+'"><meta property="twitter:title" content="Impressum - '+t("start.helmet_title")+'"><meta property="twitter:description" content="'+t("index.zuugle_description")+'"><meta property="twitter:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-    } else if (page === 'Privacy') {
-        meta.preconnect_bzb = '';
-        meta.canonical = '<link rel="alternate" href="https://www.zuugle.fr/privacy" hreflang="fr-fr" />'            
-                       + '<link rel="alternate" href="https://www.zuugle.si/privacy" hreflang="sl-si" />'
-                       + '<link rel="alternate" href="https://www.zuugle.de/privacy" hreflang="de-de" />'
-                       + '<link rel="alternate" href="https://www.zuugle.it/privacy" hreflang="it-it" />'
-                       + '<link rel="alternate" href="https://www.zuugle.ch/privacy" hreflang="de-ch" />'
-                       + '<link rel="alternate" href="https://www.zuugle.li/privacy" hreflang="de-li" />'
-                       + '<link rel="canonical" href="https://www.zuugle.at/privacy" hreflang="de-at" />';
-        meta.opengraph = '<meta property="og:url" content="'+host+'"><meta property="og:title" content="Privacy - '+t("start.helmet_title")+'"><meta property="og:description" content="'+t("index.zuugle_description")+'"><meta property="og:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-        meta.twitter = '<meta property="twitter:url" content="'+host+'"><meta property="twitter:title" content="Privacy - '+t("start.helmet_title")+'"><meta property="twitter:description" content="'+t("index.zuugle_description")+'"><meta property="twitter:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-    } else if (page === 'Main') {
-        if (_domaintext === "Zuugle.fr") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.fr/search" hreflang="fr-fr" />'            
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.si") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.si/search" hreflang="sl-si" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.de") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.de/search" hreflang="de-de" />'
-            meta.preconnect_bzb = '<link rel="preconnect" href="https://www.bahn-zum-berg.at" /> '
-        } else if (_domaintext === "Zuugle.it") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.it/search" hreflang="it-it" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.ch") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.ch/search" hreflang="de-ch" />'
-            meta.preconnect_bzb = '';
-        } else if (_domaintext === "Zuugle.li") {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.li/search" hreflang="de-li" />'
-            meta.preconnect_bzb = '';
-        } else {
-            meta.canonical = '<link rel="canonical" href="https://www.zuugle.at/search" hreflang="de-at" />';
-            meta.preconnect_bzb = '<link rel="preconnect" href="https://www.bahn-zum-berg.at" /> ';
-        }
-
-        meta.opengraph = '<meta property="og:url" content="'+host+'"><meta property="og:title" content="Search - '+t("start.helmet_title")+'"><meta property="og:description" content="'+t("index.zuugle_description")+'"><meta property="og:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-        meta.twitter = '<meta property="twitter:url" content="'+host+'"><meta property="twitter:title" content="Search - '+t("start.helmet_title")+'"><meta property="twitter:description" content="'+t("index.zuugle_description")+'"><meta property="twitter:image" content="'+host+'/app_static/img/Zuugle_Opengraph.jpg">';
-    }
-
-    console.log("meta: ", meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter)    
-    return meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter;
-}
-
-
 export const useResponsive = () => {
     const matches = useMediaQuery('(max-width:600px)');
     return !!matches;
@@ -206,24 +108,9 @@ export function parseIfNeccessary(value) {
 };
 
 export const getTopLevelDomain = () => {
-    let domain = window.location.hostname;
-    let tld = "at";
-
-    if (domain.indexOf("zuugle.de") > 0) {
-      tld = "de";
-    } else if (domain.indexOf("zuugle.si") > 0) {
-      tld = "si";
-    } else if (domain.indexOf("zuugle.it") > 0) {
-      tld = "it";
-    } else if (domain.indexOf("zuugle.ch") > 0) {
-      tld = "ch";
-    } else if (domain.indexOf("zuugle.li") > 0) {
-      tld = "li";
-    } else if (domain.indexOf("zuugle.fr") > 0) {
-      tld = "fr";
-    } 
-
-    return tld;
+    let host = window.location.hostname;
+    host = host.replaceAll('www2.', '').replaceAll('www.', '');
+    return host.substring(host.length-2).toLowerCase();
 }
 
 
