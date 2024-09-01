@@ -1113,7 +1113,8 @@ const getConnectionsByWeekday = (connections, weekday) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
 
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
+    const host = getHost(domain);
+    entry.gpx_file = `${host}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
 
     if(!!addDetails){
         if(!!city){
@@ -1121,10 +1122,10 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
             const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
             if(!!toTour && !!toTour.totour_track_key){
-                entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
+                entry.totour_gpx_file = `${host}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
             }
             if(!!fromTour && !!fromTour.fromtour_track_key){
-                entry.fromtour_gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
+                entry.fromtour_gpx_file = `${host}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
             }
         }
 
@@ -1134,6 +1135,20 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
+
+
+        // add info about canonical and alternate links of this tour with entry.id
+        const canon_sql = `SELECT
+                          city_slug,
+                          canonical_yn,
+                          zuugle_url,
+                          href_lang
+                          FROM canonical_alternate
+                          WHERE id=${entry.id};`;  
+        const canonical = await knex.raw(canon_sql); 
+        if (!!canonical) {
+            entry.canonical = canonical.rows;
+        }
     }
 
     const { ["hashed_url"]: remove, ...rest } = entry;

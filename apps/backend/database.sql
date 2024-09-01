@@ -235,29 +235,11 @@ CREATE TABLE tracks (
 );
 
 
-
-
--- 30.03.2024 & 26.04.2024 run this drop columns if you have an existing database
-ALTER TABLE fahrplan
-DROP COLUMN IF EXISTS connection_description,
-DROP COLUMN IF EXISTS connection_description_detail,
-DROP COLUMN IF EXISTS return_description,
-DROP COLUMN IF EXISTS return_description_detail,
-DROP COLUMN IF EXISTS connection_lastregular_arrival_stop,
-DROP COLUMN IF EXISTS connection_lastregular_arrival_stop_lon,
-DROP COLUMN IF EXISTS connection_lastregular_arrival_stop_lat,
-DROP COLUMN IF EXISTS connection_departure_stop,
-DROP COLUMN IF EXISTS connection_departure_stop_lon,
-DROP COLUMN IF EXISTS connection_departure_stop_lat,
-DROP COLUMN IF EXISTS connection_arrival_stop,
-DROP COLUMN IF EXISTS connection_arrival_stop_lon,
-DROP COLUMN IF EXISTS connection_arrival_stop_lat,
-DROP COLUMN IF EXISTS connection_returns_departure_stop,
-DROP COLUMN IF EXISTS return_departure_stop_lon,
-DROP COLUMN IF EXISTS return_departure_stop_lat,
-DROP COLUMN IF EXISTS return_firstregular_departure_stop,
-DROP COLUMN IF EXISTS return_firstregular_departure_stop_lon,
-DROP COLUMN IF EXISTS return_firstregular_departure_stop_lat,
-DROP COLUMN IF EXISTS return_arrival_stop,
-DROP COLUMN IF EXISTS return_arrival_stop_lon,
-DROP COLUMN IF EXISTS return_arrival_stop_lat;
+CREATE TABLE canonical_alternate (
+      id SERIAL,
+      city_slug varchar(64) NOT NULL,
+      canonical_yn char(1) DEFAULT 'n',
+      zuugle_url varchar(100) NOT NULL,
+      href_lang varchar(5) DEFAULT 'de-at',
+      PRIMARY KEY (id, city_slug)
+);
