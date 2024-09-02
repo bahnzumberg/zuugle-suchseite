@@ -565,10 +565,13 @@ useEffect(() => {
   let imageUrl="";
   let description="";
   let URL = shareUrl()
+  let canonical_url = "";
   if (!!tour) {
     page_title = 'Zuugle: '+tour.title+' ('+tour.provider_name+')';
     imageUrl = (tour?.image_url && tour?.image_url.length > 0) && tour?.image_url
     description = (tour?.description && tour?.description.length > 0) && tour?.description
+    canonical_url = transform_canonical_url();
+    console.log("canonical_url: ", canonical_url)
   } 
 
     return (
@@ -588,7 +591,7 @@ useEffect(() => {
             <meta property="twitter:title" content={`${page_title}`} />
             <meta property="twitter:description" content={`${description}`} />
             <meta property="twitter:image" content={`${imageUrl}`} />
-            {transform_canonical_url()}
+            {canonical_url}
           </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
