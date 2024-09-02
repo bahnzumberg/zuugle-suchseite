@@ -540,6 +540,25 @@ useEffect(() => {
   );
 
   
+  const transform_canonical_url = () => {
+    let string = '';
+
+    if (!!tour && validTour) {
+      // <link rel="canonical" href="https://www.zuugle.at/tour/462/" hreflang="de-at"/>
+      // <link rel="alternate" href="https://www.zuugle.si/tour/462/" hreflang="sl-si"/>
+
+      for(let i=0; i < tour.canonical.length; i++){
+        let entry = tour.canonical[i];
+        if (entry.canonical_yn == 'y') {
+          string = string + '<link rel="canonical" ';
+        }
+        else {
+          string = string + '<link rel="alternate" ';
+        }
+        string = string + 'href="https://'+entry.zuugle_url+'" hreflang="'+entry.href_lang+'"/>';
+      }
+    }
+  
     return string;
   }
 
