@@ -81,9 +81,9 @@ useEffect(() => {
       center={[47.800499, 13.04441]}
       zoom={12}
       style={{ height: "100%", width: "100%" }}
+      zoomControl={false}
       // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
-      <ZoomControl position="bottomright" />
       <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" />
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
@@ -109,6 +109,7 @@ useEffect(() => {
           positions={abreiseGpxPositions}
         />
       )}
+      <ZoomControl position="bottomright" />
     </MapContainer>
   )
 }
