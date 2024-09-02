@@ -540,6 +540,23 @@ useEffect(() => {
   );
 
   
+    return string;
+  }
+
+  const currLanguage = get_currLanguage();
+  let page_title = 'Zuugle';
+  let imageUrl="";
+  let description="";
+  let URL = shareUrl()
+  let canonical_url = "";
+  if (!!tour) {
+    page_title = 'Zuugle: '+tour.title+' ('+tour.provider_name+')';
+    imageUrl = (tour?.image_url && tour?.image_url.length > 0) && tour?.image_url
+    description = (tour?.description && tour?.description.length > 0) && tour?.description
+    canonical_url = transform_canonical_url();
+    console.log("canonical_url: ", canonical_url)
+  } 
+
     return (
       <Box sx={{ backgroundColor: "#fff" }}>
            {isTourLoading ? (
@@ -547,7 +564,17 @@ useEffect(() => {
       ) : (
         <>
           <Helmet>
-            <title>{tour?.title}</title>
+            <title>{page_title}</title>
+            <meta http-equiv="content-language" content={`${currLanguage}`} />
+            <meta property="og:url" content={`${URL}`} />
+            <meta property="og:title" content={`${page_title}`} />
+            <meta property="og:description" content="" />
+            <meta property="og:image" content={`${imageUrl}`} />
+            <meta property="twitter:url" content={`${URL}`} />
+            <meta property="twitter:title" content={`${page_title}`} />
+            <meta property="twitter:description" content={`${description}`} />
+            <meta property="twitter:image" content={`${imageUrl}`} />
+            {canonical_url}
           </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
