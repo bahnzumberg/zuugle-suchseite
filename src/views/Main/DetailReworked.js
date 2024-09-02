@@ -565,6 +565,8 @@ useEffect(() => {
             <meta property="og:title" content={`${page_title}`} />
             <meta property="og:description" content="" />
             <meta property="og:image" content={`${imageUrl}`} />
+            <meta property="og:image:width" content="720" />
+            <meta property="og:image:height" content="480" />
             <meta property="twitter:url" content={`${URL}`} />
             <meta property="twitter:title" content={`${page_title}`} />
             <meta property="twitter:description" content={`${description}`} />
