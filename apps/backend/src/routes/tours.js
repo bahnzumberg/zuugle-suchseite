@@ -18,8 +18,6 @@ router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 router.get('/total', (req, res) => totalWrapper(req, res));
-// router.get('/gpx', (req, res) => gpxWrapper(req, res));
-router.get('/:id/connections', (req, res) => connectionsWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
 router.get('/:id/:city', (req, res) => getWrapper(req, res));
@@ -566,7 +564,7 @@ const listWrapper = async (req, res) => {
             
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
-            markers_array = markers_result.rows; // This is to be passed to the response below
+                markers_array = markers_result.rows; // This is to be passed to the response below
             } else {
                 console.log("markers_result is null or undefined");
             }    
@@ -889,63 +887,6 @@ const filterWrapper = async (req, res) => {
 
 
 
-const connectionsWrapper = async (req, res) => {
-    const id = req.params.id;
-    const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
-    const domain = req.query.domain;
-
-    const weekday = getWeekday(moment());
-    const tour = await knex('tour').select().where({id: id}).first();
-    if(!!!tour || !!!city){
-        res.status(404).json({success: false});
-        return;
-    }
-
-    // const query_con = knex('fahrplan').select().where({hashed_url: tour.hashed_url, city_slug: city});
-    // const connections = await query_con;
-
-    let connections = [];
-    const fahrplan_sql = `SELECT * FROM fahrplan WHERE hashed_url='${tour.hashed_url}' AND city_slug='${city}';`;
-    const fahrplan_result = await knex.raw(fahrplan_sql)    
-    if (!!fahrplan_result && !!fahrplan_result.rows) {
-        connections = fahrplan_result.rows;
-    }
-
-    let missing_days = getMissingConnectionDays(connections);
-
-    await Promise.all(connections.map(connection => new Promise(resolve => {
-        connection.best_connection_duration_minutes = minutesFromMoment( moment(connection.best_connection_duration, 'HH:mm:ss') );
-        connection.connection_duration_minutes = minutesFromMoment( moment(connection.connection_duration, 'HH:mm:ss') );
-        connection.return_duration_minutes = minutesFromMoment( moment(connection.return_duration, 'HH:mm:ss') );
-        connection.missing_days = missing_days;
-        resolve(connection);
-    })));
-
-
-    let filteredConnections = [];
-    connections.forEach(t => {
-        if(!!!filteredConnections.find(tt => compareConnections(t, tt))){
-            filteredConnections.push(t);
-        }
-    })
-
-    let filteredReturns = [];
-    getConnectionsByWeekday(connections, weekday).forEach(t => {
-        /** Die Rückreisen werden nach aktuellem Tag gefiltert -> kann man machen, muss man aber nicht. Wenn nicht gefiltert, werden alle Rückreisen für alle Wochentage angezeigt, was eine falsche Anzahl an Rückreisen ausgibt */
-        if(!!!filteredReturns.find(tt => compareConnectionReturns(t, tt))){
-            t.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(t.fromtour_track_key)}/${t.fromtour_track_key}.gpx`;
-
-            filteredReturns.push(t);
-        }
-    })
-
-    filteredReturns.sort(function(x, y){
-        return moment(x.return_departure_datetime).unix() - moment(y.return_departure_datetime).unix();
-    })
-
-    res.status(200).json({success: true, connections: filteredConnections, returns: filteredReturns});
-}
-
 const connectionsExtendedWrapper = async (req, res) => {
     const id = req.params.id;
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
@@ -1172,7 +1113,8 @@ const getConnectionsByWeekday = (connections, weekday) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if( !(!!entry && !!entry.provider) ) return entry ;    
 
-    entry.gpx_file = `${getHost(domain)}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
+    const host = getHost(domain);
+    entry.gpx_file = `${host}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
 
     if(!!addDetails){
         if(!!city){
@@ -1180,10 +1122,10 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
             const fromTour = await knex('fahrplan').select('fromtour_track_key').where({hashed_url: entry.hashed_url, city_slug: city}).whereNotNull('fromtour_track_key').first();
 
             if(!!toTour && !!toTour.totour_track_key){
-                entry.totour_gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
+                entry.totour_gpx_file = `${host}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
             }
             if(!!fromTour && !!fromTour.fromtour_track_key){
-                entry.fromtour_gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
+                entry.fromtour_gpx_file = `${host}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
             }
         }
 
@@ -1193,6 +1135,20 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 
         // convert the "difficulty" value into a text value 
         entry.difficulty = convertDifficulty(entry.difficulty)
+
+
+        // add info about canonical and alternate links of this tour with entry.id
+        const canon_sql = `SELECT
+                          city_slug,
+                          canonical_yn,
+                          zuugle_url,
+                          href_lang
+                          FROM canonical_alternate
+                          WHERE id=${entry.id};`;  
+        const canonical = await knex.raw(canon_sql); 
+        if (!!canonical) {
+            entry.canonical = canonical.rows;
+        }
     }
 
     const { ["hashed_url"]: remove, ...rest } = entry;

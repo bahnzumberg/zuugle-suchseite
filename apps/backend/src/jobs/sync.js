@@ -243,6 +243,35 @@ export async function fixTours(){
                     WHERE ct.tour_id=e.tour_id
                     AND ct.city_slug=e.city_slug;`);
 
+
+    // fill information about canonical and alternate links
+    await knex.raw(`TRUNCATE canonical_alternate;`);
+    await knex.raw(`INSERT INTO canonical_alternate (id, city_slug, canonical_yn, zuugle_url, href_lang)
+                    SELECT
+                    tour_id,
+                    city_slug,
+                    CASE WHEN ranking=1 THEN 'y' ELSE 'n' END AS canonical_yn,
+                    zuugle_url,
+                    hreflang
+                    FROM (
+                        SELECT 
+                        RANK() OVER(PARTITION BY c2t.tour_id ORDER BY c2t.min_connection_no_of_transfers ASC, c2t.min_connection_duration ASC, c2t.stop_selector DESC, c2t.city_slug ASC) AS ranking,
+                        c2t.tour_id,
+                        c2t.city_slug,
+                        CONCAT('www.zuugle.', LOWER(c2t.reachable_from_country), '/tour/', c2t.tour_id, '/', c2t.city_slug) AS zuugle_url,
+                        CASE WHEN c2t.reachable_from_country='SI' THEN 'sl-si' 
+                            WHEN c2t.reachable_from_country='DE' THEN 'de-de'
+                            WHEN c2t.reachable_from_country='IT' THEN 'it-it'
+                            WHEN c2t.reachable_from_country='CH' THEN 'de-ch'
+                            WHEN c2t.reachable_from_country='LI' THEN 'de-li'
+                            WHEN c2t.reachable_from_country='FR' THEN 'fr-fr'
+                            ELSE 'de-at' END AS hreflang	
+                        FROM city2tour AS c2t
+                        INNER JOIN tour AS t
+                        ON t.id=c2t.tour_id
+                    ) AS a;`);
+                     
+
     // Delete all the entries from logsearchphrase, which are older than 360 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
 
