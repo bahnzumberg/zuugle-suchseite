@@ -4,9 +4,7 @@ import CityInput from "./CityInput";
 import { CityResultList } from "./CityResultList";
 import { useEffect, useState } from "react";
 import { loadCities } from "../../actions/cityActions";
-import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
-import { loadRanges } from "../../actions/rangeActions";
-import { hideModal, showModal } from "../../actions/modalActions";
+import { loadFavouriteTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 
@@ -67,11 +65,7 @@ function FullScreenCityInput({
 
 const mapDispatchToProps = {
   loadCities,
-  loadTours,
   loadFavouriteTours,
-  loadRanges,
-  showModal,
-  hideModal,
 };
 
 const mapStateToProps = (state) => {

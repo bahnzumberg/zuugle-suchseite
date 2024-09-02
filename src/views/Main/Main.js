@@ -5,14 +5,9 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
 import {
-  clearTours,
-  loadFilter,
   loadTour,
-  loadTourConnections,
-  loadTourConnectionsExtended,
   loadTours,
 } from "../../actions/tourActions";
-import { hideModal, showModal } from "../../actions/modalActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -23,7 +18,6 @@ import {
   getPageHeader,
   getCityLabel,
 } from "../../utils/seoPageHelper";
-import { loadRanges } from "../../actions/rangeActions";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
@@ -40,12 +34,10 @@ export function Main({
   loadAllCities,
   tours,
   totalTours,
-  loadTourConnections,
   filter,
   pageTours,
   loading,
   allCities,
-  loadRanges
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,7 +49,9 @@ export function Main({
 
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
 
-  const [filterValues, setFilterValues] = useState(null); // pass this to both Search and TourCardContainer
+  const [filterValues, setFilterValues] = useState(!!localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
+//initial value for filterValues should be 
+
   const [counter, setCounter] = useState(0);
 
   const [mapInitialized, setMapInitialized] = useState(false);
@@ -85,7 +79,6 @@ export function Main({
   
   useEffect(() => {
     loadAllCities();
-    // loadRanges({ ignore_limit: true, remove_duplicates: true });
     let searchParamCity = searchParams.get("city");
     const city = localStorage.getItem("city");
     if (!!city && !!!searchParamCity) {
@@ -168,7 +161,6 @@ export function Main({
   const onSelectTour = (tour) => {
     const city = !!searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id) {
-      // if(!!city){
       loadTour(tour.id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           localStorage.setItem("tourId", tour.id);
@@ -274,7 +266,6 @@ const handleShowCardContainer = useCallback((value) => {
       <TourCardContainer
         onSelectTour={onSelectTour}
         tours={tours}
-        loadTourConnections={loadTourConnections}
         city={searchParams.get("city")}
         loadTours={loadTours}
         pageTours={pageTours}
@@ -476,14 +467,7 @@ const handleShowCardContainer = useCallback((value) => {
 const mapDispatchToProps = {
   loadTours,
   loadAllCities,
-  showModal,
-  hideModal,
-  loadTourConnections,
-  loadTourConnectionsExtended,
-  loadFilter,
   loadTour,
-  clearTours,
-  loadRanges,
 };
 
 const mapStateToProps = (state) => {

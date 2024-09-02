@@ -7,8 +7,6 @@ import {
   loadTour,
   loadFavouriteTours,
   loadTotalTours,
-  loadTourConnections,
-  loadTourConnectionsExtended,
 } from "../../actions/tourActions";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
@@ -38,7 +36,6 @@ function Start({
   loadFavouriteTours,
   favouriteTours,
   loadCities,
-  loadTourConnections,
   totalTours,
   loadTour,
   loadTotalTours,
@@ -236,7 +233,6 @@ function Start({
               <ScrollingTourCardContainer
                 tours={favouriteTours}
                 onSelectTour={onSelectTour}
-                loadTourConnections={loadTourConnections}
                 city={searchParams.get("city")}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
@@ -292,8 +288,6 @@ const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
   loadRanges,
-  loadTourConnectionsExtended,
-  loadTourConnections,
   loadTotalTours,
   loadAllCities,
   loadTour,

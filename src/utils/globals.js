@@ -40,30 +40,6 @@ export function formatNumber(number, postfix = ""){
     return parseFloat(number).toLocaleString('de-AT') + postfix;
 }
 
-export function checkIfImageExists(url) {
-    const img = new Image();
-    img.src = url;
-
-    return new Promise(resolve => {
-        if (img.complete) {
-            resolve(true);
-        } else {
-            img.onload = () => {
-                resolve(true);
-            };
-
-            img.onerror = () => {
-                resolve(false);
-            };
-        }
-    })
-}
-
-export function updateAllSearchParams(searchParams, values){
-    for (const [key, value] of Object.entries(values)) {
-        setOrRemoveSearchParam(searchParams, key, value);
-    }
-}
 
 export function setOrRemoveSearchParam(searchParams, key, value){
     if(!!!value || value === "undefined"){
@@ -73,23 +49,6 @@ export function setOrRemoveSearchParam(searchParams, key, value){
     }
 }
 
-export function formatOnlyTime(date, parsePattern = undefined){
-    if(!!parsePattern){
-        return moment(date, parsePattern).format("HH:mm");
-    }
-    return moment(date).format("HH:mm");
-}
-
-export function getFilterFromParams(searchParams){
-    if(!!searchParams && !!searchParams.get("filter")){
-        try {
-            const parsed = JSON.parse(searchParams.get("filter"));
-            return parsed;
-        } catch(e){
-            console.log("Error getting filter params")
-        }
-    }
-}
 
 export const getFilterProp = (filter, key, defaultValue = false) => {
     return !!filter ? filter[key] : defaultValue;
@@ -101,18 +60,6 @@ export const parseFileName = (name, prefix = "", postfix = "") => {
     return `${prefix}${_name.replace(/\s/g, '_')}${postfix}`.replace(/[äöüß]/g, function($0) { return tr[$0] });
 }
 
-export const crypt = (salt, text) => {
-    const textToChars = (text) => text.split("").map((c) => c.charCodeAt(0));
-    const byteHex = (n) => ("0" + Number(n).toString(16)).substr(-2);
-    const applySaltToChar = (code) => textToChars(salt).reduce((a, b) => a ^ b, code);
-
-    return text
-        .split("")
-        .map(textToChars)
-        .map(applySaltToChar)
-        .map(byteHex)
-        .join("");
-};
 
 
 export const getDomainText = () => {
@@ -183,10 +130,6 @@ export const getTextFromConnectionDescriptionEntry = (entry) => {
     return "";
 }
 
-export const titleCase = (string = '') =>{
-    if(typeof string === 'string')
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
 
 export 	const shortenText = (text, atChar, maxLength) => {
     let shortText = text;
@@ -196,157 +139,6 @@ export 	const shortenText = (text, atChar, maxLength) => {
     return shortText;
 };
 
-//TODO : add remaining values from filter
-//TODO : set values in a dynamic way (calls to the database/ tourActions )
-export const defaultFilterValues = [    //index
-    {difficulty: 10 },                  // : 0
-    {maxAscent: 3000 },                 // : 1
-    {minAscent: 0 },                    // : 2
-    {maxDescent: 3000 },                // : 3
-    {minDescent: 0 },                   // : 4
-    {maxDistance: 80 },                 // : 5
-    {minDistance: 0 },                  // : 6
-    {maxTransportDuration: 6 },         // : 7
-    {minTransportDuration: 0.18 },      // : 8
-    {ranges_length: 62 },               // : 9
-]
-export const countFilterActive = (searchParams, filter) => {
-    
-    let count = 0;
-
-    const _filter = getFilterFromParams(searchParams); //  filter (JS object) extracted from URL filter parameter
-    if (!!_filter && !!filter) {
-      if (!(!!_filter?.singleDayTour && !!_filter?.multipleDayTour)) {
-        count++;
-      }
-      if (!(!!_filter?.summerSeason && !!_filter?.winterSeason)) {
-        count++;
-      }
-      if (_filter?.difficulty !== 10) {
-        count++;
-      }
-      if (!!_filter?.traverse) {
-        count++;
-      }
-      if (
-        _filter?.minAscent > defaultFilterValues[2].minAscent 
-        || 
-        _filter?.maxAscent < defaultFilterValues[1].maxAscent  
-
-      ) {
-        count++;
-      }
-
-      if (
-        _filter?.minDescent > defaultFilterValues[4].minDescent 
-        || 
-        _filter?.maxDescent < defaultFilterValues[3].maxDescent 
-        
-      ) {
-        count++;
-      }
-      if (
-        _filter?.minTransportDuration != defaultFilterValues[8].minTransportDuration 
-        || 
-        _filter?.maxTransportDuration < defaultFilterValues[7].maxTransportDuration 
-      ) {
-        count++;
-      }    
-      if (
-        _filter?.minDistance > defaultFilterValues[6].minDistance 
-        || 
-        _filter?.maxDistance < defaultFilterValues[5].maxDistance  
-      ) {
-        count++;
-      }
-      if (
-        _filter?.ranges?.length !== filter?.ranges?.length) 
-        {
-        count++;
-      }
-      if (_filter?.types?.length !== filter?.types?.length) {
-        count++;
-      }
-      if (_filter?.languages?.length !== filter?.languages?.length) {
-        count++;
-      }
-    }
-    return count;
-  };
-
-
-
-export function urlSearchParamsToObject(searchParams) {
-const obj = {};
-for (const [key, value] of searchParams) {
-    if (obj[key]) {
-    if (Array.isArray(obj[key])) {
-        obj[key].push(value);
-    } else {
-        obj[key] = [obj[key], value];
-    }
-    } else {
-    obj[key] = value;
-    }
-}
-return obj;
-}
-
-
-export function getMinutesFromDuration(duration) {
-    if(!!duration && typeof duration === "string"){
-        const [hours, minutes] = duration.split(":").map(Number);
-        return hours * 60 + minutes;
-    }
-    return null
-}
-
-export function formatDuration(minutes) {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}:${remainingMinutes.toString().padStart(2, "0")}`;
-}
-
-export const getValuesFromParams = (searchParams)=>{
-
-    let values = {};
-
-    if(!!searchParams){//extract values and add to one data variable
-        let city = searchParams.get("city"); 
-
-        let range = searchParams.get("range"); 
-        let state = searchParams.get("state"); 
-        let country = searchParams.get("country"); 
-        let type = searchParams.get("type"); 
-        let search = searchParams.get("search");
-        let filter = searchParams.get("filter");
-        let sort = searchParams.get("sort");
-        let provider = searchParams.get("p");
-        let map = searchParams.get("map");
-
-        values.city = !!city && city;
-        values.range = !!range && range;
-        values.search = !!search && search;
-        values.state = !!state && state;
-        values.country = !!country && country;
-        values.type = !!type && type;
-        values.provider = !!provider && provider;
-        values.sort = !!sort && sort;
-        values.map = !!map && map;
-        values.filter = !!filter && filter;
-    }
-
-    return values
-}
-  
-// is of O(n * m) order
-export  const arraysEqual = (a, b) => {
-    if (a.length !== b.length) return false;
-    for (let id of a) {
-        if (!b.includes(id)) return false;
-    }
-    return true;
-};
 
 // assuming a and b are ordered and equal length arrays; is of O(n) order 
 export const orderedArraysEqual = (a,b)=>{

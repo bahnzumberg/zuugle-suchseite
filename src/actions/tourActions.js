@@ -95,17 +95,6 @@ export function loadTotalTours() {
   };
 }
 
-export function loadTourConnections(data) {
-  // Used on the first page (Startpage)
-  const language = i18next.resolvedLanguage;
-  // output: {city: "wien", domain: "localhost:3000", id: 102411}
-  return (dispatch, getState) => {
-    data.domain = window.location.host;
-    let returndataPromise = loadList(dispatch, getState, LOAD_TOUR_CONNECTIONS, LOAD_TOUR_CONNECTIONS_DONE, "tours", data, "tours/" + data.id + "/connections", "connections", false, undefined, language);
-   
-    return returndataPromise;
-  };
-}
 
 export function loadTourConnectionsExtended(data) {
   // Used as the search page
@@ -146,13 +135,6 @@ export function loadFavouriteTours(data = {}) {
   };
 }
 
-export function setSelectedDate(date) {
-  return (dispatch, getState) => {
-    dispatch({ type: SET_SELECTED_DATE, date: date });
-  };
-}
-
-
 export function loadTourGpx(data) {
   return (dispatch, getState) => {
     return loadFile(
@@ -169,15 +151,6 @@ export function loadTourGpx(data) {
   };
 }
 
-export function clearTours() {
-  return (dispatch, getState) => {
-    dispatch({ type: CLEAR_TOURS });
-  };
-}
-
-export function checkProviderApproval() {
-  // related to issue #65 in the project, given a provider name this function will return from the backend with a value of "Y" or "N" (to be used inside the Details page)
-}
 
 export const setTourID = (tourId) => {
   return {
@@ -186,31 +159,3 @@ export const setTourID = (tourId) => {
   };
 };
 
-// Passing marker Ids from map to retrieve corresponding tours
-export function loadMapTours(markersArray) {
-  return (dispatch) => {
-      const data = {
-        markerIds: markersArray, // this passed var should be already an array of ids
-      };
-
-      return getMapData(data)
-          .then((res) => {
-              const tours = res.tours;
-              dispatch({
-                type: LOAD_TOURS_DONE,
-                tours: tours,
-                total: res.total,
-                page: res.page,
-              });
-              return res;
-          })
-          .catch((err) => {
-              console.error(err);
-              dispatch({
-                  type: LOAD_TOURS_DONE,
-                  tours: [],
-                  total: 0,
-              });
-          });
-  };
-}

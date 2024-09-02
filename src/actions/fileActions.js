@@ -1,7 +1,7 @@
 import axios from "../axios";
 
 export function loadGPX(url, responseType = "buffer") {
-    return (dispatch, getState) => {
+    return () => {
         return axios
           .get(url, {
             data: {},

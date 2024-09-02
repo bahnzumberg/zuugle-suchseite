@@ -34,7 +34,6 @@ export default async function transformToDescriptionDetail(descriptionJSON) {
         } else if (connection.T === "C") {
             descriptionDetail += `  |  ${connection.CD} Std mit ${connectionType} ${connection.CN} nach\n`;
         } else if (connection.T === "T") {
-            // totalTransferTime += getMinutesFromDuration(duration);
             descriptionDetail += `  =  ${connection.TD} Std Umstiegszeit\n`;
         } else if (connection.T === "A") {
             descriptionDetail += `${connection.AT} ${connection.AS}\n`;

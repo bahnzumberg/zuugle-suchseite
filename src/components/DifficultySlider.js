@@ -26,12 +26,9 @@ const EntitySlider = styled(Slider)(({ theme }) => ({
     }
 }));
 
-export default function DifficultySlider({value, onChange, defaultValue, sx, containerSx, disabled = false}) {
-
-    const resultRed = 73 + (defaultValue / 100) * (255 - 73);
-    const resultGreen = 146 + (defaultValue / 100) * (84 - 146);
-    const resultBlue = 255 + (defaultValue / 100) * (11 - 255);
-
+export default function DifficultySlider({value, onChange, defaultValue, containerSx}) {
+     let disabled = false
+    
     return (
         <Box sx={containerSx}>
             <EntitySlider

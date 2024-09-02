@@ -36,7 +36,6 @@ import { useTranslation } from 'react-i18next';
 import { jsonToStringArray } from "../../utils/transformJson";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {convertNumToTime, simpleConvertNumToTime, randomKey} from "../../utils/globals";
-import { loadCities } from "../../actions/cityActions";
 import '/src/config.js';
 
 
@@ -727,7 +726,6 @@ if(emptyConnArray){
 }
 
 const mapDispatchToProps = {
-  loadCities,
 };
 
 const mapStateToProps = (state) => {

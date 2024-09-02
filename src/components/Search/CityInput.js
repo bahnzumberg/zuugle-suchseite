@@ -33,8 +33,6 @@ export default function CityInput({
   city,
   setCity,
   onFocus,
-  isOpen,
-  showRightIcon = true,
   disabled,
 }) {
 
@@ -52,6 +50,8 @@ export default function CityInput({
       return "Milano, Bozen, ...";
     } else if (host.indexOf("zuugle.fr") >= 0) {
       return "Lyon, Marseille, ...";
+    } else if (host.indexOf("zuugle.li") >= 0) {
+      return "Vaduz";
     } else {
       return "Wien, Graz, ...";
     }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useRef, useState, useMemo, lazy, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, lazy, useCallback, Suspense} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
 import "./popup-style.css";
-import { orderedArraysEqual } from "../../utils/globals.js";
+import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals.js";
 import { createIdArray } from "../../utils/map_utils.js";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import '/src/config.js';
@@ -42,7 +42,6 @@ function TourMapContainer({
   handleShowCardContainer
 }) {
   const dispatch = useDispatch(); // Get dispatch function from Redux
-  // const getState = useSelector(state => state); // Get state from Redux
 
   const markers = useSelector((state) => state.tours.markers); // move to props
   const isMasterMarkersSet = useRef(false);
@@ -51,11 +50,67 @@ function TourMapContainer({
 
   const time = useMemo(() => new Date().getTime(), []) // used for MapContainer
 
+  let domain = getTopLevelDomain();
 
+  let default_LatNE, default_LngNE, default_LatSW, default_LngSW;
+  let centerLat, centerLng;
+
+  //initialise map bounds and center according to domain country
+  switch (domain) {
+    case 'si':  // Slovenia
+      default_LatNE = 46.876;
+      default_LngNE = 16.609;
+      default_LatSW = 45.421;
+      default_LngSW = 13.383;
+      break;
+  
+    case 'fr':  // France
+      default_LatNE = 51.089;
+      default_LngNE = 9.559;
+      default_LatSW = 42.331;
+      default_LngSW = -5.142;
+      break;
+  
+    case 'it':  // North Italy only
+      default_LatNE = 46.5;
+      default_LngNE = 12.5;
+      default_LatSW = 44.0;
+      default_LngSW = 7.0;
+      break;
+    
+    case 'de':  // Germany
+      default_LatNE = 55.058;
+      default_LngNE = 15.041;
+      default_LatSW = 47.270;
+      default_LngSW = 5.866;
+      break;
+
+    case 'ch':  // Switzerland
+      default_LatNE = 47.808;
+      default_LngNE = 10.491;
+      default_LatSW = 45.817;
+      default_LngSW = 5.955;
+      break;
+  
+    default:  // Austria
+      default_LatNE = 49.019;
+      default_LngNE = 17.189;
+      default_LatSW = 46.372;
+      default_LngSW = 9.53;
+      break;
+  }
+  
+  // Default map center using default bounds
+  // Use markers_center instead (https://github.com/bahnzumberg/zuugle-suchseite/issues/457)
+  centerLat = (default_LatSW + default_LatNE) / 2;
+  centerLng = (default_LngSW + default_LngNE) / 2;
+    
+  
   // storing masterMarkers list inside localStorage
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
+      console.log("L112 inside markers useEffect")
       isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
     }
   }, [markers]);
@@ -69,15 +124,6 @@ function TourMapContainer({
     });
   };
 
-  // const createEndMarker = () => {
-  //   return L.icon({
-  //     iconUrl: "app_static/img/zielpunkt.png", //the acutal picture
-  //     shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-  //     iconSize: [30, 40], //size of the icon
-  //     iconAnchor: [15, 41],
-  //   });
-  // };
-
   const mapRef = useRef();
   const clusterRef = useRef();
   const markerRef = useRef(null);
@@ -87,13 +133,15 @@ function TourMapContainer({
   const [totourGpxTrack, setTotourGpxTrack] = useState([]);
   const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [mapLoaded, setMapLoaded] = useState(false);
+
 
 
   const initialCity = !!searchParams.get("city")
     ? searchParams.get("city")
     : localStorage.getItem("city")
     ? localStorage.getItem("city")
-    : null;
+    : "no-city";
   const [city, setCity] = useState(initialCity);
   const [selectedTour, setSelectedTour] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,23 +151,6 @@ function TourMapContainer({
     : null;
   filter = !!filterValuesLocal ? filterValuesLocal : filter;
 
-  // default map bounds
-  const default_MapPositionLatNE = 49.019;
-  const default_MapPositionLngNE = 17.189;
-  const default_MapPositionLatSW = 46.372;
-  const default_MapPositionLngSW = 9.53;
-  //default center calculations
-  const centerLat = (default_MapPositionLatSW + default_MapPositionLatNE) / 2;
-  const centerLng = (default_MapPositionLngSW + default_MapPositionLngNE) / 2;
-
-  //checks if page is reloaded
-  // const pageAccessedByReload =
-  //   (window.performance.getEntriesByType("navigation")[0] &&
-  //     window.performance.getEntriesByType("navigation")[0].type === 1) ||
-  //   window.performance
-  //     .getEntriesByType("navigation")
-  //     .map((nav) => nav.type)
-  //     .includes("reload");
 
   useEffect(() => {
     if (!mapInitialized) {
@@ -128,7 +159,32 @@ function TourMapContainer({
   }, [mapInitialized, setMapInitialized]);
 
   useEffect(() => {
-    if (mapRef.current && mapBounds && mapInitialized) {  // +++++++ if needed add mapInitialized in the condition 
+    // keep checking until mapRef.current is set
+    const interval = setInterval(() => {
+        if (mapRef.current) {
+            setMapLoaded(true); 
+            clearInterval(interval); 
+        }
+    }, 500);
+
+    // Cleanup on component unmount
+    return () => clearInterval(interval);
+  }, [mapRef]);
+
+
+
+
+  useEffect(() => {
+    console.log("L197 mapLoaded :", mapLoaded)
+
+  }, [mapLoaded])
+
+
+  useEffect(() => {
+    console.log("L161 mapRef.current :", mapRef.current)
+    console.log("L162 mapBounds :", mapBounds)
+    console.log("L163 mapInitialized :", mapInitialized)
+    if (mapRef.current && mapBounds && mapInitialized) {  
       let _masterMarkers = {};
 
       // Retrieve master markers from local storage if available
@@ -175,41 +231,52 @@ function TourMapContainer({
       }
     }
   // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
-  }, [mapBounds]);  
+  }, [mapBounds, mapInitialized]);  
 
-  /*
-  useEffect(() => {
-    if (activeMarkerRef.current && mapRef.current) {
-      const { lat, lon } = activeMarkerRef.current;
-      mapRef.current.setView([lat, lon], 15); 
+
+
+  useEffect(()=>{
+    console.log("L230 mapRef.current:", mapRef.current)
+    console.log("L231 markers.length:", markers.length)
+    console.log("L232 mapLoaded:", mapLoaded)
+    if (markers && markers.length > 0 && mapLoaded) {
+        // console.log('Update bounds');
+        const bounds = getMarkersBounds(markers);
+        console.log("L219 bounds :", bounds)
+        if(!!bounds && !!mapRef?.current) {
+          mapRef.current.fitBounds(bounds);
+        }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMarkerRef.current]);
-  */
+}, [markers, mapRef, mapLoaded]);
  
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
+    console.log("L242 _bounds ", _bounds)
+
 
     if(!!markers){
+      console.log("L246 markers.length ", markers.length)
       markers.forEach((marker) => {
         if (marker.lat && marker.lon) {
           _bounds.extend([marker.lat, marker.lon]);
         }
       });
-
+      console.log("L252 _bounds ", _bounds)
+      
       return _bounds;
     }else return null
   };
 
   // city setting
   useEffect(() => {
-    if (
-      !!city &&
-      !!searchParams.get("city") &&
-      city !== searchParams.get("city")
-    ) {
-      setCity(searchParams.get("city"));
-    }
+    let _city = !!searchParams.get("city")
+    ? searchParams.get("city")
+    : localStorage.getItem("city")
+    ? localStorage.getItem("city")
+    : "no-city";
+
+    setCity(_city)
+
   }, [searchParams, city]);
 
   const checkMarkersChanges = (visibleMarkers, storedMarkers) => {
@@ -223,39 +290,23 @@ function TourMapContainer({
   const assignNewMapPosition = (position) => {
     localStorage.setItem(
       "MapPositionLatNE",
-      position?._northEast?.lat || default_MapPositionLatNE
+      position?._northEast?.lat || default_LatNE
     );
     localStorage.setItem(
       "MapPositionLngNE",
-      position?._northEast?.lng || default_MapPositionLngNE
+      position?._northEast?.lng || default_LngNE
     );
     localStorage.setItem(
       "MapPositionLatSW",
-      position?._southWest?.lat || default_MapPositionLatSW
+      position?._southWest?.lat || default_LatSW
     );
     localStorage.setItem(
       "MapPositionLngSW",
-      position?._southWest?.lng || default_MapPositionLngSW
+      position?._southWest?.lng || default_LngSW
     );
   };
 
-  // fitting bounds when cluster is clicked
-  const updateBounds = () => {
-    if (
-      !!mapRef &&
-      !!mapRef.current &&
-      !!tours &&
-      clusterRef &&
-      clusterRef.current
-    ) {
-      if (
-        clusterRef.current.getBounds() &&
-        clusterRef.current.getBounds().isValid()
-      ) {
-        mapRef.current.fitBounds(clusterRef.current.getBounds());
-      }
-    }
-  };
+ 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGpxTrack = async (url) => {
@@ -330,33 +381,36 @@ function TourMapContainer({
   const handleMarkerClick = useCallback(
     async (e, tourId) => {
 
-      if(!!mapInitialized) {
-       
-        let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
-        activeMarkerRef.current = tourInfo;
+      if (!mapLoaded || !mapInitialized) {
+        console.warn("Map is still loading, please wait.");
+        return;
+      }
+      if (!tourId) return;
 
-        setSelectedTour(null);
-        setIsLoading(true);
+      let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng }
+      activeMarkerRef.current = tourInfo;
 
-        if (!tourId || !city) return; // exit if not both parameters available
+      setSelectedTour(null);
+      setIsLoading(true);
 
-        if(!!tourId && city ){
-          try {
-            const _tourDetail = await onSelectTour(tourId);
-            const _tour = _tourDetail.data.tour;
-            if (_tour) setSelectedTour(_tour);
-            if (_tour && _tour.gpx_file) handleGpxTrack(_tour.gpx_file);
-            if (_tour && _tour.totour_gpx_file) handleTotourGpxTrack(_tour.totour_gpx_file);
-            if (_tour && _tour.fromtour_gpx_file) handleFromtourGpxTrack(_tour.fromtour_gpx_file);
-          } catch (error) {
-            console.error("Error fetching tour details:", error);
-          } finally {
-            setIsLoading(false);
-          }
+
+      if(!!tourId && city ){
+        try {
+          const _tourDetail = await onSelectTour(tourId);
+          const _tour = _tourDetail.data.tour;
+          if (_tour) setSelectedTour(_tour);
+          if (_tour && _tour.gpx_file) await handleGpxTrack(_tour.gpx_file);
+          if (_tour && _tour.totour_gpx_file) await handleTotourGpxTrack(_tour.totour_gpx_file);
+          if (_tour && _tour.fromtour_gpx_file) await handleFromtourGpxTrack(_tour.fromtour_gpx_file);
+        } catch (error) {
+          console.error("Error fetching tour details:", error);
+        } finally {
+          setIsLoading(false);
         }
       }
+      
     },
-    [city, mapInitialized, onSelectTour, handleGpxTrack, handleTotourGpxTrack, handleFromtourGpxTrack]
+    [mapInitialized, mapLoaded, city, onSelectTour, handleGpxTrack, handleTotourGpxTrack, handleFromtourGpxTrack]
   );
 
   const createClusterCustomIcon = function (cluster) {
@@ -471,7 +525,7 @@ function TourMapContainer({
         margin: "auto",
       }}
     >
-      {mapInitialized && (
+      {mapInitialized && !!markers && (
         <MapContainer
           key={time}
           className="leaflet-container"
@@ -479,87 +533,89 @@ function TourMapContainer({
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
           zoomSnap={1}
           maxZoom={15} //how many times you can zoom
-          //maxZoom={16} //how many times you can zoom
           center={[centerLat, centerLng]} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
           zoomControl={false}
-          bounds={() => {
-            updateBounds();
+          whenReady={() => {
+            if (mapRef.current && markers.length > 0) {
+              const initialBounds = mapRef.current.getBounds();
+              handleMapBounds(initialBounds); // state setter in parent "Main"
+            }
           }}
         >
-          <TileLayer 
-            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" 
+          <TileLayer
+            url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp"
             maxZoom={16}
             maxNativeZoom={19}
           />
 
-          { !!activeMarkerRef.current && selectedTour  && (
-            <Popup
-              key={`popup_${activeMarkerRef.current.id}`}
-              // minWidth={350}
-              maxWidth={280}
-              // minHeight={300}
-              maxHeight={210}
-              className="request-popup"
-              offset={L.point([0, -25])}
-              position={[
-                parseFloat(activeMarkerRef.current.lat),
-                parseFloat(activeMarkerRef.current.lon),
-              ]}
-              eventHandlers={{
-                remove: () => activeMarkerRef.current = null,
-              }}
-            >
-              {selectedTour?.id === activeMarkerRef.current.id && (
-                <PopupCard tour={selectedTour} />
-              )}
-            </Popup>
+          {!!activeMarkerRef.current && selectedTour && (
+            <Suspense>
+              <Popup
+                key={`popup_${activeMarkerRef.current.id}`}
+                maxWidth={280}
+                maxHeight={210}
+                className="request-popup"
+                offset={L.point([0, -25])}
+                position={[
+                  parseFloat(activeMarkerRef.current.lat),
+                  parseFloat(activeMarkerRef.current.lon),
+                ]}
+                eventHandlers={{
+                  remove: () => (activeMarkerRef.current = null),
+                }}
+              >
+                {selectedTour?.id === activeMarkerRef.current.id && (
+                  <PopupCard tour={selectedTour} city={city} />
+                )}
+              </Popup>
+            </Suspense>
           )}
           {/* orange color  (tour track) */}
           {!!gpxTrack &&
-            gpxTrack.length > 0 && activeMarkerRef.current && [
+            gpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ weight: 6, color: "#FF7663"}}
+                pathOptions={{ weight: 6, color: "#FF7663" }}
                 positions={gpxTrack}
               />,
-            ]
-          }
-          
+            ]}
+
           {/* blue color  (fromtour) */}
           {!!fromtourGpxTrack &&
-            fromtourGpxTrack.length > 0 && activeMarkerRef.current && [
+            fromtourGpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ 
-                  weight: 6, 
+                pathOptions={{
+                  weight: 6,
                   color: "#FF7663",
                   opacity: 1,
                   // opacity: !!totourGpxTrack ? 0.5 : 1,
-                  lineCap: 'square',
-                  dashArray: '5,10',
-                  dashOffset: '0' 
+                  lineCap: "square",
+                  dashArray: "5,10",
+                  dashOffset: "0",
                 }}
                 positions={fromtourGpxTrack}
               />,
-            ]
-          }
+            ]}
 
           {/* orange color  (totour) */}
           {!!totourGpxTrack &&
-            totourGpxTrack.length > 0 && activeMarkerRef.current && [
+            totourGpxTrack.length > 0 &&
+            activeMarkerRef.current && [
               <Polyline
-                pathOptions={{ 
-                  weight: 6, 
-                  color: "#FF7663", 
-                  dashArray: '5,10', 
-                  dashOffset: '1' ,
+                pathOptions={{
+                  weight: 6,
+                  color: "#FF7663",
+                  dashArray: "5,10",
+                  dashOffset: "1",
                   opacity: 1,
-                  lineCap: 'square',
+                  lineCap: "square",
                 }}
                 positions={totourGpxTrack}
               />,
-            ]
-          }
+            ]}
 
           <MarkerClusterGroup
             // key={new Date().getTime()}

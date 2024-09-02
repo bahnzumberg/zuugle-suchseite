@@ -3,17 +3,15 @@ import * as React from "react";
 import { useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
+import {loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
-import { connect, useSelector } from "react-redux";
-import { loadCities } from "../../actions/cityActions";
+import { connect } from "react-redux";
 import { Fragment, useEffect, useState } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
 import {
   parseIfNeccessary,
   setOrRemoveSearchParam,
   getTopLevelDomain,
-  titleCase,
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import { hideModal, showModal } from "../../actions/modalActions";
@@ -187,7 +185,6 @@ export function Search({
     }
     // flag active filter if count > 0
     !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
-    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
 
     const bounds =
       !!searchParams.get("map") &&
@@ -251,9 +248,6 @@ export function Search({
   };
 
 
-  useEffect(()=>{
-    console.log("L245 filterOn  :", filterOn)
-  },[filterOn]);
 
   const openFilter = () => {
     setFilterOn(true)
@@ -944,9 +938,7 @@ export function Search({
 }
 
 const mapDispatchToProps = {
-  loadCities,
   loadTours,
-  loadFavouriteTours,
   showModal,
   hideModal,
 };
