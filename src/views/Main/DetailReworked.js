@@ -43,7 +43,7 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText, parseFileName } from "../../utils/globals";
+import { shortenText, parseFileName, get_currLanguage } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
 import { Helmet } from 'react-helmet';
 import '/src/config.js';
