@@ -49,30 +49,28 @@ export function Main({
 
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
 
-  const [filterValues, setFilterValues] = useState(!!localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
+  const [filterValues, setFilterValues] = useState(localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
 //initial value for filterValues should be 
+// console.log("L54 filterValues :", filterValues)
 
   const [counter, setCounter] = useState(0);
 
-  const [mapInitialized, setMapInitialized] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);  //MAP
 
-  const [showMap, setShowMap] = useState(false);
-  const [mapBounds, setMapBounds] = useState(null);
-  const [markersChanged, setMarkersChanged] = useState(false);
-  const [showCardContainer, setShowCardContainer] = useState(true);
+  const [showMap, setShowMap] = useState(false);  //MAP
+  const [mapBounds, setMapBounds] = useState(null); //MAP
+  const [markersChanged, setMarkersChanged] = useState(false); //MAP
+  const [showCardContainer, setShowCardContainer] = useState(true); //MAP
   const[filterOn, setFilterOn] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:678px)");
 
   
-   // filter values in localStorage:
-  // let filterCountLocal = !!localStorage.getItem("filterCount")
-  //   ? localStorage.getItem("filterCount")
-  //   : null;
   let filterValuesLocal = !!localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
 
+  //MAP  setting showMap
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
@@ -122,7 +120,7 @@ export function Main({
     }
   }, [allCities]);
 
-  //updates the state of activeFilter, filterValues based on the searchParams and filter values whenever there is a change in either searchParams or filter.
+  //updates the state of the boolean activeFilter based on localStorage values of "filterValues" .
   useEffect(() => {
     let _filterCountLocal = getFilterCount();
     !!_filterCountLocal && _filterCountLocal > 0
