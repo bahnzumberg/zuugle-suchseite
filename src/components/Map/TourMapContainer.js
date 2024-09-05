@@ -109,7 +109,7 @@ function TourMapContainer({
   useEffect(() => {
     if (!isMasterMarkersSet.current && markers && markers.length > 0) {
       localStorage.setItem("masterMarkers", JSON.stringify(markers));
-      console.log("L112 inside markers useEffect")
+      // console.log("L112 inside markers useEffect")
       isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
     }
   }, [markers]);
@@ -149,8 +149,8 @@ function TourMapContainer({
     ? localStorage.getItem("filterValues")
     : null;
 
-  console.log("L153 filter", filter)
-  console.log("L154 filterValuesLocal", filterValuesLocal)
+  // console.log("L153 filter", filter)
+  // console.log("L154 filterValuesLocal", filterValuesLocal)
   filter = !!filterValuesLocal ? filterValuesLocal : filter;  // TODO: why is that necessary?
 
 
@@ -175,93 +175,20 @@ function TourMapContainer({
   }, [mapRef]);
 
 
-
-
-  useEffect(() => {
-    console.log("L181 mapLoaded :", mapLoaded)
-  }, [mapLoaded])
-
-  useEffect(() => {
-    console.log("L185 mapBounds :", mapBounds)
-  }, [mapBounds])
-
+  // useEffect(() => {
+  //   console.log("L181 mapLoaded :", mapLoaded)
+  // }, [mapLoaded])
 
   // useEffect(() => {
-  //   console.log("L161 mapRef.current :", mapRef.current)
-  //   console.log("L162 mapBounds :", mapBounds)
-  //   console.log("L163 mapRef.current.getBounds() :", mapRef.current?.getBounds())
-  //   console.log("L164 mapInitialized :", mapInitialized)
-  //   if (mapLoaded && mapBounds && mapInitialized) {  
-  //     let _masterMarkers = {};
-
-  //     // Retrieve master markers from local storage if available
-  //     if (localStorage.getItem("masterMarkers")) {
-  //       _masterMarkers = JSON.parse(localStorage.getItem("masterMarkers"));
-  //     }
-
-  //     let visibleMarkersObj = {};
-  //     let visibleMarkersArray =[];
-
-  //     // if _masterMarkers is not empty
-  //     if (Object.keys(_masterMarkers).length > 0) {
-  //       visibleMarkersObj = getMarkersListFromBounds(mapBounds, _masterMarkers);
-        
-  //       // Early exit if no list of visible markers is found
-  //       if (!visibleMarkersObj || Object.keys(visibleMarkersObj).length === 0) {
-  //         handleShowCardContainer(false);  // so we can remove the card container 
-  //         return;
-  //       }else{
-  //         handleShowCardContainer(true);  // so we can retain the card container when markers are there 
-  //       }
-  //       // if found extract only IDs in an array
-  //       visibleMarkersArray = createIdArray(visibleMarkersObj);
-  //     }
-
-  //     const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
-  //     const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
-
-  //     console.log("===================")
-  //     console.log("L161 check : ", check)
-  //     // console.log("L162 visibleMarkersObj : ", visibleMarkersObj)
-  //     console.log("L163 visibleMarkersArray : ", visibleMarkersArray)
-  //     console.log("===================");
-
-  //     if (!!check && !!visibleMarkersObj && !!visibleMarkersArray) { 
-  //       localStorage.setItem("visibleMarkers", JSON.stringify(visibleMarkersArray));
-  //       handleChangedMarkers(true); // *** handle the Boolean flag in Main /make new call in card container
-
-  //       let newBounds = getMarkersBounds(visibleMarkersObj)
-  //       !!newBounds ? handleMapBounds(newBounds) : handleMapBounds(mapBounds)
-
-  //     } else {
-  //       handleChangedMarkers(false);
-  //     }
-  //   }
-  // // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
-  // }, [mapBounds, mapInitialized]);  
-
-
-
-//   useEffect(()=>{
-//     console.log("L230 mapRef.current:", mapRef.current)
-//     console.log("L231 markers.length:", markers.length)
-//     console.log("L232 mapLoaded:", mapLoaded)
-//     if (markers && markers.length > 0 && mapLoaded) {
-//         // console.log('Update bounds');
-//         const bounds = getMarkersBounds(markers);
-//         console.log("L219 bounds :", bounds)
-//         if(!!bounds && !!mapRef?.current) {
-//           mapRef.current.fitBounds(bounds);
-//         }
-//     }
-// }, [markers, mapRef, mapLoaded]);
+  //   console.log("L185 mapBounds :", mapBounds)
+  // }, [mapBounds])
  
   
 const mapChangeHandler = (bounds)=>{
-    console.log("L161 mapRef.current :", mapRef.current)
-    console.log("L162 bounds :", bounds)
-    console.log("L164 mapInitialized :", mapInitialized)
-    console.log("L165 mapLoaded :", mapLoaded)
+    // console.log("L161 mapRef.current :", mapRef.current)
+    // console.log("L162 bounds :", bounds)
+    // console.log("L164 mapInitialized :", mapInitialized)
+    // console.log("L165 mapLoaded :", mapLoaded)
     if ( bounds && mapInitialized) {  
       let _masterMarkers = {};
 
@@ -291,9 +218,8 @@ const mapChangeHandler = (bounds)=>{
       const storedMarkers = JSON.parse(localStorage.getItem("visibleMarkers")) || [];
       const check = checkMarkersChanges(visibleMarkersArray, storedMarkers);
 
-      console.log("===================")
       console.log("L294 check : ", check)
-      // console.log("L162 visibleMarkersObj : ", visibleMarkersObj)
+      console.log("===================")
       console.log("L163 visibleMarkersArray : ", visibleMarkersArray)
       console.log("===================");
 
@@ -313,17 +239,17 @@ const mapChangeHandler = (bounds)=>{
 
   const getMarkersBounds = (markers) => {
     const _bounds = L.latLngBounds([]);
-    console.log("L242 _bounds ", _bounds)
+    // console.log("L242 _bounds ", _bounds)
 
 
     if(!!markers){
-      console.log("L246 markers.length ", markers.length)
+      // console.log("L246 markers.length ", markers.length)
       markers.forEach((marker) => {
         if (marker.lat && marker.lon) {
           _bounds.extend([marker.lat, marker.lon]);
         }
       });
-      console.log("L252 _bounds ", _bounds)
+      // console.log("L252 _bounds ", _bounds)
       
       return _bounds;
     }else return null
@@ -499,15 +425,14 @@ const mapChangeHandler = (bounds)=>{
         //Throws an event whenever the bounds of the map change
         // if there are markers , fit map to them else use the usual way
         let _bounds = map.getBounds();
-        console.log("L443 mapLoaded", mapLoaded)
-        console.log("L444 markers.length", markers.length)
+        // console.log("L443 mapLoaded", mapLoaded)
+        // console.log("L444 markers.length", markers.length)
         if (markers && markers.length > 0 && mapLoaded) {
           _bounds = getMarkersBounds(markers);
-          console.log("L446 _bounds", _bounds)
+          // console.log("L446 _bounds", _bounds)
         }
         assignNewMapPosition(_bounds);
         debouncedStoppedMoving(map.getBounds());
-        // handleMapBounds(map.getBounds())
         handleMapBounds(_bounds)
       },
     });
@@ -544,7 +469,6 @@ const mapChangeHandler = (bounds)=>{
   //Method to load the parameters and the filter call:
   const initiateFilter = (bounds) => {
     mapChangeHandler(bounds)
-    console.log("L486 bounds inside initiateFilter :", bounds)
     // handleMapBounds(bounds);
     const searchTerm = !!searchParams.get('search') ? searchParams.get('search') : null;
     const filterValues = {

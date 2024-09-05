@@ -51,7 +51,7 @@ export function Main({
 
   const [filterValues, setFilterValues] = useState(localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
 //initial value for filterValues should be 
-console.log("L54 filterValues :", filterValues)
+// console.log("L54 filterValues :", filterValues)
 
   const [counter, setCounter] = useState(0);
 
