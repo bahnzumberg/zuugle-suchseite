@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
-import { getDomainText } from "../../utils/globals";
+import { getDomainText, useResponsive } from "../../utils/globals";
 import SearchContainer from "./SearchContainer";
 import "/src/config.js";
 
@@ -49,7 +49,7 @@ export default function Header({
   // const [backgroundImage, setBackgroundImage] = useState(
   //   `${LINEAR_GRADIENT} url(/app_static/img/background_start_tiny_${tld}.jpeg)`
   // );
-  const _isMobile = true;
+  const _isMobile = useResponsive();
   const { t, i18n } = useTranslation();
 
   function updateCapCity(newCity) {
