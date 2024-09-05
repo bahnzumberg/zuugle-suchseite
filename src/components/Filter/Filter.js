@@ -287,14 +287,16 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
     }
 
-    
+    console.log("L290 parseFloat((coordinatesSouthWest.lat).toFixed(6))" , parseFloat((coordinatesSouthWest.lat).toFixed(6)))
 
     const submit = () => {
 
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
-            coordinatesSouthWest: coordinatesSouthWest,
-            coordinatesNorthEast: coordinatesNorthEast,
+            s: parseFloat((coordinatesSouthWest.lat).toFixed(6)),
+            w: coordinatesSouthWest.lng,
+            n: coordinatesNorthEast.lat,
+            e: coordinatesNorthEast.lng,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
