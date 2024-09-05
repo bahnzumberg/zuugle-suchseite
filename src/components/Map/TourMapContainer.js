@@ -149,6 +149,9 @@ function TourMapContainer({
   let filterValuesLocal = !!localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
+
+  console.log("L153 filter", filter)
+  console.log("L154 filterValuesLocal", filterValuesLocal)
   filter = !!filterValuesLocal ? filterValuesLocal : filter;
 
 
