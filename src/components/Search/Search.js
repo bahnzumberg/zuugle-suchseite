@@ -1,35 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Modal, Typography, useMediaQuery } from "@mui/material";
+import * as React from "react";
+import { useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import i18next from "i18next";
-import * as React from "react";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router";
-import { useParams, useSearchParams } from "react-router-dom";
+import {loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
-import { loadCities } from "../../actions/cityActions";
-import { hideModal, showModal } from "../../actions/modalActions";
-import { loadFavouriteTours, loadTours } from "../../actions/tourActions";
-import Close from "../../icons/Close";
-import FilterIcon from "../../icons/FilterIcon";
-import GoIcon from "../../icons/GoIcon";
-import SearchIcon from "../../icons/SearchIcon";
-import TransportTrain from "../../icons/TransportTrain";
+import { connect } from "react-redux";
+import { Fragment, useEffect, useState } from "react";
+import { useSearchParams, useParams } from "react-router-dom";
 import {
-  getTopLevelDomain,
   parseIfNeccessary,
   setOrRemoveSearchParam,
+  getTopLevelDomain,
 } from "../../utils/globals";
-import Filter from "../Filter/Filter";
-import AutosuggestSearchTour from "./AutosuggestSearch";
+import { useNavigate } from "react-router";
+import { hideModal, showModal } from "../../actions/modalActions";
 import FullScreenCityInput from "./FullScreenCityInput";
-import "/src/config.js";
-
-const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1);
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
+import FilterIcon from "../../icons/FilterIcon";
+import IconButton from "@mui/material/IconButton";
+import GoIcon from "../../icons/GoIcon";
+import AutosuggestSearchTour from "./AutosuggestSearch";
+import Filter from "../Filter/Filter";
+import SearchIcon from "../../icons/SearchIcon";
+import TransportTrain from "../../icons/TransportTrain";
+import { capitalize } from "lodash";
+import { Modal, Typography, useMediaQuery } from "@mui/material";
+import Close from "../../icons/Close";
+import '/src/config.js';
 
 export function Search({
   loadTours,
@@ -48,8 +47,8 @@ export function Search({
   setFilterValues,
   filterValues,
   mapBounds,
-  // idOne,
-  // cityOne
+  filterOn,
+  setFilterOn
 }) {
   //navigation
   const navigate = useNavigate();
@@ -137,7 +136,7 @@ export function Search({
     }
 
     //setting searchPhrase to the value of the search parameter
-
+      
     if (!!search) {
       setSearchPhrase(search); //TODO : do we need to do actual search if search is a city? see line 138 comment
 
@@ -186,7 +185,6 @@ export function Search({
     }
     // flag active filter if count > 0
     !!filterCountLocal && setActiveFilter(filterCountLocal > 0);
-    // filter && setActiveFilter(countFilterActive(searchParams, filter) > 0);
 
     const bounds =
       !!searchParams.get("map") &&
@@ -209,7 +207,7 @@ export function Search({
     });
 
     result.then((res) => {
-      let importedMarkersArray = res.data.markers;
+      let importedMarkersArray = res?.data?.markers;
 
       if (
         !isMasterMarkersSet.current &&
@@ -249,22 +247,31 @@ export function Search({
     localStorage.setItem("filterCount", 0);
   };
 
-  // Filter modal constructed here
+
+
   const openFilter = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: Filter,
-      title: t("filter.filter"),
-      page: "main",
-      modalSize: "lg",
-      doSubmit: handleFilterSubmit,
-      resetFilter: handleResetFilter,
-      onBack: () => {
-        hideModal();
-      },
-      searchParams,
-      setSearchParams,
-    });
+    setFilterOn(true)
   };
+
+  useEffect(() => {
+    if (filterOn) {
+      showModal("MODAL_COMPONENT", {
+        CustomComponent: Filter,
+        title: t("filter.filter"),
+        page: "main",
+        modalSize: "lg",
+        doSubmit: handleFilterSubmit,
+        resetFilter: handleResetFilter,
+        onBack: () => {
+          setFilterOn(false); // Reset filterOn when closing the modal
+          hideModal();
+        },
+        searchParams,
+        setSearchParams,
+        filterOn: filterOn, // Now filterOn is true when the modal opens
+      });
+    }
+  }, [filterOn]);
 
   //important:
   // state filterValues(from Main) should be set at submission here
@@ -297,6 +304,7 @@ export function Search({
     setCounter(0);
     setFilterValues(null); // reset state in parent Main
     resetFilterLocalStorage();
+    setFilterOn(false)
   };
 
   const handleFilterChange = (entry) => {
@@ -371,39 +379,42 @@ export function Search({
 
   const showCityModal = () => {
     if (isMobile) {
-      setShowMobileModal(true);
-    } else {
-      showModal("MODAL_COMPONENT", {
-        CustomComponent: FullScreenCityInput,
-        searchParams,
-        initialCity: cityInput,
-        onSelect: async (city) => {
-          if (!!city) {
-            setCityInput(city.label);
-            setCity(city);
-            pageKey === "start" && updateCapCity(city.label);
-            searchParams.set("city", city.value);
-            setSearchParams(searchParams);
-            window.location.reload();
-          }
+      setShowMobileModal(true)
+    }else{
 
-          hideModal();
-        },
-        cityOne: cityOne,
-        idOne: idOne,
-        setSearchParams,
-        title: "",
-        sourceCall: "city",
-        page: page,
-        srhBoxScrollH: document
-          .querySelector(".main-search-bar")
-          .getBoundingClientRect().top,
-        modalSize: "lg",
-        onBack: () => {
-          hideModal();
-        },
-      });
-    }
+    showModal("MODAL_COMPONENT", {
+      CustomComponent: FullScreenCityInput,
+      searchParams,
+      initialCity: cityInput,
+      onSelect: async (city) => {
+        
+        if (!!city) {
+          setCityInput(city.label);
+          setCity(city);
+          pageKey === "start" && updateCapCity(city.label);
+          searchParams.set('city', city.value);
+          setSearchParams(searchParams)
+          window.location.reload()
+        }
+
+        hideModal();
+      },
+      cityOne:  cityOne ,
+      idOne:  idOne ,
+      setSearchParams,
+      title: "",
+      sourceCall: "city",
+      page: page,
+      srhBoxScrollH: document
+        .querySelector(".main-search-bar")
+        .getBoundingClientRect().top,
+      modalSize: "lg",
+      onBack: () => {
+        hideModal();
+      },
+    });
+  }
+
   };
   const showCityModalMobile = () => {
     showModal("MODAL_COMPONENT", {
@@ -411,6 +422,7 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
+        
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
@@ -421,11 +433,12 @@ export function Search({
           pageKey === "start" && updateCapCity(city.label);
           searchParams.set("city", city.value);
           setSearchParams(searchParams);
+
         }
         hideModal();
       },
-      cityOne: cityOne,
-      idOne: idOne,
+      cityOne:  cityOne ,
+      idOne:  idOne ,
       setSearchParams,
       title: "",
       sourceCall: "city",
@@ -613,11 +626,7 @@ export function Search({
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <SearchIcon
-                  style={{
-                    strokeWidth: 1,
-                    stroke: "#8b8b8b",
-                    fill: "#101010",
-                  }}
+                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
                 />
                 <Box
                   sx={{
@@ -679,7 +688,7 @@ export function Search({
               }}
             >
               <span className="search-bar--searchPhase" style={{}}>
-                {t("start.heimatbahnhof")}
+                {t("search.dein_heimatbahnhof")}
               </span>
             </div>
             <Box
@@ -695,11 +704,12 @@ export function Search({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <SearchIcon
+                <TransportTrain
                   style={{
-                    strokeWidth: 1,
-                    stroke: "#8b8b8b",
-                    fill: "#101010",
+                    strokeWidth: "1px",
+                    fill: "#000",
+                    stroke: "none",
+                    marginRight: "8px", // optional spacing between SVG and text
                   }}
                 />
                 <Box
@@ -758,23 +768,9 @@ export function Search({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {!cityInput && pageKey ? (
-            <TransportTrain
-              style={{
-                strokeWidth: "1px",
-                fill: "#000",
-                stroke: "none",
-              }}
-            />
-          ) : (
-            <SearchIcon
-              style={{
-                strokeWidth: 1,
-                stroke: "#8b8b8b",
-                fill: "#101010",
-              }}
-            />
-          )}
+          <SearchIcon
+            style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
+          />
           <Box
             sx={{
               width: {
@@ -801,10 +797,7 @@ export function Search({
                       ml: "14px",
                       color: "#101010",
                       fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
-                      fontSize: {
-                        xs: "14px",
-                        sm: "15px",
-                      },
+                      fontSize: { xs: "14px", sm: "15px" },
                       fontWeight: "500",
                       lineHeight: "20px",
                     }}
@@ -848,11 +841,26 @@ export function Search({
                   }}
                 >
                   {pageKey !== "detail" ? (
-                    <span className="search-bar--city">
-                      {cityInput.length > 0
-                        ? cityInput
-                        : t("start.heimatbahnhof")}
-                    </span>
+                    <Box
+                      className="search-bar--city"
+                      sx={{ display: "flex", textAlign: "left", alignItems:"center"  }}
+                    >
+                      <>
+                        {!isMobile && (
+                          <TransportTrain
+                            style={{
+                              strokeWidth: "1px",
+                              fill: "#000",
+                              stroke: "none",
+                              marginRight: "5px", 
+                            }}
+                          />
+                        )}
+                        {cityInput.length > 0
+                          ? `${t("search.ab_heimatbahnhof")} ${cityInput}`
+                          : t("start.heimatbahnhof")}
+                      </>
+                    </Box>
                   ) : !cityInput && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
@@ -860,10 +868,7 @@ export function Search({
                         cursor: "pointer",
                         color: "#4992FF !important",
                         fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
-                        fontSize: {
-                          xs: "14px",
-                          sm: "15px",
-                        },
+                        fontSize: { xs: "14px", sm: "15px" },
                         fontWeight: "700",
                         lineHeight: "20px",
                       }}
@@ -933,9 +938,7 @@ export function Search({
 }
 
 const mapDispatchToProps = {
-  loadCities,
   loadTours,
-  loadFavouriteTours,
   showModal,
   hideModal,
 };
