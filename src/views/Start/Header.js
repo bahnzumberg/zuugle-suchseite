@@ -1,15 +1,15 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import SearchContainer from "./SearchContainer";
+import Box from "@mui/material/Box";
+import * as React from "react";
 import { useEffect, useState } from "react";
-import { getDomainText, useResponsive } from "../../utils/globals";
-import DomainMenu from "../../components/DomainMenu";
-import LanguageMenu from "../../components/LanguageMenu";
+import { Helmet } from "react-helmet";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
-import { Helmet } from "react-helmet";
+import DomainMenu from "../../components/DomainMenu";
+import LanguageMenu from "../../components/LanguageMenu";
+import { getDomainText, useResponsive } from "../../utils/globals";
+import SearchContainer from "./SearchContainer";
 import "/src/config.js";
 
 const LINEAR_GRADIENT =
@@ -59,10 +59,10 @@ export default function Header({
   useEffect(() => {
     let _city = getCity();
     if (!!_city) {
-      setLoading(true);
+      //   setLoading(true);
       getTotalCityTours(city).then((data) => {
         setTotalToursFromCity(data.tours_city);
-        if (!!data.tours_city && data.tours_city > 0) setLoading(false);
+        // if (!!data.tours_city && data.tours_city > 0) setLoading(false);
       });
     }
   }, [city]);
@@ -70,7 +70,7 @@ export default function Header({
   useEffect(() => {
     // city = searchParams.get("city");
     if (!!city && !!allCities && allCities.length > 0) {
-      const cityObj = allCities.find((e) => e.value === city); // find the city object in array "allCities"
+      const cityObj = allCities.find((e) => e.value == city); // find the city object in array "allCities"
       if (!!cityObj) {
         updateCapCity(cityObj.label);
         searchParams.set("city", city);
@@ -159,29 +159,20 @@ export default function Header({
         >
           <Box component={"div"} className="rowing blueDiv">
             <DomainMenu />
-            <LanguageMenu pageKey='start'/>
+            <LanguageMenu />
           </Box>
-          <Box className={"header-text"}>
-            <>
-              {!loading && !!totalTours && totalToursFromCity === 0 && (
-                <Typography variant={"h1"} height={"162px"}>
-                  {!!totalTours &&
-                    totalTours !== 0 &&
-                    totalTours.toLocaleString() +
-                      " " +
-                      t("start.tourenanzahl_untertitel")}
-                </Typography>
-              )}
-              {!loading && !!totalToursFromCity && (
-                <Typography variant={"h1"} height={"162px"}>
-                  {!!totalToursFromCity &&
-                    totalToursFromCity !== 0 &&
-                    totalToursFromCity.toLocaleString() +
-                      " " +
-                      t("start.tourenanzahl_untertitel_city", { capCity })}
-                </Typography>
-              )}
-            </>
+          <Box className="header-text">
+            {totalTours > 0 && (
+              <Typography variant="h1" height="162px">
+                {totalTours.toLocaleString()}{" "}
+                {t(
+                  totalToursFromCity === 0
+                    ? "start.tourenanzahl_untertitel"
+                    : "start.tourenanzahl_untertitel_city",
+                  { capCity }
+                )}
+              </Typography>
+            )}
           </Box>
           {!!allCities && allCities.length > 0 && (
             <Box

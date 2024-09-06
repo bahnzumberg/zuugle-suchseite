@@ -1,27 +1,28 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { lazy, useEffect, useState, useRef } from "react";
-import {
-  loadTour,
-  loadFavouriteTours,
-  loadTotalTours,
-} from "../../actions/tourActions";
+import * as React from "react";
+import { lazy, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { connect } from "react-redux";
+import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router-dom";
+import { compose } from "redux";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
-import { compose } from "redux";
-import { connect } from "react-redux";
+import {
+  loadFavouriteTours,
+  loadTotalTours,
+  loadTour,
+  loadTourConnectionsExtended,
+} from "../../actions/tourActions";
 import Footer from "../../components/Footer/Footer";
-import { useSearchParams } from "react-router-dom";
-import { useNavigate } from "react-router";
-import { useTranslation } from "react-i18next";
-import Header from "./Header";
+import MapBtn from "../../components/Search/MapBtn";
 import {
   getPageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
-import MapBtn from "../../components/Search/MapBtn";
+import Header from "./Header";
 import "/src/config.js";
 
 const RangeCardContainer = lazy(() =>
@@ -36,6 +37,7 @@ function Start({
   loadFavouriteTours,
   favouriteTours,
   loadCities,
+  loadTourConnections,
   totalTours,
   loadTour,
   loadTotalTours,
@@ -189,96 +191,89 @@ function Start({
     return (
       <Box style={{ background: "#fff" }}>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
-        {
-          <Header
-            getCity={getCity}
-            totalTours={totalTours}
-            allCities={allCities}
-            showMobileMenu={showMobileMenu}
-            setShowMobileMenu={setShowMobileMenu}
-          />
-        }
-
-        {
-          <Box elevation={0} className={"header-line"}>
-            <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
-              <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
-                {t("start.zuugle_sucht_fuer_dich_2")}
-              </Typography>
-            </Box>
+        <Header
+          getCity={getCity}
+          totalTours={totalTours}
+          allCities={allCities}
+          showMobileMenu={showMobileMenu}
+          setShowMobileMenu={setShowMobileMenu}
+        />
+        <Box elevation={0} className={"header-line"}>
+          <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
+            <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+              {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+              {t("start.zuugle_sucht_fuer_dich_2")}
+            </Typography>
           </Box>
-        }
-        {
-          <Box className={"start-body-container"}>
-            <Box
+        </Box>
+
+        <Box className={"start-body-container"}>
+          <Box
+            sx={{
+              marginTop: "20px",
+              padding: isMobile ? "30px 20px" : "30px 10px",
+              background: "#EBEBEB",
+              borderRadius: "30px",
+            }}
+          >
+            <Typography
+              variant={"h4"}
               sx={{
-                marginTop: "20px",
-                padding: isMobile ? "30px 20px" : "30px 10px",
-                background: "#EBEBEB",
-                borderRadius: "30px",
+                textAlign: "left",
+                paddingTop: "20px",
+                paddingBottom: "15px",
+                marginLeft: !isMobile ? "64px" : null,
               }}
             >
-              <Typography
-                variant={"h4"}
-                sx={{
-                  textAlign: "left",
-                  paddingTop: "20px",
-                  paddingBottom: "15px",
-                  marginLeft: !isMobile ? "64px" : null,
-                }}
-              >
-                {getFavouriteToursText()}
-              </Typography>
-              <ScrollingTourCardContainer
-                tours={favouriteTours}
-                onSelectTour={onSelectTour}
-                city={searchParams.get("city")}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-                isMobile={isMobile}
-              />
-            </Box>
-
-            <Box style={{ padding: "30px 40px" }}>
-              <Typography
-                variant={"h4"}
-                sx={{
-                  textAlign: "left",
-                  paddingBottom: "15px",
-                  paddingTop: "15px",
-                }}
-              >
-                {getRangeText()}
-              </Typography>
-              <RangeCardContainer
-                ranges={favouriteRanges}
-                onSelectTour={onSelectRange}
-              />
-            </Box>
-
-            <Box sx={{ marginTop: "80px" }}>
-              <KPIContainer
-                totalTours={totalTours}
-                totalConnections={totalConnections}
-                totalRanges={totalRanges}
-                totalCities={totalCities}
-                city={searchParams.get("city")}
-                totalProvider={totalProvider}
-              />
-            </Box>
+              {getFavouriteToursText()}
+            </Typography>
+            <ScrollingTourCardContainer
+              tours={favouriteTours}
+              onSelectTour={onSelectTour}
+              loadTourConnections={loadTourConnections}
+              city={searchParams.get("city")}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              isMobile={isMobile}
+            />
           </Box>
-        }
 
-        {
-          <MapBtn
-            onClick={onClickMap}
-            mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
-            btnSource="start"
-          ></MapBtn>
-        }
+          <Box style={{ padding: "30px 40px" }}>
+            <Typography
+              variant={"h4"}
+              sx={{
+                textAlign: "left",
+                paddingBottom: "15px",
+                paddingTop: "15px",
+              }}
+            >
+              {getRangeText()}
+            </Typography>
+            <RangeCardContainer
+              ranges={favouriteRanges}
+              onSelectTour={onSelectRange}
+            />
+          </Box>
 
-        {<Footer />}
+          <Box sx={{ marginTop: "80px" }}>
+            <KPIContainer
+              totalTours={totalTours}
+              totalConnections={totalConnections}
+              totalRanges={totalRanges}
+              totalCities={totalCities}
+              city={searchParams.get("city")}
+              totalProvider={totalProvider}
+            />
+          </Box>
+        </Box>
+
+        <MapBtn
+          onClick={onClickMap}
+          mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
+          btnSource="start"
+        ></MapBtn>
+
+        <Footer />
       </Box>
     );
   }
@@ -288,6 +283,7 @@ const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
   loadRanges,
+  loadTourConnectionsExtended,
   loadTotalTours,
   loadAllCities,
   loadTour,
