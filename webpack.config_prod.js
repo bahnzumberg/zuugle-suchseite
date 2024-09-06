@@ -80,41 +80,11 @@ module.exports = {
 			filename: 'index.html',
 			template: './public/index.html',
 		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-si.html',
-			template: './public/index-si.html',
-		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-de.html',
-			template: './public/index-de.html',
-		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-fr.html',
-			template: './public/index-fr.html',
-		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-ch.html',
-			template: './public/index-ch.html',
-		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-it.html',
-			template: './public/index-it.html',
-		}),
-		new HtmlWebpackPlugin({
-			inject: true,
-			filename: 'index-li.html',
-			template: './public/index-li.html',
-		}),
 		new CopyWebpackPlugin({
 			patterns: [
 				{ from: "./public", to: "app_static" },
 				{ from: "./src/icons/svg/provider", to: "app_static/icons/provider" },
-				// { from: "./src/icons/svg", to: "app_static/icons" },
+				{ from: "./src/icons/svg", to: "app_static/icons" },
 			],
 		}),
 		new MiniCssExtractPlugin({
