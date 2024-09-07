@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useRef, useEffect, useMemo} from 'react';
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMap, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L, { divIcon } from 'leaflet';
 
@@ -81,6 +81,7 @@ useEffect(() => {
       center={[47.800499, 13.04441]}
       zoom={12}
       style={{ height: "100%", width: "100%" }}
+      zoomControl={false}
       // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
       <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" />
@@ -108,6 +109,7 @@ useEffect(() => {
           positions={abreiseGpxPositions}
         />
       )}
+      <ZoomControl position="bottomright" />
     </MapContainer>
   )
 }

@@ -35,7 +35,6 @@ root.render(
     <Provider store={store}>
       <div>
         <Helmet>
-          <link rel="canonical" href="https://www.zuugle.at" />
           <link
             id="favicon"
             rel="icon"

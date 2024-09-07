@@ -95,8 +95,8 @@ export default function TourCardContainer({
       page: !!pageTours ? Number(pageTours) + 1 : 2,
       bounds: bounds, // bounds added
     }).then((res) => {
-      let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      console.log("L100 retrievedTours[0]", retrievedTours[0])
+      // let retrievedTours = res?.data?.tours ? res.data.tours : [];
+      // console.log("L100 retrievedTours[0]", retrievedTours[0])
     });
   };
 
