@@ -278,22 +278,28 @@ const mapChangeHandler = (bounds)=>{
 
   //saves the bounds on localStorage
   const assignNewMapPosition = (position) => {
+    // console.log("L281 position :", position)
+    let swLat = (position?._southWest.lat).toFixed(6);
+    let swLng = (position?._southWest.lng).toFixed(6);
+    let neLat = (position?._northEast.lat).toFixed(6);
+    let neLng = (position?._northEast.lng).toFixed(6);
+
     localStorage.setItem(
       "MapPositionLatNE",
-      position?._northEast?.lat || default_LatNE
+      neLat || default_LatNE
     );
     localStorage.setItem(
       "MapPositionLngNE",
-      parseFloat((position?._northEast?.lng).toFixed(6)) || default_LngNE
+      neLng || default_LngNE
     );
         
     localStorage.setItem(
       "MapPositionLatSW",
-      parseFloat((position?._southWest?.lat).toFixed(6)) || default_LatSW
+      swLat || default_LatSW
     );
     localStorage.setItem(
       "MapPositionLngSW",
-      parseFloat((position?._southWest?.lng).toFixed(6)) || default_LngSW
+      swLng || default_LngSW
     );
   };
 
@@ -463,38 +469,45 @@ const mapChangeHandler = (bounds)=>{
   }
 
   function stoppedMoving(bounds) {
-    initiateFilter(bounds);
+    handleChange(bounds);
     
   }
 
   const debouncedStoppedMoving = useMemo(() => makeDebounced(stoppedMoving, 1000), []); //Calls makeDebounce with the function you want to debounce and the debounce time
 
-  //Method to load the parameters and the filter call:
-  const initiateFilter = (bounds) => {
+  const handleChange = (bounds) => {
+
+    //assignNewMapPosition(bounds); // saves bounds to localStorage
+
+    let swLat = (bounds?._southWest.lat).toFixed(6);
+    let swLng = (bounds?._southWest.lng).toFixed(6);
+    let neLat = (bounds?._northEast.lat).toFixed(6);
+    let neLng = (bounds?._northEast.lng).toFixed(6);
+
     mapChangeHandler(bounds)
     const searchTerm = !!searchParams.get('search') ? searchParams.get('search') : null;
     const filterValues = {
       //All Values in the URL
-      s: parseFloat((bounds?._southWest.lat).toFixed(6)),
-      w: parseFloat((bounds?._southWest.lng).toFixed(6)),
-      n: parseFloat((bounds?._northEast.lat).toFixed(6)),
-      e: parseFloat((bounds?._northEast.lng).toFixed(6)),
-      singleDayTour: filter.singleDayTour,
-      multipleDayTour: filter.multipleDayTour,
-      summerSeason: filter.summerSeason,
-      winterSeason: filter.winterSeason,
-      traverse: filter.traverse,
-      difficulty: filter.difficulty,
-      minAscent: filter.minAscent,
-      maxAscent: filter.maxAscent,
-      minDescent: filter.minDescent,
-      maxDescent: filter.maxDescent,
-      minTransportDuration: filter.minTransportDuration,
-      maxTransportDuration: filter.maxTransportDuration,
-      minDistance: filter.minDistance,
-      maxDistance: filter.maxDistance,
-      ranges: filter.ranges,
-      types: filter.types,
+      s: parseFloat(swLat),
+      w: parseFloat(swLng),
+      n: parseFloat(neLat),
+      e: parseFloat(neLng),
+      singleDayTour: filter?.singleDayTour,
+      multipleDayTour: filter?.multipleDayTour,
+      summerSeason: filter?.summerSeason,
+      winterSeason: filter?.winterSeason,
+      traverse: filter?.traverse,
+      difficulty: filter?.difficulty,
+      minAscent: filter?.minAscent,
+      maxAscent: filter?.maxAscent,
+      minDescent: filter?.minDescent,
+      maxDescent: filter?.maxDescent,
+      minTransportDuration: filter?.minTransportDuration,
+      maxTransportDuration: filter?.maxTransportDuration,
+      minDistance: filter?.minDistance,
+      maxDistance: filter?.maxDistance,
+      ranges: filter?.ranges,
+      types: filter?.types,
       search: searchTerm
     };
     
