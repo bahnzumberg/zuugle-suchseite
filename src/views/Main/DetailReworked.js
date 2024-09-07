@@ -43,8 +43,9 @@ import {
 import ArrowBefore from "../../icons/ArrowBefore";
 import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
-import { shortenText, parseFileName } from "../../utils/globals";
+import { shortenText, parseFileName, get_currLanguage } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
+import { Helmet } from 'react-helmet';
 import '/src/config.js';
 
 
@@ -538,13 +539,48 @@ useEffect(() => {
     </Box>
   );
 
-    return (
+  
+ 
+  const currLanguage = get_currLanguage();
+  let page_title = 'Zuugle';
+  let imageUrl="";
+  let description="";
+  let URL = shareUrl()
+  if (!!tour) {
+    page_title = 'Zuugle: '+tour.title+' ('+tour.provider_name+')';
+    imageUrl = (tour?.image_url && tour?.image_url.length > 0) && tour?.image_url
+    description = (tour?.description && tour?.description.length > 0) && tour?.description
+  } 
 
+    return (
       <Box sx={{ backgroundColor: "#fff" }}>
            {isTourLoading ? (
         <LoadingSpinner />
       ) : (
         <>
+          <Helmet>
+            <title>{page_title}</title>
+            <meta http-equiv="content-language" content={`${currLanguage}`} />
+            <meta property="og:url" content={`${URL}`} />
+            <meta property="og:title" content={`${page_title}`} />
+            <meta property="og:description" content="" />
+            <meta property="og:image" content={`${imageUrl}`} />
+            <meta property="twitter:url" content={`${URL}`} />
+            <meta property="twitter:title" content={`${page_title}`} />
+            <meta property="twitter:description" content={`${description}`} />
+            <meta property="twitter:image" content={`${imageUrl}`} />
+            <link rel="alternate" href={`https://${window.location.hostname}/tour/${idOne}/no-city`} />
+            {
+              (!!tour && validTour && !!tour.canonical && tour.canonical.length > 0)  && tour.canonical.map((entry)=>{
+                if (entry.canonical_yn === 'y'){
+                  return <link rel="canonical" href={`https://${entry.zuugle_url}`} hreflang={`${entry.href_lang}`}/>
+                }else{
+                  return <link rel="alternate" href={`https://${entry.zuugle_url}`} hreflang={`${entry.href_lang}`}/>
+                }
+                
+              })
+            }
+          </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               {/* close tab /modal in case no return history available  ###### section */}

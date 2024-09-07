@@ -1,12 +1,10 @@
-import { Typography } from "@mui/material";
-import Box from "@mui/material/Box";
-import React, { lazy, useCallback, useEffect, useState } from "react";
+import { getDomainText, useResponsive } from "../../utils/globals";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
-import { getDomainText } from "../../utils/globals";
-import BackgroundImageLoader from "./BackgroundImageLoader";
+import { Helmet } from "react-helmet";
 import "/src/config.js";
+import BackgroundImageLoader from "./BackgroundImageLoader";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
@@ -37,20 +35,27 @@ export default function Header({
 		return searchParams.get("city") || localStorage.getItem("city") || null;
 	}, [searchParams]);
 
-	useEffect(() => {
-		const _city = getCity();
-		if (_city) {
-			getTotalCityTours(_city).then((data) =>
-				setTotalToursFromCity(data.tours_city)
-			);
+  useEffect(() => {
+    let _city = getCity();
+    if (!!_city) {
+      setLoading(true);
+      getTotalCityTours(city).then((data) => {
+        setTotalToursFromCity(data.tours_city);
+        if (!!data.tours_city && data.tours_city > 0) setLoading(false);
+      });
+    }
+  }, [city]);
 
-			const cityObj = allCities.find((e) => e.value === _city);
-			if (cityObj) {
-				updateCapCity(cityObj.label);
-				searchParams.set("city", _city);
-			}
-		}
-	}, [getCity, allCities, searchParams, updateCapCity]);
+  useEffect(() => {
+    // city = searchParams.get("city");
+    if (!!city && !!allCities && allCities.length > 0) {
+      const cityObj = allCities.find((e) => e.value === city); // find the city object in array "allCities"
+      if (!!cityObj) {
+        updateCapCity(cityObj.label);
+        searchParams.set("city", city);
+      }
+    }
+  }, [searchParams, city, allCities]);
 
 	if (totalTours === 0) {
 		return (

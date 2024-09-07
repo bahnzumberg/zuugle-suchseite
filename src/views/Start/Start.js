@@ -9,17 +9,16 @@ import { compose } from "redux";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
 import {
+  loadTour,
   loadFavouriteTours,
   loadTotalTours,
-  loadTour,
-  loadTourConnectionsExtended,
 } from "../../actions/tourActions";
 import { useResponsive } from "../../utils/globals";
 import {
   getPageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
-import Header from "./Header";
+import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
 
 const RangeCardContainer = lazy(() =>
@@ -36,7 +35,6 @@ function Start({
   loadFavouriteTours,
   favouriteTours,
   loadCities,
-  loadTourConnections,
   totalTours,
   loadTour,
   loadTotalTours,
@@ -216,23 +214,60 @@ function Start({
             <Typography
               variant={"h4"}
               sx={{
-                textAlign: "left",
-                paddingTop: "20px",
-                paddingBottom: "15px",
-                marginLeft: !isMobile ? "64px" : null,
+                marginTop: "20px",
+                padding: isMobile ? "30px 20px" : "30px 10px",
+                background: "#EBEBEB",
+                borderRadius: "30px",
               }}
             >
-              {getFavouriteToursText()}
-            </Typography>
-            <ScrollingTourCardContainer
-              tours={favouriteTours}
-              onSelectTour={onSelectTour}
-              loadTourConnections={loadTourConnections}
-              city={searchParams.get("city")}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              isMobile={isMobile}
-            />
+              <Typography
+                variant={"h4"}
+                sx={{
+                  textAlign: "left",
+                  paddingTop: "20px",
+                  paddingBottom: "15px",
+                  marginLeft: !isMobile ? "64px" : null,
+                }}
+              >
+                {getFavouriteToursText()}
+              </Typography>
+              <ScrollingTourCardContainer
+                tours={favouriteTours}
+                onSelectTour={onSelectTour}
+                city={searchParams.get("city")}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                isMobile={isMobile}
+              />
+            </Box>
+
+            <Box style={{ padding: "30px 40px" }}>
+              <Typography
+                variant={"h4"}
+                sx={{
+                  textAlign: "left",
+                  paddingBottom: "15px",
+                  paddingTop: "15px",
+                }}
+              >
+                {getRangeText()}
+              </Typography>
+              <RangeCardContainer
+                ranges={favouriteRanges}
+                onSelectTour={onSelectRange}
+              />
+            </Box>
+
+            <Box sx={{ marginTop: "80px" }}>
+              <KPIContainer
+                totalTours={totalTours}
+                totalConnections={totalConnections}
+                totalRanges={totalRanges}
+                totalCities={totalCities}
+                city={searchParams.get("city")}
+                totalProvider={totalProvider}
+              />
+            </Box>
           </Box>
           <Box style={{ padding: "30px 40px" }}>
             <Typography
@@ -276,7 +311,6 @@ const mapDispatchToProps = {
   loadFavouriteTours,
   loadCities,
   loadRanges,
-  loadTourConnectionsExtended,
   loadTotalTours,
   loadAllCities,
   loadTour,

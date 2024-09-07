@@ -287,14 +287,20 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
     }
 
-    
 
     const submit = () => {
+        let swLat = !!coordinatesSouthWest?.lat && (coordinatesSouthWest?.lat).toFixed(6);
+        let swLng = !!coordinatesSouthWest?.lng && (coordinatesSouthWest?.lng).toFixed(6);
+        let neLat = !!coordinatesNorthEast?.lat && (coordinatesNorthEast?.lat).toFixed(6);
+        let neLng = !!coordinatesNorthEast?.lng && (coordinatesNorthEast?.lng).toFixed(6);
 
         const filterValues = {
             //coordinates: coordinates,  //Füg den Wert in die URL ein
-            coordinatesSouthWest: coordinatesSouthWest,
-            coordinatesNorthEast: coordinatesNorthEast,
+            // s: !!coordinatesSouthWest?.lat && (coordinatesSouthWest?.lat).toFixed(6),
+            s: swLat,
+            w: swLng,
+            n: neLat,
+            e: neLng,
             singleDayTour: mapPosNegValues(singleDayTour),
             multipleDayTour: mapPosNegValues(multipleDayTour),
             summerSeason: mapPosNegValues(summerSeason),
@@ -315,7 +321,7 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
         }
         localStorage.setItem("filterValues", JSON.stringify(filterValues));
         localStorage.setItem("filterCount", countFilterActive());
-        doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
+        countFilterActive() > 0 && doSubmit({filterValues: filterValues, filterCount: countFilterActive()});
     }
 
     const checkIfCheckedFromCheckbox = (list, key) => {
@@ -712,11 +718,22 @@ function Filter({filter, doSubmit, resetFilter, searchParams, loadFilter, isLoad
                     justifyContent: { xs: "center", sm: "end" }
                 }}>
                     <Box sx={{ pt: "18px" }}>
-                        <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} onClick={resetFilter}> {filter_loeschen_label}</Button>
+                        <Button variant={"text"} sx={{ marginRight: "15px", color: "#8B8B8B" }} 
+                            onClick={resetFilter}> {filter_loeschen_label}
+                        </Button>
                         <Button variant={"contained"} onClick={submit} >
                             {countFilterActive() === 0 ? '' : countFilterActive()} 
                             {" "}{filter_anwenden_label} 
                         </Button>
+                        {/* <Button
+                            variant={"contained"}
+                            onClick={submit}
+                            disabled={countFilterActive() === 0}
+                            className={countFilterActive() === 0 ? 'disabled-button' : ''}
+                            >
+                            {countFilterActive() === 0 ? '' : countFilterActive()} 
+                            {" "}{filter_anwenden_label} 
+                        </Button> */}
                     </Box>
                 </Box>
             </Fragment>
