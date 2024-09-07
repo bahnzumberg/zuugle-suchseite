@@ -1,4 +1,3 @@
-import moment from "moment";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 
@@ -95,10 +94,7 @@ export const getDomainText = () => {
     }
 }
 
-export const useResponsive = () => {
-    const matches = useMediaQuery('(max-width:600px)');
-    return !!matches;
-}
+export const useResponsive = () => useMediaQuery('(max-width:600px)');
 
 export function parseIfNeccessary(value) {
     if(value && value.constructor === "test".constructor){

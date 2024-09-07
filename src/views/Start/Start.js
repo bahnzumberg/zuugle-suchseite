@@ -1,8 +1,6 @@
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import * as React from "react";
-import { lazy, useEffect, useRef, useState } from "react";
+import React, { lazy, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
@@ -16,8 +14,7 @@ import {
   loadTour,
   loadTourConnectionsExtended,
 } from "../../actions/tourActions";
-import Footer from "../../components/Footer/Footer";
-import MapBtn from "../../components/Search/MapBtn";
+import { useResponsive } from "../../utils/globals";
 import {
   getPageHeader,
   getTranslatedCountryName,
@@ -32,6 +29,8 @@ const KPIContainer = lazy(() => import("../../components/KPIContainer"));
 const ScrollingTourCardContainer = lazy(() =>
   import("../../components/ScrollingTourCardContainer")
 );
+const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
+const Footer = lazy(() => import("../../components/Footer/Footer"));
 
 function Start({
   loadFavouriteTours,
@@ -58,14 +57,13 @@ function Start({
 
   let city = "";
   let _city = searchParams.get("city");
-  const [cityState, setCityState] = useState(_city);
 
   const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
   let totalTourRef = useRef(0);
-  const isMobile = useMediaQuery("(max-width:678px)");
+  const isMobile = useResponsive();
 
   useEffect(() => {
     // matomo
@@ -87,7 +85,7 @@ function Start({
         // );
         getCity();
 
-        if (!!city && !!!searchParamCity) {
+        if (city && !searchParamCity) {
           searchParams.set("city", city);
           setSearchParams(searchParams);
         }
@@ -96,7 +94,7 @@ function Start({
         await loadFavouriteTours(
           {
             limit: 10,
-            city: !!city ? city : undefined,
+            city,
             ranges: true,
             provider: searchParams.get("p"),
           },
@@ -122,7 +120,7 @@ function Start({
   const getCity = () => {
     searchParamCity = searchParams.get("city");
     city = localStorage.getItem("city");
-    if (!!city) {
+    if (city) {
       return city;
     } else {
       return "";
@@ -130,8 +128,8 @@ function Start({
   };
 
   const onSelectTour = (tour) => {
-    if (!!tour && !!tour.id) {
-      if (!!city) {
+    if (tour?.id) {
+      if (city) {
         loadTour(tour.id, city).then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
             localStorage.setItem("tourId", tour.id);
@@ -147,15 +145,13 @@ function Start({
   };
 
   const onSelectRange = (range) => {
-    if (!!range && !!range.range) {
-      navigate(
-        `/search?range=${range.range}${!!_city ? "&city=" + _city : ""}`
-      );
+    if (range?.range) {
+      navigate(`/search?range=${range.range}${_city ? "&city=" + _city : ""}`);
     }
   };
 
   const getRangeText = () => {
-    if (!!_city && _city.length > 0) {
+    if (_city?.length > 0) {
       return t("start.schoene_wanderungen_nahe");
     } else {
       return t("start.schoene_wanderungen");
@@ -163,7 +159,7 @@ function Start({
   };
 
   const getFavouriteToursText = () => {
-    if (!!_city && _city.length > 0) {
+    if (_city?.length > 0) {
       return t("start.beliebte_bergtouren_nahe");
     } else {
       return t("start.beliebte_bergtouren");
@@ -187,7 +183,9 @@ function Start({
         <Footer />
       </Box>
     );
-  } else if (noToursAvailable === false) {
+  }
+
+  if (noToursAvailable === false) {
     return (
       <Box style={{ background: "#fff" }}>
         {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
@@ -206,7 +204,6 @@ function Start({
             </Typography>
           </Box>
         </Box>
-
         <Box className={"start-body-container"}>
           <Box
             sx={{
@@ -237,7 +234,6 @@ function Start({
               isMobile={isMobile}
             />
           </Box>
-
           <Box style={{ padding: "30px 40px" }}>
             <Typography
               variant={"h4"}
@@ -254,7 +250,6 @@ function Start({
               onSelectTour={onSelectRange}
             />
           </Box>
-
           <Box sx={{ marginTop: "80px" }}>
             <KPIContainer
               totalTours={totalTours}
@@ -266,13 +261,11 @@ function Start({
             />
           </Box>
         </Box>
-
         <MapBtn
           onClick={onClickMap}
           mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
           btnSource="start"
         ></MapBtn>
-
         <Footer />
       </Box>
     );

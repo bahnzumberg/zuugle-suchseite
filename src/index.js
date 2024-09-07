@@ -1,52 +1,73 @@
-import React from 'react';
-import {createRoot} from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { Helmet } from "react-helmet";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { applyMiddleware, compose, createStore } from "redux";
+import thunk from "redux-thunk";
+import App from "./App";
+import "./index.css";
 import rootReducer from "./rootReducer";
-import { Helmet } from 'react-helmet';
-import { Provider } from 'react-redux';
 import "./translations/i18n";
-import {BrowserRouter} from "react-router-dom";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const isDevelopment = process.env.NODE_ENV === "development";
 
-export const store = createStore(rootReducer, composeEnhancers(
-    applyMiddleware(thunk)
-));
+const composeEnhancers =
+  isDevelopment && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__()
+    : compose;
 
-//description:
-//This code is a workaround for a bug in Internet Explorer Mobile 10.0, where the viewport size is not calculated properly. The code detects if the user agent matches this version of IE Mobile and then injects a style tag into the HTML head, which sets the width of the viewport to "auto!important", overriding any previous CSS rules. This fixes the bug and allows the page to be displayed correctly on IE Mobile 10.0.
+export const store = createStore(
+  rootReducer,
+  composeEnhancers(applyMiddleware(thunk))
+);
+
+// Workaround for IE Mobile 10.0
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
-    var msViewportStyle = document.createElement('style');
-    msViewportStyle.appendChild(
-        document.createTextNode(
-            '@-ms-viewport{width:auto!important}'
-        )
-    );
-    document.head.appendChild(msViewportStyle);
+  const msViewportStyle = document.createElement("style");
+  msViewportStyle.appendChild(
+    document.createTextNode("@-ms-viewport{width:auto!important}")
+  );
+  document.head.appendChild(msViewportStyle);
 }
 
-const root = createRoot(document.getElementById('root'))
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+}
 
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <div>
-        <Helmet>
-          <link rel="canonical" href="https://www.zuugle.at" />
-          <link
-            id="favicon"
-            rel="icon"
-            href="/app_static/favicon.png"
-            type="image/x-icon"
+const domain = window.location.hostname;
+const tld =
+  domain === "localhost" ? "at" : domain.split(".").slice(-2).join(".");
+
+const preloadUrl = isMobileDevice()
+  ? `/app_static/img/background_start_mobil_${tld}.webp`
+  : `/app_static/img/background_start_small_${tld}.webp`;
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("Root element not found");
+} else {
+  const root = createRoot(rootElement);
+
+  root.render(
+    <React.StrictMode>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Helmet>
+            <link rel="canonical" href="https://www.zuugle.at" />
+            <link
+              id="favicon"
+              rel="icon"
+              href="/app_static/favicon.png"
+              type="image/x-icon"
             />
-        </Helmet>
-      </div>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </React.StrictMode>
-);
+            <link rel="preload" href={preloadUrl} as="image" />
+          </Helmet>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </React.StrictMode>
+  );
+}
