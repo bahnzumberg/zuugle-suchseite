@@ -18,8 +18,8 @@ import {
   getPageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
-import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
+import Header from "./Header";
 
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
@@ -185,34 +185,26 @@ function Start({
 
   if (noToursAvailable === false) {
     return (
-      <Box style={{ background: "#fff" }}>
-        {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
-        <Header
-          getCity={getCity}
-          totalTours={totalTours}
-          allCities={allCities}
-          showMobileMenu={showMobileMenu}
-          setShowMobileMenu={setShowMobileMenu}
-        />
-        <Box elevation={0} className={"header-line"}>
-          <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
-            <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-              {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
-              {t("start.zuugle_sucht_fuer_dich_2")}
-            </Typography>
+      <>
+        <Box style={{ background: "#fff" }}>
+          {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
+          <Header
+            getCity={getCity}
+            totalTours={totalTours}
+            allCities={allCities}
+            showMobileMenu={showMobileMenu}
+            setShowMobileMenu={setShowMobileMenu}
+          />
+          <Box elevation={0} className={"header-line"}>
+            <Box sx={{ paddingTop: "55px", paddingBottom: "20px" }}>
+              <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+                {t("start.zuugle_sucht_fuer_dich_2")}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-        <Box className={"start-body-container"}>
-          <Box
-            sx={{
-              marginTop: "20px",
-              padding: isMobile ? "30px 20px" : "30px 10px",
-              background: "#EBEBEB",
-              borderRadius: "30px",
-            }}
-          >
-            <Typography
-              variant={"h4"}
+          <Box className={"start-body-container"}>
+            <Box
               sx={{
                 marginTop: "20px",
                 padding: isMobile ? "30px 20px" : "30px 10px",
@@ -300,9 +292,9 @@ function Start({
           onClick={onClickMap}
           mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
           btnSource="start"
-        ></MapBtn>
+        />
         <Footer />
-      </Box>
+      </>
     );
   }
 }

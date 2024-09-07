@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import { loadSuggestions } from "../../actions/crudActions";
 import CustomSelect from "./CustomSelect";
-import { isArray } from "lodash";
 
-
-const AutosuggestSearchTour = ({
-  onSearchSuggestion,
-  city,
-  language,
-}) => {
-
+const AutosuggestSearchTour = ({ onSearchSuggestion, city, language }) => {
   const [options, setOptions] = useState([]);
   const urlSearchParams = new URLSearchParams(window.location.search);
   let searchParam = urlSearchParams.get("search");
@@ -31,14 +24,16 @@ const AutosuggestSearchTour = ({
             label: suggestion.suggestion,
             value: suggestion.suggestion,
           }));
-          newOptions && isArray(newOptions) && setOptions([...newOptions]);
+          if (Array.isArray(newOptions)) {
+            setOptions([...newOptions]);
+          }
         })
         .catch((err) => {
           console.error(err);
         });
     }
   };
-  
+
   return (
     <div>
       <CustomSelect
