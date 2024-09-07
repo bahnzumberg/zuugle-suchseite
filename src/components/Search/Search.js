@@ -3,7 +3,7 @@ import * as React from "react";
 import { useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import {loadTours } from "../../actions/tourActions";
+import { loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import { Fragment, useEffect, useState } from "react";
@@ -25,10 +25,10 @@ import AutosuggestSearchTour from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
-import { capitalize } from "lodash";
 import { Modal, Typography, useMediaQuery } from "@mui/material";
+import { capitalize } from "../../utils/globals";
 import Close from "../../icons/Close";
-import '/src/config.js';
+import "/src/config.js";
 
 export function Search({
   loadTours,
@@ -48,7 +48,7 @@ export function Search({
   filterValues,
   mapBounds,
   filterOn,
-  setFilterOn
+  setFilterOn,
 }) {
   //navigation
   const navigate = useNavigate();
@@ -136,7 +136,7 @@ export function Search({
     }
 
     //setting searchPhrase to the value of the search parameter
-      
+
     if (!!search) {
       setSearchPhrase(search); //TODO : do we need to do actual search if search is a city? see line 138 comment
 
@@ -247,10 +247,8 @@ export function Search({
     localStorage.setItem("filterCount", 0);
   };
 
-
-
   const openFilter = () => {
-    setFilterOn(true)
+    setFilterOn(true);
   };
 
   useEffect(() => {
@@ -304,7 +302,7 @@ export function Search({
     setCounter(0);
     setFilterValues(null); // reset state in parent Main
     resetFilterLocalStorage();
-    setFilterOn(false)
+    setFilterOn(false);
   };
 
   const handleFilterChange = (entry) => {
@@ -379,42 +377,39 @@ export function Search({
 
   const showCityModal = () => {
     if (isMobile) {
-      setShowMobileModal(true)
-    }else{
+      setShowMobileModal(true);
+    } else {
+      showModal("MODAL_COMPONENT", {
+        CustomComponent: FullScreenCityInput,
+        searchParams,
+        initialCity: cityInput,
+        onSelect: async (city) => {
+          if (!!city) {
+            setCityInput(city.label);
+            setCity(city);
+            pageKey === "start" && updateCapCity(city.label);
+            searchParams.set("city", city.value);
+            setSearchParams(searchParams);
+            window.location.reload();
+          }
 
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: FullScreenCityInput,
-      searchParams,
-      initialCity: cityInput,
-      onSelect: async (city) => {
-        
-        if (!!city) {
-          setCityInput(city.label);
-          setCity(city);
-          pageKey === "start" && updateCapCity(city.label);
-          searchParams.set('city', city.value);
-          setSearchParams(searchParams)
-          window.location.reload()
-        }
-
-        hideModal();
-      },
-      cityOne:  cityOne ,
-      idOne:  idOne ,
-      setSearchParams,
-      title: "",
-      sourceCall: "city",
-      page: page,
-      srhBoxScrollH: document
-        .querySelector(".main-search-bar")
-        .getBoundingClientRect().top,
-      modalSize: "lg",
-      onBack: () => {
-        hideModal();
-      },
-    });
-  }
-
+          hideModal();
+        },
+        cityOne: cityOne,
+        idOne: idOne,
+        setSearchParams,
+        title: "",
+        sourceCall: "city",
+        page: page,
+        srhBoxScrollH: document
+          .querySelector(".main-search-bar")
+          .getBoundingClientRect().top,
+        modalSize: "lg",
+        onBack: () => {
+          hideModal();
+        },
+      });
+    }
   };
   const showCityModalMobile = () => {
     showModal("MODAL_COMPONENT", {
@@ -422,7 +417,6 @@ export function Search({
       searchParams,
       initialCity: cityInput,
       onSelect: async (city) => {
-        
         if (!!cityOne && !!idOne && pageKey === "detail") {
           setCityInput(city.label);
           setCity(city.value);
@@ -433,12 +427,11 @@ export function Search({
           pageKey === "start" && updateCapCity(city.label);
           searchParams.set("city", city.value);
           setSearchParams(searchParams);
-
         }
         hideModal();
       },
-      cityOne:  cityOne ,
-      idOne:  idOne ,
+      cityOne: cityOne,
+      idOne: idOne,
       setSearchParams,
       title: "",
       sourceCall: "city",
@@ -843,7 +836,11 @@ export function Search({
                   {pageKey !== "detail" ? (
                     <Box
                       className="search-bar--city"
-                      sx={{ display: "flex", textAlign: "left", alignItems:"center"  }}
+                      sx={{
+                        display: "flex",
+                        textAlign: "left",
+                        alignItems: "center",
+                      }}
                     >
                       <>
                         {!isMobile && (
@@ -852,7 +849,7 @@ export function Search({
                               strokeWidth: "1px",
                               fill: "#000",
                               stroke: "none",
-                              marginRight: "5px", 
+                              marginRight: "5px",
                             }}
                           />
                         )}

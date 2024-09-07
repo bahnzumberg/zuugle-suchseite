@@ -9,6 +9,7 @@ import App from "./App";
 import "./index.css";
 import rootReducer from "./rootReducer";
 import "./translations/i18n";
+import { getTLD } from "./utils/globals";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -37,9 +38,7 @@ function isMobileDevice() {
   );
 }
 
-const domain = window.location.hostname;
-const tld =
-  domain === "localhost" ? "at" : domain.split(".").slice(-2).join(".");
+const tld = getTLD();
 
 const preloadUrl = isMobileDevice()
   ? `/app_static/img/background_start_mobil_${tld}.webp`
