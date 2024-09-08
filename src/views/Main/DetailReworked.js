@@ -122,14 +122,21 @@ const DetailReworked = (props) => {
     setCityI(_city)
   }, [_city]);
 
-  const goToStartPage = () => {
-    let city = searchParams.get("city");
-    navigate(`/?${!!city ? "city=" + city : ""}`);
-  };
+  // const goToStartPage = () => {
+  //   let city = searchParams.get("city");
+  //   navigate(`/?${!!city ? "city=" + city : ""}`);
+  // };
 
-  const goToStartPageUnavailableTour = () => {
-    navigate(`/?${searchParams.toString()}`);
-    window.location.reload();
+  const goToSearchPage = () => {
+    !!searchParams 
+    ?
+    navigate(`/search/?${searchParams.toString()}`)
+    :
+    !!cityOne ? navigate(`/search/?${!!cityOne}`)
+    :
+    navigate(`/search/?city=${!!cityOne}`);
+
+    // window.location.reload();
   };
 
   const LoadingSpinner = () => (
@@ -231,6 +238,7 @@ useEffect(() => {
           }else{
             setIsTourLoading(false);
             console.log("No tour data retrieved")
+            goToSearchPage();
           }
         })
         .catch((error) => {
@@ -238,7 +246,7 @@ useEffect(() => {
           console.error("Tour not found:", error);
           if (error.response && error.response.status === 404) {
             console.error("Tour not found:", error);
-            goToStartPageUnavailableTour();
+            goToSearchPage();
           } else {
             console.error("Other error:", error);
           }
@@ -299,7 +307,7 @@ useEffect(() => {
           );
           setDateIndex(index);
         } else {
-          goToStartPage();
+          goToSearchPage();
         }
       }
       setActiveConnection(connections[index]);
