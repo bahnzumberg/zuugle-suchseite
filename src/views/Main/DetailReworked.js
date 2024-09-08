@@ -649,9 +649,7 @@ useEffect(() => {
               </Box>
             </Box> 
           </Box>
-          {
-            !!tour && validTour && 
-            <Box>
+          <Box>
             <Box className="tour-detail-header">
               <Box className="mt-3">
                 <Typography variant="title">{tour?.title}</Typography>
@@ -768,15 +766,12 @@ useEffect(() => {
             <div></div>
             
           </Box>
-          }
-          {
-            !!tour && validTour && 
-            <Footer></Footer>
-          }
+          <Footer></Footer>
         </>
         )}
       </Box>
     );
+  // }
   
 };
 
