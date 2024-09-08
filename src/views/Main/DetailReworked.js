@@ -128,15 +128,10 @@ const DetailReworked = (props) => {
   // };
 
   const goToSearchPage = () => {
-    !!searchParams 
-    ?
-    navigate(`/search/?${searchParams.toString()}`)
+    !!cityOne && (cityOne !== "no-city") ? 
+    navigate(`/search?city=${cityOne}`)
     :
-    !!cityOne ? navigate(`/search/?${!!cityOne}`)
-    :
-    navigate(`/search/?city=${!!cityOne}`);
-
-    // window.location.reload();
+    navigate(`/search`);
   };
 
   const LoadingSpinner = () => (
