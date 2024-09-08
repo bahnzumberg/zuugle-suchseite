@@ -13,10 +13,10 @@ const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
 const SearchContainer = lazy(() => import("./SearchContainer"));
 
 export default function Header({
-  totalTours,
-  allCities = [],
-  showMobileMenu,
-  setShowMobileMenu,
+	totalTours,
+	allCities = [],
+	showMobileMenu,
+	setShowMobileMenu,
 }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -36,26 +36,21 @@ export default function Header({
   }, [searchParams]);
 
   useEffect(() => {
-    let _city = getCity();
-    if (!!_city) {
-      setLoading(true);
+    if (getCity()) {
       getTotalCityTours(city).then((data) => {
         setTotalToursFromCity(data.tours_city);
-        if (!!data.tours_city && data.tours_city > 0) setLoading(false);
       });
-    }
-  }, [city]);
-
-  useEffect(() => {
-    // city = searchParams.get("city");
-    if (!!city && !!allCities && allCities.length > 0) {
-      const cityObj = allCities.find((e) => e.value === city); // find the city object in array "allCities"
-      if (!!cityObj) {
-        updateCapCity(cityObj.label);
-        searchParams.set("city", city);
+  
+      if (allCities?.length > 0) {
+        const cityObj = allCities.find((e) => e.value === city);
+        if (cityObj) {
+          updateCapCity(cityObj.label);
+          searchParams.set("city", city);
+        }
       }
     }
-  }, [searchParams, city, allCities]);
+  }, [city, getCity, allCities, updateCapCity, searchParams]);
+  
 
   if (totalTours === 0) {
     return (

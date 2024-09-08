@@ -1,15 +1,11 @@
-/* @import '~material-design-icons/iconfont/material-icons.css' */
-* {
-  margin: 0;
-  padding: 0;
-  
-}
-
-body, #root, .App {
+body,
+#root,
+.App {
   height: 100%;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
@@ -18,22 +14,9 @@ body * {
   text-rendering: optimizeLegibility !important;
 }
 
-
-
 .App {
   text-align: center;
   background-color: #f1f1f1;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
 }
 
 /* width */
@@ -72,30 +55,6 @@ body ::-webkit-scrollbar-thumb:hover {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* Ensuring the card fits within a 350px width and 300px height, scales down typography sizes */
@@ -714,7 +673,7 @@ body ::-webkit-scrollbar-thumb:hover {
   .map-container {
     z-index: 100;
     /* margin-top: 20px; Adjust this value based on your layout and header height */
-    margin-top: 110px
+    margin-top: 110px;
   }
 }
 
@@ -1007,8 +966,6 @@ body ::-webkit-scrollbar-thumb:hover {
     height: 85px;
     padding: 10px 10px;
   }
-
-
 }
 
 .tour-detail-action-btns-container {
@@ -1111,7 +1068,6 @@ body ::-webkit-scrollbar-thumb:hover {
     justify-content: center;
     align-items: flex-start;
   }
-
 
   .tour-detail-properties {
     display: grid;
@@ -1797,7 +1753,6 @@ top:250px; */
   line-height: 1.334;
 }
 
-
 /* For desktop and mobile detail property section of detail page */
 /* styles for both Desktop and mobile */
 
@@ -1809,7 +1764,7 @@ top:250px; */
   display: grid;
   grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
   max-width: 706px; /* Max width */
-  margin: 0; 
+  margin: 0;
   gap: 0; /* No gap between grid items */
   height: 100%;
 }
@@ -1842,28 +1797,25 @@ top:250px; */
   .tour-detail-properties-el {
     padding-left: 1rem;
   }
-
 }
 
 /* Styles for small screens (max-width: 678px) */
 @media (max-width: 678px) {
   .tour-detail-properties {
     grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
-    grid-template-rows: auto auto auto ; /* 3 rows */
+    grid-template-rows: auto auto auto; /* 3 rows */
   }
 
   .tour-detail-properties-el {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-
-  
 }
 
 .disabled-button {
-  background-color: #e0e0e0 !important; 
+  background-color: #e0e0e0 !important;
   color: #9e9e9e !important;
-  cursor: not-allowed; 
-  pointer-events: none; 
-  box-shadow: none; 
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
 }

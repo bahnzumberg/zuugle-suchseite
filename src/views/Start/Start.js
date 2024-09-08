@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import React, { lazy, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
@@ -9,17 +9,17 @@ import { compose } from "redux";
 import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
 import {
-  loadTour,
   loadFavouriteTours,
   loadTotalTours,
+  loadTour,
 } from "../../actions/tourActions";
 import { useResponsive } from "../../utils/globals";
 import {
   getPageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
-import "/src/config.js";
 import Header from "./Header";
+import "/src/config.js";
 
 const RangeCardContainer = lazy(() =>
   import("../../components/RangeCardContainer")
@@ -54,13 +54,13 @@ function Start({
   const [isLoading, setIsLoading] = useState(true);
 
   let city = "";
-  let _city = searchParams.get("city");
+  const _city = searchParams.get("city");
 
   const { t } = useTranslation();
   const abortController = new AbortController();
 
   let searchParamCity = "";
-  let totalTourRef = useRef(0);
+  const totalTourRef = useRef(0);
   const isMobile = useResponsive();
 
   useEffect(() => {
@@ -116,13 +116,7 @@ function Start({
   }, [searchParams]);
 
   const getCity = () => {
-    searchParamCity = searchParams.get("city");
-    city = localStorage.getItem("city");
-    if (city) {
-      return city;
-    } else {
-      return "";
-    }
+    return localStorage.getItem("city") || searchParams.get("city") || "";
   };
 
   const onSelectTour = (tour) => {
@@ -176,16 +170,36 @@ function Start({
 
   if (noToursAvailable) {
     return (
-      <Box>
-        <Header totalTours={totalTours} allCities={allCities} />
-        <Footer />
-      </Box>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+            }}
+          ></div>
+        }
+      >
+        <Box>
+          <Header totalTours={totalTours} allCities={allCities} />
+          <Footer />
+        </Box>
+      </Suspense>
     );
   }
 
   if (noToursAvailable === false) {
     return (
-      <>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+            }}
+          ></div>
+        }
+      >
         <Box style={{ background: "#fff" }}>
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
           <Header
@@ -294,7 +308,7 @@ function Start({
           btnSource="start"
         />
         <Footer />
-      </>
+      </Suspense>
     );
   }
 }
