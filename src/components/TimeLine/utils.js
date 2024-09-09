@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Typography } from "@mui/material";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import {
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
@@ -21,15 +22,17 @@ import ShuffleBlack from "../../icons/ShuffleBlack";
 import Seilbahn from "../../icons/Seilbahn";
 import Tram from "../../icons/Tram";
 import Car from "../../icons/Car";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
 const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
 
+dayjs.extend(duration);
+
 export const GetDepartureText = (connection, t) => {
   let isMobile = window.innerWidth <= 600;
 
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     isMobile = window.innerWidth <= 600;
   });
   if (!connection) {
@@ -37,14 +40,25 @@ export const GetDepartureText = (connection, t) => {
   }
 
   let depTime = connection.connection_departure_datetime.slice(11, 16);
-  
-  const departureText = connection.connection_duration_minutes === 0 ? 
-    dayjs(connection.connection_departure_datetime).format("DD.MM HH:mm") :
-    `${depTime} - ${dayjs(connection.connection_arrival_datetime).format("HH:mm")}`;
-    
+
+  const departureText =
+    connection.connection_duration_minutes === 0
+      ? dayjs(connection.connection_departure_datetime).format("DD.MM HH:mm")
+      : `${depTime} - ${dayjs(connection.connection_arrival_datetime).format(
+          "HH:mm"
+        )}`;
+
   return (
-    <Typography sx={{ color: "#000000", fontWeight: 500, paddingTop: "3px", width: "300px", 
-      lineHeight: !isMobile ? "18px" : "16px", fontSize: "20px" }}>
+    <Typography
+      sx={{
+        color: "#000000",
+        fontWeight: 500,
+        paddingTop: "3px",
+        width: "300px",
+        lineHeight: !isMobile ? "18px" : "16px",
+        fontSize: "20px",
+      }}
+    >
       {departureText}
     </Typography>
   );
@@ -55,14 +69,20 @@ export const getReturnText = (connection, t) => {
     return <Fragment></Fragment>;
   }
   let retDepTime = connection.return_departure_datetime.slice(11, 16);
-  const returnText = connection.return_duration_minutes === 0 ? 
-    dayjs(connection.return_departure_datetime).format("DD.MM HH:mm") :
-    `${retDepTime} - ${dayjs(connection.return_arrival_datetime).format("HH:mm")}`;
+  const returnText =
+    connection.return_duration_minutes === 0
+      ? dayjs(connection.return_departure_datetime).format("DD.MM HH:mm")
+      : `${retDepTime} - ${dayjs(connection.return_arrival_datetime).format(
+          "HH:mm"
+        )}`;
 
   return returnText;
 };
 
-export const getNumberOfTransfers = (connection, field = "connection_no_of_transfers") => {
+export const getNumberOfTransfers = (
+  connection,
+  field = "connection_no_of_transfers"
+) => {
   if (!connection) {
     return "";
   }
@@ -70,69 +90,134 @@ export const getNumberOfTransfers = (connection, field = "connection_no_of_trans
 };
 
 // Transport-type arrays
-let train_key = ['train_key','Zug','Train','le train','Treno','Vlak'];
-let metro_key = ['metro_key','U Bahn','Underground','le métro','Metropolitana','Podzemna železnica'];
-let tram_key = ['tram_key','Strassenbahn','Tram','le tramway','Tram','Tramvaj'];
-let bus_key = ['bus_key','Bus','Bus','le bus','Autobus','Avtobus'];
-let car_key = ['car_key','Taxi','Taxi','le taxi','Taxi','Taxi'];
-let transfer_key = ['transfer_key','Umstiegszeit','transfer time','temps de transfert','tempo di trasferimento','čas prestopa'];
-let cableCar_key = ['cableCar_key','Seilbahn','Cable car','le téléphérique','Funivia','Žičnica'];
+let train_key = ["train_key", "Zug", "Train", "le train", "Treno", "Vlak"];
+let metro_key = [
+  "metro_key",
+  "U Bahn",
+  "Underground",
+  "le métro",
+  "Metropolitana",
+  "Podzemna železnica",
+];
+let tram_key = [
+  "tram_key",
+  "Strassenbahn",
+  "Tram",
+  "le tramway",
+  "Tram",
+  "Tramvaj",
+];
+let bus_key = ["bus_key", "Bus", "Bus", "le bus", "Autobus", "Avtobus"];
+let car_key = ["car_key", "Taxi", "Taxi", "le taxi", "Taxi", "Taxi"];
+let transfer_key = [
+  "transfer_key",
+  "Umstiegszeit",
+  "transfer time",
+  "temps de transfert",
+  "tempo di trasferimento",
+  "čas prestopa",
+];
+let cableCar_key = [
+  "cableCar_key",
+  "Seilbahn",
+  "Cable car",
+  "le téléphérique",
+  "Funivia",
+  "Žičnica",
+];
 
 // Transport icons
 const transportIcons = {
   train_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
   metro_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
-  tram_key: <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />, 
+  tram_key: <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
   bus_key: <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
-  car_key: <Car style={{strokeWidth: 2,stroke: "#4992FF",width: "24px",height: "24px"}}/>,
-  cableCar_key: <Seilbahn style={{strokeWidth: 2,stroke: "#4992FF",width: "24px",height: "24px"}}/>,
+  car_key: (
+    <Car
+      style={{
+        strokeWidth: 2,
+        stroke: "#4992FF",
+        width: "24px",
+        height: "24px",
+      }}
+    />
+  ),
+  cableCar_key: (
+    <Seilbahn
+      style={{
+        strokeWidth: 2,
+        stroke: "#4992FF",
+        width: "24px",
+        height: "24px",
+      }}
+    />
+  ),
   transfer_key: <ShuffleBlack style={{ strokeWidth: 0.8 }} />,
-  walk: <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
+  walk: <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
 };
 
 // Array of arrays for transport-type
-const transportNameArrays = [train_key, metro_key, tram_key, bus_key, car_key, cableCar_key, transfer_key];
+const transportNameArrays = [
+  train_key,
+  metro_key,
+  tram_key,
+  bus_key,
+  car_key,
+  cableCar_key,
+  transfer_key,
+];
 
 // Get transport icon from text
 function getIconFromText(text) {
   if (!text) return null;
 
-  for (const transportArray of transportNameArrays) {    
-    const transportType = transportArray[0]; 
+  for (const transportArray of transportNameArrays) {
+    const transportType = transportArray[0];
 
-    for (const transportName of transportArray.slice(1)) { 
+    for (const transportName of transportArray.slice(1)) {
       if (text.indexOf(`${transportName}`) >= 0) {
         return transportIcons[transportType];
       }
     }
   }
   // If no match found, return a default icon
-  return transportIcons["walk"]; 
+  return transportIcons["walk"];
 }
 
 export const createReturnEntries = (entries, connection, t) => {
   let toReturn = [];
   if (entries && entries.length > 0) {
-    let _entries = entries.filter(e => e && e.length > 0);
+    let _entries = entries.filter((e) => e && e.length > 0);
     let newStart = "     ";
     if (connection.totour_track_duration) {
-      newStart = dayjs(connection.return_departure_datetime).subtract(
-        dayjs.duration(connection["fromtour_track_duration"]).asMinutes(),
-        "minute"
-      ).format("HH:mm");
+      newStart = dayjs(connection.return_departure_datetime)
+        .subtract(
+          dayjs.duration(connection["fromtour_track_duration"]).asMinutes(),
+          "minute"
+        )
+        .format("HH:mm");
     }
-    toReturn.push(getDepartureEntry(`${newStart} ${t('details.ankunft_bei_tourende')}`));
+    toReturn.push(
+      getDepartureEntry(`${newStart} ${t("details.ankunft_bei_tourende")}`)
+    );
 
     for (let i = 0; i < _entries.length; i++) {
       let entry = _entries[i];
       if (i % 2 === 0) {
         let _text = entry.trim();
-        if (_text.startsWith("|") || _text.startsWith("=") || _text.startsWith(">") || _text.startsWith("<")) {
+        if (
+          _text.startsWith("|") ||
+          _text.startsWith("=") ||
+          _text.startsWith(">") ||
+          _text.startsWith("<")
+        ) {
           _text = _text.substring(1);
         }
         toReturn.push(getDetailEntry(_text, keys_2[i], _entries.length));
       } else {
-        toReturn.push(getStationEntry(entry, i + 1 === _entries.length, keys_2[i]));
+        toReturn.push(
+          getStationEntry(entry, i + 1 === _entries.length, keys_2[i])
+        );
       }
     }
   }
@@ -142,13 +227,17 @@ export const createReturnEntries = (entries, connection, t) => {
 export const createEntries = (entries, connection, t) => {
   let toReturn = [];
   if (entries && entries.length > 0) {
-    let _entries = entries.filter(e => e && e.length > 0);
+    let _entries = entries.filter((e) => e && e.length > 0);
     toReturn.push(getDepartureEntry(_entries[0]));
     for (let i = 1; i < _entries.length; i++) {
       let entry = _entries[i];
       if ((i - 1) % 2 === 0) {
         let _text = entry.trim();
-        if (_text.startsWith("|") || _text.startsWith("=") || _text.startsWith(">")) {
+        if (
+          _text.startsWith("|") ||
+          _text.startsWith("=") ||
+          _text.startsWith(">")
+        ) {
           _text = _text.substring(1);
         }
         toReturn.push(getDetailEntry(_text, keys_1[i], _entries.length));
@@ -158,12 +247,16 @@ export const createEntries = (entries, connection, t) => {
     }
     let newStart = "     ";
     if (connection.totour_track_duration) {
-      newStart = dayjs(connection.connection_arrival_datetime).add(
-        dayjs.duration(connection["totour_track_duration"]).asMinutes(),
-        "minute"
-      ).format("HH:mm");
+      newStart = dayjs(connection.connection_arrival_datetime)
+        .add(
+          dayjs.duration(connection["totour_track_duration"]).asMinutes(),
+          "minute"
+        )
+        .format("HH:mm");
     }
-    toReturn.push(getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`));
+    toReturn.push(
+      getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`)
+    );
   }
   return toReturn;
 };
@@ -200,7 +293,7 @@ export const getDetailEntry = (entry, index, length) => {
   );
 };
 
-export const getStationEntry = (entry , isLast = false, index) => {
+export const getStationEntry = (entry, isLast = false, index) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
@@ -335,6 +428,15 @@ export const getBorder = (index, length) => {
 
 export function formatToHHMM(durationString) {
   const parsedDuration = dayjs.duration(durationString);
-  const formattedDuration = dayjs.utc(parsedDuration.asMilliseconds()).format("HH:mm");
+
+  // Extract hours and minutes from the duration
+  const hours = Math.floor(parsedDuration.asHours());
+  const minutes = parsedDuration.minutes();
+
+  // Format hours and minutes to HH:mm
+  const formattedDuration = `${String(hours).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}`;
+
   return formattedDuration;
 }
