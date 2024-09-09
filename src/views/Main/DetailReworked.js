@@ -122,14 +122,16 @@ const DetailReworked = (props) => {
     setCityI(_city)
   }, [_city]);
 
-  const goToStartPage = () => {
-    let city = searchParams.get("city");
-    navigate(`/?${!!city ? "city=" + city : ""}`);
-  };
+  // const goToStartPage = () => {
+  //   let city = searchParams.get("city");
+  //   navigate(`/?${!!city ? "city=" + city : ""}`);
+  // };
 
-  const goToStartPageUnavailableTour = () => {
-    navigate(`/?${searchParams.toString()}`);
-    window.location.reload();
+  const goToSearchPage = () => {
+    !!cityOne && (cityOne !== "no-city") ? 
+    navigate(`/search?city=${cityOne}`)
+    :
+    navigate(`/search`);
   };
 
   const LoadingSpinner = () => (
@@ -215,7 +217,7 @@ useEffect(() => {
     if(idOne){
       tourId=idOne
     }else{
-    tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; // currently we only use localStorage for tourId
+    tourId = !!searchParams.get("id") ? searchParams.get("id") : !!localStorage.getItem("tourId") ? localStorage.getItem("tourId") : null; 
   }
     if (!!tourId) {
       setIsTourLoading(true);
@@ -223,25 +225,26 @@ useEffect(() => {
       loadTour(tourId, _city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            setIsTourLoading(false);
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
               tourExtracted.data.tour.difficulty
               );
           }else{
-            setIsTourLoading(false);
             console.log("No tour data retrieved")
+            goToSearchPage();
           }
         })
         .catch((error) => {
-          setIsTourLoading(false);
           console.error("Tour not found:", error);
           if (error.response && error.response.status === 404) {
             console.error("Tour not found:", error);
-            goToStartPageUnavailableTour();
+            goToSearchPage();
           } else {
             console.error("Other error:", error);
           }
+        })
+        .finally(() => {
+          setIsTourLoading(false);
         });
     }
 
@@ -270,11 +273,10 @@ useEffect(() => {
 
   useEffect(() => {
     if (tour && tour.valid_tour === 1) {
-        setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
-        setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
-        setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
-        setRenderImage(!!tour?.image_url);
-      // }
+      setGpxTrack(tour.gpx_file, loadGPX, setGpxPositions);
+      setGpxTrack(tour.totour_gpx_file, loadGPX, setAnreiseGpxPositions);
+      setGpxTrack(tour.fromtour_gpx_file, loadGPX, setAbreiseGpxPositions);
+      setRenderImage(!!tour?.image_url);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour]);
@@ -299,7 +301,7 @@ useEffect(() => {
           );
           setDateIndex(index);
         } else {
-          goToStartPage();
+          goToSearchPage();
         }
       }
       setActiveConnection(connections[index]);
@@ -354,7 +356,6 @@ useEffect(() => {
 
   const downloadButtonsDisabled = () => {
     return (
-      // !!!validTour ||
       !!!tour ||
       !!!tour.gpx_file ||
       !!!activeConnection ||
@@ -649,124 +650,128 @@ useEffect(() => {
               </Box>
             </Box> 
           </Box>
-          <Box>
-            <Box className="tour-detail-header">
-              <Box className="mt-3">
-                <Typography variant="title">{tour?.title}</Typography>
-              </Box>
-              <Box className="mt-3">
-                <span className="tour-detail-tag">{tour?.range}</span>
-              </Box>
-            </Box>
-            <div>
-              {
-                !!validTour && (
-                <Box
-                  sx={{ width: "100%", position: "relative" }}
-                  className="tour-detail-map-container"
-                >
-                      <InteractiveMap
-                        gpxPositions={!!gpxPositions && gpxPositions}
-                        anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
-                        abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
-                        scrollWheelZoom={false}
-                        tourTitle={!!tour?.title && tour.title}
-                      />
+          { !!tour && 
+            <Box>
+              <Box className="tour-detail-header">
+                <Box className="mt-3">
+                  <Typography variant="title">{tour?.title}</Typography>
                 </Box>
-                )
-              }
-              <div className="tour-detail-data-container">
-                <Box>
-                  <TourDetailProperties tour={tour}></TourDetailProperties>
-                  <Box sx={{ textAlign: "left" }}>
-                    <div className="tour-detail-difficulties">
-                      <span className="tour-detail-difficulty">
-                        {tour && translateDiff(tourDifficulty)}
-                      </span>
-                    </div>
-                    <Typography variant="textSmall">{tour?.description}</Typography>
-                  </Box>
-                  <div
-                    className="tour-detail-provider-container"
-                    onClick={() => {
-                      window.open(tour?.url);
-                    }}
+                <Box className="mt-3">
+                  <span className="tour-detail-tag">{tour?.range}</span>
+                </Box>
+              </Box>
+              <div>
+                {
+                  !!validTour && (
+                  <Box
+                    sx={{ width: "100%", position: "relative" }}
+                    className="tour-detail-map-container"
                   >
-                    <div className="tour-detail-provider-icon">
-                       {!!tour && <img
-                        src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
-                        alt={tour.provider_name}
-                        style={{ borderRadius: "100%", height: "48px", width: "48px" }}
-                      /> }
+                        <InteractiveMap
+                          gpxPositions={!!gpxPositions && gpxPositions}
+                          anreiseGpxPositions={!!anreiseGpxPositions && anreiseGpxPositions}
+                          abreiseGpxPositions={!!abreiseGpxPositions && abreiseGpxPositions}
+                          scrollWheelZoom={false}
+                          tourTitle={!!tour?.title && tour.title}
+                        />
+                  </Box>
+                  )
+                }
+                <div className="tour-detail-data-container">
+                  <Box>
+                    <TourDetailProperties tour={tour}></TourDetailProperties>
+                    <Box sx={{ textAlign: "left" }}>
+                      <div className="tour-detail-difficulties">
+                        <span className="tour-detail-difficulty">
+                          {tour && translateDiff(tourDifficulty)}
+                        </span>
+                      </div>
+                      <Typography variant="textSmall">{tour?.description}</Typography>
+                    </Box>
+                    <div
+                      className="tour-detail-provider-container"
+                      onClick={() => {
+                        window.open(tour?.url);
+                      }}
+                    >
+                      <div className="tour-detail-provider-icon">
+                        {!!tour && <img
+                          src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+                          alt={tour.provider_name}
+                          style={{ borderRadius: "100%", height: "48px", width: "48px" }}
+                        /> }
+                      </div>
+                      <div className="tour-detail-provider-name-link">
+                        <span className="tour-detail-provider-name">
+                          {tour?.provider_name}
+                        </span>
+                        <span className="tour-detail-provider-link">{tour?.url}</span>
+                      </div>
                     </div>
-                    <div className="tour-detail-provider-name-link">
-                      <span className="tour-detail-provider-name">
-                        {tour?.provider_name}
-                      </span>
-                      <span className="tour-detail-provider-link">{tour?.url}</span>
-                    </div>
-                  </div>
-                  {renderImage && validTour &&(
-                    <Box className="tour-detail-conditional-desktop">
+                    {renderImage && validTour &&(
+                      <Box className="tour-detail-conditional-desktop">
+                        <Divider variant="middle" />
+                        <div className="tour-detail-img-container">
+                          <img
+                            src={(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}
+                            onError={() => {
+                              setRenderImage(false);
+                            }}
+                            alt={tour?.title}
+                          />
+
+                        </div>
+                      </Box>
+                    )}
+                    { (!!_city && _city !== "no-city" && !!idOne) &&
+                      (
+                        <Box className="tour-detail-conditional-desktop">
+                          {actionButtonPart}
+                        </Box>
+                      )
+                    }
+                  </Box>
+                  <Box className="tour-detail-itinerary-container">
+                    <Itinerary
+                      connectionData={connections}
+                      dateIndex={dateIndex}
+                      updateConnIndex={updateConnIndex}
+                      tour={tour}
+                      validTour={validTour}
+                      city={cityI}
+                      idOne={idOne}
+                    />
+                  </Box>
+                  {renderImage && !!validTour && (
+                    <Box className="tour-detail-conditional-mobile">
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
                         <img
-                          src={(tour?.image_url && tour?.image_url.length > 0) && tour?.image_url}
+                          src={tour?.image_url}
                           onError={() => {
                             setRenderImage(false);
                           }}
                           alt={tour?.title}
                         />
-
                       </div>
                     </Box>
                   )}
-                  { (!!_city && _city !== "no-city" && !!idOne) &&
-                    (
-                      <Box className="tour-detail-conditional-desktop">
-                        {actionButtonPart}
-                      </Box>
+                  {
+                    !!validTour && (!!_city && _city !== "no-city" && !!idOne) && (
+                      <Box className="tour-detail-conditional-mobile">
+                      {actionButtonPart}
+                    </Box>
                     )
                   }
-                </Box>
-                <Box className="tour-detail-itinerary-container">
-                  <Itinerary
-                    connectionData={connections}
-                    dateIndex={dateIndex}
-                    updateConnIndex={updateConnIndex}
-                    tour={tour}
-                    validTour={validTour}
-                    city={cityI}
-                    idOne={idOne}
-                  />
-                </Box>
-                {renderImage && !!validTour && (
-                  <Box className="tour-detail-conditional-mobile">
-                    <Divider variant="middle" />
-                    <div className="tour-detail-img-container">
-                      <img
-                        src={tour?.image_url}
-                        onError={() => {
-                          setRenderImage(false);
-                        }}
-                        alt={tour?.title}
-                      />
-                    </div>
-                  </Box>
-                )}
-                {
-                  !!validTour && (!!_city && _city !== "no-city" && !!idOne) && (
-                    <Box className="tour-detail-conditional-mobile">
-                    {actionButtonPart}
-                  </Box>
-                  )
-                }
+                </div>
               </div>
-            </div>
-            <div></div>
-            
-          </Box>
-          <Footer></Footer>
+              <div></div>
+              
+            </Box>
+          }
+          { !!tour &&
+            <Footer/>
+          }
         </>
         )}
       </Box>
