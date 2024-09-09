@@ -13,7 +13,7 @@
     "@mui/icons-material": "^5.14.15",
     "@mui/lab": "^5.0.0-alpha.71",
     "@mui/material": "^5.16.7",
-    "@mui/x-date-pickers": "^6.17.0",
+    "@mui/x-date-pickers": "^7.16.0",
     "@react-leaflet/core": "^2.1.0",
     "axios": "^1.6.2",
     "dayjs": "^1.11.13",
