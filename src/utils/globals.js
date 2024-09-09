@@ -104,6 +104,12 @@ export const getDomainText = () => {
 }
 
 
+export const isMobileDevice = () => {
+    return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+  }
+
 export const get_meta_data = (page) => {
     const { t } = useTranslation();
 
@@ -273,3 +279,32 @@ export function randomKey(length) {
     }
     return result;
 }
+
+export function getTLD() {
+    // Mapping of domain substrings to TLDs
+    const tldMap = {
+      'zuugle.de': 'de',
+      'zuugle.si': 'si',
+      'zuugle.it': 'it',
+      'zuugle.ch': 'ch',
+      'zuugle.li': 'li',
+      'zuugle.fr': 'fr'
+    };
+
+    // Get the hostname of the current window
+    const domain = window.location.hostname;
+  
+    // Find the TLD by checking the domain substrings
+    for (const key in tldMap) {
+      if (domain.indexOf(key) > -1) {
+        return tldMap[key];
+      }
+    }
+    // Default TLD if no match is found
+    return 'at';
+}
+
+export const capitalize = (str) => {
+    if (typeof str !== 'string' || str.length === 0) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};

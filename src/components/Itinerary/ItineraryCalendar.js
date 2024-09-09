@@ -1,11 +1,10 @@
 import React from "react";
-import moment from "moment";
-import "moment/locale/de";
-import "moment/locale/fr";
-import "moment/locale/it";
-import "moment/locale/sl";
+import dayjs from "dayjs";
+import "dayjs/locale/de";
+import "dayjs/locale/fr";
+import "dayjs/locale/it";
+import "dayjs/locale/sl";
 import { useTranslation } from "react-i18next";
-import * as _ from "lodash";
 
 const formatDate = (date, locale) => {
   const formats = {
@@ -15,43 +14,39 @@ const formatDate = (date, locale) => {
     it: "dddd D MMMM YYYY",
     en: "dddd, D MMMM YYYY",
   };
-  moment.locale(locale);
-  return date.format(formats[locale]);
+  // Set locale and format the date
+  return date.locale(locale).format(formats[locale]);
 };
 
 const dayOfWeek = (date, locale) => {
-  moment.locale(locale);
-  return moment(date).format("dd");
+  // Use the locale-aware formatting function for Day.js
+  return date.locale(locale).format("dd");
 };
 
 const isWe = (date) => {
-  const d = date.isoWeekday();
-  return d === 6 || d === 7;
+  const d = date.day();
+  return d === 6 || d === 0; // In Day.js, Sunday is 0 and Saturday is 6
 };
 
 const isSelectedDay = (date, selectedDay) => {
   return date.isSame(selectedDay, "day");
 };
 
-const ItineraryCalendar = ({
-  connectionData,
-  dateIndex,
-  updateConnIndex
-}) => {
-  const { t, i18n } = useTranslation();
+const ItineraryCalendar = ({ connectionData, dateIndex, updateConnIndex }) => {
+  const { i18n } = useTranslation();
   let selectedDay = dateIndex;
   let days = [];
 
-  if (!connectionData || (!dateIndex && dateIndex !== 0)) {
+  if (!connectionData || (dateIndex === undefined)) {
     return <></>;
   } else {
-    days = _.map(connectionData, (con) => moment(con.date));
+    days = connectionData?.map((con) => dayjs(con.date));
   }
 
   return (
     <div className="tour-detail-itinerary-calendar">
       <div className="tour-detail-itinerary-calendar-selected-day">
-        {formatDate(moment(connectionData[selectedDay].date), i18n.language)}
+        {formatDate(dayjs(connectionData[selectedDay].date), i18n.language)}
       </div>
       <div className="tour-detail-itinerary-calendar-grid">
         {days.map((dd) => (
@@ -70,7 +65,7 @@ const ItineraryCalendar = ({
           <div
             key={"2" + dd.date()}
             className={`${
-              isSelectedDay(dd, moment(connectionData[selectedDay].date))
+              isSelectedDay(dd, dayjs(connectionData[selectedDay].date))
                 ? "tour-detail-itinerary-calendar-grid-selected"
                 : "tour-detail-itinerary-calendar-date"
             }`}
