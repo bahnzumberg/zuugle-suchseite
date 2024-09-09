@@ -9,7 +9,7 @@ import App from "./App";
 import "./index.css";
 import rootReducer from "./rootReducer";
 import "./translations/i18n";
-import { getTLD } from "./utils/globals";
+import { getTLD, isMobileDevice } from "./utils/globals";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -32,11 +32,6 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
   document.head.appendChild(msViewportStyle);
 }
 
-function isMobileDevice() {
-  return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
-    navigator.userAgent
-  );
-}
 
 const tld = getTLD();
 

@@ -104,6 +104,12 @@ export const getDomainText = () => {
 }
 
 
+export const isMobileDevice = () => {
+    return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+  }
+
 export const get_meta_data = (page) => {
     const { t } = useTranslation();
 
