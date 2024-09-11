@@ -121,14 +121,16 @@ const DetailReworked = (props) => {
     setCityI(_city);
   }, [_city]);
 
-  const goToStartPage = () => {
-    let city = searchParams.get("city");
-    navigate(`/?${!!city ? "city=" + city : ""}`);
-  };
+  // const goToStartPage = () => {
+  //   let city = searchParams.get("city");
+  //   navigate(`/?${!!city ? "city=" + city : ""}`);
+  // };
 
-  const goToStartPageUnavailableTour = () => {
-    navigate(`/?${searchParams.toString()}`);
-    window.location.reload();
+  const goToSearchPage = () => {
+    !!cityOne && (cityOne !== "no-city") ? 
+    navigate(`/search?city=${cityOne}`)
+    :
+    navigate(`/search`);
   };
 
   const LoadingSpinner = () => (
@@ -221,7 +223,6 @@ const DetailReworked = (props) => {
       loadTour(tourId, _city)
         .then((tourExtracted) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-            setIsTourLoading(false);
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
                 tourExtracted.data.tour.difficulty
@@ -232,14 +233,16 @@ const DetailReworked = (props) => {
           }
         })
         .catch((error) => {
-          setIsTourLoading(false);
           console.error("Tour not found:", error);
           if (error.response && error.response.status === 404) {
             console.error("Tour not found:", error);
-            goToStartPageUnavailableTour();
+            goToSearchPage();
           } else {
             console.error("Other error:", error);
           }
+        })
+        .finally(() => {
+          setIsTourLoading(false);
         });
     }
 
@@ -301,7 +304,7 @@ const DetailReworked = (props) => {
           );
           setDateIndex(index);
         } else {
-          goToStartPage();
+          goToSearchPage();
         }
       }
 
@@ -359,7 +362,6 @@ const DetailReworked = (props) => {
 
   const downloadButtonsDisabled = () => {
     return (
-      // !!!validTour ||
       !!!tour ||
       !!!tour.gpx_file ||
       !!!activeConnection ||
