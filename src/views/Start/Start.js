@@ -287,32 +287,6 @@ function Start({
 								/>
 							</Box>
 						</Box>
-						<Box style={{ padding: "30px 40px" }}>
-							<Typography
-								variant={"h4"}
-								sx={{
-									textAlign: "left",
-									paddingBottom: "15px",
-									paddingTop: "15px",
-								}}
-							>
-								{getRangeText()}
-							</Typography>
-							<RangeCardContainer
-								ranges={favouriteRanges}
-								onSelectTour={onSelectRange}
-							/>
-						</Box>
-						<Box sx={{ marginTop: "80px" }}>
-							<KPIContainer
-								totalTours={totalTours}
-								totalConnections={totalConnections}
-								totalRanges={totalRanges}
-								totalCities={totalCities}
-								city={searchParams.get("city")}
-								totalProvider={totalProvider}
-							/>
-						</Box>
 					</Box>
 					<MapBtn
 						onClick={onClickMap}
