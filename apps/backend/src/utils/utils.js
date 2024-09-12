@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export const round = (value, decimals) => {
     decimals = typeof decimals !== 'undefined' ? decimals : 2;
     value = parseFloat(value);
