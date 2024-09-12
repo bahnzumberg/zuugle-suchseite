@@ -1,55 +1,55 @@
-import * as React from "react";
-import axios from "../../axios";
-import { useEffect, useState } from "react";
-import Footer from "../../components/Footer/Footer";
-import SearchContainer from "../Start/SearchContainer";
-import InteractiveMap from "../../components/InteractiveMap";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import { Divider } from "@mui/material";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import { useSearchParams, useParams } from "react-router-dom";
+import dayjs from "dayjs";
+import GpxParser from "gpxparser";
+import fileDownload from "js-file-download";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+import { useTranslation } from "react-i18next";
+import { connect } from "react-redux";
+import { useNavigate } from "react-router";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  EmailIcon,
+  EmailShareButton,
+  FacebookIcon,
+  FacebookShareButton,
+  TwitterIcon,
+  TwitterShareButton,
+  WhatsappIcon,
+  WhatsappShareButton,
+} from "react-share";
+import { compose } from "redux";
+import { loadAllCities, loadCities } from "../../actions/cityActions";
+import { loadGPX } from "../../actions/fileActions";
 import {
   loadTour,
   loadTourConnectionsExtended,
   loadTourGpx,
   loadTours,
 } from "../../actions/tourActions";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import { loadGPX } from "../../actions/fileActions";
-import GpxParser from "gpxparser";
-import { Divider } from "@mui/material";
-import TourDetailProperties from "../../components/TourDetailProperties";
-import dayjs from "dayjs";
-import fileDownload from "js-file-download";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import DownloadIcon from "../../icons/DownloadIcon";
-import { loadAllCities, loadCities } from "../../actions/cityActions";
-import { useTranslation } from "react-i18next";
-import Itinerary from "../../components/Itinerary/Itinerary";
-import { useNavigate } from "react-router";
+import axios from "../../axios";
 import DomainMenu from "../../components/DomainMenu";
-import {
-  EmailShareButton,
-  EmailIcon,
-  FacebookShareButton,
-  FacebookIcon,
-  TwitterShareButton,
-  TwitterIcon,
-  WhatsappShareButton,
-  WhatsappIcon,
-} from "react-share";
+import Footer from "../../components/Footer/Footer";
+import InteractiveMap from "../../components/InteractiveMap";
+import Itinerary from "../../components/Itinerary/Itinerary";
+import TourDetailProperties from "../../components/TourDetailProperties";
 import ArrowBefore from "../../icons/ArrowBefore";
-import ShareIcon from "../../icons/ShareIcon";
 import Close from "../../icons/Close";
+import DownloadIcon from "../../icons/DownloadIcon";
+import ShareIcon from "../../icons/ShareIcon";
 import {
-  shortenText,
-  parseFileName,
   get_currLanguage,
+  parseFileName,
+  shortenText,
 } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
-import { Helmet } from "react-helmet";
+import SearchContainer from "../Start/SearchContainer";
 import "/src/config.js";
 
 const DetailReworked = (props) => {
@@ -80,6 +80,8 @@ const DetailReworked = (props) => {
   const [isTourLoading, setIsTourLoading] = useState(false);
   const { cityOne, idOne } = useParams();
   const [validTour, setValidTour] = useState(false);
+
+  const { i18n } = useTranslation();
 
   let cityfromparam = searchParams.get("city");
 
@@ -550,7 +552,7 @@ const DetailReworked = (props) => {
     </Box>
   );
 
-  const currLanguage = get_currLanguage();
+  const currLanguage = get_currLanguage(i18n);
   let page_title = "Zuugle";
   let imageUrl = "";
   let description = "";

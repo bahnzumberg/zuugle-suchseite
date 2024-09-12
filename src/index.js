@@ -32,13 +32,6 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 	document.head.appendChild(msViewportStyle);
 }
 
-
-function isMobileDevice() {
-	return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
-		navigator.userAgent
-	);
-}
-
 const tld = getTLD();
 
 const preloadUrl = isMobileDevice()
