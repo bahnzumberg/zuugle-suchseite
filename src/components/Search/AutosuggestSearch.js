@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { loadSuggestions } from "../../actions/crudActions";
 import CustomSelect from "./CustomSelect";
+import { getTLD } from "../../utils/globals";
 
 const AutosuggestSearchTour = ({ onSearchSuggestion, city, language }) => {
   const [options, setOptions] = useState([]);
@@ -15,23 +16,31 @@ const AutosuggestSearchTour = ({ onSearchSuggestion, city, language }) => {
 
   //What the component should do while I type in values
   const handleInputChange = (inputValue) => {
+    let _city = "";
+    const tld = getTLD();
+
     if (city !== null) {
-      setSearchPhrase(inputValue);
-      loadSuggestions(inputValue, city.value, language) //Call the backend
-        .then((suggestions) => {
-          const newOptions = suggestions?.map((suggestion) => ({
-            //Get the New suggestions and format them the correct way
-            label: suggestion.suggestion,
-            value: suggestion.suggestion,
-          }));
-          if (Array.isArray(newOptions)) {
-            setOptions([...newOptions]);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      _city = "";
     }
+    else {
+      _city = city.value;
+    }
+    
+    setSearchPhrase(inputValue);
+    loadSuggestions(inputValue, _city, language, tld) //Call the backend
+      .then((suggestions) => {
+        const newOptions = suggestions?.map((suggestion) => ({
+          //Get the New suggestions and format them the correct way
+          label: suggestion.suggestion,
+          value: suggestion.suggestion,
+        }));
+        if (Array.isArray(newOptions)) {
+          setOptions([...newOptions]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   return (

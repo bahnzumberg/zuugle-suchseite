@@ -235,10 +235,10 @@ export function loadOneReturnAll(
 }
 
 //Calling the BE and getting suggestions out of the LogSearchPhrase table based on the language, city, and searchPhrase
-export function loadSuggestions(searchPhrase, city, language) {
+export function loadSuggestions(searchPhrase, city, language, tld) {
   return axios
     .get(
-      `searchPhrases?search=${searchPhrase}&city=${city}&language=${language}`
+      `searchPhrases?search=${searchPhrase}&city=${city}&language=${language}&tld=${tld}`
     )
     .then((res) => {
       return res.data?.items;
