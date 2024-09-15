@@ -114,7 +114,12 @@ const DetailReworked = (props) => {
   };
 
   const handleCloseTab = () => {
-    window.close();
+    if (!!_city && _city !== "no-city" && !!idOne) {
+      window.close();
+    }
+    else {
+      goToSearchPage();
+    }
   };
 
   const navigate = useNavigate();
@@ -123,10 +128,6 @@ const DetailReworked = (props) => {
     setCityI(_city);
   }, [_city]);
 
-  // const goToStartPage = () => {
-  //   let city = searchParams.get("city");
-  //   navigate(`/?${!!city ? "city=" + city : ""}`);
-  // };
 
   const goToSearchPage = () => {
     !!cityOne && (cityOne !== "no-city") ? 
