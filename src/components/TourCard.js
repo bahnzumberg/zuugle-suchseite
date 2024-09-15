@@ -101,7 +101,7 @@ export default function TourCard({
     >
       <a
         href={tourLink}
-        target="_blank"
+        target={!!city && city != null && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
         rel="noreferrer"
         className="cursor-link"
         style={{ position: "relative" }}
@@ -147,7 +147,7 @@ export default function TourCard({
           <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
             <a
               href={tourLink}
-              target="_blank"
+              target={!!city && city != null && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
               rel="noreferrer"
               className="updated-title curser-link"
             >

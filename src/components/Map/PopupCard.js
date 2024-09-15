@@ -42,6 +42,7 @@ export default function PopupCard({tour, city}){
         }
     }, [tour])
 
+    // delete ?
     const isMobile_600px = useMediaQuery('(max-width:600px)');
 
     let value_best_connection_duration = tour.min_connection_duration;
