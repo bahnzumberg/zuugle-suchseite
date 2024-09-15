@@ -114,10 +114,8 @@ const DetailReworked = (props) => {
   };
 
   const handleCloseTab = () => {
-    if (!!_city && _city !== "no-city" && !!idOne) {
-      window.close();
-    }
-    else {
+    window.close();
+    if (!window.closed) {
       goToSearchPage();
     }
   };
