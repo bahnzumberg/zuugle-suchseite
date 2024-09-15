@@ -1,26 +1,28 @@
-import React, { lazy, useState, useCallback, useEffect } from "react";
-import { getDomainText, getTLD } from "../../utils/globals";
+import { Box, Typography } from "@mui/material";
+import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
-import "/src/config.js";
+import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import "/src/config.js";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
 const SearchContainer = lazy(() => import("./SearchContainer"));
 
 export default function Header({
-	totalTours,
-	allCities = [],
-	showMobileMenu,
-	setShowMobileMenu,
+  totalTours,
+  allCities = [],
+  showMobileMenu,
+  setShowMobileMenu,
 }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const city = searchParams.get("city");
+  const getCity = useCallback(() => {
+    return searchParams.get("city") || localStorage.getItem("city") || null;
+  }, [searchParams]);
+  const city = getCity();
 
   const [capCity, setCapCity] = useState(city);
   const [totalToursFromCity, setTotalToursFromCity] = useState(0);
@@ -31,26 +33,22 @@ export default function Header({
     setCapCity(newCity);
   }, []);
 
-  const getCity = useCallback(() => {
-    return searchParams.get("city") || localStorage.getItem("city") || null;
-  }, [searchParams]);
-
   useEffect(() => {
     if (getCity()) {
       getTotalCityTours(city).then((data) => {
         setTotalToursFromCity(data.tours_city);
       });
-  
+
       if (allCities?.length > 0) {
         const cityObj = allCities.find((e) => e.value === city);
         if (cityObj) {
           updateCapCity(cityObj.label);
+          console.log("setting search params", city);
           searchParams.set("city", city);
         }
       }
     }
   }, [city, getCity, allCities, updateCapCity, searchParams]);
-  
 
   if (totalTours === 0) {
     return (
@@ -62,7 +60,7 @@ export default function Header({
               height="16px"
               width="29px"
               alt="Zuugle"
-              loading="eager"
+              loading="lazy"
             />
             <Typography sx={{ fontSize: "16px", color: "#FFF", ml: 1 }}>
               {getDomainText()}
@@ -80,10 +78,12 @@ export default function Header({
       sx={{ position: "relative" }}
       tld={tld}
     >
-      <Box className="rowing blueDiv">
-        <DomainMenu />
-        <LanguageMenu />
-      </Box>
+      <Suspense fallback={<></>}>
+        <Box className="rowing blueDiv">
+          <DomainMenu />
+          <LanguageMenu />
+        </Box>
+      </Suspense>
       <Box className="header-text">
         {totalTours > 0 && (
           <Typography variant="h1" sx={{ height: "162px" }}>
@@ -98,33 +98,35 @@ export default function Header({
         )}
       </Box>
       {allCities.length > 0 && (
-        <Box
-          sx={{
-            bgcolor: "#FFF",
-            position: "absolute",
-            bottom: 0,
-            transform: "translate(-50%, 50%)",
-            display: "inline-flex",
-            borderRadius: "20px",
-            p: "12px 15px",
-            border: "2px solid #ddd",
-            width: "100%",
-            maxWidth: { xs: "325px", md: "600px" },
-            boxSizing: "border-box",
-            boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-          }}
-        >
-          <Box sx={{ width: "100%" }}>
-            <SearchContainer
-              pageKey="start"
-              page="start"
-              goto="/search"
-              showMobileMenu={showMobileMenu}
-              setShowMobileMenu={setShowMobileMenu}
-              updateCapCity={updateCapCity}
-            />
+        <Suspense fallback={<></>}>
+          <Box
+            sx={{
+              bgcolor: "#FFF",
+              position: "absolute",
+              bottom: 0,
+              transform: "translate(-50%, 50%)",
+              display: "inline-flex",
+              borderRadius: "20px",
+              p: "12px 15px",
+              border: "2px solid #ddd",
+              width: "100%",
+              maxWidth: { xs: "325px", md: "600px" },
+              boxSizing: "border-box",
+              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <SearchContainer
+                pageKey="start"
+                page="start"
+                goto="/search"
+                showMobileMenu={showMobileMenu}
+                setShowMobileMenu={setShowMobileMenu}
+                updateCapCity={updateCapCity}
+              />
+            </Box>
           </Box>
-        </Box>
+        </Suspense>
       )}
     </BackgroundImageLoader>
   );
