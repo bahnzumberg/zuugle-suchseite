@@ -123,7 +123,6 @@ function Start({
         loadTour(tour.id, city).then((tourExtracted) => {
           if (tourExtracted?.data?.tour) {
             localStorage.setItem("tourId", tour.id);
-            // window.open("/tour?" + searchParams.toString(),"_blank","noreferrer");// removed to use <a> tags
           } else {
             window.location.reload();
           }
