@@ -23,8 +23,9 @@ const listWrapper = async (req, res) => {
 
     const city = req.query.city;
     const language = req.query.language;
+    const tld = req.query.tld.toUpperCase();
 
-    const item = await createQuery("phrase", "search_phrase", city, search, language);
+    const item = await createQuery("phrase", "search_phrase", city, search, language, tld);
 
     const result = item;
 
@@ -32,12 +33,13 @@ const listWrapper = async (req, res) => {
 }
 
 //queries through the database table "logsearchphrase" and returns the phrases that start with the search phrase
-const createQuery = async (field, alias, city, search, language) => {
+const createQuery = async (field, alias, city, search, language, tld) => {
     let query = knex('logsearchphrase').select(`${field}`)
         .as(alias)
         .count('* as CNT')
         .whereNot(field, null)
-        .andWhereNot(field, "");
+        .andWhereNot(field, "")
+        .andWhere('country_code', tld);
 
     if(!!city && city.length > 0 && city != 'null'){
         query = query.andWhere('city_slug', city);
