@@ -383,7 +383,7 @@ const deleteFilesOlder30days = async (dirPath) => {
             await deleteFilesOlder30days(filePath);
           } else if (stats.isFile()) {
             const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
-            if (isOlderThan30Days && Math.random() < 0.5) { // Delete with 50% probability
+            if (isOlderThan30Days && Math.random() < 0.15) { // Delete with 15% probability
               await fs.unlink(filePath);
               // console.log(`Deleted ${filePath}`);
             }
