@@ -1,6 +1,3 @@
-// import { useTranslation } from "i18next";
-import {formatToHHMM} from "../components/TimeLine/utils";
-
 function getConnectionTypeString(CT) {
  
     const connectionTypes = {
@@ -73,13 +70,23 @@ export function jsonToStringArray(connection, toFrom = "to", t){
         }
 
         if(toFrom === "from"){
-            stringArray.unshift(`  <  ${t('details.std_rueckstiegsdauer_vom_touren_endpunkt', {from_tour_track_duration: formatToHHMM(connection.fromtour_track_duration)})}`) 
+            stringArray.unshift(`  <  ${t('details.std_rueckstiegsdauer_vom_touren_endpunkt', {from_tour_track_duration: convertTimeToHHMM(connection.fromtour_track_duration)})}`) 
         }else if(toFrom === "to"){
-            stringArray.push(`  >  ${t('details.std_zustiegsdauer_zum_touren_ausgangspunkt', {totour_track_duration : formatToHHMM(connection.totour_track_duration) })}`) 
+            stringArray.push(`  >  ${t('details.std_zustiegsdauer_zum_touren_ausgangspunkt', {totour_track_duration : convertTimeToHHMM(connection.totour_track_duration) })}`) 
         }
     }
 
-    return stringArray;
-   
-    
+    return stringArray;  
+}
+
+function convertTimeToHHMM(timeString) {
+    // String in Teile zerlegen
+    const parts = timeString.split(':');
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+  
+    // Stunden und Minuten formatieren
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  
+    return formattedTime;
 }

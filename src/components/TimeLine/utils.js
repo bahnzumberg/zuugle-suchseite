@@ -184,19 +184,30 @@ function getIconFromText(text) {
   return transportIcons["walk"];
 }
 
+function convertTimeToMinutes(timeString) {
+  // String in Teile zerlegen
+  const parts = timeString.split(':');
+  const hours = parseInt(parts[0]);
+  const minutes = parseInt(parts[1]);
+  const seconds = parseInt(parts[2]);   
+
+  // Berechnung der Gesamtminuten
+  const totalMinutes = hours * 60 + minutes + seconds / 60;
+  return totalMinutes;
+}
+
 export const createReturnEntries = (entries, connection, t) => {
   let toReturn = [];
   if (entries && entries.length > 0) {
     let _entries = entries.filter((e) => e && e.length > 0);
     let newStart = "     ";
+
     if (connection.totour_track_duration) {
       newStart = dayjs(connection.return_departure_datetime)
-        .subtract(
-          dayjs.duration(connection["fromtour_track_duration"]).asMinutes(),
-          "minute"
-        )
+        .subtract(convertTimeToMinutes(connection["fromtour_track_duration"]))
         .format("HH:mm");
     }
+
     toReturn.push(
       getDepartureEntry(`${newStart} ${t("details.ankunft_bei_tourende")}`)
     );
@@ -248,10 +259,7 @@ export const createEntries = (entries, connection, t) => {
     let newStart = "     ";
     if (connection.totour_track_duration) {
       newStart = dayjs(connection.connection_arrival_datetime)
-        .add(
-          dayjs.duration(connection["totour_track_duration"]).asMinutes(),
-          "minute"
-        )
+        .add(convertTimeToMinutes(connection["totour_track_duration"]))
         .format("HH:mm");
     }
     toReturn.push(
