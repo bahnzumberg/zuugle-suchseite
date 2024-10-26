@@ -850,7 +850,7 @@ const readAndInsertFahrplan = async (counter, chunksizer) => {
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
-
+ 
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
 
