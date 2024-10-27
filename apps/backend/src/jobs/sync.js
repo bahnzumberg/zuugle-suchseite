@@ -44,6 +44,7 @@ async function update_tours_from_tracks() {
                     AND b.city_slug=c2t.city_slug`);
 }
 
+
 export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
@@ -56,6 +57,9 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
+
+    // set ai_search_column
+    await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE ai_search_column IS NULL;`);
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
