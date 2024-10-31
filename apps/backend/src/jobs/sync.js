@@ -69,7 +69,7 @@ export async function fixTours(){
     if (ids.length > 0) {
         try {
             for (const id of ids) {
-                await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id} IS NULL;`);       
+                await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id.id} IS NULL;`);       
             }
         } catch (error) {
             console.error("Error updating ai_search_column:", error);
