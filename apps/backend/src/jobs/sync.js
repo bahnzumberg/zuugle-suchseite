@@ -61,17 +61,16 @@ export async function fixTours(){
     // set ai_search_column
     try {
         const id_result = await knex.raw(`SELECT id FROM tour WHERE ai_search_column IS NULL;`);
-        ids = id_result.rows;
+        const ids = id_result.rows;
     } catch (error) {
-        console.error("Error querying the database:", error);
+        console.error("Error getting empty ai_search_column:", error);
     }
-
     try {
         for (const id of ids) {
             await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id} IS NULL;`);       
         }
     } catch (error) {
-        console.error("Error copying images:", error);
+        console.error("Error updating ai_search_column:", error);
     }
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
@@ -307,8 +306,7 @@ export async function fixTours(){
                     else {
                         const options = {
                             timeout: 10000 // Set timeout to 10 seconds (default might be lower)
-                        };
-     c                     
+                        };                   
                         request(entry.image_url, options, (error, response) => {
                             if (error ||  response.statusCode != 200) {
                                 // console.log("Response: ", response)
@@ -867,6 +865,10 @@ const readAndInsertFahrplan = async (counter, chunksizer) => {
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
+
+    // This is to store away the vectors. If full_text is not changed, we do not have to recalculate them.
+    await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
+    await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
  
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
@@ -932,6 +934,15 @@ export async function syncTours(){
             bulk_insert_tours(result[0]);
         }
     }
+
+
+    // Finally we reuse the vectors, of those tours, where full_text was not changed
+    await knex.raw(`UPDATE tour
+                    SET ai_search_column = temp_tour_full_text.ai_search_column
+                    FROM temp_tour_full_text
+                    WHERE tour.ai_search_column IS NULL
+                    AND tour.id=temp_tour_full_text.id
+                    AND tour.full_text=temp_tour_full_text.full_text;`);
 }
 
 
