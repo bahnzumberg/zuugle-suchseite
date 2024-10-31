@@ -59,7 +59,20 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
     // set ai_search_column
-    await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE ai_search_column IS NULL;`);
+    try {
+        const id_result = await knex.raw(`SELECT id FROM tour WHERE ai_search_column IS NULL;`);
+        ids = id_result.rows;
+    } catch (error) {
+        console.error("Error querying the database:", error);
+    }
+
+    try {
+        for (const id of ids) {
+            await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id} IS NULL;`);       
+        }
+    } catch (error) {
+        console.error("Error copying images:", error);
+    }
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
@@ -295,7 +308,7 @@ export async function fixTours(){
                         const options = {
                             timeout: 10000 // Set timeout to 10 seconds (default might be lower)
                         };
-                          
+     c                     
                         request(entry.image_url, options, (error, response) => {
                             if (error ||  response.statusCode != 200) {
                                 // console.log("Response: ", response)
