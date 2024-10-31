@@ -59,9 +59,10 @@ export async function fixTours(){
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
 
     // set ai_search_column
+    let ids = [];
     try {
         const id_result = await knex.raw(`SELECT id FROM tour WHERE ai_search_column IS NULL;`);
-        const ids = id_result.rows;
+        ids = id_result.rows;
     } catch (error) {
         console.error("Error getting empty ai_search_column:", error);
     }
