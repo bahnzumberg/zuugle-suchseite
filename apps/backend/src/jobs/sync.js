@@ -66,12 +66,14 @@ export async function fixTours(){
     } catch (error) {
         console.error("Error getting empty ai_search_column:", error);
     }
-    try {
-        for (const id of ids) {
-            await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id} IS NULL;`);       
+    if (ids.length > 0) {
+        try {
+            for (const id of ids) {
+                await knex.raw(`UPDATE tour SET ai_search_column=get_embedding(full_text) WHERE id=${id} IS NULL;`);       
+            }
+        } catch (error) {
+            console.error("Error updating ai_search_column:", error);
         }
-    } catch (error) {
-        console.error("Error updating ai_search_column:", error);
     }
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
