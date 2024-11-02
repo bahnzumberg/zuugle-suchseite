@@ -360,7 +360,7 @@ const listWrapper = async (req, res) => {
 
         new_search_where_searchterm = ``;
         // `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
-        new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC `
+        new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
         // `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
     }
 
@@ -461,7 +461,8 @@ const listWrapper = async (req, res) => {
                         t.traverse, 
                         t.quality_rating,
                         t.month_order,
-                        t.search_column
+                        t.search_column,
+                        t.ai_search_column
                         FROM city2tour AS c2t 
                         INNER JOIN tour AS t 
                         ON c2t.tour_id=t.id 
