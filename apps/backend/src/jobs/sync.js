@@ -885,8 +885,8 @@ export async function syncTours(){
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
     // This is to store away the vectors. If full_text is not changed, we do not have to recalculate them.
-    // await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
-    // await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
+    await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
+    await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
  
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
