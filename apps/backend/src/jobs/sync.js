@@ -68,7 +68,7 @@ export async function fixTours(){
         AND tour.full_text=temp_tour_full_text.full_text;`);
 
     let rounds = 0;
-    let limit_rows = 5;
+    let limit_rows = 50;
     try {
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM tour WHERE ai_search_column IS NULL;`); 
         let sql_count_call = await count_query;
