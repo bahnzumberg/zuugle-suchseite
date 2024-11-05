@@ -68,7 +68,7 @@ export async function fixTours(){
         AND tour.full_text=temp_tour_full_text.full_text;`);
 
     let rounds = 0;
-    let limit_rows = 50;
+    let limit_rows = 3;
     try {
         let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM tour WHERE ai_search_column IS NULL;`); 
         let sql_count_call = await count_query;
@@ -80,6 +80,7 @@ export async function fixTours(){
     if (rounds > 0) {
         for (let i=1; i<=rounds; i++) {
             try {
+                console.log(`get_embedding ${i}`)
                 await knex.raw(`UPDATE tour
                                 SET ai_search_column = get_embedding(full_text)
                                 FROM (SELECT id FROM tour WHERE ai_search_column IS NULL LIMIT ${limit_rows}) AS b
@@ -687,13 +688,17 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
 
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
+    console.log(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
     // This is to store away the vectors. If full_text is not changed, we do not have to recalculate them.
+    console.log(`DROP TABLE IF EXISTS temp_tour_full_text;`)
     await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
+    console.log(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`)
     await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
  
     // Table tours will be rebuild from scratch
+    console.log(`TRUNCATE tour;`)
     await knex.raw(`TRUNCATE tour;`);
 
     let limit = 500;
@@ -752,8 +757,10 @@ export async function syncTours(){
                                         from vw_touren_to_search as t
                                         WHERE t.id % ${modulo} = ${i};`);
 
+        console.log(`SELECT from MySQL ${i}`)
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
+            console.log(`INSERT into PostgreSQL ${i}`)
             bulk_insert_tours(result[0]);
         }
     }
