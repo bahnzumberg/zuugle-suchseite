@@ -750,7 +750,6 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        -- REPLACE(t.full_text, '\0', ' 0') as full_text,
                                         t.ai_search_column,
                                         t.quality_rating,
                                         t.difficulty_orig,
@@ -762,7 +761,8 @@ export async function syncTours(){
                                         t.maxele
                                         from vw_touren_to_search_new as t
                                         WHERE t.id % ${modulo} = ${i};`);
-
+        
+        // REPLACE(t.full_text, '\0', ' 0') as full_text,
         console.log(`SELECT from MySQL ${i}`)
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
