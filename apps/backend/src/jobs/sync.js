@@ -51,15 +51,17 @@ export async function fixTours(){
     // tours, which have no datasets in table fahrplan.
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
-
+    /*
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
+    */
 
     // set ai_search_column
     // We reuse the vectors, of those tours, where full_text was not changed
+    /*
     await knex.raw(`UPDATE tour
         SET ai_search_column = temp_tour_full_text.ai_search_column
         FROM temp_tour_full_text
@@ -91,6 +93,7 @@ export async function fixTours(){
             }
         }
     }
+    */
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
@@ -691,12 +694,14 @@ export async function syncTours(){
     console.log(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
+    /*
     // This is to store away the vectors. If full_text is not changed, we do not have to recalculate them.
     console.log(`DROP TABLE IF EXISTS temp_tour_full_text;`)
     await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
     console.log(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`)
     await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
- 
+    */
+
     // Table tours will be rebuild from scratch
     console.log(`TRUNCATE tour;`)
     await knex.raw(`TRUNCATE tour;`);
@@ -745,7 +750,8 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        REPLACE(t.full_text, '\0', ' 0') as full_text,
+                                        -- REPLACE(t.full_text, '\0', ' 0') as full_text,
+                                        t.ai_search_column,
                                         t.quality_rating,
                                         t.difficulty_orig,
                                         t.text_lang,
@@ -754,7 +760,7 @@ export async function syncTours(){
                                         t.lat_end,
                                         t.lon_end,
                                         t.maxele
-                                        from vw_touren_to_search as t
+                                        from vw_touren_to_search_new as t
                                         WHERE t.id % ${modulo} = ${i};`);
 
         console.log(`SELECT from MySQL ${i}`)
@@ -872,7 +878,8 @@ const bulk_insert_tours = async (entries) => {
             month_order: calcMonthOrder(entry),
             traverse: entry.traverse,
             quality_rating: entry.quality_rating,
-            full_text: entry.full_text,
+            // full_text: entry.full_text,
+            ai_search_column: entry.ai_search_column,
             text_lang: entry.text_lang,
             max_ele: entry.maxele
         });
