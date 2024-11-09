@@ -459,32 +459,30 @@ export async function writeKPIs(){
 }
 
 
-export async function getProvider(){
-    await knex.raw(`TRUNCATE provider;`);
-    var query_result;
+export async function getProvider(retryCount = 0, maxRetries = 3) {
     try {
-        query_result = await knexTourenDb('vw_provider_to_search').select();
-    }
-    catch(err){
-        console.log('error: ', err)
-        return false;
-    }
-    if(!!query_result && query_result.length > 0){
-        for(let i=0; i<query_result.length; i++){
-            const entry = query_result[i];
+        await knex.raw(`TRUNCATE provider;`);
+        const query_result = await knexTourenDb('vw_provider_to_search').select();
 
-            try {
-                const query = knex('provider').insert({
+        if (query_result.length > 0) {
+            for (const entry of query_result) {
+                await knex('provider').insert({
                     provider: entry.provider,
                     provider_name: entry.provider_name,
                     allow_gpx_download: entry.allow_gpx_download,
                 });
-
-                await query;
-            } catch(err){
-                console.log('error: ', err)
-                return false;
             }
+        }
+        return true; // Success
+    } catch (err) {
+        console.error('Error in getProvider:', err);
+
+        if (retryCount < maxRetries) {
+            console.log(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
+            return getProvider(retryCount + 1, maxRetries);
+        } else {
+            console.error('Max retries reached. Giving up.');
+            return false; // Failure
         }
     }
 }
