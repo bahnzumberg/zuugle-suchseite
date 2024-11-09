@@ -691,22 +691,12 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
 
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
-    console.log(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
-    /*
-    // This is to store away the vectors. If full_text is not changed, we do not have to recalculate them.
-    console.log(`DROP TABLE IF EXISTS temp_tour_full_text;`)
-    await knex.raw(`DROP TABLE IF EXISTS temp_tour_full_text;`);
-    console.log(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`)
-    await knex.raw(`CREATE TABLE temp_tour_full_text AS SELECT id, full_text, ai_search_column FROM tour WHERE ai_search_column IS NOT NULL;`);
-    */
-
     // Table tours will be rebuild from scratch
-    console.log(`TRUNCATE tour;`)
     await knex.raw(`TRUNCATE tour;`);
 
-    let limit = 500;
+    let limit = 100;
     const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
 
     let count = 0;
@@ -722,7 +712,7 @@ export async function syncTours(){
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
-                                        REPLACE(t.description, '\0', ' 0') as description,
+                                        REPLACE(REPLACE(t.description, '\0', ' 0'), "'", "") as description,
                                         t.country,
                                         t.state,
                                         t.range_slug,
@@ -733,7 +723,7 @@ export async function syncTours(){
                                         t.difficulty,
                                         t.duration,
                                         t.distance,
-                                        REPLACE(t.title, '\0', ' 0') as title,
+                                        REPLACE(REPLACE(t.title, '\0', ' 0'), "'", "") as title,
                                         t.typ,
                                         t.number_of_days,
                                         t.traverse,
@@ -761,12 +751,9 @@ export async function syncTours(){
                                         t.maxele
                                         from vw_touren_to_search_new as t
                                         WHERE t.id % ${modulo} = ${i};`);
-        
-        // REPLACE(t.full_text, '\0', ' 0') as full_text,
-        console.log(`SELECT from MySQL ${i}`)
+
         const result = await query;
         if(!!result && result.length > 0 && result[0].length > 0){
-            console.log(`INSERT into PostgreSQL ${i}`)
             bulk_insert_tours(result[0]);
         }
     }
@@ -880,8 +867,16 @@ const bulk_insert_tours = async (entries) => {
                      entry.dec + "," +
                      calcMonthOrder(entry) + "," +
                      entry.traverse + "," +
-                     entry.quality_rating + "," +
-                     "'" + entry.ai_search_column + "'" + "," +
+                     entry.quality_rating + ",";
+        
+        if (entry.ai_search_column==null) {
+             sql_values = sql_values + "null,"
+        }
+        else {
+             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
+        }
+        
+        sql_values = sql_values + 
                      "'" + entry.text_lang + "'" + "," +
                      entry.maxele + ")";
     }
@@ -925,7 +920,7 @@ const bulk_insert_tours = async (entries) => {
                                           text_lang,
                                           max_ele)
                                           VALUES ${sql_values}`
-    console.log(sql_insert)
+    // console.log(sql_insert)
 
     try {
         await knex.raw(sql_insert)
