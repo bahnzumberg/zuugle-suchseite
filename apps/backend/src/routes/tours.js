@@ -593,7 +593,7 @@ const listWrapper = async (req, res) => {
             searchparam = search.replace(/'/g, "''").toLowerCase();
 
             if (!!sql_count && sql_count > 1) {
-                knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${sql_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
+                await knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${sql_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
             }
         }
     } catch (e) {
