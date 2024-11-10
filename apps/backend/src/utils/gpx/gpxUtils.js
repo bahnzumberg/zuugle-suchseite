@@ -92,6 +92,13 @@ export const createImagesFromMap = async (ids) => {
  
             const chunkSize = 2;
             for (let i = 0; i < ids.length; i += chunkSize) {
+                // If the generation of the images is taking too long, it should stop at 23:00 in the evening
+                const now = new Date();
+                const currentHour = now.getHours();
+                if (currentHour >= 23) {
+                    break;
+                }
+
                 const chunk = ids.slice(i, i + chunkSize);
                 await Promise.all(chunk.map(ch => new Promise(async resolve => {
                     let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
@@ -153,6 +160,7 @@ export const createImagesFromMap = async (ids) => {
                     
                     resolve();
                 })));
+
             }
         } catch (err) {
             console.log("Error in createImagesFromMap --> ",err.message);
