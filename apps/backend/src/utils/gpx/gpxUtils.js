@@ -125,24 +125,27 @@ export const createImagesFromMap = async (ids) => {
                                 console.error("gpxUtils.sharp.resize error: ",e)
                             }
 
-                            try {
-                                if (fs.existsSync(filePathSmallWebp)){
+                            if (fs.existsSync(filePathSmallWebp)){
+                                try {
                                     // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
+                                } catch(e){
+                                    console.error("gpxUtils error - nothing to delete: ",e);
+                                }
 
+                                try {
                                     // Now we want to insert the correct image_url into table tour
                                     // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                                     await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                                } catch(e){
+                                    console.error("gpxUtils error: ",e);
                                 }
-                                else {
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmallWebp);
+                            }
+                            else {
+                                console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmallWebp);
 
-                                    // In this case we set '/app_static/img/train_placeholder.webp'
-                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
-                                }
-
-                            } catch(e){
-                                console.error("gpxUtils error: ",e);
+                                // In this case we set '/app_static/img/train_placeholder.webp'
+                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
                             }
                         }
                         else {

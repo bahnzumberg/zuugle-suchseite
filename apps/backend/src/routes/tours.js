@@ -358,7 +358,7 @@ const listWrapper = async (req, res) => {
             postgresql_language_code = 'english'
         }
 
-        new_search_where_searchterm = ``;
+        new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search}')) < 0.6 `;
         // `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
         new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
         // `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
@@ -503,9 +503,10 @@ const listWrapper = async (req, res) => {
                         t.quality_rating,
                         t.month_order
                         FROM ${temp_table} AS t 
-                        ORDER BY t.month_order ASC, 
+                        ORDER BY 
                         CASE WHEN t.text_lang='${currLanguage}' THEN 1 ELSE 0 END DESC,  
                         ${new_search_order_searchterm}
+                        t.month_order ASC, 
                         t.number_of_days ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
                         TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,

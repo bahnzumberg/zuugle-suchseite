@@ -177,14 +177,14 @@ CREATE TABLE provider (
 
 
 CREATE TABLE logsearchphrase (
-     id SERIAL,
-     phrase varchar(250) DEFAULT NULL,
-     num_results int DEFAULT 0,
-     city_slug varchar(64) NOT NULL,
-     search_time timestamp DEFAULT CURRENT_TIMESTAMP,
-	 menu_lang VARCHAR(2) default NULL,
-	 country_code VARCHAR(2) default NULL,
-     PRIMARY KEY (id)
+      id SERIAL,
+      phrase varchar(250) DEFAULT NULL,
+      num_results int DEFAULT 0,
+      city_slug varchar(64) NOT NULL,
+      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
+ 	menu_lang VARCHAR(2) default NULL,
+	country_code VARCHAR(2) default NULL,
+      PRIMARY KEY (id)
 );
 
 
