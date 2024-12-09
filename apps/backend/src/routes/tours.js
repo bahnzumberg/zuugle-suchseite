@@ -219,7 +219,7 @@ const listWrapper = async (req, res) => {
     const map = req.query.map;
     const bounds = req.query.bounds;
 
-    const search = req.query.search; 
+    const search = req.query.search.toLowerCase(); 
     const currLanguage = req.query.currLanguage ? req.query.currLanguage : 'de'; // this is the menue language the user selected
     const city = req.query.city;    
     const range = req.query.range;
