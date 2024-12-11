@@ -470,7 +470,12 @@ const listWrapper = async (req, res) => {
                         ${global_where_condition};`;
     await knex.raw(temporary_sql);
 
-    await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+    try {
+        await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+    }
+    catch(error) {
+        console.log("Error creating index idx_id:", error);
+    }
 
     const new_search_sql = `SELECT 
                         t.id, 
