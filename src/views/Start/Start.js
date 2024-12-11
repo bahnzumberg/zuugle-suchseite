@@ -79,7 +79,7 @@ function Start({
         await loadAllCities(requestConfig);
 
         if (city) {
-          console.log("setting search params", city);
+          // console.log("setting search params", city);
           searchParams.set("city", city);
           setSearchParams(searchParams);
         }
@@ -151,7 +151,7 @@ function Start({
 
   const onClickMap = () => {
     if (!searchParams.get("map")) {
-      console.log("setting map");
+      // console.log("setting map");
       searchParams.set("map", true);
       setSearchParams(searchParams);
     }
