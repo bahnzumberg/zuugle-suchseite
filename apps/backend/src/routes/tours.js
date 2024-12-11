@@ -469,6 +469,7 @@ const listWrapper = async (req, res) => {
                         WHERE c2t.reachable_from_country='${tld}' 
                         ${global_where_condition};`;
     await knex.raw(temporary_sql);
+    // console.log("temporary_sql = ", temporary_sql);
 
     try {
         await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
