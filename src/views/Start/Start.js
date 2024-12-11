@@ -44,7 +44,6 @@ function Start({
   loadAllCities,
   allCities,
   totalProvider,
-  loadRanges,
   noToursAvailable,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,11 +77,6 @@ function Start({
       try {
         totalTourRef.current = await loadTotalTours(requestConfig);
         await loadAllCities(requestConfig);
-        // await loadRanges(
-        //   { ignore_limit: true, remove_duplicates: true },
-        //   requestConfig
-        // );
-        // getCity();
 
         if (city) {
           console.log("setting search params", city);
