@@ -94,10 +94,11 @@ export default function TourCardContainer({
       provider: provider,
       page: !!pageTours ? Number(pageTours) + 1 : 2,
       bounds: bounds, // bounds added
-    }).then((res) => {
+    });
+    // .then((res) => {
       // let retrievedTours = res?.data?.tours ? res.data.tours : [];
       // console.log("L100 retrievedTours[0]", retrievedTours[0])
-    });
+    // });
   };
 
   return (
@@ -126,6 +127,7 @@ export default function TourCardContainer({
                 tour={tour}
                 city={city}
                 mapCard={false}
+                provider={provider}
               />
             </Grid>
           ))}

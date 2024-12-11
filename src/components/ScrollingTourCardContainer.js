@@ -68,6 +68,7 @@ export default function ScrollingTourCardContainer({
 	city,
 	isLoading,
 	isMobile,
+	provider,
 }) {
 	const { t } = useTranslation();
 	const firstSet = tours.slice(0, 4);
@@ -96,6 +97,7 @@ export default function ScrollingTourCardContainer({
 							tour={tour}
 							onSelectTour={onSelectTour}
 							city={city}
+							provider={provider}
 						/>
 					))}
 					{renderImage("/app_static/img/zuugle-ad.gif", "image1")}
@@ -105,6 +107,7 @@ export default function ScrollingTourCardContainer({
 							tour={tour}
 							onSelectTour={onSelectTour}
 							city={city}
+							provider={provider}
 						/>
 					))}
 					{renderFourth(t)}
@@ -114,14 +117,14 @@ export default function ScrollingTourCardContainer({
 	);
 }
 
-function Card({ tour, onSelectTour, city }) {
+function Card({ tour, onSelectTour, city, provider }) {
 	return (
 		<Box
 			className={"react-horizontal-scrolling-card"}
 			tabIndex={0}
 			component="div"
 		>
-			<TourCard onSelectTour={onSelectTour} tour={tour} city={city} />
+			<TourCard onSelectTour={onSelectTour} tour={tour} city={city} provider={provider}/>
 		</Box>
 	);
 }

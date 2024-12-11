@@ -23,8 +23,15 @@ export default function PopupCard({tour, city}){
 
     if(searchParams.get('filter')) searchParams.delete("filter");
     if(searchParams.get('map')) searchParams.delete("map");
+    let provider = searchParams.get("p");
  
-    let tourLink = `/tour/${tour.id}/${city}`;
+    let tourLink = ``;
+    if (provider == 'bahnzumberg') {
+      tourLink = `${tour.url}ab-${city}/`;
+    }
+    else {
+      tourLink = `/tour/${tour.id}/${city}`;
+    }
       
     // i18next
     const {t} = useTranslation();

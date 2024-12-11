@@ -16,6 +16,7 @@ export default function TourCard({
   tour,
   onSelectTour,
   city,
+  provider
 }) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
@@ -24,10 +25,20 @@ export default function TourCard({
   // let tourLink = `/tour?id=${tour.id}&city=${city}`;
   let tourLink=``
   if (!!city && city != null && city !=='no-city'){
-    tourLink = `/tour/${tour.id}/${city}`;
+    if (provider == 'bahnzumberg') {
+      tourLink = `${tour.url}ab-${city}/`;
+    }
+    else {
+      tourLink = `/tour/${tour.id}/${city}`;
+    }
   } 
   else {
-     tourLink = `/tour/${tour.id}/no-city`
+    if (provider == 'bahnzumberg') {
+      tourLink = `${tour.url}`;
+    }
+    else {
+      tourLink = `/tour/${tour.id}/no-city`
+    }
   }
 
   // i18next

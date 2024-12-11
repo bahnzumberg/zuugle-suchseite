@@ -245,6 +245,7 @@ function Start({
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                   isMobile={isMobile}
+                  provider={searchParams.get("p")}
                 />
               </Box>
               <Box style={{ padding: "30px 40px" }}>
