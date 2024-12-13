@@ -46,8 +46,9 @@ CREATE TABLE tour (
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
       quality_rating integer DEFAULT 5,
-      full_text TEXT,
-	search_column tsvector,
+      -- full_text TEXT,
+	-- search_column tsvector,
+      ai_search_column vector(1024) DEFAULT NULL,
 	max_ele INT default 0,
 	text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
@@ -60,7 +61,8 @@ CREATE INDEX ON tour (month_order);
 CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
-CREATE INDEX search_column_idx ON tour USING GIN (search_column);
+CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
+// CREATE INDEX search_column_idx ON tour USING GIN (search_column);
 
 
 CREATE TABLE tour_inactive (
@@ -175,14 +177,14 @@ CREATE TABLE provider (
 
 
 CREATE TABLE logsearchphrase (
-     id SERIAL,
-     phrase varchar(250) DEFAULT NULL,
-     num_results int DEFAULT 0,
-     city_slug varchar(64) NOT NULL,
-     search_time timestamp DEFAULT CURRENT_TIMESTAMP,
-	 menu_lang VARCHAR(2) default NULL,
-	 country_code VARCHAR(2) default NULL,
-     PRIMARY KEY (id)
+      id SERIAL,
+      phrase varchar(250) DEFAULT NULL,
+      num_results int DEFAULT 0,
+      city_slug varchar(64) NOT NULL,
+      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
+ 	menu_lang VARCHAR(2) default NULL,
+	country_code VARCHAR(2) default NULL,
+      PRIMARY KEY (id)
 );
 
 

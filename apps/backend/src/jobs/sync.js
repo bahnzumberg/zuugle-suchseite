@@ -44,18 +44,56 @@ async function update_tours_from_tracks() {
                     AND b.city_slug=c2t.city_slug`);
 }
 
+
 export async function fixTours(){
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
-
+    /*
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
+    */
+
+    // set ai_search_column
+    // We reuse the vectors, of those tours, where full_text was not changed
+    /*
+    await knex.raw(`UPDATE tour
+        SET ai_search_column = temp_tour_full_text.ai_search_column
+        FROM temp_tour_full_text
+        WHERE tour.ai_search_column IS NULL
+        AND tour.id=temp_tour_full_text.id
+        AND tour.full_text=temp_tour_full_text.full_text;`);
+
+    let rounds = 0;
+    let limit_rows = 3;
+    try {
+        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM tour WHERE ai_search_column IS NULL;`); 
+        let sql_count_call = await count_query;
+        rounds = Math.ceil(sql_count_call.rows[0].row_count / limit_rows);
+    } catch (error) {
+        console.log("Error retrieving count:", error);
+    }
+
+    if (rounds > 0) {
+        for (let i=1; i<=rounds; i++) {
+            try {
+                console.log(`get_embedding ${i}`)
+                await knex.raw(`UPDATE tour
+                                SET ai_search_column = get_embedding(full_text)
+                                FROM (SELECT id FROM tour WHERE ai_search_column IS NULL LIMIT ${limit_rows}) AS b
+                                WHERE tour.id=b.id`);
+            }
+            catch (error) {
+                console.error("Error updating ai_search_column:", error);
+            }
+        }
+    }
+    */
 
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
@@ -290,8 +328,7 @@ export async function fixTours(){
                     else {
                         const options = {
                             timeout: 10000 // Set timeout to 10 seconds (default might be lower)
-                        };
-                          
+                        };                   
                         request(entry.image_url, options, (error, response) => {
                             if (error ||  response.statusCode != 200) {
                                 // console.log("Response: ", response)
@@ -422,32 +459,30 @@ export async function writeKPIs(){
 }
 
 
-export async function getProvider(){
-    await knex.raw(`TRUNCATE provider;`);
-    var query_result;
+export async function getProvider(retryCount = 0, maxRetries = 3) {
     try {
-        query_result = await knexTourenDb('vw_provider_to_search').select();
-    }
-    catch(err){
-        console.log('error: ', err)
-        return false;
-    }
-    if(!!query_result && query_result.length > 0){
-        for(let i=0; i<query_result.length; i++){
-            const entry = query_result[i];
+        await knex.raw(`TRUNCATE provider;`);
+        const query_result = await knexTourenDb('vw_provider_to_search').select();
 
-            try {
-                const query = knex('provider').insert({
+        if (query_result.length > 0) {
+            for (const entry of query_result) {
+                await knex('provider').insert({
                     provider: entry.provider,
                     provider_name: entry.provider_name,
                     allow_gpx_download: entry.allow_gpx_download,
                 });
-
-                await query;
-            } catch(err){
-                console.log('error: ', err)
-                return false;
             }
+        }
+        return true; // Success
+    } catch (err) {
+        console.error('Error in getProvider:', err);
+
+        if (retryCount < maxRetries) {
+            console.log(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
+            return getProvider(retryCount + 1, maxRetries);
+        } else {
+            console.error('Max retries reached. Giving up.');
+            return false; // Failure
         }
     }
 }
@@ -652,201 +687,6 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
 }
 
 
-export async function syncGPXdata(mode='dev'){
-    if(mode=='prod'){
-        // On production the table gpx has been already loaded 
-        console.log('Skipping this step, as we are on production.');
-        return true;
-    }
-
-
-    // As we do a full load of the table "gpx" here, we empty it completely and fill it up afterwards
-    try {
-        await knex.raw(`TRUNCATE gpx;`);
-    } catch(err){
-        console.log('error: ', err)
-    }
-
-    let limit = 5000;
-    const query_count = await knexTourenDb('vw_gpx_to_search').count('* as anzahl'); 
-    let count_gpx = query_count[0]["anzahl"];
-    let count_chunks = Math.ceil(count_gpx / limit, 0);
-    let counter = 0;
-
-    console.log('Info: Handling', count_gpx.toLocaleString("de-de"), 'rows with gpx datapoints via ', count_chunks, ' chunks.');
-
-    while(counter < count_chunks){
-        const result_query = knexTourenDb('vw_gpx_to_search').select('provider', 'hashed_url', 'typ', 'waypoint', 'lat', 'lon', 'ele').whereRaw(`ROUND(lat*lon*10000) % ${count_chunks} = ${counter}`);
-        const result = await result_query;
-            
-        try {
-            await knex('gpx').insert([...result]);
-        } catch(err){
-            console.log('error syncGPXdata: ', err)
-        }
-        counter++;
-    }
-}
-
-
-export async function syncFahrplan(mode='dev'){
-    if(mode=='prod'){
-        // On production the table fahrplan has been already loaded 
-        console.log('Skipping this step, as we are on production.');
-        return true;
-    }
-    
-    try {
-        await knex.raw(`TRUNCATE fahrplan;`);
-    } catch(err){
-        console.log('error: ', err)
-    }
-    
-    // Now add new lines
-    let limit = 2500; // not more than 5000;
-    let counter = 0;
-    
-    let chunksizer = 0;
-    let count_tours = 0;
-
-    const query_count = await knexTourenDb('vw_fplan_to_search').count('* as anzahl'); 
-    count_tours = query_count[0]["anzahl"];
-    chunksizer = Math.ceil( count_tours / limit, 0 );
-    if (isNaN(chunksizer) || chunksizer < 1) { 
-        chunksizer = 1;
-    }
-
-    console.log('Info: Handling ', count_tours.toLocaleString("de-de"), ' rows fplan data.');
-    while (counter < chunksizer) {
-        await readAndInsertFahrplan(counter, chunksizer) 
-        counter++;
-    }
-}
-
-
-
-
-const readAndInsertFahrplan = async (counter, chunksizer) => {
-    let insert_sql = '';
-    let mysql_sql = '';
-
-    mysql_sql = `select 
-                    trigger_id,
-                    provider,
-                    hashed_url, 
-                    CONCAT(DATE_FORMAT(calendar_date, '%Y-%m-%d'), ' 00:00:00') as calendar_date,
-                    weekday, date_any_connection,
-                    city_slug, 
-                    city_name, 
-                    city_any_connection, 
-                    best_connection_duration,
-                    connection_rank, 
-                    DATE_FORMAT(connection_departure_datetime, '%Y-%m-%d %H:%i:%s') as connection_departure_datetime, 
-                    connection_duration, 
-                    connection_no_of_transfers,
-                    DATE_FORMAT(connection_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_arrival_datetime,
-                    connection_returns_trips_back, 
-                    connection_returns_min_waiting_duration, connection_returns_max_waiting_duration, 
-                    connection_returns_warning_level, 
-                    connection_returns_warning,  
-                    return_row, 
-                    return_waiting_duration, 
-                    DATE_FORMAT(return_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_departure_datetime, 
-                    return_duration,
-                    return_no_of_transfers,
-                    DATE_FORMAT(return_arrival_datetime, '%Y-%m-%d %H:%i:%s') as return_arrival_datetime, 
-                    totour_track_key, totour_track_duration,  
-                    fromtour_track_key,
-                    fromtour_track_duration, 
-                    REPLACE(REPLACE(connection_description_json, '\n', ''), "'", "´") as connection_description_json,
-                    DATE_FORMAT(connection_lastregular_arrival_datetime, '%Y-%m-%d %H:%i:%s') as connection_lastregular_arrival_datetime, 
-                    REPLACE(REPLACE(return_description_json, '\n', ''), "'", "´") as return_description_json,
-                    DATE_FORMAT(return_firstregular_departure_datetime, '%Y-%m-%d %H:%i:%s') as return_firstregular_departure_datetime
-                    FROM vw_fplan_to_search 
-                    WHERE ABS(trigger_id) % ${chunksizer} = ${counter};`
-                    
-    const result = await knexTourenDb.raw(mysql_sql);
-    
-    let data = result[0].map(row => ({ ...row }));
-
-    if (!!data && Array.isArray(data) && data.length > 0) {
-        insert_sql = `INSERT INTO fahrplan (id, 
-                                        tour_provider,
-                                        hashed_url,
-                                        calendar_date, 
-                                        weekday, 
-                                        date_any_connection,
-                                        city_slug, 
-                                        city_name, 
-                                        city_any_connection, 
-                                        best_connection_duration,
-                                        connection_rank, 
-                                        connection_departure_datetime,
-                                        connection_duration, 
-                                        connection_no_of_transfers,
-                                        connection_arrival_datetime,
-                                        connection_returns_trips_back,
-                                        connection_returns_min_waiting_duration, 
-                                        connection_returns_max_waiting_duration,
-                                        connection_returns_warning_level,
-                                        connection_returns_warning, 
-                                        return_row,
-                                        return_waiting_duration,
-                                        return_departure_datetime,
-                                        return_duration,
-                                        return_no_of_transfers,
-                                        return_arrival_datetime,
-                                        totour_track_key,
-                                        totour_track_duration, 
-                                        fromtour_track_key,
-                                        fromtour_track_duration,
-                                        connection_description_json,
-                                        connection_lastregular_arrival_datetime,
-                                        return_description_json,
-                                        return_firstregular_departure_datetime) VALUES `;
-
-        for (let i = 0; i < data.length; i++) {
-            insert_sql += '(';
-
-            Object.keys(data[i]).forEach(column => {
-                //check the type of each column
-                const col_value = data[i][column];
-
-                if (col_value === null || col_value === undefined) {
-                    // case of  null or undefined
-                    insert_sql += 'NULL';
-                } else if (column == 'connection_description_json' || column == 'return_description_json') {
-                    insert_sql += "'";
-                    insert_sql += col_value.replaceAll("'", '"');
-                    insert_sql += "'";
-                } else {
-                    insert_sql += "'"+col_value+"'";
-                }
-
-                if (column !== 'return_firstregular_departure_datetime') {
-                    insert_sql += ', ';
-                }
-            }
-            );
-            insert_sql += ')';
-            if (i < data.length - 1) {
-                insert_sql += ', ';
-            }
-        }   
-
-        try {
-            await knex.raw(insert_sql);
-        } catch (err) {
-            logger('############### Error with this SQL ###############');
-            logger(`Insert sql into fahrplan table: ${insert_sql}`);
-            logger('############### End of error with this SQL ###############');
-        }
-    }
-    return true;
-};
-
-
-
 export async function syncTours(){
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
@@ -854,7 +694,7 @@ export async function syncTours(){
     // Table tours will be rebuild from scratch
     await knex.raw(`TRUNCATE tour;`);
 
-    let limit = 500;
+    let limit = 100;
     const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
 
     let count = 0;
@@ -870,7 +710,7 @@ export async function syncTours(){
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
-                                        REPLACE(t.description, '\0', ' 0') as description,
+                                        REPLACE(REPLACE(t.description, '\0', ' 0'), "'", "") as description,
                                         t.country,
                                         t.state,
                                         t.range_slug,
@@ -881,7 +721,7 @@ export async function syncTours(){
                                         t.difficulty,
                                         t.duration,
                                         t.distance,
-                                        REPLACE(t.title, '\0', ' 0') as title,
+                                        REPLACE(REPLACE(t.title, '\0', ' 0'), "'", "") as title,
                                         t.typ,
                                         t.number_of_days,
                                         t.traverse,
@@ -898,7 +738,7 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        REPLACE(t.full_text, '\0', ' 0') as full_text,
+                                        t.ai_search_column,
                                         t.quality_rating,
                                         t.difficulty_orig,
                                         t.text_lang,
@@ -907,7 +747,7 @@ export async function syncTours(){
                                         t.lat_end,
                                         t.lon_end,
                                         t.maxele
-                                        from vw_touren_to_search as t
+                                        from vw_touren_to_search_new as t
                                         WHERE t.id % ${modulo} = ${i};`);
 
         const result = await query;
@@ -982,73 +822,106 @@ const calcMonthOrder = (entry) => {
 
 
 const bulk_insert_tours = async (entries) => {
-    let queries = [];
+    let sql_values = '';
 
     for (let i=0; i<entries.length; i++) {
         let entry = entries[i];
-
-        let gpxData = [];
-        if(entry.lat_start && entry.lon_start){
-            gpxData.push({
-                lat: entry.lat_start,
-                lon: entry.lon_start,
-                typ: "first"
-            });
+        
+        if (i != 0) {
+            sql_values = sql_values + ",";
         }
-        if(entry.lat_end && entry.lon_end){
-            gpxData.push({
-                lat: entry.lat_end,
-                lon: entry.lon_end,
-                typ: "last"
-            });
+        sql_values = sql_values + "(" +
+                     entry.id + "," + 
+                     "'" + entry.url + "'" + "," +
+                     "'" + entry.provider + "'" + "," +
+                     "'" + entry.hashed_url + "'" + "," +
+                     "'" + entry.description + "'" + "," +
+                     "'" + entry.image_url + "'" + "," +
+                     entry.ascent + "," +
+                     entry.descent + "," +
+                     entry.difficulty + "," +
+                     "'" + entry.difficulty_orig + "'" + "," +
+                     entry.duration + "," +
+                     entry.distance + "," +
+                     "'" + entry.title + "'" + "," +
+                     "'" + entry.typ + "'" + "," +
+                     "'" + entry.country + "'" + "," +
+                     "'" + entry.state + "'" + "," +
+                     "'" + entry.range_slug + "'" + "," +
+                     "'" + entry.range_name + "'" + "," +
+                     "'" + entry.season + "'" + "," +
+                     entry.number_of_days + "," +
+                     entry.jan + "," +
+                     entry.feb + "," +
+                     entry.mar + "," +
+                     entry.apr + "," +
+                     entry.may + "," +
+                     entry.jun + "," +
+                     entry.jul + "," +
+                     entry.aug + "," +
+                     entry.sep + "," +
+                     entry.oct + "," +
+                     entry.nov + "," +
+                     entry.dec + "," +
+                     calcMonthOrder(entry) + "," +
+                     entry.traverse + "," +
+                     entry.quality_rating + ",";
+        
+        if (entry.ai_search_column==null) {
+             sql_values = sql_values + "null,"
         }
-        // entry.gpx_data = JSON.stringify(gpxData);
-
-        queries.push({
-            id: entry.id,
-            url: entry.url,
-            provider: entry.provider,
-            hashed_url: entry.hashed_url,
-            description: entry.description,
-            image_url: entry.image_url,
-            ascent: entry.ascent,
-            descent: entry.descent,
-            difficulty: entry.difficulty,
-            difficulty_orig: entry.difficulty_orig,
-            duration: entry.duration,
-            distance: entry.distance,
-            title: entry.title,
-            type: entry.typ,
-            country: entry.country,
-            state: entry.state,
-            range_slug: entry.range_slug,
-            range: entry.range_name,
-            season: entry.season,
-            number_of_days: entry.number_of_days,
-            jan: entry.jan,
-            feb: entry.feb,
-            mar: entry.mar,
-            apr: entry.apr,
-            may: entry.may,
-            jun: entry.jun,
-            jul: entry.jul,
-            aug: entry.aug,
-            sep: entry.sep,
-            oct: entry.oct,
-            nov: entry.nov,
-            dec: entry.dec,
-            month_order: calcMonthOrder(entry),
-            traverse: entry.traverse,
-            quality_rating: entry.quality_rating,
-            full_text: entry.full_text,
-            // gpx_data: entry.gpx_data,
-            text_lang: entry.text_lang,
-            max_ele: entry.maxele
-        });
+        else {
+             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
+        }
+        
+        sql_values = sql_values + 
+                     "'" + entry.text_lang + "'" + "," +
+                     entry.maxele + ")";
     }
 
+    const sql_insert = `INSERT INTO tour (id, 
+                                          url, 
+                                          provider,
+                                          hashed_url,
+                                          description,
+                                          image_url,
+                                          ascent,
+                                          descent,
+                                          difficulty,
+                                          difficulty_orig,
+                                          duration,
+                                          distance,
+                                          title,
+                                          type,
+                                          country,
+                                          state,
+                                          range_slug,
+                                          range,
+                                          season,
+                                          number_of_days,
+                                          jan,
+                                          feb,
+                                          mar,
+                                          apr,
+                                          may,
+                                          jun,
+                                          jul,
+                                          aug,
+                                          sep,
+                                          oct,
+                                          nov,
+                                          dec,
+                                          month_order,
+                                          traverse,
+                                          quality_rating,
+                                          ai_search_column,
+                                          text_lang,
+                                          max_ele)
+                                          VALUES ${sql_values}`
+    // console.log(sql_insert)
+
     try {
-        await knex('tour').insert(queries);
+        await knex.raw(sql_insert)
         return true;
     } catch(err){
         console.log('error: ', err)

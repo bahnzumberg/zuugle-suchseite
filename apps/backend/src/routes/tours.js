@@ -358,8 +358,10 @@ const listWrapper = async (req, res) => {
             postgresql_language_code = 'english'
         }
 
-        new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
-        new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
+        new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search.toLowerCase()}')) < 0.6 `;
+        // `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
+        new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
+        // `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
     }
 
     if(!!range && range.length > 0){
@@ -459,15 +461,22 @@ const listWrapper = async (req, res) => {
                         t.traverse, 
                         t.quality_rating,
                         t.month_order,
-                        t.search_column
+                        t.search_column,
+                        t.ai_search_column
                         FROM city2tour AS c2t 
                         INNER JOIN tour AS t 
                         ON c2t.tour_id=t.id 
                         WHERE c2t.reachable_from_country='${tld}' 
                         ${global_where_condition};`;
     await knex.raw(temporary_sql);
+    // console.log("temporary_sql = ", temporary_sql);
 
-    await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+    try {
+        await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`)
+    }
+    catch(error) {
+        console.log("Error creating index idx_id:", error);
+    }
 
     const new_search_sql = `SELECT 
                         t.id, 
@@ -500,9 +509,10 @@ const listWrapper = async (req, res) => {
                         t.quality_rating,
                         t.month_order
                         FROM ${temp_table} AS t 
-                        ORDER BY t.month_order ASC, 
+                        ORDER BY 
                         CASE WHEN t.text_lang='${currLanguage}' THEN 1 ELSE 0 END DESC,  
                         ${new_search_order_searchterm}
+                        t.month_order ASC, 
                         t.number_of_days ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
                         TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,
