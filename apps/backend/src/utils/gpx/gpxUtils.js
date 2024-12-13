@@ -57,7 +57,7 @@ const setTourImageURL = async (tour_id, image_url) => {
 
             try {
                 await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
-                console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
             }
             catch(e) {
                 console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)
@@ -74,7 +74,6 @@ export const createImagesFromMap = async (ids) => {
             let url = "";
             let dir_go_up = "";
             if(process.env.NODE_ENV == "production"){ 
-                console.log("process.env.NODE_ENV = ", process.env.NODE_ENV)
                 dir_go_up = "../../"; 
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
