@@ -74,6 +74,7 @@ export const createImagesFromMap = async (ids) => {
             let url = "";
             let dir_go_up = "";
             if(process.env.NODE_ENV == "production"){ 
+                console.log("process.env.NODE_ENV = ", process.env.NODE_ENV)
                 dir_go_up = "../../"; 
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
@@ -127,7 +128,7 @@ export const createImagesFromMap = async (ids) => {
 
                             if (fs.existsSync(filePathSmallWebp)){
                                 try {
-                                    // console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
+                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
                                 } catch(e){
                                     console.error("gpxUtils error - nothing to delete: ",e);

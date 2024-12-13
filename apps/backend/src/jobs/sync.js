@@ -608,10 +608,11 @@ export async function syncGPXImage(){
             })
         }
         if(!!toCreate){
-            // console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
+            console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
 
+        console.log(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
         await knex.raw(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
     }
     return true;
