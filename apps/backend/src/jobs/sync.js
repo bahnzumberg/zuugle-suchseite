@@ -756,6 +756,8 @@ export async function syncTours(){
             bulk_insert_tours(result[0]);
         }
     }
+
+    await knex.raw(`UPDATE tour SET image_url=NULL WHERE image_url='null';`);
 }
 
 
