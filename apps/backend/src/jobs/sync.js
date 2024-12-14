@@ -839,7 +839,7 @@ const bulk_insert_tours = async (entries) => {
                      "'" + entry.provider + "'" + "," +
                      "'" + entry.hashed_url + "'" + "," +
                      "'" + entry.description + "'" + "," +
-                     (entry.image_url === 'null' ? "null," : "'" + entry.image_url + "'" + ",") +
+                     "'" + entry.image_url + "'" +
                      entry.ascent + "," +
                      entry.descent + "," +
                      entry.difficulty + "," +
