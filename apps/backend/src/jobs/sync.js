@@ -612,7 +612,7 @@ export async function syncGPXImage(){
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
 
-        console.log(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
+        // console.log(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
         await knex.raw(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
     }
     return true;

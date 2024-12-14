@@ -516,14 +516,14 @@ const listWrapper = async (req, res) => {
                         t.number_of_days ASC,
                         CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
                         TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,
-                        TRUNC(t.min_connection_duration / 60, 0) ASC, 
+                        TRUNC(t.min_connection_duration / 30, 0) ASC, 
+                        t.traverse DESC, 
                         t.quality_rating DESC,
-                        t.traverse DESC,  
-                        t.duration ASC, 
+                        FLOOR(t.duration) ASC,
                         MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
                         LIMIT 9 OFFSET ${9 * (page - 1)};`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    console.log("new_search_sql: ", new_search_sql)
 
     let result_sql = null;
     let result = [];
