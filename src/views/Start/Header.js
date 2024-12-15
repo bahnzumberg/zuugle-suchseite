@@ -43,7 +43,6 @@ export default function Header({
         const cityObj = allCities.find((e) => e.value === city);
         if (cityObj) {
           updateCapCity(cityObj.label);
-          // console.log("setting search params", city);
           searchParams.set("city", city);
         }
       }

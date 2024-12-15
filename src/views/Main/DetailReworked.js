@@ -556,11 +556,18 @@ const DetailReworked = (props) => {
   let imageUrl = "";
   let description = "";
   let URL = shareUrl();
+  let target_url = "";
   if (!!tour) {
     page_title = "Zuugle: " + tour.title + " (" + tour.provider_name + ")";
     imageUrl = tour?.image_url && tour?.image_url.length > 0 && tour?.image_url;
-    description =
-      tour?.description && tour?.description.length > 0 && tour?.description;
+    description = tour?.description && tour?.description.length > 0 && tour?.description;
+    if (tour.provider==='bahnzumberg' && _city) {
+       target_url = tour.url + 'ab-' & _city;
+    }
+    else {
+      target_url = tour.url;
+    }
+    console.log("target_url = ", target_url)
   }
 
   return (
@@ -725,7 +732,7 @@ const DetailReworked = (props) => {
                   <div
                     className="tour-detail-provider-container"
                     onClick={() => {
-                      window.open(tour?.url);
+                      window.open(target_url);
                     }}
                   >
                     <div className="tour-detail-provider-icon">
