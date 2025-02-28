@@ -370,7 +370,7 @@ const listWrapper = async (req, res) => {
             postgresql_language_code = 'english'
         }
 
-        new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search.toLowerCase()}') < 0.6 `;
+        new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search.toLowerCase()}')) < 0.6 `;
         // `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
         new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
         // `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
