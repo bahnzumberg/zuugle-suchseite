@@ -345,7 +345,7 @@ const listWrapper = async (req, res) => {
         }
     }
 
-    const tld = get_domain_country(domain).toUpperCase;
+    const tld = get_domain_country(domain).toUpperCase();
 
     if(!!city && city.length > 0){
         new_search_where_city = `AND c2t.city_slug='${city}' `
@@ -709,7 +709,7 @@ const filterWrapper = async (req, res) => {
     let types = [];
     let text = [];
     let ranges = [];
-    let tld = get_domain_country(domain).toUpperCase;
+    let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND c2t.stop_selector='y' `;
     let new_search_where_searchterm = '';
 
