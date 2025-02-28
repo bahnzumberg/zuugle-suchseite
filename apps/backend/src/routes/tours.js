@@ -322,14 +322,26 @@ const listWrapper = async (req, res) => {
 
         if(filterJSON['ranges']){
             new_filter_where_ranges = `AND t.range IN ${JSON.stringify(filterJSON['ranges']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+
+            if(new_filter_where_ranges === 'AND t.range IN () ;') {
+                new_filter_where_ranges = ``
+            }
         }
 
         if(filterJSON['types']){
             new_filter_where_types = `AND t.type IN ${JSON.stringify(filterJSON['types']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+
+            if(new_filter_where_types === 'AND t.type IN () ;') {
+                new_filter_where_types = ``
+            }
         }
 
         if(filterJSON['languages']){
             new_filter_where_languages = `AND t.text_lang IN ${JSON.stringify(filterJSON['languages']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+            
+            if(new_filter_where_languages === 'AND t.text_lang IN () ;') {
+                new_filter_where_languages = ``
+            }
         }
     }
 
