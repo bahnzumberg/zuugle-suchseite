@@ -51,50 +51,12 @@ export async function fixTours(){
     // tours, which have no datasets in table fahrplan.
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
     
-    /*
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
-    */
-
-    // set ai_search_column
-    // We reuse the vectors, of those tours, where full_text was not changed
-    /*
-    await knex.raw(`UPDATE tour
-        SET ai_search_column = temp_tour_full_text.ai_search_column
-        FROM temp_tour_full_text
-        WHERE tour.ai_search_column IS NULL
-        AND tour.id=temp_tour_full_text.id
-        AND tour.full_text=temp_tour_full_text.full_text;`);
-
-    let rounds = 0;
-    let limit_rows = 3;
-    try {
-        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM tour WHERE ai_search_column IS NULL;`); 
-        let sql_count_call = await count_query;
-        rounds = Math.ceil(sql_count_call.rows[0].row_count / limit_rows);
-    } catch (error) {
-        console.log("Error retrieving count:", error);
-    }
-
-    if (rounds > 0) {
-        for (let i=1; i<=rounds; i++) {
-            try {
-                console.log(`get_embedding ${i}`)
-                await knex.raw(`UPDATE tour
-                                SET ai_search_column = get_embedding(full_text)
-                                FROM (SELECT id FROM tour WHERE ai_search_column IS NULL LIMIT ${limit_rows}) AS b
-                                WHERE tour.id=b.id`);
-            }
-            catch (error) {
-                console.error("Error updating ai_search_column:", error);
-            }
-        }
-    }
-    */
-
+    
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
     // This step creates a table, which establishes the connection between cities and tours.
@@ -739,6 +701,7 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
+                                        t.full_text,
                                         t.ai_search_column,
                                         t.quality_rating,
                                         t.difficulty_orig,
@@ -748,7 +711,7 @@ export async function syncTours(){
                                         t.lat_end,
                                         t.lon_end,
                                         t.maxele
-                                        from vw_touren_to_search_new as t
+                                        from vw_touren_to_search as t
                                         WHERE t.id % ${modulo} = ${i};`);
 
         const result = await query;
