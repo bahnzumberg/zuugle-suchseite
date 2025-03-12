@@ -831,7 +831,8 @@ const bulk_insert_tours = async (entries) => {
                      entry.dec + "," +
                      calcMonthOrder(entry) + "," +
                      entry.traverse + "," +
-                     entry.quality_rating + ",";
+                     entry.quality_rating + "," +
+                     entry.full_text + ",";
         
         if (entry.ai_search_column==null) {
              sql_values = sql_values + "null,"
@@ -880,6 +881,7 @@ const bulk_insert_tours = async (entries) => {
                                           month_order,
                                           traverse,
                                           quality_rating,
+                                          full_text,
                                           ai_search_column,
                                           text_lang,
                                           max_ele)
