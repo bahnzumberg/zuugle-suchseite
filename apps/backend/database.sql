@@ -104,52 +104,69 @@ CREATE TABLE city (
 CREATE INDEX ON city (city_slug);
 
 
+
 CREATE TABLE fahrplan (
-     id INT,
-     tour_provider varchar(30)  NOT NULL,
-     hashed_url varchar(100) NOT NULL,
-     calendar_date timestamp NOT NULL,
-     weekday char(3)  DEFAULT NULL,
-     date_any_connection varchar(3)  NOT NULL,
-     city_slug varchar(100)  NOT NULL,
-     city_name varchar(100)  NOT NULL,
-     city_any_connection varchar(3)  NOT NULL,
-     best_connection_duration time DEFAULT NULL,
-     connection_rank int DEFAULT NULL,
-     connection_departure_datetime timestamp DEFAULT NULL,
-     connection_duration time DEFAULT NULL,
-     connection_no_of_transfers int DEFAULT NULL,
-     connection_arrival_datetime timestamp DEFAULT NULL,
-     connection_returns_trips_back int DEFAULT NULL,
-     connection_returns_min_waiting_duration time DEFAULT NULL,
-     connection_returns_max_waiting_duration time DEFAULT NULL,
-     connection_returns_warning_level int NOT NULL,
-     connection_returns_warning varchar(37)  NOT NULL,
-     return_row int DEFAULT NULL,
-     return_waiting_duration time DEFAULT NULL,
-     return_departure_datetime timestamp DEFAULT NULL,
-     return_duration time DEFAULT NULL,
-     return_no_of_transfers int DEFAULT NULL,
-     return_arrival_datetime timestamp DEFAULT NULL,
-     totour_track_key int default null,
-     totour_track_duration time DEFAULT NULL,
-     fromtour_track_key int default null,
-     fromtour_track_duration time DEFAULT NULL,
-     connection_description_json JSONB DEFAULT NULL,
-     connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
-     return_description_json JSONB DEFAULT NULL,
-     return_firstregular_departure_datetime timestamp DEFAULT NULL,
-     PRIMARY KEY (id)
-);
+    id INT,
+    tour_provider varchar(30) NOT NULL,
+    hashed_url varchar(100) NOT NULL,
+    calendar_date timestamp NOT NULL,
+    weekday char(3) DEFAULT NULL,
+    date_any_connection varchar(3) NOT NULL,
+    city_slug varchar(100) NOT NULL,
+    city_name varchar(100) NOT NULL,
+    city_any_connection varchar(3) NOT NULL,
+    best_connection_duration time DEFAULT NULL,
+    connection_rank int DEFAULT NULL,
+    connection_departure_datetime timestamp DEFAULT NULL,
+    connection_duration time DEFAULT NULL,
+    connection_no_of_transfers int DEFAULT NULL,
+    connection_arrival_datetime timestamp DEFAULT NULL,
+    connection_returns_trips_back int DEFAULT NULL,
+    connection_returns_min_waiting_duration time DEFAULT NULL,
+    connection_returns_max_waiting_duration time DEFAULT NULL,
+    connection_returns_warning_level int NOT NULL,
+    connection_returns_warning varchar(37) NOT NULL,
+    return_row int DEFAULT NULL,
+    return_waiting_duration time DEFAULT NULL,
+    return_departure_datetime timestamp DEFAULT NULL,
+    return_duration time DEFAULT NULL,
+    return_no_of_transfers int DEFAULT NULL,
+    return_arrival_datetime timestamp DEFAULT NULL,
+    totour_track_key int default null,
+    totour_track_duration time DEFAULT NULL,
+    fromtour_track_key int default null,
+    fromtour_track_duration time DEFAULT NULL,
+    connection_description_json JSONB DEFAULT NULL,
+    connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
+    return_description_json JSONB DEFAULT NULL,
+    return_firstregular_departure_datetime timestamp DEFAULT NULL,
+    calendar_day INT, -- Regular column, not generated.
+    PRIMARY KEY (id, calendar_date, calendar_day)
+) PARTITION BY RANGE (calendar_day);
 
+-- 2. Create partitions for fahrplan
+DO $$
+BEGIN
+    FOR i IN 1..31 LOOP
+        EXECUTE format('CREATE TABLE fahrplan_day_%s PARTITION OF fahrplan FOR VALUES FROM (%s) TO (%s + 1);', i, i, i);
+    END LOOP;
+END$$;
 
-CREATE INDEX ON fahrplan (hashed_url);
-CREATE INDEX ON fahrplan (totour_track_key);
-CREATE INDEX ON fahrplan (fromtour_track_key);
-CREATE INDEX ON fahrplan (best_connection_duration);
-CREATE INDEX ON fahrplan (totour_track_duration);
-CREATE INDEX ON fahrplan (fromtour_track_duration);
-CREATE INDEX ON fahrplan (city_slug);
+-- 3. Create indexes on partitions for fahrplan
+DO $$
+BEGIN
+    FOR i IN 1..31 LOOP
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_calendar_date_idx ON fahrplan_day_%s (calendar_date);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_hashed_url_idx ON fahrplan_day_%s (hashed_url);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_totour_track_key_idx ON fahrplan_day_%s (totour_track_key);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_fromtour_track_key_idx ON fahrplan_day_%s (fromtour_track_key);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_best_connection_duration_idx ON fahrplan_day_%s (best_connection_duration);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_totour_track_duration_idx ON fahrplan_day_%s (totour_track_duration);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_fromtour_track_duration_idx ON fahrplan_day_%s (fromtour_track_duration);', i, i);
+        EXECUTE format('CREATE INDEX fahrplan_day_%s_city_slug_idx ON fahrplan_day_%s (city_slug);', i, i);
+    END LOOP;
+END$$;
+
 
 
 

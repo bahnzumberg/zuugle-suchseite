@@ -354,7 +354,7 @@ const listWrapper = async (req, res) => {
         new_search_where_city = `AND c2t.stop_selector='y' `
     }
 
-    if (!!search && !!search.length > 0) {
+    if (typeof search === 'string' && search.trim() !== '') {
         let postgresql_language_code = 'german'
 
         if (currLanguage == 'sl') {
@@ -370,10 +370,20 @@ const listWrapper = async (req, res) => {
             postgresql_language_code = 'english'
         }
 
-        new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search.toLowerCase()}')) < 0.6 `;
-        // `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
-        new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
-        // `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
+        // If there is more than one search term, the AI is superior,
+        // is there only a single word, the standard websearch of PostgreSQL ist better.
+        
+        if (search.trim().split(/\s+/).length === 1) {
+            // search consists of a single word
+            new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery('${postgresql_language_code}', '${search}') `
+            new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery('${postgresql_language_code}', '${search}'), '')), 0) DESC, `
+            // console.log("Websearch")
+        } 
+        else {
+            new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding('query: ${search.toLowerCase()}')) < 0.6 `;
+            new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding('query: ${search}')) ASC, `
+            // console.log("AI search")
+        }
     }
 
     if(!!range && range.length > 0){

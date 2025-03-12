@@ -701,7 +701,7 @@ export async function syncTours(){
                                         t.oct,
                                         t.nov,
                                         t.dec,
-                                        t.full_text,
+                                        REPLACE(REPLACE(t.full_text, '\0', ' 0'), "'", "") as full_text,
                                         t.ai_search_column,
                                         t.quality_rating,
                                         t.difficulty_orig,
@@ -721,7 +721,7 @@ export async function syncTours(){
     }
 
     await knex.raw(`UPDATE tour SET image_url=NULL WHERE image_url='null';`);
-    
+
 }
 
 
@@ -833,7 +833,7 @@ const bulk_insert_tours = async (entries) => {
                      calcMonthOrder(entry) + "," +
                      entry.traverse + "," +
                      entry.quality_rating + "," +
-                     entry.full_text + ",";
+                     "'" + entry.full_text + "'" + ",";
         
         if (entry.ai_search_column==null) {
              sql_values = sql_values + "null,"
