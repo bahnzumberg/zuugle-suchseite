@@ -7,7 +7,8 @@ const { create } = require('xmlbuilder2');
 const fs = require('fs-extra');
 const path = require('path');
 const request = require('request');
-import logger from "../utils/logger";
+import { spawn } from "cross-spawn";
+
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -393,6 +394,47 @@ const deleteFilesOlder30days = async (dirPath) => {
       }
 };
 
+export async function truncateAll(){
+    await knex.raw(`TRUNCATE city;`);
+    await knex.raw(`TRUNCATE fahrplan;`);
+    await knex.raw(`TRUNCATE kpi;`);
+    await knex.raw(`TRUNCATE provider;`);
+    await knex.raw(`TRUNCATE tour;`);
+    await knex.raw(`TRUNCATE tour_inactive;`);
+    await knex.raw(`TRUNCATE city2tour;`);
+    await knex.raw(`TRUNCATE gpx;`);
+    await knex.raw(`TRUNCATE logsearchphrase;`);
+    await knex.raw(`TRUNCATE tracks;`);
+    await knex.raw(`TRUNCATE canonical_alternate;`);
+}
+
+export async function restoreDump() {
+  return new Promise((resolve, reject) => {
+    const container = "zuugle-container";
+    const dbName = "zuugle_suchseite_dev";
+    const dbDump = "zuugle_postgresql.dump";
+    const dockerProc = spawn("docker", [
+      "exec", container,
+      "pg_restore", dbDump,
+      "-U", "postgres",
+      "-d", dbName,
+    ]);
+    dockerProc.stdout.on("data", (data) => {
+      console.log(`stdout: ${data}`);
+    });
+    dockerProc.stderr.on("data", (data) => {
+      reject(new Error(data));
+    });
+    dockerProc.on("close", (code) => {
+      if (code === 0) {
+        console.log(`pg_restore executed successfully`);
+        resolve(undefined);
+      } else {
+        reject(new Error(`pg_restore exited with code ${code}`));
+      }
+    });
+  });
+}
 
 export async function writeKPIs(){
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_tours';`);
