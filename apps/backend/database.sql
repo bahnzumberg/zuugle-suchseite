@@ -1,14 +1,19 @@
+SET SEARCH_PATH TO public;
+
+CREATE EXTENSION IF NOT EXISTS vector;
+
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS fahrplan;
-DROP TABLE IF EXISTS fahrplan_del;
-DROP TABLE IF EXISTS fahrplan_load;
 DROP TABLE IF EXISTS kpi;
--- DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS provider;
 DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS tour_inactive;
 DROP TABLE IF EXISTS city2tour;
 DROP TABLE IF EXISTS gpx;
+DROP TABLE IF EXISTS logsearchphrase;
+DROP TABLE IF EXISTS tracks;
+DROP TABLE IF EXISTS canonical_alternate;
+
 
 CREATE TABLE tour (
       id SERIAL,
@@ -46,11 +51,9 @@ CREATE TABLE tour (
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
       quality_rating integer DEFAULT 5,
-      -- full_text TEXT,
-	-- search_column tsvector,
       ai_search_column vector(1024) DEFAULT NULL,
-	max_ele INT default 0,
-	text_lang VARCHAR(2) default 'de',
+		max_ele INT default 0,
+		text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
 );
 
@@ -62,7 +65,6 @@ CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
 CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
-// CREATE INDEX search_column_idx ON tour USING GIN (search_column);
 
 
 CREATE TABLE tour_inactive (
@@ -142,31 +144,16 @@ CREATE TABLE fahrplan (
     return_firstregular_departure_datetime timestamp DEFAULT NULL,
     calendar_day INT, -- Regular column, not generated.
     PRIMARY KEY (id, calendar_date, calendar_day)
-) PARTITION BY RANGE (calendar_day);
+);
 
--- 2. Create partitions for fahrplan
-DO $$
-BEGIN
-    FOR i IN 1..31 LOOP
-        EXECUTE format('CREATE TABLE fahrplan_day_%s PARTITION OF fahrplan FOR VALUES FROM (%s) TO (%s + 1);', i, i, i);
-    END LOOP;
-END$$;
-
--- 3. Create indexes on partitions for fahrplan
-DO $$
-BEGIN
-    FOR i IN 1..31 LOOP
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_calendar_date_idx ON fahrplan_day_%s (calendar_date);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_hashed_url_idx ON fahrplan_day_%s (hashed_url);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_totour_track_key_idx ON fahrplan_day_%s (totour_track_key);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_fromtour_track_key_idx ON fahrplan_day_%s (fromtour_track_key);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_best_connection_duration_idx ON fahrplan_day_%s (best_connection_duration);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_totour_track_duration_idx ON fahrplan_day_%s (totour_track_duration);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_fromtour_track_duration_idx ON fahrplan_day_%s (fromtour_track_duration);', i, i);
-        EXECUTE format('CREATE INDEX fahrplan_day_%s_city_slug_idx ON fahrplan_day_%s (city_slug);', i, i);
-    END LOOP;
-END$$;
-
+CREATE INDEX fahrplan_calendar_date_idx ON fahrplan (calendar_date);
+CREATE INDEX fahrplan_hashed_url_idx ON fahrplan (hashed_url);
+CREATE INDEX fahrplan_totour_track_key_idx ON fahrplan (totour_track_key);
+CREATE INDEX fahrplan_fromtour_track_key_idx ON fahrplan (fromtour_track_key);
+CREATE INDEX fahrplan_best_connection_duration_idx ON fahrplan (best_connection_duration);
+CREATE INDEX fahrplan_totour_track_duration_idx ON fahrplan (totour_track_duration);
+CREATE INDEX fahrplan_fromtour_track_duration_idx ON fahrplan (fromtour_track_duration);
+CREATE INDEX fahrplan_city_slug_idx ON fahrplan (city_slug);
 
 
 
@@ -199,8 +186,8 @@ CREATE TABLE logsearchphrase (
       num_results int DEFAULT 0,
       city_slug varchar(64) NOT NULL,
       search_time timestamp DEFAULT CURRENT_TIMESTAMP,
- 	menu_lang VARCHAR(2) default NULL,
-	country_code VARCHAR(2) default NULL,
+ 	   menu_lang VARCHAR(2) default NULL,
+	   country_code VARCHAR(2) default NULL,
       PRIMARY KEY (id)
 );
 
@@ -232,7 +219,7 @@ CREATE TABLE city2tour (
       city_slug varchar(64) NOT NULL,
       reachable_from_country varchar(2) NOT NULL,
       min_connection_duration int DEFAULT 0,
-      max_connection_duration int DEFAULT 200
+      max_connection_duration int DEFAULT 200,
       min_connection_no_of_transfers INTEGER DEFAULT 4, 
       avg_total_tour_duration decimal(6,2) DEFAULT NULL,
       connection_arrival_stop_lon decimal(12,9) DEFAULT NULL,
