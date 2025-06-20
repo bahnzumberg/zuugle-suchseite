@@ -142,7 +142,6 @@ CREATE TABLE fahrplan (
     connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
     return_description_json JSONB DEFAULT NULL,
     return_firstregular_departure_datetime timestamp DEFAULT NULL,
-    calendar_day INT, -- Regular column, not generated.
     PRIMARY KEY (id, calendar_date, calendar_day)
 );
 
