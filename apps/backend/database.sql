@@ -51,9 +51,11 @@ CREATE TABLE tour (
       dec boolean DEFAULT false,
       month_order int DEFAULT 12,
       quality_rating integer DEFAULT 5,
+	  full_text TEXT,
+	  search_column tsvector,
       ai_search_column vector(1024) DEFAULT NULL,
-		max_ele INT default 0,
-		text_lang VARCHAR(2) default 'de',
+	  max_ele INT default 0,
+	  text_lang VARCHAR(2) default 'de',
       PRIMARY KEY (id)
 );
 
