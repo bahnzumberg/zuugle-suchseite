@@ -144,7 +144,7 @@ CREATE TABLE fahrplan (
     connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
     return_description_json JSONB DEFAULT NULL,
     return_firstregular_departure_datetime timestamp DEFAULT NULL,
-    PRIMARY KEY (id, calendar_date, calendar_day)
+    PRIMARY KEY (id)
 );
 
 CREATE INDEX fahrplan_calendar_date_idx ON fahrplan (calendar_date);
