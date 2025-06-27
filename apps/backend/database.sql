@@ -200,7 +200,7 @@ CREATE TABLE gpx (
       waypoint int NOT NULL,
       lat decimal(12,9) DEFAULT NULL,
       lon decimal(12,9) DEFAULT NULL,
-      ele decimal(12,8) DEFAULT NULL,
+      ele decimal(8,2) DEFAULT NULL,
       PRIMARY KEY (hashed_url, waypoint)
 );
 
