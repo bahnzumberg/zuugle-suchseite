@@ -144,7 +144,7 @@ CREATE TABLE fahrplan (
     connection_lastregular_arrival_datetime timestamp DEFAULT NULL,
     return_description_json JSONB DEFAULT NULL,
     return_firstregular_departure_datetime timestamp DEFAULT NULL,
-    PRIMARY KEY (id, calendar_date, calendar_day)
+    PRIMARY KEY (id)
 );
 
 CREATE INDEX fahrplan_calendar_date_idx ON fahrplan (calendar_date);
@@ -200,7 +200,7 @@ CREATE TABLE gpx (
       waypoint int NOT NULL,
       lat decimal(12,9) DEFAULT NULL,
       lon decimal(12,9) DEFAULT NULL,
-      ele decimal(12,8) DEFAULT NULL,
+      ele decimal(8,2) DEFAULT NULL,
       PRIMARY KEY (hashed_url, waypoint)
 );
 
