@@ -17,11 +17,11 @@ and install all dependencies.
 ### Setup database PostgreSQL 16
 1. Install (https://www.docker.com/) on your local machine
 2. Execute these two commands: 
-
+    ```
     docker build -t zuugle-postgres-db ./
 
-    docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db
-
+    docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db 
+    ```
 ### Setup database connection files
 Create a copy of each connection file and rename it. We need four "knexfile*" files in the end. 
 
@@ -31,11 +31,19 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
 
 ## Load data and run backend
-### Import data locally
+### Restore database into local docker instance
 
     npm run build
 
-    npm run import-data-full
+    npm run import-data-docker
+
+### Create GPX files and images
+
+Start API locally:
+
+    npm run start
+
+And in a new terminal start the update script:
 
     npm run import-files
 
