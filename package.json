@@ -52,7 +52,10 @@
     "build": "npm run build-app",
     "build-app": "webpack --config webpack.config_prod.js",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format": "prettier --write --ignore-unknown $(git ls-files)",
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
   },
   "eslintConfig": {
     "plugins": [
@@ -88,11 +91,11 @@
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
+    "prettier": "^3.6.2",
     "react-scripts": "^5.0.1",
     "source-map-loader": "^4.0.1",
     "terser-webpack-plugin": "^5.3.7",
     "url-loader": "^4.1.1",
     "webpack": "^5.77.0"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }
