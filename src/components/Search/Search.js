@@ -144,7 +144,13 @@ export function Search({
         // If a search phrase is given and city is empty and the search term consists only of one word,
         // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city.
         let cityEntry = allCities.find(
-          (e) => e.value === search.toLowerCase().replace("ü", "ue").replace("ö", "oe").replace("ä", "ae")
+          (e) =>
+            e.value ===
+            search
+              .toLowerCase()
+              .replace("ü", "ue")
+              .replace("ö", "oe")
+              .replace("ä", "ae"),
         ); // find the city object in array "allCities"
         if (!!cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
@@ -217,7 +223,7 @@ export function Search({
       ) {
         localStorage.setItem(
           "masterMarkers",
-          JSON.stringify(importedMarkersArray)
+          JSON.stringify(importedMarkersArray),
         );
         isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
       }

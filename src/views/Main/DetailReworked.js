@@ -126,12 +126,10 @@ const DetailReworked = (props) => {
     setCityI(_city);
   }, [_city]);
 
-
   const goToSearchPage = () => {
-    !!cityOne && (cityOne !== "no-city") ? 
-    navigate(`/search?city=${cityOne}`)
-    :
-    navigate(`/search`);
+    !!cityOne && cityOne !== "no-city"
+      ? navigate(`/search?city=${cityOne}`)
+      : navigate(`/search`);
   };
 
   const LoadingSpinner = () => (
@@ -215,8 +213,8 @@ const DetailReworked = (props) => {
       tourId = !!searchParams.get("id")
         ? searchParams.get("id")
         : !!localStorage.getItem("tourId")
-        ? localStorage.getItem("tourId")
-        : null; // currently we only use localStorage for tourId
+          ? localStorage.getItem("tourId")
+          : null; // currently we only use localStorage for tourId
     }
     if (!!tourId) {
       setIsTourLoading(true);
@@ -226,7 +224,7 @@ const DetailReworked = (props) => {
           if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
             setTourDifficulty(
               !!tourExtracted.data.tour.difficulty &&
-                tourExtracted.data.tour.difficulty
+                tourExtracted.data.tour.difficulty,
             );
           } else {
             setIsTourLoading(false);
@@ -284,7 +282,7 @@ const DetailReworked = (props) => {
       // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour])
+  }, [tour]);
 
   useEffect(() => {
     let index = dateIndex;
@@ -301,7 +299,7 @@ const DetailReworked = (props) => {
           index = connections.findIndex(
             (connection) =>
               dayjs(connection.date).format("DD.MM.YYYY") ===
-              date.format("DD.MM.YYYY")
+              date.format("DD.MM.YYYY"),
           );
           setDateIndex(index);
         } else {
@@ -335,13 +333,13 @@ const DetailReworked = (props) => {
             if (!!res && !!res.data) {
               fileDownload(
                 res.data,
-                parseFileName(tour.title, "zuugle_", ".gpx")
+                parseFileName(tour.title, "zuugle_", ".gpx"),
               );
             }
           },
           (err) => {
             console.log("error: ", err);
-          }
+          },
         );
       } else {
         loadTourGpx({ id: tour.id }).then(
@@ -349,13 +347,13 @@ const DetailReworked = (props) => {
             if (!!res && !!res.data) {
               fileDownload(
                 res.data,
-                parseFileName(tour.title, "zuugle_", ".gpx")
+                parseFileName(tour.title, "zuugle_", ".gpx"),
               );
             }
           },
           (err) => {
             console.log("error: ", err);
-          }
+          },
         );
       }
     }
@@ -400,7 +398,7 @@ const DetailReworked = (props) => {
     if (svgButton) {
       console.log(
         "inside svgBtn, socialMediaDropDownToggle ",
-        socialMediaDropDownToggle
+        socialMediaDropDownToggle,
       );
       setSocialMediaDropDownToggle((current) => !current);
     }
@@ -560,7 +558,8 @@ const DetailReworked = (props) => {
   if (!!tour) {
     page_title = "Zuugle: " + tour.title + " (" + tour.provider_name + ")";
     imageUrl = tour?.image_url && tour?.image_url.length > 0 && tour?.image_url;
-    description = tour?.description && tour?.description.length > 0 && tour?.description;
+    description =
+      tour?.description && tour?.description.length > 0 && tour?.description;
   }
 
   return (
@@ -726,12 +725,12 @@ const DetailReworked = (props) => {
                     className="tour-detail-provider-container"
                     onClick={() => {
                       let url = tour?.url;
-                  
+
                       // Bedingung für die spezielle URL-Konstruktion
-                      if (tour?.provider === 'bahnzumberg' && _city) {
-                          url += 'ab-' + _city + '/';
+                      if (tour?.provider === "bahnzumberg" && _city) {
+                        url += "ab-" + _city + "/";
                       }
-                  
+
                       window.open(url);
                     }}
                   >
@@ -843,5 +842,5 @@ function mapStateToProps(state) {
 }
 
 export default compose(connect(mapStateToProps, mapDispatchToProps))(
-  DetailReworked
+  DetailReworked,
 );

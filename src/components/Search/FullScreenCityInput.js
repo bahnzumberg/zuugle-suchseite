@@ -8,7 +8,6 @@ import { loadFavouriteTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 
-
 function FullScreenCityInput({
   loadCities,
   cities,
@@ -19,7 +18,7 @@ function FullScreenCityInput({
   onSelect,
   cityOne,
   idOne,
-  pageKey
+  pageKey,
 }) {
   const [cityInput, setCityInput] = useState("");
   const [city, setCity] = useState(null);
@@ -50,7 +49,9 @@ function FullScreenCityInput({
           setCity={setCity}
           setCityInput={setCityInput}
           isCityLoading={isCityLoading}
-          loadFavouriteTours={!!pageKey && pageKey==='start' && loadFavouriteTours}
+          loadFavouriteTours={
+            !!pageKey && pageKey === "start" && loadFavouriteTours
+          }
           setOpenCitySearch={setOpenCitySearch}
           searchParams={searchParams}
           setSearchParams={setSearchParams}
@@ -77,5 +78,5 @@ const mapStateToProps = (state) => {
 };
 
 export default compose(connect(mapStateToProps, mapDispatchToProps))(
-  FullScreenCityInput
+  FullScreenCityInput,
 );

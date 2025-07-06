@@ -26,7 +26,7 @@ export default function Header({
 
   const [capCity, setCapCity] = useState(city);
   const [totalToursFromCity, setTotalToursFromCity] = useState(0);
-  
+
   const tld = getTLD();
 
   const updateCapCity = useCallback((newCity) => {
@@ -83,19 +83,18 @@ export default function Header({
           <LanguageMenu />
         </Box>
       </Suspense>
-    
+
       <Box className="header-text">
         {totalTours > 0 && (
           <Typography variant="h1" sx={{ height: "162px" }}>
-            {totalToursFromCity === 0 
-              ? totalTours.toLocaleString() 
-              : totalToursFromCity.toLocaleString()}
-            {" "}
+            {totalToursFromCity === 0
+              ? totalTours.toLocaleString()
+              : totalToursFromCity.toLocaleString()}{" "}
             {t(
               totalToursFromCity === 0
                 ? "start.tourenanzahl_untertitel"
                 : "start.tourenanzahl_untertitel_city",
-              { capCity }
+              { capCity },
             )}
           </Typography>
         )}

@@ -20,12 +20,12 @@ import {
 import Header from "./Header";
 import "/src/config.js";
 
-const RangeCardContainer = lazy(() =>
-  import("../../components/RangeCardContainer")
+const RangeCardContainer = lazy(
+  () => import("../../components/RangeCardContainer"),
 );
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-const ScrollingTourCardContainer = lazy(() =>
-  import("../../components/ScrollingTourCardContainer")
+const ScrollingTourCardContainer = lazy(
+  () => import("../../components/ScrollingTourCardContainer"),
 );
 const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
@@ -92,7 +92,7 @@ function Start({
             ranges: true,
             provider: searchParams.get("p"),
           },
-          requestConfig
+          requestConfig,
         );
         setIsLoading(false);
       } catch (error) {

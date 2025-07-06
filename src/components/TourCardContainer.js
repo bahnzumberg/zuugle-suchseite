@@ -18,7 +18,7 @@ export default function TourCardContainer({
   mapBounds,
   isMobile,
   filterOn,
-  setFilterOn
+  setFilterOn,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -26,7 +26,7 @@ export default function TourCardContainer({
   let filterRef = useRef(
     localStorage.getItem("filterValues")
       ? localStorage.getItem("filterValues")
-      : {}
+      : {},
   );
 
   //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
@@ -39,8 +39,6 @@ export default function TourCardContainer({
   let search = searchParams.get("search");
   let map = searchParams.get("map");
   let provider = searchParams.get("p");
-  
-  
 
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
@@ -53,9 +51,8 @@ export default function TourCardContainer({
   }, [hasMore, filterValues, searchParams]);
 
   useEffect(() => {
-      let bounds = mapBounds ? JSON.stringify(mapBounds) : '';
-      if (mapBounds && markersChanged) {
-
+    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+    if (mapBounds && markersChanged) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
         city: city,
@@ -96,46 +93,47 @@ export default function TourCardContainer({
       bounds: bounds, // bounds added
     });
     // .then((res) => {
-      // let retrievedTours = res?.data?.tours ? res.data.tours : [];
-      // console.log("L100 retrievedTours[0]", retrievedTours[0])
+    // let retrievedTours = res?.data?.tours ? res.data.tours : [];
+    // console.log("L100 retrievedTours[0]", retrievedTours[0])
     // });
   };
 
   return (
     <Box>
-     {
-      !filterOn && (
+      {!filterOn && (
         <InfiniteScroll
-        dataLength={tours.length}
-        next={_loadTours}
-        hasMore={true}
-        loader={!!loading && <CircularProgress />}
-        endMessage={<p> </p>}
-      >
-        <Grid container spacing={2} style={{  marginLeft: `${!isMobile ? '35px' : null}` }}>
-          {tours.map((tour, index) => (
-            <Grid
-              key={index}
-              item
-              xs={12}
-              sm={6}
-              lg={4}
-              style={{ marginBottom: "5px" }}
-            >
-              <TourCard
-                onSelectTour={onSelectTour}
-                tour={tour}
-                city={city}
-                mapCard={false}
-                provider={provider}
-              />
-            </Grid>
-          ))}
-
-        </Grid>
-      </InfiniteScroll>
-      )
-     }
+          dataLength={tours.length}
+          next={_loadTours}
+          hasMore={true}
+          loader={!!loading && <CircularProgress />}
+          endMessage={<p> </p>}
+        >
+          <Grid
+            container
+            spacing={2}
+            style={{ marginLeft: `${!isMobile ? "35px" : null}` }}
+          >
+            {tours.map((tour, index) => (
+              <Grid
+                key={index}
+                item
+                xs={12}
+                sm={6}
+                lg={4}
+                style={{ marginBottom: "5px" }}
+              >
+                <TourCard
+                  onSelectTour={onSelectTour}
+                  tour={tour}
+                  city={city}
+                  mapCard={false}
+                  provider={provider}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </InfiniteScroll>
+      )}
     </Box>
   );
 }

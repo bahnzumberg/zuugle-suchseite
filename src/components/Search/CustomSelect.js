@@ -10,15 +10,11 @@ import {
   ListItemText,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {
-  ArrowForward,
-  Close,
-  LocationOnOutlined,
-} from "@mui/icons-material";
+import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
 
 export default function CustomSelect(props) {
   const { options, handleSelect, handleInputChange, searchPhrase } = props;
- 
+
   return (
     <>
       <Grid container>
@@ -42,7 +38,7 @@ export default function CustomSelect(props) {
             </Grid>
             <Grid xs={8} md={10}>
               <InputBase
-                value={ searchPhrase ? searchPhrase : ""}
+                value={searchPhrase ? searchPhrase : ""}
                 autoFocus
                 onChange={(event) => {
                   handleInputChange(event?.target?.value);
@@ -100,7 +96,7 @@ export default function CustomSelect(props) {
           >
             <IconButton
               onClick={(ev) => {
-                handleSelect('');
+                handleSelect("");
                 ev.preventDefault();
               }}
             >

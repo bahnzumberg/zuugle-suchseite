@@ -14,7 +14,7 @@ export async function loadFile(
   data,
   route,
   entityName,
-  responseType = "buffer"
+  responseType = "buffer",
 ) {
   dispatch({ type: typeBefore, ...data });
   const state = getState()[stateName];
@@ -37,7 +37,7 @@ export async function loadFile(
       params: params,
       timeout: 60000,
       headers: {
-        "authorization": "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
+        authorization: "FV69pR5PQQLcQ4wuMtTSqKqyYqf5XEK4",
       },
     });
 
@@ -47,26 +47,24 @@ export async function loadFile(
 
     return res;
   } catch (error) {
-      console.log(" error:, ", error.message);
-      throw error;
+    console.log(" error:, ", error.message);
+    throw error;
   }
 }
 
 export function loadList(
-  dispatch,                                                   
-  getState, //returns the current state of the Redux store.   
-  typeBefore, // load-action type                     
+  dispatch,
+  getState, //returns the current state of the Redux store.
+  typeBefore, // load-action type
   typeDone, // done-action type
   stateName, //redux store-key
-  data,   // to be passed to the backend
+  data, // to be passed to the backend
   route, //endpoint URL for the API request
-  entityName,  //key-name used to extract the relevant data from the API response.
+  entityName, //key-name used to extract the relevant data from the API response.
   usePagination = true,
   useState = true, //a should-merge boolean (fetched data should be merged with existing data in the Redux state.)
-  language
+  language,
 ) {
-
-
   // initialize language param
   const langPassed =
     language &&
@@ -79,10 +77,8 @@ export function loadList(
   }
   const state = getState()[stateName];
 
-
   let params = {};
   if (state) {
- 
     let pagination = {};
     if (!!usePagination) {
       pagination.page = state.page;
@@ -94,16 +90,15 @@ export function loadList(
       ...pagination,
       ...data,
       currLanguage: langPassed,
-      bounds: data.bounds
-
+      bounds: data.bounds,
     };
   } else {
     params = {
       ...data,
       currLanguage: langPassed,
-      bounds: data.bounds 
+      bounds: data.bounds,
     };
-}
+  }
 
   return axios
     .get(route, { params: params })
@@ -111,11 +106,12 @@ export function loadList(
       const entities = res.data[entityName];
       const total = res.data.total;
       const filter = !!res.data.filter ? res.data.filter : null;
-      const markers = res?.data?.markers?.map((markerObj) => ({
-      id: markerObj.id,
-      lat: markerObj.lat,
-      lon: markerObj.lon,
-    })) || [];
+      const markers =
+        res?.data?.markers?.map((markerObj) => ({
+          id: markerObj.id,
+          lat: markerObj.lat,
+          lon: markerObj.lon,
+        })) || [];
 
       if (!!useState) {
         dispatch({
@@ -125,7 +121,7 @@ export function loadList(
           filter: filter,
           page: res.data.page,
           ranges: res.data.ranges,
-          markers:markers
+          markers: markers,
         });
       }
       return res;
@@ -150,7 +146,7 @@ export function loadOne(
   id,
   route,
   entityName,
-  params = {}
+  params = {},
 ) {
   dispatch({ type: typeBefore });
 
@@ -187,7 +183,7 @@ export function loadOneReturnAll(
   typeBefore,
   typeDone,
   id,
-  route
+  route,
 ) {
   const abortController = new AbortController();
   const signal = abortController.signal;
@@ -238,7 +234,7 @@ export function loadOneReturnAll(
 export function loadSuggestions(searchPhrase, city, language, tld) {
   return axios
     .get(
-      `searchPhrases?search=${searchPhrase}&city=${city}&language=${language}&tld=${tld}`
+      `searchPhrases?search=${searchPhrase}&city=${city}&language=${language}&tld=${tld}`,
     )
     .then((res) => {
       return res.data?.items;
@@ -260,11 +256,12 @@ export const getTotalCityTours = (city) => {
 };
 
 // This is a "BAUSTELLE" but already has basic fucntionality (for this stage May 2024 it is not needed)
-export const getMapData = (data)=>{
-  return axios.get('tours/map/', {
-    params: data
-  }).then((res)=>{
-    return res.data
-  })
-
-}
+export const getMapData = (data) => {
+  return axios
+    .get("tours/map/", {
+      params: data,
+    })
+    .then((res) => {
+      return res.data;
+    });
+};

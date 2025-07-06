@@ -4,10 +4,7 @@ import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect, useSelector } from "react-redux";
-import {
-  loadTour,
-  loadTours,
-} from "../../actions/tourActions";
+import { loadTour, loadTours } from "../../actions/tourActions";
 import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -23,10 +20,12 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
-import '/src/config.js';
+import "/src/config.js";
 
 const Search = lazy(() => import("../../components/Search/Search"));
-const TourCardContainer = lazy(() => import("../../components/TourCardContainer"));
+const TourCardContainer = lazy(
+  () => import("../../components/TourCardContainer"),
+);
 
 export function Main({
   loadTours,
@@ -49,23 +48,24 @@ export function Main({
 
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
 
-  const [filterValues, setFilterValues] = useState(localStorage.getItem("filterValues") ?? null); // pass this to both Search and TourCardContainer
-//initial value for filterValues should be 
-// console.log("L54 filterValues :", filterValues)
+  const [filterValues, setFilterValues] = useState(
+    localStorage.getItem("filterValues") ?? null,
+  ); // pass this to both Search and TourCardContainer
+  //initial value for filterValues should be
+  // console.log("L54 filterValues :", filterValues)
 
   const [counter, setCounter] = useState(0);
 
-  const [mapInitialized, setMapInitialized] = useState(false);  //MAP
+  const [mapInitialized, setMapInitialized] = useState(false); //MAP
 
-  const [showMap, setShowMap] = useState(false);  //MAP
+  const [showMap, setShowMap] = useState(false); //MAP
   const [mapBounds, setMapBounds] = useState(null); //MAP
   const [markersChanged, setMarkersChanged] = useState(false); //MAP
   const [showCardContainer, setShowCardContainer] = useState(true); //MAP
-  const[filterOn, setFilterOn] = useState(false);
+  const [filterOn, setFilterOn] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:678px)");
 
-  
   let filterValuesLocal = !!localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
@@ -74,7 +74,7 @@ export function Main({
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
-  
+
   useEffect(() => {
     loadAllCities();
     let searchParamCity = searchParams.get("city");
@@ -129,15 +129,15 @@ export function Main({
     !!filterValuesLocal
       ? setFilterValues(filterValuesLocal)
       : setFilterValues({});
-  }, [ filterValuesLocal, searchParams]);
+  }, [filterValuesLocal, searchParams]);
 
-  const getFilterCount = ()=>{
+  const getFilterCount = () => {
     let filterCountLocal = !!localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
+      ? localStorage.getItem("filterCount")
+      : null;
 
     return filterCountLocal;
-  }
+  };
 
   const backBtnHandler = (e) => {
     e.preventDefault();
@@ -198,21 +198,20 @@ export function Main({
     return resultedData;
   }, []);
 
+  //Map-related : callback to set the state of "mapBounds" inside Map Container
+  const handleMapBounds = useCallback((bounds) => {
+    setMapBounds(bounds);
+  }, []);
 
-//Map-related : callback to set the state of "mapBounds" inside Map Container
-const handleMapBounds = useCallback((bounds) => {
-  setMapBounds(bounds);
-}, []);
+  //Map-related : callback to set the state of "markersChanged" inside Map Container
+  const handleChangedMarkers = useCallback((value) => {
+    setMarkersChanged(value);
+  }, []);
 
-//Map-related : callback to set the state of "markersChanged" inside Map Container
-const handleChangedMarkers = useCallback((value) => {
-  setMarkersChanged(value);
-}, []);
-
-//Map-related : callback to set the state of "markersChanged" inside Map Container
-const handleShowCardContainer = useCallback((value) => {
-  setShowCardContainer(value);
-}, []);
+  //Map-related : callback to set the state of "markersChanged" inside Map Container
+  const handleShowCardContainer = useCallback((value) => {
+    setShowCardContainer(value);
+  }, []);
 
   const memoTourMapContainer = useMemo(() => {
     return (
@@ -241,14 +240,14 @@ const handleShowCardContainer = useCallback((value) => {
       //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams);
       setShowMap(false);
-    }else{
-      searchParams.set('map', true)
+    } else {
+      searchParams.set("map", true);
       //add filterValues from localStorage ? here or inside the mapcontainer ?
-      setSearchParams(searchParams)
-      setShowMap(true)
-      }
-    window.scrollTo({ top: 0 , behavior: 'smooth'});
-  }
+      setSearchParams(searchParams);
+      setShowMap(true);
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const renderCardContainer = () => (
     <Box
@@ -276,7 +275,6 @@ const handleShowCardContainer = useCallback((value) => {
         isMobile={isMobile}
         filterOn={filterOn}
         setFilterOn={setFilterOn}
-
       />
     </Box>
   );
@@ -285,49 +283,48 @@ const handleShowCardContainer = useCallback((value) => {
 
   const totalToursHeader = () => (
     <Box elevation={0} className={"header-line-main"} sx={{ width: "100%" }}>
-          <Box
-            sx={{
-              paddingTop: showMap ? "3.3%" : "10.2%",
-              paddingBottom: "5.5px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              '@media (min-width: 900px)': {
-                paddingTop: showMap ? "1.42%" : "2.36%",
-                // paddingTop: largeScreenPaddingTop,
-              },
-            }}
-          >
-            {
-              !!totalTours && (
-                <>
-                
-               
-                <Typography color={"black"} sx={{ textAlign: "center",paddingTop: "0px" }}>
-                  {!!showCardContainer? Number(totalTours).toLocaleString() : " "}{" "}
-                  {totalTours === 1 ? ` ${t("main.ergebnis")}` : ` ${t("main.ergebnisse")}`}
+      <Box
+        sx={{
+          paddingTop: showMap ? "3.3%" : "10.2%",
+          paddingBottom: "5.5px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          "@media (min-width: 900px)": {
+            paddingTop: showMap ? "1.42%" : "2.36%",
+            // paddingTop: largeScreenPaddingTop,
+          },
+        }}
+      >
+        {!!totalTours && (
+          <>
+            <Typography
+              color={"black"}
+              sx={{ textAlign: "center", paddingTop: "0px" }}
+            >
+              {!!showCardContainer ? Number(totalTours).toLocaleString() : " "}{" "}
+              {totalTours === 1
+                ? ` ${t("main.ergebnis")}`
+                : ` ${t("main.ergebnisse")}`}
+            </Typography>
+            {getFilterCount() && getFilterCount() > 0 && (
+              <Box display={"flex"} alignItems={"center"}>
+                &nbsp;{" - "}&nbsp;
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    color: "#FF7663",
+                    fontWeight: "600",
+                    mr: "2px",
+                  }}
+                >
+                  {t("filter.filter")}
                 </Typography>
-                {(getFilterCount() && getFilterCount() > 0 )   
-                && (
-                  <Box display={"flex"} alignItems={"center"}>
-                    &nbsp;{" - "}&nbsp;
-                    <Typography
-                      sx={{
-                        fontSize: "16px",
-                        color: "#FF7663",
-                        fontWeight: "600",
-                        mr: "2px",
-                      }}
-                    >
-                      {t("filter.filter")}
-                    </Typography>
-                  </Box>
-                )}
-
-              </>
-              )
-            }
-          </Box>
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
     </Box>
   );
 
@@ -376,7 +373,7 @@ const handleShowCardContainer = useCallback((value) => {
               </Box>
               <DomainMenu />
             </Box>
-            <LanguageMenu pageKey='main'/>
+            <LanguageMenu pageKey="main" />
           </Box>
           {!!allCities && allCities.length > 0 && (
             <Box
@@ -434,13 +431,18 @@ const handleShowCardContainer = useCallback((value) => {
               {!!tours && tours.length > 0 && (
                 <>
                   {showCardContainer && renderCardContainer()}
-                  <MapBtn showMap={showMap} onClick={toggleMapHandler} btnSource="main"/>
+                  <MapBtn
+                    showMap={showMap}
+                    onClick={toggleMapHandler}
+                    btnSource="main"
+                  />
                 </>
               )}
             </>
           ) : (
             !!tours &&
-            tours.length > 0 && showCardContainer &&(
+            tours.length > 0 &&
+            showCardContainer && (
               <>
                 {renderCardContainer()}
                 <MapBtn

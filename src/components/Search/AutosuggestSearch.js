@@ -21,11 +21,10 @@ const AutosuggestSearchTour = ({ onSearchSuggestion, city, language }) => {
 
     if (city !== null) {
       _city = "";
-    }
-    else {
+    } else {
       _city = city.value;
     }
-    
+
     setSearchPhrase(inputValue);
     loadSuggestions(inputValue, _city, language, tld) //Call the backend
       .then((suggestions) => {

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { ReactComponent as YourSvg } from './svg/seilbahn.svg';
+import * as React from "react";
+import { ReactComponent as YourSvg } from "./svg/seilbahn.svg";
 
-export default function Seilbahn(props){
-    return <YourSvg style={{...props.style}}/>
+export default function Seilbahn(props) {
+  return <YourSvg style={{ ...props.style }} />;
 }

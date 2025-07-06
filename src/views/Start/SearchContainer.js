@@ -10,15 +10,14 @@ export default function SearchContainer({
   setShowMobileMenu,
   updateCapCity,
   idOne,
-  cityOne
+  cityOne,
 }) {
-
   return (
     <Box>
       <Search
         pageKey={pageKey}
         isMain={false}
-        page={page} 
+        page={page}
         goto={goto}
         showMobileMenu={showMobileMenu ?? true}
         setShowMobileMenu={setShowMobileMenu ?? true}

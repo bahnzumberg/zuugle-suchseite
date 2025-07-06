@@ -45,7 +45,7 @@ export const GetDepartureText = (connection, t) => {
     connection.connection_duration_minutes === 0
       ? dayjs(connection.connection_departure_datetime).format("DD.MM HH:mm")
       : `${depTime} - ${dayjs(connection.connection_arrival_datetime).format(
-          "HH:mm"
+          "HH:mm",
         )}`;
 
   return (
@@ -73,7 +73,7 @@ export const getReturnText = (connection, t) => {
     connection.return_duration_minutes === 0
       ? dayjs(connection.return_departure_datetime).format("DD.MM HH:mm")
       : `${retDepTime} - ${dayjs(connection.return_arrival_datetime).format(
-          "HH:mm"
+          "HH:mm",
         )}`;
 
   return returnText;
@@ -81,7 +81,7 @@ export const getReturnText = (connection, t) => {
 
 export const getNumberOfTransfers = (
   connection,
-  field = "connection_no_of_transfers"
+  field = "connection_no_of_transfers",
 ) => {
   if (!connection) {
     return "";
@@ -186,11 +186,10 @@ function getIconFromText(text) {
 
 function convertTimeToMinutes(timeString) {
   // String in Teile zerlegen
-  const parts = timeString.split(':');
+  const parts = timeString.split(":");
   const hours = parseInt(parts[0]);
   const minutes = parseInt(parts[1]);
-  const seconds = parseInt(parts[2]);   
-
+  const seconds = parseInt(parts[2]);
   // Berechnung der Gesamtminuten
   const totalMinutes = hours * 60 + minutes + seconds / 60;
   return totalMinutes;
@@ -209,7 +208,7 @@ export const createReturnEntries = (entries, connection, t) => {
     }
 
     toReturn.push(
-      getDepartureEntry(`${newStart} ${t("details.ankunft_bei_tourende")}`)
+      getDepartureEntry(`${newStart} ${t("details.ankunft_bei_tourende")}`),
     );
 
     for (let i = 0; i < _entries.length; i++) {
@@ -227,7 +226,7 @@ export const createReturnEntries = (entries, connection, t) => {
         toReturn.push(getDetailEntry(_text, keys_2[i], _entries.length));
       } else {
         toReturn.push(
-          getStationEntry(entry, i + 1 === _entries.length, keys_2[i])
+          getStationEntry(entry, i + 1 === _entries.length, keys_2[i]),
         );
       }
     }
@@ -263,7 +262,7 @@ export const createEntries = (entries, connection, t) => {
         .format("HH:mm");
     }
     toReturn.push(
-      getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`)
+      getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`),
     );
   }
   return toReturn;
@@ -443,7 +442,7 @@ export function formatToHHMM(durationString) {
 
   // Format hours and minutes to HH:mm
   const formattedDuration = `${String(hours).padStart(2, "0")}:${String(
-    minutes
+    minutes,
   ).padStart(2, "0")}`;
 
   return formattedDuration;

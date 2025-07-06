@@ -4,9 +4,7 @@ import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 
-
 export default function RangeCard({ range, onSelectTour }) {
-
   return (
     <Paper
       sx={{

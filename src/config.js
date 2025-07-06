@@ -1,3 +1,6 @@
-if (process.env.NODE_ENV === 'production' && window.location.href.indexOf("www.zuugle.") >= 0) {
-    console.log = function () {};
+if (
+  process.env.NODE_ENV === "production" &&
+  window.location.href.indexOf("www.zuugle.") >= 0
+) {
+  console.log = function () {};
 }

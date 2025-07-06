@@ -35,7 +35,6 @@ export default function CityInput({
   onFocus,
   disabled,
 }) {
-
   const placeholder = () => {
     let host = window.location.host;
     if (host.indexOf("zuugle.at") >= 0) {
@@ -93,9 +92,7 @@ export default function CityInput({
           >
             {city && <ClearSearchIcon />}
           </InputAdornment>
-        )
-        ,
-    
+        ),
         className: "search-bar-input",
       }}
     />

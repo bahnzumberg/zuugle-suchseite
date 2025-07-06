@@ -1,54 +1,53 @@
 /* Base styles for .leaflet-popup-content to remove background and adjust layout */
 .request-popup {
-    padding-top: 2%;
+  padding-top: 2%;
 }
 .leaflet-popup-content {
-    background: transparent; /* Remove white background */
-    padding: 0; /* Remove padding */
-    margin: 0; /* Remove margin */
-    width: auto; /* Allow content to define width */
-    height: auto; /* Allow content to define height */
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    justify-content: center; /* Center items horizontally */
-    box-shadow: none; 
-    /* border: solid 5px white;
+  background: transparent; /* Remove white background */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+  width: auto; /* Allow content to define width */
+  height: auto; /* Allow content to define height */
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+  box-shadow: none;
+  /* border: solid 5px white;
     border-radius: 15px; */
+}
+
+.leaflet-popup-content-wrapper {
+  background: white; /* Remove background from wrapper */
+  box-shadow: none; /* Remove box shadow */
+  /* padding:10px; */
+  border-radius: 20px;
+}
+
+.leaflet-popup-tip {
+  display: none; /* Remove the popup tip */
+}
+
+/* Responsive font sizes for different breakpoints */
+@media (max-width: 1200px) {
+  .tour-card-map {
+    font-size: 14px; /* Adjust font size for screens up to 1200px */
   }
-  
-  .leaflet-popup-content-wrapper {
-    background: white; /* Remove background from wrapper */
-    box-shadow: none; /* Remove box shadow */
-    /* padding:10px; */
-    border-radius: 20px;
+}
+
+@media (max-width: 900px) {
+  .tour-card-map {
+    font-size: 12px; /* Adjust font size for screens up to 900px */
   }
-  
-  .leaflet-popup-tip {
-    display: none; /* Remove the popup tip */
+}
+
+@media (max-width: 600px) {
+  .tour-card-map {
+    font-size: 10px; /* Adjust font size for screens up to 600px */
   }
-  
-  /* Responsive font sizes for different breakpoints */
-  @media (max-width: 1200px) {
-    .tour-card-map {
-      font-size: 14px; /* Adjust font size for screens up to 1200px */
-    }
+}
+
+@media (max-width: 400px) {
+  .tour-card-map {
+    font-size: 8px; /* Adjust font size for screens up to 400px */
   }
-  
-  @media (max-width: 900px) {
-    .tour-card-map {
-      font-size: 12px; /* Adjust font size for screens up to 900px */
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .tour-card-map {
-      font-size: 10px; /* Adjust font size for screens up to 600px */
-    }
-  }
-  
-  @media (max-width: 400px) {
-    .tour-card-map {
-      font-size: 8px; /* Adjust font size for screens up to 400px */
-    }
-  }
-  
+}

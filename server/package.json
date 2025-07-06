@@ -14,5 +14,5 @@
     "http-proxy-middleware": "^2.0.6",
     "path": "^0.12.7"
   },
-   "type": "module" 
+  "type": "module"
 }

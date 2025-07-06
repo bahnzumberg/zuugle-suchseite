@@ -17,8 +17,7 @@ import {
   NO_DATA_AVAILABLE,
   LOAD_DATA_ERROR,
   NO_TOURS_AVAILABLE,
-  SET_TOUR_ID
-
+  SET_TOUR_ID,
 } from "../actions/types";
 
 const initialState = {
@@ -48,7 +47,7 @@ const initialState = {
 
 // Keep comment below for Eslint purposes
 // eslint-disable-next-line import/no-anonymous-default-export
-export default ((state = initialState, action = {}) => {
+export default (state = initialState, action = {}) => {
   switch (action.type) {
     case LOAD_TOURS:
       return {
@@ -74,7 +73,7 @@ export default ((state = initialState, action = {}) => {
         page: action.page,
         markers: markers,
       };
- 
+
       return {
         ...toPush,
       };
@@ -174,13 +173,13 @@ export default ((state = initialState, action = {}) => {
         ...state,
         error: action.error, // Store the error message for display
       };
-      default:
-        return state;
-    
+    default:
+      return state;
+
     case SET_TOUR_ID:
       return {
         ...state,
         selectedTourID: action.payload, // Update the state with the new tour ID
       };
   }
-})
+};

@@ -37,7 +37,7 @@ const ItineraryCalendar = ({ connectionData, dateIndex, updateConnIndex }) => {
   let selectedDay = dateIndex;
   let days = [];
 
-  if (!connectionData || (dateIndex === undefined)) {
+  if (!connectionData || dateIndex === undefined) {
     return <></>;
   } else {
     days = connectionData?.map((con) => dayjs(con.date));

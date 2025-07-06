@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useNavigate} from "react-router"
+import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import List from "@mui/material/List";
@@ -9,7 +9,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 
 import CircularProgress from "@mui/material/CircularProgress";
-import '/src/config.js';
+import "/src/config.js";
 
 export function CityResultList({
   cities,
@@ -20,10 +20,8 @@ export function CityResultList({
   loadFavouriteTours,
   onSelect,
   idOne,
-  cityOne
+  cityOne,
 }) {
-
-
   const writeCityToLocalStorage = (city) => {
     localStorage.setItem("city", city);
   };
@@ -50,12 +48,12 @@ export function CityResultList({
                 onFocusCity(false);
               }
               //this handler is for use at detail page (using useParams hook)
-              if(!!cityOne && !!idOne ){
+              if (!!cityOne && !!idOne) {
                 setCityInput(_city.label);
-                setCity(_city.value)
+                setCity(_city.value);
                 navigate(`tour/${idOne}/${_city.value}`);
-                window.location.reload()
-              }else if (!!onSelect) {
+                window.location.reload();
+              } else if (!!onSelect) {
                 // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
                 onSelect(_city);
               }
@@ -106,7 +104,7 @@ export function CityResultList({
           </ListItem>
         );
       })}
-      
+
       {!cities.length && (
         <ListItem>
           <ListItemText secondary={""} />

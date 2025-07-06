@@ -1,110 +1,110 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export function convertNumToTime(number, nonseparate = false) {
-	// Check sign of given number
-	let sign = number >= 0 ? 1 : -1;
+  // Check sign of given number
+  let sign = number >= 0 ? 1 : -1;
 
-	// Set positive value of number of sign negative
-	number = number * sign;
+  // Set positive value of number of sign negative
+  number = number * sign;
 
-	// Separate the int from the decimal part
-	const hour = Math.floor(number);
-	let decpart = number - hour;
+  // Separate the int from the decimal part
+  const hour = Math.floor(number);
+  let decpart = number - hour;
 
-	var min = 1 / 60;
-	// Round to nearest minute
-	decpart = min * Math.round(decpart / min);
+  var min = 1 / 60;
+  // Round to nearest minute
+  decpart = min * Math.round(decpart / min);
 
-	let minute = Math.floor(decpart * 60) + "";
+  let minute = Math.floor(decpart * 60) + "";
 
-	// Add padding if need
-	if (minute.length < 2) {
-		minute = "0" + minute;
-	}
+  // Add padding if need
+  if (minute.length < 2) {
+    minute = "0" + minute;
+  }
 
-	return !nonseparate ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
+  return !nonseparate ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
 }
 
 export const get_currLanguage = (i18n) => {
-	const resolvedLanguage = i18n.language;
-	const storedLanguage = localStorage.getItem("lang");
-	const currLanguage = storedLanguage || resolvedLanguage;
-	return currLanguage;
+  const resolvedLanguage = i18n.language;
+  const storedLanguage = localStorage.getItem("lang");
+  const currLanguage = storedLanguage || resolvedLanguage;
+  return currLanguage;
 };
 
 export const simpleConvertNumToTime = (number) => {
-	let timeStr = convertNumToTime(number);
-	timeStr = timeStr.replace(/ h/g, "").replace(/ min/g, "");
-	if (!timeStr.includes(":")) {
-		timeStr = timeStr.replace(/(\d+)\s+(\d+)/, "$1:$2");
-	}
-	return timeStr;
+  let timeStr = convertNumToTime(number);
+  timeStr = timeStr.replace(/ h/g, "").replace(/ min/g, "");
+  if (!timeStr.includes(":")) {
+    timeStr = timeStr.replace(/(\d+)\s+(\d+)/, "$1:$2");
+  }
+  return timeStr;
 };
 
 export function formatNumber(number, postfix = "") {
-	return parseFloat(number).toLocaleString("de-AT") + postfix;
+  return parseFloat(number).toLocaleString("de-AT") + postfix;
 }
 
 export function setOrRemoveSearchParam(searchParams, key, value) {
-	if (!!!value || value === "undefined") {
-		searchParams.delete(key);
-	} else {
-		searchParams.set(key, value);
-	}
+  if (!!!value || value === "undefined") {
+    searchParams.delete(key);
+  } else {
+    searchParams.set(key, value);
+  }
 }
 
 export const getFilterProp = (filter, key, defaultValue = false) => {
-	return !!filter ? filter[key] : defaultValue;
+  return !!filter ? filter[key] : defaultValue;
 };
 
 export const parseFileName = (name, prefix = "", postfix = "") => {
-	let tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
-	let _name = name.toLowerCase();
-	return `${prefix}${_name.replace(/\s/g, "_")}${postfix}`.replace(
-		/[äöüß]/g,
-		function ($0) {
-			return tr[$0];
-		}
-	);
+  let tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
+  let _name = name.toLowerCase();
+  return `${prefix}${_name.replace(/\s/g, "_")}${postfix}`.replace(
+    /[äöüß]/g,
+    function ($0) {
+      return tr[$0];
+    },
+  );
 };
 
 export const getDomainText = () => {
-	const host = window.location.hostname;
-	if (host.indexOf("www.zuugle.at") >= 0) {
-		return "Zuugle.at";
-	} else if (host.indexOf("www.zuugle.de") >= 0) {
-		return "Zuugle.de";
-	} else if (host.indexOf("www.zuugle.ch") >= 0) {
-		return "Zuugle.ch";
-	} else if (host.indexOf("www.zuugle.li") >= 0) {
-		return "Zuugle.li";
-	} else if (host.indexOf("www.zuugle.it") >= 0) {
-		return "Zuugle.it";
-	} else if (host.indexOf("www.zuugle.fr") >= 0) {
-		return "Zuugle.fr";
-	} else if (host.indexOf("www.zuugle.si") >= 0) {
-		return "Zuugle.si";
-	} else if (host.indexOf("www2.zuugle.at") >= 0) {
-		return "UAT Zuugle.at";
-	} else if (host.indexOf("www2.zuugle.de") >= 0) {
-		return "UAT Zuugle.de";
-	} else if (host.indexOf("www2.zuugle.ch") >= 0) {
-		return "UAT Zuugle.ch";
-	} else if (host.indexOf("www2.zuugle.fr") >= 0) {
-		return "UAT Zuugle.fr";
-	} else if (host.indexOf("www2.zuugle.it") >= 0) {
-		return "UAT Zuugle.it";
-	} else if (host.indexOf("www2.zuugle.si") >= 0) {
-		return "UAT Zuugle.si";
-	} else {
-		return "Localhost";
-	}
+  const host = window.location.hostname;
+  if (host.indexOf("www.zuugle.at") >= 0) {
+    return "Zuugle.at";
+  } else if (host.indexOf("www.zuugle.de") >= 0) {
+    return "Zuugle.de";
+  } else if (host.indexOf("www.zuugle.ch") >= 0) {
+    return "Zuugle.ch";
+  } else if (host.indexOf("www.zuugle.li") >= 0) {
+    return "Zuugle.li";
+  } else if (host.indexOf("www.zuugle.it") >= 0) {
+    return "Zuugle.it";
+  } else if (host.indexOf("www.zuugle.fr") >= 0) {
+    return "Zuugle.fr";
+  } else if (host.indexOf("www.zuugle.si") >= 0) {
+    return "Zuugle.si";
+  } else if (host.indexOf("www2.zuugle.at") >= 0) {
+    return "UAT Zuugle.at";
+  } else if (host.indexOf("www2.zuugle.de") >= 0) {
+    return "UAT Zuugle.de";
+  } else if (host.indexOf("www2.zuugle.ch") >= 0) {
+    return "UAT Zuugle.ch";
+  } else if (host.indexOf("www2.zuugle.fr") >= 0) {
+    return "UAT Zuugle.fr";
+  } else if (host.indexOf("www2.zuugle.it") >= 0) {
+    return "UAT Zuugle.it";
+  } else if (host.indexOf("www2.zuugle.si") >= 0) {
+    return "UAT Zuugle.si";
+  } else {
+    return "Localhost";
+  }
 };
 
 export const isMobileDevice = () => {
-	return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
-		navigator.userAgent
-	);
+  return /Mobi|Android|iPhone|iPad|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
+    navigator.userAgent,
+  );
 };
 
 // export const get_meta_data = (page) => {
@@ -195,111 +195,109 @@ export const isMobileDevice = () => {
 // }
 
 export const useResponsive = () => {
-	const matches = useMediaQuery("(max-width:600px)");
-	return !!matches;
+  const matches = useMediaQuery("(max-width:600px)");
+  return !!matches;
 };
 
 export function parseIfNeccessary(value) {
-	if (value && value.constructor === "test".constructor) {
-		value = JSON.parse(value);
-	}
-	return value;
+  if (value && value.constructor === "test".constructor) {
+    value = JSON.parse(value);
+  }
+  return value;
 }
 
 export const getTopLevelDomain = () => {
-	let domain = window.location.hostname;
-	let tld = "at";
+  let domain = window.location.hostname;
+  let tld = "at";
 
-	if (domain.indexOf("zuugle.de") > 0) {
-		tld = "de";
-	} else if (domain.indexOf("zuugle.si") > 0) {
-		tld = "si";
-	} else if (domain.indexOf("zuugle.it") > 0) {
-		tld = "it";
-	} else if (domain.indexOf("zuugle.ch") > 0) {
-		tld = "ch";
-	} else if (domain.indexOf("zuugle.li") > 0) {
-		tld = "li";
-	} else if (domain.indexOf("zuugle.fr") > 0) {
-		tld = "fr";
-	}
+  if (domain.indexOf("zuugle.de") > 0) {
+    tld = "de";
+  } else if (domain.indexOf("zuugle.si") > 0) {
+    tld = "si";
+  } else if (domain.indexOf("zuugle.it") > 0) {
+    tld = "it";
+  } else if (domain.indexOf("zuugle.ch") > 0) {
+    tld = "ch";
+  } else if (domain.indexOf("zuugle.li") > 0) {
+    tld = "li";
+  } else if (domain.indexOf("zuugle.fr") > 0) {
+    tld = "fr";
+  }
 
-	return tld;
+  return tld;
 };
 
 export const getTimeFromConnectionDescriptionEntry = (entry) => {
-	let _entry = !!entry ? entry.trim() : null;
-	if (!!_entry && _entry.length > 5) {
-		return _entry.substring(0, 5);
-	}
-	return "";
+  let _entry = !!entry ? entry.trim() : null;
+  if (!!_entry && _entry.length > 5) {
+    return _entry.substring(0, 5);
+  }
+  return "";
 };
 
 export const getTextFromConnectionDescriptionEntry = (entry) => {
-	let _entry = !!entry ? entry.trim() : null;
-	if (!!_entry && _entry.length > 5) {
-		return _entry.substring(5);
-	}
-	return "";
+  let _entry = !!entry ? entry.trim() : null;
+  if (!!_entry && _entry.length > 5) {
+    return _entry.substring(5);
+  }
+  return "";
 };
 
 export const shortenText = (text, atChar, maxLength) => {
-	let shortText = text;
-	if (text.length > maxLength) {
-		shortText = text.slice(atChar, maxLength).concat("...");
-	}
-	return shortText;
+  let shortText = text;
+  if (text.length > maxLength) {
+    shortText = text.slice(atChar, maxLength).concat("...");
+  }
+  return shortText;
 };
 
 // assuming a and b are ordered and equal length arrays; is of O(n) order
 export const orderedArraysEqual = (a, b) => {
-	if (a.length !== b.length) return false;
-	for (let i = 0; i < a.length; i++) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 };
 
 export function randomKey(length) {
-	let result = "";
-	const characters =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	const charactersLength = characters.length;
-	let counter = 0;
-	while (counter < length) {
-		result += characters.charAt(
-			Math.floor(Math.random() * charactersLength)
-		);
-		counter += 1;
-	}
-	return result;
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
 }
 
 export function getTLD() {
-	// Mapping of domain substrings to TLDs
-	const tldMap = {
-		"zuugle.de": "de",
-		"zuugle.si": "si",
-		"zuugle.it": "it",
-		"zuugle.ch": "ch",
-		"zuugle.li": "li",
-		"zuugle.fr": "fr",
-	};
+  // Mapping of domain substrings to TLDs
+  const tldMap = {
+    "zuugle.de": "de",
+    "zuugle.si": "si",
+    "zuugle.it": "it",
+    "zuugle.ch": "ch",
+    "zuugle.li": "li",
+    "zuugle.fr": "fr",
+  };
 
-	// Get the hostname of the current window
-	const domain = window.location.hostname;
+  // Get the hostname of the current window
+  const domain = window.location.hostname;
 
-	// Find the TLD by checking the domain substrings
-	for (const key in tldMap) {
-		if (domain.indexOf(key) > -1) {
-			return tldMap[key];
-		}
-	}
-	// Default TLD if no match is found
-	return "at";
+  // Find the TLD by checking the domain substrings
+  for (const key in tldMap) {
+    if (domain.indexOf(key) > -1) {
+      return tldMap[key];
+    }
+  }
+  // Default TLD if no match is found
+  return "at";
 }
 
 export const capitalize = (str) => {
-	if (typeof str !== "string" || str.length === 0) return str;
-	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  if (typeof str !== "string" || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };

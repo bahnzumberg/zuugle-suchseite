@@ -19,36 +19,53 @@ import {
   SET_SELECTED_DATE,
   SET_TOUR_ID,
 } from "./types";
-import { loadFile, loadList, loadOne, loadOneReturnAll, getMapData } from "./crudActions";
+import {
+  loadFile,
+  loadList,
+  loadOne,
+  loadOneReturnAll,
+  getMapData,
+} from "./crudActions";
 import i18next from "i18next";
-import '/src/config.js';
+import "/src/config.js";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;
   return (dispatch, getState) => {
     data.domain = window.location.host;
-    return loadList(dispatch, getState, LOAD_TOURS, LOAD_TOURS_DONE, "tours", data, "tours/", "tours", false, true, language);
+    return loadList(
+      dispatch,
+      getState,
+      LOAD_TOURS,
+      LOAD_TOURS_DONE,
+      "tours",
+      data,
+      "tours/",
+      "tours",
+      false,
+      true,
+      language,
+    );
   };
 }
 
 export function loadFilter(data = {}) {
-
   const language = i18next.resolvedLanguage;
-    return (dispatch, getState) => {
-      data.domain = window.location.host;
-      return loadList(
-        dispatch,
-        getState,
-        LOAD_TOUR_FILTER,
-        LOAD_TOUR_FILTER_DONE,
-        "tours",
-        data,
-        "tours/filter",
-        "filter",
-        false,
-        undefined,
-        language
-      );
+  return (dispatch, getState) => {
+    data.domain = window.location.host;
+    return loadList(
+      dispatch,
+      getState,
+      LOAD_TOUR_FILTER,
+      LOAD_TOUR_FILTER_DONE,
+      "tours",
+      data,
+      "tours/filter",
+      "filter",
+      false,
+      undefined,
+      language,
+    );
   };
 }
 
@@ -62,7 +79,7 @@ export function loadTour(id, city) {
       id,
       `tours/${id}/${city}`,
       "tour",
-      { city: city }
+      { city: city },
     )
       .then((res) => {
         return res;
@@ -71,7 +88,7 @@ export function loadTour(id, city) {
         if (error.response && error.response.status === 404) {
           // 404 error scenario
           console.error("loadTours/ Tour not found:", error);
-          return
+          return;
         } else {
           // other errors
           console.error("Error:", error);
@@ -90,17 +107,16 @@ export function loadTotalTours() {
       LOAD_TOTAL_TOURS,
       LOAD_TOTAL_TOURS_DONE,
       "total",
-      "tours/"
+      "tours/",
     );
   };
 }
-
 
 export function loadTourConnectionsExtended(data) {
   // Used as the search page
   return (dispatch, getState) => {
     data.domain = window.location.host;
-  
+
     return loadList(
       dispatch,
       getState,
@@ -110,7 +126,7 @@ export function loadTourConnectionsExtended(data) {
       data,
       "tours/" + data.id + "/connections-extended",
       "connections",
-      false
+      false,
     );
   };
 }
@@ -130,7 +146,7 @@ export function loadFavouriteTours(data = {}) {
       "tours",
       false,
       undefined,
-      language
+      language,
     );
   };
 }
@@ -146,11 +162,10 @@ export function loadTourGpx(data) {
       data,
       "tours/" + data.id + "/gpx",
       "gpx",
-      "buffer"
+      "buffer",
     );
   };
 }
-
 
 export const setTourID = (tourId) => {
   return {
@@ -158,4 +173,3 @@ export const setTourID = (tourId) => {
     payload: tourId,
   };
 };
-
