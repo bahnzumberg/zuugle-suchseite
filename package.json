@@ -70,6 +70,9 @@
       "react-app/jest"
     ]
   },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
@@ -90,6 +93,8 @@
     "file-loader": "^6.2.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "mini-css-extract-plugin": "^2.6.0",
     "prettier": "^3.6.2",
     "react-scripts": "^5.0.1",
