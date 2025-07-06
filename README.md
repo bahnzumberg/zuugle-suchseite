@@ -2,11 +2,15 @@
 
 ## First time installation
 
+### Install Volta
+
+Volta makes it really easy to always have the correct node engine (similar to nvm but faster and even simpler).
+
+Follow the installation directions: https://docs.volta.sh/guide/getting-started
+
 ### Install all modules
 
 Execute in the project directory:
-
-    nvm use
 
     npm install
 
