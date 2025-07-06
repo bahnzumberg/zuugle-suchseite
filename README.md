@@ -31,3 +31,13 @@ This will run the frontend in a browser on http://localhost:3000
 ## Run frontend with remote backend
 
     npm run start-remote-api
+
+## Common issues
+
+- `Error: ENOSPC: System limit for number of file watchers reached`  
+  Fix (Linux):
+
+```bash
+echo "fs.inotify.max_user_watches=131070" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
