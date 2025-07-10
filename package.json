@@ -43,7 +43,8 @@
     "webpack-cli": "^5.1.4"
   },
   "overrides": {
-    "@types/react": "^18.0.0"
+    "@types/react": "^18.0.0",
+    "typescript": "^5.8.3"
   },
   "scripts": {
     "start": "webpack serve --mode development --port 3000 --open --watch ./src --hot --progress --host localhost --static .",
