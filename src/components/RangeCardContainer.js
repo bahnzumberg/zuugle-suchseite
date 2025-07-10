@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
+import "react-horizontal-scrolling-menu/dist/styles.css";
 import { LeftArrow } from "./HorizontalScroll/LeftArrow";
 import { RightArrow } from "./HorizontalScroll/RightArrow";
 import RangeCard from "./RangeCard";
