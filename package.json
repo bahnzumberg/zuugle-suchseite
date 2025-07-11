@@ -52,28 +52,19 @@
     "build-app": "webpack --config webpack.config_prod.js",
     "format": "prettier --write --ignore-unknown $(git ls-files)",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
-  },
-  "eslintConfig": {
-    "plugins": [
-      "react-hooks"
-    ],
-    "rules": {
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn"
-    },
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "lint-staged": "lint-staged",
+    "lint": "eslint --cache \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "lint-staged": {
+    "**/*.{js}": "eslint --cache --fix --max-warnings 0",
     "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
+    "@eslint/js": "^9.30.1",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^14.3.1",
@@ -84,10 +75,13 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.11.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "file-loader": "^6.2.0",
+    "globals": "^16.3.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.7",
