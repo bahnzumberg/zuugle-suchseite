@@ -49,8 +49,8 @@
     "format": "prettier --write --ignore-unknown $(git ls-files)",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "lint": "eslint --cache \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint": "eslint --cache",
+    "lint:fix": "eslint --cache --fix"
   },
   "lint-staged": {
     "**/*.{js}": "eslint --cache --fix --max-warnings 0",
@@ -90,6 +90,7 @@
     "source-map-loader": "^4.0.2",
     "terser-webpack-plugin": "^5.3.14",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.36.0",
     "url-loader": "^4.1.1",
     "webpack": "^5.100.0",
     "webpack-dev-server": "^5.2.2"
