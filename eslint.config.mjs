@@ -19,5 +19,17 @@ export default defineConfig([
       },
     },
   },
+  {
+    files: ["*config*.js"],
+    extends: [tseslint.configs.disableTypeChecked],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off", // allow "require" in these config files
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
   prettier,
 ]);
