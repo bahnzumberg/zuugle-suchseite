@@ -53,10 +53,6 @@ export function setOrRemoveSearchParam(searchParams, key, value) {
   }
 }
 
-export const getFilterProp = (filter, key, defaultValue = false) => {
-  return !!filter ? filter[key] : defaultValue;
-};
-
 export const parseFileName = (name, prefix = "", postfix = "") => {
   let tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
   let _name = name.toLowerCase();
