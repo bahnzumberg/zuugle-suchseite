@@ -284,7 +284,7 @@ export function Search({
   // state to be passed then from Main to TourCardContainer
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
-  const handleFilterSubmit = ({ filterValues, filterCount }) => {
+  const handleFilterSubmit = (filterValues, filterCount) => {
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {

@@ -39,14 +39,14 @@ export default function NumberInput({
   onChange,
   label,
   variant,
-  endAdormentLabel = "hm",
+  endAdornmentLabel = "hm",
 }) {
   let inputProps = {};
-  if (!!endAdormentLabel) {
+  if (!!endAdornmentLabel) {
     inputProps.endAdornment = (
       <InputAdornment position="end">
         <Typography sx={{ color: "#8B8B8B", fontSize: "16px" }}>
-          {endAdormentLabel}
+          {endAdornmentLabel}
         </Typography>
       </InputAdornment>
     );
