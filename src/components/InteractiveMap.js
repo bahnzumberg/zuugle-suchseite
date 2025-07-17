@@ -101,7 +101,7 @@ export default function InteractiveMap({
       zoomControl={false}
       // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
-      <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png.webp" />
+      <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
           ref={polyRef}
