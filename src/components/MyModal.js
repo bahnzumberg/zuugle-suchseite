@@ -2,26 +2,28 @@ import React from "react";
 import { connect } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-import Modal from "@mui/material/Modal";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import { hideModal } from "../actions/modalActions";
-import Box from "@mui/material/Box";
-import { Divider, IconButton, Typography } from "@mui/material";
-import Close from "../icons/Close";
+import { IconButton, Typography } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 const MyModal = ({
   title,
-  size,
   srhBoxScrollH,
-  page,
   content,
   hideModal,
   onBack,
   sourceCall,
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const style = {
-    overflowY: "scroll",
     overflowX: "hidden",
     display: "block",
     position: "absolute",
@@ -32,96 +34,48 @@ const MyModal = ({
       xs: "translate(-50%, 0)",
       sm: title ? "translate(-50%, -50%)" : "translate(-50%, 0)",
     },
-    width: "100%",
-    maxWidth: "618px",
-    minHeight: "484px",
-    bgcolor: "#fff",
-    boxShadow: "0px 2px 15px 0px rgba(0, 0, 0, 0.15)",
-    border: "0",
-    outline: "none",
+    margin: 0,
     borderRadius: "18px",
-    padding: "20px 25px",
-    boxSizing: "border-box",
   };
 
   return (
-    <Modal open={true} onClose={hideModal}>
-      <Box sx={style} className={"my-modal"}>
-        <Box
+    <Dialog
+      open={true}
+      onClose={hideModal}
+      fullScreen={fullScreen}
+      fullWidth={true}
+      maxWidth={"sm"}
+      sx={{ "& .MuiDialog-paper": style }}
+    >
+      <DialogTitle>
+        <Typography
           sx={{
-            mb: "8px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            fontSize: "18px",
+            fontWeight: 600,
           }}
         >
-          {!!title ? (
-            <Box>
-              <Typography
-                sx={{
-                  textAlign: "center",
-                  lineHeight: "40px",
-                  fontSize: "18px",
-                  fontWeight: 600,
-                }}
-              >
-                {title}
-              </Typography>
-            </Box>
-          ) : (
-            <Typography
-              sx={{
-                textAlign: "center",
-                lineHeight: "40px",
-                fontSize: "18px",
-                fontWeight: 600,
-              }}
-            >
-              {sourceCall == "city"
-                ? t("start.heimatbahnhof")
-                : t("start.suche")}
-            </Typography>
-          )}
-
-          {!!onBack ? (
-            <Box onClick={onBack}>
-              <Typography
-                sx={{
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                  fontFamily: "Open Sans",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                  lineHeight: "18px",
-                }}
-              >
-                {t("search.abbrechen")}
-              </Typography>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                position: "absolute",
-                right: "20px",
-                top: "20px",
-                width: "40px",
-                height: "40px",
-                backgroundColor: "#EAEAEA",
-                borderRadius: "12px",
-              }}
-            >
-              <Box sx={{ padding: "8px" }} onClick={hideModal}>
-                <Close style={{ stroke: "#000000", strokeWidth: 1 }} />
-              </Box>
-            </Box>
-          )}
-        </Box>
-        {!!title && <Divider />}
-        <Box>
-          <Box>{content}</Box>
-        </Box>
-      </Box>
-    </Modal>
+          {title ||
+            (sourceCall == "city"
+              ? t("start.heimatbahnhof")
+              : t("start.suche"))}
+        </Typography>
+      </DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={onBack || hideModal}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogContent dividers={title} className={"my-modal"}>
+        {content}
+      </DialogContent>
+    </Dialog>
   );
 };
 
