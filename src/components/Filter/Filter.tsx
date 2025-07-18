@@ -12,13 +12,53 @@ import NumberInput from "../NumberInput";
 import Button from "@mui/material/Button";
 import { Fragment, useEffect, useState } from "react";
 import TextWithIcon from "../TextWithIcon";
-import { convertNumToTime, getFilterProp } from "../../utils/globals";
+import { convertNumToTime } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 import { loadFilter } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from "react-i18next";
+
+export interface FilterObject {
+  s?: string;
+  w?: string;
+  n?: string;
+  e?: string;
+  isSingleDayTourPossible?: boolean;
+  isSummerTourPossible?: boolean;
+  isWinterTourPossible?: boolean;
+  isMultipleDayTourPossible?: boolean;
+  isTraversePossible?: boolean;
+  singleDayTour: boolean;
+  multipleDayTour: boolean;
+  summerSeason: boolean;
+  winterSeason: boolean;
+  traverse: boolean;
+  difficulty: number;
+  minAscent: number;
+  maxAscent: number;
+  minDescent: number;
+  maxDescent: number;
+  minTransportDuration: number;
+  maxTransportDuration: number;
+  minDistance: number;
+  maxDistance: number;
+  ranges: string[];
+  types: string[];
+  languages: string[];
+}
+
+export interface FilterProps {
+  filter: FilterObject;
+  doSubmit: (filterObject: FilterObject, count: number) => void;
+  resetFilter: () => void;
+  searchParams: URLSearchParams;
+  loadFilter: (filterData: object) => void;
+  isLoadingFilter: boolean;
+  visibleToursGPXSouthWest: { lat: number; lng: number };
+  visibleToursGPXNorthEast: { lat: number; lng: number };
+}
 
 function Filter({
   filter,
@@ -29,7 +69,7 @@ function Filter({
   isLoadingFilter,
   visibleToursGPXSouthWest,
   visibleToursGPXNorthEast,
-}) {
+}: FilterProps) {
   const [singleDayTour, setSingleDayTour] = useState(true);
   const [multipleDayTour, setMultipleDayTour] = useState(true);
   const [summerSeason, setSummerSeason] = useState(true);
@@ -47,15 +87,27 @@ function Filter({
   const [maxDistance, setMaxDistance] = useState(10000);
   const [traverse, setTravers] = useState(false);
 
-  const [rangeValues, setRangeValues] = useState([]);
-  const [typeValues, setTypeValues] = useState([]);
-  const [languageValues, setLanguageValues] = useState([]);
+  const [rangeValues, setRangeValues] = useState<
+    { value: string; checked: boolean }[]
+  >([]);
+  const [typeValues, setTypeValues] = useState<
+    { value: string; checked: boolean }[]
+  >([]);
+  const [languageValues, setLanguageValues] = useState<
+    { value: string; checked: boolean }[]
+  >([]);
 
   const [rangeValuesState, setRangeValuesState] = useState(true);
   const [typeValuesState, setTypeValuesState] = useState(true);
   const [languageValuesState, setLanguageValuesState] = useState(true);
-  const [coordinatesSouthWest, setCoordinatesSouthWest] = useState([]);
-  const [coordinatesNorthEast, setCoordinatesNorthEast] = useState([]);
+  const [coordinatesSouthWest, setCoordinatesSouthWest] = useState<{
+    lat: number;
+    lng: number;
+  }>();
+  const [coordinatesNorthEast, setCoordinatesNorthEast] = useState<{
+    lat: number;
+    lng: number;
+  }>();
 
   // Translation-related
   const { t } = useTranslation();
@@ -93,7 +145,7 @@ function Filter({
   const km = t("details.km_kilometer");
   const h = t("details.h_hour");
 
-  let sportTypesArray = [
+  const sportTypesArray = [
     { "Bike & Hike": t("filter.bike_hike") },
     { Hochtour: t("filter.hochtour") },
     { Klettern: t("filter.klettern") },
@@ -107,7 +159,7 @@ function Filter({
   ];
 
   //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
-  let languageArray = [
+  const languageArray = [
     { de: t("filter.deutsch") },
     { en: t("filter.englisch") },
     { fr: t("filter.franzoesisch") },
@@ -117,14 +169,14 @@ function Filter({
 
   //loads the filter, including the languages for a specific city
   useEffect(() => {
-    let city = searchParams.get("city");
-    let range = searchParams.get("range");
-    let state = searchParams.get("state");
-    let country = searchParams.get("country");
-    let type = searchParams.get("type");
-    let search = searchParams.get("search");
-    let provider = searchParams.get("p");
-    let language = searchParams.get("language");
+    const city = searchParams.get("city");
+    const range = searchParams.get("range");
+    const state = searchParams.get("state");
+    const country = searchParams.get("country");
+    const type = searchParams.get("type");
+    const search = searchParams.get("search");
+    const provider = searchParams.get("p");
+    const language = searchParams.get("language");
 
     loadFilter({
       city: city,
@@ -139,22 +191,20 @@ function Filter({
   }, []);
 
   useEffect(() => {
-    if (!!filter) {
-      setMinAscent(getFilterProp(filter, "minAscent", 0));
-      setMaxAscent(getFilterProp(filter, "maxAscent", 10000));
+    if (filter) {
+      setMinAscent(filter.minAscent ?? 0);
+      setMaxAscent(filter.maxAscent ?? 10000);
 
-      setMinDescent(getFilterProp(filter, "minDescent", 0));
-      setMaxDescent(getFilterProp(filter, "maxDescent", 10000));
+      setMinDescent(filter.minDescent ?? 0);
+      setMaxDescent(filter.maxDescent ?? 10000);
 
-      setMinDistance(getFilterProp(filter, "minDistance", 0));
-      setMaxDistance(getFilterProp(filter, "maxDistance", 10000));
+      setMinDistance(filter.minDistance ?? 0);
+      setMaxDistance(filter.maxDistance ?? 10000);
 
-      setMinTransportDuration(getFilterProp(filter, "minTransportDuration", 0));
-      setMaxTransportDuration(
-        getFilterProp(filter, "maxTransportDuration", 50),
-      );
+      setMinTransportDuration(filter.minTransportDuration ?? 0);
+      setMaxTransportDuration(filter.maxTransportDuration ?? 50);
 
-      if (!!filter.ranges) {
+      if (filter.ranges) {
         setRangeValues(
           filter.ranges.map((e) => {
             return {
@@ -164,7 +214,7 @@ function Filter({
           }),
         );
       }
-      if (!!filter.types) {
+      if (filter.types) {
         setTypeValues(
           filter.types.map((e) => {
             return {
@@ -175,7 +225,7 @@ function Filter({
         );
       }
       //sets the languageValues according to the filter
-      if (!!filter.languages) {
+      if (filter.languages) {
         setLanguageValues(
           filter.languages.map((e) => {
             return {
@@ -186,18 +236,18 @@ function Filter({
         );
       }
 
-      let _filter_url = searchParams.get("filter");
-      let _filter_local =
+      const _filter_url = searchParams.get("filter");
+      const _filter_local =
         !!localStorage.getItem("filterValues") &&
         localStorage.getItem("filterValues");
 
-      let _filter = !!_filter_local ? _filter_local : _filter_url;
+      const _filter = _filter_local ? _filter_local : _filter_url;
 
-      if (!!_filter) {
+      if (_filter) {
         try {
-          const parsed = JSON.parse(_filter);
+          const parsed = JSON.parse(_filter) as FilterObject;
 
-          if (!!parsed) {
+          if (parsed) {
             setIfNotUndefined(parsed, "singleDayTour", setSingleDayTour);
             setIfNotUndefined(parsed, "multipleDayTour", setMultipleDayTour);
             setIfNotUndefined(parsed, "summerSeason", setSummerSeason);
@@ -227,7 +277,7 @@ function Filter({
                   const found = parsed.ranges.find((e) => e === entry);
                   return {
                     value: entry,
-                    checked: !!found ? true : false,
+                    checked: found ? true : false,
                   };
                 }),
               );
@@ -238,7 +288,7 @@ function Filter({
                   const found = parsed.types.find((e) => e === entry);
                   return {
                     value: entry,
-                    checked: !!found ? true : false,
+                    checked: found ? true : false,
                   };
                 }),
               );
@@ -278,37 +328,31 @@ function Filter({
     if (difficulty !== 10) {
       count++;
     }
-    if (!!traverse) {
+    if (traverse) {
+      count++;
+    }
+    if (minAscent !== filter.minAscent || maxAscent !== filter.maxAscent) {
+      count++;
+    }
+    if (minDescent !== filter.minDescent || maxDescent !== filter.maxDescent) {
       count++;
     }
     if (
-      minAscent !== getFilterProp(filter, "minAscent") ||
-      maxAscent !== getFilterProp(filter, "maxAscent")
+      minTransportDuration !== filter.minTransportDuration ||
+      maxTransportDuration !== filter.maxTransportDuration
     ) {
       count++;
     }
     if (
-      minDescent !== getFilterProp(filter, "minDescent") ||
-      maxDescent !== getFilterProp(filter, "maxDescent")
+      minDistance !== filter.minDistance ||
+      maxDistance !== filter.maxDistance
     ) {
       count++;
     }
-    if (
-      minTransportDuration !== getFilterProp(filter, "minTransportDuration") ||
-      maxTransportDuration !== getFilterProp(filter, "maxTransportDuration")
-    ) {
+    if (rangeValues.filter((rv) => !rv.checked).length > 0) {
       count++;
     }
-    if (
-      minDistance !== getFilterProp(filter, "minDistance") ||
-      maxDistance !== getFilterProp(filter, "maxDistance")
-    ) {
-      count++;
-    }
-    if (rangeValues.filter((rv) => !!!rv.checked).length > 0) {
-      count++;
-    }
-    if (typeValues.filter((rv) => !!!rv.checked).length > 0) {
+    if (typeValues.filter((rv) => !rv.checked).length > 0) {
       count++;
     }
     //includes the languages in the filter count
@@ -318,23 +362,22 @@ function Filter({
     return count;
   };
 
-  const setIfNotUndefined = (object, key, _function) => {
-    if (!!object) {
-      if (object[key] !== undefined) {
-        _function(object[key]);
-      }
+  function setIfNotUndefined<T, K extends keyof T>(
+    object: T,
+    key: K,
+    _function: (value: T[K]) => void,
+  ): void {
+    const value = object[key];
+    if (value !== undefined) {
+      _function(value);
     }
-  };
+  }
 
   const submit = () => {
-    let swLat =
-      !!coordinatesSouthWest?.lat && (coordinatesSouthWest?.lat).toFixed(6);
-    let swLng =
-      !!coordinatesSouthWest?.lng && (coordinatesSouthWest?.lng).toFixed(6);
-    let neLat =
-      !!coordinatesNorthEast?.lat && (coordinatesNorthEast?.lat).toFixed(6);
-    let neLng =
-      !!coordinatesNorthEast?.lng && (coordinatesNorthEast?.lng).toFixed(6);
+    const swLat = coordinatesSouthWest?.lat?.toFixed(6);
+    const swLng = coordinatesSouthWest?.lng?.toFixed(6);
+    const neLat = coordinatesNorthEast?.lat?.toFixed(6);
+    const neLng = coordinatesNorthEast?.lng?.toFixed(6);
 
     const filterValues = {
       //coordinates: coordinates,  //Füg den Wert in die URL ein
@@ -343,11 +386,11 @@ function Filter({
       w: swLng,
       n: neLat,
       e: neLng,
-      singleDayTour: mapPosNegValues(singleDayTour),
-      multipleDayTour: mapPosNegValues(multipleDayTour),
-      summerSeason: mapPosNegValues(summerSeason),
-      winterSeason: mapPosNegValues(winterSeason),
-      traverse: mapPosNegValues(traverse),
+      singleDayTour: singleDayTour ? true : false,
+      multipleDayTour: multipleDayTour ? true : false,
+      summerSeason: summerSeason ? true : false,
+      winterSeason: winterSeason ? true : false,
+      traverse: traverse ? true : false,
       difficulty: difficulty,
       minAscent: minAscent,
       maxAscent: maxAscent,
@@ -362,39 +405,38 @@ function Filter({
       languages: languageValues.filter((e) => !!e.checked).map((e) => e.value), // submits also the languages in the filter
     };
     localStorage.setItem("filterValues", JSON.stringify(filterValues));
-    localStorage.setItem("filterCount", countFilterActive());
-    countFilterActive() > 0 &&
-      doSubmit({
-        filterValues: filterValues,
-        filterCount: countFilterActive(),
-      });
+    localStorage.setItem("filterCount", countFilterActive().toString());
+    if (countFilterActive() > 0) {
+      doSubmit(filterValues, countFilterActive());
+    }
   };
 
-  const checkIfCheckedFromCheckbox = (list, key) => {
-    return !!(!!list ? list : []).find((l) => l.value === key && !!l.checked);
-  };
+  function checkIfCheckedFromCheckbox<T>(
+    list: { value: T; checked: boolean }[],
+    key: T,
+  ): boolean {
+    return list?.some((l) => l.value === key && l.checked);
+  }
 
-  const onChangedCheckbox = (list, key, value, _function) => {
+  function onChangedCheckbox<T>(
+    list: { value: T; checked: boolean }[],
+    key: T,
+    value: boolean,
+    _function: (value: { value: T; checked: boolean }[]) => void,
+  ) {
     _function(
-      (!!list ? list : []).map((entry) => {
-        let toPush = { ...entry };
+      (list ? list : []).map((entry) => {
+        const toPush = { ...entry };
         if (entry.value === key) {
           toPush.checked = value;
         }
         return toPush;
       }),
     );
-  };
-
-  const mapPosNegValues = (value) => {
-    if (!!value) {
-      return value;
-    }
-    return false;
-  };
+  }
 
   const getTypes = () => {
-    let types = [];
+    let types: { value: string; label: string }[] = [];
     if (!!filter && !!filter.types) {
       types = filter.types.map((entry) => {
         const foundType = sportTypesArray.find(
@@ -435,7 +477,7 @@ function Filter({
 
   // loads all the language checkboxes
   const getLanguages = () => {
-    let languages = [];
+    let languages: { value: string; label: string }[] = [];
     if (!!filter && !!filter.languages) {
       languages = filter.languages.map((entry) => {
         const foundType = languageArray.find(
@@ -481,7 +523,7 @@ function Filter({
   };
 
   const getRanges = () => {
-    let ranges = [];
+    let ranges: { value: string; label: string }[] = [];
     if (!!filter && !!filter.ranges) {
       ranges = filter.ranges.map((entry) => {
         return {
@@ -520,19 +562,19 @@ function Filter({
   const updateAllRangeValues = () => {
     setRangeValues(
       rangeValues.map((rv) => {
-        return { ...rv, checked: !!!rangeValuesState };
+        return { ...rv, checked: !rangeValuesState };
       }),
     );
-    setRangeValuesState(!!!rangeValuesState);
+    setRangeValuesState(!rangeValuesState);
   };
 
   const updateAllTypeValues = () => {
     setTypeValues(
       typeValues.map((rv) => {
-        return { ...rv, checked: !!!typeValuesState };
+        return { ...rv, checked: !typeValuesState };
       }),
     );
-    setTypeValuesState(!!!typeValuesState);
+    setTypeValuesState(!typeValuesState);
   };
 
   //function to set all checkboxes on either true or false
@@ -547,7 +589,7 @@ function Filter({
 
   return (
     <Box style={{ height: "100%" }}>
-      {!!isLoadingFilter ? (
+      {isLoadingFilter ? (
         <Box
           style={{
             maxWidth: "100%",
@@ -575,17 +617,13 @@ function Filter({
                 >
                   <Grid container spacing={0}>
                     <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography variant={"subtitle3"}>
-                        {tagestour_label}
-                      </Typography>
+                      <Typography>{tagestour_label}</Typography>
                     </Grid>
                     <Grid item xs={6} sx={{ textAlign: "right" }}>
                       <Switch
                         checked={singleDayTour}
-                        onChange={() => setSingleDayTour(!!!singleDayTour)}
-                        disabled={
-                          !!!getFilterProp(filter, "isSingleDayTourPossible")
-                        }
+                        onChange={() => setSingleDayTour(!singleDayTour)}
+                        disabled={!filter.isSingleDayTourPossible}
                       />
                     </Grid>
                   </Grid>
@@ -598,17 +636,13 @@ function Filter({
                 >
                   <Grid container spacing={0}>
                     <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography variant={"subtitle3"}>
-                        {mehrtagestour_label}
-                      </Typography>
+                      <Typography>{mehrtagestour_label}</Typography>
                     </Grid>
                     <Grid item xs={6} sx={{ textAlign: "right" }}>
                       <Switch
                         checked={multipleDayTour}
-                        onChange={() => setMultipleDayTour(!!!multipleDayTour)}
-                        disabled={
-                          !!!getFilterProp(filter, "isMultipleDayTourPossible")
-                        }
+                        onChange={() => setMultipleDayTour(!multipleDayTour)}
+                        disabled={!filter.isMultipleDayTourPossible}
                       />
                     </Grid>
                   </Grid>
@@ -637,10 +671,8 @@ function Filter({
                     <Grid item xs={6} sx={{ textAlign: "right" }}>
                       <Switch
                         checked={summerSeason}
-                        onChange={() => setSummerSeason(!!!summerSeason)}
-                        disabled={
-                          !!!getFilterProp(filter, "isSummerTourPossible")
-                        }
+                        onChange={() => setSummerSeason(!summerSeason)}
+                        disabled={!filter.isSummerTourPossible}
                       />
                     </Grid>
                   </Grid>
@@ -658,10 +690,8 @@ function Filter({
                     <Grid item xs={6} sx={{ textAlign: "right" }}>
                       <Switch
                         checked={winterSeason}
-                        onChange={() => setWinterSeason(!!!winterSeason)}
-                        disabled={
-                          !!!getFilterProp(filter, "isWinterTourPossible")
-                        }
+                        onChange={() => setWinterSeason(!winterSeason)}
+                        disabled={!filter.isWinterTourPossible}
                       />
                     </Grid>
                   </Grid>
@@ -685,8 +715,8 @@ function Filter({
                   <Grid item xs={2} sx={{ textAlign: "right" }}>
                     <Switch
                       checked={traverse}
-                      onChange={() => setTravers(!!!traverse)}
-                      disabled={!!!getFilterProp(filter, "isTraversePossible")}
+                      onChange={() => setTravers(!traverse)}
+                      disabled={!filter.isTraversePossible}
                     />
                   </Grid>
                 </Grid>
@@ -709,12 +739,14 @@ function Filter({
                   <GeneralSlider
                     containerSx={{ marginRight: "10px" }}
                     step={100}
-                    min={getFilterProp(filter, "minAscent", 0)}
-                    max={getFilterProp(filter, "maxAscent", 5000)}
+                    min={filter.minAscent ?? 0}
+                    max={filter.maxAscent ?? 5000}
                     value={[minAscent, maxAscent]}
-                    onChange={({ target }) => {
-                      setMinAscent(target.value[0]);
-                      setMaxAscent(target.value[1]);
+                    onChange={({
+                      target,
+                    }: React.ChangeEvent<HTMLInputElement>) => {
+                      setMinAscent(+target.value[0]);
+                      setMaxAscent(+target.value[1]);
                     }}
                   />
 
@@ -722,20 +754,28 @@ function Filter({
                     <Grid container spacing={"10px"}>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={minimum_label}
                           variant="filled"
+                          endAdornmentLabel={""}
                           value={minAscent}
-                          endAdormentLabel={null}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMinAscent(+target.value);
+                          }}
                         />
                       </Grid>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={maximum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={maxAscent}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMaxAscent(+target.value);
+                          }}
                         />
                       </Grid>
                     </Grid>
@@ -766,32 +806,42 @@ function Filter({
                   <GeneralSlider
                     containerSx={{ marginRight: "10px" }}
                     step={100}
-                    min={getFilterProp(filter, "minDescent", 0)}
-                    max={getFilterProp(filter, "maxDescent", 5000)}
+                    min={filter.minDescent ?? 0}
+                    max={filter.maxDescent ?? 5000}
                     value={[minDescent, maxDescent]}
-                    onChange={({ target }) => {
-                      setMinDescent(target.value[0]);
-                      setMaxDescent(target.value[1]);
+                    onChange={({
+                      target,
+                    }: React.ChangeEvent<HTMLInputElement>) => {
+                      setMinDescent(+target.value[0]);
+                      setMaxDescent(+target.value[1]);
                     }}
                   />
                   <Box sx={{ marginTop: "15px" }}>
                     <Grid container spacing={"10px"}>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={minimum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={minDescent}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMinDescent(+target.value);
+                          }}
                         />
                       </Grid>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={maximum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={maxDescent}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMaxDescent(+target.value);
+                          }}
                         />
                       </Grid>
                     </Grid>
@@ -829,12 +879,14 @@ function Filter({
                   <GeneralSlider
                     containerSx={{ marginRight: "10px" }}
                     step={0.5}
-                    min={getFilterProp(filter, "minTransportDuration", 0)}
-                    max={getFilterProp(filter, "maxTransportDuration", 50)}
+                    min={filter.minTransportDuration ?? 0}
+                    max={filter.maxTransportDuration ?? 50}
                     value={[minTransportDuration, maxTransportDuration]}
-                    onChange={({ target }) => {
-                      setMinTransportDuration(target.value[0]);
-                      setMaxTransportDuration(target.value[1]);
+                    onChange={({
+                      target,
+                    }: React.ChangeEvent<HTMLInputElement>) => {
+                      setMinTransportDuration(+target.value[0]);
+                      setMaxTransportDuration(+target.value[1]);
                     }}
                   />
 
@@ -842,20 +894,28 @@ function Filter({
                     <Grid container spacing={"10px"}>
                       <Grid item xs={6}>
                         <TextInput
-                          id="outlined-basic"
                           label={minimum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={convertNumToTime(minTransportDuration)}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMinTransportDuration(+target.value);
+                          }}
                         />
                       </Grid>
                       <Grid item xs={6}>
                         <TextInput
-                          id="outlined-basic"
                           label={maximum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={convertNumToTime(maxTransportDuration)}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMaxTransportDuration(+target.value);
+                          }}
                         />
                       </Grid>
                     </Grid>
@@ -873,32 +933,42 @@ function Filter({
                   <GeneralSlider
                     containerSx={{ marginRight: "10px" }}
                     step={2}
-                    min={getFilterProp(filter, "minDistance", 0)}
-                    max={getFilterProp(filter, "maxDistance", 10000)}
+                    min={filter.minDistance ?? 0}
+                    max={filter.maxDistance ?? 10000}
                     value={[minDistance, maxDistance]}
-                    onChange={({ target }) => {
-                      setMinDistance(target.value[0]);
-                      setMaxDistance(target.value[1]);
+                    onChange={({
+                      target,
+                    }: React.ChangeEvent<HTMLInputElement>) => {
+                      setMinDistance(+target.value[0]);
+                      setMaxDistance(+target.value[1]);
                     }}
                   />
                   <Box sx={{ marginTop: "15px" }}>
                     <Grid container spacing={"10px"}>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={minimum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={minDistance}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMinDistance(+target.value);
+                          }}
                         />
                       </Grid>
                       <Grid item xs={6}>
                         <NumberInput
-                          id="outlined-basic"
                           label={maximum_label}
                           variant="filled"
-                          endAdormentLabel={null}
+                          endAdornmentLabel={""}
                           value={maxDistance}
+                          onChange={({
+                            target,
+                          }: React.ChangeEvent<HTMLInputElement>) => {
+                            setMaxDistance(+target.value);
+                          }}
                         />
                         {maxDistance === 80 && (
                           <div
@@ -923,7 +993,6 @@ function Filter({
               <Typography variant={"subtitle1"}>
                 {sportart_label}{" "}
                 <Typography
-                  variant={"text"}
                   className={"cursor-link"}
                   sx={{ fontSize: "14px" }}
                   onClick={updateAllTypeValues}
@@ -939,7 +1008,6 @@ function Filter({
               <Typography variant={"subtitle1"}>
                 {sprachen_label}{" "}
                 <Typography
-                  variant={"text"}
                   className={"cursor-link"}
                   sx={{ fontSize: "14px" }}
                   onClick={updateAllLanguageValues}
@@ -955,7 +1023,6 @@ function Filter({
               <Typography variant={"subtitle1"}>
                 {regionen_label}{" "}
                 <Typography
-                  variant={"text"}
                   className={"cursor-link"}
                   sx={{ fontSize: "14px" }}
                   onClick={updateAllRangeValues}
@@ -974,7 +1041,7 @@ function Filter({
               <Box sx={{ position: "absolute", top: "20px", right: "20px" }}>
                 <Typography variant={"error"}>
                   <TextWithIcon
-                    text={difficulty}
+                    text={difficulty.toString()}
                     iconRight={
                       <Intensity
                         style={{
@@ -1000,7 +1067,9 @@ function Filter({
                 containerSx={{ marginTop: "20px", marginRight: "10px" }}
                 defaultValue={10}
                 value={difficulty}
-                onChange={({ target }) => setDifficulty(target.value)}
+                onChange={({ target }: React.ChangeEvent<HTMLInputElement>) =>
+                  setDifficulty(+target.value)
+                }
               />
             </Box>
           </Box>
@@ -1035,8 +1104,8 @@ function Filter({
                             disabled={countFilterActive() === 0}
                             className={countFilterActive() === 0 ? 'disabled-button' : ''}
                             >
-                            {countFilterActive() === 0 ? '' : countFilterActive()} 
-                            {" "}{filter_anwenden_label} 
+                            {countFilterActive() === 0 ? '' : countFilterActive()}
+                            {" "}{filter_anwenden_label}
                         </Button> */}
             </Box>
           </Box>
@@ -1050,7 +1119,8 @@ const mapDispatchToProps = {
   loadFilter,
 };
 
-const mapStateToProps = (state) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapStateToProps = (state: any) => {
   return {
     filter: state.tours.filter,
     isLoadingFilter: state.tours.isLoadingFilter,

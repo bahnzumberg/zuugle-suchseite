@@ -28,7 +28,6 @@ const EntitySlider = styled(Slider)(({ theme }) => ({
 }));
 
 export default function GeneralSlider({
-  defaultValue,
   containerSx,
   value,
   onChange,
@@ -41,7 +40,6 @@ export default function GeneralSlider({
       <EntitySlider
         min={min}
         max={max}
-        defaultValue={defaultValue}
         value={value}
         step={step}
         onChange={onChange}

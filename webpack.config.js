@@ -13,7 +13,9 @@ module.exports = {
     filename: "./app_static/[name].bundle.js",
     publicPath: "/",
   },
-
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
+  },
   devServer: {
     static: BUILD_DIR,
     // directory: BUILD_DIR,
@@ -39,7 +41,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
