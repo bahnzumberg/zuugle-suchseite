@@ -53,7 +53,7 @@
     "lint:fix": "eslint --cache --fix"
   },
   "lint-staged": {
-    "**/*.{js}": "eslint --cache --fix --max-warnings 0",
+    "**/*.js": "eslint --cache --fix --max-warnings 0",
     "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {

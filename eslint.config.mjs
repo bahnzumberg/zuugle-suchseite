@@ -28,7 +28,7 @@ export default defineConfig([
     },
   },
   {
-    files: ["*config*.js"],
+    files: ["*config*"],
     extends: [tseslint.configs.disableTypeChecked],
     rules: {
       "@typescript-eslint/no-require-imports": "off", // allow "require" in these config files
@@ -40,4 +40,9 @@ export default defineConfig([
     },
   },
   prettier,
+  {
+    rules: {
+      "prettier/prettier": "warn",
+    },
+  },
 ]);
