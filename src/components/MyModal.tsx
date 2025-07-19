@@ -18,6 +18,13 @@ const MyModal = ({
   hideModal,
   onBack,
   sourceCall,
+}: {
+  title: string;
+  srhBoxScrollH: number;
+  content: JSX.Element;
+  hideModal: () => void;
+  onBack: () => void;
+  sourceCall: string;
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -72,7 +79,7 @@ const MyModal = ({
       >
         <CloseIcon />
       </IconButton>
-      <DialogContent dividers={title} className={"my-modal"}>
+      <DialogContent dividers={title ? true : false} className={"my-modal"}>
         {content}
       </DialogContent>
     </Dialog>
