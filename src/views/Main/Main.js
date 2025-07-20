@@ -273,8 +273,6 @@ export function Main({
         mapBounds={mapBounds}
         markersChanged={markersChanged}
         isMobile={isMobile}
-        filterOn={filterOn}
-        setFilterOn={setFilterOn}
       />
     </Box>
   );
