@@ -1,6 +1,15 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import DifficultySlider from "../DifficultySlider";
@@ -19,6 +28,7 @@ import { compose } from "redux";
 import { connect } from "react-redux";
 import TextInput from "../TextInput";
 import { useTranslation } from "react-i18next";
+import { theme } from "../../theme";
 
 export interface FilterObject {
   s?: string;
@@ -51,6 +61,8 @@ export interface FilterObject {
 
 export interface FilterProps {
   filter: FilterObject;
+  filterOn: boolean;
+  onBack: () => void;
   doSubmit: (filterObject: FilterObject, count: number) => void;
   resetFilter: () => void;
   searchParams: URLSearchParams;
@@ -62,6 +74,8 @@ export interface FilterProps {
 
 function Filter({
   filter,
+  filterOn,
+  onBack,
   doSubmit,
   resetFilter,
   searchParams,
@@ -167,8 +181,11 @@ function Filter({
     { it: t("filter.italienisch") },
   ];
 
-  //loads the filter, including the languages for a specific city
+  /**
+   * If the filter is turned on, request filter information from API.
+   */
   useEffect(() => {
+    if (!filterOn) return;
     const city = searchParams.get("city");
     const range = searchParams.get("range");
     const state = searchParams.get("state");
@@ -188,8 +205,11 @@ function Filter({
       provider: provider,
       language: language,
     });
-  }, []);
+  }, [filterOn]);
 
+  /**
+   * Once the filter is loaded from the API, set the values accordingly.
+   */
   useEffect(() => {
     if (filter) {
       setMinAscent(filter.minAscent ?? 0);
@@ -319,6 +339,7 @@ function Filter({
 
   const countFilterActive = () => {
     let count = 0;
+    if (!filter) return count;
     if (!(!!singleDayTour && !!multipleDayTour)) {
       count++;
     }
@@ -587,119 +608,152 @@ function Filter({
     setLanguageValuesState(!languageValuesState);
   };
 
+  const style = {
+    borderRadius: "18px",
+  };
+
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
-    <Box style={{ height: "100%" }}>
-      {isLoadingFilter ? (
-        <Box
-          style={{
-            maxWidth: "100%",
-            textAlign: "center",
-            padding: "20px",
-            width: "500px",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Fragment>
-          <Box className={"filter-box-container"}>
-            <Box className={"filter-box border"}>
-              <Typography variant={"subtitle1"}>{tourlaenge_label}</Typography>
-              <Grid container>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{
-                    borderRight: "1px solid #EAEAEA",
-                    paddingRight: "24px",
-                  }}
-                  className={"toggle-container-left"}
-                >
-                  <Grid container spacing={0}>
-                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography>{tagestour_label}</Typography>
-                    </Grid>
-                    <Grid item xs={6} sx={{ textAlign: "right" }}>
-                      <Switch
-                        checked={singleDayTour}
-                        onChange={() => setSingleDayTour(!singleDayTour)}
-                        disabled={!filter.isSingleDayTourPossible}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{ paddingLeft: "24px" }}
-                  className={"toggle-container-right"}
-                >
-                  <Grid container spacing={0}>
-                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography>{mehrtagestour_label}</Typography>
-                    </Grid>
-                    <Grid item xs={6} sx={{ textAlign: "right" }}>
-                      <Switch
-                        checked={multipleDayTour}
-                        onChange={() => setMultipleDayTour(!multipleDayTour)}
-                        disabled={!filter.isMultipleDayTourPossible}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Box>
+    <Dialog
+      open={filterOn}
+      onClose={onBack}
+      fullScreen={fullScreen}
+      sx={{ "& .MuiDialog-paper": style }}
+      className={"my-modal"}
+    >
+      <DialogTitle>
+        <Typography sx={{ fontSize: "18px", fontWeight: 600 }}>
+          {t("filter.filter")}
+        </Typography>
+      </DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={onBack}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogContent dividers>
+        <Box style={{ maxHeight: "600px" }}>
+          {isLoadingFilter ? (
             <Box
-              className={"filter-box border"}
-              style={{ paddingTop: "20px", paddingBottom: "20px" }}
+              style={{
+                maxWidth: "100%",
+                textAlign: "center",
+                padding: "20px",
+                width: "500px",
+              }}
             >
-              <Typography variant={"subtitle1"}>{jahreszeit_label}</Typography>
-              <Grid container>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{
-                    borderRight: "1px solid #EAEAEA",
-                    paddingRight: "24px",
-                  }}
-                  className={"toggle-container-left"}
-                >
-                  <Grid container spacing={0}>
-                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography>{sommertour_label}</Typography>
-                    </Grid>
-                    <Grid item xs={6} sx={{ textAlign: "right" }}>
-                      <Switch
-                        checked={summerSeason}
-                        onChange={() => setSummerSeason(!summerSeason)}
-                        disabled={!filter.isSummerTourPossible}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{ paddingLeft: "24px" }}
-                  className={"toggle-container-right"}
-                >
-                  <Grid container spacing={0}>
-                    <Grid item xs={6} sx={{ alignSelf: "center" }}>
-                      <Typography>{wintertour_label}</Typography>
-                    </Grid>
-                    <Grid item xs={6} sx={{ textAlign: "right" }}>
-                      <Switch
-                        checked={winterSeason}
-                        onChange={() => setWinterSeason(!winterSeason)}
-                        disabled={!filter.isWinterTourPossible}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <CircularProgress />
             </Box>
-            <Box className={"filter-box"} sx={{ paddingTop: "20px" }}>
-              <Box sx={{ paddingTop: "16px" }}>
+          ) : (
+            <Fragment>
+              <Box className={"filter-box border"}>
+                <Typography variant={"subtitle1"}>
+                  {tourlaenge_label}
+                </Typography>
+                <Grid container>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      borderRight: "1px solid #EAEAEA",
+                      paddingRight: "24px",
+                    }}
+                    className={"toggle-container-left"}
+                  >
+                    <Grid container spacing={0}>
+                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                        <Typography>{tagestour_label}</Typography>
+                      </Grid>
+                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                        <Switch
+                          checked={singleDayTour}
+                          onChange={() => setSingleDayTour(!singleDayTour)}
+                          disabled={!filter?.isSingleDayTourPossible}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{ paddingLeft: "24px" }}
+                    className={"toggle-container-right"}
+                  >
+                    <Grid container spacing={0}>
+                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                        <Typography>{mehrtagestour_label}</Typography>
+                      </Grid>
+                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                        <Switch
+                          checked={multipleDayTour}
+                          onChange={() => setMultipleDayTour(!multipleDayTour)}
+                          disabled={!filter?.isMultipleDayTourPossible}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Box>
+              <Box
+                className={"filter-box border"}
+                style={{ paddingTop: "20px", paddingBottom: "20px" }}
+              >
+                <Typography variant={"subtitle1"}>
+                  {jahreszeit_label}
+                </Typography>
+                <Grid container>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      borderRight: "1px solid #EAEAEA",
+                      paddingRight: "24px",
+                    }}
+                    className={"toggle-container-left"}
+                  >
+                    <Grid container spacing={0}>
+                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                        <Typography>{sommertour_label}</Typography>
+                      </Grid>
+                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                        <Switch
+                          checked={summerSeason}
+                          onChange={() => setSummerSeason(!summerSeason)}
+                          disabled={!filter?.isSummerTourPossible}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{ paddingLeft: "24px" }}
+                    className={"toggle-container-right"}
+                  >
+                    <Grid container spacing={0}>
+                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                        <Typography>{wintertour_label}</Typography>
+                      </Grid>
+                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                        <Switch
+                          checked={winterSeason}
+                          onChange={() => setWinterSeason(!winterSeason)}
+                          disabled={!filter?.isWinterTourPossible}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"}>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   <Grid item xs={10}>
                     <Typography variant={"subtitle1"}>
@@ -716,402 +770,380 @@ function Filter({
                     <Switch
                       checked={traverse}
                       onChange={() => setTravers(!traverse)}
-                      disabled={!filter.isTraversePossible}
+                      disabled={!filter?.isTraversePossible}
                     />
                   </Grid>
                 </Grid>
               </Box>
-            </Box>
-            <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-              <Grid container>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{
-                    borderRight: "1px solid #EAEAEA",
-                    paddingRight: "24px",
-                  }}
-                  className={"toggle-container-left"}
-                >
-                  <Typography>
-                    {anstieg_label} ({hm})
-                  </Typography>
-                  <GeneralSlider
-                    containerSx={{ marginRight: "10px" }}
-                    step={100}
-                    min={filter.minAscent ?? 0}
-                    max={filter.maxAscent ?? 5000}
-                    value={[minAscent, maxAscent]}
-                    onChange={({
-                      target,
-                    }: React.ChangeEvent<HTMLInputElement>) => {
-                      setMinAscent(+target.value[0]);
-                      setMaxAscent(+target.value[1]);
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Grid container>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      borderRight: "1px solid #EAEAEA",
+                      paddingRight: "24px",
                     }}
-                  />
-
-                  <Box sx={{ marginTop: "15px" }}>
-                    <Grid container spacing={"10px"}>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={minimum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={minAscent}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMinAscent(+target.value);
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={maximum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={maxAscent}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMaxAscent(+target.value);
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                  {maxAscent === 3000 && (
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        width: "100%",
-                        textAlign: "right",
-                        paddingTop: "5px",
-                        color: "#8B8B8B",
+                    className={"toggle-container-left"}
+                  >
+                    <Typography>
+                      {anstieg_label} ({hm})
+                    </Typography>
+                    <GeneralSlider
+                      containerSx={{ marginRight: "10px" }}
+                      step={100}
+                      min={filter?.minAscent ?? 0}
+                      max={filter?.maxAscent ?? 5000}
+                      value={[minAscent, maxAscent]}
+                      onChange={({
+                        target,
+                      }: React.ChangeEvent<HTMLInputElement>) => {
+                        setMinAscent(+target.value[0]);
+                        setMaxAscent(+target.value[1]);
                       }}
-                    >
-                      3000+ {hoehenmeter_label}
-                    </div>
-                  )}
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{ paddingLeft: "24px" }}
-                  className={"toggle-container-right"}
-                >
-                  <Typography>
-                    {abstieg_label} ({hm})
-                  </Typography>
-                  <GeneralSlider
-                    containerSx={{ marginRight: "10px" }}
-                    step={100}
-                    min={filter.minDescent ?? 0}
-                    max={filter.maxDescent ?? 5000}
-                    value={[minDescent, maxDescent]}
-                    onChange={({
-                      target,
-                    }: React.ChangeEvent<HTMLInputElement>) => {
-                      setMinDescent(+target.value[0]);
-                      setMaxDescent(+target.value[1]);
-                    }}
-                  />
-                  <Box sx={{ marginTop: "15px" }}>
-                    <Grid container spacing={"10px"}>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={minimum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={minDescent}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMinDescent(+target.value);
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={maximum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={maxDescent}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMaxDescent(+target.value);
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                  {maxDescent === 3000 && (
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        width: "100%",
-                        textAlign: "right",
-                        paddingTop: "5px",
-                        color: "#8B8B8B",
-                      }}
-                    >
-                      3000+ {hoehenmeter_label}{" "}
-                    </div>
-                  )}
-                </Grid>
-              </Grid>
-            </Box>
-            <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-              <Grid container>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{
-                    borderRight: "1px solid #EAEAEA",
-                    paddingRight: "24px",
-                  }}
-                  className={"toggle-container-left"}
-                >
-                  <Typography>
-                    {anfahrtszeit_label} ({h})
-                  </Typography>
-                  <GeneralSlider
-                    containerSx={{ marginRight: "10px" }}
-                    step={0.5}
-                    min={filter.minTransportDuration ?? 0}
-                    max={filter.maxTransportDuration ?? 50}
-                    value={[minTransportDuration, maxTransportDuration]}
-                    onChange={({
-                      target,
-                    }: React.ChangeEvent<HTMLInputElement>) => {
-                      setMinTransportDuration(+target.value[0]);
-                      setMaxTransportDuration(+target.value[1]);
-                    }}
-                  />
+                    />
 
-                  <Box sx={{ marginTop: "15px" }}>
-                    <Grid container spacing={"10px"}>
-                      <Grid item xs={6}>
-                        <TextInput
-                          label={minimum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={convertNumToTime(minTransportDuration)}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMinTransportDuration(+target.value);
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <TextInput
-                          label={maximum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={convertNumToTime(maxTransportDuration)}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMaxTransportDuration(+target.value);
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  sx={{ paddingLeft: "24px" }}
-                  className={"toggle-container-right"}
-                >
-                  <Typography>
-                    {gehdistanz_label} ({km})
-                  </Typography>
-                  <GeneralSlider
-                    containerSx={{ marginRight: "10px" }}
-                    step={2}
-                    min={filter.minDistance ?? 0}
-                    max={filter.maxDistance ?? 10000}
-                    value={[minDistance, maxDistance]}
-                    onChange={({
-                      target,
-                    }: React.ChangeEvent<HTMLInputElement>) => {
-                      setMinDistance(+target.value[0]);
-                      setMaxDistance(+target.value[1]);
-                    }}
-                  />
-                  <Box sx={{ marginTop: "15px" }}>
-                    <Grid container spacing={"10px"}>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={minimum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={minDistance}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMinDistance(+target.value);
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <NumberInput
-                          label={maximum_label}
-                          variant="filled"
-                          endAdornmentLabel={""}
-                          value={maxDistance}
-                          onChange={({
-                            target,
-                          }: React.ChangeEvent<HTMLInputElement>) => {
-                            setMaxDistance(+target.value);
-                          }}
-                        />
-                        {maxDistance === 80 && (
-                          <div
-                            style={{
-                              fontSize: "12px",
-                              width: "100%",
-                              textAlign: "left",
-                              paddingTop: "5px",
-                              color: "#8B8B8B",
+                    <Box sx={{ marginTop: "15px" }}>
+                      <Grid container spacing={"10px"}>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={minimum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={minAscent}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMinAscent(+target.value);
                             }}
-                          >
-                            80+ {km}
-                          </div>
-                        )}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={maximum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={maxAscent}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMaxAscent(+target.value);
+                            }}
+                          />
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-            <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-              <Typography variant={"subtitle1"}>
-                {sportart_label}{" "}
-                <Typography
-                  className={"cursor-link"}
-                  sx={{ fontSize: "14px" }}
-                  onClick={updateAllTypeValues}
-                >
-                  {alle_an_abwaehlen_label}
-                </Typography>
-              </Typography>
-              <Grid container sx={{ paddingTop: "16px" }}>
-                {getTypes()}
-              </Grid>
-            </Box>
-            <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-              <Typography variant={"subtitle1"}>
-                {sprachen_label}{" "}
-                <Typography
-                  className={"cursor-link"}
-                  sx={{ fontSize: "14px" }}
-                  onClick={updateAllLanguageValues}
-                >
-                  {alle_an_abwaehlen_label}
-                </Typography>
-              </Typography>
-              <Grid container sx={{ paddingTop: "16px" }}>
-                {getLanguages()}
-              </Grid>
-            </Box>
-            <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-              <Typography variant={"subtitle1"}>
-                {regionen_label}{" "}
-                <Typography
-                  className={"cursor-link"}
-                  sx={{ fontSize: "14px" }}
-                  onClick={updateAllRangeValues}
-                >
-                  {alle_an_abwaehlen_label}
-                </Typography>
-              </Typography>
-              <Grid container sx={{ paddingTop: "16px" }}>
-                {getRanges()}
-              </Grid>
-            </Box>
-            <Box
-              className={"filter-box"}
-              sx={{ paddingTop: "20px", position: "relative" }}
-            >
-              <Box sx={{ position: "absolute", top: "20px", right: "20px" }}>
-                <Typography variant={"error"}>
-                  <TextWithIcon
-                    text={difficulty.toString()}
-                    iconRight={
-                      <Intensity
+                    </Box>
+                    {maxAscent === 3000 && (
+                      <div
                         style={{
-                          stroke: "#FF540B",
-                          fill: "none",
-                          strokeWidth: 1.5,
+                          fontSize: "12px",
+                          width: "100%",
+                          textAlign: "right",
+                          paddingTop: "5px",
+                          color: "#8B8B8B",
                         }}
-                      />
-                    }
-                  />
-                </Typography>
+                      >
+                        3000+ {hoehenmeter_label}
+                      </div>
+                    )}
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{ paddingLeft: "24px" }}
+                    className={"toggle-container-right"}
+                  >
+                    <Typography>
+                      {abstieg_label} ({hm})
+                    </Typography>
+                    <GeneralSlider
+                      containerSx={{ marginRight: "10px" }}
+                      step={100}
+                      min={filter?.minDescent ?? 0}
+                      max={filter?.maxDescent ?? 5000}
+                      value={[minDescent, maxDescent]}
+                      onChange={({
+                        target,
+                      }: React.ChangeEvent<HTMLInputElement>) => {
+                        setMinDescent(+target.value[0]);
+                        setMaxDescent(+target.value[1]);
+                      }}
+                    />
+                    <Box sx={{ marginTop: "15px" }}>
+                      <Grid container spacing={"10px"}>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={minimum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={minDescent}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMinDescent(+target.value);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={maximum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={maxDescent}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMaxDescent(+target.value);
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                    {maxDescent === 3000 && (
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          width: "100%",
+                          textAlign: "right",
+                          paddingTop: "5px",
+                          color: "#8B8B8B",
+                        }}
+                      >
+                        3000+ {hoehenmeter_label}{" "}
+                      </div>
+                    )}
+                  </Grid>
+                </Grid>
               </Box>
-              <Typography variant={"subtitle1"}>
-                {schwierigkeit_label}
-              </Typography>
-              <Typography
-                variant={"subtitle2"}
-                sx={{ fontSize: "14px", fontWeight: 400 }}
-              >
-                {schwierigkeitswert_label}
-              </Typography>
-              <DifficultySlider
-                containerSx={{ marginTop: "20px", marginRight: "10px" }}
-                defaultValue={10}
-                value={difficulty}
-                onChange={({ target }: React.ChangeEvent<HTMLInputElement>) =>
-                  setDifficulty(+target.value)
-                }
-              />
-            </Box>
-          </Box>
-          <Box
-            className={"filter-box"}
-            sx={{
-              backgroundColor: "#fff",
-              width: "100%",
-              boxSizing: "border-box",
-              borderTop: "1px solid #EAEAEA",
-              display: "flex",
-              padding: "0",
-              justifyContent: { xs: "center", sm: "end" },
-            }}
-          >
-            <Box sx={{ pt: "18px" }}>
-              <Button
-                variant={"text"}
-                sx={{ marginRight: "15px", color: "#8B8B8B" }}
-                onClick={resetFilter}
-              >
-                {" "}
-                {filter_loeschen_label}
-              </Button>
-              <Button variant={"contained"} onClick={submit}>
-                {countFilterActive() === 0 ? "" : countFilterActive()}{" "}
-                {filter_anwenden_label}
-              </Button>
-              {/* <Button
-                            variant={"contained"}
-                            onClick={submit}
-                            disabled={countFilterActive() === 0}
-                            className={countFilterActive() === 0 ? 'disabled-button' : ''}
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Grid container>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      borderRight: "1px solid #EAEAEA",
+                      paddingRight: "24px",
+                    }}
+                    className={"toggle-container-left"}
+                  >
+                    <Typography>
+                      {anfahrtszeit_label} ({h})
+                    </Typography>
+                    <GeneralSlider
+                      containerSx={{ marginRight: "10px" }}
+                      step={0.5}
+                      min={filter?.minTransportDuration ?? 0}
+                      max={filter?.maxTransportDuration ?? 50}
+                      value={[minTransportDuration, maxTransportDuration]}
+                      onChange={({
+                        target,
+                      }: React.ChangeEvent<HTMLInputElement>) => {
+                        setMinTransportDuration(+target.value[0]);
+                        setMaxTransportDuration(+target.value[1]);
+                      }}
+                    />
+
+                    <Box sx={{ marginTop: "15px" }}>
+                      <Grid container spacing={"10px"}>
+                        <Grid item xs={6}>
+                          <TextInput
+                            label={minimum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={convertNumToTime(minTransportDuration)}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMinTransportDuration(+target.value);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <TextInput
+                            label={maximum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={convertNumToTime(maxTransportDuration)}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMaxTransportDuration(+target.value);
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{ paddingLeft: "24px" }}
+                    className={"toggle-container-right"}
+                  >
+                    <Typography>
+                      {gehdistanz_label} ({km})
+                    </Typography>
+                    <GeneralSlider
+                      containerSx={{ marginRight: "10px" }}
+                      step={2}
+                      min={filter?.minDistance ?? 0}
+                      max={filter?.maxDistance ?? 10000}
+                      value={[minDistance, maxDistance]}
+                      onChange={({
+                        target,
+                      }: React.ChangeEvent<HTMLInputElement>) => {
+                        setMinDistance(+target.value[0]);
+                        setMaxDistance(+target.value[1]);
+                      }}
+                    />
+                    <Box sx={{ marginTop: "15px" }}>
+                      <Grid container spacing={"10px"}>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={minimum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={minDistance}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMinDistance(+target.value);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <NumberInput
+                            label={maximum_label}
+                            variant="filled"
+                            endAdornmentLabel={""}
+                            value={maxDistance}
+                            onChange={({
+                              target,
+                            }: React.ChangeEvent<HTMLInputElement>) => {
+                              setMaxDistance(+target.value);
+                            }}
+                          />
+                          {maxDistance === 80 && (
+                            <div
+                              style={{
+                                fontSize: "12px",
+                                width: "100%",
+                                textAlign: "left",
+                                paddingTop: "5px",
+                                color: "#8B8B8B",
+                              }}
                             >
-                            {countFilterActive() === 0 ? '' : countFilterActive()}
-                            {" "}{filter_anwenden_label}
-                        </Button> */}
-            </Box>
-          </Box>
-        </Fragment>
-      )}
-    </Box>
+                              80+ {km}
+                            </div>
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Typography variant={"subtitle1"}>
+                  {sportart_label}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllTypeValues}
+                  >
+                    {alle_an_abwaehlen_label}
+                  </Typography>
+                </Typography>
+                <Grid container sx={{ paddingTop: "16px" }}>
+                  {getTypes()}
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Typography variant={"subtitle1"}>
+                  {sprachen_label}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllLanguageValues}
+                  >
+                    {alle_an_abwaehlen_label}
+                  </Typography>
+                </Typography>
+                <Grid container sx={{ paddingTop: "16px" }}>
+                  {getLanguages()}
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Typography variant={"subtitle1"}>
+                  {regionen_label}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllRangeValues}
+                  >
+                    {alle_an_abwaehlen_label}
+                  </Typography>
+                </Typography>
+                <Grid container sx={{ paddingTop: "16px" }}>
+                  {getRanges()}
+                </Grid>
+              </Box>
+              <Box
+                className={"filter-box"}
+                sx={{ paddingTop: "20px", position: "relative" }}
+              >
+                <Box sx={{ position: "absolute", top: "20px", right: "20px" }}>
+                  <Typography variant={"error"}>
+                    <TextWithIcon
+                      text={difficulty.toString()}
+                      iconRight={
+                        <Intensity
+                          style={{
+                            stroke: "#FF540B",
+                            fill: "none",
+                            strokeWidth: 1.5,
+                          }}
+                        />
+                      }
+                    />
+                  </Typography>
+                </Box>
+                <Typography variant={"subtitle1"}>
+                  {schwierigkeit_label}
+                </Typography>
+                <Typography
+                  variant={"subtitle2"}
+                  sx={{ fontSize: "14px", fontWeight: 400 }}
+                >
+                  {schwierigkeitswert_label}
+                </Typography>
+                <DifficultySlider
+                  containerSx={{ marginTop: "20px", marginRight: "10px" }}
+                  defaultValue={10}
+                  value={difficulty}
+                  onChange={({ target }: React.ChangeEvent<HTMLInputElement>) =>
+                    setDifficulty(+target.value)
+                  }
+                />
+              </Box>
+            </Fragment>
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ py: 2 }}>
+        <Button
+          variant={"text"}
+          sx={{ marginRight: 1, color: "#8B8B8B" }}
+          onClick={resetFilter}
+        >
+          {" "}
+          {filter_loeschen_label}
+        </Button>
+        <Button variant={"contained"} onClick={submit}>
+          {countFilterActive() === 0 ? "" : countFilterActive()}{" "}
+          {filter_anwenden_label}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
