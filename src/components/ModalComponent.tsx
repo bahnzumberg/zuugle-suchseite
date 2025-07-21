@@ -1,12 +1,20 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import MyModal from "./MyModal";
 import { hideModal, showModal } from "../actions/modalActions";
 
-class ModalComponent extends Component {
-  constructor(props) {
+export interface ModalComponentProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  CustomComponent: any;
+  title: string;
+  srhBoxScrollH: number;
+  hideModal: () => void;
+  onBack: () => void;
+  sourceCall: string;
+}
+class ModalComponent extends Component<ModalComponentProps> {
+  constructor(props: ModalComponentProps) {
     super(props);
 
     this.state = {};
@@ -28,12 +36,9 @@ class ModalComponent extends Component {
 
     return (
       <MyModal
-        style="primary"
         title={this.props.title}
-        page={this.props.page}
         srhBoxScrollH={this.props.srhBoxScrollH}
         content={content}
-        size={!!this.props.modalSize ? this.props.modalSize : "lg"}
         onBack={this.props.onBack}
         sourceCall={this.props.sourceCall}
       />
@@ -41,7 +46,8 @@ class ModalComponent extends Component {
   }
 }
 
-function mapStateToProps(state) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapStateToProps(state: any) {
   return {
     company: state.auth,
   };

@@ -18,6 +18,9 @@ module.exports = {
     clean: true,
   },
   watch: true,
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
+  },
   devServer: {
     contentBase: BUILD_DIR,
     //   port: 9001,
@@ -29,7 +32,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
@@ -94,7 +97,7 @@ module.exports = {
     new webpack.DefinePlugin({}),
     {
       apply: (compiler) => {
-        compiler.hooks.done.tap("DonePlugin", (stats) => {
+        compiler.hooks.done.tap("DonePlugin", () => {
           console.log("Compile is done !");
           setTimeout(() => {
             process.exit(0);

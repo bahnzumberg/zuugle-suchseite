@@ -17,8 +17,6 @@ export default function TourCardContainer({
   markersChanged,
   mapBounds,
   isMobile,
-  filterOn,
-  setFilterOn,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasMore, setHasMore] = useState(true);
@@ -100,7 +98,7 @@ export default function TourCardContainer({
 
   return (
     <Box>
-      {!filterOn && (
+      {
         <InfiniteScroll
           dataLength={tours.length}
           next={_loadTours}
@@ -133,7 +131,7 @@ export default function TourCardContainer({
             ))}
           </Grid>
         </InfiniteScroll>
-      )}
+      }
     </Box>
   );
 }

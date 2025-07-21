@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
 import { useRef } from "react";
 import Box from "@mui/material/Box";
@@ -39,9 +38,7 @@ export function Search({
   showModal,
   hideModal,
   allCities,
-  isMapView,
   updateCapCity,
-  filter,
   counter,
   setCounter,
   setFilterValues,
@@ -258,33 +255,13 @@ export function Search({
     setFilterOn(true);
   };
 
-  useEffect(() => {
-    if (filterOn) {
-      showModal("MODAL_COMPONENT", {
-        CustomComponent: Filter,
-        title: t("filter.filter"),
-        page: "main",
-        modalSize: "lg",
-        doSubmit: handleFilterSubmit,
-        resetFilter: handleResetFilter,
-        onBack: () => {
-          setFilterOn(false); // Reset filterOn when closing the modal
-          hideModal();
-        },
-        searchParams,
-        setSearchParams,
-        filterOn: filterOn, // Now filterOn is true when the modal opens
-      });
-    }
-  }, [filterOn]);
-
   //important:
   // state filterValues(from Main) should be set at submission here
   // or be set at at handleResetFilter to null
   // state to be passed then from Main to TourCardContainer
   // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
 
-  const handleFilterSubmit = ({ filterValues, filterCount }) => {
+  const handleFilterSubmit = (filterValues, filterCount) => {
     hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
@@ -758,6 +735,16 @@ export function Search({
   return (
     <Fragment>
       <MobileModal />
+      <Filter
+        filterOn={filterOn}
+        searchParams={searchParams}
+        doSubmit={handleFilterSubmit}
+        resetFilter={handleResetFilter}
+        onBack={() => {
+          setFilterOn(false); // Reset filterOn when closing the modal
+          hideModal();
+        }}
+      />
       <Box
         className="main-search-bar"
         sx={{
@@ -890,51 +877,49 @@ export function Search({
 
         <Box>
           {/* ***** filter box in the Main page ******* */}
-          <Box>
-            {!cityInput && pageKey === "detail" ? (
-              ""
-            ) : (
-              // ) : !!initialIsMapView ? null : (
-              <Box
-                sx={{
-                  marginLeft: "10px",
-                  backgroundColor: activeFilter && "#FF7663",
-                  borderColor: activeFilter && "#FF7663",
-                }}
-                className="filter-icon-container"
-              >
-                {!!isMain ? (
-                  <IconButton onClick={() => openFilter()} aria-label="Filter">
-                    <FilterIcon
-                      sx={{
-                        transition: "stroke 0.3s",
-                        strokeWidth: 1.25,
-                        stroke: activeFilter ? "#fff" : "#101010",
-                      }}
-                    />
-                  </IconButton>
-                ) : (
-                  <IconButton
-                    onClick={handleGoButton}
-                    aria-label="Go"
+          {!cityInput && pageKey === "detail" ? (
+            ""
+          ) : (
+            // ) : !!initialIsMapView ? null : (
+            <Box
+              sx={{
+                marginLeft: "10px",
+                backgroundColor: activeFilter && "#FF7663",
+                borderColor: activeFilter && "#FF7663",
+              }}
+              className="filter-icon-container"
+            >
+              {!!isMain ? (
+                <IconButton onClick={() => openFilter()} aria-label="Filter">
+                  <FilterIcon
                     sx={{
-                      "&:hover": {
-                        background: "#7aa8ff",
-                        fill: "#7aa8ff",
-                      },
+                      transition: "stroke 0.3s",
+                      strokeWidth: 1.25,
+                      stroke: activeFilter ? "#fff" : "#101010",
                     }}
-                  >
-                    <GoIcon
-                      style={{
-                        transform: "scale(1.55)",
-                        strokeWidth: 0,
-                      }}
-                    />
-                  </IconButton>
-                )}
-              </Box>
-            )}
-          </Box>
+                  />
+                </IconButton>
+              ) : (
+                <IconButton
+                  onClick={handleGoButton}
+                  aria-label="Go"
+                  sx={{
+                    "&:hover": {
+                      background: "#7aa8ff",
+                      fill: "#7aa8ff",
+                    },
+                  }}
+                >
+                  <GoIcon
+                    style={{
+                      transform: "scale(1.55)",
+                      strokeWidth: 0,
+                    }}
+                  />
+                </IconButton>
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
     </Fragment>
