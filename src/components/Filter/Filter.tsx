@@ -255,6 +255,11 @@ function Filter({
           }),
         );
       }
+      setSingleDayTour(filter.singleDayTour ?? true);
+      setMultipleDayTour(filter.multipleDayTour ?? true);
+      setSummerSeason(filter.summerSeason ?? true);
+      setWinterSeason(filter.winterSeason ?? true);
+      setDifficulty(filter.difficulty ?? 10);
 
       const _filter_url = searchParams.get("filter");
       const _filter_local =
