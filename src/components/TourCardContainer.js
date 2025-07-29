@@ -114,12 +114,12 @@ export default function TourCardContainer({
             {tours.map((tour, index) => (
               <Grid
                 key={index}
-                item
-                xs={12}
-                sm={6}
-                lg={4}
                 style={{ marginBottom: "5px" }}
-              >
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  lg: 4
+                }}>
                 <TourCard
                   onSelectTour={onSelectTour}
                   tour={tour}
