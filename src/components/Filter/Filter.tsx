@@ -99,7 +99,7 @@ function Filter({
 
   const [minDistance, setMinDistance] = useState(0);
   const [maxDistance, setMaxDistance] = useState(10000);
-  const [traverse, setTravers] = useState(false);
+  const [traverse, setTraverse] = useState(false);
 
   const [rangeValues, setRangeValues] = useState<
     { value: string; checked: boolean }[]
@@ -259,6 +259,7 @@ function Filter({
       setMultipleDayTour(filter.multipleDayTour ?? true);
       setSummerSeason(filter.summerSeason ?? true);
       setWinterSeason(filter.winterSeason ?? true);
+      setTraverse(filter.traverse ?? false);
       setDifficulty(filter.difficulty ?? 10);
 
       const _filter_url = searchParams.get("filter");
@@ -294,7 +295,7 @@ function Filter({
             );
             setIfNotUndefined(parsed, "minDistance", setMinDistance);
             setIfNotUndefined(parsed, "maxDistance", setMaxDistance);
-            setIfNotUndefined(parsed, "traverse", setTravers);
+            setIfNotUndefined(parsed, "traverse", setTraverse);
 
             if (!!filter && !!filter.ranges && !!parsed.ranges) {
               setRangeValues(
@@ -774,7 +775,7 @@ function Filter({
                   <Grid item xs={2} sx={{ textAlign: "right" }}>
                     <Switch
                       checked={traverse}
-                      onChange={() => setTravers(!traverse)}
+                      onChange={() => setTraverse(!traverse)}
                       disabled={!filter?.isTraversePossible}
                     />
                   </Grid>
