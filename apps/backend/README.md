@@ -33,9 +33,9 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 ## Load data and run backend
 ### Import data locally
 
-    The PostgrSQL dump file is daily (at night) updated and can be downloaded from https://uat-dump.zuugle.at/zuugle_postgresql.dump
+The PostgrSQL dump file is daily (at night) updated and can be downloaded from https://uat-dump.zuugle.at/zuugle_postgresql.dump
 
-    To restore the uat dump at your local database, follow these steps:
+To restore the uat dump at your local database, truncate the tables (in your SQL editor):
 
     truncate table public.tour;
     truncate table public.tour_inactive;
@@ -46,6 +46,9 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
     truncate table public.tracks;
     truncate table public.gpx;
     truncate table public.kpi;
+
+Restore the tables (on the bash):
+
     pg_restore zuugle_postgresql.dump -d zuugle-postgres-db -U postgres
 
 ### Run backend and generate images
