@@ -12,25 +12,37 @@ import "/src/config.js";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 
-export default function TourCard({ tour, onSelectTour, city, provider }) {
+// TODO: move to more appropriate place --> models?
+export interface Tour {
+  url: string;
+  id: string;
+  image_url: string;
+  title: string;
+  range: string;
+  min_connection_duration: number;
+  min_connection_no_of_transfers: number;
+  avg_total_tour_duration: number;
+  ascent: number;
+  number_of_days: number;
+  provider: string;
+  provider_name: string;
+}
+
+export interface TourCardProps {
+  tour: Tour;
+  onSelectTour: (tour: Tour) => void;
+  city: string;
+  provider: string;
+}
+
+export default function TourCard({
+  tour,
+  onSelectTour,
+  city,
+  provider,
+}: TourCardProps) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
   const imageOpacity = 1;
-
-  // let tourLink = `/tour?id=${tour.id}&city=${city}`;
-  let tourLink = ``;
-  if (!!city && city != null && city !== "no-city") {
-    if (provider == "bahnzumberg") {
-      tourLink = `${tour.url}ab-${city}/`;
-    } else {
-      tourLink = `/tour/${tour.id}/${city}`;
-    }
-  } else {
-    if (provider == "bahnzumberg") {
-      tourLink = `${tour.url}`;
-    } else {
-      tourLink = `/tour/${tour.id}/no-city`;
-    }
-  }
 
   // i18next
   const { t } = useTranslation();
@@ -44,14 +56,12 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
     }
   }, [tour]);
 
-  let value_best_connection_duration = tour.min_connection_duration;
-  let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
-  let value_avg_total_tour_duration = tour.avg_total_tour_duration;
+  const tourLink = getTourLink(tour, city, provider);
 
-  let anreisedauer_notlong = t("details.anreisedauer").length < 100;
-  let umstiege_notlong = t("start.umstiege").length < 100;
-  let dauer_notlong = t("main.dauer").length < 100;
-  let anstieg_notlong = t("filter.anstieg").length < 100;
+  const anreisedauer_notlong = t("details.anreisedauer").length < 100;
+  const umstiege_notlong = t("start.umstiege").length < 100;
+  const dauer_notlong = t("main.dauer").length < 100;
+  const anstieg_notlong = t("filter.anstieg").length < 100;
   let len_too_long = false;
 
   // if at least one is too long, flag the "len_too_long"
@@ -63,38 +73,6 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
   ) {
     len_too_long = true;
   }
-
-  const renderProps = () => {
-    const values = [];
-
-    return (
-      <Box display="inline" style={{ whiteSpace: "break-spaces" }}>
-        {values.map((entry, index) => {
-          return (
-            <Box
-              key={index}
-              display="inline-block"
-              sx={{ marginRight: "10px" }}
-            >
-              {entry.icon}
-              <Typography
-                display={"inline"}
-                variant={"subtitle2"}
-                sx={{
-                  lineHeight: "24px",
-                  position: "relative",
-                  top: "-7px",
-                  left: "4px",
-                }}
-              >
-                {entry.text}
-              </Typography>
-            </Box>
-          );
-        })}
-      </Box>
-    );
-  };
 
   return (
     <Card
@@ -162,9 +140,6 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
             </a>
           </Typography>
         </div>
-        <div className="mt-3" style={{ whiteSpace: "break-space" }}>
-          {renderProps()}
-        </div>
         <Box
           style={{
             display: "grid",
@@ -189,7 +164,7 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
             )}
             <br />
             <span style={{ fontSize: "18px" }}>
-              {convertNumToTime(value_best_connection_duration / 60, true)}
+              {convertNumToTime(tour.min_connection_duration / 60, true)}
             </span>
           </Typography>
           <Typography
@@ -206,7 +181,7 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
             )}
             <br />
             <span style={{ fontSize: "18px" }}>
-              {value_connection_no_of_transfers}
+              {tour.min_connection_no_of_transfers}
             </span>
           </Typography>
 
@@ -226,7 +201,7 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
             <span style={{ fontSize: "18px" }}>
               {tour?.number_of_days > 1
                 ? tour?.number_of_days + " " + t("details.tage")
-                : convertNumToTime(value_avg_total_tour_duration, true)}
+                : convertNumToTime(tour.avg_total_tour_duration, true)}
             </span>
           </Typography>
 
@@ -248,4 +223,20 @@ export default function TourCard({ tour, onSelectTour, city, provider }) {
       </CardContent>
     </Card>
   );
+}
+
+function getTourLink(tour: Tour, city: string, provider: string) {
+  if (city && city !== "no-city") {
+    if (provider === "bahnzumberg") {
+      return `${tour.url}ab-${city}/`;
+    } else {
+      return `/tour/${tour.id}/${city}`;
+    }
+  } else {
+    if (provider === "bahnzumberg") {
+      return `${tour.url}`;
+    } else {
+      return `/tour/${tour.id}/no-city`;
+    }
+  }
 }
