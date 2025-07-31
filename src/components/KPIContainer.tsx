@@ -5,15 +5,20 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useTranslation } from "react-i18next";
 
+export interface KPIContainerProps {
+  totalTours: number;
+  totalConnections: number;
+  totalCities: number;
+  totalProvider: number;
+}
+
 export default function KPIContainer({
   totalTours,
   totalConnections,
-  totalRanges,
   totalCities,
-  city,
   totalProvider,
-}) {
-  const { t, i18n } = useTranslation();
+}: KPIContainerProps) {
+  const { t } = useTranslation();
 
   return (
     <Paper
