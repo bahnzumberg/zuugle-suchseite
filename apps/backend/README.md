@@ -33,9 +33,24 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 ## Load data and run backend
 ### Import data locally
 
-    npm run build
+    The PostgrSQL dump file is daily (at night) updated and can be downloaded from https://uat-dump.zuugle.at/zuugle_postgresql.dump
 
-    npm run import-data-full
+    To restore the uat dump at your local database, follow these steps:
+
+    truncate table public.tour;
+    truncate table public.tour_inactive;
+    truncate table public.provider;
+    truncate table public.city;
+    truncate table public.city2tour;
+    truncate table public.fahrplan;
+    truncate table public.tracks;
+    truncate table public.gpx;
+    truncate table public.kpi;
+    pg_restore zuugle_postgresql.dump -d zuugle-postgres-db -U postgres
+
+### Run backend and generate images
+
+    npm run build
 
     npm run import-files
 
