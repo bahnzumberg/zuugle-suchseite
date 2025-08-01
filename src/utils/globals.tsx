@@ -1,4 +1,25 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Tour } from "../components/TourCard";
+
+export function getTourLink(
+  tour: Tour,
+  city: string | null,
+  provider: string | null,
+) {
+  if (city && city !== "no-city") {
+    if (provider === "bahnzumberg") {
+      return `${tour.url}ab-${city}/`;
+    } else {
+      return `/tour/${tour.id}/${city}`;
+    }
+  } else {
+    if (provider === "bahnzumberg") {
+      return `${tour.url}`;
+    } else {
+      return `/tour/${tour.id}/no-city`;
+    }
+  }
+}
 
 export function convertNumToTime(number, nonseparate = false) {
   // Check sign of given number

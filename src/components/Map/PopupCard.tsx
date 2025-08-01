@@ -2,59 +2,31 @@ import * as React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime } from "../../utils/globals";
-import { useEffect, useState } from "react";
+import { convertNumToTime, getTourLink } from "../../utils/globals";
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { Tour } from "../TourCard";
 
-const DEFAULT_IMAGE = "/app_static/img/train_placeholder.webp";
-
-function isNumber(value) {
-  return typeof value === "number";
-}
-
-export default function PopupCard({ tour, city }) {
-  const [image, setImage] = useState(DEFAULT_IMAGE);
+export default function PopupCard({
+  tour,
+  city,
+}: {
+  tour: Tour;
+  city: string;
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   if (searchParams.get("filter")) searchParams.delete("filter");
   if (searchParams.get("map")) searchParams.delete("map");
-  let provider = searchParams.get("p");
+  const provider = searchParams.get("p");
 
-  let tourLink = ``;
-  if (provider == "bahnzumberg") {
-    tourLink = `${tour.url}ab-${city}/`;
-  } else {
-    tourLink = `/tour/${tour.id}/${city}`;
-  }
+  const tourLink = getTourLink(tour, city, provider);
 
   // i18next
   const { t } = useTranslation();
-
   const hm = t("details.hm_hoehenmeter");
   // const km = t("details.km_kilometer");
-
-  //description
-  //search tour-related image in folders and set image state to it , otherwise set state to DEFAULT_IMAGE
-  useEffect(() => {
-    if (!!tour.gpx_image_file_small) {
-      setImage(tour.gpx_image_file_small);
-    } else {
-      setImage(DEFAULT_IMAGE);
-    }
-  }, [tour]);
-
-  // delete ?
-  const isMobile_600px = useMediaQuery("(max-width:600px)");
-
-  let value_best_connection_duration = tour.min_connection_duration;
-  let value_connection_no_of_transfers = tour.min_connection_no_of_transfers;
-  if (!isNumber(value_connection_no_of_transfers)) {
-    value_connection_no_of_transfers = "N/A";
-  }
-  let value_avg_total_tour_duration = tour.avg_total_tour_duration;
 
   return (
     <Card className="tour-card" style={{ position: "relative" }}>
@@ -87,9 +59,6 @@ export default function PopupCard({ tour, city }) {
             </a>
           </Typography>
         </div>
-        {/* <div className="mt-3" style={{ whiteSpace: "break-space" }}>
-              {renderProps()}
-            </div> */}
         <Box
           style={{
             display: "grid",
@@ -105,10 +74,10 @@ export default function PopupCard({ tour, city }) {
             style={{ borderRight: "1px solid #DDDDDD", fontSize: "13px" }}
           >
             {t("details.anreisedauer")} <br />
-            {!!value_best_connection_duration ? (
+            {tour.min_connection_duration ? (
               <>
                 <span style={{ fontSize: "13px" }}>
-                  {convertNumToTime(value_best_connection_duration / 60, true)}
+                  {convertNumToTime(tour.min_connection_duration / 60, true)}
                 </span>
               </>
             ) : (
@@ -126,7 +95,9 @@ export default function PopupCard({ tour, city }) {
             {t("start.umstiege")} <br />
             {
               <span style={{ fontSize: "13px" }}>
-                {value_connection_no_of_transfers}
+                {Number.isFinite(tour.min_connection_no_of_transfers)
+                  ? tour.min_connection_no_of_transfers
+                  : "N/A"}
               </span>
             }
           </Typography>
@@ -141,7 +112,7 @@ export default function PopupCard({ tour, city }) {
                 ? "N/A"
                 : tour?.number_of_days > 1
                   ? tour?.number_of_days + " " + t("details.tage")
-                  : convertNumToTime(value_avg_total_tour_duration, true)}
+                  : convertNumToTime(tour.avg_total_tour_duration, true)}
             </span>
           </Typography>
 

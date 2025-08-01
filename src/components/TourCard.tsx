@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime } from "../utils/globals";
+import { convertNumToTime, getTourLink } from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
@@ -221,20 +221,4 @@ export default function TourCard({
       </Card>
     </Link>
   );
-}
-
-function getTourLink(tour: Tour, city: string, provider: string) {
-  if (city && city !== "no-city") {
-    if (provider === "bahnzumberg") {
-      return `${tour.url}ab-${city}/`;
-    } else {
-      return `/tour/${tour.id}/${city}`;
-    }
-  } else {
-    if (provider === "bahnzumberg") {
-      return `${tour.url}`;
-    } else {
-      return `/tour/${tour.id}/no-city`;
-    }
-  }
 }

@@ -31,7 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils.js";
 import "./popup-style.css";
-import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals.js";
+import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals.tsx";
 import { createIdArray } from "../../utils/map_utils.js";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "/src/config.js";
