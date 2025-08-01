@@ -31,8 +31,8 @@ export interface Tour {
 export interface TourCardProps {
   tour: Tour;
   onSelectTour: (tour: Tour) => void;
-  city: string;
-  provider: string;
+  city: string | null;
+  provider: string | null;
 }
 
 export default function TourCard({

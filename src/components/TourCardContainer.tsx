@@ -1,11 +1,26 @@
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
-import TourCard from "./TourCard";
+import TourCard, { Tour } from "./TourCard";
 import Box from "@mui/material/Box";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
+
+export interface TourCardContainerProps {
+  tours: Tour[];
+  onSelectTour: (tour: Tour) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  loadTours: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pageTours: any;
+  loading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filterValues: any;
+  markersChanged: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mapBounds: any;
+}
 
 export default function TourCardContainer({
   tours,
@@ -16,12 +31,11 @@ export default function TourCardContainer({
   filterValues,
   markersChanged,
   mapBounds,
-  isMobile,
-}) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [hasMore, setHasMore] = useState(true);
+}: TourCardContainerProps) {
+  const [searchParams] = useSearchParams();
+  const [hasMore] = useState(true);
 
-  let filterRef = useRef(
+  const filterRef = useRef(
     localStorage.getItem("filterValues")
       ? localStorage.getItem("filterValues")
       : {},
@@ -29,29 +43,28 @@ export default function TourCardContainer({
 
   //let pageMapTours ; // when map is set the page variable should remain 1 so we dont get offset
 
-  let city = searchParams.get("city");
-  let range = searchParams.get("range");
-  let state = searchParams.get("state");
-  let country = searchParams.get("country");
-  let type = searchParams.get("type");
-  let search = searchParams.get("search");
-  let map = searchParams.get("map");
-  let provider = searchParams.get("p");
+  const city = searchParams.get("city");
+  const range = searchParams.get("range");
+  const state = searchParams.get("state");
+  const country = searchParams.get("country");
+  const type = searchParams.get("type");
+  const search = searchParams.get("search");
+  const map = searchParams.get("map");
+  const provider = searchParams.get("p");
 
   useEffect(() => {
     if (!!hasMore && !!filterValues) {
       filterRef.current = filterValues
         ? filterValues
         : !!searchParams && searchParams.get("filter");
-    } else if (!!!hasMore || !!!filterValues) {
+    } else if (!hasMore || !filterValues) {
       filterRef.current = !!searchParams && searchParams.get("filter");
     }
   }, [hasMore, filterValues, searchParams]);
 
   useEffect(() => {
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+    const bounds = mapBounds ? JSON.stringify(mapBounds) : "";
     if (mapBounds && markersChanged) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTours({
         city: city,
         range: range,
@@ -65,17 +78,16 @@ export default function TourCardContainer({
         bounds: bounds, // bounds added
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapBounds]);
 
   const _loadTours = async () => {
     //code below parses a JSON string stored in the filter variable, adds a new property ignore_filter with a value of true to the parsed object, and then converts the modified object back into a JSON string.
     // _filter = !!localStorage.getItem("filterValues") ? localStorage.getItem("filterValues") : {};
-    filterRef.current = !!localStorage.getItem("filterValues")
+    filterRef.current = localStorage.getItem("filterValues")
       ? localStorage.getItem("filterValues")
       : {};
     // add bounds from mapBounds state to call parameters
-    let bounds = mapBounds ? JSON.stringify(mapBounds) : "";
+    const bounds = mapBounds ? JSON.stringify(mapBounds) : "";
 
     await loadTours({
       city: city,
@@ -87,7 +99,7 @@ export default function TourCardContainer({
       filter: filterRef.current,
       map: map,
       provider: provider,
-      page: !!pageTours ? Number(pageTours) + 1 : 2,
+      page: pageTours ? Number(pageTours) + 1 : 2,
       bounds: bounds, // bounds added
     });
     // .then((res) => {
@@ -113,7 +125,6 @@ export default function TourCardContainer({
                   onSelectTour={onSelectTour}
                   tour={tour}
                   city={city}
-                  mapCard={false}
                   provider={provider}
                 />
               </Grid>
