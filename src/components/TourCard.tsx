@@ -7,7 +7,7 @@ import { convertNumToTime } from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { Chip } from "@mui/material";
+import { Chip, Link } from "@mui/material";
 import "/src/config.js";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
@@ -42,7 +42,6 @@ export default function TourCard({
   provider,
 }: TourCardProps) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
-  const imageOpacity = 1;
 
   // i18next
   const { t } = useTranslation();
@@ -75,153 +74,152 @@ export default function TourCard({
   }
 
   return (
-    <Card
-      className="tour-card"
-      style={{ position: "relative" }}
-      onClick={() => {
-        onSelectTour(tour);
+    <Link
+      href={tourLink}
+      onClick={() => onSelectTour(tour)}
+      style={{
+        textDecoration: "none",
+        width: "100%",
+        justifyItems: "center",
       }}
+      target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
     >
-      <a
-        href={tourLink}
-        target={!!city && city != null && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
-        rel="noreferrer"
-        className="cursor-link"
-        style={{ position: "relative" }}
+      <Card
+        className="tour-card"
+        sx={{ display: "flex", flexDirection: "column" }}
       >
-        <CardMedia
-          component="img"
-          height="140"
-          alt={`${tour?.title}`}
-          image={image}
-          style={{ opacity: imageOpacity, zIndex: "40" }}
-        />
-        <Chip
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            zIndex: "50",
-            background: "#000",
-            color: "#C5C5C5",
-            fontSize: "12px",
-          }}
-          label={`${tour?.range}`}
-        />
-      </a>
-      <CardContent>
-        <div
-          className="mt-1"
-          style={{
-            display: "flex",
-            gap: "10px",
-            paddingBottom: "5px",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
-            alt={tour.provider_name}
-            style={{ borderRadius: "100%", height: "18px", width: "18px" }}
+        <Box sx={{ position: "relative" }}>
+          <CardMedia
+            component={"img"}
+            image={image}
+            height="150"
+            alt={`${tour?.title}`}
           />
-          <Typography variant="grayP">{tour.provider_name}</Typography>
-        </div>
-        <div className="mt-1" style={{ marginBottom: "80px", width: "100%" }}>
-          <Typography variant="h4" style={{ whiteSpace: "break-spaces" }}>
-            <a
-              href={tourLink}
-              target={
-                !!city && city != null && city !== "no-city" ? "_blank" : ""
-              } // Set target to _blank only when city is set
-              rel="noreferrer"
-              className="updated-title curser-link"
-            >
-              {tour.title}
-            </a>
-          </Typography>
-        </div>
-        <Box
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            width: "97%",
-            gap: "8px",
-            position: "absolute",
-            bottom: "20px",
-          }}
-        >
-          <Typography
-            variant="blueP"
-            style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
-          >
-            {len_too_long && anreisedauer_notlong ? (
-              <>
-                {t("details.anreisedauer")}
-                <br />
-              </>
-            ) : (
-              t("details.anreisedauer")
-            )}
-            <br />
-            <span style={{ fontSize: "18px" }}>
-              {convertNumToTime(tour.min_connection_duration / 60, true)}
-            </span>
-          </Typography>
-          <Typography
-            variant="blueP"
-            style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
-          >
-            {len_too_long && umstiege_notlong ? (
-              <>
-                {t("start.umstiege")}
-                <br />
-              </>
-            ) : (
-              t("start.umstiege")
-            )}
-            <br />
-            <span style={{ fontSize: "18px" }}>
-              {tour.min_connection_no_of_transfers}
-            </span>
-          </Typography>
-
-          <Typography
-            variant="blackP"
-            style={{ borderRight: "1px solid #DDDDDD" }}
-          >
-            {len_too_long && dauer_notlong ? (
-              <>
-                {t("main.dauer")}
-                <br />
-              </>
-            ) : (
-              t("main.dauer")
-            )}
-            <br />
-            <span style={{ fontSize: "18px" }}>
-              {tour?.number_of_days > 1
-                ? tour?.number_of_days + " " + t("details.tage")
-                : convertNumToTime(tour.avg_total_tour_duration, true)}
-            </span>
-          </Typography>
-
-          <Typography variant="blackP" styles={{}}>
-            {len_too_long && anstieg_notlong ? (
-              <>
-                {t("filter.anstieg")}
-                <br />
-              </>
-            ) : (
-              t("filter.anstieg")
-            )}
-            <br />
-            <span style={{ fontSize: "18px" }}>
-              {tour.ascent} {hm}
-            </span>
-          </Typography>
+          <Chip
+            sx={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              bgcolor: "#000",
+              color: "#C5C5C5",
+              fontSize: 12,
+            }}
+            label={`${tour?.range}`}
+          />
         </Box>
-      </CardContent>
-    </Card>
+        <CardContent
+          sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              paddingBottom: "5px",
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+              alt={tour.provider_name}
+              style={{
+                borderRadius: "100%",
+                height: "18px",
+                width: "18px",
+              }}
+            />
+            <Typography variant="grayP">{tour.provider_name}</Typography>
+          </div>
+          <Typography
+            variant="inherit"
+            sx={{
+              my: 2,
+              fontWeight: "bold",
+              lineHeight: "24px",
+            }}
+          >
+            {tour.title}
+          </Typography>
+          <Box
+            sx={{
+              mt: "auto",
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "8px",
+            }}
+          >
+            <Typography
+              variant="blueP"
+              style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
+            >
+              {len_too_long && anreisedauer_notlong ? (
+                <>
+                  {t("details.anreisedauer")}
+                  <br />
+                </>
+              ) : (
+                t("details.anreisedauer")
+              )}
+              <br />
+              <span style={{ fontSize: "18px" }}>
+                {convertNumToTime(tour.min_connection_duration / 60, true)}
+              </span>
+            </Typography>
+            <Typography
+              variant="blueP"
+              style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
+            >
+              {len_too_long && umstiege_notlong ? (
+                <>
+                  {t("start.umstiege")}
+                  <br />
+                </>
+              ) : (
+                t("start.umstiege")
+              )}
+              <br />
+              <span style={{ fontSize: "18px" }}>
+                {tour.min_connection_no_of_transfers}
+              </span>
+            </Typography>
+
+            <Typography
+              variant="blackP"
+              style={{ borderRight: "1px solid #DDDDDD" }}
+            >
+              {len_too_long && dauer_notlong ? (
+                <>
+                  {t("main.dauer")}
+                  <br />
+                </>
+              ) : (
+                t("main.dauer")
+              )}
+              <br />
+              <span style={{ fontSize: "18px" }}>
+                {tour?.number_of_days > 1
+                  ? tour?.number_of_days + " " + t("details.tage")
+                  : convertNumToTime(tour.avg_total_tour_duration, true)}
+              </span>
+            </Typography>
+
+            <Typography variant="blackP" styles={{}}>
+              {len_too_long && anstieg_notlong ? (
+                <>
+                  {t("filter.anstieg")}
+                  <br />
+                </>
+              ) : (
+                t("filter.anstieg")
+              )}
+              <br />
+              <span style={{ fontSize: "18px" }}>
+                {tour.ascent} {hm}
+              </span>
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 

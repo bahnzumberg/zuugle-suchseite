@@ -132,6 +132,11 @@ export const theme = createTheme({
       fontWeight: 700,
       textTransform: "uppercase",
     },
+    cardTitle: {
+      fontSize: 14,
+      color: "#000",
+      fontWeight: 700,
+    },
     grayP: {
       fontSize: 12,
       color: "rgba(0, 0, 0, 0.5)",

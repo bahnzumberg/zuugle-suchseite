@@ -84,10 +84,8 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-card {
   text-align: left;
   height: 100%;
-  width: 392px;
-  @media (max-width: 600px) {
-    width: 100%;
-  }
+  width: 100%;
+  max-width: 400px;
 }
 
 /* .tour_card_Image {
