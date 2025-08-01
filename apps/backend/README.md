@@ -17,11 +17,11 @@ and install all dependencies.
 ### Setup database PostgreSQL 16
 1. Install (https://www.docker.com/) on your local machine
 2. Execute these two commands: 
-
+    ```
     docker build -t zuugle-postgres-db ./
 
-    docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db
-
+    docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db 
+    ```
 ### Setup database connection files
 Create a copy of each connection file and rename it. We need four "knexfile*" files in the end. 
 
@@ -31,29 +31,19 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
 
 ## Load data and run backend
-### Import data locally
+### Restore database into local docker instance
 
 The PostgrSQL dump file is daily (at night) updated and can be downloaded from https://uat-dump.zuugle.at/zuugle_postgresql.dump
 
-To restore the uat dump at your local database, truncate the tables (in your SQL editor):
-
-    truncate table public.tour;
-    truncate table public.tour_inactive;
-    truncate table public.provider;
-    truncate table public.city;
-    truncate table public.city2tour;
-    truncate table public.fahrplan;
-    truncate table public.tracks;
-    truncate table public.gpx;
-    truncate table public.kpi;
-
-Restore the tables (on the bash):
+Manual restoring of the tables:
 
     pg_restore zuugle_postgresql.dump -d zuugle-postgres-db -U postgres
 
 ### Run backend and generate images
 
     npm run build
+    
+    npm run import-data-docker
 
     npm run import-files
 

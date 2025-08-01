@@ -17,6 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncData.js",
+    "import-data-docker": "docker cp zuugle_postgresql.dump zuugle-container:/ && node build/jobs/syncDataDocker.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
     "import-files-prod": "node build/jobs/syncFiles.js",
@@ -32,6 +33,7 @@
     "babel-cli": "^6.10.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "cross-spawn": "^7.0.6",
     "nodemon": "^3.0.1"
   },
   "dependencies": {
@@ -45,7 +47,6 @@
     "knex": "^3.0.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.45",
-    
     "multer": "^1.3.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.2",
