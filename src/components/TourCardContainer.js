@@ -106,20 +106,9 @@ export default function TourCardContainer({
           loader={!!loading && <CircularProgress />}
           endMessage={<p> </p>}
         >
-          <Grid
-            container
-            spacing={2}
-            style={{ marginLeft: `${!isMobile ? "35px" : null}` }}
-          >
+          <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
             {tours.map((tour, index) => (
-              <Grid
-                key={index}
-                item
-                xs={12}
-                sm={6}
-                lg={4}
-                style={{ marginBottom: "5px" }}
-              >
+              <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
                 <TourCard
                   onSelectTour={onSelectTour}
                   tour={tour}

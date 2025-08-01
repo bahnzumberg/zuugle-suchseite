@@ -99,7 +99,7 @@ function Filter({
 
   const [minDistance, setMinDistance] = useState(0);
   const [maxDistance, setMaxDistance] = useState(10000);
-  const [traverse, setTravers] = useState(false);
+  const [traverse, setTraverse] = useState(false);
 
   const [rangeValues, setRangeValues] = useState<
     { value: string; checked: boolean }[]
@@ -255,6 +255,12 @@ function Filter({
           }),
         );
       }
+      setSingleDayTour(filter.singleDayTour ?? true);
+      setMultipleDayTour(filter.multipleDayTour ?? true);
+      setSummerSeason(filter.summerSeason ?? true);
+      setWinterSeason(filter.winterSeason ?? true);
+      setTraverse(filter.traverse ?? false);
+      setDifficulty(filter.difficulty ?? 10);
 
       const _filter_url = searchParams.get("filter");
       const _filter_local =
@@ -289,7 +295,7 @@ function Filter({
             );
             setIfNotUndefined(parsed, "minDistance", setMinDistance);
             setIfNotUndefined(parsed, "maxDistance", setMaxDistance);
-            setIfNotUndefined(parsed, "traverse", setTravers);
+            setIfNotUndefined(parsed, "traverse", setTraverse);
 
             if (!!filter && !!filter.ranges && !!parsed.ranges) {
               setRangeValues(
@@ -472,7 +478,7 @@ function Filter({
     }
     return types.map((type, index) => {
       return (
-        <Grid key={index} item xs={6}>
+        <Grid key={index} size={6}>
           <Box>
             <FormControlLabel
               control={
@@ -516,7 +522,7 @@ function Filter({
 
     return languages.map((type, index) => {
       return (
-        <Grid key={index} item xs={6}>
+        <Grid key={index} size={6}>
           <Box>
             <FormControlLabel
               control={
@@ -556,7 +562,7 @@ function Filter({
 
     return ranges.map((type, index) => {
       return (
-        <Grid key={index} item xs={6}>
+        <Grid key={index} size={6}>
           <Box>
             <FormControlLabel
               control={
@@ -660,19 +666,18 @@ function Filter({
                 </Typography>
                 <Grid container>
                   <Grid
-                    item
-                    xs={6}
                     sx={{
                       borderRight: "1px solid #EAEAEA",
                       paddingRight: "24px",
                     }}
                     className={"toggle-container-left"}
+                    size={6}
                   >
                     <Grid container spacing={0}>
-                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                      <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{tagestour_label}</Typography>
                       </Grid>
-                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                      <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
                           checked={singleDayTour}
                           onChange={() => setSingleDayTour(!singleDayTour)}
@@ -682,16 +687,15 @@ function Filter({
                     </Grid>
                   </Grid>
                   <Grid
-                    item
-                    xs={6}
                     sx={{ paddingLeft: "24px" }}
                     className={"toggle-container-right"}
+                    size={6}
                   >
                     <Grid container spacing={0}>
-                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                      <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{mehrtagestour_label}</Typography>
                       </Grid>
-                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                      <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
                           checked={multipleDayTour}
                           onChange={() => setMultipleDayTour(!multipleDayTour)}
@@ -711,19 +715,18 @@ function Filter({
                 </Typography>
                 <Grid container>
                   <Grid
-                    item
-                    xs={6}
                     sx={{
                       borderRight: "1px solid #EAEAEA",
                       paddingRight: "24px",
                     }}
                     className={"toggle-container-left"}
+                    size={6}
                   >
                     <Grid container spacing={0}>
-                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                      <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{sommertour_label}</Typography>
                       </Grid>
-                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                      <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
                           checked={summerSeason}
                           onChange={() => setSummerSeason(!summerSeason)}
@@ -733,16 +736,15 @@ function Filter({
                     </Grid>
                   </Grid>
                   <Grid
-                    item
-                    xs={6}
                     sx={{ paddingLeft: "24px" }}
                     className={"toggle-container-right"}
+                    size={6}
                   >
                     <Grid container spacing={0}>
-                      <Grid item xs={6} sx={{ alignSelf: "center" }}>
+                      <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{wintertour_label}</Typography>
                       </Grid>
-                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                      <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
                           checked={winterSeason}
                           onChange={() => setWinterSeason(!winterSeason)}
@@ -755,7 +757,7 @@ function Filter({
               </Box>
               <Box className={"filter-box border"}>
                 <Grid container sx={{ paddingTop: "16px" }}>
-                  <Grid item xs={10}>
+                  <Grid size={10}>
                     <Typography variant={"subtitle1"}>
                       {nur_ueberschreitungen_label}
                     </Typography>
@@ -766,10 +768,10 @@ function Filter({
                       {tourstart_ende_andere_stops_label}
                     </Typography>
                   </Grid>
-                  <Grid item xs={2} sx={{ textAlign: "right" }}>
+                  <Grid sx={{ textAlign: "right" }} size={2}>
                     <Switch
                       checked={traverse}
-                      onChange={() => setTravers(!traverse)}
+                      onChange={() => setTraverse(!traverse)}
                       disabled={!filter?.isTraversePossible}
                     />
                   </Grid>
@@ -778,13 +780,12 @@ function Filter({
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                 <Grid container>
                   <Grid
-                    item
-                    xs={6}
                     sx={{
                       borderRight: "1px solid #EAEAEA",
                       paddingRight: "24px",
                     }}
                     className={"toggle-container-left"}
+                    size={6}
                   >
                     <Typography>
                       {anstieg_label} ({hm})
@@ -805,7 +806,7 @@ function Filter({
 
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={minimum_label}
                             variant="filled"
@@ -818,7 +819,7 @@ function Filter({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={maximum_label}
                             variant="filled"
@@ -848,10 +849,9 @@ function Filter({
                     )}
                   </Grid>
                   <Grid
-                    item
-                    xs={6}
                     sx={{ paddingLeft: "24px" }}
                     className={"toggle-container-right"}
+                    size={6}
                   >
                     <Typography>
                       {abstieg_label} ({hm})
@@ -871,7 +871,7 @@ function Filter({
                     />
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={minimum_label}
                             variant="filled"
@@ -884,7 +884,7 @@ function Filter({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={maximum_label}
                             variant="filled"
@@ -918,13 +918,12 @@ function Filter({
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                 <Grid container>
                   <Grid
-                    item
-                    xs={6}
                     sx={{
                       borderRight: "1px solid #EAEAEA",
                       paddingRight: "24px",
                     }}
                     className={"toggle-container-left"}
+                    size={6}
                   >
                     <Typography>
                       {anfahrtszeit_label} ({h})
@@ -945,7 +944,7 @@ function Filter({
 
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <TextInput
                             label={minimum_label}
                             variant="filled"
@@ -958,7 +957,7 @@ function Filter({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <TextInput
                             label={maximum_label}
                             variant="filled"
@@ -975,10 +974,9 @@ function Filter({
                     </Box>
                   </Grid>
                   <Grid
-                    item
-                    xs={6}
                     sx={{ paddingLeft: "24px" }}
                     className={"toggle-container-right"}
+                    size={6}
                   >
                     <Typography>
                       {gehdistanz_label} ({km})
@@ -998,7 +996,7 @@ function Filter({
                     />
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={minimum_label}
                             variant="filled"
@@ -1011,7 +1009,7 @@ function Filter({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <NumberInput
                             label={maximum_label}
                             variant="filled"

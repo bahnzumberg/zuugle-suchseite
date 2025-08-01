@@ -18,7 +18,12 @@ export default function CustomSelect(props) {
   return (
     <>
       <Grid container>
-        <Grid xs={10} md={11}>
+        <Grid
+          size={{
+            xs: 10,
+            md: 11,
+          }}
+        >
           <Grid
             container
             style={{
@@ -30,13 +35,20 @@ export default function CustomSelect(props) {
             }}
           >
             <Grid
-              xs={2}
-              md={1}
               style={{ display: "flex", justifyContent: "center" }}
+              size={{
+                xs: 2,
+                md: 1,
+              }}
             >
               <SearchIcon />
             </Grid>
-            <Grid xs={8} md={10}>
+            <Grid
+              size={{
+                xs: 8,
+                md: 10,
+              }}
+            >
               <InputBase
                 value={searchPhrase ? searchPhrase : ""}
                 autoFocus
@@ -51,7 +63,12 @@ export default function CustomSelect(props) {
                 }}
               />
             </Grid>
-            <Grid xs={2} md={1}>
+            <Grid
+              size={{
+                xs: 2,
+                md: 1,
+              }}
+            >
               <div
                 style={{
                   borderRadius: "50%",
@@ -75,12 +92,14 @@ export default function CustomSelect(props) {
           </Grid>
         </Grid>
         <Grid
-          xs={2}
-          md={1}
           style={{
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
+          }}
+          size={{
+            xs: 2,
+            md: 1,
           }}
         >
           <div

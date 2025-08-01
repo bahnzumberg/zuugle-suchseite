@@ -14,15 +14,16 @@ export default function Footer({}) {
       <Box sx={{ marginBottom: "50px" }}>
         <Grid container spacing={2} sx={{ paddingBottom: "10px" }}>
           <Grid
-            item
-            xs={12}
-            sm={12}
-            md={6}
-            lg={6}
-            xl={6}
             justifySelf="center"
             alignItems="center"
             style={{ alignItems: "flex-end" }}
+            size={{
+              xs: 12,
+              sm: 12,
+              md: 6,
+              lg: 6,
+              xl: 6,
+            }}
           >
             <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
               <img
@@ -35,15 +36,16 @@ export default function Footer({}) {
             </a>
           </Grid>
           <Grid
-            item
-            xs={12}
-            sm={12}
-            md={6}
-            lg={6}
-            xl={6}
             justifySelf="center"
             alignItems="center"
             style={{ alignItems: "flex-end" }}
+            size={{
+              xs: 12,
+              sm: 12,
+              md: 6,
+              lg: 6,
+              xl: 6,
+            }}
           >
             <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
               <img
@@ -57,7 +59,6 @@ export default function Footer({}) {
           </Grid>
         </Grid>
       </Box>
-
       <Box sx={{ width: "100%", borderTop: "1px solid #dfdfdf" }}>
         <Grid
           container
@@ -67,14 +68,21 @@ export default function Footer({}) {
             justifyContent: "space-between",
           }}
         >
-          <Grid item xs={12} md={10} sx={{ paddingBottom: "80px" }}>
+          <Grid
+            sx={{ paddingBottom: "80px" }}
+            size={{
+              xs: 12,
+              md: 10,
+            }}
+          >
             <Grid container spacing={2}>
               <Grid
-                item
-                xs="auto"
-                md={2}
                 style={{ maxWidth: "30px" }}
                 className={"footer-logo"}
+                size={{
+                  xs: "auto",
+                  md: 2,
+                }}
               >
                 <img
                   src={`/app_static/img/logo140.png`}
@@ -84,7 +92,12 @@ export default function Footer({}) {
                   loading="lazy"
                 />
               </Grid>
-              <Grid item xs md={3}>
+              <Grid
+                size={{
+                  xs: "grow",
+                  md: 3,
+                }}
+              >
                 <a
                   href="https://verein.bahn-zum-berg.at"
                   target="_blank"
@@ -102,7 +115,7 @@ export default function Footer({}) {
                   </Typography>
                 </a>
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <Typography
                   sx={{
                     marginLeft: "10px",
@@ -118,7 +131,7 @@ export default function Footer({}) {
                   {t("start.datenschutz")}
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <Typography
                   sx={{
                     marginLeft: "10px",
@@ -136,7 +149,12 @@ export default function Footer({}) {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 2,
+            }}
+          >
             <Box sx={{ textAlign: "right" }} className={"social-icons"}>
               <img
                 className={"cursor-link"}
