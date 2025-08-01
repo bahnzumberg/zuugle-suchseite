@@ -615,12 +615,13 @@ export function Search({
                 >
                   <Grid container>
                     <Grid
-                      item
-                      xs={12}
-                      md={!cityInput && pageKey === "detail" ? 12 : 12}
                       sx={{
                         paddingRight: "16px",
                         padding: 0,
+                      }}
+                      size={{
+                        xs: 12,
+                        md: !cityInput && pageKey === "detail" ? 12 : 12,
                       }}
                     >
                       <Box
@@ -699,12 +700,13 @@ export function Search({
                 >
                   <Grid container>
                     <Grid
-                      item
-                      xs={12}
-                      md={!cityInput && pageKey === "detail" ? 12 : 12}
                       sx={{
                         paddingRight: "16px",
                         padding: 0,
+                      }}
+                      size={{
+                        xs: 12,
+                        md: !cityInput && pageKey === "detail" ? 12 : 12,
                       }}
                     >
                       <Box
@@ -768,14 +770,15 @@ export function Search({
           >
             <Grid container>
               <Grid
-                item
-                xs={12}
-                md={!cityInput && pageKey === "detail" ? 12 : 6}
                 sx={{
                   paddingRight: "16px",
                   padding: 0,
                 }}
                 onClick={showSearchModal}
+                size={{
+                  xs: 12,
+                  md: !cityInput && pageKey === "detail" ? 12 : 6,
+                }}
               >
                 {!cityInput && pageKey === "detail" && (
                   <Box
@@ -808,12 +811,13 @@ export function Search({
               </Grid>
               {/* city -----   modal ----  below */}
               <Grid
-                item
-                sm={12}
-                md={!cityInput && pageKey === "detail" ? 12 : 6}
                 onClick={showCityModal}
                 display="flex"
                 alignItems="center"
+                size={{
+                  sm: 12,
+                  md: !cityInput && pageKey === "detail" ? 12 : 6,
+                }}
               >
                 <Box
                   sx={{

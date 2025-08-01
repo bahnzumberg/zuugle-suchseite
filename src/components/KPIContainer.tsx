@@ -5,15 +5,20 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useTranslation } from "react-i18next";
 
+export interface KPIContainerProps {
+  totalTours: number;
+  totalConnections: number;
+  totalCities: number;
+  totalProvider: number;
+}
+
 export default function KPIContainer({
   totalTours,
   totalConnections,
-  totalRanges,
   totalCities,
-  city,
   totalProvider,
-}) {
-  const { t, i18n } = useTranslation();
+}: KPIContainerProps) {
+  const { t } = useTranslation();
 
   return (
     <Paper
@@ -40,13 +45,14 @@ export default function KPIContainer({
         <Box sx={{ marginTop: "50px" }}>
           <Grid container>
             <Grid
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
-              xl={3}
               sx={{ marginBottom: "16px" }}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 3,
+                lg: 3,
+                xl: 3,
+              }}
             >
               <Box>
                 <Typography variant={"h3"}>
@@ -58,13 +64,14 @@ export default function KPIContainer({
               </Box>
             </Grid>
             <Grid
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
-              xl={3}
               sx={{ marginBottom: "16px" }}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 3,
+                lg: 3,
+                xl: 3,
+              }}
             >
               <Box>
                 <Typography variant={"h3"}>{totalProvider}</Typography>
@@ -74,13 +81,14 @@ export default function KPIContainer({
               </Box>
             </Grid>
             <Grid
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
-              xl={3}
               sx={{ marginBottom: "16px" }}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 3,
+                lg: 3,
+                xl: 3,
+              }}
             >
               <Box>
                 <Typography variant={"h3"}>{totalCities}</Typography>
@@ -90,13 +98,14 @@ export default function KPIContainer({
               </Box>
             </Grid>
             <Grid
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
-              xl={3}
               sx={{ marginBottom: "16px" }}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 3,
+                lg: 3,
+                xl: 3,
+              }}
             >
               <Box>
                 <Typography variant={"h3"}>
