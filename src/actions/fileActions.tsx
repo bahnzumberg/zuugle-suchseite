@@ -1,10 +1,10 @@
 import axios from "../axios";
 
-export function loadGPX(url, responseType = "buffer") {
+// TODO: should this use dispatch?
+export function loadGPX(url: string, responseType = "text") {
   return () => {
     return axios
       .get(url, {
-        data: {},
         timeout: 60000,
         responseType: responseType,
       })
