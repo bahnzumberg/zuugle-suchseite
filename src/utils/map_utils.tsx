@@ -1,4 +1,6 @@
-export const formatMapClusterNumber = (number) => {
+import { Marker } from "../components/Map/TourMapContainer";
+
+export const formatMapClusterNumber = (number: number) => {
   // Absolute numbers
   number = Math.abs(number);
 
@@ -9,6 +11,6 @@ export const formatMapClusterNumber = (number) => {
   }
 };
 
-export const createIdArray = (markers) => {
+export const createIdArray = (markers: Marker[]) => {
   return markers.map((marker) => marker.id);
 };

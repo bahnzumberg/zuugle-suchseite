@@ -15,7 +15,7 @@ const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 // TODO: move to more appropriate place --> models?
 export interface Tour {
   url: string;
-  id: string;
+  id: number;
   image_url: string;
   title: string;
   range: string;

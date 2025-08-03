@@ -7,6 +7,7 @@ import {
   lazy,
   useCallback,
   Suspense,
+  MutableRefObject,
 } from "react";
 import {
   MapContainer,
@@ -16,7 +17,6 @@ import {
   useMapEvents,
   ZoomControl,
   Popup,
-  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -24,19 +24,38 @@ import Box from "@mui/material/Box";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import gpxParser from "gpxparser";
 import { connect } from "react-redux";
-import { LOAD_MAP_FILTERS } from "../../actions/types.js";
 import { useSearchParams } from "react-router-dom";
-import { loadGPX } from "../../actions/fileActions.js";
-import { useDispatch, useSelector } from "react-redux";
+import { loadGPX } from "../../actions/fileActions";
+import { useSelector } from "react-redux";
 import { loadTour, setTourID } from "../../actions/tourActions.js";
-import { formatMapClusterNumber } from "../../utils/map_utils.js";
+import { formatMapClusterNumber } from "../../utils/map_utils";
 import "./popup-style.css";
-import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals.tsx";
-import { createIdArray } from "../../utils/map_utils.js";
+import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals";
+import { createIdArray } from "../../utils/map_utils";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "/src/config.js";
+import { FilterObject } from "../Filter/Filter.js";
+import { Tour } from "../TourCard.js";
 
 const PopupCard = lazy(() => import("./PopupCard"));
+
+// There is also a Marker defined in leaflet. Should we use that instead?
+export interface Marker {
+  id: number;
+  lat: number;
+  lon: number;
+}
+
+export interface TourMapContainerProps {
+  filter: FilterObject;
+  setMapInitialized: (initialized: boolean) => void;
+  mapInitialized: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSelectTour: (tourId: number) => any;
+  handleMapBounds: (bounds: L.LatLngBounds) => void;
+  handleChangedMarkers: (doHandle: boolean) => void;
+  handleShowCardContainer: (show: boolean) => void;
+}
 
 function TourMapContainer({
   filter,
@@ -45,11 +64,9 @@ function TourMapContainer({
   onSelectTour, // use for Popup content
   handleMapBounds,
   handleChangedMarkers,
-  mapBounds,
   handleShowCardContainer,
-}) {
-  const dispatch = useDispatch(); // Get dispatch function from Redux
-
+}: TourMapContainerProps) {
+  // @ts-expect-error TODO: fix type
   const markers = useSelector((state) => state.tours.markers); // move to props
   const isMasterMarkersSet = useRef(false);
 
@@ -57,10 +74,12 @@ function TourMapContainer({
 
   const time = useMemo(() => new Date().getTime(), []); // used for MapContainer
 
-  let domain = getTopLevelDomain();
+  const domain = getTopLevelDomain();
 
-  let default_LatNE, default_LngNE, default_LatSW, default_LngSW;
-  let centerLat, centerLng;
+  let default_LatNE: number,
+    default_LngNE: number,
+    default_LatSW: number,
+    default_LngSW: number;
 
   //initialise map bounds and center according to domain country
   switch (domain) {
@@ -109,8 +128,8 @@ function TourMapContainer({
 
   // Default map center using default bounds
   // Use markers_center instead (https://github.com/bahnzumberg/zuugle-suchseite/issues/457)
-  centerLat = (default_LatSW + default_LatNE) / 2;
-  centerLng = (default_LngSW + default_LngNE) / 2;
+  const centerLat = (default_LatSW + default_LatNE) / 2;
+  const centerLng = (default_LngSW + default_LngNE) / 2;
 
   const createStartMarker = () => {
     return L.icon({
@@ -121,33 +140,32 @@ function TourMapContainer({
     });
   };
 
-  const mapRef = useRef();
+  const mapRef = useRef<L.Map | null>(null);
   const clusterRef = useRef();
   const markerRef = useRef(null);
-  const activeMarkerRef = useRef(null);
+  const activeMarkerRef: MutableRefObject<Marker | null> = useRef(null);
 
-  const [gpxTrack, setGpxTrack] = useState([]);
-  const [totourGpxTrack, setTotourGpxTrack] = useState([]);
-  const [fromtourGpxTrack, setFromtourGpxTrack] = useState([]);
+  const [gpxTrack, setGpxTrack] = useState<L.LatLngExpression[]>([]);
+  const [totourGpxTrack, setTotourGpxTrack] = useState<L.LatLngExpression[]>(
+    [],
+  );
+  const [fromtourGpxTrack, setFromtourGpxTrack] = useState<
+    L.LatLngExpression[]
+  >([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  const initialCity = !!searchParams.get("city")
-    ? searchParams.get("city")
-    : localStorage.getItem("city")
-      ? localStorage.getItem("city")
-      : "no-city";
+  const initialCity =
+    searchParams.get("city") ?? localStorage.getItem("city") ?? "no-city";
   const [city, setCity] = useState(initialCity);
-  const [selectedTour, setSelectedTour] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // TODO : no use of isLoading ?
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
 
-  let filterValuesLocal = !!localStorage.getItem("filterValues")
+  const filterValuesLocal = localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
 
-  // console.log("L153 filter", filter)
-  // console.log("L154 filterValuesLocal", filterValuesLocal)
-  filter = !!filterValuesLocal ? filterValuesLocal : filter; // TODO: why is that necessary?
+  // @ts-expect-error TODO
+  filter = filterValuesLocal ? filterValuesLocal : filter; // TODO: why is that necessary?
 
   // storing masterMarkers list inside localStorage
   useEffect(() => {
@@ -178,33 +196,15 @@ function TourMapContainer({
     return () => clearInterval(interval);
   }, [mapRef]);
 
-  // useEffect(() => {
-  //   console.log("L181 mapLoaded :", mapLoaded)
-  // }, [mapLoaded])
-
-  // useEffect(() => {
-  //   console.log("L185 mapBounds :", mapBounds)
-  // }, [mapBounds])
-
-  // useEffect(() => {
-  //   console.log("L185 visibleMarkersArray :", visibleMarkersArray)
-  // }, [visibleMarkersArray])
-
-  const mapChangeHandler = (bounds) => {
-    // console.log("L161 mapRef.current :", mapRef.current)
-    // console.log("L162 bounds :", bounds)
-    // console.log("L164 mapInitialized :", mapInitialized)
-    // console.log("L165 mapLoaded :", mapLoaded)
+  const mapChangeHandler = (bounds: L.LatLngBounds) => {
     if (bounds && mapInitialized) {
-      let _masterMarkers = {};
-
       // Retrieve master markers from local storage if available
-      if (localStorage.getItem("masterMarkers")) {
-        _masterMarkers = JSON.parse(localStorage.getItem("masterMarkers"));
-      }
+      const _masterMarkers = JSON.parse(
+        localStorage.getItem("masterMarkers") ?? "{}",
+      );
 
-      let visibleMarkersObj = {};
-      let _visibleMarkersArray = [];
+      let visibleMarkersObj: Marker[] = [];
+      let _visibleMarkersArray: number[] = [];
 
       // if _masterMarkers is not empty
       if (!!_masterMarkers && Object.keys(_masterMarkers).length > 0) {
@@ -221,14 +221,10 @@ function TourMapContainer({
         _visibleMarkersArray = createIdArray(visibleMarkersObj);
       }
 
-      const storedMarkers =
-        JSON.parse(localStorage.getItem("visibleMarkers")) || [];
+      const storedMarkers = JSON.parse(
+        localStorage.getItem("visibleMarkers") ?? "[]",
+      );
       const check = checkMarkersChanges(_visibleMarkersArray, storedMarkers);
-
-      // console.log("L294 check : ", check)
-      // console.log("===================")
-      // console.log("L163 _visibleMarkersArray : ", _visibleMarkersArray)
-      // console.log("===================");
 
       if (!!check && !!visibleMarkersObj && !!_visibleMarkersArray) {
         localStorage.setItem(
@@ -237,74 +233,70 @@ function TourMapContainer({
         );
         handleChangedMarkers(true); // *** handle the Boolean flag in Main /make new call in card container
 
-        let newBounds = getMarkersBounds(visibleMarkersObj);
-        !!newBounds ? handleMapBounds(newBounds) : handleMapBounds(bounds);
+        handleMapBounds(getMarkersBounds(visibleMarkersObj) || bounds);
       } else {
         handleChangedMarkers(false);
       }
     }
   };
 
-  const getMarkersBounds = (markers) => {
+  const getMarkersBounds = (markers: Marker[]) => {
     const _bounds = L.latLngBounds([]);
-    // console.log("L242 _bounds ", _bounds)
-
-    if (!!markers) {
-      // console.log("L246 markers.length ", markers.length)
+    if (markers) {
       markers.forEach((marker) => {
         if (marker.lat && marker.lon) {
           _bounds.extend([marker.lat, marker.lon]);
         }
       });
-      // console.log("L252 _bounds ", _bounds)
-      return _bounds;
-    } else return null;
+    }
+    return _bounds;
   };
 
-  // city setting
+  // city setting -> TODO: move to global helper
   useEffect(() => {
-    let _city = !!searchParams.get("city")
-      ? searchParams.get("city")
-      : localStorage.getItem("city")
-        ? localStorage.getItem("city")
-        : "no-city";
+    const _city =
+      searchParams.get("city") ?? localStorage.getItem("city") ?? "no-city";
 
     setCity(_city);
   }, [searchParams, city]);
 
-  const checkMarkersChanges = (visibleMarkers, storedMarkers) => {
+  const checkMarkersChanges = (
+    visibleMarkers: number[],
+    storedMarkers: number[],
+  ) => {
     if (!orderedArraysEqual(visibleMarkers, storedMarkers)) {
       return true;
     } else return false;
   };
 
   //saves the bounds on localStorage
-  const assignNewMapPosition = (position) => {
-    // console.log("L281 position :", position)
-    let swLat = (position?._southWest.lat).toFixed(6);
-    let swLng = (position?._southWest.lng).toFixed(6);
-    let neLat = (position?._northEast.lat).toFixed(6);
-    let neLng = (position?._northEast.lng).toFixed(6);
+  const assignNewMapPosition = (position: L.LatLngBounds) => {
+    const _southWest = position.getSouthWest();
+    const _northEast = position.getNorthEast();
+    const swLat = _southWest?.lat.toFixed(6);
+    const swLng = _southWest?.lng.toFixed(6);
+    const neLat = _northEast?.lat.toFixed(6);
+    const neLng = _northEast?.lng.toFixed(6);
 
-    localStorage.setItem("MapPositionLatNE", neLat || default_LatNE);
-    localStorage.setItem("MapPositionLngNE", neLng || default_LngNE);
+    localStorage.setItem("MapPositionLatNE", String(neLat || default_LatNE));
+    localStorage.setItem("MapPositionLngNE", String(neLng || default_LngNE));
 
-    localStorage.setItem("MapPositionLatSW", swLat || default_LatSW);
-    localStorage.setItem("MapPositionLngSW", swLng || default_LngSW);
+    localStorage.setItem("MapPositionLatSW", String(swLat || default_LatSW));
+    localStorage.setItem("MapPositionLngSW", String(swLng || default_LngSW));
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleGpxTrack = async (url) => {
-    if (!!url) {
+  const handleGpxTrack = async (url: string) => {
+    if (url) {
       try {
         const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadGpxFunction(dispatch); // Execute the inner function with dispatch
+        const res = await loadGpxFunction(); // TODO: should this use dispatch?
         if (!!res && !!res.data) {
-          let gpx = new gpxParser(); //Create gpxParser Object
+          const gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
-
+            const track = gpx.tracks[0].points.map((p) =>
+              L.latLng(p.lat, p.lon),
+            );
             setGpxTrack(track);
           }
         }
@@ -317,17 +309,18 @@ function TourMapContainer({
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleTotourGpxTrack = async (url) => {
-    if (!!url) {
+  const handleTotourGpxTrack = async (url: string) => {
+    if (url) {
       try {
         const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadTotourGpxFunction(dispatch); // Execute the inner function with dispatch
+        const res = await loadTotourGpxFunction();
         if (!!res && !!res.data) {
-          let gpx = new gpxParser(); //Create gpxParser Object
+          const gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            const track = gpx.tracks[0].points.map((p) =>
+              L.latLng(p.lat, p.lon),
+            );
             setTotourGpxTrack(track);
           }
         }
@@ -340,17 +333,18 @@ function TourMapContainer({
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleFromtourGpxTrack = async (url) => {
-    if (!!url) {
+  const handleFromtourGpxTrack = async (url: string) => {
+    if (url) {
       try {
         const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadFromtourGpxFunction(dispatch); // Execute the inner function with dispatch
+        const res = await loadFromtourGpxFunction();
         if (!!res && !!res.data) {
-          let gpx = new gpxParser(); //Create gpxParser Object
+          const gpx = new gpxParser(); //Create gpxParser Object
           gpx.parse(res.data);
           if (gpx.tracks.length > 0) {
-            let track = gpx.tracks[0].points.map((p) => [p.lat, p.lon]);
+            const track = gpx.tracks[0].points.map((p) =>
+              L.latLng(p.lat, p.lon),
+            );
             setFromtourGpxTrack(track);
           }
         }
@@ -364,18 +358,17 @@ function TourMapContainer({
   };
 
   const handleMarkerClick = useCallback(
-    async (e, tourId) => {
+    async (e: L.LeafletMouseEvent, tourId: number) => {
       if (!mapLoaded || !mapInitialized) {
         console.warn("Map is still loading, please wait.");
         return;
       }
       if (!tourId) return;
 
-      let tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng };
+      const tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng };
       activeMarkerRef.current = tourInfo;
 
       setSelectedTour(null);
-      setIsLoading(true);
 
       if (!!tourId && city) {
         try {
@@ -389,8 +382,6 @@ function TourMapContainer({
             await handleFromtourGpxTrack(_tour.fromtour_gpx_file);
         } catch (error) {
           console.error("Error fetching tour details:", error);
-        } finally {
-          setIsLoading(false);
         }
       }
     },
@@ -405,7 +396,9 @@ function TourMapContainer({
     ],
   );
 
-  const createClusterCustomIcon = function (cluster) {
+  const createClusterCustomIcon = function (cluster: {
+    getChildCount: () => number;
+  }) {
     const clusterChildCount = cluster.getChildCount();
     const formattedCount = formatMapClusterNumber(clusterChildCount);
 
@@ -445,25 +438,32 @@ function TourMapContainer({
   };
 
   //returns a list of markers that are contained within the passed bounds object
-  const getMarkersListFromBounds = (bounds, markersList) => {
+  const getMarkersListFromBounds = (
+    bounds: { contains: (arg0: L.LatLng) => boolean },
+    markersList: Marker[],
+  ) => {
     // markersList is an array of objects {id: 72869, lat: 47.79043, lon: 15.91079}
-    if (!!bounds && !!markersList) {
-      return markersList.filter((marker) => {
-        return bounds.contains(L.latLng(marker.lat, marker.lon));
-      });
+    if (bounds && markersList) {
+      return markersList.filter((marker) =>
+        bounds.contains(L.latLng(marker.lat, marker.lon)),
+      );
     }
+    return [];
   };
 
-  function makeDebounced(func, timeout) {
+  function makeDebounced(
+    func: (bounds: L.LatLngBounds) => void,
+    timeout: number,
+  ) {
     //Function for the actual debounce
-    let timer;
-    return (...args) => {
+    let timer: string | number | NodeJS.Timeout | undefined;
+    return (...args: [L.LatLngBounds]) => {
       clearTimeout(timer); //Resets the debounce timer --> when moved stopped and moved within the debounce time only one fetch request is made with the last bounds of the map
       timer = setTimeout(() => func(...args), timeout);
     };
   }
 
-  function stoppedMoving(bounds) {
+  function stoppedMoving(bounds: L.LatLngBounds) {
     handleChange(bounds);
   }
 
@@ -472,16 +472,16 @@ function TourMapContainer({
     [],
   ); //Calls makeDebounce with the function you want to debounce and the debounce time
 
-  const handleChange = (bounds) => {
-    //assignNewMapPosition(bounds); // saves bounds to localStorage
-
-    let swLat = (bounds?._southWest.lat).toFixed(6);
-    let swLng = (bounds?._southWest.lng).toFixed(6);
-    let neLat = (bounds?._northEast.lat).toFixed(6);
-    let neLng = (bounds?._northEast.lng).toFixed(6);
+  const handleChange = (bounds: L.LatLngBounds) => {
+    const southWest = bounds.getSouthWest();
+    const northEast = bounds.getNorthEast();
+    const swLat = southWest.lat.toFixed(6);
+    const swLng = southWest.lng.toFixed(6);
+    const neLat = northEast.lat.toFixed(6);
+    const neLng = northEast.lng.toFixed(6);
 
     mapChangeHandler(bounds);
-    const searchTerm = !!searchParams.get("search")
+    const searchTerm = searchParams.get("search")
       ? searchParams.get("search")
       : null;
     const filterValues = {
@@ -519,7 +519,7 @@ function TourMapContainer({
       // localStorage.setItem("filterValues", JSON.stringify(filterValues))
     }
     //pull filtervalues from localStorage and pass it to params for setting
-    localStorage.setItem("MapToggle", true); //The map should stay the same after rendering the page
+    localStorage.setItem("MapToggle", String(true)); //The map should stay the same after rendering the page
     // setSearchParams(searchParams); //set the search Params and start the call to the backend
   };
 
@@ -567,8 +567,8 @@ function TourMapContainer({
                 className="request-popup"
                 offset={L.point([0, -25])}
                 position={[
-                  parseFloat(activeMarkerRef.current.lat),
-                  parseFloat(activeMarkerRef.current.lon),
+                  activeMarkerRef.current.lat,
+                  activeMarkerRef.current.lon,
                 ]}
                 eventHandlers={{
                   remove: () => (activeMarkerRef.current = null),
@@ -585,6 +585,7 @@ function TourMapContainer({
             gpxTrack.length > 0 &&
             activeMarkerRef.current && [
               <Polyline
+                key="gpx-track" // unique key prop
                 pathOptions={{ weight: 6, color: "#FF7663" }}
                 positions={gpxTrack}
               />,
@@ -595,6 +596,7 @@ function TourMapContainer({
             fromtourGpxTrack.length > 0 &&
             activeMarkerRef.current && [
               <Polyline
+                key="fromtour-track"
                 pathOptions={{
                   weight: 6,
                   color: "#FF7663",
@@ -613,6 +615,7 @@ function TourMapContainer({
             totourGpxTrack.length > 0 &&
             activeMarkerRef.current && [
               <Polyline
+                key="totour-track"
                 pathOptions={{
                   weight: 6,
                   color: "#FF7663",
@@ -634,7 +637,7 @@ function TourMapContainer({
             removeOutsideVisibleBounds={true}
             iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
           >
-            {markers.map((mark) => {
+            {markers.map((mark: Marker) => {
               return (
                 <Marker
                   key={mark.id}
@@ -657,19 +660,19 @@ function TourMapContainer({
   );
 }
 
-const mapDispatchToProps = (dispatch) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapDispatchToProps = (dispatch: any) => {
   return {
     loadTour,
-    filterVisibleToursGPX: (visibleToursGPX) =>
-      dispatch({ type: LOAD_MAP_FILTERS, visibleToursGPX }), //used to save the bounds of the map in the redux store
-    setTourID: (tourId) => dispatch(setTourID(tourId)),
+    setTourID: (tourId: number) => dispatch(setTourID(tourId)),
   };
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: {
+  tours: { filter: FilterObject; tour: Tour };
+}) => {
   return {
     filter: state.tours.filter, //used to get the filter variables
-    visibleToursGPX: state.tours.visibleToursGPX, //used to get the current bounds of the map out of the store
     tour: state.tours.tour,
   };
 };
