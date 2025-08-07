@@ -6,9 +6,11 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  TextField,
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { TimeField } from "@mui/x-date-pickers/TimeField";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
@@ -17,18 +19,16 @@ import GeneralSlider from "../GeneralSlider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Intensity from "../../icons/Intensity";
-import NumberInput from "../NumberInput";
 import Button from "@mui/material/Button";
 import { Fragment, useEffect, useState } from "react";
 import TextWithIcon from "../TextWithIcon";
-import { convertNumToTime } from "../../utils/globals";
 import CircularProgress from "@mui/material/CircularProgress";
 import { loadFilter } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import TextInput from "../TextInput";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
+import dayjs, { Dayjs } from "dayjs";
 
 export interface FilterObject {
   s?: string;
@@ -180,6 +180,15 @@ function Filter({
     { sl: t("filter.slowenisch") },
     { it: t("filter.italienisch") },
   ];
+
+  function setDuration(
+    dayJsObject: Dayjs | null,
+    updateFunction: (value: number) => void,
+  ) {
+    if (dayJsObject) {
+      updateFunction(dayJsObject.hour() + dayJsObject.minute() / 60);
+    }
+  }
 
   /**
    * If the filter is turned on, request filter information from API.
@@ -807,10 +816,10 @@ function Filter({
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={minimum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={minAscent}
                             onChange={({
                               target,
@@ -820,10 +829,10 @@ function Filter({
                           />
                         </Grid>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={maximum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={maxAscent}
                             onChange={({
                               target,
@@ -872,10 +881,10 @@ function Filter({
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={minimum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={minDescent}
                             onChange={({
                               target,
@@ -885,10 +894,10 @@ function Filter({
                           />
                         </Grid>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={maximum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={maxDescent}
                             onChange={({
                               target,
@@ -945,29 +954,29 @@ function Filter({
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
                         <Grid size={6}>
-                          <TextInput
+                          <TimeField
                             label={minimum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
-                            value={convertNumToTime(minTransportDuration)}
-                            onChange={({
-                              target,
-                            }: React.ChangeEvent<HTMLInputElement>) => {
-                              setMinTransportDuration(+target.value);
-                            }}
+                            variant="outlined"
+                            value={dayjs()
+                              .startOf("day")
+                              .add(minTransportDuration, "hours")}
+                            format="HH:mm"
+                            onChange={(newValue) =>
+                              setDuration(newValue, setMinTransportDuration)
+                            }
                           />
                         </Grid>
                         <Grid size={6}>
-                          <TextInput
+                          <TimeField
                             label={maximum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
-                            value={convertNumToTime(maxTransportDuration)}
-                            onChange={({
-                              target,
-                            }: React.ChangeEvent<HTMLInputElement>) => {
-                              setMaxTransportDuration(+target.value);
-                            }}
+                            variant="outlined"
+                            value={dayjs()
+                              .startOf("day")
+                              .add(maxTransportDuration, "hours")}
+                            format="HH:mm"
+                            onChange={(newValue) =>
+                              setDuration(newValue, setMaxTransportDuration)
+                            }
                           />
                         </Grid>
                       </Grid>
@@ -997,28 +1006,24 @@ function Filter({
                     <Box sx={{ marginTop: "15px" }}>
                       <Grid container spacing={"10px"}>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={minimum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={minDistance}
-                            onChange={({
-                              target,
-                            }: React.ChangeEvent<HTMLInputElement>) => {
-                              setMinDistance(+target.value);
+                            onChange={(event) => {
+                              setMinDistance(+event.target.value);
                             }}
                           />
                         </Grid>
                         <Grid size={6}>
-                          <NumberInput
+                          <TextField
+                            type="number"
                             label={maximum_label}
-                            variant="filled"
-                            endAdornmentLabel={""}
+                            variant="outlined"
                             value={maxDistance}
-                            onChange={({
-                              target,
-                            }: React.ChangeEvent<HTMLInputElement>) => {
-                              setMaxDistance(+target.value);
+                            onChange={(event) => {
+                              setMaxDistance(+event.target.value);
                             }}
                           />
                           {maxDistance === 80 && (

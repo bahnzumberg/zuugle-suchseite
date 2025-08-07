@@ -8,6 +8,8 @@ import { theme } from "./theme";
 import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
 import "/src/config.js";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
@@ -55,34 +57,39 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div
-        className="App"
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Routes>
-          <Route path="/" element={<Start />} />
-          <Route path="/total" element={<Start />} />
-        </Routes>
-        <Suspense fallback={<></>}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <div
+          className="App"
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Routes>
-            <Route path="/search" element={<Main />} />
-            <Route path="/tour/:idOne/:cityOne" element={<DetailReworked />} />
-            <Route path="/tour" element={<DetailReworked />} />
-            <Route path="/provider/:provider" element={<DetailReworked />} />
-            <Route path="/imprint" element={<Impressum />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/:city" element={<Main />} />
-            <Route path="/searchPhrases" element={<Search />} />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<Start />} />
+            <Route path="/total" element={<Start />} />
           </Routes>
-        </Suspense>
-      </div>
-      <ModalRoot />
+          <Suspense fallback={<></>}>
+            <Routes>
+              <Route path="/search" element={<Main />} />
+              <Route
+                path="/tour/:idOne/:cityOne"
+                element={<DetailReworked />}
+              />
+              <Route path="/tour" element={<DetailReworked />} />
+              <Route path="/provider/:provider" element={<DetailReworked />} />
+              <Route path="/imprint" element={<Impressum />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/:city" element={<Main />} />
+              <Route path="/searchPhrases" element={<Search />} />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </div>
+        <ModalRoot />
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }
