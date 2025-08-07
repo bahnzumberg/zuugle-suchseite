@@ -62,6 +62,7 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
+          borderRadius: 12,
           "& $notchedOutline": {
             borderColor: "#90caf9",
           },
@@ -74,6 +75,13 @@ export const theme = createTheme({
           },
         },
         notchedOutline: {},
+      },
+    },
+    MuiPickersOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
       },
     },
   },

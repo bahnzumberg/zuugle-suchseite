@@ -12,6 +12,7 @@
     "@mui/icons-material": "^7.2.0",
     "@mui/lab": "^7.0.0-beta.14",
     "@mui/material": "^7.2.0",
+    "@mui/x-date-pickers": "^8.9.2",
     "axios": "^1.11.0",
     "dayjs": "^1.11.13",
     "gpxparser": "^3.0.8",
