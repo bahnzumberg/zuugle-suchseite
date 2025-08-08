@@ -3,25 +3,26 @@ import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import { applyMiddleware, compose, createStore } from "redux";
-import thunk from "redux-thunk";
+import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
 import "./index.css";
-import rootReducer from "./rootReducer";
 import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
+import modalReducer from "./reducers/modal";
+import tourReducer from "./reducers/tours";
+import cityReducer from "./reducers/cities";
+import rangeReducer from "./reducers/ranges";
 
-const isDevelopment = process.env.NODE_ENV === "development";
-
-const composeEnhancers =
-  isDevelopment && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__()
-    : compose;
-
-export const store = createStore(
-  rootReducer,
-  composeEnhancers(applyMiddleware(thunk)),
-);
+// Automatically adds the thunk middleware and the Redux DevTools extension
+export const store = configureStore({
+  // Automatically calls `combineReducers`
+  reducer: {
+    modal: modalReducer,
+    tours: tourReducer,
+    cities: cityReducer,
+    ranges: rangeReducer,
+  },
+});
 
 // Workaround for IE Mobile 10.0
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
