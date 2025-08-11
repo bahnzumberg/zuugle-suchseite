@@ -8,21 +8,29 @@ import { loadFavouriteTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
 
+export interface FullScreenCityInputProps {
+  loadCities: any;
+  cities: any;
+  isCityLoading: any;
+  initialCity: any;
+  onSelect: any;
+  cityOne: any;
+  idOne: any;
+  pageKey: any;
+}
+
 function FullScreenCityInput({
   loadCities,
   cities,
-  searchParams,
-  setSearchParams,
   isCityLoading,
   initialCity,
   onSelect,
   cityOne,
   idOne,
   pageKey,
-}) {
+}: FullScreenCityInputProps) {
   const [cityInput, setCityInput] = useState("");
   const [city, setCity] = useState(null);
-  const [openCitySearch, setOpenCitySearch] = useState(false);
 
   useEffect(() => {
     setCityInput(initialCity);
@@ -35,8 +43,6 @@ function FullScreenCityInput({
           loadCities={loadCities}
           city={cityInput}
           setCity={setCityInput}
-          isOpen={openCitySearch}
-          showRightIcon={false}
         />
       </Box>
       <Box
@@ -52,9 +58,6 @@ function FullScreenCityInput({
           loadFavouriteTours={
             !!pageKey && pageKey === "start" && loadFavouriteTours
           }
-          setOpenCitySearch={setOpenCitySearch}
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
           onSelect={onSelect}
           idOne={idOne}
           cityOne={cityOne}

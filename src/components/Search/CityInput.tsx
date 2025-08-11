@@ -28,15 +28,19 @@ const CssTextField = styled(TextField)({
   },
 });
 
+export interface CityInputProps {
+  loadCities: any;
+  city: string;
+  setCity: any;
+}
+
 export default function CityInput({
   loadCities,
   city,
   setCity,
-  onFocus,
-  disabled,
-}) {
+}: CityInputProps) {
   const placeholder = () => {
-    let host = window.location.host;
+    const host = window.location.host;
     if (host.indexOf("zuugle.at") >= 0) {
       return "Wien, Graz, ...";
     } else if (host.indexOf("zuugle.de") >= 0) {
@@ -68,7 +72,6 @@ export default function CityInput({
       placeholder={placeholder()}
       variant="outlined"
       fullWidth
-      disabled={disabled}
       value={city}
       autoComplete={"off"}
       key={"city-input"}
@@ -76,8 +79,6 @@ export default function CityInput({
         setCity(event.target.value);
         loadCities({ search: event.target.value });
       }}
-      onFocus={() => !!onFocus && onFocus(true)}
-      onBlur={() => !!onFocus && onFocus(false)}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

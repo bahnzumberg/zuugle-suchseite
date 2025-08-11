@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -11,17 +10,27 @@ import Avatar from "@mui/material/Avatar";
 import CircularProgress from "@mui/material/CircularProgress";
 import "/src/config.js";
 
+export interface CityResultsListProps {
+  cities: any;
+  setCity: any;
+  setCityInput: any;
+  isCityLoading: any;
+  loadFavouriteTours: any;
+  onSelect: any;
+  idOne: any;
+  cityOne: any;
+}
+
 export function CityResultList({
   cities,
   setCity,
   setCityInput,
-  onFocusCity,
   isCityLoading,
   loadFavouriteTours,
   onSelect,
   idOne,
   cityOne,
-}) {
+}: CityResultsListProps) {
   const writeCityToLocalStorage = (city) => {
     localStorage.setItem("city", city);
   };
@@ -44,9 +53,6 @@ export function CityResultList({
             onMouseDown={(event) => {
               setCity(_city);
               setCityInput(_city.label);
-              if (!!onFocusCity) {
-                onFocusCity(false);
-              }
               //this handler is for use at detail page (using useParams hook)
               if (!!cityOne && !!idOne) {
                 setCityInput(_city.label);
