@@ -6,6 +6,16 @@ export interface CityResponse {
   cities: CityObject[];
 }
 
+export interface TotalResponse {
+  success: boolean;
+  total_tours: number;
+  tours_city: number;
+  total_connections: number;
+  total_ranges: number;
+  total_cities: number;
+  total_provider: number;
+}
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_URL,
@@ -20,7 +30,12 @@ export const api = createApi({
         return response.cities;
       },
     }),
+    getTotals: build.query<TotalResponse, void>({
+      query: () => {
+        return `tours/total`;
+      },
+    }),
   }),
 });
 
-export const { useGetCitiesQuery } = api;
+export const { useGetCitiesQuery, useGetTotalsQuery } = api;

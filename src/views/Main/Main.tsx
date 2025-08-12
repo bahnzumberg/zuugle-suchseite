@@ -22,7 +22,7 @@ import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
 import { FilterObject } from "../../components/Filter/Filter";
 import { Tour } from "../../components/TourCard";
-import { useGetCitiesQuery } from "../../features/apiSlice";
+import { useGetCitiesQuery, useGetTotalsQuery } from "../../features/apiSlice";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
@@ -33,7 +33,6 @@ export interface MainProps {
   loadTours: any;
   loadTour: any;
   tours: any;
-  totalTours: any;
   filter: FilterObject;
   pageTours: any;
   loading: boolean;
@@ -43,7 +42,6 @@ export function Main({
   loadTours,
   loadTour,
   tours,
-  totalTours,
   filter,
   pageTours,
   loading,
@@ -81,6 +79,12 @@ export function Main({
     : null;
 
   const { data: allCities = [] } = useGetCitiesQuery({});
+  const { totalTours } = useGetTotalsQuery(undefined, {
+    selectFromResult: ({ data }) => ({
+      totalTours: data?.total_tours ?? 0,
+    }),
+  });
+
   //MAP  setting showMap
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
@@ -239,7 +243,6 @@ export function Main({
         handleShowCardContainer={handleShowCardContainer}
       />
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, tours, totalTours]);
   // }, [filter, tours, totalTours, mapBounds]);
 
@@ -483,7 +486,6 @@ const mapStateToProps = (state) => {
     tours: state.tours.tours,
     allRanges: state.ranges.ranges,
     filter: state.tours.filter,
-    totalTours: state.tours.total,
     pageTours: state.tours.page,
     tour: state.tours.tour,
   };

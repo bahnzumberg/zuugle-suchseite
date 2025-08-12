@@ -2,8 +2,6 @@ import {
   CLEAR_TOURS,
   LOAD_FAVOURITE_TOURS,
   LOAD_FAVOURITE_TOURS_DONE,
-  LOAD_TOTAL_TOURS,
-  LOAD_TOTAL_TOURS_DONE,
   LOAD_TOUR,
   LOAD_TOUR_DONE,
   LOAD_TOUR_FILTER,
@@ -32,21 +30,14 @@ const initialState = {
   favouriteTours: [],
   filter: null,
   selectedDate: null,
-  total_tours: 0,
   favouriteRanges: [],
   isLoadingFilter: false,
-  total_provider: 0,
-  total_cities: 0,
-  total_ranges: 0,
-  total_connections: 0,
   visibleToursGPX: [],
   noToursAvailable: null,
   markers: [],
   selectedTourID: null,
 };
 
-// Keep comment below for Eslint purposes
-// eslint-disable-next-line import/no-anonymous-default-export
 export default (state = initialState, action = {}) => {
   switch (action.type) {
     case LOAD_TOURS:
@@ -107,20 +98,6 @@ export default (state = initialState, action = {}) => {
       return {
         ...state,
         selectedDate: action.date,
-      };
-    case LOAD_TOTAL_TOURS:
-      return {
-        ...state,
-      };
-    case LOAD_TOTAL_TOURS_DONE:
-      return {
-        ...state,
-        total_tours: action.total_tours,
-        total_connections: action.total_connections,
-        total_ranges: action.total_ranges,
-        total_cities: action.total_cities,
-        total_provider: action.total_provider,
-        noToursAvailable: action.total_tours === 0 ? true : false,
       };
     case LOAD_TOUR_GPX:
       return {
