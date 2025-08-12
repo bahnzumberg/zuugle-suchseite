@@ -10,19 +10,28 @@ import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
-import cityReducer from "./reducers/cities";
 import rangeReducer from "./reducers/ranges";
+import { api } from "./features/apiSlice";
 
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
   // Automatically calls `combineReducers`
   reducer: {
+    // Add the generated RTK Query "API slice" caching reducer
+    [api.reducerPath]: api.reducer,
     modal: modalReducer,
     tours: tourReducer,
-    cities: cityReducer,
     ranges: rangeReducer,
   },
+  // Add the RTK Query API middleware
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
 });
+
+// Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+export type AppStore = typeof store;
 
 // Workaround for IE Mobile 10.0
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {

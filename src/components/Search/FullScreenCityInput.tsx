@@ -3,15 +3,12 @@ import Box from "@mui/material/Box";
 import CityInput from "./CityInput";
 import { CityResultList } from "./CityResultList";
 import { useEffect, useState } from "react";
-import { loadCities } from "../../actions/cityActions";
 import { loadFavouriteTours } from "../../actions/tourActions";
 import { compose } from "redux";
 import { connect } from "react-redux";
+import { useGetCitiesQuery } from "../../features/apiSlice";
 
 export interface FullScreenCityInputProps {
-  loadCities: any;
-  cities: any;
-  isCityLoading: any;
   initialCity: any;
   onSelect: any;
   cityOne: any;
@@ -20,9 +17,6 @@ export interface FullScreenCityInputProps {
 }
 
 function FullScreenCityInput({
-  loadCities,
-  cities,
-  isCityLoading,
   initialCity,
   onSelect,
   cityOne,
@@ -32,6 +26,11 @@ function FullScreenCityInput({
   const [cityInput, setCityInput] = useState("");
   const [city, setCity] = useState(null);
 
+  // load all cities once, apply search filter only in frontend
+  const { data: cities = [], isFetching: isCitiesLoading } = useGetCitiesQuery(
+    {},
+  );
+
   useEffect(() => {
     setCityInput(initialCity);
   }, [initialCity]);
@@ -39,11 +38,7 @@ function FullScreenCityInput({
   return (
     <Box>
       <Box>
-        <CityInput
-          loadCities={loadCities}
-          city={cityInput}
-          setCity={setCityInput}
-        />
+        <CityInput city={cityInput} setCity={setCityInput} />
       </Box>
       <Box
         className={"result-container"}
@@ -53,8 +48,9 @@ function FullScreenCityInput({
         <CityResultList
           cities={cities}
           setCity={setCity}
+          cityInput={cityInput}
           setCityInput={setCityInput}
-          isCityLoading={isCityLoading}
+          isCityLoading={isCitiesLoading}
           loadFavouriteTours={
             !!pageKey && pageKey === "start" && loadFavouriteTours
           }
@@ -68,15 +64,12 @@ function FullScreenCityInput({
 }
 
 const mapDispatchToProps = {
-  loadCities,
   loadFavouriteTours,
 };
 
 const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
-    cities: state.cities.cities,
-    isCityLoading: state.cities.loading,
   };
 };
 

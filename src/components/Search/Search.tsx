@@ -28,6 +28,7 @@ import { Modal, Typography, useMediaQuery } from "@mui/material";
 import { capitalize } from "../../utils/globals";
 import Close from "../../icons/Close";
 import "/src/config.js";
+import { useGetCitiesQuery } from "../../features/apiSlice";
 
 export interface CityObject {
   label: string;
@@ -42,7 +43,6 @@ export interface SearchProps {
   isMain: boolean;
   showModal: any;
   hideModal: any;
-  allCities: CityObject[];
   updateCapCity: (city: string) => void;
   counter: number;
   setCounter: (counter: number) => void;
@@ -61,7 +61,6 @@ export function Search({
   isMain,
   showModal,
   hideModal,
-  allCities,
   updateCapCity,
   counter,
   setCounter,
@@ -76,6 +75,8 @@ export function Search({
   // Translation
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:600px)");
+
+  const { data: allCities = [] } = useGetCitiesQuery({});
 
   const language = i18next.resolvedLanguage;
 
@@ -250,6 +251,7 @@ export function Search({
       }
     });
   }, [
+    allCities,
     // useEffect dependencies
     searchParams && searchParams.get("city"),
     cityOne,
@@ -972,10 +974,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
-    cities: state.cities.cities,
-    allCities: state.cities.all_cities,
     filter: state.tours.filter,
-    isCityLoading: state.cities.loading,
   };
 };
 

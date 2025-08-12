@@ -29,16 +29,11 @@ const CssTextField = styled(TextField)({
 });
 
 export interface CityInputProps {
-  loadCities: any;
   city: string;
-  setCity: any;
+  setCity: (city: string) => void;
 }
 
-export default function CityInput({
-  loadCities,
-  city,
-  setCity,
-}: CityInputProps) {
+export default function CityInput({ city, setCity }: CityInputProps) {
   const placeholder = () => {
     const host = window.location.host;
     if (host.indexOf("zuugle.at") >= 0) {
@@ -63,7 +58,6 @@ export default function CityInput({
   const handleSearchClearClick = (e) => {
     if (e) {
       setCity("");
-      loadCities({ search: "" });
     }
   };
   return (
@@ -77,7 +71,6 @@ export default function CityInput({
       key={"city-input"}
       onChange={(event) => {
         setCity(event.target.value);
-        loadCities({ search: event.target.value });
       }}
       InputProps={{
         startAdornment: (

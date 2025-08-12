@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { compose } from "redux";
-import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadRanges } from "../../actions/rangeActions";
 import {
   loadFavouriteTours,
@@ -33,7 +32,6 @@ const Footer = lazy(() => import("../../components/Footer/Footer"));
 function Start({
   loadFavouriteTours,
   favouriteTours,
-  loadCities,
   totalTours,
   loadTour,
   loadTotalTours,
@@ -41,8 +39,6 @@ function Start({
   totalCities,
   totalRanges,
   favouriteRanges,
-  loadAllCities,
-  allCities,
   totalProvider,
   noToursAvailable,
 }) {
@@ -65,7 +61,6 @@ function Start({
 
   useEffect(() => {
     // matomo
-    // eslint-disable-next-line no-undef
     _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
@@ -76,15 +71,12 @@ function Start({
     const loadData = async () => {
       try {
         totalTourRef.current = await loadTotalTours(requestConfig);
-        await loadAllCities(requestConfig);
 
         if (city) {
-          // console.log("setting search params", city);
           searchParams.set("city", city);
           setSearchParams(searchParams);
         }
 
-        await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
           {
             limit: 10,
@@ -173,7 +165,7 @@ function Start({
         }
       >
         <Box>
-          <Header totalTours={totalTours} allCities={allCities} />
+          <Header totalTours={totalTours} />
           <Footer />
         </Box>
       </Suspense>
@@ -186,9 +178,7 @@ function Start({
         <Box style={{ background: "#fff" }}>
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
           <Header
-            getCity={getCity}
             totalTours={totalTours}
-            allCities={allCities}
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
@@ -284,10 +274,8 @@ function Start({
 
 const mapDispatchToProps = {
   loadFavouriteTours,
-  loadCities,
   loadRanges,
   loadTotalTours,
-  loadAllCities,
   loadTour,
 };
 
@@ -301,7 +289,6 @@ const mapStateToProps = (state) => {
     totalConnections: state.tours.total_connections,
     totalRanges: state.tours.total_ranges,
     totalCities: state.tours.total_cities,
-    allCities: state.cities.all_cities,
     totalProvider: state.tours.total_provider,
     noDataAvailable: state.tours.noDataAvailable,
     noToursAvailable: state.tours.noToursAvailable,

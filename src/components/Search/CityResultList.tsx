@@ -9,21 +9,26 @@ import Avatar from "@mui/material/Avatar";
 
 import CircularProgress from "@mui/material/CircularProgress";
 import "/src/config.js";
+import { CityObject } from "./Search";
+import { useMemo } from "react";
 
 export interface CityResultsListProps {
-  cities: any;
-  setCity: any;
-  setCityInput: any;
-  isCityLoading: any;
+  cities: CityObject[];
+  setCity: (city: CityObject) => void;
+  cityInput: string;
+  setCityInput: (city: string) => void;
+  isCityLoading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadFavouriteTours: any;
-  onSelect: any;
-  idOne: any;
-  cityOne: any;
+  onSelect: (city: CityObject) => void;
+  idOne: string;
+  cityOne: string;
 }
 
 export function CityResultList({
   cities,
   setCity,
+  cityInput,
   setCityInput,
   isCityLoading,
   loadFavouriteTours,
@@ -31,7 +36,13 @@ export function CityResultList({
   idOne,
   cityOne,
 }: CityResultsListProps) {
-  const writeCityToLocalStorage = (city) => {
+  const filteredCities = useMemo(() => {
+    return cities.filter((city) =>
+      city.value.toLowerCase().includes(cityInput.toLowerCase()),
+    );
+  }, [cities, cityInput]);
+
+  const writeCityToLocalStorage = (city: string) => {
     localStorage.setItem("city", city);
   };
 
@@ -39,27 +50,27 @@ export function CityResultList({
 
   return (
     <List>
-      {!!isCityLoading && false && (
+      {isCityLoading && (
         <ListItem sx={{ backgroundColor: "#FFFFFF" }}>
           <Box sx={{ padding: "20px" }}>
             <CircularProgress />
           </Box>
         </ListItem>
       )}
-      {cities.map((_city, index) => {
+      {filteredCities.map((_city, index) => {
         return (
           <ListItem
             key={index}
-            onMouseDown={(event) => {
+            onMouseDown={() => {
               setCity(_city);
-              setCityInput(_city.label);
+              setCityInput(_city.value);
               //this handler is for use at detail page (using useParams hook)
               if (!!cityOne && !!idOne) {
                 setCityInput(_city.label);
-                setCity(_city.value);
+                setCity(_city);
                 navigate(`tour/${idOne}/${_city.value}`);
                 window.location.reload();
-              } else if (!!onSelect) {
+              } else if (onSelect) {
                 // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
                 onSelect(_city);
               }

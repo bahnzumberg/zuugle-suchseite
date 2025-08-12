@@ -5,7 +5,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import { loadTour, loadTours } from "../../actions/tourActions";
-import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -81,9 +80,7 @@ export function Main({
     ? localStorage.getItem("filterValues")
     : null;
 
-  const { data: allCities = [] } = useGetCitiesQuery({
-    all: true,
-  });
+  const { data: allCities = [] } = useGetCitiesQuery({});
   //MAP  setting showMap
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
@@ -477,7 +474,6 @@ export function Main({
 
 const mapDispatchToProps = {
   loadTours,
-  loadAllCities,
   loadTour,
 };
 
@@ -485,7 +481,6 @@ const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
     tours: state.tours.tours,
-    allCities: state.cities.all_cities,
     allRanges: state.ranges.ranges,
     filter: state.tours.filter,
     totalTours: state.tours.total,

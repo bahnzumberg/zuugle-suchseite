@@ -1,7 +1,4 @@
 import * as React from "react";
-// import {useRef} from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -9,7 +6,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Grid,
   Divider,
   Typography,
   Link,
@@ -19,7 +15,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import { Fragment, useEffect, useState, useRef } from "react";
-// import CircularProgress from "@mui/material/CircularProgress";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
@@ -41,21 +36,22 @@ import {
   randomKey,
 } from "../../utils/globals";
 import "/src/config.js";
+import { useGetCitiesQuery } from "../../features/apiSlice";
 
-function ItineraryTourTimeLineContainer({
+export default function ItineraryTourTimeLineContainer({
   connections,
   loading,
   duration,
   tour,
   city,
-  cities,
   dateIndex,
   idOne,
 }) {
   //set connections to single one
   connections = connections[dateIndex];
+  const { data: cities = [] } = useGetCitiesQuery({});
 
-  let emptyConnArray =
+  const emptyConnArray =
     !connections ||
     (!!connections &&
       Array.isArray(connections.connections) &&
@@ -715,15 +711,3 @@ function ItineraryTourTimeLineContainer({
     );
   }
 }
-
-const mapDispatchToProps = {};
-
-const mapStateToProps = (state) => {
-  return {
-    cities: state.cities.cities,
-  };
-};
-
-export default compose(connect(mapStateToProps, mapDispatchToProps))(
-  ItineraryTourTimeLineContainer,
-);
