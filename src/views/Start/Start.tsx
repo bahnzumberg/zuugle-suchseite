@@ -1,11 +1,10 @@
 import { Box, Skeleton, Typography } from "@mui/material";
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { compose } from "redux";
-import { loadRanges } from "../../actions/rangeActions";
 import { loadFavouriteTours, loadTour } from "../../actions/tourActions";
 import { useResponsive } from "../../utils/globals";
 import {
@@ -260,7 +259,6 @@ function Start({
 
 const mapDispatchToProps = {
   loadFavouriteTours,
-  loadRanges,
   loadTour,
 };
 
@@ -269,7 +267,6 @@ const mapStateToProps = (state) => {
     loading: state.tours.loading,
     favouriteTours: state.tours.favouriteTours,
     favouriteRanges: state.tours.favouriteRanges,
-    allRanges: state.ranges.ranges,
     noDataAvailable: state.tours.noDataAvailable,
     error: state.tours.error,
   };

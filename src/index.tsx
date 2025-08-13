@@ -10,7 +10,6 @@ import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
-import rangeReducer from "./reducers/ranges";
 import { api } from "./features/apiSlice";
 
 // Automatically adds the thunk middleware and the Redux DevTools extension
@@ -21,7 +20,6 @@ export const store = configureStore({
     [api.reducerPath]: api.reducer,
     modal: modalReducer,
     tours: tourReducer,
-    ranges: rangeReducer,
   },
   // Add the RTK Query API middleware
   middleware: (getDefaultMiddleware) =>

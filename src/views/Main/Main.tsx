@@ -484,7 +484,6 @@ const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
     tours: state.tours.tours,
-    allRanges: state.ranges.ranges,
     filter: state.tours.filter,
     pageTours: state.tours.page,
     tour: state.tours.tour,
