@@ -8,16 +8,14 @@ import Avatar from "@mui/material/Avatar";
 
 import CircularProgress from "@mui/material/CircularProgress";
 import "/src/config.js";
-import { CityObject } from "./Search";
 import { useMemo } from "react";
-import { useAppDispatch } from "../../hooks";
-import { cityUpdated } from "../../features/citySlice";
+import { CityObject } from "../../features/searchSlice";
 
 export interface CityResultsListProps {
   cities: CityObject[];
   cityInput: string;
-  setCityInput: (city: string) => void;
   isCityLoading: boolean;
+  selectCity: (city: CityObject) => void;
 }
 
 /**
@@ -27,16 +25,14 @@ export interface CityResultsListProps {
 export function CityResultList({
   cities,
   cityInput,
-  setCityInput,
   isCityLoading,
+  selectCity,
 }: CityResultsListProps) {
   const filteredCities = useMemo(() => {
     return cities.filter((city) =>
       city.label.toLowerCase().includes(cityInput.toLowerCase()),
     );
   }, [cities, cityInput]);
-
-  const dispatch = useAppDispatch();
 
   return (
     <List>
@@ -51,11 +47,7 @@ export function CityResultList({
         return (
           <ListItem
             key={index}
-            onMouseDown={() => {
-              // set new city in redux state
-              dispatch(cityUpdated(_city));
-              setCityInput(_city.value);
-            }}
+            onMouseDown={() => selectCity(_city)}
             sx={{
               borderRadius: "12px",
               padding: "5px",

@@ -13,36 +13,27 @@ import {
   getTopLevelDomain,
 } from "../../utils/globals";
 import { useNavigate } from "react-router";
-import { hideModal, showModal } from "../../actions/modalActions";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import FilterIcon from "../../icons/FilterIcon";
 import IconButton from "@mui/material/IconButton";
 import GoIcon from "../../icons/GoIcon";
-import AutosuggestSearchTour from "./AutosuggestSearch";
+import AutosuggestSearch from "./AutosuggestSearch";
 import Filter, { FilterObject } from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
-import { Modal, Typography, useMediaQuery } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import { capitalize } from "../../utils/globals";
-import Close from "../../icons/Close";
 import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
-
-export interface CityObject {
-  label: string;
-  value: string;
-}
+import { theme } from "../../theme";
+import { MobileModal } from "./MobileModal";
 
 export interface SearchProps {
   loadTours: any;
   goto: boolean;
-  page: any;
   pageKey: string;
   isMain: boolean;
-  showModal: any;
-  hideModal: any;
   updateCapCity: (city: string) => void;
   counter: number;
   setCounter: (counter: number) => void;
@@ -56,12 +47,8 @@ export interface SearchProps {
 export function Search({
   loadTours,
   goto,
-  page,
   pageKey,
   isMain,
-  showModal,
-  hideModal,
-  updateCapCity,
   counter,
   setCounter,
   setFilterValues,
@@ -74,11 +61,9 @@ export function Search({
   const navigate = useNavigate();
   // Translation
   const { t } = useTranslation();
-  const isMobile = useMediaQuery("(max-width:600px)");
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: allCities = [] } = useGetCitiesQuery({});
-
-  const language = i18next.resolvedLanguage;
 
   const filterCountLocal = localStorage.getItem("filterCount")
     ? localStorage.getItem("filterCount")
@@ -89,6 +74,8 @@ export function Search({
   const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [showMobileModal, setShowMobileModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [ShowCitySearch, setShowCitySearch] = useState(false);
 
   let suggestion: string; //variable that stores the text of the selected option
   const urlSearchParams = new URLSearchParams(window.location.search);
@@ -129,13 +116,6 @@ export function Search({
   useEffect(() => {
     if (mapBounds) return; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
 
-    // pull out values from URL params
-    let city;
-    if (cityOne) {
-      city = cityOne;
-    } else {
-      city = searchParams.get("city");
-    }
     const range = searchParams.get("range");
     const country = searchParams.get("country");
     const type = searchParams.get("type");
@@ -143,19 +123,6 @@ export function Search({
     let filter = searchParams.get("filter");
     const sort = searchParams.get("sort");
     const provider = searchParams.get("p");
-    let cityEntry = null;
-
-    if (!!city && !!allCities) {
-      cityEntry = allCities.find((e) => e.value === city); // find the city object in array "allCities"
-    }
-
-    if (!!city && !!allCities) {
-      if (cityEntry) {
-        setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
-        setCity(cityEntry); // state "city" to city OBJECT, e.g. {value: 'amstetten', label: 'Amstetten'}
-        writeCityToLocalStorage(city); // store the city NAME in local storage
-      }
-    }
 
     //setting searchPhrase to the value of the search parameter
 
@@ -177,7 +144,6 @@ export function Search({
         if (cityEntry) {
           setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
           setCity(cityEntry);
-          writeCityToLocalStorage(search.toLowerCase());
           searchParams.set("city", search.toLowerCase());
           setSearchParams(searchParams);
           setSearchPhrase("");
@@ -267,11 +233,6 @@ export function Search({
     setSearchParams,
   ]); // end useEffect
 
-  // store city in localstorage
-  const writeCityToLocalStorage = (city) => {
-    localStorage.setItem("city", city);
-  };
-
   const resetFilterLocalStorage = () => {
     localStorage.removeItem("filterValues");
     localStorage.setItem("filterCount", String(0));
@@ -291,7 +252,6 @@ export function Search({
     filterValues: FilterObject,
     filterCount: number,
   ) => {
-    hideModal();
     handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
     if (filterCount > 0) {
       setCounter(filterCount);
@@ -311,7 +271,6 @@ export function Search({
   };
 
   const handleResetFilter = () => {
-    hideModal();
     handleFilterChange(null);
     setActiveFilter(false); // reset activeFilter state
     setCounter(0);
@@ -390,116 +349,6 @@ export function Search({
     }
   }; // end search()
 
-  const showCityModal = () => {
-    if (isMobile) {
-      setShowMobileModal(true);
-    } else {
-      showModal("MODAL_COMPONENT", {
-        CustomComponent: FullScreenCityInput,
-        searchParams,
-        initialCity: cityInput,
-        onSelect: async (city: CityObject) => {
-          if (city) {
-            setCityInput(city.label);
-            setCity(city);
-            if (pageKey === "start") {
-              updateCapCity(city.label);
-            }
-            searchParams.set("city", city.value);
-            setSearchParams(searchParams);
-            window.location.reload();
-          }
-
-          hideModal();
-        },
-        cityOne: cityOne,
-        idOne: idOne,
-        setSearchParams,
-        title: "",
-        sourceCall: "city",
-        page: page,
-        srhBoxScrollH: document
-          .querySelector(".main-search-bar")
-          .getBoundingClientRect().top,
-        modalSize: "lg",
-        onBack: () => {
-          hideModal();
-        },
-      });
-    }
-  };
-  const showCityModalMobile = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: FullScreenCityInput,
-      searchParams,
-      initialCity: cityInput,
-      onSelect: async (city: CityObject) => {
-        if (!!cityOne && !!idOne && pageKey === "detail") {
-          setCityInput(city.label);
-          setCity(city.value);
-          navigate(`tour/${idOne}/${city.value}`);
-        } else if (city) {
-          setCityInput(city.label);
-          setCity(city);
-          if (pageKey === "start") {
-            updateCapCity(city.label);
-          }
-          searchParams.set("city", city.value);
-          setSearchParams(searchParams);
-        }
-        hideModal();
-      },
-      cityOne: cityOne,
-      idOne: idOne,
-      setSearchParams,
-      title: "",
-      sourceCall: "city",
-      page: page,
-      srhBoxScrollH: document
-        .querySelector(".main-search-bar")
-        .getBoundingClientRect().top,
-      modalSize: "lg",
-      onBack: () => {
-        hideModal();
-      },
-    });
-  };
-
-  const showSearchModal = () => {
-    if (isMobile) {
-      setShowMobileModal(true);
-    } else {
-      showModal("MODAL_COMPONENT", {
-        CustomComponent: AutosuggestSearchTour,
-        onSearchSuggestion: getSearchSuggestion,
-        city: city ? city : cityOne,
-        language: language,
-        title: "",
-        sourceCall: "search",
-        page: page,
-        srhBoxScrollH: document
-          .querySelector(".main-search-bar")
-          .getBoundingClientRect().top,
-        modalSize: "lg",
-      });
-    }
-  };
-  const showSearchModalMobile = () => {
-    showModal("MODAL_COMPONENT", {
-      CustomComponent: AutosuggestSearchTour,
-      onSearchSuggestion: getSearchSuggestion,
-      city: city ? city : cityOne,
-      language: language,
-      title: "",
-      sourceCall: "search",
-      page: page,
-      srhBoxScrollH: document
-        .querySelector(".main-search-bar")
-        .getBoundingClientRect().top,
-      modalSize: "lg",
-    });
-  };
-
   const handleGoButton = () => {
     if (isMain) {
       isMasterMarkersSet.current = false;
@@ -515,271 +364,37 @@ export function Search({
       searchParams.delete("search");
       setSearchPhrase("");
       setSearchParams(searchParams);
-      hideModal();
       return;
     }
     suggestion = autoSuggestion;
-    hideModal();
     search();
     window.location.reload();
   };
 
-  const MobileModal = () => {
-    const style = {
-      overflowY: "scroll",
-      overflowX: "hidden",
-      display: "block",
-      position: "absolute",
-      top: {
-        xs: 0,
-      },
-      bottom: { xs: "0", sm: "auto" },
-      left: "50%",
-      transform: {
-        xs: "translate(-50%, 0)",
-        sm: "translate(-50%, 0)",
-      },
-      width: "100%",
-      maxWidth: "618px",
-      minHeight: "484px",
-      bgcolor: "#EBEBEB",
-      boxShadow: "0px 2px 15px 0px rgba(0, 0, 0, 0.15)",
-      border: "0",
-      outline: "none",
-      borderRadius: "18px",
-      padding: "20px 25px",
-      boxSizing: "border-box",
-    };
-
-    return (
-      <Modal
-        open={showMobileModal}
-        onClose={() => {
-          setShowMobileModal(false);
-        }}
-      >
-        <Box sx={style} className={"my-modal"}>
-          <Box
-            sx={{
-              position: "absolute",
-              right: "20px",
-              top: "20px",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Typography
-              sx={{
-                textDecoration: "underline",
-                cursor: "pointer",
-                fontFamily: "Open Sans",
-                fontSize: "13px",
-                fontWeight: "600",
-                lineHeight: "18px",
-              }}
-              onClick={() => {
-                setShowMobileModal(false);
-              }}
-              mr={1}
-              mt={1}
-            >
-              {t("search.abbrechen")}
-            </Typography>
-            <Box
-              sx={{
-                padding: "8px",
-                width: "40px",
-                height: "40px",
-                borderRadius: "12px",
-              }}
-              onClick={() => {
-                setShowMobileModal(false);
-              }}
-            >
-              <Close style={{ stroke: "#000000", strokeWidth: 1 }} />
-            </Box>
-          </Box>
-          <div
-            onClick={() => {
-              setShowMobileModal(false);
-              showSearchModalMobile();
-            }}
-            style={{
-              backgroundColor: "white",
-              paddingTop: 12,
-              paddingBottom: 18,
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 15,
-              marginTop: 100,
-            }}
-          >
-            <div
-              style={{
-                marginLeft: 8,
-                marginBottom: 20,
-              }}
-            >
-              <span className="search-bar--searchPhase" style={{}}>
-                {t("start.suche")}
-              </span>
-            </div>
-            <Box
-              sx={{
-                width: "90%",
-                display: "flex",
-                alignItems: "center",
-                borderWidth: "1px",
-                borderColor: "#DDDDDD",
-                borderStyle: "solid",
-                padding: 2,
-                borderRadius: 10,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <SearchIcon
-                  style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
-                />
-                <Box
-                  sx={{
-                    width: {
-                      xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
-                      md: !cityInput && pageKey === "detail" ? "100%" : "486px",
-                    },
-                  }}
-                >
-                  <Grid container>
-                    <Grid
-                      sx={{
-                        paddingRight: "16px",
-                        padding: 0,
-                      }}
-                      size={{
-                        xs: 12,
-                        md: !cityInput && pageKey === "detail" ? 12 : 12,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          paddingLeft: "14px",
-                          justifyContent: "flex-start",
-                          display: "flex",
-                        }}
-                      >
-                        <span className="search-bar--searchPhase">
-                          {searchParams.get("search")
-                            ? searchParams.get("search")
-                            : t("start.suche")}
-                        </span>
-                      </Box>
-                    </Grid>
-                    {/* city -----   modal ----  below */}
-                  </Grid>
-                </Box>
-              </Box>
-            </Box>
-          </div>
-          <div
-            onClick={() => {
-              setShowMobileModal(false);
-              showCityModalMobile();
-            }}
-            style={{
-              backgroundColor: "white",
-              paddingTop: 12,
-              paddingBottom: 18,
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 15,
-              marginTop: 60,
-            }}
-          >
-            <div
-              style={{
-                marginLeft: 8,
-                marginBottom: 20,
-              }}
-            >
-              <span className="search-bar--searchPhase" style={{}}>
-                {t("search.dein_heimatbahnhof")}
-              </span>
-            </div>
-            <Box
-              sx={{
-                width: "90%",
-                display: "flex",
-                alignItems: "center",
-                borderWidth: "1px",
-                borderColor: "#DDDDDD",
-                borderStyle: "solid",
-                padding: 2,
-                borderRadius: 10,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <TransportTrain
-                  style={{
-                    strokeWidth: "1px",
-                    fill: "#000",
-                    stroke: "none",
-                    marginRight: "8px", // optional spacing between SVG and text
-                  }}
-                />
-                <Box
-                  sx={{
-                    width: {
-                      xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
-                      md: !cityInput && pageKey === "detail" ? "100%" : "486px",
-                    },
-                  }}
-                >
-                  <Grid container>
-                    <Grid
-                      sx={{
-                        paddingRight: "16px",
-                        padding: 0,
-                      }}
-                      size={{
-                        xs: 12,
-                        md: !cityInput && pageKey === "detail" ? 12 : 12,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          paddingLeft: "14px",
-                          justifyContent: "flex-start",
-                          display: "flex",
-                        }}
-                      >
-                        <span className="search-bar--searchPhase">
-                          {cityInput.length > 0
-                            ? cityInput
-                            : t("start.heimatbahnhof")}
-                        </span>
-                      </Box>
-                    </Grid>
-                    {/* city -----   modal ----  below */}
-                  </Grid>
-                </Box>
-              </Box>
-            </Box>
-          </div>
-        </Box>
-      </Modal>
-    );
-  };
-
   return (
     <Fragment>
-      <MobileModal />
+      <MobileModal
+        showMobileModal={showMobileModal}
+        setShowMobileModal={setShowMobileModal}
+        setShowSearchModal={setShowSearchModal}
+        setShowCitySearch={setShowCitySearch}
+      />
+      <AutosuggestSearch
+        showSearchModal={showSearchModal}
+        setShowSearchModal={setShowSearchModal}
+        onSearchSuggestion={getSearchSuggestion}
+      />
+      <FullScreenCityInput
+        showCitySearch={ShowCitySearch}
+        setShowCitySearch={setShowCitySearch}
+      />
       <Filter
         filterOn={filterOn}
         searchParams={searchParams}
         doSubmit={handleFilterSubmit}
         resetFilter={handleResetFilter}
         onBack={() => {
-          setFilterOn(false); // Reset filterOn when closing the modal
-          hideModal();
+          setFilterOn(false);
         }}
       />
       <Box
@@ -809,7 +424,13 @@ export function Search({
                   paddingRight: "16px",
                   padding: 0,
                 }}
-                onClick={showSearchModal}
+                onClick={() => {
+                  if (isMobile) {
+                    setShowMobileModal(true);
+                  } else {
+                    setShowSearchModal(true);
+                  }
+                }}
                 size={{
                   xs: 12,
                   md: !cityInput && pageKey === "detail" ? 12 : 6,
@@ -846,7 +467,13 @@ export function Search({
               </Grid>
               {/* city -----   modal ----  below */}
               <Grid
-                onClick={showCityModal}
+                onClick={() => {
+                  if (isMobile) {
+                    setShowMobileModal(true);
+                  } else {
+                    setShowCitySearch(true);
+                  }
+                }}
                 display="flex"
                 alignItems="center"
                 size={{
@@ -967,8 +594,6 @@ export function Search({
 
 const mapDispatchToProps = {
   loadTours,
-  showModal,
-  hideModal,
 };
 
 const mapStateToProps = (state) => {
