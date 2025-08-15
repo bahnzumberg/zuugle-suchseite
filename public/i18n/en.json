@@ -243,6 +243,7 @@
     "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables."
   },
   "search": {
+    "search": "Search",
     "abbrechen": "Abort",
     "dein_heimatbahnhof": "Your main railway station",
     "ab_heimatbahnhof": "from",

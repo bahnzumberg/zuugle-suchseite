@@ -6,6 +6,7 @@ import { getTotalCityTours } from "../../actions/crudActions";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
 import "/src/config.js";
+import { useGetCitiesQuery } from "../../features/apiSlice";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
@@ -13,7 +14,6 @@ const SearchContainer = lazy(() => import("./SearchContainer"));
 
 export default function Header({
   totalTours,
-  allCities = [],
   showMobileMenu,
   setShowMobileMenu,
 }) {
@@ -23,6 +23,7 @@ export default function Header({
     return searchParams.get("city") || localStorage.getItem("city") || null;
   }, [searchParams]);
   const city = getCity();
+  const { data: allCities = [] } = useGetCitiesQuery({});
 
   const [capCity, setCapCity] = useState(city);
   const [totalToursFromCity, setTotalToursFromCity] = useState(0);
@@ -39,7 +40,7 @@ export default function Header({
         setTotalToursFromCity(data.tours_city);
       });
 
-      if (allCities?.length > 0) {
+      if (allCities.length > 0) {
         const cityObj = allCities.find((e) => e.value === city);
         if (cityObj) {
           updateCapCity(cityObj.label);

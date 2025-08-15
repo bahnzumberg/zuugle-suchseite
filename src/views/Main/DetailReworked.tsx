@@ -25,7 +25,6 @@ import {
   WhatsappShareButton,
 } from "react-share";
 import { compose } from "redux";
-import { loadAllCities, loadCities } from "../../actions/cityActions";
 import { loadGPX } from "../../actions/fileActions";
 import {
   loadTour,
@@ -60,8 +59,6 @@ const DetailReworked = (props) => {
     loadTourGpx,
     isGpxLoading,
     tour,
-    loadCities,
-    loadAllCities,
   } = props;
 
   const [connections, setConnections] = useState(null);
@@ -204,8 +201,6 @@ const DetailReworked = (props) => {
   }, [dateIndex]);
 
   useEffect(() => {
-    loadAllCities();
-    loadCities({ limit: 5 });
     let tourId;
     if (idOne) {
       tourId = idOne;
@@ -828,15 +823,11 @@ const mapDispatchToProps = {
   loadTourConnectionsExtended,
   loadGPX,
   loadTourGpx,
-  loadCities,
-  loadAllCities,
 };
 
 function mapStateToProps(state) {
   return {
     isGpxLoading: state.tours.isGpxLoading,
-    cities: state.cities.cities,
-    allCities: state.cities.all_cities,
     tour: state.tours.tour,
   };
 }

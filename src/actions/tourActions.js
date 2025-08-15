@@ -1,12 +1,7 @@
 import {
-  CLEAR_TOURS,
   LOAD_FAVOURITE_TOURS,
   LOAD_FAVOURITE_TOURS_DONE,
-  LOAD_TOTAL_TOURS,
-  LOAD_TOTAL_TOURS_DONE,
   LOAD_TOUR,
-  LOAD_TOUR_CONNECTIONS,
-  LOAD_TOUR_CONNECTIONS_DONE,
   LOAD_TOUR_CONNECTIONS_EXTENDED,
   LOAD_TOUR_CONNECTIONS_EXTENDED_DONE,
   LOAD_TOUR_DONE,
@@ -16,16 +11,9 @@ import {
   LOAD_TOUR_GPX_DONE,
   LOAD_TOURS,
   LOAD_TOURS_DONE,
-  SET_SELECTED_DATE,
   SET_TOUR_ID,
 } from "./types";
-import {
-  loadFile,
-  loadList,
-  loadOne,
-  loadOneReturnAll,
-  getMapData,
-} from "./crudActions";
+import { loadFile, loadList, loadOne } from "./crudActions";
 import i18next from "i18next";
 import "/src/config.js";
 
@@ -96,19 +84,6 @@ export function loadTour(id, city) {
         // Re-throw error to the calling code
         throw error;
       });
-  };
-}
-
-export function loadTotalTours() {
-  return (dispatch, getState) => {
-    return loadOneReturnAll(
-      dispatch,
-      getState,
-      LOAD_TOTAL_TOURS,
-      LOAD_TOTAL_TOURS_DONE,
-      "total",
-      "tours/",
-    );
   };
 }
 

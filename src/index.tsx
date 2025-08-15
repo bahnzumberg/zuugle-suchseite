@@ -10,18 +10,49 @@ import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
-import cityReducer from "./reducers/cities";
-import rangeReducer from "./reducers/ranges";
+import searchReducer, { CityObject } from "./features/searchSlice";
+import { api } from "./features/apiSlice";
+
+const persistedCity = localStorage.getItem("city");
+let cityObject: CityObject | null = null;
+if (persistedCity) {
+  try {
+    cityObject = JSON.parse(persistedCity);
+  } catch (e) {
+    console.error("Error parsing city from localStorage", e);
+  }
+} // TODO: use zod for validating parsed objects like this
+// TODO: parse all of the relevant search parameters
 
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
   // Automatically calls `combineReducers`
   reducer: {
+    // Add the generated RTK Query "API slice" caching reducer
+    [api.reducerPath]: api.reducer,
     modal: modalReducer,
     tours: tourReducer,
-    cities: cityReducer,
-    ranges: rangeReducer,
+    search: searchReducer,
   },
+  preloadedState: { city: cityObject },
+  // Add the RTK Query API middleware
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
+});
+
+// Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+export type AppStore = typeof store;
+
+// TODO: store.subscribe is a rough tool, use middleware instead
+store.subscribe(() => {
+  const newCity = store.getState().search.city;
+  if (newCity !== null) {
+    localStorage.setItem("city", JSON.stringify(newCity));
+  } else {
+    localStorage.removeItem("city");
+  }
 });
 
 // Workaround for IE Mobile 10.0

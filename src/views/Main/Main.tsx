@@ -3,9 +3,8 @@ import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { loadTour, loadTours } from "../../actions/tourActions";
-import { loadAllCities } from "../../actions/cityActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -21,23 +20,32 @@ import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
+import { FilterObject } from "../../components/Filter/Filter";
+import { Tour } from "../../components/TourCard";
+import { useGetCitiesQuery, useGetTotalsQuery } from "../../features/apiSlice";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
   () => import("../../components/TourCardContainer"),
 );
 
+export interface MainProps {
+  loadTours: any;
+  loadTour: any;
+  tours: any;
+  filter: FilterObject;
+  pageTours: any;
+  loading: boolean;
+}
+
 export function Main({
   loadTours,
   loadTour,
-  loadAllCities,
   tours,
-  totalTours,
   filter,
   pageTours,
   loading,
-  allCities,
-}) {
+}: MainProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -66,9 +74,16 @@ export function Main({
 
   const isMobile = useMediaQuery("(max-width:678px)");
 
-  let filterValuesLocal = !!localStorage.getItem("filterValues")
+  const filterValuesLocal = localStorage.getItem("filterValues")
     ? localStorage.getItem("filterValues")
     : null;
+
+  const { data: allCities = [] } = useGetCitiesQuery({});
+  const { totalTours } = useGetTotalsQuery(undefined, {
+    selectFromResult: ({ data }) => ({
+      totalTours: data?.total_tours ?? 0,
+    }),
+  });
 
   //MAP  setting showMap
   useEffect(() => {
@@ -76,10 +91,9 @@ export function Main({
   }, [searchParams]);
 
   useEffect(() => {
-    loadAllCities();
-    let searchParamCity = searchParams.get("city");
+    const searchParamCity = searchParams.get("city");
     const city = localStorage.getItem("city");
-    if (!!city && !!!searchParamCity) {
+    if (!!city && !searchParamCity) {
       searchParams.set("city", city);
       setSearchParams(searchParams);
     }
@@ -96,7 +110,7 @@ export function Main({
   }, [allCities, location]);
 
   useEffect(() => {
-    var _mtm = (window._mtm = window._mtm || []);
+    const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Suche" });
   }, []);
 
@@ -114,7 +128,7 @@ export function Main({
             "city.label": city.label,
           }),
         });
-      } else if (!!!city || !!!city.value) {
+      } else if (!city || !city.value) {
         setDirectLink(null);
       }
     }
@@ -122,7 +136,7 @@ export function Main({
 
   //updates the state of the boolean activeFilter based on localStorage values of "filterValues" .
   useEffect(() => {
-    let _filterCountLocal = getFilterCount();
+    const _filterCountLocal = getFilterCount();
     !!_filterCountLocal && _filterCountLocal > 0
       ? setActiveFilter(true)
       : setActiveFilter(false);
@@ -132,7 +146,7 @@ export function Main({
   }, [filterValuesLocal, searchParams]);
 
   const getFilterCount = () => {
-    let filterCountLocal = !!localStorage.getItem("filterCount")
+    const filterCountLocal = localStorage.getItem("filterCount")
       ? localStorage.getItem("filterCount")
       : null;
 
@@ -141,7 +155,7 @@ export function Main({
 
   const backBtnHandler = (e) => {
     e.preventDefault();
-    if (!!searchParams.get("map")) {
+    if (searchParams.get("map")) {
       searchParams.delete("map");
     }
     if (searchParams.get("range")) {
@@ -156,8 +170,8 @@ export function Main({
     navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
-  const onSelectTour = (tour) => {
-    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+  const onSelectTour = (tour: Tour) => {
+    const city = searchParams.get("city") ? searchParams.get("city") : null;
     if (!!tour && !!tour.id) {
       loadTour(tour.id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
@@ -193,7 +207,7 @@ export function Main({
   };
 
   //Map-related : a callback function that selects a tour with a specific id
-  const onSelectTourById = useCallback((id) => {
+  const onSelectTourById = useCallback((id: number) => {
     const resultedData = onSelectMapTour({ id: id });
     return resultedData;
   }, []);
@@ -229,7 +243,6 @@ export function Main({
         handleShowCardContainer={handleShowCardContainer}
       />
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, tours, totalTours]);
   // }, [filter, tours, totalTours, mapBounds]);
 
@@ -464,7 +477,6 @@ export function Main({
 
 const mapDispatchToProps = {
   loadTours,
-  loadAllCities,
   loadTour,
 };
 
@@ -472,10 +484,7 @@ const mapStateToProps = (state) => {
   return {
     loading: state.tours.loading,
     tours: state.tours.tours,
-    allCities: state.cities.all_cities,
-    allRanges: state.ranges.ranges,
     filter: state.tours.filter,
-    totalTours: state.tours.total,
     pageTours: state.tours.page,
     tour: state.tours.tour,
   };

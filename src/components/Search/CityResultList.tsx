@@ -1,7 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -10,64 +8,46 @@ import Avatar from "@mui/material/Avatar";
 
 import CircularProgress from "@mui/material/CircularProgress";
 import "/src/config.js";
+import { useMemo } from "react";
+import { CityObject } from "../../features/searchSlice";
 
+export interface CityResultsListProps {
+  cities: CityObject[];
+  cityInput: string;
+  isCityLoading: boolean;
+  selectCity: (city: CityObject) => void;
+}
+
+/**
+ * Displays a list of cities that match the search query.
+ * Upon selecting a city, updates the city state and closes the modal.
+ */
 export function CityResultList({
   cities,
-  setCity,
-  setCityInput,
-  onFocusCity,
+  cityInput,
   isCityLoading,
-  loadFavouriteTours,
-  onSelect,
-  idOne,
-  cityOne,
-}) {
-  const writeCityToLocalStorage = (city) => {
-    localStorage.setItem("city", city);
-  };
-
-  const navigate = useNavigate();
+  selectCity,
+}: CityResultsListProps) {
+  const filteredCities = useMemo(() => {
+    return cities.filter((city) =>
+      city.label.toLowerCase().includes(cityInput.toLowerCase()),
+    );
+  }, [cities, cityInput]);
 
   return (
     <List>
-      {!!isCityLoading && false && (
+      {isCityLoading && (
         <ListItem sx={{ backgroundColor: "#FFFFFF" }}>
           <Box sx={{ padding: "20px" }}>
             <CircularProgress />
           </Box>
         </ListItem>
       )}
-      {cities.map((_city, index) => {
+      {filteredCities.map((_city, index) => {
         return (
           <ListItem
             key={index}
-            onMouseDown={(event) => {
-              setCity(_city);
-              setCityInput(_city.label);
-              if (!!onFocusCity) {
-                onFocusCity(false);
-              }
-              //this handler is for use at detail page (using useParams hook)
-              if (!!cityOne && !!idOne) {
-                setCityInput(_city.label);
-                setCity(_city.value);
-                navigate(`tour/${idOne}/${_city.value}`);
-                window.location.reload();
-              } else if (!!onSelect) {
-                // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
-                onSelect(_city);
-              }
-
-              //wenn startseite lade touren
-              if (!!_city && !!_city.value && loadFavouriteTours) {
-                loadFavouriteTours({
-                  city: _city.value,
-                  limit: 10,
-                  ranges: true,
-                });
-                writeCityToLocalStorage(_city.value);
-              }
-            }}
+            onMouseDown={() => selectCity(_city)}
             sx={{
               borderRadius: "12px",
               padding: "5px",

@@ -1,17 +1,11 @@
 import { Box, Skeleton, Typography } from "@mui/material";
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { compose } from "redux";
-import { loadAllCities, loadCities } from "../../actions/cityActions";
-import { loadRanges } from "../../actions/rangeActions";
-import {
-  loadFavouriteTours,
-  loadTotalTours,
-  loadTour,
-} from "../../actions/tourActions";
+import { loadFavouriteTours, loadTour } from "../../actions/tourActions";
 import { useResponsive } from "../../utils/globals";
 import {
   getPageHeader,
@@ -19,6 +13,7 @@ import {
 } from "../../utils/seoPageHelper";
 import Header from "./Header";
 import "/src/config.js";
+import { useGetTotalsQuery } from "../../features/apiSlice";
 
 const RangeCardContainer = lazy(
   () => import("../../components/RangeCardContainer"),
@@ -33,39 +28,29 @@ const Footer = lazy(() => import("../../components/Footer/Footer"));
 function Start({
   loadFavouriteTours,
   favouriteTours,
-  loadCities,
-  totalTours,
   loadTour,
-  loadTotalTours,
-  totalConnections,
-  totalCities,
-  totalRanges,
   favouriteRanges,
-  loadAllCities,
-  allCities,
-  totalProvider,
-  noToursAvailable,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { data: totals } = useGetTotalsQuery();
+
   const getCity = () => {
     return localStorage.getItem("city") || searchParams.get("city") || "";
   };
 
-  let city = getCity();
+  const city = getCity();
 
   const { t } = useTranslation();
   const abortController = new AbortController();
 
-  const totalTourRef = useRef(0);
   const isMobile = useResponsive();
 
   useEffect(() => {
     // matomo
-    // eslint-disable-next-line no-undef
     _mtm.push({ pagetitel: "Startseite" });
     // network request configuration
     const requestConfig = {
@@ -75,16 +60,11 @@ function Start({
     // Async function to load data and handle requests
     const loadData = async () => {
       try {
-        totalTourRef.current = await loadTotalTours(requestConfig);
-        await loadAllCities(requestConfig);
-
         if (city) {
-          // console.log("setting search params", city);
           searchParams.set("city", city);
           setSearchParams(searchParams);
         }
 
-        await loadCities({ limit: 5 }, requestConfig);
         await loadFavouriteTours(
           {
             limit: 10,
@@ -108,7 +88,6 @@ function Start({
       // Cancel any ongoing network request when the component unmounts
       abortController.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const onSelectTour = (tour) => {
@@ -160,7 +139,7 @@ function Start({
 
   const country = getTranslatedCountryName();
 
-  if (noToursAvailable) {
+  if (totals?.total_tours === 0) {
     return (
       <Suspense
         fallback={
@@ -173,22 +152,20 @@ function Start({
         }
       >
         <Box>
-          <Header totalTours={totalTours} allCities={allCities} />
+          <Header totalTours={totals?.total_tours} />
           <Footer />
         </Box>
       </Suspense>
     );
   }
 
-  if (noToursAvailable === false) {
+  if (totals?.total_tours !== 0) {
     return (
       <>
         <Box style={{ background: "#fff" }}>
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
           <Header
-            getCity={getCity}
-            totalTours={totalTours}
-            allCities={allCities}
+            totalTours={totals?.total_tours}
             showMobileMenu={showMobileMenu}
             setShowMobileMenu={setShowMobileMenu}
           />
@@ -207,7 +184,7 @@ function Start({
                 }}
               >
                 <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                  {t("start.zuugle_sucht_fuer_dich_1")} {totalProvider}{" "}
+                  {t("start.zuugle_sucht_fuer_dich_1")} {totals?.total_provider}{" "}
                   {t("start.zuugle_sucht_fuer_dich_2")}
                 </Typography>
               </Box>
@@ -260,12 +237,10 @@ function Start({
               </Box>
               <Box sx={{ marginTop: "80px" }}>
                 <KPIContainer
-                  totalTours={totalTours}
-                  totalConnections={totalConnections}
-                  totalRanges={totalRanges}
-                  totalCities={totalCities}
-                  city={searchParams.get("city")}
-                  totalProvider={totalProvider}
+                  totalTours={totals?.total_tours || 0}
+                  totalConnections={totals?.total_connections || 0}
+                  totalCities={totals?.total_cities || 0}
+                  totalProvider={totals?.total_provider || 0}
                 />
               </Box>
             </Box>
@@ -284,10 +259,6 @@ function Start({
 
 const mapDispatchToProps = {
   loadFavouriteTours,
-  loadCities,
-  loadRanges,
-  loadTotalTours,
-  loadAllCities,
   loadTour,
 };
 
@@ -296,15 +267,7 @@ const mapStateToProps = (state) => {
     loading: state.tours.loading,
     favouriteTours: state.tours.favouriteTours,
     favouriteRanges: state.tours.favouriteRanges,
-    allRanges: state.ranges.ranges,
-    totalTours: state.tours.total_tours,
-    totalConnections: state.tours.total_connections,
-    totalRanges: state.tours.total_ranges,
-    totalCities: state.tours.total_cities,
-    allCities: state.cities.all_cities,
-    totalProvider: state.tours.total_provider,
     noDataAvailable: state.tours.noDataAvailable,
-    noToursAvailable: state.tours.noToursAvailable,
     error: state.tours.error,
   };
 };
