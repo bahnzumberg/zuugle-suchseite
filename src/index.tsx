@@ -10,7 +10,19 @@ import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
+import cityReducer from "./features/citySlice";
 import { api } from "./features/apiSlice";
+import { CityObject } from "./components/Search/Search";
+
+const persistedCity = localStorage.getItem("city");
+let cityObject: CityObject | null = null;
+if (persistedCity) {
+  try {
+    cityObject = JSON.parse(persistedCity);
+  } catch (e) {
+    console.error("Error parsing city from localStorage", e);
+  }
+} // TODO: use zod for validating parsed objects like this
 
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
@@ -20,7 +32,9 @@ export const store = configureStore({
     [api.reducerPath]: api.reducer,
     modal: modalReducer,
     tours: tourReducer,
+    city: cityReducer,
   },
+  preloadedState: { city: cityObject },
   // Add the RTK Query API middleware
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
@@ -30,6 +44,14 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
+
+// TODO: store.subscribe is a rough tool, use middleware instead
+store.subscribe(() => {
+  const newCity = store.getState().city;
+  if (newCity !== null) {
+    localStorage.setItem("city", JSON.stringify(newCity));
+  }
+});
 
 // Workaround for IE Mobile 10.0
 if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
