@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -11,42 +10,33 @@ import CircularProgress from "@mui/material/CircularProgress";
 import "/src/config.js";
 import { CityObject } from "./Search";
 import { useMemo } from "react";
+import { useAppDispatch } from "../../hooks";
+import { cityUpdated } from "../../features/citySlice";
 
 export interface CityResultsListProps {
   cities: CityObject[];
-  setCity: (city: CityObject) => void;
   cityInput: string;
   setCityInput: (city: string) => void;
   isCityLoading: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  loadFavouriteTours: any;
-  onSelect: (city: CityObject) => void;
-  idOne: string;
-  cityOne: string;
 }
 
+/**
+ * Displays a list of cities that match the search query.
+ * Upon selecting a city, updates the city state and closes the modal.
+ */
 export function CityResultList({
   cities,
-  setCity,
   cityInput,
   setCityInput,
   isCityLoading,
-  loadFavouriteTours,
-  onSelect,
-  idOne,
-  cityOne,
 }: CityResultsListProps) {
   const filteredCities = useMemo(() => {
     return cities.filter((city) =>
-      city.value.toLowerCase().includes(cityInput.toLowerCase()),
+      city.label.toLowerCase().includes(cityInput.toLowerCase()),
     );
   }, [cities, cityInput]);
 
-  const writeCityToLocalStorage = (city: string) => {
-    localStorage.setItem("city", city);
-  };
-
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   return (
     <List>
@@ -62,28 +52,9 @@ export function CityResultList({
           <ListItem
             key={index}
             onMouseDown={() => {
-              setCity(_city);
+              // set new city in redux state
+              dispatch(cityUpdated(_city));
               setCityInput(_city.value);
-              //this handler is for use at detail page (using useParams hook)
-              if (!!cityOne && !!idOne) {
-                setCityInput(_city.label);
-                setCity(_city);
-                navigate(`tour/${idOne}/${_city.value}`);
-                window.location.reload();
-              } else if (onSelect) {
-                // onSelect at Search component handling of Start and Main pages (url is using useSearchParams hook)
-                onSelect(_city);
-              }
-
-              //wenn startseite lade touren
-              if (!!_city && !!_city.value && loadFavouriteTours) {
-                loadFavouriteTours({
-                  city: _city.value,
-                  limit: 10,
-                  ranges: true,
-                });
-                writeCityToLocalStorage(_city.value);
-              }
             }}
             sx={{
               borderRadius: "12px",
