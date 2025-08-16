@@ -6,7 +6,7 @@ import { convertNumToTime, getTourLink } from "../../utils/globals";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { Tour } from "../TourCard";
+import { Tour } from "../../models/Tour";
 
 export default function PopupCard({
   tour,

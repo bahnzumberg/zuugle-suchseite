@@ -20,7 +20,7 @@ const Search = lazy(() => import("./components/Search/Search"));
 function App() {
   //check if first visit and change code to domain language
   if (!localStorage.getItem("visited")) {
-    let domain = getTopLevelDomain();
+    const domain = getTopLevelDomain();
     //switch to domain language
     switch (domain) {
       case "si":

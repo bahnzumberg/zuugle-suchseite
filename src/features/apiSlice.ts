@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { CityObject } from "./searchSlice";
+import { Tour } from "../models/Tour";
 
 export interface CityResponse {
   success: boolean;
@@ -25,7 +26,7 @@ export interface RangeObject {
 
 export interface ToursResponse {
   success: boolean;
-  tours: any[];
+  tours: Tour[];
   total: number;
   page: number;
   ranges: RangeObject[];
@@ -33,9 +34,10 @@ export interface ToursResponse {
 }
 
 export interface ToursParams {
-  limit: number;
+  limit?: number;
   city: string;
-  ranges: boolean;
+  ranges?: boolean;
+  provider?: string;
 }
 
 export interface SearchParams {

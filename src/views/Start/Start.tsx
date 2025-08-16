@@ -1,110 +1,56 @@
 import { Box, Skeleton, Typography } from "@mui/material";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { compose } from "redux";
-import { loadFavouriteTours, loadTour } from "../../actions/tourActions";
-import { useResponsive } from "../../utils/globals";
+import { useIsMobile } from "../../utils/globals";
 import {
   getPageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import Header from "./Header";
 import "/src/config.js";
-import { useGetTotalsQuery } from "../../features/apiSlice";
+import { useGetTotalsQuery, useGetToursQuery } from "../../features/apiSlice";
+import { RootState } from "../..";
+import StartTourCardContainer from "../../components/StartTourCardContainer";
+import { useSelector } from "react-redux";
 
 const RangeCardContainer = lazy(
   () => import("../../components/RangeCardContainer"),
 );
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-const ScrollingTourCardContainer = lazy(
-  () => import("../../components/ScrollingTourCardContainer"),
-);
+
 const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
-function Start({
-  loadFavouriteTours,
-  favouriteTours,
-  loadTour,
-  favouriteRanges,
-}) {
+export default function Start() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const city = useSelector((state: RootState) => state.search.city);
 
   const { data: totals } = useGetTotalsQuery();
-
-  const getCity = () => {
-    return localStorage.getItem("city") || searchParams.get("city") || "";
-  };
-
-  const city = getCity();
+  const {
+    data: loadedTours = { tours: [], ranges: [], total: 0 },
+    isFetching: isToursLoading,
+  } = useGetToursQuery({
+    limit: 10,
+    city: city?.value ?? "",
+    ranges: true,
+  });
+  useEffect(() => {
+    console.log(isToursLoading);
+  }, [isToursLoading]);
 
   const { t } = useTranslation();
-  const abortController = new AbortController();
-
-  const isMobile = useResponsive();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // matomo
+    const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Startseite" });
-    // network request configuration
-    const requestConfig = {
-      params: { domain: window.location.host },
-      signal: abortController.signal,
-    };
-    // Async function to load data and handle requests
-    const loadData = async () => {
-      try {
-        if (city) {
-          searchParams.set("city", city);
-          setSearchParams(searchParams);
-        }
-
-        await loadFavouriteTours(
-          {
-            limit: 10,
-            city,
-            ranges: true,
-            provider: searchParams.get("p"),
-          },
-          requestConfig,
-        );
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading data");
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    // Return a cleanup function
-    return () => {
-      // Cancel any ongoing network request when the component unmounts
-      abortController.abort();
-    };
-  }, [searchParams]);
-
-  const onSelectTour = (tour) => {
-    if (tour?.id) {
-      if (city) {
-        loadTour(tour.id, city).then((tourExtracted) => {
-          if (tourExtracted?.data?.tour) {
-            localStorage.setItem("tourId", tour.id);
-          } else {
-            window.location.reload();
-          }
-        });
-      }
-    } else {
-      window.location.reload();
-    }
-  };
+  }, []);
 
   const onSelectRange = (range) => {
     if (range?.range) {
@@ -113,7 +59,7 @@ function Start({
   };
 
   const getRangeText = () => {
-    if (city?.length > 0) {
+    if (city) {
       return t("start.schoene_wanderungen_nahe");
     } else {
       return t("start.schoene_wanderungen");
@@ -121,7 +67,7 @@ function Start({
   };
 
   const getFavouriteToursText = () => {
-    if (city?.length > 0) {
+    if (city) {
       return t("start.beliebte_bergtouren_nahe");
     } else {
       return t("start.beliebte_bergtouren");
@@ -209,12 +155,10 @@ function Start({
                 >
                   {getFavouriteToursText()}
                 </Typography>
-                <ScrollingTourCardContainer
-                  tours={favouriteTours}
-                  onSelectTour={onSelectTour}
-                  city={searchParams.get("city")}
-                  isLoading={isLoading}
-                  setIsLoading={setIsLoading}
+                <StartTourCardContainer
+                  tours={loadedTours.tours}
+                  city={city?.value || ""}
+                  isLoading={isToursLoading}
                   isMobile={isMobile}
                   provider={searchParams.get("p")}
                 />
@@ -231,7 +175,7 @@ function Start({
                   {getRangeText()}
                 </Typography>
                 <RangeCardContainer
-                  ranges={favouriteRanges}
+                  ranges={loadedTours.ranges}
                   onSelectTour={onSelectRange}
                 />
               </Box>
@@ -256,20 +200,3 @@ function Start({
     );
   }
 }
-
-const mapDispatchToProps = {
-  loadFavouriteTours,
-  loadTour,
-};
-
-const mapStateToProps = (state) => {
-  return {
-    loading: state.tours.loading,
-    favouriteTours: state.tours.favouriteTours,
-    favouriteRanges: state.tours.favouriteRanges,
-    noDataAvailable: state.tours.noDataAvailable,
-    error: state.tours.error,
-  };
-};
-
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Start);

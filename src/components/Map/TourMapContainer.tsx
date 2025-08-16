@@ -35,7 +35,7 @@ import { createIdArray } from "../../utils/map_utils";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "/src/config.js";
 import { FilterObject } from "../Filter/Filter.js";
-import { Tour } from "../TourCard.js";
+import { Tour } from "../../models/Tour";
 
 const PopupCard = lazy(() => import("./PopupCard"));
 

@@ -1,5 +1,6 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Tour } from "../components/TourCard";
+import { theme } from "../theme";
+import { Tour } from "../models/Tour";
 
 export function getTourLink(
   tour: Tour,
@@ -215,6 +216,8 @@ export const useResponsive = () => {
   const matches = useMediaQuery("(max-width:600px)");
   return !!matches;
 };
+
+export const useIsMobile = () => useMediaQuery(theme.breakpoints.down("md"));
 
 export function parseIfNeccessary(value) {
   if (value && value.constructor === "test".constructor) {

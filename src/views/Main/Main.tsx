@@ -21,8 +21,8 @@ import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
 import { FilterObject } from "../../components/Filter/Filter";
-import { Tour } from "../../components/TourCard";
 import { useGetCitiesQuery, useGetTotalsQuery } from "../../features/apiSlice";
+import { Tour } from "../../models/Tour";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
