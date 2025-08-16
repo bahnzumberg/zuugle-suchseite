@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   InputBase,
   Grid,
@@ -11,9 +11,43 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
+import { useLazyGetSearchPhrasesQuery } from "../../features/apiSlice";
+import { getTLD } from "../../utils/globals";
+import { RootState } from "../..";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../hooks";
+import { searchPhraseUpdated } from "../../features/searchSlice";
 
-export default function CustomSelect(props) {
-  const { options, handleSelect, handleInputChange, searchPhrase } = props;
+export default function CustomSelect() {
+  const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
+
+  const dispatch = useAppDispatch();
+
+  const currentSearchPhrase = useSelector(
+    (state: RootState) => state.search.searchPhrase,
+  );
+  const city = useSelector((state: RootState) => state.search.city);
+  const language = useSelector((state: RootState) => state.search.language);
+
+  const [searchString, setSearchString] = React.useState(
+    currentSearchPhrase || "",
+  );
+
+  const handleSelect = (phrase: string) => {
+    dispatch(searchPhraseUpdated(phrase));
+  };
+
+  useEffect(() => {
+    const tld = getTLD();
+    const _city = city?.value ?? "";
+
+    triggerGetSuggestions({
+      search: searchString,
+      city: _city,
+      language: language || "de",
+      tld: tld,
+    });
+  }, [searchString]);
 
   return (
     <>
@@ -50,10 +84,10 @@ export default function CustomSelect(props) {
               }}
             >
               <InputBase
-                value={searchPhrase ? searchPhrase : ""}
+                value={searchString}
                 autoFocus
                 onChange={(event) => {
-                  handleInputChange(event?.target?.value);
+                  setSearchString(event?.target?.value);
                 }}
                 onKeyDown={(ev) => {
                   if (ev.key === "Enter") {
@@ -81,8 +115,8 @@ export default function CustomSelect(props) {
                 }}
               >
                 <IconButton
-                  onClick={(event) => {
-                    handleInputChange("");
+                  onClick={() => {
+                    setSearchString("");
                   }}
                 >
                   <Close style={{ fontSize: "16px", color: "#8b8b8b" }} />
@@ -125,12 +159,12 @@ export default function CustomSelect(props) {
         </Grid>
       </Grid>
       <List>
-        {options?.map((option, index) => {
+        {(suggestions?.data?.items ?? []).map((option, index) => {
           return (
             <ListItem disablePadding key={index}>
               <ListItemButton
                 onClick={() => {
-                  handleSelect(option?.value);
+                  handleSelect(option?.suggestion);
                 }}
               >
                 <ListItemIcon>
@@ -152,7 +186,7 @@ export default function CustomSelect(props) {
                     </IconButton>
                   </div>
                 </ListItemIcon>
-                <ListItemText primary={option?.label} />
+                <ListItemText primary={option?.suggestion} />
               </ListItemButton>
             </ListItem>
           );
