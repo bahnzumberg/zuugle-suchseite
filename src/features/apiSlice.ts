@@ -39,6 +39,9 @@ export interface ToursParams {
   city: string;
   ranges?: boolean;
   provider?: string;
+  filter?: FilterObject;
+  search?: string;
+  page?: number;
 }
 
 export interface SearchParams {
@@ -87,10 +90,7 @@ export const api = createApi({
     }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
-        const searchParams = new URLSearchParams(
-          Object.entries(params).map(([key, value]) => [key, String(value)]),
-        );
-        return `tours/?${searchParams}`;
+        return `tours/?${toSearchParams(params)}`;
       },
     }),
     getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({
@@ -116,6 +116,9 @@ function toSearchParams<T extends object>(obj: T): URLSearchParams {
   const searchParams = new URLSearchParams();
   Object.entries(obj).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
+      if (value instanceof Object) {
+        value = JSON.stringify(value);
+      }
       searchParams.append(key, String(value));
     }
   });

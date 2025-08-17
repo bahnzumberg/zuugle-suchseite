@@ -4,7 +4,7 @@ import { FilterObject } from "../models/Filter";
 const initialState: FilterObject = {};
 
 const filterSlice = createSlice({
-  name: "selectedSearchParameters",
+  name: "filter",
   initialState,
   reducers: {
     filterUpdated: (state, action: PayloadAction<FilterObject>) => {

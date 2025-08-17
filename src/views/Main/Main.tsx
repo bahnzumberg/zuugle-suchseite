@@ -1,42 +1,77 @@
 import * as React from "react";
 import { lazy, useEffect, useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { compose } from "redux";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { loadTour } from "../../actions/tourActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import TourMapContainer from "../../components/Map/TourMapContainer";
 import { Typography } from "@mui/material";
-import {
-  checkIfSeoPageCity,
-  getPageHeader,
-  getCityLabel,
-} from "../../utils/seoPageHelper";
+import { checkIfSeoPageCity } from "../../utils/seoPageHelper";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
-import { useGetCitiesQuery, useGetTotalsQuery } from "../../features/apiSlice";
+import {
+  useGetCitiesQuery,
+  useGetTotalsQuery,
+  useLazyGetToursQuery,
+} from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
-import { FilterObject } from "../../models/Filter";
+import { RootState } from "../..";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
   () => import("../../components/TourCardContainer"),
 );
 
-export interface MainProps {
-  tours: any;
-  filter: FilterObject;
-  pageTours: any;
-  loading: boolean;
-}
+export default function Main() {
+  const filter = useSelector((state: RootState) => state.filter);
+  const city = useSelector((state: RootState) => state.search.city);
+  const search = useSelector((state: RootState) => state.search.searchPhrase);
 
-export default function Main({ tours, filter, pageTours, loading }: MainProps) {
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [triggerLoadTours, { data: loadedTours, isLoading: isToursLoading }] =
+    useLazyGetToursQuery();
+  const [triggerMoreTours, { data: moreTours, isLoading: isMoreToursLoading }] =
+    useLazyGetToursQuery();
+
+  useEffect(() => {
+    setPageTours(1);
+    triggerLoadTours({
+      city: city?.value || "",
+      filter: filter,
+      search: search || "",
+    });
+  }, [filter, city, search]);
+
+  useEffect(() => {
+    setTours(loadedTours?.tours || []);
+  }, [loadedTours]);
+
+  const [pageTours, setPageTours] = useState(1);
+  // TODO: get hasMore info from server?
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    if (pageTours > 1) {
+      triggerMoreTours({
+        city: city?.value || "",
+        filter: filter,
+        search: search || "",
+        page: pageTours,
+      });
+    }
+  }, [pageTours]);
+
+  useEffect(() => {
+    if (moreTours?.tours) {
+      setTours([...tours, ...moreTours.tours]);
+    }
+  }, [moreTours]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -46,12 +81,6 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
   const [directLink, setDirectLink] = useState(null);
 
   const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
-
-  const [filterValues, setFilterValues] = useState(
-    localStorage.getItem("filterValues") ?? null,
-  ); // pass this to both Search and TourCardContainer
-  //initial value for filterValues should be
-  // console.log("L54 filterValues :", filterValues)
 
   const [counter, setCounter] = useState(0);
 
@@ -63,18 +92,18 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
   const [showCardContainer, setShowCardContainer] = useState(true); //MAP
   const [filterOn, setFilterOn] = useState(false);
 
-  const isMobile = useMediaQuery("(max-width:678px)");
-
-  const filterValuesLocal = localStorage.getItem("filterValues")
-    ? localStorage.getItem("filterValues")
-    : null;
-
   const { data: allCities = [] } = useGetCitiesQuery({});
   const { totalTours } = useGetTotalsQuery(undefined, {
     selectFromResult: ({ data }) => ({
       totalTours: data?.total_tours ?? 0,
     }),
   });
+
+  useEffect(() => {
+    if (Object.values(filter).length) {
+      setActiveFilter(true);
+    }
+  }, [filter]);
 
   //MAP  setting showMap
   useEffect(() => {
@@ -106,25 +135,6 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
     }
   }, [allCities]);
 
-  //updates the state of the boolean activeFilter based on localStorage values of "filterValues" .
-  useEffect(() => {
-    const _filterCountLocal = getFilterCount();
-    !!_filterCountLocal && _filterCountLocal > 0
-      ? setActiveFilter(true)
-      : setActiveFilter(false);
-    !!filterValuesLocal
-      ? setFilterValues(filterValuesLocal)
-      : setFilterValues({});
-  }, [filterValuesLocal, searchParams]);
-
-  const getFilterCount = () => {
-    const filterCountLocal = localStorage.getItem("filterCount")
-      ? localStorage.getItem("filterCount")
-      : null;
-
-    return filterCountLocal;
-  };
-
   const backBtnHandler = (e) => {
     e.preventDefault();
     if (searchParams.get("map")) {
@@ -142,28 +152,12 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
     navigate(`/?${searchParams.toString()}`, { replace: true });
   };
 
-  const onSelectTour = (tour: Tour) => {
-    const city = searchParams.get("city") ? searchParams.get("city") : null;
-    if (!!tour && !!tour.id) {
-      loadTour(tour.id, city).then((tourExtracted) => {
-        if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
-          localStorage.setItem("tourId", tour.id);
-          // window.open("/tour?" + searchParams.toString());
-        } else {
-          goToStartPage();
-        }
-      });
-    } else {
-      goToStartPage();
-    }
-  };
-
   //with id only // as code enhancement,create one function for both map and card containers
   const onSelectMapTour = async (markerId) => {
-    const city = !!searchParams.get("city") ? searchParams.get("city") : null;
+    const city = searchParams.get("city") ? searchParams.get("city") : null;
     const id = markerId.id;
     let retTour = null;
-    if (!!id) {
+    if (id) {
       await loadTour(id, city).then((tourExtracted) => {
         if (tourExtracted && tourExtracted.data && tourExtracted.data.tour) {
           retTour = tourExtracted;
@@ -246,23 +240,18 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
       }}
     >
       <TourCardContainer
-        onSelectTour={onSelectTour}
         tours={tours}
-        city={searchParams.get("city")}
-        loadTours={loadTours}
+        hasMore={hasMore}
+        isMoreToursLoading={isMoreToursLoading}
         pageTours={pageTours}
-        loading={loading}
-        filterValues={filterValues}
-        setFilterValues={setFilterValues}
-        showMap={showMap} //to be used for other features
+        setPageTours={setPageTours}
         mapBounds={mapBounds}
         markersChanged={markersChanged}
-        isMobile={isMobile}
       />
     </Box>
   );
 
-  let marginTopCards = showMap ? "20px" : "180px";
+  const marginTopCards = showMap ? "20px" : "180px";
 
   const totalToursHeader = () => (
     <Box elevation={0} className={"header-line-main"} sx={{ width: "100%" }}>
@@ -285,12 +274,12 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
               color={"black"}
               sx={{ textAlign: "center", paddingTop: "0px" }}
             >
-              {!!showCardContainer ? Number(totalTours).toLocaleString() : " "}{" "}
+              {showCardContainer ? Number(totalTours).toLocaleString() : " "}{" "}
               {totalTours === 1
                 ? ` ${t("main.ergebnis")}`
                 : ` ${t("main.ergebnisse")}`}
             </Typography>
-            {getFilterCount() && getFilterCount() > 0 && (
+            {activeFilter && (
               <Box display={"flex"} alignItems={"center"}>
                 &nbsp;{" - "}&nbsp;
                 <Typography
@@ -389,8 +378,7 @@ export default function Main({ tours, filter, pageTours, loading }: MainProps) {
                   isMain={true}
                   page="main"
                   activeFilter={activeFilter}
-                  filterValues={filterValues}
-                  setFilterValues={setFilterValues}
+                  filterValues={filter}
                   counter={counter}
                   setCounter={setCounter}
                   mapBounds={mapBounds}
