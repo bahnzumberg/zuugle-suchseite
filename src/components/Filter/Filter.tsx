@@ -89,12 +89,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }, [fetchedFilter, isFilterFetching, storedFilter]);
 
   function submitFilter() {
-    dispatch(filterUpdated(tempFilter));
+    dispatch(filterUpdated(getActiveFilterFields()));
     setShowFilter(false);
   }
 
   function resetFilter() {
-    setTempFilter(defaultFilterValues);
+    dispatch(filterUpdated({}));
     setShowFilter(false);
   }
 
@@ -159,7 +159,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     fr: t("filter.franzoesisch"),
     sl: t("filter.slowenisch"),
     it: t("filter.italienisch"),
-  };
+  }; // TODO: think about language 'XX'
 
   const difficultiesMap: Record<number, string> = {
     1: t("filter.easy"),
@@ -189,23 +189,39 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   /**
-   * Count the number of fields in tempFilter which are different from default values.
+   *
+   * Assemble filter object with only values that differ from default.
    */
-  const countFilterActive = () => {
+  const getActiveFilterFields = () => {
     return Object.entries(defaultFilterValues).reduce(
-      (count, [key, defVal]) => {
+      (activeFilters, [key, defVal]) => {
         const curVal = tempFilter[key as keyof FilterObject];
 
         if (Array.isArray(defVal) && Array.isArray(curVal)) {
           // @ts-ignore
           const equalSets = areSetsEqual(new Set(defVal), new Set(curVal));
-          return count + (equalSets ? 0 : 1);
+          if (!equalSets) {
+            // @ts-ignore
+            activeFilters[key] = curVal;
+          }
+          return activeFilters;
         }
 
-        return count + (defVal !== curVal ? 1 : 0);
+        if (defVal !== curVal) {
+          // @ts-ignore
+          activeFilters[key] = curVal;
+        }
+        return activeFilters;
       },
-      0,
+      {} as FilterObject,
     );
+  };
+
+  /**
+   * Count the number of fields in tempFilter which are different from default values.
+   */
+  const countFilterActive = () => {
+    return Object.values(getActiveFilterFields()).length;
   };
 
   function displayAsSelected<K extends keyof FilterObject>(
