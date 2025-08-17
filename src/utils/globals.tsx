@@ -321,3 +321,7 @@ export const capitalize = (str) => {
   if (typeof str !== "string" || str.length === 0) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const areSetsEqual = (set1: Set<any>, set2: Set<any>): boolean =>
+  set1.size === set2.size && [...set1].every((value) => set2.has(value));

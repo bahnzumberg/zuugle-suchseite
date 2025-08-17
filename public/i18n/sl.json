@@ -59,7 +59,11 @@
     "slowenisch": "Slovenščina",
     "italienisch": "Italijanščina",
     "englisch": "Angleščina",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Enostavno",
+    "medium": "Srednje",
+    "hard": "Težavno",
+    "unknown": "Neznano"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",

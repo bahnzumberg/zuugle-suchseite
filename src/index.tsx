@@ -11,6 +11,7 @@ import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
 import searchReducer, { CityObject } from "./features/searchSlice";
+import filterReducer from "./features/filterSlice";
 import { api } from "./features/apiSlice";
 
 const persistedCity = localStorage.getItem("city");
@@ -33,6 +34,7 @@ export const store = configureStore({
     modal: modalReducer,
     tours: tourReducer,
     search: searchReducer,
+    filter: filterReducer,
   },
   preloadedState: { city: cityObject },
   // Add the RTK Query API middleware

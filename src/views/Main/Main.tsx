@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import { loadTour, loadTours } from "../../actions/tourActions";
+import { loadTour } from "../../actions/tourActions";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import TourMapContainer from "../../components/Map/TourMapContainer";
@@ -20,9 +20,9 @@ import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
-import { FilterObject } from "../../components/Filter/Filter";
 import { useGetCitiesQuery, useGetTotalsQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
+import { FilterObject } from "../../models/Filter";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
@@ -30,22 +30,13 @@ const TourCardContainer = lazy(
 );
 
 export interface MainProps {
-  loadTours: any;
-  loadTour: any;
   tours: any;
   filter: FilterObject;
   pageTours: any;
   loading: boolean;
 }
 
-export function Main({
-  loadTours,
-  loadTour,
-  tours,
-  filter,
-  pageTours,
-  loading,
-}: MainProps) {
+export default function Main({ tours, filter, pageTours, loading }: MainProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -89,25 +80,6 @@ export function Main({
   useEffect(() => {
     setShowMap(searchParams.get("map") === "true" ? true : false);
   }, [searchParams]);
-
-  useEffect(() => {
-    const searchParamCity = searchParams.get("city");
-    const city = localStorage.getItem("city");
-    if (!!city && !searchParamCity) {
-      searchParams.set("city", city);
-      setSearchParams(searchParams);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!!location && !!allCities && allCities.length > 0) {
-      const cityLabel =
-        location && allCities
-          ? t(`${getCityLabel(location, allCities)}`)
-          : "VV";
-      getPageHeader({ header: `Zuugli boy ${cityLabel}` });
-    }
-  }, [allCities, location]);
 
   useEffect(() => {
     const _mtm = (window._mtm = window._mtm || []);
@@ -474,20 +446,3 @@ export function Main({
     </div>
   );
 }
-
-const mapDispatchToProps = {
-  loadTours,
-  loadTour,
-};
-
-const mapStateToProps = (state) => {
-  return {
-    loading: state.tours.loading,
-    tours: state.tours.tours,
-    filter: state.tours.filter,
-    pageTours: state.tours.page,
-    tour: state.tours.tour,
-  };
-};
-
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Main);

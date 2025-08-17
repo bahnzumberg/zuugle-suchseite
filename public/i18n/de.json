@@ -59,7 +59,11 @@
     "slowenisch": "Slowenisch",
     "italienisch": "Italienisch",
     "englisch": "Englisch",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Leicht",
+    "medium": "Mittel",
+    "hard": "Schwer",
+    "unknown": "Unbekannt"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",

@@ -19,7 +19,7 @@ import FilterIcon from "../../icons/FilterIcon";
 import IconButton from "@mui/material/IconButton";
 import GoIcon from "../../icons/GoIcon";
 import AutosuggestSearch from "./AutosuggestSearch";
-import Filter, { FilterObject } from "../Filter/Filter";
+import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { useMediaQuery } from "@mui/material";
@@ -28,6 +28,7 @@ import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";
+import { FilterObject } from "../../models/Filter";
 
 export interface SearchProps {
   loadTours: any;
@@ -188,34 +189,34 @@ export function Search({
         ? mapBounds
         : null;
 
-    const result = loadTours({
-      city: city,
-      range: range,
-      country: country,
-      type: type,
-      search: search,
-      filter: filterValues ? filterValues : filter, // get this from Filter.js (through Search and Main)
-      sort: sort,
-      provider: provider,
-      map: searchParams.get("map"),
-      bounds: bounds,
-    });
+    // const result = loadTours({
+    //   city: city,
+    //   range: range,
+    //   country: country,
+    //   type: type,
+    //   search: search,
+    //   filter: filterValues ? filterValues : filter, // get this from Filter.js (through Search and Main)
+    //   sort: sort,
+    //   provider: provider,
+    //   map: searchParams.get("map"),
+    //   bounds: bounds,
+    // });
 
-    result.then((res) => {
-      const importedMarkersArray = res?.data?.markers;
+    // result.then((res) => {
+    //   const importedMarkersArray = res?.data?.markers;
 
-      if (
-        !isMasterMarkersSet.current &&
-        importedMarkersArray &&
-        importedMarkersArray.length > 0
-      ) {
-        localStorage.setItem(
-          "masterMarkers",
-          JSON.stringify(importedMarkersArray),
-        );
-        isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
-      }
-    });
+    //   if (
+    //     !isMasterMarkersSet.current &&
+    //     importedMarkersArray &&
+    //     importedMarkersArray.length > 0
+    //   ) {
+    //     localStorage.setItem(
+    //       "masterMarkers",
+    //       JSON.stringify(importedMarkersArray),
+    //     );
+    //     isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
+    //   }
+    // });
   }, [
     allCities,
     // useEffect dependencies
@@ -382,21 +383,12 @@ export function Search({
       <AutosuggestSearch
         showSearchModal={showSearchModal}
         setShowSearchModal={setShowSearchModal}
-        onSearchSuggestion={getSearchSuggestion}
       />
       <FullScreenCityInput
         showCitySearch={ShowCitySearch}
         setShowCitySearch={setShowCitySearch}
       />
-      <Filter
-        filterOn={filterOn}
-        searchParams={searchParams}
-        doSubmit={handleFilterSubmit}
-        resetFilter={handleResetFilter}
-        onBack={() => {
-          setFilterOn(false);
-        }}
-      />
+      <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
       <Box
         className="main-search-bar"
         sx={{

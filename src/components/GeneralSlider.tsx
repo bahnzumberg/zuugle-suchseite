@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 
-const EntitySlider = styled(Slider)(({ theme }) => ({
+const EntitySlider = styled(Slider)(() => ({
   color: "red",
   height: 3,
   padding: "13px 0",
@@ -27,6 +27,16 @@ const EntitySlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
+export interface SliderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  containerSx?: any;
+  value: number | number[];
+  onChange: (event: Event, newValue: number | number[]) => void;
+  min: number;
+  max: number;
+  step?: number;
+}
+
 export default function GeneralSlider({
   containerSx,
   value,
@@ -34,7 +44,7 @@ export default function GeneralSlider({
   min,
   max,
   step = 1,
-}) {
+}: SliderProps) {
   return (
     <Box sx={containerSx}>
       <EntitySlider

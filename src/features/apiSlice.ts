@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { CityObject } from "./searchSlice";
 import { Tour } from "../models/Tour";
+import { FilterObject } from "../models/Filter";
 
 export interface CityResponse {
   success: boolean;
@@ -54,6 +55,17 @@ export interface SuggestionsResponse {
   success: boolean;
   items: Suggestion[];
 }
+
+export interface FilterParams {
+  search?: string;
+  city?: string;
+}
+
+export interface FilterResponse {
+  success: boolean;
+  filter: FilterObject;
+}
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_URL,
@@ -89,8 +101,26 @@ export const api = createApi({
         return `searchPhrases?${searchParams}`;
       },
     }),
+    getFilter: build.query<FilterObject, FilterParams>({
+      query: (params) => {
+        return `tours/filter?${toSearchParams(params)}`;
+      },
+      transformResponse: (response: FilterResponse) => {
+        return response.filter;
+      },
+    }),
   }),
 });
+
+function toSearchParams<T extends object>(obj: T): URLSearchParams {
+  const searchParams = new URLSearchParams();
+  Object.entries(obj).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
+    }
+  });
+  return searchParams;
+}
 
 export const {
   useGetCitiesQuery,
@@ -99,4 +129,5 @@ export const {
   useLazyGetToursQuery,
   useGetSearchPhrasesQuery,
   useLazyGetSearchPhrasesQuery,
+  useGetFilterQuery,
 } = api;
