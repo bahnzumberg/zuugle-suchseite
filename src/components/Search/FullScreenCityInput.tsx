@@ -53,7 +53,7 @@ export default function FullScreenCityInput({
   function selectCity(city: CityObject) {
     // set new city in redux state
     dispatch(cityUpdated(city));
-    setCityInput(city.value);
+    setShowCitySearch(false);
   }
 
   return (

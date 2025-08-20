@@ -4,14 +4,10 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { loadTours } from "../../actions/tourActions";
 import { compose } from "redux";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Fragment, useEffect, useState } from "react";
-import { useSearchParams, useParams } from "react-router-dom";
-import {
-  parseIfNeccessary,
-  setOrRemoveSearchParam,
-  getTopLevelDomain,
-} from "../../utils/globals";
+import { useSearchParams } from "react-router-dom";
+import { parseIfNeccessary, setOrRemoveSearchParam } from "../../utils/globals";
 import { useNavigate } from "react-router";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
@@ -23,12 +19,14 @@ import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { useMediaQuery } from "@mui/material";
-import { capitalize } from "../../utils/globals";
 import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";
 import { FilterObject } from "../../models/Filter";
+import { RootState } from "../..";
+import { useAppDispatch } from "../../hooks";
+import { cityUpdated } from "../../features/searchSlice";
 
 export interface SearchProps {
   loadTours: any;
@@ -51,9 +49,6 @@ export function Search({
   pageKey,
   isMain,
   counter,
-  setCounter,
-  setFilterValues,
-  filterValues,
   mapBounds,
   filterOn,
   setFilterOn,
@@ -64,7 +59,9 @@ export function Search({
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery({});
+  const city = useSelector((state: RootState) => state.search.city);
 
   const filterCountLocal = localStorage.getItem("filterCount")
     ? localStorage.getItem("filterCount")
@@ -72,20 +69,12 @@ export function Search({
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cityInput, setCityInput] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [ShowCitySearch, setShowCitySearch] = useState(false);
 
   let suggestion: string; //variable that stores the text of the selected option
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  const cityParam = urlSearchParams.get("city");
-  const { cityOne, idOne } = useParams();
-  const [city, setCity] = useState({
-    label: capitalize(cityParam) || capitalize(cityOne),
-    value: cityParam || cityOne,
-  });
 
   const [region, setRegion] = useState(null);
   // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
@@ -93,13 +82,6 @@ export function Search({
   const [scrollToTop, setScrollToTop] = useState(false);
 
   const isMasterMarkersSet = useRef(false);
-
-  useEffect(() => {
-    if (getTopLevelDomain() == "li") {
-      setCityInput("vaduz");
-      setCity({ label: "Vaduz", value: "vaduz" });
-    }
-  }, []);
 
   useEffect(() => {
     if (scrollToTop) {
@@ -143,8 +125,7 @@ export function Search({
               .replace("ä", "ae"),
         ); // find the city object in array "allCities"
         if (cityEntry) {
-          setCityInput(cityEntry.label); // set the state "cityInput" to this city LABEL / string value
-          setCity(cityEntry);
+          dispatch(cityUpdated(cityEntry));
           searchParams.set("city", search.toLowerCase());
           setSearchParams(searchParams);
           setSearchPhrase("");
@@ -221,7 +202,6 @@ export function Search({
     allCities,
     // useEffect dependencies
     searchParams && searchParams.get("city"),
-    cityOne,
     searchParams && searchParams.get("filter"),
     searchParams && searchParams.get("sort"),
     searchParams && searchParams.get("search"),
@@ -234,66 +214,11 @@ export function Search({
     setSearchParams,
   ]); // end useEffect
 
-  const resetFilterLocalStorage = () => {
-    localStorage.removeItem("filterValues");
-    localStorage.setItem("filterCount", String(0));
-  };
-
   const openFilter = () => {
     setFilterOn(true);
   };
 
-  //important:
-  // state filterValues(from Main) should be set at submission here
-  // or be set at at handleResetFilter to null
-  // state to be passed then from Main to TourCardContainer
-  // in TourCardContainer we pass the filter inside loadTours({ filter: !!filterValues ? filterValues : filter })
-
-  const handleFilterSubmit = (
-    filterValues: FilterObject,
-    filterCount: number,
-  ) => {
-    handleFilterChange(filterValues); //set searchParams with {'filter' : filterValues} localStorage
-    if (filterCount > 0) {
-      setCounter(filterCount);
-      setActiveFilter(true);
-      if (filterValues) {
-        setFilterValues(filterValues);
-      }
-      localStorage.setItem("filterValues", JSON.stringify(filterValues));
-      localStorage.setItem("filterCount", String(filterCount));
-      window.location.reload();
-    } else {
-      setActiveFilter(false);
-      searchParams.delete("filter");
-      localStorage.removeItem("filterValues");
-      localStorage.setItem("filterCount", String(0));
-    }
-  };
-
-  const handleResetFilter = () => {
-    handleFilterChange(null);
-    setActiveFilter(false); // reset activeFilter state
-    setCounter(0);
-    setFilterValues(null); // reset state in parent Main
-    resetFilterLocalStorage();
-    setFilterOn(false);
-  };
-
-  const handleFilterChange = (filterObject: FilterObject | null) => {
-    if (filterObject == null) {
-      searchParams.delete("filter");
-      localStorage.removeItem("filterValues");
-      localStorage.setItem("filterCount", String(0));
-    } else {
-      searchParams.set("filter", JSON.stringify(filterObject));
-      localStorage.setItem("filterValues", JSON.stringify(filterObject));
-    }
-    setSearchParams(searchParams);
-  };
-
   // search handling function
-
   const search = async (tempRegion = null) => {
     let values = {};
     if (!!city && !!city.value) {
@@ -405,8 +330,8 @@ export function Search({
           <Box
             sx={{
               width: {
-                xs: !cityInput && pageKey === "detail" ? "100%" : "200px",
-                md: !cityInput && pageKey === "detail" ? "100%" : "486px",
+                xs: !city && pageKey === "detail" ? "100%" : "200px",
+                md: !city && pageKey === "detail" ? "100%" : "486px",
               },
             }}
           >
@@ -425,10 +350,10 @@ export function Search({
                 }}
                 size={{
                   xs: 12,
-                  md: !cityInput && pageKey === "detail" ? 12 : 6,
+                  md: !city && pageKey === "detail" ? 12 : 6,
                 }}
               >
-                {!cityInput && pageKey === "detail" && (
+                {!city && pageKey === "detail" && (
                   <Box
                     sx={{
                       textAlign: "left",
@@ -470,7 +395,7 @@ export function Search({
                 alignItems="center"
                 size={{
                   sm: 12,
-                  md: !cityInput && pageKey === "detail" ? 12 : 6,
+                  md: !city && pageKey === "detail" ? 12 : 6,
                 }}
               >
                 <Box
@@ -478,9 +403,7 @@ export function Search({
                     borderLeft: {
                       sm: 0,
                       md:
-                        !cityInput && pageKey === "detail"
-                          ? 0
-                          : "2px solid #DDDDDD",
+                        !city && pageKey === "detail" ? 0 : "2px solid #DDDDDD",
                     },
                     paddingLeft: "14px",
                   }}
@@ -505,12 +428,12 @@ export function Search({
                             }}
                           />
                         )}
-                        {cityInput.length > 0
-                          ? `${t("search.ab_heimatbahnhof")} ${cityInput}`
+                        {city?.label
+                          ? `${t("search.ab_heimatbahnhof")} ${city?.label}`
                           : t("start.heimatbahnhof")}
                       </>
                     </Box>
-                  ) : !cityInput && pageKey === "detail" ? (
+                  ) : !city && pageKey === "detail" ? (
                     <Box
                       className="search-bar--city"
                       sx={{
@@ -525,7 +448,7 @@ export function Search({
                       {t("search.waehle_dein_heimatbahnhof")}
                     </Box>
                   ) : (
-                    <Box className="search-bar--city">{cityInput}</Box>
+                    <Box className="search-bar--city">{city?.label}</Box>
                   )}
                 </Box>
               </Grid>
@@ -535,7 +458,7 @@ export function Search({
 
         <Box>
           {/* ***** filter box in the Main page ******* */}
-          {!cityInput && pageKey === "detail" ? (
+          {!city && pageKey === "detail" ? (
             ""
           ) : (
             // ) : !!initialIsMapView ? null : (
