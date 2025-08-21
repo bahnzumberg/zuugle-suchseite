@@ -1,10 +1,13 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 import { BoundsObject, CityObject } from "./searchSlice";
 import { Tour } from "../models/Tour";
 import { FilterObject } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
-import { toLatLngBounds } from "../utils/map_utils";
-import gpxParser from "gpxparser";
+import { parseGPX, toLatLngBounds } from "../utils/map_utils";
 
 export interface CityResponse {
   success: boolean;
@@ -139,10 +142,17 @@ export const api = createApi({
       },
     }),
     getGPX: build.query<L.LatLngExpression[], string>({
-      query: (url) => url,
-      transformResponse: (text: string) => {
-        const gpx = new gpxParser();
-        return gpx.parse(text);
+      queryFn: async (url) => {
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          const gpx = parseGPX(text);
+          return { data: gpx };
+        } catch (error) {
+          return {
+            error: { status: "FETCH_ERROR", error } as FetchBaseQueryError,
+          };
+        }
       },
     }),
   }),

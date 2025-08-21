@@ -37,3 +37,13 @@ export const getMarkersListFromBounds = (
   }
   return [];
 };
+
+export function parseGPX(gpxText: string): L.LatLngExpression[] {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(gpxText, "application/xml");
+  const points = Array.from(xml.getElementsByTagName("trkpt"));
+  return points.map((pt) => [
+    parseFloat(pt.getAttribute("lat")!),
+    parseFloat(pt.getAttribute("lon")!),
+  ]);
+}

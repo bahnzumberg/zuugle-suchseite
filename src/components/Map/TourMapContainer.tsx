@@ -48,17 +48,12 @@ export interface Marker {
 
 export interface TourMapContainerProps {
   markers: Marker[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSelectTour: (tourId: number) => any;
 }
 
 /**
  * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in Main.tsx.
  */
-export default function TourMapContainer({
-  markers,
-  onSelectTour, // use for Popup content
-}: TourMapContainerProps) {
+export default function TourMapContainer({ markers }: TourMapContainerProps) {
   const isMobile = useMediaQuery("(max-width:600px)");
   const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
   const [triggerGPX, { data: track }] = useLazyGetGPXQuery();
@@ -251,7 +246,6 @@ export default function TourMapContainer({
     [
       mapLoaded,
       city,
-      onSelectTour,
       handleGpxTrack,
       handleTotourGpxTrack,
       handleFromtourGpxTrack,
