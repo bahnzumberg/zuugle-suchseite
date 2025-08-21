@@ -14,6 +14,7 @@ export interface BoundsObject {
 
 export interface SearchState {
   city: CityObject | null;
+  citySlug: string | null;
   searchPhrase: string | null;
   language: string | null;
   map: boolean;
@@ -22,6 +23,7 @@ export interface SearchState {
 
 const initialState: SearchState = {
   city: null,
+  citySlug: null,
   searchPhrase: null,
   language: null,
   map: false,
@@ -32,16 +34,19 @@ const searchSlice = createSlice({
   name: "selectedSearchParameters",
   initialState,
   reducers: {
-    cityUpdated: (state, action: PayloadAction<CityObject>) => {
+    cityUpdated: (state, action: PayloadAction<CityObject | null>) => {
       state.city = action.payload;
     },
-    searchPhraseUpdated: (state, action: PayloadAction<string>) => {
+    citySlugUpdated: (state, action: PayloadAction<string | null>) => {
+      state.citySlug = action.payload;
+    },
+    searchPhraseUpdated: (state, action: PayloadAction<string | null>) => {
       state.searchPhrase = action.payload;
     },
-    languageUpdated: (state, action: PayloadAction<string>) => {
+    languageUpdated: (state, action: PayloadAction<string | null>) => {
       state.language = action.payload;
     },
-    boundsUpdated: (state, action: PayloadAction<BoundsObject>) => {
+    boundsUpdated: (state, action: PayloadAction<BoundsObject | null>) => {
       state.bounds = action.payload;
     },
     mapUpdated: (state, action: PayloadAction<boolean>) => {
@@ -52,6 +57,7 @@ const searchSlice = createSlice({
 
 export const {
   cityUpdated,
+  citySlugUpdated,
   searchPhraseUpdated,
   languageUpdated,
   boundsUpdated,

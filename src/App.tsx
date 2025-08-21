@@ -15,7 +15,6 @@ const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
 const DetailReworked = lazy(() => import("./views/Main/DetailReworked"));
-const Search = lazy(() => import("./components/Search/Search"));
 
 function App() {
   //check if first visit and change code to domain language
@@ -69,24 +68,51 @@ function App() {
           <Routes>
             <Route path="/" element={<Start />} />
             <Route path="/total" element={<Start />} />
-          </Routes>
-          <Suspense fallback={<></>}>
-            <Routes>
-              <Route path="/search" element={<Main />} />
-              <Route
-                path="/tour/:idOne/:cityOne"
-                element={<DetailReworked />}
-              />
-              <Route path="/tour" element={<DetailReworked />} />
-              <Route path="/provider/:provider" element={<DetailReworked />} />
-              <Route path="/imprint" element={<Impressum />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/:city" element={<Main />} />
-              <Route path="/searchPhrases" element={<Search />} />
+            <Route path="/imprint" element={<Impressum />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route
+              path="/search"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/tour/:idOne/:cityOne"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <DetailReworked />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/tour"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <DetailReworked />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/provider/:provider"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <DetailReworked />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/:city"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </div>
         <ModalRoot />
       </LocalizationProvider>

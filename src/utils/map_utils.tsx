@@ -24,6 +24,15 @@ export function toLatLngBounds(bounds: BoundsObject): L.LatLngBounds {
   );
 }
 
+export function toBoundsObject(bounds: L.LatLngBounds): BoundsObject {
+  return {
+    north: bounds.getNorth(),
+    south: bounds.getSouth(),
+    west: bounds.getWest(),
+    east: bounds.getEast(),
+  };
+}
+
 //returns a list of markers that are contained within the passed bounds object
 export const getMarkersListFromBounds = (
   bounds: L.LatLngBounds,

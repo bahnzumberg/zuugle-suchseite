@@ -10,9 +10,13 @@ import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import modalReducer from "./reducers/modal";
 import tourReducer from "./reducers/tours";
-import searchReducer, { CityObject } from "./features/searchSlice";
+import searchReducer, {
+  BoundsObject,
+  CityObject,
+} from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import { api } from "./features/apiSlice";
+import { toBoundsObject } from "./utils/map_utils";
 
 const persistedCity = localStorage.getItem("city");
 let cityObject: CityObject | null = null;
@@ -22,8 +26,28 @@ if (persistedCity) {
   } catch (e) {
     console.error("Error parsing city from localStorage", e);
   }
-} // TODO: use zod for validating parsed objects like this
-// TODO: parse all of the relevant search parameters
+}
+
+function getPreloadedSearchState() {
+  const params = new URLSearchParams(window.location.search);
+  const bounds = params.get("bounds");
+  let parsedBounds: BoundsObject | null = null;
+  if (bounds) {
+    try {
+      parsedBounds = toBoundsObject(JSON.parse(bounds));
+    } catch (e) {
+      console.error("Error parsing bounds", e);
+    }
+  }
+  return {
+    searchPhrase: params.get("search") ?? null,
+    city: cityObject,
+    citySlug: params.get("city") ?? null,
+    map: params.get("map") === "true",
+    language: params.get("currLanguage") ?? null,
+    bounds: parsedBounds,
+  };
+}
 
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
@@ -36,7 +60,7 @@ export const store = configureStore({
     search: searchReducer,
     filter: filterReducer,
   },
-  preloadedState: { city: cityObject },
+  preloadedState: { search: getPreloadedSearchState() },
   // Add the RTK Query API middleware
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
