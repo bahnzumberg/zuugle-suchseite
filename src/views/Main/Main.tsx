@@ -16,7 +16,6 @@ import MapBtn from "../../components/Search/MapBtn";
 import "/src/config.js";
 import {
   useGetCitiesQuery,
-  useGetTotalsQuery,
   useLazyGetToursQuery,
 } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
@@ -93,11 +92,6 @@ export default function Main() {
   const [filterOn, setFilterOn] = useState(false);
 
   const { data: allCities = [] } = useGetCitiesQuery({});
-  const { totalTours } = useGetTotalsQuery(undefined, {
-    selectFromResult: ({ data }) => ({
-      totalTours: data?.total_tours ?? 0,
-    }),
-  });
 
   useEffect(() => {
     if (Object.values(filter).length) {
@@ -196,7 +190,6 @@ export default function Main() {
   const memoTourMapContainer = useMemo(() => {
     return (
       <TourMapContainer
-        tours={tours}
         filter={filter}
         setMapInitialized={setMapInitialized}
         mapInitialized={mapInitialized}
@@ -209,7 +202,7 @@ export default function Main() {
         handleShowCardContainer={handleShowCardContainer}
       />
     );
-  }, [filter, tours, totalTours]);
+  }, [filter, tours]);
   // }, [filter, tours, totalTours, mapBounds]);
 
   const toggleMapHandler = () => {
@@ -268,14 +261,16 @@ export default function Main() {
           },
         }}
       >
-        {!!totalTours && (
+        {loadedTours?.total && (
           <>
             <Typography
               color={"black"}
               sx={{ textAlign: "center", paddingTop: "0px" }}
             >
-              {showCardContainer ? Number(totalTours).toLocaleString() : " "}{" "}
-              {totalTours === 1
+              {showCardContainer
+                ? Number(loadedTours.total).toLocaleString()
+                : " "}{" "}
+              {loadedTours.total === 1
                 ? ` ${t("main.ergebnis")}`
                 : ` ${t("main.ergebnisse")}`}
             </Typography>
@@ -393,7 +388,7 @@ export default function Main() {
       </Box>
 
       {/* {!!tours && tours.length > 0 && ( */}
-      {!!totalTours && totalTours > 0 ? (
+      {loadedTours?.total ? (
         <>
           {!!showMap ? (
             <>

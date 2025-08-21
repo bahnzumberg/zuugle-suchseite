@@ -18,7 +18,12 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
 import { searchPhraseUpdated } from "../../features/searchSlice";
 
-export default function CustomSelect() {
+export interface CustomSelectProps {
+  setShowSearchModal: (showSearchModal: boolean) => void;
+}
+export default function CustomSelect({
+  setShowSearchModal,
+}: CustomSelectProps) {
   const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
 
   const dispatch = useAppDispatch();
@@ -35,6 +40,7 @@ export default function CustomSelect() {
 
   const handleSelect = (phrase: string) => {
     dispatch(searchPhraseUpdated(phrase));
+    setShowSearchModal(false);
   };
 
   useEffect(() => {
@@ -91,7 +97,7 @@ export default function CustomSelect() {
                 }}
                 onKeyDown={(ev) => {
                   if (ev.key === "Enter") {
-                    handleSelect(ev?.target?.value);
+                    handleSelect(searchString);
                     ev.preventDefault();
                   }
                 }}

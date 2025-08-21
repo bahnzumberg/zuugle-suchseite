@@ -26,7 +26,7 @@ import { MobileModal } from "./MobileModal";
 import { FilterObject } from "../../models/Filter";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
-import { cityUpdated } from "../../features/searchSlice";
+import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 
 export interface SearchProps {
   loadTours: any;
@@ -62,6 +62,9 @@ export function Search({
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery({});
   const city = useSelector((state: RootState) => state.search.city);
+  const searchPhrase = useSelector(
+    (state: RootState) => state.search.searchPhrase,
+  );
 
   const filterCountLocal = localStorage.getItem("filterCount")
     ? localStorage.getItem("filterCount")
@@ -69,7 +72,6 @@ export function Search({
 
   //initialisation
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchPhrase, setSearchPhrase] = useState("");
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [ShowCitySearch, setShowCitySearch] = useState(false);
@@ -110,7 +112,7 @@ export function Search({
     //setting searchPhrase to the value of the search parameter
 
     if (search) {
-      setSearchPhrase(search); //TODO : do we need to do actual search if search is a city? see line 138 comment
+      dispatch(searchPhraseUpdated(search));
 
       if (city === null && !search.includes(" ")) {
         // If a search phrase is given and city is empty and the search term consists only of one word,
@@ -128,16 +130,16 @@ export function Search({
           dispatch(cityUpdated(cityEntry));
           searchParams.set("city", search.toLowerCase());
           setSearchParams(searchParams);
-          setSearchPhrase("");
+          dispatch(searchPhraseUpdated(""));
         }
       }
     } else if (country) {
       // country might be useful for future enhancement or new feature related to Klimaticket
-      setSearchPhrase(country);
+      dispatch(searchPhraseUpdated(country));
       setRegion({ value: country, label: country, type: "country" });
     } else if (type) {
       // type might be useful for future enhancement or new feature related to Klimaticket
-      setSearchPhrase(type);
+      dispatch(searchPhraseUpdated(type));
       setRegion({ value: type, label: type, type: "type" });
     }
 
@@ -220,13 +222,13 @@ export function Search({
 
   // search handling function
   const search = async (tempRegion = null) => {
-    let values = {};
+    const values = {};
     if (!!city && !!city.value) {
       values.city = city.value;
     }
 
     let _region = region;
-    if (!!tempRegion) {
+    if (tempRegion) {
       _region = tempRegion;
     }
     if (!!_region && !!_region.value) {
@@ -238,7 +240,7 @@ export function Search({
     // values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
     values.map = searchParams.get("map");
     values.provider = searchParams.get("p");
-    values.filter = !!searchParams.get("filter")
+    values.filter = searchParams.get("filter")
       ? searchParams.get("filter")
       : null;
 
@@ -251,9 +253,6 @@ export function Search({
     // added for issue #208
     pageKey !== "detail" &&
       setOrRemoveSearchParam(searchParams, "filter", values.filter);
-    // if(pageKey === "detail") {
-    //   resetFilterLocalStorage();
-    // }
 
     setSearchParams(searchParams);
 
@@ -283,18 +282,6 @@ export function Search({
     window.location.reload();
     // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
     // window.location.replace(newUrl);
-  };
-
-  const getSearchSuggestion = (autoSuggestion: string) => {
-    if (autoSuggestion === "") {
-      searchParams.delete("search");
-      setSearchPhrase("");
-      setSearchParams(searchParams);
-      return;
-    }
-    suggestion = autoSuggestion;
-    search();
-    window.location.reload();
   };
 
   return (
@@ -376,9 +363,7 @@ export function Search({
                   }}
                 >
                   <span className="search-bar--searchPhase">
-                    {searchParams.get("search")
-                      ? searchParams.get("search")
-                      : t("start.suche")}
+                    {searchPhrase ?? t("start.suche")}
                   </span>
                 </Box>
               </Grid>
