@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState, useMemo, useCallback } from "react";
+import { lazy, useEffect, useState, useCallback } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
 import { loadTour } from "../../actions/tourActions";
@@ -20,6 +20,8 @@ import {
 } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
+import { mapUpdated } from "../../features/searchSlice";
+import { useAppDispatch } from "../../hooks";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
@@ -30,12 +32,15 @@ export default function Main() {
   const filter = useSelector((state: RootState) => state.filter);
   const city = useSelector((state: RootState) => state.search.city);
   const search = useSelector((state: RootState) => state.search.searchPhrase);
+  const bounds = useSelector((state: RootState) => state.search.bounds);
+  const showMap = useSelector((state: RootState) => state.search.map);
 
   const [tours, setTours] = useState<Tour[]>([]);
-  const [triggerLoadTours, { data: loadedTours, isLoading: isToursLoading }] =
-    useLazyGetToursQuery();
+  const [triggerLoadTours, { data: loadedTours }] = useLazyGetToursQuery();
   const [triggerMoreTours, { data: moreTours, isLoading: isMoreToursLoading }] =
     useLazyGetToursQuery();
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setPageTours(1);
@@ -43,8 +48,10 @@ export default function Main() {
       city: city?.value || "",
       filter: filter,
       search: search || "",
+      bounds: bounds || undefined,
+      map: showMap || undefined,
     });
-  }, [filter, city, search]);
+  }, [filter, city, search, bounds, showMap]);
 
   useEffect(() => {
     setTours(loadedTours?.tours || []);
@@ -61,6 +68,8 @@ export default function Main() {
         filter: filter,
         search: search || "",
         page: pageTours,
+        bounds: bounds || undefined,
+        map: showMap || undefined,
       });
     }
   }, [pageTours]);
@@ -83,12 +92,6 @@ export default function Main() {
 
   const [counter, setCounter] = useState(0);
 
-  const [mapInitialized, setMapInitialized] = useState(false); //MAP
-
-  const [showMap, setShowMap] = useState(false); //MAP
-  const [mapBounds, setMapBounds] = useState(null); //MAP
-  const [markersChanged, setMarkersChanged] = useState(false); //MAP
-  const [showCardContainer, setShowCardContainer] = useState(true); //MAP
   const [filterOn, setFilterOn] = useState(false);
 
   const { data: allCities = [] } = useGetCitiesQuery({});
@@ -99,35 +102,31 @@ export default function Main() {
     }
   }, [filter]);
 
-  //MAP  setting showMap
-  useEffect(() => {
-    setShowMap(searchParams.get("map") === "true" ? true : false);
-  }, [searchParams]);
-
   useEffect(() => {
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Suche" });
   }, []);
 
-  useEffect(() => {
-    if (!!location && location.pathname && allCities && allCities.length > 0) {
-      const city = checkIfSeoPageCity(location, allCities);
-      if (!!city && city.value) {
-        searchParams.set("city", city.value);
-        setSearchParams(searchParams);
-        setDirectLink({
-          header: t(`main.oeffi_bergtouren_fuer_cityname`, {
-            "city.label": city.label,
-          }),
-          description: t(`main.alle_bergtouren_von_cityname`, {
-            "city.label": city.label,
-          }),
-        });
-      } else if (!city || !city.value) {
-        setDirectLink(null);
-      }
-    }
-  }, [allCities]);
+  // TODO: understand what's going on here.
+  // useEffect(() => {
+  //   if (!!location && location.pathname && allCities && allCities.length > 0) {
+  //     const city = checkIfSeoPageCity(location, allCities);
+  //     if (!!city && city.value) {
+  //       searchParams.set("city", city.value);
+  //       setSearchParams(searchParams);
+  //       setDirectLink({
+  //         header: t(`main.oeffi_bergtouren_fuer_cityname`, {
+  //           "city.label": city.label,
+  //         }),
+  //         description: t(`main.alle_bergtouren_von_cityname`, {
+  //           "city.label": city.label,
+  //         }),
+  //       });
+  //     } else if (!city || !city.value) {
+  //       setDirectLink(null);
+  //     }
+  //   }
+  // }, [city]);
 
   const backBtnHandler = (e) => {
     e.preventDefault();
@@ -172,51 +171,16 @@ export default function Main() {
     return resultedData;
   }, []);
 
-  //Map-related : callback to set the state of "mapBounds" inside Map Container
-  const handleMapBounds = useCallback((bounds) => {
-    setMapBounds(bounds);
-  }, []);
-
-  //Map-related : callback to set the state of "markersChanged" inside Map Container
-  const handleChangedMarkers = useCallback((value) => {
-    setMarkersChanged(value);
-  }, []);
-
-  //Map-related : callback to set the state of "markersChanged" inside Map Container
-  const handleShowCardContainer = useCallback((value) => {
-    setShowCardContainer(value);
-  }, []);
-
-  const memoTourMapContainer = useMemo(() => {
-    return (
-      <TourMapContainer
-        filter={filter}
-        setMapInitialized={setMapInitialized}
-        mapInitialized={mapInitialized}
-        loadTour={loadTour}
-        onSelectTour={onSelectTourById}
-        handleMapBounds={handleMapBounds}
-        handleChangedMarkers={handleChangedMarkers}
-        setMapBounds={setMapBounds}
-        mapBounds={mapBounds}
-        handleShowCardContainer={handleShowCardContainer}
-      />
-    );
-  }, [filter, tours]);
-  // }, [filter, tours, totalTours, mapBounds]);
-
   const toggleMapHandler = () => {
     if (searchParams.has("map") && searchParams.get("map") === "true") {
       // removeMapParam
       searchParams.delete("map");
-      //add filter values from localStorage ?  here or inside the mapcontainer ?
       setSearchParams(searchParams);
-      setShowMap(false);
+      dispatch(mapUpdated(false));
     } else {
       searchParams.set("map", true);
-      //add filterValues from localStorage ? here or inside the mapcontainer ?
       setSearchParams(searchParams);
-      setShowMap(true);
+      dispatch(mapUpdated(true));
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -238,8 +202,6 @@ export default function Main() {
         isMoreToursLoading={isMoreToursLoading}
         pageTours={pageTours}
         setPageTours={setPageTours}
-        mapBounds={mapBounds}
-        markersChanged={markersChanged}
       />
     </Box>
   );
@@ -261,15 +223,13 @@ export default function Main() {
           },
         }}
       >
-        {loadedTours?.total && (
+        {loadedTours?.total != undefined && (
           <>
             <Typography
               color={"black"}
               sx={{ textAlign: "center", paddingTop: "0px" }}
             >
-              {showCardContainer
-                ? Number(loadedTours.total).toLocaleString()
-                : " "}{" "}
+              {Number(loadedTours.total).toLocaleString()}
               {loadedTours.total === 1
                 ? ` ${t("main.ergebnis")}`
                 : ` ${t("main.ergebnisse")}`}
@@ -371,12 +331,9 @@ export default function Main() {
               <Box elevation={1} className={"colCenter"}>
                 <Search
                   isMain={true}
-                  page="main"
-                  activeFilter={activeFilter}
                   filterValues={filter}
                   counter={counter}
                   setCounter={setCounter}
-                  mapBounds={mapBounds}
                   filterOn={filterOn}
                   setFilterOn={setFilterOn}
                 />
@@ -387,43 +344,19 @@ export default function Main() {
         {!showMap && totalToursHeader()}
       </Box>
 
-      {/* {!!tours && tours.length > 0 && ( */}
-      {loadedTours?.total ? (
+      {showMap && (
+        <Box className={"map-container"}>
+          <TourMapContainer
+            markers={loadedTours?.markers || []}
+            onSelectTour={onSelectTourById}
+          />
+        </Box>
+      )}
+      {totalToursHeader()}
+      {!!tours && tours.length > 0 && (
         <>
-          {!!showMap ? (
-            <>
-              <Box className={"map-container"}>{memoTourMapContainer}</Box>
-              {totalToursHeader()}
-              {!!tours && tours.length > 0 && (
-                <>
-                  {showCardContainer && renderCardContainer()}
-                  <MapBtn
-                    showMap={showMap}
-                    onClick={toggleMapHandler}
-                    btnSource="main"
-                  />
-                </>
-              )}
-            </>
-          ) : (
-            !!tours &&
-            tours.length > 0 &&
-            showCardContainer && (
-              <>
-                {renderCardContainer()}
-                <MapBtn
-                  showMap={showMap}
-                  onClick={toggleMapHandler}
-                  btnSource="main"
-                />
-              </>
-            )
-          )}
-        </>
-      ) : (
-        <>
-          {!!showMap && memoTourMapContainer}
-          {!!showMap && totalToursHeader()}
+          {renderCardContainer()}
+          <MapBtn />
         </>
       )}
     </div>

@@ -16,9 +16,6 @@ export interface TourCardContainerProps {
   isMoreToursLoading: boolean;
   pageTours: number;
   setPageTours: (pageTours: number) => void;
-  markersChanged: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mapBounds: any;
 }
 
 /**
@@ -30,8 +27,6 @@ export default function TourCardContainer({
   isMoreToursLoading,
   pageTours,
   setPageTours,
-  markersChanged,
-  mapBounds,
 }: TourCardContainerProps) {
   const [searchParams] = useSearchParams();
 
@@ -43,13 +38,6 @@ export default function TourCardContainer({
   // const type = searchParams.get("type");
   // const map = searchParams.get("map");
   const provider = searchParams.get("p");
-
-  useEffect(() => {
-    const bounds = mapBounds ? JSON.stringify(mapBounds) : "";
-    if (mapBounds && markersChanged) {
-      // TODO: load tours with bounds
-    }
-  }, [mapBounds]);
 
   return (
     <Box>

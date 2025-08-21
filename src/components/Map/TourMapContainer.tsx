@@ -22,20 +22,20 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Box from "@mui/material/Box";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import gpxParser from "gpxparser";
-import { connect } from "react-redux";
-import { useSearchParams } from "react-router-dom";
-import { loadGPX } from "../../actions/fileActions";
 import { useSelector } from "react-redux";
-import { loadTour, setTourID } from "../../actions/tourActions.js";
 import { formatMapClusterNumber } from "../../utils/map_utils";
 import "./popup-style.css";
-import { orderedArraysEqual, getTopLevelDomain } from "../../utils/globals";
-import { createIdArray } from "../../utils/map_utils";
+import { getTopLevelDomain } from "../../utils/globals";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "/src/config.js";
 import { Tour } from "../../models/Tour";
-import { FilterObject } from "../../models/Filter";
+import { RootState } from "../..";
+import { useAppDispatch } from "../../hooks";
+import { boundsUpdated } from "../../features/searchSlice";
+import {
+  useLazyGetGPXQuery,
+  useLazyGetTourQuery,
+} from "../../features/apiSlice";
 
 const PopupCard = lazy(() => import("./PopupCard"));
 
@@ -47,33 +47,21 @@ export interface Marker {
 }
 
 export interface TourMapContainerProps {
-  filter: FilterObject;
-  setMapInitialized: (initialized: boolean) => void;
-  mapInitialized: boolean;
+  markers: Marker[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSelectTour: (tourId: number) => any;
-  handleMapBounds: (bounds: L.LatLngBounds) => void;
-  handleChangedMarkers: (doHandle: boolean) => void;
-  handleShowCardContainer: (show: boolean) => void;
 }
 
-function TourMapContainer({
-  filter,
-  setMapInitialized,
-  mapInitialized,
+/**
+ * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in Main.tsx.
+ */
+export default function TourMapContainer({
+  markers,
   onSelectTour, // use for Popup content
-  handleMapBounds,
-  handleChangedMarkers,
-  handleShowCardContainer,
 }: TourMapContainerProps) {
-  // @ts-expect-error TODO: fix type
-  const markers = useSelector((state) => state.tours.markers); // move to props
-  const isMasterMarkersSet = useRef(false);
-
   const isMobile = useMediaQuery("(max-width:600px)");
-
-  const time = useMemo(() => new Date().getTime(), []); // used for MapContainer
-
+  const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
+  const [triggerGPX, { data: track }] = useLazyGetGPXQuery();
   const domain = getTopLevelDomain();
 
   let default_LatNE: number,
@@ -127,18 +115,12 @@ function TourMapContainer({
   }
 
   // Default map center using default bounds
-  // Use markers_center instead (https://github.com/bahnzumberg/zuugle-suchseite/issues/457)
-  const centerLat = (default_LatSW + default_LatNE) / 2;
-  const centerLng = (default_LngSW + default_LngNE) / 2;
-
-  const createStartMarker = () => {
-    return L.icon({
-      iconUrl: "app_static/img/startpunkt.png", //the acutal picture
-      // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
-      iconSize: [33, 45], //size of the icon
-      iconAnchor: [16, 46],
-    });
-  };
+  const [centerLat, setCenterLat] = useState(
+    (default_LatSW + default_LatNE) / 2,
+  );
+  const [centerLng, setCenterLng] = useState(
+    (default_LngSW + default_LngNE) / 2,
+  );
 
   const mapRef = useRef<L.Map | null>(null);
   const clusterRef = useRef();
@@ -152,36 +134,11 @@ function TourMapContainer({
   const [fromtourGpxTrack, setFromtourGpxTrack] = useState<
     L.LatLngExpression[]
   >([]);
-  const [searchParams, setSearchParams] = useSearchParams();
   const [mapLoaded, setMapLoaded] = useState(false);
-
-  const initialCity =
-    searchParams.get("city") ?? localStorage.getItem("city") ?? "no-city";
-  const [city, setCity] = useState(initialCity);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const city = useSelector((state: RootState) => state.search.city);
 
-  const filterValuesLocal = localStorage.getItem("filterValues")
-    ? localStorage.getItem("filterValues")
-    : null;
-
-  // @ts-expect-error TODO
-  filter = filterValuesLocal ? filterValuesLocal : filter; // TODO: why is that necessary?
-
-  // storing masterMarkers list inside localStorage
-  useEffect(() => {
-    if (!isMasterMarkersSet.current && markers && markers.length > 0) {
-      localStorage.setItem("masterMarkers", JSON.stringify(markers));
-      localStorage.setItem("visibleMarkers", JSON.stringify(markers));
-      isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
-    }
-  }, [markers]);
-
-  //setMapInitialized
-  useEffect(() => {
-    if (!mapInitialized) {
-      setMapInitialized(true);
-    }
-  }, [mapInitialized, setMapInitialized]);
+  const dispatch = useAppDispatch();
 
   // keep checking until mapRef.current is set
   useEffect(() => {
@@ -196,53 +153,22 @@ function TourMapContainer({
     return () => clearInterval(interval);
   }, [mapRef]);
 
-  const mapChangeHandler = (bounds: L.LatLngBounds) => {
-    if (bounds && mapInitialized) {
-      // Retrieve master markers from local storage if available
-      const _masterMarkers = JSON.parse(
-        localStorage.getItem("masterMarkers") ?? "{}",
-      );
+  useEffect(() => {
+    if (tourDetails) setSelectedTour(tourDetails);
+  }, [tourDetails]);
 
-      let visibleMarkersObj: Marker[] = [];
-      let _visibleMarkersArray: number[] = [];
-
-      // if _masterMarkers is not empty
-      if (!!_masterMarkers && Object.keys(_masterMarkers).length > 0) {
-        visibleMarkersObj = getMarkersListFromBounds(bounds, _masterMarkers);
-
-        // Early exit if no list of visible markers is found
-        if (!visibleMarkersObj || Object.keys(visibleMarkersObj).length === 0) {
-          handleShowCardContainer(false); // so we can remove the card container
-          return;
-        } else {
-          handleShowCardContainer(true); // so we can retain the card container when markers are there
-        }
-        // if found extract only IDs in an array
-        _visibleMarkersArray = createIdArray(visibleMarkersObj);
-      }
-
-      const storedMarkers = JSON.parse(
-        localStorage.getItem("visibleMarkers") ?? "[]",
-      );
-      const check = checkMarkersChanges(_visibleMarkersArray, storedMarkers);
-
-      if (!!check && !!visibleMarkersObj && !!_visibleMarkersArray) {
-        localStorage.setItem(
-          "visibleMarkers",
-          JSON.stringify(_visibleMarkersArray),
-        );
-        handleChangedMarkers(true); // *** handle the Boolean flag in Main /make new call in card container
-
-        handleMapBounds(getMarkersBounds(visibleMarkersObj) || bounds);
-      } else {
-        handleChangedMarkers(false);
-      }
-    }
+  const createStartMarker = () => {
+    return L.icon({
+      iconUrl: "app_static/img/startpunkt.png", //the acutal picture
+      // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+      iconSize: [33, 45], //size of the icon
+      iconAnchor: [16, 46],
+    });
   };
 
   const getMarkersBounds = (markers: Marker[]) => {
     const _bounds = L.latLngBounds([]);
-    if (markers) {
+    if (markers.length > 0) {
       markers.forEach((marker) => {
         if (marker.lat && marker.lon) {
           _bounds.extend([marker.lat, marker.lon]);
@@ -250,23 +176,6 @@ function TourMapContainer({
       });
     }
     return _bounds;
-  };
-
-  // city setting -> TODO: move to global helper
-  useEffect(() => {
-    const _city =
-      searchParams.get("city") ?? localStorage.getItem("city") ?? "no-city";
-
-    setCity(_city);
-  }, [searchParams, city]);
-
-  const checkMarkersChanges = (
-    visibleMarkers: number[],
-    storedMarkers: number[],
-  ) => {
-    if (!orderedArraysEqual(visibleMarkers, storedMarkers)) {
-      return true;
-    } else return false;
   };
 
   //saves the bounds on localStorage
@@ -287,23 +196,8 @@ function TourMapContainer({
 
   const handleGpxTrack = async (url: string) => {
     if (url) {
-      try {
-        const loadGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadGpxFunction(); // TODO: should this use dispatch?
-        if (!!res && !!res.data) {
-          const gpx = new gpxParser(); //Create gpxParser Object
-          gpx.parse(res.data);
-          if (gpx.tracks.length > 0) {
-            const track = gpx.tracks[0].points.map((p) =>
-              L.latLng(p.lat, p.lon),
-            );
-            setGpxTrack(track);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading GPX:", error);
-        setGpxTrack([]);
-      }
+      const track = await triggerGPX(url).unwrap();
+      setGpxTrack(track);
     } else {
       setGpxTrack([]);
     }
@@ -311,82 +205,50 @@ function TourMapContainer({
 
   const handleTotourGpxTrack = async (url: string) => {
     if (url) {
-      try {
-        const loadTotourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadTotourGpxFunction();
-        if (!!res && !!res.data) {
-          const gpx = new gpxParser(); //Create gpxParser Object
-          gpx.parse(res.data);
-          if (gpx.tracks.length > 0) {
-            const track = gpx.tracks[0].points.map((p) =>
-              L.latLng(p.lat, p.lon),
-            );
-            setTotourGpxTrack(track);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading GPX:", error);
-        setGpxTrack([]);
-      }
+      const track = await triggerGPX(url).unwrap();
+      setTotourGpxTrack(track);
     } else {
-      setGpxTrack([]);
+      setTotourGpxTrack([]);
     }
   };
 
   const handleFromtourGpxTrack = async (url: string) => {
     if (url) {
-      try {
-        const loadFromtourGpxFunction = loadGPX(url); // Call loadGPX with the URL to get the inner function
-        const res = await loadFromtourGpxFunction();
-        if (!!res && !!res.data) {
-          const gpx = new gpxParser(); //Create gpxParser Object
-          gpx.parse(res.data);
-          if (gpx.tracks.length > 0) {
-            const track = gpx.tracks[0].points.map((p) =>
-              L.latLng(p.lat, p.lon),
-            );
-            setFromtourGpxTrack(track);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading GPX:", error);
-        setGpxTrack([]);
-      }
+      const track = await triggerGPX(url).unwrap();
+      setTotourGpxTrack(track);
     } else {
-      setGpxTrack([]);
+      setFromtourGpxTrack([]);
     }
   };
 
   const handleMarkerClick = useCallback(
-    async (e: L.LeafletMouseEvent, tourId: number) => {
-      if (!mapLoaded || !mapInitialized) {
+    async (e: L.LeafletMouseEvent, marker: Marker) => {
+      console.log("handleMarkerClick", e, marker);
+      if (!mapLoaded) {
         console.warn("Map is still loading, please wait.");
         return;
       }
-      if (!tourId) return;
+      if (!marker.id) return;
 
-      const tourInfo = { id: tourId, lat: e.latlng.lat, lon: e.latlng.lng };
-      activeMarkerRef.current = tourInfo;
+      activeMarkerRef.current = marker;
 
-      setSelectedTour(null);
+      try {
+        const _tour = await triggerTourDetails({
+          id: marker.id,
+          city: city?.value ?? "no-city",
+        }).unwrap();
 
-      if (!!tourId && city) {
-        try {
-          const _tourDetail = await onSelectTour(tourId);
-          const _tour = _tourDetail.data.tour;
-          if (_tour) setSelectedTour(_tour);
-          if (_tour && _tour.gpx_file) await handleGpxTrack(_tour.gpx_file);
-          if (_tour && _tour.totour_gpx_file)
-            await handleTotourGpxTrack(_tour.totour_gpx_file);
-          if (_tour && _tour.fromtour_gpx_file)
-            await handleFromtourGpxTrack(_tour.fromtour_gpx_file);
-        } catch (error) {
-          console.error("Error fetching tour details:", error);
-        }
+        console.log("_tour", _tour);
+        if (_tour.gpx_file) await handleGpxTrack(_tour.gpx_file);
+        if (_tour.totour_gpx_file)
+          await handleTotourGpxTrack(_tour.totour_gpx_file);
+        if (_tour.fromtour_gpx_file)
+          await handleFromtourGpxTrack(_tour.fromtour_gpx_file);
+      } catch (error) {
+        console.error("Error fetching tour details:", error);
       }
     },
     [
-      mapInitialized,
       mapLoaded,
       city,
       onSelectTour,
@@ -431,24 +293,9 @@ function TourMapContainer({
         }
         assignNewMapPosition(_bounds);
         debouncedStoppedMoving(map.getBounds());
-        handleMapBounds(_bounds);
       },
     });
     return null;
-  };
-
-  //returns a list of markers that are contained within the passed bounds object
-  const getMarkersListFromBounds = (
-    bounds: { contains: (arg0: L.LatLng) => boolean },
-    markersList: Marker[],
-  ) => {
-    // markersList is an array of objects {id: 72869, lat: 47.79043, lon: 15.91079}
-    if (bounds && markersList) {
-      return markersList.filter((marker) =>
-        bounds.contains(L.latLng(marker.lat, marker.lon)),
-      );
-    }
-    return [];
   };
 
   function makeDebounced(
@@ -464,64 +311,20 @@ function TourMapContainer({
   }
 
   function stoppedMoving(bounds: L.LatLngBounds) {
-    handleChange(bounds);
+    dispatch(
+      boundsUpdated({
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        west: bounds.getWest(),
+        east: bounds.getEast(),
+      }),
+    );
   }
 
   const debouncedStoppedMoving = useMemo(
     () => makeDebounced(stoppedMoving, 1000),
     [],
   ); //Calls makeDebounce with the function you want to debounce and the debounce time
-
-  const handleChange = (bounds: L.LatLngBounds) => {
-    const southWest = bounds.getSouthWest();
-    const northEast = bounds.getNorthEast();
-    const swLat = southWest.lat.toFixed(6);
-    const swLng = southWest.lng.toFixed(6);
-    const neLat = northEast.lat.toFixed(6);
-    const neLng = northEast.lng.toFixed(6);
-
-    mapChangeHandler(bounds);
-    const searchTerm = searchParams.get("search")
-      ? searchParams.get("search")
-      : null;
-    const filterValues = {
-      //All Values in the URL
-      s: parseFloat(swLat),
-      w: parseFloat(swLng),
-      n: parseFloat(neLat),
-      e: parseFloat(neLng),
-      singleDayTour: filter?.singleDayTour,
-      multipleDayTour: filter?.multipleDayTour,
-      summerSeason: filter?.summerSeason,
-      winterSeason: filter?.winterSeason,
-      traverse: filter?.traverse,
-      difficulty: filter?.difficulty,
-      minAscent: filter?.minAscent,
-      maxAscent: filter?.maxAscent,
-      minDescent: filter?.minDescent,
-      maxDescent: filter?.maxDescent,
-      minTransportDuration: filter?.minTransportDuration,
-      maxTransportDuration: filter?.maxTransportDuration,
-      minDistance: filter?.minDistance,
-      maxDistance: filter?.maxDistance,
-      ranges: filter?.ranges,
-      types: filter?.types,
-      search: searchTerm,
-    };
-
-    if (filterValues == null) {
-      searchParams.delete("filter");
-      setSearchParams(searchParams);
-      // localStorage.removeItem("filterValues")
-    } else {
-      searchParams.set("filter", JSON.stringify(filterValues));
-      setSearchParams(searchParams);
-      // localStorage.setItem("filterValues", JSON.stringify(filterValues))
-    }
-    //pull filtervalues from localStorage and pass it to params for setting
-    localStorage.setItem("MapToggle", String(true)); //The map should stay the same after rendering the page
-    // setSearchParams(searchParams); //set the search Params and start the call to the backend
-  };
 
   return (
     <Box
@@ -533,9 +336,8 @@ function TourMapContainer({
         margin: "auto",
       }}
     >
-      {mapInitialized && !!markers && (
+      {markers && (
         <MapContainer
-          key={time}
           className="leaflet-container"
           ref={mapRef}
           scrollWheelZoom={false} //if you can zoom with you mouse wheel
@@ -545,12 +347,6 @@ function TourMapContainer({
           zoom={7} //zoom level --> how much it is zoomed out
           style={{ height: "100%", width: "100%" }} //Size of the map
           zoomControl={false}
-          whenReady={() => {
-            if (mapRef.current && markers.length > 0) {
-              const initialBounds = mapRef.current.getBounds();
-              handleMapBounds(initialBounds); // state setter in parent "Main"
-            }
-          }}
         >
           <TileLayer
             url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
@@ -558,7 +354,7 @@ function TourMapContainer({
             maxNativeZoom={19}
           />
 
-          {!!activeMarkerRef.current && selectedTour && (
+          {activeMarkerRef.current && selectedTour && (
             <Suspense>
               <Popup
                 key={`popup_${activeMarkerRef.current.id}`}
@@ -575,7 +371,7 @@ function TourMapContainer({
                 }}
               >
                 {selectedTour?.id === activeMarkerRef.current.id && (
-                  <PopupCard tour={selectedTour} city={city} />
+                  <PopupCard tour={selectedTour} city={city?.value || ""} />
                 )}
               </Popup>
             </Suspense>
@@ -645,7 +441,7 @@ function TourMapContainer({
                   ref={markerRef}
                   icon={createStartMarker()}
                   eventHandlers={{
-                    click: (e) => handleMarkerClick(e, mark.id),
+                    click: (e) => handleMarkerClick(e, mark),
                   }}
                 ></Marker>
               );
@@ -659,25 +455,3 @@ function TourMapContainer({
     </Box>
   );
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    loadTour,
-    setTourID: (tourId: number) => dispatch(setTourID(tourId)),
-  };
-};
-
-const mapStateToProps = (state: {
-  tours: { filter: FilterObject; tour: Tour };
-}) => {
-  return {
-    filter: state.tours.filter, //used to get the filter variables
-    tour: state.tours.tour,
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(React.memo(TourMapContainer));

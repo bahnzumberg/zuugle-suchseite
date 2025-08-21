@@ -38,7 +38,6 @@ export interface SearchProps {
   setCounter: (counter: number) => void;
   setFilterValues: (filterValues: FilterObject) => void;
   filterValues: FilterObject;
-  mapBounds: any;
   filterOn: boolean;
   setFilterOn: (filterOn: boolean) => void;
 }
@@ -49,7 +48,6 @@ export function Search({
   pageKey,
   isMain,
   counter,
-  mapBounds,
   filterOn,
   setFilterOn,
 }: SearchProps) {
@@ -99,8 +97,6 @@ export function Search({
   }, [searchParams, counter]);
 
   useEffect(() => {
-    if (mapBounds) return; // in case of when map changes bounds, this line prevent unnecessary api call at loadTours() below.
-
     const range = searchParams.get("range");
     const country = searchParams.get("country");
     const type = searchParams.get("type");
@@ -164,13 +160,6 @@ export function Search({
     }
     // flag active filter if count > 0
     filterCountLocal && setActiveFilter(filterCountLocal > 0);
-
-    const bounds =
-      !!searchParams.get("map") &&
-      searchParams.get("map") === true &&
-      !!mapBounds
-        ? mapBounds
-        : null;
 
     // const result = loadTours({
     //   city: city,

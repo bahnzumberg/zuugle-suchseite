@@ -1,7 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CityObject } from "./searchSlice";
+import { BoundsObject, CityObject } from "./searchSlice";
 import { Tour } from "../models/Tour";
 import { FilterObject } from "../models/Filter";
+import { Marker } from "../components/Map/TourMapContainer";
+import { toLatLngBounds } from "../utils/map_utils";
+import gpxParser from "gpxparser";
 
 export interface CityResponse {
   success: boolean;
@@ -25,13 +28,23 @@ export interface RangeObject {
   attract: string;
 }
 
+export interface TourParams {
+  id: number;
+  city?: string;
+}
+
+export interface TourResponse {
+  success: boolean;
+  tour: Tour;
+}
+
 export interface ToursResponse {
   success: boolean;
   tours: Tour[];
   total: number;
   page: number;
   ranges: RangeObject[];
-  markers: any[];
+  markers: Marker[];
 }
 
 export interface ToursParams {
@@ -42,6 +55,8 @@ export interface ToursParams {
   filter?: FilterObject;
   search?: string;
   page?: number;
+  bounds?: BoundsObject;
+  map?: boolean;
 }
 
 export interface SearchParams {
@@ -88,9 +103,23 @@ export const api = createApi({
         return `tours/total`;
       },
     }),
+    getTour: build.query<Tour, TourParams>({
+      query: (params) => {
+        return `tours/${params.id}/${params.city ?? ""}`;
+      },
+      transformResponse: (response: TourResponse) => {
+        return response.tour;
+      },
+    }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
-        return `tours/?${toSearchParams(params)}`;
+        const { bounds, ...rest } = params;
+        if (bounds) {
+          const leafletBounds = toLatLngBounds(bounds);
+          return `tours/?${toSearchParams({ ...rest, bounds: leafletBounds })}`;
+        }
+
+        return `tours/?${toSearchParams(rest)}`;
       },
     }),
     getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({
@@ -107,6 +136,13 @@ export const api = createApi({
       },
       transformResponse: (response: FilterResponse) => {
         return response.filter;
+      },
+    }),
+    getGPX: build.query<L.LatLngExpression[], string>({
+      query: (url) => url,
+      transformResponse: (text: string) => {
+        const gpx = new gpxParser();
+        return gpx.parse(text);
       },
     }),
   }),
@@ -133,4 +169,8 @@ export const {
   useGetSearchPhrasesQuery,
   useLazyGetSearchPhrasesQuery,
   useGetFilterQuery,
+  useGetTourQuery,
+  useLazyGetTourQuery,
+  useGetGPXQuery,
+  useLazyGetGPXQuery,
 } = api;

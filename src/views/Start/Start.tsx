@@ -39,9 +39,6 @@ export default function Start() {
     city: city?.value ?? "",
     ranges: true,
   });
-  useEffect(() => {
-    console.log(isToursLoading);
-  }, [isToursLoading]);
 
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -189,11 +186,7 @@ export default function Start() {
               </Box>
             </Box>
           </Box>
-          <MapBtn
-            onClick={onClickMap}
-            mapBtnext={`${t("start_pages.zur_kartenansicht")}`}
-            btnSource="start"
-          />
+          <MapBtn />
           <Footer />
         </Suspense>
       </>
