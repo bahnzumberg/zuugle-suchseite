@@ -8,8 +8,6 @@ import App from "./App";
 import "./index.css";
 import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
-import modalReducer from "./reducers/modal";
-import tourReducer from "./reducers/tours";
 import searchReducer, {
   BoundsObject,
   CityObject,
@@ -59,7 +57,6 @@ export const store = configureStore({
   reducer: {
     // Add the generated RTK Query "API slice" caching reducer
     [api.reducerPath]: api.reducer,
-    tours: tourReducer,
     search: searchReducer,
     filter: filterReducer,
   },

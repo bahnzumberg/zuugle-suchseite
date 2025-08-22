@@ -2,7 +2,6 @@ import { Box, Skeleton, Typography } from "@mui/material";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
-import { useSearchParams } from "react-router-dom";
 import { useIsMobile } from "../../utils/globals";
 import {
   getPageHeader,
@@ -23,11 +22,11 @@ const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
 export default function Start() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const city = useSelector((state: RootState) => state.search.city);
+  const provider = useSelector((state: RootState) => state.search.provider);
 
   const { data: totals } = useGetTotalsQuery();
   const {
@@ -70,15 +69,6 @@ export default function Start() {
     }
   };
 
-  const onClickMap = () => {
-    if (!searchParams.get("map")) {
-      // console.log("setting map");
-      searchParams.set("map", true);
-      setSearchParams(searchParams);
-    }
-    navigate(`search?${searchParams.toString()}`);
-  };
-
   const country = getTranslatedCountryName();
 
   if (totals?.total_tours === 0) {
@@ -106,11 +96,7 @@ export default function Start() {
       <>
         <Box style={{ background: "#fff" }}>
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
-          <Header
-            totalTours={totals?.total_tours}
-            showMobileMenu={showMobileMenu}
-            setShowMobileMenu={setShowMobileMenu}
-          />
+          <Header totalTours={totals?.total_tours} />
         </Box>
         <Suspense
           fallback={
@@ -156,7 +142,7 @@ export default function Start() {
                   city={city?.value || ""}
                   isLoading={isToursLoading}
                   isMobile={isMobile}
-                  provider={searchParams.get("p")}
+                  provider={provider}
                 />
               </Box>
               <Box style={{ padding: "30px 40px" }}>

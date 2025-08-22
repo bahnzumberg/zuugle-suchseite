@@ -2,7 +2,6 @@ import { Box, Typography } from "@mui/material";
 import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { getTotalCityTours } from "../../actions/crudActions";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
 import { useGetCitiesQuery } from "../../features/apiSlice";
@@ -11,11 +10,7 @@ import Search from "../../components/Search/Search";
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
 
-export default function Header({
-  totalTours,
-  showMobileMenu,
-  setShowMobileMenu,
-}) {
+export default function Header({ totalTours }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const getCity = useCallback(() => {
@@ -33,21 +28,22 @@ export default function Header({
     setCapCity(newCity);
   }, []);
 
-  useEffect(() => {
-    if (getCity()) {
-      getTotalCityTours(city).then((data) => {
-        setTotalToursFromCity(data.tours_city);
-      });
+  // TODO: find out what this if for
+  // useEffect(() => {
+  //   if (getCity()) {
+  //     getTotalCityTours(city).then((data) => {
+  //       setTotalToursFromCity(data.tours_city);
+  //     });
 
-      if (allCities.length > 0) {
-        const cityObj = allCities.find((e) => e.value === city);
-        if (cityObj) {
-          updateCapCity(cityObj.label);
-          searchParams.set("city", city);
-        }
-      }
-    }
-  }, [city, getCity, allCities, updateCapCity, searchParams]);
+  //     if (allCities.length > 0) {
+  //       const cityObj = allCities.find((e) => e.value === city);
+  //       if (cityObj) {
+  //         updateCapCity(cityObj.label);
+  //         searchParams.set("city", city);
+  //       }
+  //     }
+  //   }
+  // }, [city, getCity, allCities, updateCapCity, searchParams]);
 
   if (totalTours === 0) {
     return (
