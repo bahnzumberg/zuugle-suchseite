@@ -15,7 +15,6 @@
     "@mui/x-date-pickers": "^8.10.0",
     "@reduxjs/toolkit": "^2.8.2",
     "dayjs": "^1.11.13",
-    "gpxparser": "^3.0.8",
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-http-backend": "^3.0.2",
