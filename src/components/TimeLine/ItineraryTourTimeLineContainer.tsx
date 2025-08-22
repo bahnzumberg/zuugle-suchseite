@@ -36,6 +36,17 @@ import {
   randomKey,
 } from "../../utils/globals";
 import { useGetCitiesQuery } from "../../features/apiSlice";
+import { Tour } from "../../models/Tour";
+
+export interface ItineraryTourTimeLineContainerProps {
+  connections: any;
+  loading: boolean;
+  duration: any;
+  tour: Tour;
+  city: any;
+  dateIndex: any;
+  idOne: any;
+}
 
 export default function ItineraryTourTimeLineContainer({
   connections,
@@ -45,7 +56,7 @@ export default function ItineraryTourTimeLineContainer({
   city,
   dateIndex,
   idOne,
-}) {
+}: ItineraryTourTimeLineContainerProps) {
   //set connections to single one
   connections = connections[dateIndex];
   const { data: cities = [] } = useGetCitiesQuery({});

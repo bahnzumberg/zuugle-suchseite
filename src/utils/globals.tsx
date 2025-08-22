@@ -75,9 +75,9 @@ export function setOrRemoveSearchParam(searchParams, key, value) {
   }
 }
 
-export const parseFileName = (name, prefix = "", postfix = "") => {
-  let tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
-  let _name = name.toLowerCase();
+export const parseFileName = (name: string, prefix = "", postfix = "") => {
+  const tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
+  const _name = name.toLowerCase();
   return `${prefix}${_name.replace(/\s/g, "_")}${postfix}`.replace(
     /[äöüß]/g,
     function ($0) {

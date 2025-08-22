@@ -8,6 +8,7 @@ import { Tour } from "../models/Tour";
 import { FilterObject } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
 import { parseGPX, toLatLngBounds } from "../utils/map_utils";
+import { ConnectionResult } from "../models/Connections";
 
 export interface CityResponse {
   success: boolean;
@@ -32,7 +33,7 @@ export interface RangeObject {
 }
 
 export interface TourParams {
-  id: number;
+  id: string;
   city?: string;
 }
 
@@ -90,6 +91,16 @@ export interface FilterResponse {
   filter: FilterObject;
 }
 
+export interface ConnectionParams {
+  id: string;
+  city: string;
+}
+
+export interface ConnectionResponse {
+  success: boolean;
+  result: ConnectionResult[];
+}
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_URL,
@@ -111,7 +122,7 @@ export const api = createApi({
     }),
     getTour: build.query<Tour, TourParams>({
       query: (params) => {
-        return `tours/${params.id}/${params.city ?? ""}`;
+        return `tours/${params.id}/${params.city ?? "no-city"}`;
       },
       transformResponse: (response: TourResponse) => {
         return response.tour;
@@ -158,6 +169,21 @@ export const api = createApi({
         }
       },
     }),
+    getProviderGpxOk: build.query<boolean, string>({
+      query: (provider) => `tours/provider/${provider}`,
+      transformResponse: (response: {
+        success: boolean;
+        allow_gpx_download: string;
+      }) => response.allow_gpx_download === "y",
+    }),
+    getConnectionsExtended: build.query<ConnectionResult[], ConnectionParams>({
+      query: (params) => {
+        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${window.location.host}`;
+      },
+      transformResponse: (response: ConnectionResponse) => {
+        return response.result;
+      },
+    }),
   }),
 });
 
@@ -191,4 +217,8 @@ export const {
   useLazyGetTourQuery,
   useGetGPXQuery,
   useLazyGetGPXQuery,
+  useGetProviderGpxOkQuery,
+  useLazyGetProviderGpxOkQuery,
+  useGetConnectionsExtendedQuery,
+  useLazyGetConnectionsExtendedQuery,
 } = api;

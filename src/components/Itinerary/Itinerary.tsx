@@ -4,16 +4,24 @@ import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
+import { Tour } from "../../models/Tour";
 
+export interface ItineraryProps {
+  connectionData: any;
+  dateIndex: any;
+  updateConnIndex: any;
+  tour: Tour | undefined;
+  city: any;
+  idOne: any;
+}
 const Itinerary = ({
   connectionData,
   dateIndex,
   updateConnIndex,
   tour,
-  validTour,
   city,
   idOne,
-}) => {
+}: ItineraryProps) => {
   const { t } = useTranslation();
 
   const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
@@ -24,7 +32,7 @@ const Itinerary = ({
         <p className="tour-detail-itinerary-header">
           {t("Details.oeffi_fahrplan")}
         </p>
-        {!!validTour ? (
+        {tour?.valid_tour === 1 ? (
           <>
             <ItineraryCalendar
               connectionData={connectionData}

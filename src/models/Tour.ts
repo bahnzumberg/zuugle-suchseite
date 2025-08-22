@@ -32,6 +32,8 @@ export interface Tour {
   totour_gpx_file: string;
   fromtour_gpx_file: string;
   provider_name: string;
+  valid_tour?: number;
+  description?: string;
   canonical: Canonical[];
 }
 
