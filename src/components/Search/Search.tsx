@@ -59,7 +59,7 @@ export default function Search({ pageKey, isMain }: SearchProps) {
         showCitySearch={ShowCitySearch}
         setShowCitySearch={setShowCitySearch}
       />
-      <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
+      {isMain && <Filter showFilter={filterOn} setShowFilter={setFilterOn} />}
       <Box
         className="main-search-bar"
         sx={{

@@ -1,49 +1,27 @@
 import { Box, Typography } from "@mui/material";
-import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import React, { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
-import { useGetCitiesQuery } from "../../features/apiSlice";
 import Search from "../../components/Search/Search";
+import { useSelector } from "react-redux";
+import { RootState } from "../..";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
 
-export default function Header({ totalTours }) {
+export interface HeaderProps {
+  totalTours: number;
+  totalToursFromCity: number;
+}
+export default function Header({
+  totalTours,
+  totalToursFromCity,
+}: HeaderProps) {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
-  const getCity = useCallback(() => {
-    return searchParams.get("city") || localStorage.getItem("city") || null;
-  }, [searchParams]);
-  const city = getCity();
-  const { data: allCities = [] } = useGetCitiesQuery({});
-
-  const [capCity, setCapCity] = useState(city);
-  const [totalToursFromCity, setTotalToursFromCity] = useState(0);
+  const city = useSelector((state: RootState) => state.search.city);
 
   const tld = getTLD();
-
-  const updateCapCity = useCallback((newCity) => {
-    setCapCity(newCity);
-  }, []);
-
-  // TODO: find out what this if for
-  // useEffect(() => {
-  //   if (getCity()) {
-  //     getTotalCityTours(city).then((data) => {
-  //       setTotalToursFromCity(data.tours_city);
-  //     });
-
-  //     if (allCities.length > 0) {
-  //       const cityObj = allCities.find((e) => e.value === city);
-  //       if (cityObj) {
-  //         updateCapCity(cityObj.label);
-  //         searchParams.set("city", city);
-  //       }
-  //     }
-  //   }
-  // }, [city, getCity, allCities, updateCapCity, searchParams]);
 
   if (totalTours === 0) {
     return (
@@ -83,43 +61,39 @@ export default function Header({ totalTours }) {
       <Box className="header-text">
         {totalTours > 0 && (
           <Typography variant="h1" sx={{ height: "162px" }}>
-            {totalToursFromCity === 0
+            {!city
               ? totalTours.toLocaleString()
               : totalToursFromCity.toLocaleString()}{" "}
             {t(
-              totalToursFromCity === 0
+              !city
                 ? "start.tourenanzahl_untertitel"
                 : "start.tourenanzahl_untertitel_city",
-              { capCity },
+              { capCity: city?.label },
             )}
           </Typography>
         )}
       </Box>
 
-      {allCities.length > 0 && (
-        <Suspense fallback={<></>}>
-          <Box
-            sx={{
-              bgcolor: "#FFF",
-              position: "absolute",
-              bottom: 0,
-              transform: "translate(-50%, 50%)",
-              display: "inline-flex",
-              borderRadius: "20px",
-              p: "12px 15px",
-              border: "2px solid #ddd",
-              width: "100%",
-              maxWidth: { xs: "325px", md: "600px" },
-              boxSizing: "border-box",
-              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <Search pageKey="start" isMain={false} />
-            </Box>
-          </Box>
-        </Suspense>
-      )}
+      <Box
+        sx={{
+          bgcolor: "#FFF",
+          position: "absolute",
+          bottom: 0,
+          transform: "translate(-50%, 50%)",
+          display: "inline-flex",
+          borderRadius: "20px",
+          p: "12px 15px",
+          border: "2px solid #ddd",
+          width: "100%",
+          maxWidth: { xs: "325px", md: "600px" },
+          boxSizing: "border-box",
+          boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+        }}
+      >
+        <Box sx={{ width: "100%" }}>
+          <Search pageKey="start" isMain={false} />
+        </Box>
+      </Box>
     </BackgroundImageLoader>
   );
 }

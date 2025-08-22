@@ -1,5 +1,5 @@
 import { Box, Skeleton, Typography } from "@mui/material";
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useIsMobile } from "../../utils/globals";
@@ -8,10 +8,14 @@ import {
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import Header from "./Header";
-import { useGetTotalsQuery, useGetToursQuery } from "../../features/apiSlice";
+import {
+  useGetTotalsQuery,
+  useLazyGetToursQuery,
+} from "../../features/apiSlice";
 import { RootState } from "../..";
 import StartTourCardContainer from "../../components/StartTourCardContainer";
 import { useSelector } from "react-redux";
+import SearchParamSync from "../../components/SearchParamSync";
 
 const RangeCardContainer = lazy(
   () => import("../../components/RangeCardContainer"),
@@ -23,20 +27,19 @@ const Footer = lazy(() => import("../../components/Footer/Footer"));
 
 export default function Start() {
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
 
   const { data: totals } = useGetTotalsQuery();
-  const {
-    data: loadedTours = { tours: [], ranges: [], total: 0 },
-    isFetching: isToursLoading,
-  } = useGetToursQuery({
-    limit: 10,
-    city: city?.value ?? "",
-    ranges: true,
-  });
+  const [
+    triggerLoadTours,
+    {
+      data: loadedTours = { tours: [], ranges: [], total: 0 },
+      isFetching: isToursLoading,
+    },
+  ] = useLazyGetToursQuery();
 
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -46,6 +49,16 @@ export default function Start() {
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Startseite" });
   }, []);
+
+  useEffect(() => {
+    console.log("triggerLoadTours");
+    triggerLoadTours({
+      limit: 10,
+      city: citySlug ?? "",
+      provider: provider || undefined,
+      ranges: true,
+    });
+  }, [citySlug, provider]);
 
   const onSelectRange = (range) => {
     if (range?.range) {
@@ -84,7 +97,10 @@ export default function Start() {
         }
       >
         <Box>
-          <Header totalTours={totals?.total_tours} />
+          <Header
+            totalTours={totals?.total_tours}
+            totalToursFromCity={loadedTours.total}
+          />
           <Footer />
         </Box>
       </Suspense>
@@ -94,9 +110,13 @@ export default function Start() {
   if (totals?.total_tours !== 0) {
     return (
       <>
+        <SearchParamSync isMain={false} />
         <Box style={{ background: "#fff" }}>
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
-          <Header totalTours={totals?.total_tours} />
+          <Header
+            totalTours={totals?.total_tours || 0}
+            totalToursFromCity={loadedTours.total}
+          />
         </Box>
         <Suspense
           fallback={

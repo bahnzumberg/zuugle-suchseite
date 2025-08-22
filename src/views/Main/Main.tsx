@@ -189,7 +189,7 @@ export default function Main() {
 
   return (
     <div>
-      <SearchParamSync />
+      <SearchParamSync isMain={true} />
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
