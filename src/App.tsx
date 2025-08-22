@@ -7,7 +7,6 @@ import ModalRoot from "./components/ModalRoot";
 import { theme } from "./theme";
 import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
-import "/src/config.js";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 

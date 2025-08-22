@@ -9,7 +9,6 @@ import {
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import Header from "./Header";
-import "/src/config.js";
 import { useGetTotalsQuery, useGetToursQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
 import StartTourCardContainer from "../../components/StartTourCardContainer";

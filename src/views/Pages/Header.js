@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { getDomainText } from "../../utils/globals";
-import "/src/config.js";
 
 export default function Header({ title, subTitle }) {
   let tld = window.location.hostname.slice(-2);

@@ -15,7 +15,6 @@ import {
 } from "./types";
 import { loadFile, loadList, loadOne } from "./crudActions";
 import i18next from "i18next";
-import "/src/config.js";
 
 export function loadTours(data = {}) {
   const language = i18next.resolvedLanguage;

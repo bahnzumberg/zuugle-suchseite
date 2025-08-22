@@ -13,7 +13,6 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
 import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
-import "/src/config.js";
 import {
   useGetCitiesQuery,
   useLazyGetToursQuery,

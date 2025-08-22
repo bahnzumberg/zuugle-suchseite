@@ -19,7 +19,6 @@ import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { useMediaQuery } from "@mui/material";
-import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";

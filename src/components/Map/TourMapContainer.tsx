@@ -27,7 +27,6 @@ import { formatMapClusterNumber } from "../../utils/map_utils";
 import "./popup-style.css";
 import { getTopLevelDomain } from "../../utils/globals";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import "/src/config.js";
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";

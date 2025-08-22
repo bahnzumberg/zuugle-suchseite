@@ -35,7 +35,6 @@ import {
   simpleConvertNumToTime,
   randomKey,
 } from "../../utils/globals";
-import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 
 export default function ItineraryTourTimeLineContainer({

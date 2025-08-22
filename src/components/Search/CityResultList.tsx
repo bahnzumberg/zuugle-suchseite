@@ -7,7 +7,6 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 
 import CircularProgress from "@mui/material/CircularProgress";
-import "/src/config.js";
 import { useMemo } from "react";
 import { CityObject } from "../../features/searchSlice";
 

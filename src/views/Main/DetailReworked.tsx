@@ -49,7 +49,6 @@ import {
 } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
 import SearchContainer from "../Start/SearchContainer";
-import "/src/config.js";
 
 const DetailReworked = (props) => {
   const {

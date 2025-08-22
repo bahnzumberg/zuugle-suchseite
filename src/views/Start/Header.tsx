@@ -5,7 +5,6 @@ import { useSearchParams } from "react-router-dom";
 import { getTotalCityTours } from "../../actions/crudActions";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
-import "/src/config.js";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
