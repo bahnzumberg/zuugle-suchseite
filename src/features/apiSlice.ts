@@ -190,15 +190,12 @@ export const api = createApi({
 function toSearchParams<T extends object>(obj: T): URLSearchParams {
   const searchParams = new URLSearchParams();
   Object.entries(obj).forEach(([key, value]) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      Object.keys(value).length > 0
-    ) {
-      if (value instanceof Object) {
-        value = JSON.stringify(value);
-      }
+    if (value === undefined || value === null || value === "") {
+      return; // skip empty stuff
+    }
+    if (typeof value === "object" && Object.keys(value).length > 0) {
+      searchParams.append(key, JSON.stringify(value));
+    } else {
       searchParams.append(key, String(value));
     }
   });
