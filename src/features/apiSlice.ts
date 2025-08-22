@@ -60,6 +60,9 @@ export interface ToursParams {
   page?: number;
   bounds?: BoundsObject;
   map?: boolean;
+  range?: string;
+  type?: string;
+  country?: string;
 }
 
 export interface SearchParams {
@@ -161,7 +164,12 @@ export const api = createApi({
 function toSearchParams<T extends object>(obj: T): URLSearchParams {
   const searchParams = new URLSearchParams();
   Object.entries(obj).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      Object.keys(value).length > 0
+    ) {
       if (value instanceof Object) {
         value = JSON.stringify(value);
       }

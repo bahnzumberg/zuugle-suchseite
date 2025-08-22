@@ -19,6 +19,10 @@ export interface SearchState {
   language: string | null;
   map: boolean;
   bounds: BoundsObject | null;
+  provider: string | null;
+  range: string | null;
+  country: string | null;
+  type: string | null;
 }
 
 const initialState: SearchState = {
@@ -28,6 +32,10 @@ const initialState: SearchState = {
   language: null,
   map: false,
   bounds: null,
+  provider: null,
+  range: null,
+  country: null,
+  type: null,
 };
 
 const searchSlice = createSlice({
@@ -52,6 +60,18 @@ const searchSlice = createSlice({
     mapUpdated: (state, action: PayloadAction<boolean>) => {
       state.map = action.payload;
     },
+    providerUpdated: (state, action: PayloadAction<string | null>) => {
+      state.provider = action.payload;
+    },
+    rangeUpdated: (state, action: PayloadAction<string | null>) => {
+      state.range = action.payload;
+    },
+    countryUpdated: (state, action: PayloadAction<string | null>) => {
+      state.country = action.payload;
+    },
+    typeUpdated: (state, action: PayloadAction<string | null>) => {
+      state.type = action.payload;
+    },
   },
 });
 
@@ -62,5 +82,9 @@ export const {
   languageUpdated,
   boundsUpdated,
   mapUpdated,
+  providerUpdated,
+  rangeUpdated,
+  countryUpdated,
+  typeUpdated,
 } = searchSlice.actions;
 export default searchSlice.reducer;

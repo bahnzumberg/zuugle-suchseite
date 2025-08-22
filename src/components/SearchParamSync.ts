@@ -7,13 +7,18 @@ import {
   boundsUpdated,
   citySlugUpdated,
   cityUpdated,
+  countryUpdated,
   languageUpdated,
   mapUpdated,
+  providerUpdated,
+  rangeUpdated,
   searchPhraseUpdated,
+  typeUpdated,
 } from "../features/searchSlice";
 import { useGetCitiesQuery } from "../features/apiSlice";
 import L from "leaflet";
 import { toBoundsObject } from "../utils/map_utils";
+import { ActionCreator, ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
 export default function SearchParamSync() {
   const search = useSelector((state: RootState) => state.search);
@@ -21,36 +26,7 @@ export default function SearchParamSync() {
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery({});
 
-  // Redux → URL
-  useEffect(() => {
-    if (search.searchPhrase) {
-      params.set("search", search.searchPhrase);
-    } else {
-      params.delete("search");
-    }
-    if (search.citySlug) {
-      params.set("city", search.citySlug);
-    } else {
-      params.delete("city");
-    }
-    if (search.map) {
-      params.set("map", String(search.map));
-    } else {
-      params.delete("map");
-    }
-    if (search.language) {
-      params.set("currLanguage", search.language);
-    } else {
-      params.delete("currLanguage");
-    }
-    if (search.bounds) {
-      params.set("bounds", JSON.stringify(search.bounds));
-    } else {
-      params.delete("bounds");
-    }
-    setParams(params, { replace: true });
-  }, [search, params]);
-
+  // special treatment for city, because it
   useEffect(() => {
     if (allCities && search.citySlug) {
       const city = allCities.find((c) => c.value === search.citySlug);
@@ -64,13 +40,46 @@ export default function SearchParamSync() {
     }
   }, [search.city]);
 
-  // URL → Redux
-  useEffect(() => {
-    const search = params.get("search");
-    dispatch(searchPhraseUpdated(search ?? null));
+  // Redux → URL
+  function updateParam(paramName: string, value: string | null) {
+    if (value) {
+      params.set(paramName, value);
+    } else {
+      params.delete(paramName);
+    }
+  }
 
-    const cityValue = params.get("city");
-    dispatch(citySlugUpdated(cityValue ?? null));
+  useEffect(() => {
+    updateParam("map", search.map ? "true" : null);
+    updateParam("city", search.citySlug);
+    updateParam("search", search.searchPhrase);
+    updateParam("currLanguage", search.language);
+    updateParam("p", search.provider);
+    updateParam("range", search.range);
+    updateParam("country", search.country);
+    updateParam("type", search.type);
+    updateParam("bounds", search.bounds ? JSON.stringify(search.bounds) : null);
+    setParams(params, { replace: true });
+  }, [search, params]);
+
+  // URL → Redux
+  function updateReduxFromParam(
+    paramName: string,
+    actionCreator: ActionCreatorWithPayload<string | null>,
+  ) {
+    const value = params.get(paramName);
+    console.log(value);
+    dispatch(actionCreator(value ?? null));
+  }
+
+  useEffect(() => {
+    updateReduxFromParam("search", searchPhraseUpdated);
+    updateReduxFromParam("city", citySlugUpdated);
+    updateReduxFromParam("p", providerUpdated);
+    updateReduxFromParam("range", rangeUpdated);
+    updateReduxFromParam("country", countryUpdated);
+    updateReduxFromParam("type", typeUpdated);
+    updateReduxFromParam("currLanguage", languageUpdated);
 
     const map = params.get("map");
     if (map) {
@@ -78,9 +87,6 @@ export default function SearchParamSync() {
     } else {
       dispatch(mapUpdated(false));
     }
-
-    const currLanguage = params.get("currLanguage");
-    dispatch(languageUpdated(currLanguage ?? null));
 
     const bounds = params.get("bounds");
     if (bounds) {
