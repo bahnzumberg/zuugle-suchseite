@@ -48,7 +48,7 @@ import {
   shortenText,
 } from "../../utils/globals";
 import transformToDescriptionDetail from "../../utils/transformJson";
-import SearchContainer from "../Start/SearchContainer";
+import Search from "../../components/Search/Search";
 
 const DetailReworked = (props) => {
   const {
@@ -665,12 +665,7 @@ const DetailReworked = (props) => {
               }}
             >
               <Box sx={{ width: "100%" }}>
-                <SearchContainer
-                  pageKey="detail"
-                  goto={"/search"}
-                  idOne={idOne ? idOne : null}
-                  cityOne={cityOne ? cityOne : null}
-                />
+                <Search pageKey="detail" isMain={false} />
               </Box>
             </Box>
           </Box>

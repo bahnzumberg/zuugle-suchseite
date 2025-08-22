@@ -6,10 +6,10 @@ import { getTotalCityTours } from "../../actions/crudActions";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
 import { useGetCitiesQuery } from "../../features/apiSlice";
+import Search from "../../components/Search/Search";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
-const SearchContainer = lazy(() => import("./SearchContainer"));
 
 export default function Header({
   totalTours,
@@ -119,14 +119,7 @@ export default function Header({
             }}
           >
             <Box sx={{ width: "100%" }}>
-              <SearchContainer
-                pageKey="start"
-                page="start"
-                goto="/search"
-                showMobileMenu={showMobileMenu}
-                setShowMobileMenu={setShowMobileMenu}
-                updateCapCity={updateCapCity}
-              />
+              <Search pageKey="start" isMain={false} />
             </Box>
           </Box>
         </Suspense>

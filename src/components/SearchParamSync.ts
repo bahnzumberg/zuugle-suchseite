@@ -18,7 +18,7 @@ import {
 import { useGetCitiesQuery } from "../features/apiSlice";
 import L from "leaflet";
 import { toBoundsObject } from "../utils/map_utils";
-import { ActionCreator, ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
 export default function SearchParamSync() {
   const search = useSelector((state: RootState) => state.search);

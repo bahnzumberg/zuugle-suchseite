@@ -1,14 +1,10 @@
 import * as React from "react";
-import { useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import { loadTours } from "../../actions/tourActions";
-import { compose } from "redux";
-import { connect, useSelector } from "react-redux";
-import { Fragment, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { parseIfNeccessary, setOrRemoveSearchParam } from "../../utils/globals";
-import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { Fragment, useState } from "react";
+import { hasContent } from "../../utils/globals";
+import { Link } from "react-router";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import FilterIcon from "../../icons/FilterIcon";
@@ -19,258 +15,33 @@ import Filter from "../Filter/Filter";
 import SearchIcon from "../../icons/SearchIcon";
 import TransportTrain from "../../icons/TransportTrain";
 import { useMediaQuery } from "@mui/material";
-import { useGetCitiesQuery } from "../../features/apiSlice";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";
-import { FilterObject } from "../../models/Filter";
 import { RootState } from "../..";
-import { useAppDispatch } from "../../hooks";
-import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 
 export interface SearchProps {
-  loadTours: any;
-  goto: boolean;
   pageKey: string;
   isMain: boolean;
-  updateCapCity: (city: string) => void;
-  counter: number;
-  setCounter: (counter: number) => void;
-  setFilterValues: (filterValues: FilterObject) => void;
-  filterValues: FilterObject;
-  filterOn: boolean;
-  setFilterOn: (filterOn: boolean) => void;
 }
 
-export function Search({
-  loadTours,
-  goto,
-  pageKey,
-  isMain,
-  counter,
-  filterOn,
-  setFilterOn,
-}: SearchProps) {
-  //navigation
-  const navigate = useNavigate();
+export default function Search({ pageKey, isMain }: SearchProps) {
   // Translation
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [filterOn, setFilterOn] = useState(false);
 
-  const dispatch = useAppDispatch();
-  const { data: allCities = [] } = useGetCitiesQuery({});
   const city = useSelector((state: RootState) => state.search.city);
   const searchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
   );
 
-  const filterCountLocal = localStorage.getItem("filterCount")
-    ? localStorage.getItem("filterCount")
-    : null;
-
-  //initialisation
-  const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [ShowCitySearch, setShowCitySearch] = useState(false);
 
-  let suggestion: string; //variable that stores the text of the selected option
-
-  const [region, setRegion] = useState(null);
-  // const initialIsMapView = (searchParams.has('map') && (searchParams.get('map') === 'true')) || false;
-  const [activeFilter, setActiveFilter] = useState(false);
-  const [scrollToTop, setScrollToTop] = useState(false);
-
-  const isMasterMarkersSet = useRef(false);
-
-  useEffect(() => {
-    if (scrollToTop) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [scrollToTop]);
-
-  useEffect(() => {
-    const filterParamValue = searchParams.get("filter");
-    if (filterParamValue) {
-      setActiveFilter(!!counter && counter > 0);
-    }
-  }, [searchParams, counter]);
-
-  useEffect(() => {
-    const range = searchParams.get("range");
-    const country = searchParams.get("country");
-    const type = searchParams.get("type");
-    const search = searchParams.get("search");
-    let filter = searchParams.get("filter");
-    const sort = searchParams.get("sort");
-    const provider = searchParams.get("p");
-
-    //setting searchPhrase to the value of the search parameter
-
-    if (search) {
-      dispatch(searchPhraseUpdated(search));
-
-      if (city === null && !search.includes(" ")) {
-        // If a search phrase is given and city is empty and the search term consists only of one word,
-        // we have to check, if the search term is a valid city_slug.If yes, we will store the search term as city.
-        const cityEntry = allCities.find(
-          (e) =>
-            e.value ===
-            search
-              .toLowerCase()
-              .replace("ü", "ue")
-              .replace("ö", "oe")
-              .replace("ä", "ae"),
-        ); // find the city object in array "allCities"
-        if (cityEntry) {
-          dispatch(cityUpdated(cityEntry));
-          searchParams.set("city", search.toLowerCase());
-          setSearchParams(searchParams);
-          dispatch(searchPhraseUpdated(""));
-        }
-      }
-    } else if (country) {
-      // country might be useful for future enhancement or new feature related to Klimaticket
-      dispatch(searchPhraseUpdated(country));
-      setRegion({ value: country, label: country, type: "country" });
-    } else if (type) {
-      // type might be useful for future enhancement or new feature related to Klimaticket
-      dispatch(searchPhraseUpdated(type));
-      setRegion({ value: type, label: type, type: "type" });
-    }
-
-    //Remaining code in this useEffect is for Main page only .
-    //=======================================================
-    if (!isMain) {
-      return;
-    } else {
-      isMasterMarkersSet.current = false;
-    }
-
-    const _filter = filter ? parseIfNeccessary(filter) : null; //wenn es einen Filter gibt, soll der Filter richtig formatiert werden: maxAscend: 3000im jJSON format, statt: "maxAscend": 3000
-    if (_filter) {
-      filter = {
-        ..._filter,
-        ignore_filter: false,
-      };
-    } else {
-      filter = {
-        ignore_filter: true,
-      };
-    }
-    // flag active filter if count > 0
-    filterCountLocal && setActiveFilter(filterCountLocal > 0);
-
-    // const result = loadTours({
-    //   city: city,
-    //   range: range,
-    //   country: country,
-    //   type: type,
-    //   search: search,
-    //   filter: filterValues ? filterValues : filter, // get this from Filter.js (through Search and Main)
-    //   sort: sort,
-    //   provider: provider,
-    //   map: searchParams.get("map"),
-    //   bounds: bounds,
-    // });
-
-    // result.then((res) => {
-    //   const importedMarkersArray = res?.data?.markers;
-
-    //   if (
-    //     !isMasterMarkersSet.current &&
-    //     importedMarkersArray &&
-    //     importedMarkersArray.length > 0
-    //   ) {
-    //     localStorage.setItem(
-    //       "masterMarkers",
-    //       JSON.stringify(importedMarkersArray),
-    //     );
-    //     isMasterMarkersSet.current = true; // Set the flag to true to avoid future updates
-    //   }
-    // });
-  }, [
-    allCities,
-    // useEffect dependencies
-    searchParams && searchParams.get("city"),
-    searchParams && searchParams.get("filter"),
-    searchParams && searchParams.get("sort"),
-    searchParams && searchParams.get("search"),
-    searchParams && searchParams.get("type"),
-    searchParams && searchParams.get("sort"),
-    searchParams && searchParams.get("range"),
-    searchParams && searchParams.get("map"),
-    searchParams && searchParams.get("p"),
-    searchParams,
-    setSearchParams,
-  ]); // end useEffect
-
-  const openFilter = () => {
-    setFilterOn(true);
-  };
-
-  // search handling function
-  const search = async (tempRegion = null) => {
-    const values = {};
-    if (!!city && !!city.value) {
-      values.city = city.value;
-    }
-
-    let _region = region;
-    if (tempRegion) {
-      _region = tempRegion;
-    }
-    if (!!_region && !!_region.value) {
-      values[_region.type] = _region.value;
-    }
-    // assign values.search
-    values.search = suggestion ? suggestion : searchPhrase ? searchPhrase : "";
-
-    // values.map = !!searchParams.get("map") && searchParams.delete('map') ; // remove map param when pressing GO (search button)
-    values.map = searchParams.get("map");
-    values.provider = searchParams.get("p");
-    values.filter = searchParams.get("filter")
-      ? searchParams.get("filter")
-      : null;
-
-    setOrRemoveSearchParam(searchParams, "city", values.city);
-    setOrRemoveSearchParam(searchParams, "range", values.range);
-    setOrRemoveSearchParam(searchParams, "search", values.search);
-    setOrRemoveSearchParam(searchParams, "country", values.country);
-    setOrRemoveSearchParam(searchParams, "type", values.type);
-
-    // added for issue #208
-    pageKey !== "detail" &&
-      setOrRemoveSearchParam(searchParams, "filter", values.filter);
-
-    setSearchParams(searchParams);
-
-    if (goto) {
-      // goto = "/search"  comes from Start->Header->SearchContainer->Search->search() and from detail page
-      navigate(`${goto}?${searchParams.toString()}`);
-      // window.location.reload();
-    } else {
-      // coming in from Main filter submit
-      await loadTours(values).then((res) => {
-        if (pageKey === "detail") {
-          navigate(`/search?${searchParams.toString()}`);
-        }
-        //if markers received then assign markers array to localStorage('masterMarkers')
-
-        //window.location.reload();
-        setScrollToTop(true);
-      });
-    }
-  }; // end search()
-
-  const handleGoButton = () => {
-    if (isMain) {
-      isMasterMarkersSet.current = false;
-    }
-    search();
-    window.location.reload();
-    // const newUrl = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
-    // window.location.replace(newUrl);
-  };
+  const activeFilter = useSelector((state: RootState) =>
+    hasContent(state.filter),
+  );
 
   return (
     <Fragment>
@@ -444,7 +215,10 @@ export function Search({
               className="filter-icon-container"
             >
               {isMain ? (
-                <IconButton onClick={() => openFilter()} aria-label="Filter">
+                <IconButton
+                  onClick={() => setFilterOn(true)}
+                  aria-label="Filter"
+                >
                   <FilterIcon
                     sx={{
                       transition: "stroke 0.3s",
@@ -454,23 +228,29 @@ export function Search({
                   />
                 </IconButton>
               ) : (
-                <IconButton
-                  onClick={handleGoButton}
-                  aria-label="Go"
-                  sx={{
-                    "&:hover": {
-                      background: "#7aa8ff",
-                      fill: "#7aa8ff",
-                    },
+                <Link
+                  to={{
+                    pathname: "/search",
+                    search: city?.value ? `?city=${city?.value}` : "",
                   }}
                 >
-                  <GoIcon
-                    style={{
-                      transform: "scale(1.55)",
-                      strokeWidth: 0,
+                  <IconButton
+                    aria-label="Go"
+                    sx={{
+                      "&:hover": {
+                        background: "#7aa8ff",
+                        fill: "#7aa8ff",
+                      },
                     }}
-                  />
-                </IconButton>
+                  >
+                    <GoIcon
+                      style={{
+                        transform: "scale(1.55)",
+                        strokeWidth: 0,
+                      }}
+                    />
+                  </IconButton>
+                </Link>
               )}
             </Box>
           )}
@@ -479,16 +259,3 @@ export function Search({
     </Fragment>
   );
 }
-
-const mapDispatchToProps = {
-  loadTours,
-};
-
-const mapStateToProps = (state) => {
-  return {
-    loading: state.tours.loading,
-    filter: state.tours.filter,
-  };
-};
-
-export default compose(connect(mapStateToProps, mapDispatchToProps))(Search);

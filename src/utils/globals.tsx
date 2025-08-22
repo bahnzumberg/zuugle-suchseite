@@ -325,3 +325,7 @@ export const capitalize = (str) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const areSetsEqual = (set1: Set<any>, set2: Set<any>): boolean =>
   set1.size === set2.size && [...set1].every((value) => set2.has(value));
+
+export function hasContent(obj: unknown): boolean {
+  return obj != null && Object.keys(obj).length > 0;
+}
