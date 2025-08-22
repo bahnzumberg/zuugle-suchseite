@@ -20,13 +20,18 @@ import L from "leaflet";
 import { toBoundsObject } from "../utils/map_utils";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
-export default function SearchParamSync() {
+/**
+ * Keeps query parameters in sync with the Redux store.
+ * On Main page (the main page displaying the search result), more query parameters are allowed
+ * than on other pages.
+ */
+export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   const search = useSelector((state: RootState) => state.search);
   const [params, setParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery({});
 
-  // special treatment for city, because it
+  // special treatment for city
   useEffect(() => {
     if (allCities && search.citySlug) {
       const city = allCities.find((c) => c.value === search.citySlug);
@@ -50,15 +55,21 @@ export default function SearchParamSync() {
   }
 
   useEffect(() => {
-    updateParam("map", search.map ? "true" : null);
     updateParam("city", search.citySlug);
-    updateParam("search", search.searchPhrase);
-    updateParam("currLanguage", search.language);
     updateParam("p", search.provider);
-    updateParam("range", search.range);
-    updateParam("country", search.country);
-    updateParam("type", search.type);
-    updateParam("bounds", search.bounds ? JSON.stringify(search.bounds) : null);
+    if (isMain) {
+      updateParam("range", search.range);
+      updateParam("country", search.country);
+      updateParam("type", search.type);
+      updateParam(
+        "bounds",
+        search.bounds ? JSON.stringify(search.bounds) : null,
+      );
+      updateParam("map", search.map ? "true" : null);
+
+      updateParam("search", search.searchPhrase);
+      updateParam("currLanguage", search.language);
+    }
     setParams(params, { replace: true });
   }, [search, params]);
 
@@ -68,33 +79,34 @@ export default function SearchParamSync() {
     actionCreator: ActionCreatorWithPayload<string | null>,
   ) {
     const value = params.get(paramName);
-    console.log(value);
     dispatch(actionCreator(value ?? null));
   }
 
   useEffect(() => {
-    updateReduxFromParam("search", searchPhraseUpdated);
     updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
-    updateReduxFromParam("range", rangeUpdated);
-    updateReduxFromParam("country", countryUpdated);
-    updateReduxFromParam("type", typeUpdated);
-    updateReduxFromParam("currLanguage", languageUpdated);
+    if (isMain) {
+      updateReduxFromParam("search", searchPhraseUpdated);
+      updateReduxFromParam("range", rangeUpdated);
+      updateReduxFromParam("country", countryUpdated);
+      updateReduxFromParam("type", typeUpdated);
+      updateReduxFromParam("currLanguage", languageUpdated);
 
-    const map = params.get("map");
-    if (map) {
-      dispatch(mapUpdated(Boolean(map)));
-    } else {
-      dispatch(mapUpdated(false));
-    }
+      const map = params.get("map");
+      if (map) {
+        dispatch(mapUpdated(Boolean(map)));
+      } else {
+        dispatch(mapUpdated(false));
+      }
 
-    const bounds = params.get("bounds");
-    if (bounds) {
-      const parsedBounds = JSON.parse(bounds);
-      if (parsedBounds instanceof L.LatLngBounds)
-        dispatch(boundsUpdated(toBoundsObject(parsedBounds)));
-    } else {
-      dispatch(boundsUpdated(null));
+      const bounds = params.get("bounds");
+      if (bounds) {
+        const parsedBounds = JSON.parse(bounds);
+        if (parsedBounds instanceof L.LatLngBounds)
+          dispatch(boundsUpdated(toBoundsObject(parsedBounds)));
+      } else {
+        dispatch(boundsUpdated(null));
+      }
     }
   }, [params, allCities]);
 
