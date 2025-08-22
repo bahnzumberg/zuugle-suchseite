@@ -3,7 +3,6 @@ import i18next from "i18next";
 import React, { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
-import ModalRoot from "./components/ModalRoot";
 import { theme } from "./theme";
 import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
@@ -113,7 +112,6 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
-        <ModalRoot />
       </LocalizationProvider>
     </ThemeProvider>
   );

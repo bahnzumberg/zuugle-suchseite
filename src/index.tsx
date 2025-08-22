@@ -59,7 +59,6 @@ export const store = configureStore({
   reducer: {
     // Add the generated RTK Query "API slice" caching reducer
     [api.reducerPath]: api.reducer,
-    modal: modalReducer,
     tours: tourReducer,
     search: searchReducer,
     filter: filterReducer,
