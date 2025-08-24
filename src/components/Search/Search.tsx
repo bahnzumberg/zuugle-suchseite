@@ -22,13 +22,19 @@ import { RootState } from "../..";
 export interface SearchProps {
   pageKey: string;
   isMain: boolean;
+  setFilterOn?: (filterOn: boolean) => void;
+  filterOn?: boolean;
 }
 
-export default function Search({ pageKey, isMain }: SearchProps) {
+export default function Search({
+  pageKey,
+  isMain,
+  setFilterOn,
+  filterOn,
+}: SearchProps) {
   // Translation
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [filterOn, setFilterOn] = useState(false);
 
   const city = useSelector((state: RootState) => state.search.city);
   const searchPhrase = useSelector(
@@ -39,6 +45,9 @@ export default function Search({ pageKey, isMain }: SearchProps) {
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [ShowCitySearch, setShowCitySearch] = useState(false);
+  if (filterOn === undefined) {
+    [filterOn, setFilterOn] = useState(false);
+  }
 
   const activeFilter = useSelector((state: RootState) =>
     hasContent(state.filter),

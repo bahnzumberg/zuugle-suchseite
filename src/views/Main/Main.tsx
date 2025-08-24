@@ -26,12 +26,13 @@ export default function Main() {
   const filter = useSelector((state: RootState) => state.filter);
   const search = useSelector((state: RootState) => state.search);
   const showMap = useSelector((state: RootState) => state.search.map);
+  const provider = useSelector((state: RootState) => state.search.provider);
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours }] = useLazyGetToursQuery();
   const [triggerMoreTours, { data: moreTours, isLoading: isMoreToursLoading }] =
     useLazyGetToursQuery();
-
+  const [filterOn, setFilterOn] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -82,13 +83,15 @@ export default function Main() {
 
   const [directLink, setDirectLink] = useState(null);
 
-  const [activeFilter, setActiveFilter] = useState(false); // State used inside Search and TourCardContainer
+  const [activeFilter, setActiveFilter] = useState(false);
 
   const { data: allCities = [] } = useGetCitiesQuery({});
 
   useEffect(() => {
     if (Object.values(filter).length) {
       setActiveFilter(true);
+    } else {
+      setActiveFilter(false);
     }
   }, [filter]);
 
@@ -176,6 +179,8 @@ export default function Main() {
                     fontWeight: "600",
                     mr: "2px",
                   }}
+                  className={"cursor-link"}
+                  onClick={() => setFilterOn(true)}
                 >
                   {t("filter.filter")}
                 </Typography>
@@ -219,7 +224,7 @@ export default function Main() {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                <Link to="/">
+                <Link to={`/?p=${provider}`}>
                   <ArrowBefore
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
@@ -256,7 +261,12 @@ export default function Main() {
               }}
             >
               <Box className={"colCenter"}>
-                <Search pageKey="main" isMain={true} />
+                <Search
+                  pageKey="main"
+                  isMain={true}
+                  setFilterOn={setFilterOn}
+                  filterOn={filterOn}
+                />
               </Box>
             </Box>
           )}
