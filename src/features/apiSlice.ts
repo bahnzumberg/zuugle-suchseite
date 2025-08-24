@@ -101,9 +101,14 @@ export interface ConnectionResponse {
   result: ConnectionResult[];
 }
 
+const baseURL =
+  window.location.host.indexOf("localhost") >= 0
+    ? process.env.REACT_APP_API_URL
+    : `${window.location.protocol}//${window.location.host}/api`;
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_API_URL,
+    baseUrl: baseURL,
   }),
   endpoints: (build) => ({
     getCities: build.query<CityObject[], any>({
