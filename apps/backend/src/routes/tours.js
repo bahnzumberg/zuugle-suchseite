@@ -32,7 +32,6 @@ const providerWrapper = async (req, res) => {
         res.status(404).json({ success: false, message: "Provider not found" });
     }
 }
-
  
 const totalWrapper = async (req, res) => {
     const city = req.query.city;
@@ -262,13 +261,14 @@ const listWrapper = async (req, res) => {
     let new_filter_where_summerSeason = ``
     let new_filter_where_winterSeason = ``
     let new_filter_where_traverse = ``
-    let new_filter_where_minAscent = ``
-    let new_filter_where_minDescent = ``
-    let new_filter_where_minTransportDuration = ``
-    let new_filter_where_minDistance = ``
+    let new_filter_where_Ascent = ``
+    let new_filter_where_Descent = ``
+    let new_filter_where_TransportDuration = ``
+    let new_filter_where_Distance = ``
     let new_filter_where_ranges = ``
     let new_filter_where_types = ``
     let new_filter_where_languages = ``
+    let new_filter_where_difficulties = ``
 
     let filter_string = filter;
     let filterJSON = undefined;
@@ -279,8 +279,22 @@ const listWrapper = async (req, res) => {
         filterJSON = undefined
     }
 
+    const defaultFilter = {
+        singleDayTour: true,
+        multipleDayTour: true,
+        summerSeason: true,
+        winterSeason: true,
+        traverse: false,
+    };
+
+    // merge with filterJSON
+    filterJSON = {
+        ...defaultFilter,
+        ...filterJSON,
+    };
+
     if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
-        // console.log("filterJSON: ", filterJSON)
+        console.log("filterJSON: ", filterJSON)
 
         if(filterJSON['singleDayTour'] && !filterJSON['multipleDayTour']){
             new_filter_where_singleDayTour = `AND t.number_of_days=1 `
@@ -302,22 +316,36 @@ const listWrapper = async (req, res) => {
             new_filter_where_traverse = `AND t.traverse=1 `
         }
 
-        // difficulty not implemented - dialog in frontend has to be changed to 3 checkboxes
-
-        if(isNumber(filterJSON['minAscent']) && filterJSON['minAscent']>=0 && isNumber(filterJSON['maxAscent']) && filterJSON['maxAscent']>=0){
-            new_filter_where_minAscent = `AND t.ascent BETWEEN ${filterJSON['minAscent']} AND ${filterJSON['maxAscent']} `
+        if (isNumber(filterJSON['minAscent']) && filterJSON['minAscent'] >= 0) {
+            new_filter_where_Ascent += `AND t.ascent >= ${filterJSON['minAscent']} `;
         }
 
-        if(isNumber(filterJSON['minDescent']) && filterJSON['minDescent']>=0 && isNumber(filterJSON['maxDescent']) && filterJSON['maxDescent']>=0){
-            new_filter_where_minDescent = `AND t.descent BETWEEN ${filterJSON['minDescent']} AND ${filterJSON['maxDescent']} `
+        if (isNumber(filterJSON['maxAscent']) && filterJSON['maxAscent'] >= 0) {
+            new_filter_where_Ascent += `AND t.ascent <= ${filterJSON['maxAscent']} `;
         }
 
-        if(isNumber(filterJSON['minTransportDuration']) && filterJSON['minTransportDuration']>=0 && isNumber(filterJSON['maxTransportDuration']) && filterJSON['maxTransportDuration']>=0){
-            new_filter_where_minTransportDuration = `AND c2t.min_connection_duration BETWEEN ${filterJSON['minTransportDuration']*60} AND ${filterJSON['maxTransportDuration']*60} `
+        if (isNumber(filterJSON['minDescent']) && filterJSON['minDescent'] >= 0) {
+            new_filter_where_Descent += `AND t.descent >= ${filterJSON['minDescent']} `;
         }
 
-        if(isNumber(filterJSON['minDistance']) && filterJSON['minDistance']>0 && isNumber(filterJSON['maxDistance']) && filterJSON['maxDistance']>0){
-            new_filter_where_minDistance = `AND t.distance BETWEEN ${filterJSON['minDistance']} AND ${filterJSON['maxDistance']} `
+        if (isNumber(filterJSON['maxDescent']) && filterJSON['maxDescent'] >= 0) {
+            new_filter_where_Descent += `AND t.descent <= ${filterJSON['maxDescent']} `;
+        }
+
+        if (isNumber(filterJSON['minTransportDuration']) && filterJSON['minTransportDuration'] >= 0) {
+            new_filter_where_TransportDuration += `AND c2t.min_connection_duration >= ${filterJSON['minTransportDuration'] * 60} `;
+        }
+
+        if (isNumber(filterJSON['maxTransportDuration']) && filterJSON['maxTransportDuration'] >= 0) {
+            new_filter_where_TransportDuration += `AND c2t.min_connection_duration <= ${filterJSON['maxTransportDuration'] * 60} `;
+        }
+
+        if (isNumber(filterJSON['minDistance']) && filterJSON['minDistance'] > 0) {
+            new_filter_where_Distance += `AND t.distance >= ${filterJSON['minDistance']} `;
+        }
+
+        if (isNumber(filterJSON['maxDistance']) && filterJSON['maxDistance'] > 0) {
+            new_filter_where_Distance += `AND t.distance <= ${filterJSON['maxDistance']} `;
         }
 
         if(filterJSON['ranges']){
@@ -341,6 +369,14 @@ const listWrapper = async (req, res) => {
             
             if(new_filter_where_languages === 'AND t.text_lang IN () ;') {
                 new_filter_where_languages = ``
+            }
+        }
+
+        if(filterJSON['difficulties']){
+            new_filter_where_difficulties = `AND t.difficulty IN ${JSON.stringify(filterJSON['difficulties']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+            
+            if(new_filter_where_difficulties === 'AND t.difficulty IN () ;') {
+                new_filter_where_difficulties = ``
             }
         }
     }
@@ -435,13 +471,14 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_summerSeason}
                                     ${new_filter_where_winterSeason}
                                     ${new_filter_where_traverse}
-                                    ${new_filter_where_minAscent}
-                                    ${new_filter_where_minDescent}
-                                    ${new_filter_where_minTransportDuration}
-                                    ${new_filter_where_minDistance}
+                                    ${new_filter_where_Ascent}
+                                    ${new_filter_where_Descent}
+                                    ${new_filter_where_TransportDuration}
+                                    ${new_filter_where_Distance}
                                     ${new_filter_where_ranges}
                                     ${new_filter_where_types}
-                                    ${new_filter_where_languages}`;
+                                    ${new_filter_where_languages}
+                                    ${new_filter_where_difficulties}`;
 
     
     let temp_table = '';
