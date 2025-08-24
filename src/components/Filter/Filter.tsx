@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
 import dayjs, { Dayjs } from "dayjs";
 import { FilterObject } from "../../models/Filter";
-import { useGetFilterQuery } from "../../features/apiSlice";
+import { useLazyGetFilterQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
 import { areSetsEqual } from "../../utils/globals";
 import { useAppDispatch } from "../../hooks";
@@ -41,18 +41,17 @@ export interface FilterProps {
 
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const dispatch = useAppDispatch();
-  const city = useSelector((state: RootState) => state.search.city);
+  const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const search = useSelector((state: RootState) => state.search.searchPhrase);
 
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
   const storedFilter = useSelector((state: RootState) => state.filter);
   // the filter options fetched from API,
-  const { data: fetchedFilter = {}, isFetching: isFilterFetching } =
-    useGetFilterQuery({
-      city: city?.value,
-      search: search ?? undefined,
-    });
+  const [
+    triggerFetchFilter,
+    { data: fetchedFilter, isFetching: isFilterFetching },
+  ] = useLazyGetFilterQuery();
 
   const defaultFilterValues = useMemo<FilterObject>(() => {
     return {
@@ -61,24 +60,33 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       summerSeason: true,
       winterSeason: true,
       traverse: false,
-      minAscent: fetchedFilter.minAscent ?? 0,
-      maxAscent: fetchedFilter.maxAscent ?? 3000,
-      minDescent: fetchedFilter.minDescent ?? 0,
-      maxDescent: fetchedFilter.maxDescent ?? 3000,
-      minTransportDuration: fetchedFilter.minTransportDuration ?? 0,
-      maxTransportDuration: fetchedFilter.maxTransportDuration ?? 50,
-      minDistance: fetchedFilter.minDistance ?? 0,
-      maxDistance: fetchedFilter.maxDistance ?? 80,
-      ranges: fetchedFilter.ranges ?? [],
-      types: fetchedFilter.types ?? [],
-      languages: fetchedFilter.languages ?? [],
-      difficulties: fetchedFilter.difficulties ?? [0, 1, 2, 3],
+      minAscent: fetchedFilter?.minAscent ?? 0,
+      maxAscent: fetchedFilter?.maxAscent ?? 3000,
+      minDescent: fetchedFilter?.minDescent ?? 0,
+      maxDescent: fetchedFilter?.maxDescent ?? 3000,
+      minTransportDuration: fetchedFilter?.minTransportDuration ?? 0,
+      maxTransportDuration: fetchedFilter?.maxTransportDuration ?? 50,
+      minDistance: fetchedFilter?.minDistance ?? 0,
+      maxDistance: fetchedFilter?.maxDistance ?? 80,
+      ranges: fetchedFilter?.ranges ?? [],
+      types: fetchedFilter?.types ?? [],
+      languages: fetchedFilter?.languages ?? [],
+      difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
     };
   }, [fetchedFilter]);
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
     useState<FilterObject>(defaultFilterValues);
+
+  useEffect(() => {
+    if (showFilter) {
+      triggerFetchFilter({
+        city: citySlug || "no-city",
+        search: search || "",
+      });
+    }
+  }, [showFilter]);
 
   // tempFilter has to be updated with fetched and stored filter values
   useEffect(() => {
@@ -184,7 +192,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     defaultValue: NonNullable<(typeof tempFilter)[K]>,
   ): NonNullable<(typeof tempFilter)[K]> {
     const value =
-      tempFilter[propertyName] ?? fetchedFilter[propertyName] ?? defaultValue;
+      tempFilter[propertyName] ?? fetchedFilter?.[propertyName] ?? defaultValue;
     return (value ?? defaultValue) as NonNullable<(typeof tempFilter)[K]>;
   }
 
@@ -246,11 +254,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       // initialize tempFilter with all default values
       setTempFilter({
         ...tempFilter,
-        [arrayKey]: fetchedFilter[arrayKey],
+        [arrayKey]: fetchedFilter?.[arrayKey],
       });
     }
 
-    const currentArray = tempFilter[arrayKey] ?? fetchedFilter[arrayKey] ?? [];
+    const currentArray =
+      tempFilter[arrayKey] ?? fetchedFilter?.[arrayKey] ?? [];
     const array: string[] | number[] = Array.isArray(currentArray)
       ? currentArray
       : [];
@@ -269,7 +278,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   const getSportTypes = () => {
-    const fetchedTypes = fetchedFilter.types ?? [];
+    const fetchedTypes = fetchedFilter?.types ?? [];
     const translatedTypes = fetchedTypes.map((entry) => ({
       value: entry,
       label: sportTypesMap[entry] ?? "",
@@ -298,7 +307,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   // loads all the language checkboxes
   const getLanguages = () => {
-    const fetchedLanguages = fetchedFilter.languages ?? [];
+    const fetchedLanguages = fetchedFilter?.languages ?? [];
     const translatedLanguages = fetchedLanguages
       .map((entry) => ({
         value: entry,
@@ -332,7 +341,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   };
 
   const getRanges = () => {
-    const ranges = fetchedFilter.ranges ?? [];
+    const ranges = fetchedFilter?.ranges ?? [];
 
     return ranges.map((range, index) => {
       return (
@@ -356,7 +365,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   };
 
   const getDifficulties = () => {
-    const difficulties = fetchedFilter.difficulties ?? [0, 1, 2, 3];
+    const difficulties = fetchedFilter?.difficulties ?? [0, 1, 2, 3];
     const translatedDifficulties = difficulties.map((entry) => ({
       value: entry,
       label: difficultiesMap[entry] ?? "",
@@ -389,19 +398,19 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
-    else setTempFilter({ ...tempFilter, ranges: fetchedFilter.ranges ?? [] });
+    else setTempFilter({ ...tempFilter, ranges: fetchedFilter?.ranges ?? [] });
     setAllRangesSelected(!allRangesSelected);
   };
 
   const updateAllTypeValues = () => {
     if (allTypesSelected) setTempFilter({ ...tempFilter, types: [] });
-    else setTempFilter({ ...tempFilter, types: fetchedFilter.types });
+    else setTempFilter({ ...tempFilter, types: fetchedFilter?.types });
     setAllTypesSelected(!allTypesSelected);
   };
 
   const updateAllLanguageValues = () => {
     if (allLanguagesSelected) setTempFilter({ ...tempFilter, languages: [] });
-    else setTempFilter({ ...tempFilter, languages: fetchedFilter.languages });
+    else setTempFilter({ ...tempFilter, languages: fetchedFilter?.languages });
     setAllLanguagesSelected(!allLanguagesSelected);
   };
 
@@ -411,7 +420,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     else
       setTempFilter({
         ...tempFilter,
-        difficulties: fetchedFilter.difficulties ?? [0, 1, 2, 3],
+        difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
       });
     setAllDifficultiesSelected(!allDifficultiesSelected);
   };

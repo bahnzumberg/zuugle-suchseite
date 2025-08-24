@@ -193,7 +193,8 @@ function toSearchParams<T extends object>(obj: T): URLSearchParams {
     if (value === undefined || value === null || value === "") {
       return; // skip empty stuff
     }
-    if (typeof value === "object" && Object.keys(value).length > 0) {
+    if (typeof value === "object") {
+      if (Object.keys(value).length === 0) return; // skip empty objects
       searchParams.append(key, JSON.stringify(value));
     } else {
       searchParams.append(key, String(value));
@@ -210,6 +211,7 @@ export const {
   useGetSearchPhrasesQuery,
   useLazyGetSearchPhrasesQuery,
   useGetFilterQuery,
+  useLazyGetFilterQuery,
   useGetTourQuery,
   useLazyGetTourQuery,
   useGetGPXQuery,
