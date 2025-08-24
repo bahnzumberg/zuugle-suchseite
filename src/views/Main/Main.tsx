@@ -132,8 +132,7 @@ export default function Main() {
         tours={tours}
         hasMore={true}
         isMoreToursLoading={isMoreToursLoading}
-        pageTours={pageTours}
-        setPageTours={setPageTours}
+        fetchMore={() => setPageTours(pageTours + 1)}
       />
     </Box>
   );
