@@ -9,6 +9,7 @@ import { FilterObject } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
 import { parseGPX, toLatLngBounds } from "../utils/map_utils";
 import { ConnectionResult } from "../models/Connections";
+import { getTopLevelDomain } from "../utils/globals";
 
 export interface CityResponse {
   success: boolean;
@@ -106,6 +107,8 @@ const baseURL =
     ? process.env.REACT_APP_API_URL
     : `${window.location.protocol}//${window.location.host}/api`;
 
+const domain = window.location.hostname; // TODO: find out why sending domain is important
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: baseURL,
@@ -127,7 +130,9 @@ export const api = createApi({
     }),
     getTour: build.query<Tour, TourParams>({
       query: (params) => {
-        return `tours/${params.id}/${params.city ?? "no-city"}`;
+        return (
+          `tours/${params.id}/${params.city ?? "no-city"}` + `?domain=${domain}`
+        );
       },
       transformResponse: (response: TourResponse) => {
         return response.tour;
@@ -136,12 +141,12 @@ export const api = createApi({
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
         const { bounds, ...rest } = params;
+        const augmentedParams = { ...rest, domain: domain };
         if (bounds) {
           const leafletBounds = toLatLngBounds(bounds);
-          return `tours/?${toSearchParams({ ...rest, bounds: leafletBounds })}`;
+          return `tours/?${toSearchParams({ ...augmentedParams, bounds: leafletBounds })}`;
         }
-
-        return `tours/?${toSearchParams(rest)}`;
+        return `tours/?${toSearchParams(augmentedParams)}`;
       },
     }),
     getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({
@@ -183,7 +188,7 @@ export const api = createApi({
     }),
     getConnectionsExtended: build.query<ConnectionResult[], ConnectionParams>({
       query: (params) => {
-        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${window.location.host}`;
+        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${domain}`;
       },
       transformResponse: (response: ConnectionResponse) => {
         return response.result;
