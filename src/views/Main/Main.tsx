@@ -17,6 +17,8 @@ import {
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import SearchParamSync from "../../components/SearchParamSync";
+import { mapUpdated } from "../../features/searchSlice";
+import { useAppDispatch } from "../../hooks";
 
 const Search = lazy(() => import("../../components/Search/Search"));
 const TourCardContainer = lazy(
@@ -32,6 +34,8 @@ export default function Main() {
   const [triggerLoadTours, { data: loadedTours }] = useLazyGetToursQuery();
   const [triggerMoreTours, { data: moreTours, isLoading: isMoreToursLoading }] =
     useLazyGetToursQuery();
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setPageTours(1);
@@ -272,7 +276,12 @@ export default function Main() {
       {!!tours && tours.length > 0 && (
         <>
           {renderCardContainer()}
-          <MapBtn />
+          <MapBtn
+            handleClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              dispatch(mapUpdated(!showMap));
+            }}
+          />
         </>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { Box, Skeleton, Typography } from "@mui/material";
 import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useIsMobile } from "../../utils/globals";
 import {
   getPageHeader,
@@ -186,7 +186,9 @@ export default function Start() {
               </Box>
             </Box>
           </Box>
-          <MapBtn />
+          <Link to={`/search/?map=true` + (provider ? `&p=${provider}` : "")}>
+            <MapBtn />
+          </Link>
           <Footer />
         </Suspense>
       </>
