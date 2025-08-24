@@ -26,6 +26,9 @@ export default defineConfig([
         version: "detect",
       },
     },
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
   },
   {
     files: ["*config*"],

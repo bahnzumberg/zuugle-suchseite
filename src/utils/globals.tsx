@@ -1,5 +1,6 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Tour } from "../components/TourCard";
+import { theme } from "../theme";
+import { Tour } from "../models/Tour";
 
 export function getTourLink(
   tour: Tour,
@@ -74,9 +75,9 @@ export function setOrRemoveSearchParam(searchParams, key, value) {
   }
 }
 
-export const parseFileName = (name, prefix = "", postfix = "") => {
-  let tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
-  let _name = name.toLowerCase();
+export const parseFileName = (name: string, prefix = "", postfix = "") => {
+  const tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
+  const _name = name.toLowerCase();
   return `${prefix}${_name.replace(/\s/g, "_")}${postfix}`.replace(
     /[äöüß]/g,
     function ($0) {
@@ -216,6 +217,8 @@ export const useResponsive = () => {
   return !!matches;
 };
 
+export const useIsMobile = () => useMediaQuery(theme.breakpoints.down("md"));
+
 export function parseIfNeccessary(value) {
   if (value && value.constructor === "test".constructor) {
     value = JSON.parse(value);
@@ -318,3 +321,11 @@ export const capitalize = (str) => {
   if (typeof str !== "string" || str.length === 0) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const areSetsEqual = (set1: Set<any>, set2: Set<any>): boolean =>
+  set1.size === set2.size && [...set1].every((value) => set2.has(value));
+
+export function hasContent(obj: unknown): boolean {
+  return obj != null && Object.keys(obj).length > 0;
+}

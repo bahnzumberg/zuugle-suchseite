@@ -1,0 +1,59 @@
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import Slider from "@mui/material/Slider";
+import Box from "@mui/material/Box";
+
+const EntitySlider = styled(Slider)(() => ({
+  color: "red",
+  height: 3,
+  padding: "13px 0",
+  "& .MuiSlider-thumb": {
+    height: 20,
+    width: 20,
+    backgroundColor: "white",
+    border: "none",
+  },
+  "& .MuiSlider-track": {
+    height: "5px",
+    background: "#4992FF",
+    opacity: 1,
+    border: "none",
+  },
+  "& .MuiSlider-rail": {
+    background: "#4992FF",
+    height: "5px",
+    opacity: 1,
+    border: "none",
+  },
+}));
+
+export interface SliderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  containerSx?: any;
+  value: number | number[];
+  onChange: (event: Event, newValue: number | number[]) => void;
+  min: number;
+  max: number;
+  step?: number;
+}
+
+export default function GeneralSlider({
+  containerSx,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+}: SliderProps) {
+  return (
+    <Box sx={containerSx}>
+      <EntitySlider
+        min={min}
+        max={max}
+        value={value}
+        step={step}
+        onChange={onChange}
+      />
+    </Box>
+  );
+}

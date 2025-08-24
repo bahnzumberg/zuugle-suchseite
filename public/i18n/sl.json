@@ -59,7 +59,11 @@
     "slowenisch": "Slovenščina",
     "italienisch": "Italijanščina",
     "englisch": "Angleščina",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Enostavno",
+    "medium": "Srednje",
+    "hard": "Težavno",
+    "unknown": "Neznano"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
@@ -243,6 +247,7 @@
     "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red."
   },
   "search": {
+    "search": "Iskanje",
     "abbrechen": "Prekini",
     "dein_heimatbahnhof": "Tvoja izhodiščna železniška postaja.",
     "ab_heimatbahnhof": "od",

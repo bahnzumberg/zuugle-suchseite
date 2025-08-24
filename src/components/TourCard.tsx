@@ -8,39 +8,17 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Chip, Link } from "@mui/material";
-import "/src/config.js";
+import { Tour } from "../models/Tour";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 
-// TODO: move to more appropriate place --> models?
-export interface Tour {
-  url: string;
-  id: number;
-  image_url: string;
-  title: string;
-  range: string;
-  min_connection_duration: number;
-  min_connection_no_of_transfers: number;
-  avg_total_tour_duration: number;
-  ascent: number;
-  number_of_days: number;
-  provider: string;
-  provider_name: string;
-}
-
 export interface TourCardProps {
   tour: Tour;
-  onSelectTour: (tour: Tour) => void;
   city: string | null;
   provider: string | null;
 }
 
-export default function TourCard({
-  tour,
-  onSelectTour,
-  city,
-  provider,
-}: TourCardProps) {
+export default function TourCard({ tour, city, provider }: TourCardProps) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
 
   // i18next
@@ -76,7 +54,6 @@ export default function TourCard({
   return (
     <Link
       href={tourLink}
-      onClick={() => onSelectTour(tour)}
       style={{
         textDecoration: "none",
         width: "100%",

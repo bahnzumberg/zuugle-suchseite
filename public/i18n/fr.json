@@ -59,7 +59,11 @@
     "slowenisch": "Slovène",
     "italienisch": "Italien",
     "englisch": "Anglais",
-    "filter": "Filtre"
+    "filter": "Filtre",
+    "easy": "Facile",
+    "medium": "Moyenne",
+    "hard": "Difficile",
+    "unknown": "Inconnu"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",
@@ -243,6 +247,7 @@
     "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires."
   },
   "search": {
+    "search": "Rechercher",
     "abbrechen": "Annuler",
     "dein_heimatbahnhof": "Votre gare de départ",
     "ab_heimatbahnhof": "de",

@@ -59,7 +59,11 @@
     "slowenisch": "Slowenisch",
     "italienisch": "Italienisch",
     "englisch": "Englisch",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Leicht",
+    "medium": "Mittel",
+    "hard": "Schwer",
+    "unknown": "Unbekannt"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -194,7 +198,7 @@
     "impressum": "Impressum",
     "helmet_title": "Zuugle - die Suchmaschine für Öffi-Bergtouren",
     "tourenanzahl_untertitel_city": "Bergtouren von {{capCity}} - erreichbar mit Bahn & Bus",
-    "mehr_abenteuer": "Entdecke jetzt weitere Öffi-Outdoor-Abenteuer",
+    "mehr_abenteuer": "Entdecke jetzt weitere Öffi-Outdoor-Abenteuer",
     "mehr_anzeigen": "Mehr anzeigen"
   },
   "details": {
@@ -243,6 +247,7 @@
     "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können."
   },
   "search": {
+    "search": "Suche",
     "abbrechen": "Abbrechen",
     "dein_heimatbahnhof": "Dein Heimatbahnhof",
     "ab_heimatbahnhof": "ab",
