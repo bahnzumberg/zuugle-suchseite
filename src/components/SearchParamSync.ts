@@ -19,6 +19,7 @@ import { useGetCitiesQuery } from "../features/apiSlice";
 import L from "leaflet";
 import { toBoundsObject } from "../utils/map_utils";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { filterUpdated } from "../features/filterSlice";
 
 /**
  * Keeps query parameters in sync with the Redux store.
@@ -27,6 +28,7 @@ import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
  */
 export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   const search = useSelector((state: RootState) => state.search);
+  const filter = useSelector((state: RootState) => state.filter);
   const [params, setParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery({});
@@ -81,6 +83,16 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     setParams(newParams, { replace: true });
   }, [search]);
 
+  useEffect(() => {
+    const newParams = new URLSearchParams(params);
+    if (Object.keys(filter).length > 0) {
+      updateParam(newParams, "filter", JSON.stringify(filter));
+    } else {
+      newParams.delete("filter");
+    }
+    setParams(newParams, { replace: true });
+  }, [filter]);
+
   // URL → Redux
   function updateReduxFromParam(
     paramName: string,
@@ -114,6 +126,12 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
           dispatch(boundsUpdated(toBoundsObject(parsedBounds)));
       } else {
         dispatch(boundsUpdated(null));
+      }
+
+      const filter = params.get("filter");
+      if (filter) {
+        const parsedFilter = JSON.parse(filter);
+        dispatch(filterUpdated(parsedFilter));
       }
     }
   }, []);
