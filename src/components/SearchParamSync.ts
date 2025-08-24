@@ -33,45 +33,53 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
 
   // special treatment for city
   useEffect(() => {
-    if (allCities && search.citySlug) {
+    if (
+      allCities &&
+      search.citySlug &&
+      search.citySlug !== search.city?.value
+    ) {
       const city = allCities.find((c) => c.value === search.citySlug);
       dispatch(cityUpdated(city ?? null));
     }
   }, [allCities, search.citySlug]);
 
   useEffect(() => {
-    if (search.city?.value && search.city.value !== search.citySlug) {
+    if (search.city?.value) {
       dispatch(citySlugUpdated(search.city.value));
     }
   }, [search.city]);
 
   // Redux → URL
-  function updateParam(paramName: string, value: string | null) {
+  function updateParam(
+    newParams: URLSearchParams,
+    paramName: string,
+    value: string | null,
+  ) {
     if (value) {
-      params.set(paramName, value);
+      newParams.set(paramName, value);
     } else {
-      params.delete(paramName);
+      newParams.delete(paramName);
     }
   }
 
   useEffect(() => {
-    updateParam("city", search.citySlug);
-    updateParam("p", search.provider);
-    if (isMain) {
-      updateParam("range", search.range);
-      updateParam("country", search.country);
-      updateParam("type", search.type);
-      updateParam(
-        "bounds",
-        search.bounds ? JSON.stringify(search.bounds) : null,
-      );
-      updateParam("map", search.map ? "true" : null);
+    const newParams = new URLSearchParams(params);
+    updateParam(newParams, "city", search.citySlug);
+    updateParam(newParams, "p", search.provider);
+    updateParam(newParams, "range", isMain ? search.range : null);
+    updateParam(newParams, "country", isMain ? search.country : null);
+    updateParam(newParams, "type", isMain ? search.type : null);
+    updateParam(newParams, "map", isMain && search.map ? "true" : null);
+    updateParam(newParams, "search", isMain ? search.searchPhrase : null);
+    updateParam(newParams, "currLanguage", isMain ? search.language : null);
+    updateParam(
+      newParams,
+      "bounds",
+      isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+    );
 
-      updateParam("search", search.searchPhrase);
-      updateParam("currLanguage", search.language);
-    }
-    setParams(params, { replace: true });
-  }, [search, params]);
+    setParams(newParams, { replace: true });
+  }, [search]);
 
   // URL → Redux
   function updateReduxFromParam(
@@ -83,7 +91,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   }
 
   useEffect(() => {
-    updateReduxFromParam("city", citySlugUpdated);
+    if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
     if (isMain) {
       updateReduxFromParam("search", searchPhraseUpdated);
@@ -108,7 +116,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(boundsUpdated(null));
       }
     }
-  }, [params, allCities]);
+  }, []);
 
   return null; // invisible sync component
 }

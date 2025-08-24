@@ -40,7 +40,7 @@ function getPreloadedSearchState() {
   return {
     searchPhrase: params.get("search") ?? null,
     city: cityObject,
-    citySlug: params.get("city") ?? null,
+    citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
     language: params.get("currLanguage") ?? null,
     provider: params.get("p") ?? null,
