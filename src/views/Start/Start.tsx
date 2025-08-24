@@ -16,6 +16,8 @@ import { RootState } from "../..";
 import StartTourCardContainer from "../../components/StartTourCardContainer";
 import { useSelector } from "react-redux";
 import SearchParamSync from "../../components/SearchParamSync";
+import { useAppDispatch } from "../../hooks";
+import { mapUpdated } from "../../features/searchSlice";
 
 const RangeCardContainer = lazy(
   () => import("../../components/RangeCardContainer"),
@@ -29,6 +31,7 @@ export default function Start() {
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
+  const dispatch = useAppDispatch();
 
   const { data: totals } = useGetTotalsQuery();
   const [
@@ -49,7 +52,10 @@ export default function Start() {
   }, []);
 
   useEffect(() => {
-    console.log("triggerLoadTours");
+    dispatch(mapUpdated(false));
+  }, []);
+
+  useEffect(() => {
     triggerLoadTours({
       limit: 10,
       city: citySlug ?? "",
