@@ -34,6 +34,7 @@ export default function Search({ pageKey, isMain }: SearchProps) {
   const searchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
   );
+  const provider = useSelector((state: RootState) => state.search.provider);
 
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -231,7 +232,10 @@ export default function Search({ pageKey, isMain }: SearchProps) {
                 <Link
                   to={{
                     pathname: "/search",
-                    search: city?.value ? `?city=${city?.value}` : "",
+                    search:
+                      "?" +
+                      (searchPhrase ? `&search=${searchPhrase}` : "") +
+                      (provider ? `&p=${provider}` : ""),
                   }}
                 >
                   <IconButton

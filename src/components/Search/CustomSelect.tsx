@@ -17,6 +17,7 @@ import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
 import { searchPhraseUpdated } from "../../features/searchSlice";
+import { useNavigate } from "react-router";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;
@@ -25,21 +26,25 @@ export default function CustomSelect({
   setShowSearchModal,
 }: CustomSelectProps) {
   const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
-
   const dispatch = useAppDispatch();
-
   const currentSearchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
   );
   const city = useSelector((state: RootState) => state.search.city);
   const language = useSelector((state: RootState) => state.search.language);
-
+  const provider = useSelector((state: RootState) => state.search.provider);
   const [searchString, setSearchString] = React.useState(
     currentSearchPhrase || "",
   );
+  const isSearchPage = window.location.pathname === "/search";
+  const navigate = useNavigate();
 
   const handleSelect = (phrase: string) => {
-    dispatch(searchPhraseUpdated(phrase));
+    if (isSearchPage) {
+      dispatch(searchPhraseUpdated(phrase));
+    } else {
+      navigate(`/search?search=${phrase}&p=${provider}`);
+    }
     setShowSearchModal(false);
   };
 
@@ -155,7 +160,7 @@ export default function CustomSelect({
           >
             <IconButton
               onClick={(ev) => {
-                handleSelect("");
+                handleSelect(searchString);
                 ev.preventDefault();
               }}
             >
@@ -169,8 +174,9 @@ export default function CustomSelect({
           return (
             <ListItem disablePadding key={index}>
               <ListItemButton
-                onClick={() => {
+                onClick={(ev) => {
                   handleSelect(option?.suggestion);
+                  ev.preventDefault();
                 }}
               >
                 <ListItemIcon>
