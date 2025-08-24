@@ -8,8 +8,8 @@ import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import Main from "./views/Main/Main";
 
-const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
 const DetailReworked = lazy(() => import("./views/Main/DetailReworked"));
@@ -68,14 +68,7 @@ function App() {
             <Route path="/total" element={<Start />} />
             <Route path="/imprint" element={<Impressum />} />
             <Route path="/privacy" element={<Privacy />} />
-            <Route
-              path="/search"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Main />
-                </Suspense>
-              }
-            />
+            <Route path="/search" element={<Main />} />
             <Route
               path="/tour/:idOne/:cityOne"
               element={
@@ -100,14 +93,7 @@ function App() {
                 </Suspense>
               }
             />
-            <Route
-              path="/:city"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Main />
-                </Suspense>
-              }
-            />
+            <Route path="/:city" element={<Main />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

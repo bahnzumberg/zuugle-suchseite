@@ -19,11 +19,8 @@ import { RootState } from "../..";
 import SearchParamSync from "../../components/SearchParamSync";
 import { mapUpdated } from "../../features/searchSlice";
 import { useAppDispatch } from "../../hooks";
-
-const Search = lazy(() => import("../../components/Search/Search"));
-const TourCardContainer = lazy(
-  () => import("../../components/TourCardContainer"),
-);
+import TourCardContainer from "../../components/TourCardContainer";
+import Search from "../../components/Search/Search";
 
 export default function Main() {
   const filter = useSelector((state: RootState) => state.filter);

@@ -29,8 +29,7 @@ import {
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
-
-const PopupCard = lazy(() => import("./PopupCard"));
+import PopupCard from "./PopupCard";
 
 // There is also a Marker defined in leaflet. Should we use that instead?
 export interface Marker {
@@ -187,21 +186,19 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
         <MapBoundsSync />
 
         {selectedTour && activeMarker && (
-          <Suspense>
-            <Popup
-              key={`popup_${selectedTour.id}`}
-              maxWidth={280}
-              maxHeight={210}
-              className="request-popup"
-              offset={L.point([0, -25])}
-              position={[activeMarker.lat, activeMarker.lon]}
-              eventHandlers={{
-                remove: () => setActiveMarker(null),
-              }}
-            >
-              <PopupCard tour={selectedTour} city={city?.value || ""} />
-            </Popup>
-          </Suspense>
+          <Popup
+            key={`popup_${selectedTour.id}`}
+            maxWidth={280}
+            maxHeight={210}
+            className="request-popup"
+            offset={L.point([0, -25])}
+            position={[activeMarker.lat, activeMarker.lon]}
+            eventHandlers={{
+              remove: () => setActiveMarker(null),
+            }}
+          >
+            <PopupCard tour={selectedTour} city={city?.value || ""} />
+          </Popup>
         )}
         {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
