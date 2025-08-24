@@ -1,14 +1,22 @@
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 import { LeftArrow } from "./HorizontalScroll/LeftArrow";
 import { RightArrow } from "./HorizontalScroll/RightArrow";
 import RangeCard from "./RangeCard";
+import { RangeObject } from "../features/apiSlice";
+import { useIsMobile } from "../utils/globals";
+import { Link } from "react-router";
 
-export default function RangeCardContainer({ onSelectTour, ranges }) {
-  const isMobile = useMediaQuery("(max-width:600px)");
+export interface RangeCardContainerProps {
+  ranges: RangeObject[];
+}
+
+export default function RangeCardContainer({
+  ranges,
+}: RangeCardContainerProps) {
+  const isMobile = useIsMobile();
 
   if (isMobile) {
     return (
@@ -33,7 +41,9 @@ export default function RangeCardContainer({ onSelectTour, ranges }) {
                 marginBottom: "5px",
               }}
             >
-              <RangeCard onSelectTour={onSelectTour} range={range} />
+              <Link to={`/search/?range=${range.range}`}>
+                <RangeCard range={range} />
+              </Link>
             </Box>
           ))}
         </Box>
@@ -45,26 +55,23 @@ export default function RangeCardContainer({ onSelectTour, ranges }) {
     <Box>
       <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
         {(ranges?.length > 0 ? ranges : []).map((range) => (
-          <Card
-            itemId={range.range}
-            range={range}
-            key={range.range}
-            onSelectTour={onSelectTour}
-          />
+          <Link to={`/search/?range=${range.range}`} key={range.range}>
+            <Card range={range} />
+          </Link>
         ))}
       </ScrollMenu>
     </Box>
   );
 }
 
-function Card({ range, onSelectTour }) {
+function Card({ range }) {
   return (
     <Box
       className={"react-horizontal-scrolling-card"}
       tabIndex={0}
       style={{ marginBottom: "5px", width: "392px", marginRight: "20px" }}
     >
-      <RangeCard onSelectTour={onSelectTour} range={range} />
+      <RangeCard range={range} />
     </Box>
   );
 }

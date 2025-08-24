@@ -3,8 +3,13 @@ import Typography from "@mui/material/Typography";
 import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
+import { RangeObject } from "../features/apiSlice";
 
-export default function RangeCard({ range, onSelectTour }) {
+export interface RangeCardProps {
+  range: RangeObject;
+}
+
+export default function RangeCard({ range }: RangeCardProps) {
   return (
     <Paper
       sx={{
@@ -16,7 +21,6 @@ export default function RangeCard({ range, onSelectTour }) {
         borderRadius: "24px",
       }}
       className={"cursor-link"}
-      onClick={({ target }) => onSelectTour(range)}
     >
       <Box
         sx={{

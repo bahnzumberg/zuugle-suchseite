@@ -26,8 +26,6 @@ const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
 export default function Start() {
-  const navigate = useNavigate();
-
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
@@ -59,12 +57,6 @@ export default function Start() {
       ranges: true,
     });
   }, [citySlug, provider]);
-
-  const onSelectRange = (range) => {
-    if (range?.range) {
-      navigate(`/search?range=${range.range}${city ? "&city=" + city : ""}`);
-    }
-  };
 
   const getRangeText = () => {
     if (city) {
@@ -176,10 +168,7 @@ export default function Start() {
                 >
                   {getRangeText()}
                 </Typography>
-                <RangeCardContainer
-                  ranges={loadedTours.ranges}
-                  onSelectTour={onSelectRange}
-                />
+                <RangeCardContainer ranges={loadedTours.ranges} />
               </Box>
               <Box sx={{ marginTop: "80px" }}>
                 <KPIContainer
