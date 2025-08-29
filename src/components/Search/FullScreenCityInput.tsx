@@ -33,9 +33,8 @@ export default function FullScreenCityInput({
   const [cityInput, setCityInput] = useState("");
 
   // load all cities once, apply search filter only in frontend
-  const { data: cities = [], isFetching: isCitiesLoading } = useGetCitiesQuery(
-    {},
-  );
+  const { data: cities = [], isFetching: isCitiesLoading } =
+    useGetCitiesQuery();
   const initialCity = useSelector((state: RootState) => state.search.city);
 
   useEffect(() => {

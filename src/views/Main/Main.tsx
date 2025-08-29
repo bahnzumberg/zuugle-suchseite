@@ -85,7 +85,7 @@ export default function Main() {
 
   const [activeFilter, setActiveFilter] = useState(false);
 
-  const { data: allCities = [] } = useGetCitiesQuery({});
+  const { data: allCities = [] } = useGetCitiesQuery();
 
   useEffect(() => {
     if (Object.values(filter).length) {

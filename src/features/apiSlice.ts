@@ -114,10 +114,9 @@ export const api = createApi({
     baseUrl: baseURL,
   }),
   endpoints: (build) => ({
-    getCities: build.query<CityObject[], any>({
-      query: (params) => {
-        const searchParams = new URLSearchParams(params).toString();
-        return `cities/?${searchParams}`;
+    getCities: build.query<CityObject[], void>({
+      query: () => {
+        return `cities/?domain=${domain}`;
       },
       transformResponse: (response: CityResponse) => {
         return response.cities;

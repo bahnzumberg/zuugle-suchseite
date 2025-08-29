@@ -59,7 +59,7 @@ export default function ItineraryTourTimeLineContainer({
 }: ItineraryTourTimeLineContainerProps) {
   //set connections to single one
   connections = connections[dateIndex];
-  const { data: cities = [] } = useGetCitiesQuery({});
+  const { data: cities = [] } = useGetCitiesQuery();
 
   const emptyConnArray =
     !connections ||

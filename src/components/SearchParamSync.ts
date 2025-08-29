@@ -31,7 +31,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   const filter = useSelector((state: RootState) => state.filter);
   const [params, setParams] = useSearchParams();
   const dispatch = useAppDispatch();
-  const { data: allCities = [] } = useGetCitiesQuery({});
+  const { data: allCities = [] } = useGetCitiesQuery();
 
   // special treatment for city
   useEffect(() => {
