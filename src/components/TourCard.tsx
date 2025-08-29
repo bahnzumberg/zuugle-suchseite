@@ -58,6 +58,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
         textDecoration: "none",
         width: "100%",
         justifyItems: "center",
+        display: "grid",
       }}
       target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
     >

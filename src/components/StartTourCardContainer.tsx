@@ -11,6 +11,7 @@ const renderImage = (imageSrc: string, key: Key) => (
     key={key}
     style={{
       justifyItems: "center",
+      display: "grid",
       width: "100%",
     }}
   >
