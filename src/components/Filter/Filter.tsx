@@ -365,7 +365,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   };
 
   const getDifficulties = () => {
-    const difficulties = fetchedFilter?.difficulties ?? [0, 1, 2, 3];
+    const difficulties = fetchedFilter?.difficulties ?? [1, 2, 3];
     const translatedDifficulties = difficulties.map((entry) => ({
       value: entry,
       label: difficultiesMap[entry] ?? "",
@@ -373,7 +373,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
     return translatedDifficulties.map((difficulty, index) => {
       return (
-        <Grid key={index} size={6}>
+        <Grid key={index} size={4}>
           <Box>
             <FormControlLabel
               control={
