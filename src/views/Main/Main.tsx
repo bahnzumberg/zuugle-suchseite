@@ -141,7 +141,7 @@ export default function Main() {
     </Box>
   );
 
-  const marginTopCards = showMap ? "20px" : "180px";
+  const marginTopCards = showMap ? "20px" : "140px";
 
   const totalToursHeader = () => (
     <Box className={"header-line-main"} sx={{ width: "100%" }}>
