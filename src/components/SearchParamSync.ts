@@ -79,19 +79,13 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
       "bounds",
       isMain && search.bounds ? JSON.stringify(search.bounds) : null,
     );
-
+    updateParam(
+      newParams,
+      "filter",
+      isMain && Object.keys(filter).length > 0 ? JSON.stringify(filter) : null,
+    );
     setParams(newParams, { replace: true });
-  }, [search]);
-
-  useEffect(() => {
-    const newParams = new URLSearchParams(params);
-    if (Object.keys(filter).length > 0) {
-      updateParam(newParams, "filter", JSON.stringify(filter));
-    } else {
-      newParams.delete("filter");
-    }
-    setParams(newParams, { replace: true });
-  }, [filter]);
+  }, [search, filter]);
 
   // URL → Redux
   function updateReduxFromParam(
@@ -132,6 +126,8 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
       if (filter) {
         const parsedFilter = JSON.parse(filter);
         dispatch(filterUpdated(parsedFilter));
+      } else {
+        dispatch(filterUpdated({}));
       }
     }
   }, []);
