@@ -17,6 +17,7 @@ router.get('/filter', (req, res) => filterWrapper(req, res));
 router.get('/map', (req, res) => mapWrapper(req, res));
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
+
 router.get('/total', (req, res) => totalWrapper(req, res));
 router.get('/:id/connections-extended', (req, res) => connectionsExtendedWrapper(req, res));
 router.get('/:id/gpx', (req, res) => tourGpxWrapper(req, res));
@@ -269,6 +270,7 @@ const listWrapper = async (req, res) => {
     let new_filter_where_types = ``
     let new_filter_where_languages = ``
     let new_filter_where_difficulties = ``
+    let new_filter_where_providers = ``
 
     let filter_string = filter;
     let filterJSON = undefined;
@@ -379,6 +381,14 @@ const listWrapper = async (req, res) => {
                 new_filter_where_difficulties = ``
             }
         }
+
+        if(filterJSON['providers']){
+            new_filter_where_providers = `AND t.provider IN ${JSON.stringify(filterJSON['providers']).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+            
+            if(new_filter_where_providers === 'AND t.provider IN () ;') {
+                new_filter_where_providers = ``
+            }
+        }
     }
 
     const tld = get_domain_country(domain).toUpperCase();
@@ -478,7 +488,8 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_ranges}
                                     ${new_filter_where_types}
                                     ${new_filter_where_languages}
-                                    ${new_filter_where_difficulties}`;
+                                    ${new_filter_where_difficulties}
+                                    ${new_filter_where_providers}`;
 
     
     let temp_table = '';
@@ -756,6 +767,7 @@ const filterWrapper = async (req, res) => {
     let types = [];
     let text = [];
     let ranges = [];
+    let providers = [];
     let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND c2t.stop_selector='y' `;
     let new_search_where_searchterm = '';
@@ -798,6 +810,7 @@ const filterWrapper = async (req, res) => {
                     t.text_lang,
                     t.range,
                     t.range_slug,
+                    t.provider,
                     t.number_of_days,
                     t.season,
                     t.traverse,
@@ -820,6 +833,7 @@ const filterWrapper = async (req, res) => {
                     t.text_lang,
                     t.range,
                     t.range_slug,
+                    t.provider,
                     t.number_of_days,
                     t.season,
                     t.traverse;`;
@@ -828,6 +842,7 @@ const filterWrapper = async (req, res) => {
     await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`)
     await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`)
     await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`)
+    await knex.raw(`CREATE INDEX idx_provider ON ${temp_table} (provider);`)
 
     
 
@@ -923,10 +938,25 @@ const filterWrapper = async (req, res) => {
     }
     // console.log("ranges: ", ranges)
 
+    let provider_sql = `SELECT 
+                    t.provider,
+                    p.provider_name
+                    FROM ${temp_table} as t                       
+                    INNER JOIN provider as p 
+                    ON t.provider=p.provider
+                    GROUP BY t.provider, p.provider_name
+                    ORDER BY t.provider;`;
+
+    let provider_result = await knex.raw(provider_sql)
+    if (!!provider_result && !!provider_result.rows) {
+        providers = provider_result.rows;
+    }
+    
 
     let filterresult = {
         types: types.map(typeObj => typeObj.type),
         ranges: ranges.map(rangesObj => rangesObj.range),
+        providers: providers.map(providerObj => providerObj.provider),
         isSingleDayTourPossible: _isSingleDayTourPossible,
         isMultipleDayTourPossible: _isMultipleDayTourPossible,
         isSummerTourPossible: _isSummerTourPossible,
@@ -951,7 +981,7 @@ const filterWrapper = async (req, res) => {
         console.log("Drop temp table failed: ", err)
     }
 
-    res.status(200).json({success: true, filter: filterresult});
+    res.status(200).json({success: true, filter: filterresult, providers: providers});
 } // end of filterWrapper
 
 
