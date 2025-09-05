@@ -577,7 +577,7 @@ export async function syncConnectionGPX(mod=null){
 }
 
 
-async function syncGPX() {
+export async function syncGPX() {
     prepareDirectories();
     var allTours = null;
     console.log(moment().format('HH:mm:ss'), ' Creating gpx files for all tours');
