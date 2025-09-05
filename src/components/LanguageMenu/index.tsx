@@ -3,13 +3,15 @@ import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch } from "../../hooks";
+import { languageUpdated } from "../../features/searchSlice";
 
-function LanguageMenu({ pageKey }) {
+function LanguageMenu() {
   const { i18n } = useTranslation();
 
-  var resolvedLanguage = i18n.language;
+  const resolvedLanguage = i18n.language;
   const storedLanguage = localStorage.getItem("lang");
-  let currLanguage = storedLanguage || resolvedLanguage;
+  const currLanguage = storedLanguage || resolvedLanguage;
   const [Languages, setLanguages] = useState([
     { key: "en", nativeName: "English" },
     { key: "fr", nativeName: "Français" },
@@ -18,27 +20,28 @@ function LanguageMenu({ pageKey }) {
     { key: "sl", nativeName: "Slovenščina" },
   ]);
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     let currIndex = null;
-    if (!!currLanguage) {
+    if (currLanguage) {
       currIndex = Languages.findIndex((lang) => lang.key === currLanguage);
     }
     const [langObject] = Languages.splice(currIndex, 1);
     Languages.sort((a, b) => a.key.localeCompare(b.key));
     Languages.unshift(langObject);
+    dispatch(languageUpdated(currLanguage));
   }, [currLanguage, Languages]);
 
   const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
     i18n.language,
   );
   const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
-  const setLanguage = (lng) => {
+  const setLanguage = (lng: string) => {
     localStorage.setItem("lang", lng);
     langChange(lng);
     setShowLanguageMenu(false);
-    if (pageKey === "main" || pageKey === "start") {
-      window.location.reload();
-    }
+    dispatch(languageUpdated(lng));
   };
 
   return (
@@ -98,7 +101,8 @@ function LanguageMenu({ pageKey }) {
                   style={{
                     width: 140,
                     marginBottom: 5,
-                    color: i18LangFormatted === item.key && "#4992FF",
+                    color:
+                      i18LangFormatted === item.key ? "#4992FF" : undefined,
                   }}
                 >
                   {item.nativeName}

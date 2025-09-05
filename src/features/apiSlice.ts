@@ -9,7 +9,6 @@ import { FilterObject } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
 import { parseGPX, toLatLngBounds } from "../utils/map_utils";
 import { ConnectionResult } from "../models/Connections";
-import { getTopLevelDomain } from "../utils/globals";
 
 export interface CityResponse {
   success: boolean;
@@ -65,6 +64,7 @@ export interface ToursParams {
   range?: string;
   type?: string;
   country?: string;
+  currLanguage?: string;
 }
 
 export interface SearchParams {
@@ -107,7 +107,7 @@ const baseURL =
     ? process.env.REACT_APP_API_URL
     : `${window.location.protocol}//${window.location.host}/api`;
 
-const domain = window.location.hostname; // TODO: find out why sending domain is important
+const domain = window.location.hostname;
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({

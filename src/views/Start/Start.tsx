@@ -31,6 +31,7 @@ export default function Start() {
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
+  const language = useSelector((state: RootState) => state.search.language);
   const dispatch = useAppDispatch();
 
   const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery();
@@ -61,8 +62,9 @@ export default function Start() {
       city: citySlug ?? "",
       provider: provider || undefined,
       ranges: true,
+      currLanguage: language || undefined,
     });
-  }, [citySlug, provider]);
+  }, [citySlug, provider, language]);
 
   const getRangeText = () => {
     if (city) {

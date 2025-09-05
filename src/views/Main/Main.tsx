@@ -1,5 +1,5 @@
 import * as React from "react";
-import { lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -47,6 +47,7 @@ export default function Main() {
       range: search.range || undefined,
       country: search.country || undefined,
       type: search.type || undefined,
+      currLanguage: search.language || undefined,
     });
   }, [filter, search]);
 
@@ -69,6 +70,7 @@ export default function Main() {
         country: search.country || undefined,
         type: search.type || undefined,
         page: pageTours,
+        currLanguage: search.language || undefined,
       });
     }
   }, [pageTours]);
@@ -232,7 +234,7 @@ export default function Main() {
               </Box>
               <DomainMenu />
             </Box>
-            <LanguageMenu pageKey="main" />
+            <LanguageMenu />
           </Box>
           {!!allCities && allCities.length > 0 && (
             <Box

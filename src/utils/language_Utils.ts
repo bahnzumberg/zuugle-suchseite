@@ -12,10 +12,10 @@ export const tourTypes = [
   "weitwandern",
 ];
 
-export function langChange(language) {
+export function langChange(language: string) {
   i18n.changeLanguage(language, function () {
     // Trigger the custom event to notify index.html about the language change
-    var event = new CustomEvent("languageChanged", {
+    const event = new CustomEvent("languageChanged", {
       detail: { language: language },
     });
     document.dispatchEvent(event);
