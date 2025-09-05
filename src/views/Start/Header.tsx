@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import React, { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { getDomainText, getTLD } from "../../utils/globals";
@@ -13,10 +13,12 @@ const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
 export interface HeaderProps {
   totalTours: number;
   totalToursFromCity: number;
+  isLoading?: boolean;
 }
 export default function Header({
   totalTours,
   totalToursFromCity,
+  isLoading,
 }: HeaderProps) {
   const { t } = useTranslation();
   const city = useSelector((state: RootState) => state.search.city);
@@ -39,7 +41,11 @@ export default function Header({
               {getDomainText()}
             </Typography>
           </Box>
-          <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
+          )}
         </Box>
       </BackgroundImageLoader>
     );

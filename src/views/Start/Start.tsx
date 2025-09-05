@@ -33,7 +33,7 @@ export default function Start() {
   const provider = useSelector((state: RootState) => state.search.provider);
   const dispatch = useAppDispatch();
 
-  const { data: totals } = useGetTotalsQuery();
+  const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery();
   const [
     triggerLoadTours,
     {
@@ -98,6 +98,7 @@ export default function Start() {
           <Header
             totalTours={totals?.total_tours}
             totalToursFromCity={loadedTours.total}
+            isLoading={isTotalsLoading}
           />
           <Footer />
         </Box>
@@ -114,6 +115,7 @@ export default function Start() {
           <Header
             totalTours={totals?.total_tours || 0}
             totalToursFromCity={loadedTours.total}
+            isLoading={isTotalsLoading}
           />
         </Box>
         <Suspense
