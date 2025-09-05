@@ -63,7 +63,8 @@
     "easy": "Easy",
     "medium": "Medium",
     "hard": "Hard",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "provider": "Tour portal"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",

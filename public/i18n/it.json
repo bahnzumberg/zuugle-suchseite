@@ -63,7 +63,8 @@
     "easy": "Facile",
     "medium": "Medio",
     "hard": "Difficile",
-    "unknown": "Sconosciuto"
+    "unknown": "Sconosciuto",
+    "provider": "Portale"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",

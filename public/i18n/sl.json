@@ -63,7 +63,8 @@
     "easy": "Enostavno",
     "medium": "Srednje",
     "hard": "Težavno",
-    "unknown": "Neznano"
+    "unknown": "Neznano",
+    "provider": "Portal"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",

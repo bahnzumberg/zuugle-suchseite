@@ -5,7 +5,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { BoundsObject, CityObject } from "./searchSlice";
 import { Tour } from "../models/Tour";
-import { FilterObject } from "../models/Filter";
+import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
 import { parseGPX, toLatLngBounds } from "../utils/map_utils";
 import { ConnectionResult } from "../models/Connections";
@@ -90,6 +90,12 @@ export interface FilterParams {
 export interface FilterResponse {
   success: boolean;
   filter: FilterObject;
+  providers: Provider[];
+}
+
+export interface FilterWithProviders {
+  filter: FilterObject;
+  providers: Provider[];
 }
 
 export interface ConnectionParams {
@@ -156,12 +162,12 @@ export const api = createApi({
         return `searchPhrases?${searchParams}`;
       },
     }),
-    getFilter: build.query<FilterObject, FilterParams>({
+    getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
         return `tours/filter?${toSearchParams(params)}`;
       },
       transformResponse: (response: FilterResponse) => {
-        return response.filter;
+        return { filter: response.filter, providers: response.providers };
       },
     }),
     getGPX: build.query<L.LatLngExpression[], string>({

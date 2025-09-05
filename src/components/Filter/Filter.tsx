@@ -27,7 +27,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
 import dayjs, { Dayjs } from "dayjs";
-import { FilterObject } from "../../models/Filter";
+import { FilterObject, Provider } from "../../models/Filter";
 import { useLazyGetFilterQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
 import { areSetsEqual } from "../../utils/globals";
@@ -50,8 +50,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   // the filter options fetched from API,
   const [
     triggerFetchFilter,
-    { data: fetchedFilter, isFetching: isFilterFetching },
+    { data: filterData, isFetching: isFilterFetching },
   ] = useLazyGetFilterQuery();
+  const { filter: fetchedFilter, providers: fetchedProviders } =
+    filterData ?? {};
 
   const defaultFilterValues = useMemo<FilterObject>(() => {
     return {
@@ -72,6 +74,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       types: fetchedFilter?.types ?? [],
       languages: fetchedFilter?.languages ?? [],
       difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
+      providers: fetchedFilter?.providers ?? [],
     };
   }, [fetchedFilter]);
 
@@ -110,6 +113,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const [allTypesSelected, setAllTypesSelected] = useState(true);
   const [allLanguagesSelected, setAllLanguagesSelected] = useState(true);
   const [allDifficultiesSelected, setAllDifficultiesSelected] = useState(true);
+  const [allProvidersSelected, setAllProvidersSelected] = useState(true);
 
   // Translation-related
   const { t } = useTranslation();
@@ -234,7 +238,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   function displayAsSelected<K extends keyof FilterObject>(
     arrayKey: K,
-    value: string | number,
+    value: string | number | Provider,
   ): boolean {
     const array = tempFilter[arrayKey];
     if (!Array.isArray(array)) {
@@ -247,7 +251,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   function updateTempArray<K extends keyof FilterObject>(
     arrayKey: K,
-    value: string | number,
+    value: string | number | Provider,
     checked: boolean,
   ) {
     if (!tempFilter[arrayKey]) {
@@ -260,7 +264,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
     const currentArray =
       tempFilter[arrayKey] ?? fetchedFilter?.[arrayKey] ?? [];
-    const array: string[] | number[] = Array.isArray(currentArray)
+    const array: string[] | number[] | Provider[] = Array.isArray(currentArray)
       ? currentArray
       : [];
 
@@ -396,6 +400,40 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     });
   };
 
+  const getProviders = () => {
+    const providers = fetchedFilter?.providers ?? [];
+    const providersWithNames = providers.map((entry) => ({
+      value: entry,
+      label:
+        fetchedProviders?.find((p) => p.provider === entry)?.provider_name ??
+        "",
+    }));
+
+    return providersWithNames.map((provider, index) => {
+      return (
+        <Grid key={index} size={6}>
+          <Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={displayAsSelected("providers", provider.value)}
+                  onChange={(e) =>
+                    updateTempArray(
+                      "providers",
+                      provider.value,
+                      e.target.checked,
+                    )
+                  }
+                />
+              }
+              label={provider.label}
+            />
+          </Box>
+        </Grid>
+      );
+    });
+  };
+
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
     else setTempFilter({ ...tempFilter, ranges: fetchedFilter?.ranges ?? [] });
@@ -423,6 +461,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
         difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
       });
     setAllDifficultiesSelected(!allDifficultiesSelected);
+  };
+
+  const updateAllProviderValues = () => {
+    if (allProvidersSelected) setTempFilter({ ...tempFilter, providers: [] });
+    else setTempFilter({ ...tempFilter, providers: fetchedFilter?.providers });
+    setAllProvidersSelected(!allProvidersSelected);
   };
 
   const style = {
@@ -931,6 +975,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   {getSportTypes()}
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Typography variant={"subtitle1"}>
+                  {t("filter.provider")}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllProviderValues}
+                  >
+                    {alle_an_abwaehlen_label}
+                  </Typography>
+                </Typography>
+                <Grid container sx={{ paddingTop: "16px" }}>
+                  {getProviders()}
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
