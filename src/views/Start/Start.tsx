@@ -100,7 +100,7 @@ export default function Start() {
           <Header
             totalTours={totals?.total_tours}
             totalToursFromCity={loadedTours.total}
-            isLoading={isTotalsLoading}
+            isLoading={isTotalsLoading || isToursLoading}
           />
           <Footer />
         </Box>
