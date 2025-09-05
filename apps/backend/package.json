@@ -28,6 +28,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.18.9",
+    "@babel/plugin-syntax-top-level-await": "^7.14.5",
     "@babel/plugin-transform-runtime": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
     "babel-cli": "^6.10.1",
@@ -38,6 +39,7 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "cors": "^2.8.5",
+    "cross-spawn": "^7.0.6",
     "express": "^4.16.4",
     "fs": "0.0.1-security",
     "fs-extra": "^11.1.1",
@@ -58,7 +60,6 @@
     "sharp": "^0.33.4",
     "watch": "^1.0.2",
     "xml-js": "^1.6.11",
-    "xmlbuilder2": "^3.0.2",
-    "cross-spawn": "^7.0.6"
+    "xmlbuilder2": "^3.0.2"
   }
 }

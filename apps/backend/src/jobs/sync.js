@@ -579,17 +579,16 @@ export async function syncGPX(){
 
     let allTours = null;
     let promises = null;
-    const pLimit = require('p-limit');
-    const limit  = pLimit(10); // Limit to 10 concurrent connections
-
-    for (let i=0; i<10; i++) {
-        console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
-        allTours = await knex('tour').select(["title", "id", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
-              
-        if(!!allTours && allTours.length > 0){
+    
+    console.log(moment().format('HH:mm:ss'), ' Creating gpx files for all tours');
+    allTours = await knex('tour').select(["title", "id", "hashed_url"]);
+    const allTourlength = allTours.length;
+    
+    if(!!allTours && allTours.length > 0){
+        for (let i=0; i<allTourlength; i++) {
             try {
-                const promises = allTours.map(entry => limit(() => _syncGPX(entry.id, entry.hashed_url, entry.title)));
-                await Promise.all(promises);
+                const entry = allTours[i];
+                await _syncGPX(entry.id, entry.hashed_url, entry.title);
             }
             catch(e) {
                 console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
