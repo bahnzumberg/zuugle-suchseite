@@ -524,55 +524,70 @@ export async function generateTestdata(){
 
 
 
-async function _syncConnectionGPX(key, partFilePath, fileName, title){
-    
-    return new Promise(async resolve => {
-        let filePath = '';
-        if(process.env.NODE_ENV == "production"){
+async function _syncConnectionGPX(key, partFilePath, fileName, title) {
+    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
+    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    try {
+        var filePath = '';
+        if (process.env.NODE_ENV == "production") {
             filePath = path.join(__dirname, "../", partFilePath);
         } else {
             filePath = path.join(__dirname, "../../", partFilePath);
         }
-        if (!fs.existsSync(filePath)){
+        if (!fs.existsSync(filePath)) {
             fs.mkdirSync(filePath);
         }
         filePath = path.join(filePath, fileName);
-        // console.log(moment().format('HH:mm:ss'), ' Start creating gpx file '+filePath);
-
-        if(!!key){
-            let trackPoints = null;
+        if (!!key) {
+            var trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
-                trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-               
-                if(!!trackPoints && trackPoints.length > 0){
-                    // console.log("vor createFileFromGpx filePath=", filePath);
-                    await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                // Schritt 1: Serielle Datenbankabfrage.
+                trackPoints = await knex('tracks').select().where({ track_key: key }).orderBy('track_point_sequence', 'asc');
+                if (!!trackPoints && trackPoints.length > 0) {
+                    const writePromise = createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                    // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
+                    activeFileWrites.push(writePromise);
+                    writePromise.finally(() => {
+                        const index = activeFileWrites.indexOf(writePromise);
+                        if (index > -1) {
+                            activeFileWrites.splice(index, 1);
+                        }
+                    });
                 }
             }
         }
-        resolve();
-    })
+    } catch (e) {
+        console.error("Error in _syncConnectionGPX:", e);
+    }
 }
 
-export async function syncConnectionGPX(mod=null){
-    // console.log("vor toTourFahrplan");
-    const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
-    if(!!toTourFahrplan){
-        const promises = toTourFahrplan.map(entry => {
-            return _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour/' + last_two_characters(entry.totour_track_key) + "/", entry.totour_track_key + '.gpx', 'Station zur Tour')
-        });
-        await Promise.all(promises);
+
+export async function syncConnectionGPX() {
+    // var mod = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
+    if (!!toTourFahrplan) {
+        // Serielle Verarbeitung der "toTour"-Fahrpläne
+        for (const entry of toTourFahrplan) {
+            await _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour/' + last_two_characters(entry.totour_track_key) + "/", entry.totour_track_key + '.gpx', 'Station zur Tour');
+        }
     }
 
-    // console.log("vor fromTourFahrplan");
-    const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
-    if(!!fromTourFahrplan) {
-        const promises = fromTourFahrplan.map(entry => {
-            return _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour/' + last_two_characters(entry.fromtour_track_key) + "/", entry.fromtour_track_key + '.gpx', 'Tour zur Station')
-        });
-        await Promise.all(promises);
+    var fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
+    if (!!fromTourFahrplan) {
+        // Serielle Verarbeitung der "fromTour"-Fahrpläne
+        for (const entry of fromTourFahrplan) {
+            await _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour/' + last_two_characters(entry.fromtour_track_key) + "/", entry.fromtour_track_key + '.gpx', 'Tour zur Station');
+        }
     }
 
+    // Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
+    while (activeFileWrites.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
     return true;
 }
 
