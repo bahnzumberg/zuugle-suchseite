@@ -9,6 +9,9 @@ const path = require('path');
 const request = require('request');
 import { spawn } from "cross-spawn";
 
+const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
+const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
+
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -573,29 +576,73 @@ export async function syncConnectionGPX(mod=null){
     return true;
 }
 
-export async function syncGPX(){
-    // First we call the directory preparation step
-    prepareDirectories();
 
-    let allTours = null;
-    let promises = null;
-    
+async function syncGPX() {
+    prepareDirectories();
+    var allTours = null;
     console.log(moment().format('HH:mm:ss'), ' Creating gpx files for all tours');
     allTours = await knex('tour').select(["title", "id", "hashed_url"]);
-    const allTourlength = allTours.length;
-    
-    if(!!allTours && allTours.length > 0){
-        for (let i=0; i<allTourlength; i++) {
+    var allTourlength = allTours.length;
+    if (!!allTours && allTours.length > 0) {
+        for (var i = 0; i < allTourlength; i++) {
             try {
-                const entry = allTours[i];
+                var entry = allTours[i];
+                // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
                 await _syncGPX(entry.id, entry.hashed_url, entry.title);
-            }
-            catch(e) {
+            } catch (e) {
                 console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
-            }    
+            }
         }
     }
+    // WICHTIG: Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
+    while (activeFileWrites.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
     return true;
+}
+
+async function _syncGPX(id, h_url, title) {
+    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
+    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    try {
+        var fileName = id + '.gpx';
+        var filePath = '';
+        if (process.env.NODE_ENV == "production") {
+            filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
+        } else {
+            filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
+        }
+        if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath, { recursive: true });
+        }
+        var filePathName = filePath + fileName;
+        var waypoints = null;
+        if (!!!fs.existsSync(filePathName)) {
+            try {
+                // Schritt 1: Serielle Datenbankabfrage. Die Funktion wartet hier.
+                waypoints = await knex('gpx').select().where({ hashed_url: h_url }).orderBy('waypoint');
+            } catch (err) {
+                console.log("Error in _syncGPX while trying to execute waypoints query: ", err);
+            }
+            if (!!waypoints && waypoints.length > 0 && !!filePathName) {
+                const writePromise = createFileFromGpx(waypoints, filePathName, title);
+                // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
+                activeFileWrites.push(writePromise);
+                writePromise.finally(() => {
+                    const index = activeFileWrites.indexOf(writePromise);
+                    if (index > -1) {
+                        activeFileWrites.splice(index, 1);
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        console.log("Error in _syncGPX while trying to generate a gpx file");
+    }
 }
 
 
@@ -623,49 +670,6 @@ export async function syncGPXImage(){
 
 }
 
-async function _syncGPX(id, h_url, title){
-    return new Promise(async resolve => {
-        try {
-            let fileName = id + '.gpx';
-            let filePath = '';
-            if(process.env.NODE_ENV == "production"){
-                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
-            } else {
-                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
-            }
-
-            if (!fs.existsSync(filePath)){
-                fs.mkdirSync(filePath);
-                // console.log(`${filePath} folder created`)
-            }
-
-            let filePathName = filePath + fileName;
-            let waypoints = null;
-            if (!!!fs.existsSync(filePathName)) {
-                try {
-                    waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
-                }
-                catch(err) {
-                    console.log(`Error in _syncGPX while trying to execute waypoints query: `, err)
-                }
-                
-                if(!!waypoints && waypoints.length > 0 && !!filePathName){
-                    await createFileFromGpx(waypoints, filePathName, title);
-
-                    if (!fs.existsSync(filePathName)) {
-                        // Something went wrong before. Let's try one more time.
-                        console.log(`Trying to generate ${filePathName} a second time`)
-                        await createFileFromGpx(waypoints, filePathName, title);
-                    }
-                }
-            } 
-        } catch(err) {
-            console.error(err)
-            console.log(`Error in _syncGPX while trying to generate a gpx file`)
-        }
-        resolve();
-    })
-}
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
