@@ -63,7 +63,8 @@
     "easy": "Leicht",
     "medium": "Mittel",
     "hard": "Schwer",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "provider": "Tourenportal"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",

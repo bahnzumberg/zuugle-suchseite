@@ -63,7 +63,8 @@
     "easy": "Facile",
     "medium": "Moyenne",
     "hard": "Difficile",
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "provider": "Portail"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",

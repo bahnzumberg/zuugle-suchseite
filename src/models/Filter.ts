@@ -1,3 +1,8 @@
+export interface Provider {
+  provider: string;
+  provider_name: string;
+}
+
 export interface FilterObject {
   s?: string;
   w?: string;
@@ -25,4 +30,5 @@ export interface FilterObject {
   types?: string[];
   languages?: string[];
   difficulties?: number[];
+  providers?: string[];
 }
