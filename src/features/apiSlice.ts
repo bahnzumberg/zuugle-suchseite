@@ -128,9 +128,9 @@ export const api = createApi({
         return response.cities;
       },
     }),
-    getTotals: build.query<TotalResponse, void>({
-      query: () => {
-        return `tours/total`;
+    getTotals: build.query<TotalResponse, string | undefined>({
+      query: (city) => {
+        return `tours/total${city ? `?city=${city}` : ""}`;
       },
     }),
     getTour: build.query<Tour, TourParams>({

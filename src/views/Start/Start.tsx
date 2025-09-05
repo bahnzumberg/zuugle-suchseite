@@ -34,7 +34,9 @@ export default function Start() {
   const language = useSelector((state: RootState) => state.search.language);
   const dispatch = useAppDispatch();
 
-  const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery();
+  const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery(
+    citySlug || undefined,
+  );
   const [
     triggerLoadTours,
     {
@@ -98,9 +100,9 @@ export default function Start() {
       >
         <Box>
           <Header
-            totalTours={totals?.total_tours}
-            totalToursFromCity={loadedTours.total}
-            isLoading={isTotalsLoading || isToursLoading}
+            totalTours={totals.total_tours}
+            totalToursFromCity={totals.tours_city}
+            isLoading={isTotalsLoading}
           />
           <Footer />
         </Box>
@@ -116,7 +118,7 @@ export default function Start() {
           {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
           <Header
             totalTours={totals?.total_tours || 0}
-            totalToursFromCity={loadedTours.total}
+            totalToursFromCity={totals?.tours_city || 0}
             isLoading={isTotalsLoading}
           />
         </Box>
