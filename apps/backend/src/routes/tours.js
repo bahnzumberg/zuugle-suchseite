@@ -296,7 +296,6 @@ const listWrapper = async (req, res) => {
     };
 
     if (typeof filterJSON !== 'undefined' && filter_string != `{ ignore_filter: 'true' }`) {
-        console.log("filterJSON: ", filterJSON)
 
         if(filterJSON['singleDayTour'] && !filterJSON['multipleDayTour']){
             new_filter_where_singleDayTour = `AND t.number_of_days=1 `
