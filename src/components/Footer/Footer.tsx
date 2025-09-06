@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 
-export default function Footer({}) {
+export default function Footer() {
   const { t } = useTranslation();
 
   return (
@@ -69,7 +69,6 @@ export default function Footer({}) {
           }}
         >
           <Grid
-            sx={{ paddingBottom: "80px" }}
             size={{
               xs: 12,
               md: 10,
