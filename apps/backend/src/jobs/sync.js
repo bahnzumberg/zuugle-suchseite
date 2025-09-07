@@ -854,20 +854,32 @@ const bulk_insert_tours = async (entries) => {
         // Die Daten werden in ein Array von Objekten umgewandelt,
         // das den Spaltennamen der Zieltabelle entspricht.
         const toursToInsert = entries.map(entry => {
+            let cleanedImageUrl = entry.image_url;
+            if (cleanedImageUrl) {
+                // Ersetzt '$' gefolgt von einer oder mehr Ziffern durch '?'
+                cleanedImageUrl = cleanedImageUrl.replace(/\$\d+/g, '?');
+            }
+
+            let cleanedTitle = entry.title;
+            if (cleanedTitle) {
+                // Ersetzt '$' gefolgt von einer oder mehr Ziffern durch '?'
+                cleanedTitle = cleanedTitle.replace(/\$\d+/g, '?');
+            }
+
             return {
                 id: entry.id,
                 url: entry.url,
                 provider: entry.provider,
                 hashed_url: entry.hashed_url,
                 description: entry.description,
-                image_url: entry.image_url,
+                image_url: cleanedImageUrl,
                 ascent: entry.ascent,
                 descent: entry.descent,
                 difficulty: entry.difficulty,
                 difficulty_orig: entry.difficulty_orig,
                 duration: entry.duration,
                 distance: entry.distance,
-                title: entry.title,
+                title: cleanedTitle,
                 type: entry.typ, // Knex erkennt dies korrekt
                 country: entry.country,
                 state: entry.state,
