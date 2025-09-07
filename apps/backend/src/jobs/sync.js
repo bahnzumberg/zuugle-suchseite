@@ -9,6 +9,9 @@ const path = require('path');
 const request = require('request');
 import { spawn } from "cross-spawn";
 
+const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
+const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
+
 
 async function update_tours_from_tracks() {
     // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
@@ -521,81 +524,140 @@ export async function generateTestdata(){
 
 
 
-async function _syncConnectionGPX(key, partFilePath, fileName, title){
-    
-    return new Promise(async resolve => {
-        let filePath = '';
-        if(process.env.NODE_ENV == "production"){
+async function _syncConnectionGPX(key, partFilePath, fileName, title) {
+    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
+    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    try {
+        var filePath = '';
+        if (process.env.NODE_ENV == "production") {
             filePath = path.join(__dirname, "../", partFilePath);
         } else {
             filePath = path.join(__dirname, "../../", partFilePath);
         }
-        if (!fs.existsSync(filePath)){
+        if (!fs.existsSync(filePath)) {
             fs.mkdirSync(filePath);
         }
         filePath = path.join(filePath, fileName);
-        // console.log(moment().format('HH:mm:ss'), ' Start creating gpx file '+filePath);
-
-        if(!!key){
-            let trackPoints = null;
+        if (!!key) {
+            var trackPoints = null;
             if (!!!fs.existsSync(filePath)) {
-                trackPoints = await knex('tracks').select().where({track_key: key}).orderBy('track_point_sequence', 'asc');
-               
-                if(!!trackPoints && trackPoints.length > 0){
-                    // console.log("vor createFileFromGpx filePath=", filePath);
-                    await createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                // Schritt 1: Serielle Datenbankabfrage.
+                trackPoints = await knex('tracks').select().where({ track_key: key }).orderBy('track_point_sequence', 'asc');
+                if (!!trackPoints && trackPoints.length > 0) {
+                    const writePromise = createFileFromGpx(trackPoints, filePath, title, 'track_point_lat', 'track_point_lon', 'track_point_elevation');
+                    // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
+                    activeFileWrites.push(writePromise);
+                    writePromise.finally(() => {
+                        const index = activeFileWrites.indexOf(writePromise);
+                        if (index > -1) {
+                            activeFileWrites.splice(index, 1);
+                        }
+                    });
                 }
             }
         }
-        resolve();
-    })
+    } catch (e) {
+        console.error("Error in _syncConnectionGPX:", e);
+    }
 }
 
-export async function syncConnectionGPX(mod=null){
-    // console.log("vor toTourFahrplan");
-    const toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
-    if(!!toTourFahrplan){
-        const promises = toTourFahrplan.map(entry => {
-            return _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour/' + last_two_characters(entry.totour_track_key) + "/", entry.totour_track_key + '.gpx', 'Station zur Tour')
-        });
-        await Promise.all(promises);
-    }
 
-    // console.log("vor fromTourFahrplan");
-    const fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
-    if(!!fromTourFahrplan) {
-        const promises = fromTourFahrplan.map(entry => {
-            return _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour/' + last_two_characters(entry.fromtour_track_key) + "/", entry.fromtour_track_key + '.gpx', 'Tour zur Station')
-        });
-        await Promise.all(promises);
-    }
-
-    return true;
-}
-
-export async function syncGPX(){
-    // First we call the directory preparation step
-    prepareDirectories();
-
-    let allTours = null;
-    let promises = null;
-    for (let i=0; i<10; i++) {
-        console.log(moment().format('HH:mm:ss'), ' Creating gpx files - step '+i);
-        allTours = await knex('tour').select(["title", "id", "hashed_url"]).whereRaw("MOD(id, 10)="+i)
-              
-        if(!!allTours && allTours.length > 0){
-            try {
-                promises = allTours.map(entry => {
-                    return _syncGPX(entry.id, entry.hashed_url, entry.title);
-                });
-                await Promise.all(promises);
-            }
-            catch(e) {
-                console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
-            }    
+export async function syncConnectionGPX() {
+    // var mod = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var toTourFahrplan = await knex('fahrplan').select(['totour_track_key']).whereNotNull('totour_track_key').groupBy('totour_track_key');
+    if (!!toTourFahrplan) {
+        // Serielle Verarbeitung der "toTour"-Fahrpläne
+        for (const entry of toTourFahrplan) {
+            await _syncConnectionGPX(entry.totour_track_key, 'public/gpx-track/totour/' + last_two_characters(entry.totour_track_key) + "/", entry.totour_track_key + '.gpx', 'Station zur Tour');
         }
     }
+
+    var fromTourFahrplan = await knex('fahrplan').select(['fromtour_track_key']).whereNotNull('fromtour_track_key').groupBy('fromtour_track_key');
+    if (!!fromTourFahrplan) {
+        // Serielle Verarbeitung der "fromTour"-Fahrpläne
+        for (const entry of fromTourFahrplan) {
+            await _syncConnectionGPX(entry.fromtour_track_key, 'public/gpx-track/fromtour/' + last_two_characters(entry.fromtour_track_key) + "/", entry.fromtour_track_key + '.gpx', 'Tour zur Station');
+        }
+    }
+
+    // Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
+    while (activeFileWrites.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
     return true;
+}
+
+
+export async function syncGPX() {
+    prepareDirectories();
+    var allTours = null;
+    console.log(moment().format('HH:mm:ss'), ' Creating gpx files for all tours');
+    allTours = await knex('tour').select(["title", "id", "hashed_url"]);
+    var allTourlength = allTours.length;
+    if (!!allTours && allTours.length > 0) {
+        for (var i = 0; i < allTourlength; i++) {
+            try {
+                var entry = allTours[i];
+                // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
+                await _syncGPX(entry.id, entry.hashed_url, entry.title);
+            } catch (e) {
+                console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
+            }
+        }
+    }
+    // WICHTIG: Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
+    while (activeFileWrites.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    return true;
+}
+
+async function _syncGPX(id, h_url, title) {
+    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
+    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    try {
+        var fileName = id + '.gpx';
+        var filePath = '';
+        if (process.env.NODE_ENV == "production") {
+            filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
+        } else {
+            filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
+        }
+        if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath, { recursive: true });
+        }
+        var filePathName = filePath + fileName;
+        var waypoints = null;
+        if (!!!fs.existsSync(filePathName)) {
+            try {
+                // Schritt 1: Serielle Datenbankabfrage. Die Funktion wartet hier.
+                waypoints = await knex('gpx').select().where({ hashed_url: h_url }).orderBy('waypoint');
+            } catch (err) {
+                console.log("Error in _syncGPX while trying to execute waypoints query: ", err);
+            }
+            if (!!waypoints && waypoints.length > 0 && !!filePathName) {
+                const writePromise = createFileFromGpx(waypoints, filePathName, title);
+                // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
+                activeFileWrites.push(writePromise);
+                writePromise.finally(() => {
+                    const index = activeFileWrites.indexOf(writePromise);
+                    if (index > -1) {
+                        activeFileWrites.splice(index, 1);
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        console.log("Error in _syncGPX while trying to generate a gpx file");
+    }
 }
 
 
@@ -623,49 +685,6 @@ export async function syncGPXImage(){
 
 }
 
-async function _syncGPX(id, h_url, title){
-    return new Promise(async resolve => {
-        try {
-            let fileName = id + '.gpx';
-            let filePath = '';
-            if(process.env.NODE_ENV == "production"){
-                filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
-            } else {
-                filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
-            }
-
-            if (!fs.existsSync(filePath)){
-                fs.mkdirSync(filePath);
-                // console.log(`${filePath} folder created`)
-            }
-
-            let filePathName = filePath + fileName;
-            let waypoints = null;
-            if (!!!fs.existsSync(filePathName)) {
-                try {
-                    waypoints = await knex('gpx').select().where({hashed_url: h_url}).orderBy('waypoint');
-                }
-                catch(err) {
-                    console.log(`Error in _syncGPX while trying to execute waypoints query: `, err)
-                }
-                
-                if(!!waypoints && waypoints.length > 0 && !!filePathName){
-                    await createFileFromGpx(waypoints, filePathName, title);
-
-                    if (!fs.existsSync(filePathName)) {
-                        // Something went wrong before. Let's try one more time.
-                        console.log(`Trying to generate ${filePathName} a second time`)
-                        await createFileFromGpx(waypoints, filePathName, title);
-                    }
-                }
-            } 
-        } catch(err) {
-            console.error(err)
-            console.log(`Error in _syncGPX while trying to generate a gpx file`)
-        }
-        resolve();
-    })
-}
 
 async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
     if(!!data){
@@ -831,111 +850,60 @@ const calcMonthOrder = (entry) => {
 
 
 const bulk_insert_tours = async (entries) => {
-    let sql_values = '';
-
-    for (let i=0; i<entries.length; i++) {
-        let entry = entries[i];
-        
-        if (i != 0) {
-            sql_values = sql_values + ",";
-        }
-        sql_values = sql_values + "(" +
-                     entry.id + "," + 
-                     "'" + entry.url + "'" + "," +
-                     "'" + entry.provider + "'" + "," +
-                     "'" + entry.hashed_url + "'" + "," +
-                     "'" + entry.description + "'" + "," +
-                     "'" + entry.image_url + "'," +
-                     entry.ascent + "," +
-                     entry.descent + "," +
-                     entry.difficulty + "," +
-                     "'" + entry.difficulty_orig + "'" + "," +
-                     entry.duration + "," +
-                     entry.distance + "," +
-                     "'" + entry.title + "'" + "," +
-                     "'" + entry.typ + "'" + "," +
-                     "'" + entry.country + "'" + "," +
-                     "'" + entry.state + "'" + "," +
-                     "'" + entry.range_slug + "'" + "," +
-                     "'" + entry.range_name + "'" + "," +
-                     "'" + entry.season + "'" + "," +
-                     entry.number_of_days + "," +
-                     entry.jan + "," +
-                     entry.feb + "," +
-                     entry.mar + "," +
-                     entry.apr + "," +
-                     entry.may + "," +
-                     entry.jun + "," +
-                     entry.jul + "," +
-                     entry.aug + "," +
-                     entry.sep + "," +
-                     entry.oct + "," +
-                     entry.nov + "," +
-                     entry.dec + "," +
-                     calcMonthOrder(entry) + "," +
-                     entry.traverse + "," +
-                     entry.quality_rating + "," +
-                     "'" + entry.full_text + "'" + ",";
-        
-        if (entry.ai_search_column==null) {
-             sql_values = sql_values + "null,"
-        }
-        else {
-             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
-        }
-        
-        sql_values = sql_values + 
-                     "'" + entry.text_lang + "'" + "," +
-                     entry.maxele + ")";
-    }
-
-    const sql_insert = `INSERT INTO tour (id, 
-                                          url, 
-                                          provider,
-                                          hashed_url,
-                                          description,
-                                          image_url,
-                                          ascent,
-                                          descent,
-                                          difficulty,
-                                          difficulty_orig,
-                                          duration,
-                                          distance,
-                                          title,
-                                          type,
-                                          country,
-                                          state,
-                                          range_slug,
-                                          range,
-                                          season,
-                                          number_of_days,
-                                          jan,
-                                          feb,
-                                          mar,
-                                          apr,
-                                          may,
-                                          jun,
-                                          jul,
-                                          aug,
-                                          sep,
-                                          oct,
-                                          nov,
-                                          dec,
-                                          month_order,
-                                          traverse,
-                                          quality_rating,
-                                          full_text,
-                                          ai_search_column,
-                                          text_lang,
-                                          max_ele)
-                                          VALUES ${sql_values}`
-    // console.log(sql_insert)
-
     try {
-        await knex.raw(sql_insert)
+        // Die Daten werden in ein Array von Objekten umgewandelt,
+        // das den Spaltennamen der Zieltabelle entspricht.
+        const toursToInsert = entries.map(entry => {
+            return {
+                id: entry.id,
+                url: entry.url,
+                provider: entry.provider,
+                hashed_url: entry.hashed_url,
+                description: entry.description,
+                image_url: entry.image_url,
+                ascent: entry.ascent,
+                descent: entry.descent,
+                difficulty: entry.difficulty,
+                difficulty_orig: entry.difficulty_orig,
+                duration: entry.duration,
+                distance: entry.distance,
+                title: entry.title,
+                type: entry.typ, // Knex erkennt dies korrekt
+                country: entry.country,
+                state: entry.state,
+                range_slug: entry.range_slug,
+                range: entry.range_name,
+                season: entry.season,
+                number_of_days: entry.number_of_days,
+                jan: entry.jan,
+                feb: entry.feb,
+                mar: entry.mar,
+                apr: entry.apr,
+                may: entry.may,
+                jun: entry.jun,
+                jul: entry.jul,
+                aug: entry.aug,
+                sep: entry.sep,
+                oct: entry.oct,
+                nov: entry.nov,
+                dec: entry.dec,
+                month_order: calcMonthOrder(entry),
+                traverse: entry.traverse,
+                quality_rating: entry.quality_rating,
+                full_text: entry.full_text,
+                ai_search_column: entry.ai_search_column,
+                text_lang: entry.text_lang,
+                max_ele: entry.maxele
+            };
+        });
+
+        // knex.batchInsert übernimmt die sichere Erstellung der
+        // SQL-Abfrage und das Einfügen der Daten in Batches.
+        await knex.batchInsert('tour', toursToInsert, 1000); // Der dritte Parameter (1000) ist die Batch-Größe
+        
         return true;
     } catch(err){
-        console.log('error: ', err)
+        console.error('Error during bulk insertion:', err);
         return false;
     }
 }
