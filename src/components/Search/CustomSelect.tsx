@@ -62,111 +62,57 @@ export default function CustomSelect({
 
   return (
     <>
-      <Grid container>
+      <Grid container alignItems="center" width={"100%"}>
+        {/* Input Field Area */}
         <Grid
-          size={{
-            xs: 10,
-            md: 11,
+          container
+          alignItems="center"
+          sx={{
+            flexGrow: 1,
+            borderRadius: "17px",
+            border: "1px solid #ccc",
+            p: "10px",
           }}
         >
-          <Grid
-            container
-            style={{
-              display: "flex",
-              alignItems: "center",
-              borderRadius: "17px",
-              border: "1px solid #ccc",
-              padding: "10px 0px 10px 10px",
+          {/* Search Icon */}
+          <SearchIcon sx={{ px: 1 }} />
+
+          {/* Input Field */}
+          <InputBase
+            sx={{ flexGrow: 1 }}
+            value={searchString}
+            autoFocus
+            onChange={(event) => setSearchString(event.target.value)}
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter") {
+                handleSelect(searchString);
+                ev.preventDefault();
+              }
             }}
-          >
-            <Grid
-              style={{ display: "flex", justifyContent: "center" }}
-              size={{
-                xs: 2,
-                md: 1,
-              }}
-            >
-              <SearchIcon />
-            </Grid>
-            <Grid
-              size={{
-                xs: 8,
-                md: 10,
-              }}
-            >
-              <InputBase
-                value={searchString}
-                autoFocus
-                onChange={(event) => {
-                  setSearchString(event?.target?.value);
-                }}
-                onKeyDown={(ev) => {
-                  if (ev.key === "Enter") {
-                    handleSelect(searchString);
-                    ev.preventDefault();
-                  }
-                }}
-              />
-            </Grid>
-            <Grid
-              size={{
-                xs: 2,
-                md: 1,
-              }}
-            >
-              <div
-                style={{
-                  borderRadius: "50%",
-                  backgroundColor: "#d9d9d9",
-                  height: "24px",
-                  width: "24px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <IconButton
-                  onClick={() => {
-                    setSearchString("");
-                  }}
-                >
-                  <Close style={{ fontSize: "16px", color: "#8b8b8b" }} />
-                </IconButton>
-              </div>
-            </Grid>
-          </Grid>
+          />
+
+          {/* Clear Button */}
+          <IconButton onClick={() => setSearchString("")}>
+            <Close sx={{ fontSize: 16, color: "#8b8b8b" }} />
+          </IconButton>
         </Grid>
-        <Grid
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-          size={{
-            xs: 2,
-            md: 1,
-          }}
-        >
-          <div
-            style={{
+
+        {/* Arrow Button */}
+        <Grid sx={{ pl: 1 }}>
+          <IconButton
+            sx={{
               borderRadius: "50%",
               border: "1px solid #d9d9d9",
               height: "40px",
               width: "40px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+            }}
+            onClick={(ev) => {
+              handleSelect(searchString);
+              ev.preventDefault();
             }}
           >
-            <IconButton
-              onClick={(ev) => {
-                handleSelect(searchString);
-                ev.preventDefault();
-              }}
-            >
-              <ArrowForward style={{ fontSize: "24px", color: "#4992ff" }} />
-            </IconButton>
-          </div>
+            <ArrowForward sx={{ fontSize: 24, color: "#4992ff" }} />
+          </IconButton>
         </Grid>
       </Grid>
       <List>
