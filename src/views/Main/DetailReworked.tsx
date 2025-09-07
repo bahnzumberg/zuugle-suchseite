@@ -39,6 +39,7 @@ import {
 } from "../../utils/globals";
 import Search from "../../components/Search/Search";
 import {
+  useGetCitiesQuery,
   useGetTourQuery,
   useLazyGetCombinedGPXQuery,
   useLazyGetConnectionsExtendedQuery,
@@ -46,6 +47,10 @@ import {
   useLazyGetProviderGpxOkQuery,
 } from "../../features/apiSlice";
 import { Connection, ConnectionResult } from "../../models/Connections";
+import { useAppDispatch } from "../../hooks";
+import { cityUpdated } from "../../features/searchSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../..";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =
@@ -79,6 +84,23 @@ export default function DetailReworked() {
   const [triggerToTourGPX, { data: toTourTrack }] = useLazyGetGPXQuery();
   const [currentToTourGPX, setCurrentToTourGPX] = useState("");
   const [triggerCombinedGPX] = useLazyGetCombinedGPXQuery();
+
+  const dispatch = useAppDispatch();
+  const { data: allCities = [] } = useGetCitiesQuery();
+  const city = useSelector((state: RootState) => state.search.city);
+
+  useEffect(() => {
+    if (allCities && cityOne && cityOne !== "no-city") {
+      const city = allCities.find((c) => c.value === cityOne);
+      dispatch(cityUpdated(city ?? null));
+    }
+  }, [allCities, cityOne]);
+
+  useEffect(() => {
+    if (city?.value && city.value !== cityOne) {
+      navigate(`/tour/${idOne}/${city?.value}`);
+    }
+  }, [city]);
 
   const shareUrl = () => {
     let _shareUrl = "";

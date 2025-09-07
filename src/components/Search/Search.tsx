@@ -45,7 +45,7 @@ export default function Search({
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [ShowCitySearch, setShowCitySearch] = useState(false);
-  if (filterOn === undefined) {
+  if (filterOn === undefined || setFilterOn === undefined) {
     [filterOn, setFilterOn] = useState(false);
   }
 
