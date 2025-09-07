@@ -17,10 +17,11 @@ import {
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import SearchParamSync from "../../components/SearchParamSync";
-import { mapUpdated } from "../../features/searchSlice";
+import { cityUpdated, mapUpdated } from "../../features/searchSlice";
 import { useAppDispatch } from "../../hooks";
 import TourCardContainer from "../../components/TourCardContainer";
 import Search from "../../components/Search/Search";
+import { DirectLink, extractCityFromLocation } from "../../utils/seoPageHelper";
 
 export default function Main() {
   const filter = useSelector((state: RootState) => state.filter);
@@ -83,7 +84,7 @@ export default function Main() {
 
   const { t } = useTranslation();
 
-  const [directLink, setDirectLink] = useState(null);
+  const [directLink, setDirectLink] = useState<DirectLink | null>(null);
 
   const [activeFilter, setActiveFilter] = useState(false);
 
@@ -103,25 +104,23 @@ export default function Main() {
   }, []);
 
   // TODO: understand what's going on here.
-  // useEffect(() => {
-  //   if (!!location && location.pathname && allCities && allCities.length > 0) {
-  //     const city = checkIfSeoPageCity(location, allCities);
-  //     if (!!city && city.value) {
-  //       searchParams.set("city", city.value);
-  //       setSearchParams(searchParams);
-  //       setDirectLink({
-  //         header: t(`main.oeffi_bergtouren_fuer_cityname`, {
-  //           "city.label": city.label,
-  //         }),
-  //         description: t(`main.alle_bergtouren_von_cityname`, {
-  //           "city.label": city.label,
-  //         }),
-  //       });
-  //     } else if (!city || !city.value) {
-  //       setDirectLink(null);
-  //     }
-  //   }
-  // }, [city]);
+  useEffect(() => {
+    if (!allCities) return;
+    const city = extractCityFromLocation(location, allCities);
+    if (city) {
+      dispatch(cityUpdated(city));
+      setDirectLink({
+        header: t(`main.oeffi_bergtouren_fuer_cityname`, {
+          "city.label": city.label,
+        }),
+        description: t(`main.alle_bergtouren_von_cityname`, {
+          "city.label": city.label,
+        }),
+      });
+    } else {
+      setDirectLink(null);
+    }
+  }, [location, allCities]);
 
   const renderCardContainer = () => (
     <Box

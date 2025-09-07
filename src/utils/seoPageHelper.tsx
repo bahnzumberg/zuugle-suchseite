@@ -1,7 +1,13 @@
 import * as React from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { CityObject } from "../features/searchSlice";
 
-export const getPageHeader = (directLink) => {
+export interface DirectLink {
+  header: string;
+  description: string;
+}
+
+export const getPageHeader = (directLink: DirectLink) => {
   if (directLink?.header) {
     return (
       <HelmetProvider>
@@ -30,7 +36,10 @@ export const getPageHeader = (directLink) => {
   );
 };
 
-export const extractCityFromLocation = (location, cities) => {
+export const extractCityFromLocation = (
+  location: Location,
+  cities: CityObject[],
+) => {
   //searching for the case: "/cityslug" in location.pathname, in that case we check if it is a valid city,
   if (location?.pathname?.startsWith("/")) {
     const pathSegments = location.pathname
@@ -38,53 +47,21 @@ export const extractCityFromLocation = (location, cities) => {
       .filter((segment) => !!segment);
 
     if (pathSegments.length === 1 && pathSegments[0] === "search") {
-      if (location?.search) {
-        const searchParams = new URLSearchParams(location.search);
-        const cityParam = searchParams.get("city");
-        return cityParam;
-      }
+      return null;
     } else if (pathSegments.length === 1) {
       const citySlug = pathSegments[0];
-
       // Check if citySlug exists in the cities array
       const matchingCity = cities.find((city) => city.value === citySlug);
-
       if (matchingCity) {
-        return matchingCity.value; // Set the city parameter to the label of the matching city
+        return matchingCity; // Set the city parameter to the label of the matching city
       }
     }
   }
-
   return null; // Return null if city param is not search or if the path doesn't match the pattern
 };
 
-export const getCityLabel = (location, cities) => {
-  let citySlug = location ? extractCityFromLocation(location, cities) : null;
-  if (cities?.length) {
-    const found = cities.find((city) => city.value === citySlug);
-    if (found?.label) {
-      return found.label;
-    } else return "";
-  } else {
-    return "";
-  }
-};
-
-export const checkIfSeoPageCity = (location, cities) => {
-  let citySlug = extractCityFromLocation(location, cities); // this is the city extracted from city param and not from location.pathname
-
-  if (location?.pathname === "/search") {
-    return null;
-  } else if (location?.pathname && cities?.length) {
-    const found = cities.find((city) => city.value === citySlug);
-    return found;
-  } else {
-    return null;
-  }
-};
-
 export const getTranslatedCountryName = () => {
-  let host = window.location.host;
+  const host = window.location.host;
 
   if (host.indexOf("zuugle.ch") >= 0) {
     return "start.schweiz";
