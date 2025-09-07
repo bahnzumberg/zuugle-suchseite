@@ -978,18 +978,23 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {t("filter.provider")}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllProviderValues}
-                  >
-                    {alle_an_abwaehlen_label}
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant={"subtitle1"}>
+                    {schwierigkeit_label}
                   </Typography>
+                  <Tooltip title={schwierigkeitswert_label}>
+                    <InfoOutlinedIcon fontSize="small" color="action" />
+                  </Tooltip>
+                </Stack>
+                <Typography
+                  className={"cursor-link"}
+                  sx={{ fontSize: "14px" }}
+                  onClick={updateAllDifficultyValues}
+                >
+                  {alle_an_abwaehlen_label}
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
-                  {getProviders()}
+                  {getDifficulties()}
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
@@ -1023,23 +1028,18 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography variant={"subtitle1"}>
-                    {schwierigkeit_label}
+                <Typography variant={"subtitle1"}>
+                  {t("filter.provider")}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllProviderValues}
+                  >
+                    {alle_an_abwaehlen_label}
                   </Typography>
-                  <Tooltip title={schwierigkeitswert_label}>
-                    <InfoOutlinedIcon fontSize="small" color="action" />
-                  </Tooltip>
-                </Stack>
-                <Typography
-                  className={"cursor-link"}
-                  sx={{ fontSize: "14px" }}
-                  onClick={updateAllDifficultyValues}
-                >
-                  {alle_an_abwaehlen_label}
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
-                  {getDifficulties()}
+                  {getProviders()}
                 </Grid>
               </Box>
             </Fragment>
