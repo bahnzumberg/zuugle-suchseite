@@ -1,6 +1,7 @@
 import * as React from "react";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import { Divider } from "@mui/material";
+import fileDownload from "js-file-download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -31,16 +32,20 @@ import ArrowBefore from "../../icons/ArrowBefore";
 import Close from "../../icons/Close";
 import DownloadIcon from "../../icons/DownloadIcon";
 import ShareIcon from "../../icons/ShareIcon";
-import { get_currLanguage, shortenText } from "../../utils/globals";
+import {
+  get_currLanguage,
+  parseFileName,
+  shortenText,
+} from "../../utils/globals";
 import Search from "../../components/Search/Search";
 import {
   useGetTourQuery,
+  useLazyGetCombinedGPXQuery,
   useLazyGetConnectionsExtendedQuery,
   useLazyGetGPXQuery,
   useLazyGetProviderGpxOkQuery,
 } from "../../features/apiSlice";
 import { Connection, ConnectionResult } from "../../models/Connections";
-import L from "leaflet";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =
@@ -49,9 +54,6 @@ export default function DetailReworked() {
     useState<Connection | null>(null);
   const [dateIndex, setDateIndex] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [gpxPositions, setGpxPositions] = useState<number[][]>([]);
-  const [anreiseGpxPositions, setAnreiseGpxPositions] = useState(null);
-  const [abreiseGpxPositions, setAbreiseGpxPositions] = useState(null);
   const [tourDifficulty, setTourDifficulty] = useState<string | null>(null);
   const [renderImage, setRenderImage] = useState(false);
   //Whether social media share buttons should be shown
@@ -73,7 +75,10 @@ export default function DetailReworked() {
   const [triggerGPX, { data: track, isLoading: isGpxLoading }] =
     useLazyGetGPXQuery();
   const [triggerFromTourGPX, { data: fromTourTrack }] = useLazyGetGPXQuery();
+  const [currentFromTourGPX, setCurrentFromTourGPX] = useState("");
   const [triggerToTourGPX, { data: toTourTrack }] = useLazyGetGPXQuery();
+  const [currentToTourGPX, setCurrentToTourGPX] = useState("");
+  const [triggerCombinedGPX] = useLazyGetCombinedGPXQuery();
 
   const shareUrl = () => {
     let _shareUrl = "";
@@ -95,14 +100,17 @@ export default function DetailReworked() {
 
   const handleCloseTab = () => {
     window.close();
+    if (!window.closed) {
+      goToSearchPage();
+    }
   };
 
   const navigate = useNavigate();
 
   const goToSearchPage = () => {
-    cityOne && cityOne !== "no-city"
-      ? navigate(`/search?city=${cityOne}`)
-      : navigate(`/search`);
+    navigate(
+      `/search` + (cityOne && cityOne !== "no-city" ? `?city=${cityOne}` : ""),
+    );
   };
 
   const LoadingSpinner = () => (
@@ -136,20 +144,12 @@ export default function DetailReworked() {
       });
       triggerGPX(tour.gpx_file);
       triggerFromTourGPX(tour.fromtour_gpx_file);
+      setCurrentFromTourGPX(tour.fromtour_gpx_file);
       triggerToTourGPX(tour.totour_gpx_file);
+      setCurrentToTourGPX(tour.totour_gpx_file);
       setRenderImage(!!tour?.image_url);
     }
   }, [tour]);
-
-  useEffect(() => {
-    if (track) {
-      const positions = track.map((p) => {
-        const latLng = L.latLng(p);
-        return [latLng.lat, latLng.lng];
-      });
-      setGpxPositions(positions);
-    }
-  }, [track]);
 
   useEffect(() => {
     const _mtm = (window._mtm = window._mtm || []);
@@ -195,26 +195,41 @@ export default function DetailReworked() {
     }
   }, [connections]);
 
+  // update toTour and fromTour GPX if necessary
+  useEffect(() => {
+    const newToTourGPX = activeConnection?.connections[0]?.gpx_file;
+    if (newToTourGPX && newToTourGPX !== currentToTourGPX) {
+      triggerToTourGPX(newToTourGPX);
+      setCurrentToTourGPX(newToTourGPX);
+    }
+
+    const newFromTourGPX = activeReturnConnection?.gpx_file;
+    if (newFromTourGPX && newFromTourGPX !== currentFromTourGPX) {
+      triggerFromTourGPX(newFromTourGPX);
+      setCurrentFromTourGPX(newFromTourGPX);
+    }
+  }, [activeConnection, activeReturnConnection]);
+
   const downloadButtonsDisabled = () => {
     return (
       !tour ||
       !tour.gpx_file ||
-      !activeConnection ||
       !activeConnection?.connections[0]?.totour_track_key ||
-      !activeReturnConnection ||
-      !activeReturnConnection.fromtour_track_key
+      !activeReturnConnection?.fromtour_track_key
     );
   };
 
   const updateConnIndex = (index: number) => {
     setDateIndex(index);
-    setActiveConnection(connections[index]);
-    setActiveReturnConnection(connections[index].returns[0]);
+    setActiveConnection(connections ? connections[index] : null);
+    setActiveReturnConnection(
+      connections ? connections[index].returns[0] : null,
+    );
   };
 
-  const shareButtonHandler = (event) => {
-    const clickedElement = event.target;
-    const svgButton = clickedElement.closest(".share-button"); // Find the closest parent with class "share-button"
+  const shareButtonHandler = (event: React.MouseEvent<HTMLElement>) => {
+    const clickedElement = event.target as HTMLElement;
+    const svgButton = clickedElement?.closest(".share-button"); // Find the closest parent with class "share-button"
 
     if (svgButton) {
       console.log(
@@ -225,50 +240,22 @@ export default function DetailReworked() {
     }
   };
 
-  const onDownloadGpx = () => {
-    // TODO
-    // if (!!validTour) {
-    //   if (
-    //     !!activeReturnConnection &&
-    //     activeReturnConnection.fromtour_track_key &&
-    //     !!activeConnection &&
-    //     !!activeConnection?.connections[0]?.totour_track_key
-    //   ) {
-    //     loadTourGpx({
-    //       id: tour.id,
-    //       key_anreise: activeConnection.connections[0].totour_track_key,
-    //       key_abreise: activeReturnConnection.fromtour_track_key,
-    //       type: "all",
-    //     }).then(
-    //       (res) => {
-    //         if (!!res && !!res.data) {
-    //           fileDownload(
-    //             res.data,
-    //             parseFileName(tour.title, "zuugle_", ".gpx"),
-    //           );
-    //         }
-    //       },
-    //       (err) => {
-    //         console.log("error: ", err);
-    //       },
-    //     );
-    //   } else {
-    //     loadTourGpx({ id: tour.id }).then(
-    //       (res) => {
-    //         if (!!res && !!res.data) {
-    //           fileDownload(
-    //             res.data,
-    //             parseFileName(tour.title, "zuugle_", ".gpx"),
-    //           );
-    //         }
-    //       },
-    //       (err) => {
-    //         console.log("error: ", err);
-    //       },
-    //     );
-    //   }
-    // }
-  };
+  async function downloadGpx() {
+    if (
+      tour?.id &&
+      activeReturnConnection?.fromtour_track_key &&
+      activeConnection?.connections[0]?.totour_track_key
+    ) {
+      const res = await triggerCombinedGPX({
+        id: tour?.id,
+        key_anreise: activeConnection.connections[0].totour_track_key,
+        key_abreise: activeReturnConnection.fromtour_track_key,
+      }).unwrap();
+      if (res) {
+        fileDownload(res, parseFileName(tour.title, "zuugle_", ".gpx"));
+      }
+    }
+  }
 
   const actionButtonPart = (
     <Box className="tour-detail-action-btns-container">
@@ -278,7 +265,7 @@ export default function DetailReworked() {
             className="tour-detail-action-btns"
             disabled={downloadButtonsDisabled()}
             onClick={() => {
-              onDownloadGpx();
+              downloadGpx();
             }}
           >
             <DownloadIcon />
@@ -390,7 +377,7 @@ export default function DetailReworked() {
                 navigator.clipboard.writeText(shareUrl());
               }}
             >
-              <ContentPasteIcon color="white"></ContentPasteIcon>
+              <ContentPasteIcon color="info"></ContentPasteIcon>
               <span
                 style={{ color: "#101010", width: "43px", fontWeight: 600 }}
               >
@@ -553,15 +540,10 @@ export default function DetailReworked() {
                   className="tour-detail-map-container"
                 >
                   <InteractiveMap
-                    gpxPositions={!!gpxPositions && gpxPositions}
-                    anreiseGpxPositions={
-                      !!anreiseGpxPositions && anreiseGpxPositions
-                    }
-                    abreiseGpxPositions={
-                      !!abreiseGpxPositions && abreiseGpxPositions
-                    }
+                    gpxPositions={track || []}
+                    anreiseGpxPositions={toTourTrack || []}
+                    abreiseGpxPositions={fromTourTrack || []}
                     scrollWheelZoom={false}
-                    tourTitle={!!tour?.title && tour.title}
                   />
                 </Box>
               )}
