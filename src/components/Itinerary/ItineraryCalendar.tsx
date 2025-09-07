@@ -35,7 +35,6 @@ const isSelectedDay = (date: Dayjs, selectedDay) => {
 };
 
 const ItineraryCalendar = ({ connectionData, dateIndex, updateConnIndex }) => {
-  console.log("connectionData", connectionData);
   const { i18n } = useTranslation();
   let days = [];
 

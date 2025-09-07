@@ -254,10 +254,6 @@ export default function DetailReworked() {
     const svgButton = clickedElement?.closest(".share-button"); // Find the closest parent with class "share-button"
 
     if (svgButton) {
-      console.log(
-        "inside svgBtn, socialMediaDropDownToggle ",
-        socialMediaDropDownToggle,
-      );
       setSocialMediaDropDownToggle((current) => !current);
     }
   };
