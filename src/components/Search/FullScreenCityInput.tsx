@@ -62,8 +62,18 @@ export default function FullScreenCityInput({
         setShowCitySearch(false);
       }}
       fullScreen={fullScreen}
-      sx={{ "& .MuiDialog-paper": style }}
+      sx={{
+        "& .MuiDialog-paper": style,
+        "& .MuiDialog-container": {
+          alignItems: "flex-start", // stick to top
+        },
+        "& .MuiPaper-root": {
+          mt: 4, // add some margin from top
+        },
+      }}
       className={"my-modal"}
+      fullWidth
+      maxWidth={"sm"}
     >
       <DialogTitle>
         <Typography sx={{ fontSize: "18px", fontWeight: 600 }}>
