@@ -850,111 +850,60 @@ const calcMonthOrder = (entry) => {
 
 
 const bulk_insert_tours = async (entries) => {
-    let sql_values = '';
-
-    for (let i=0; i<entries.length; i++) {
-        let entry = entries[i];
-        
-        if (i != 0) {
-            sql_values = sql_values + ",";
-        }
-        sql_values = sql_values + "(" +
-                     entry.id + "," + 
-                     "'" + entry.url + "'" + "," +
-                     "'" + entry.provider + "'" + "," +
-                     "'" + entry.hashed_url + "'" + "," +
-                     "'" + entry.description + "'" + "," +
-                     "'" + entry.image_url + "'," +
-                     entry.ascent + "," +
-                     entry.descent + "," +
-                     entry.difficulty + "," +
-                     "'" + entry.difficulty_orig + "'" + "," +
-                     entry.duration + "," +
-                     entry.distance + "," +
-                     "'" + entry.title + "'" + "," +
-                     "'" + entry.typ + "'" + "," +
-                     "'" + entry.country + "'" + "," +
-                     "'" + entry.state + "'" + "," +
-                     "'" + entry.range_slug + "'" + "," +
-                     "'" + entry.range_name + "'" + "," +
-                     "'" + entry.season + "'" + "," +
-                     entry.number_of_days + "," +
-                     entry.jan + "," +
-                     entry.feb + "," +
-                     entry.mar + "," +
-                     entry.apr + "," +
-                     entry.may + "," +
-                     entry.jun + "," +
-                     entry.jul + "," +
-                     entry.aug + "," +
-                     entry.sep + "," +
-                     entry.oct + "," +
-                     entry.nov + "," +
-                     entry.dec + "," +
-                     calcMonthOrder(entry) + "," +
-                     entry.traverse + "," +
-                     entry.quality_rating + "," +
-                     "'" + entry.full_text + "'" + ",";
-        
-        if (entry.ai_search_column==null) {
-             sql_values = sql_values + "null,"
-        }
-        else {
-             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
-        }
-        
-        sql_values = sql_values + 
-                     "'" + entry.text_lang + "'" + "," +
-                     entry.maxele + ")";
-    }
-
-    const sql_insert = `INSERT INTO tour (id, 
-                                          url, 
-                                          provider,
-                                          hashed_url,
-                                          description,
-                                          image_url,
-                                          ascent,
-                                          descent,
-                                          difficulty,
-                                          difficulty_orig,
-                                          duration,
-                                          distance,
-                                          title,
-                                          type,
-                                          country,
-                                          state,
-                                          range_slug,
-                                          range,
-                                          season,
-                                          number_of_days,
-                                          jan,
-                                          feb,
-                                          mar,
-                                          apr,
-                                          may,
-                                          jun,
-                                          jul,
-                                          aug,
-                                          sep,
-                                          oct,
-                                          nov,
-                                          dec,
-                                          month_order,
-                                          traverse,
-                                          quality_rating,
-                                          full_text,
-                                          ai_search_column,
-                                          text_lang,
-                                          max_ele)
-                                          VALUES ${sql_values}`
-    // console.log(sql_insert)
-
     try {
-        await knex.raw(sql_insert)
+        // Die Daten werden in ein Array von Objekten umgewandelt,
+        // das den Spaltennamen der Zieltabelle entspricht.
+        const toursToInsert = entries.map(entry => {
+            return {
+                id: entry.id,
+                url: entry.url,
+                provider: entry.provider,
+                hashed_url: entry.hashed_url,
+                description: entry.description,
+                image_url: entry.image_url,
+                ascent: entry.ascent,
+                descent: entry.descent,
+                difficulty: entry.difficulty,
+                difficulty_orig: entry.difficulty_orig,
+                duration: entry.duration,
+                distance: entry.distance,
+                title: entry.title,
+                type: entry.typ, // Knex erkennt dies korrekt
+                country: entry.country,
+                state: entry.state,
+                range_slug: entry.range_slug,
+                range: entry.range_name,
+                season: entry.season,
+                number_of_days: entry.number_of_days,
+                jan: entry.jan,
+                feb: entry.feb,
+                mar: entry.mar,
+                apr: entry.apr,
+                may: entry.may,
+                jun: entry.jun,
+                jul: entry.jul,
+                aug: entry.aug,
+                sep: entry.sep,
+                oct: entry.oct,
+                nov: entry.nov,
+                dec: entry.dec,
+                month_order: calcMonthOrder(entry),
+                traverse: entry.traverse,
+                quality_rating: entry.quality_rating,
+                full_text: entry.full_text,
+                ai_search_column: entry.ai_search_column,
+                text_lang: entry.text_lang,
+                max_ele: entry.maxele
+            };
+        });
+
+        // knex.batchInsert übernimmt die sichere Erstellung der
+        // SQL-Abfrage und das Einfügen der Daten in Batches.
+        await knex.batchInsert('tour', toursToInsert, 1000); // Der dritte Parameter (1000) ist die Batch-Größe
+        
         return true;
     } catch(err){
-        console.log('error: ', err)
+        console.error('Error during bulk insertion:', err);
         return false;
     }
 }
