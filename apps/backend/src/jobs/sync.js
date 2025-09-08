@@ -739,7 +739,7 @@ export async function syncTours(){
                                         t.state,
                                         t.range_slug,
                                         t.range_name,
-                                        SUBSTRING_INDEX(t.image_url, '?', 1) as image_url,
+                                        t.image_url,
                                         t.ascent,
                                         t.descent,
                                         t.difficulty,
@@ -782,7 +782,7 @@ export async function syncTours(){
     }
 
     await knex.raw(`UPDATE tour SET image_url=NULL WHERE image_url='null';`);
-
+    await knex.raw(`UPDATE tour SET image_url=CONCAT(image_url, '?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`); // This is the needed size for the tour detail page
 }
 
 
@@ -865,7 +865,7 @@ const bulk_insert_tours = async (entries) => {
                      "'" + entry.provider + "'" + "," +
                      "'" + entry.hashed_url + "'" + "," +
                      "'" + entry.description + "'" + "," +
-                     "'" + entry.image_url + "?width=784&height=523'," +
+                     "'" + entry.image_url + "'," +
                      entry.ascent + "," +
                      entry.descent + "," +
                      entry.difficulty + "," +
