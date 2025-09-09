@@ -25,12 +25,16 @@ export default function Footer() {
               xl: 6,
             }}
           >
-            <a href="https://www.bmk.gv.at/" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.bmkluk.gv.at/"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.webp"
                 height="122px"
                 width="206px"
-                alt="Funded by www.bmk.gv.at"
+                alt="Funded by www.bmkluk.gv.at"
                 loading="lazy"
               />
             </a>
