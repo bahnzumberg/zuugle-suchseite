@@ -56,9 +56,10 @@ function Impressum({}) {
             {t("impressum.vereinsvorstand")}
           </Typography>
 
-          <Typography> Martin Heppner (Obmann)</Typography>
+          <Typography>Sarah Pallauf (Vorsitzende)</Typography>
           <Typography>David Kurz (Kassier)</Typography>
           <Typography>Dietmar Trummer (Schriftführer)</Typography>
+          <Typography>Martin Heppner (Kassier Stellvertreter)</Typography>
 
           <Typography variant={"h5"} sx={{ marginTop: "20px" }}>
             {" "}
