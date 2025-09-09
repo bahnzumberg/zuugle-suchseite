@@ -32,18 +32,25 @@ Create a copy of each connection file and rename it. We need four "knexfile*" fi
 
 ## Load data and run backend
 ### Restore database into local docker instance
-
 The PostgrSQL dump file is daily (at night) updated and can be downloaded from https://uat-dump.zuugle.at/zuugle_postgresql.dump
+Run the following commands to update your local docker container:
 
-Manual restoring of the tables:
+    npm run build
+
+    npm run import-data-docker
+
+
+Or do manual restoring of the tables:
 
     pg_restore zuugle_postgresql.dump -d zuugle-postgres-db -U postgres
 
-### Run backend and generate images
+### Create GPX files and images
 
-    npm run build
-    
-    npm run import-data-docker
+Start API locally:
+
+    npm run start
+
+And in a new terminal start the update script:
 
     npm run import-files
 
