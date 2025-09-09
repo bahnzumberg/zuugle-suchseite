@@ -17,7 +17,11 @@ import {
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import SearchParamSync from "../../components/SearchParamSync";
-import { cityUpdated, mapUpdated } from "../../features/searchSlice";
+import {
+  boundsUpdated,
+  cityUpdated,
+  mapUpdated,
+} from "../../features/searchSlice";
 import { useAppDispatch } from "../../hooks";
 import TourCardContainer from "../../components/TourCardContainer";
 import Search from "../../components/Search/Search";
@@ -60,7 +64,7 @@ export default function Main() {
 
   useEffect(() => {
     if (pageTours > 1) {
-      triggerMoreTours({
+      const moreTours = triggerMoreTours({
         city: search.citySlug || "",
         filter: filter,
         search: search.searchPhrase || "",
@@ -72,15 +76,13 @@ export default function Main() {
         type: search.type || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
+      }).unwrap();
+      moreTours.then((data) => {
+        if (!data.tours) return;
+        setTours([...tours, ...data.tours]);
       });
     }
   }, [pageTours]);
-
-  useEffect(() => {
-    if (moreTours?.tours) {
-      setTours([...tours, ...moreTours.tours]);
-    }
-  }, [moreTours]);
 
   const { t } = useTranslation();
 
@@ -287,6 +289,9 @@ export default function Main() {
           <MapBtn
             handleClick={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
+              if (showMap) {
+                dispatch(boundsUpdated(null));
+              }
               dispatch(mapUpdated(!showMap));
             }}
           />

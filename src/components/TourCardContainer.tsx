@@ -35,7 +35,7 @@ export default function TourCardContainer({
     if (needsMoreContent() && hasMore) {
       fetchMore();
     }
-  }, []);
+  }, [tours]);
 
   return (
     <Box>
