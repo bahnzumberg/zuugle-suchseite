@@ -31,9 +31,8 @@ export default function Footer() {
               rel="noreferrer"
             >
               <img
-                src="/app_static/img/Logo_BMK_gefoerdert_EN_RGB.webp"
-                height="122px"
-                width="206px"
+                src="/app_static/img/BMLUK_Logo_srgb_EN.svg"
+                height="100px"
                 alt="Funded by www.bmkluk.gv.at"
                 loading="lazy"
               />
