@@ -734,7 +734,7 @@ export async function syncTours(){
                                         t.url,
                                         t.provider,
                                         t.hashed_url,
-                                        REPLACE(REPLACE(REPLACE(t.description, '\0', ' 0'), "'", ""), "?", "") as description,
+                                        REPLACE(REPLACE(REPLACE(t.description, '\0', ' 0'), "'", ""), "?", "\\?") as description,
                                         t.country,
                                         t.state,
                                         t.range_slug,
@@ -745,7 +745,7 @@ export async function syncTours(){
                                         t.difficulty,
                                         t.duration,
                                         t.distance,
-                                        REPLACE(REPLACE(REPLACE(t.title, '\0', ' 0'), "'", ""), "?", "") as title,
+                                        REPLACE(REPLACE(REPLACE(t.title, '\0', ' 0'), "'", ""), "?", "\\?") as title,
                                         t.typ,
                                         t.number_of_days,
                                         t.traverse,
@@ -782,7 +782,7 @@ export async function syncTours(){
     }
 
     await knex.raw(`UPDATE tour SET image_url=NULL WHERE image_url='null';`);
-    await knex.raw(`UPDATE tour SET image_url=CONCAT(image_url, '?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`); // This is the needed size for the tour detail page
+    await knex.raw(`UPDATE tour SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`); // This is the needed size for the tour detail page
 }
 
 
