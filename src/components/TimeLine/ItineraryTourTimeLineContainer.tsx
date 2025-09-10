@@ -58,7 +58,7 @@ export default function ItineraryTourTimeLineContainer({
   idOne,
 }: ItineraryTourTimeLineContainerProps) {
   //set connections to single one
-  connections = connections[dateIndex];
+  if (city !== "no-city") connections = connections[dateIndex];
   const { data: cities = [] } = useGetCitiesQuery();
 
   const emptyConnArray =
@@ -87,7 +87,7 @@ export default function ItineraryTourTimeLineContainer({
   const { t } = useTranslation();
 
   useEffect(() => {
-    connectionsRef.current = connections[dateIndex];
+    if (city !== "no-city") connectionsRef.current = connections[dateIndex];
   }, [dateIndex, connections]);
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
@@ -190,7 +190,7 @@ export default function ItineraryTourTimeLineContainer({
           {!city_selected ? (
             <>
               <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                <p>{t("details.bitte_stadt_waehlen")}</p>
+                {t("details.bitte_stadt_waehlen")}
               </Typography>
             </>
           ) : (

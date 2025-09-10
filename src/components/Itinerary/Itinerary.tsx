@@ -40,7 +40,7 @@ const Itinerary = ({
               updateConnIndex={updateConnIndex}
             />
             <Divider sx={{ my: "24px" }} />
-            {!!connectionData && (
+            {(!!connectionData || city === "no-city") && (
               <ItineraryTourTimeLineContainer
                 connections={connectionData}
                 dateIndex={dateIndex}

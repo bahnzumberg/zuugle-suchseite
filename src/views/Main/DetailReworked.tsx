@@ -53,6 +53,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../..";
 
 export default function DetailReworked() {
+  const [initialized, setInitialized] = useState(false);
   const [activeConnection, setActiveConnection] =
     useState<ConnectionResult | null>(null);
   const [activeReturnConnection, setActiveReturnConnection] =
@@ -90,17 +91,22 @@ export default function DetailReworked() {
   const city = useSelector((state: RootState) => state.search.city);
 
   useEffect(() => {
-    if (allCities && cityOne && cityOne !== "no-city") {
-      const city = allCities.find((c) => c.value === cityOne);
-      dispatch(cityUpdated(city ?? null));
+    if (allCities) {
+      if (cityOne && cityOne !== "no-city") {
+        const city = allCities.find((c) => c.value === cityOne);
+        dispatch(cityUpdated(city ?? null));
+      } else if (cityOne === "no-city") {
+        dispatch(cityUpdated(null));
+      }
+      setInitialized(true);
     }
   }, [allCities, cityOne]);
 
   useEffect(() => {
-    if (city?.value && city.value !== cityOne) {
+    if (initialized && city?.value && city.value !== cityOne) {
       navigate(`/tour/${idOne}/${city?.value}`);
     }
-  }, [city]);
+  }, [city, initialized]);
 
   const shareUrl = () => {
     let _shareUrl = "";
@@ -159,17 +165,19 @@ export default function DetailReworked() {
       setTourDifficulty(tour.difficulty);
     }
     // only load connections if the tour is valid
-    if (tour?.valid_tour === 1 && cityOne && cityOne !== "no-city" && idOne) {
-      triggerConnections({
-        id: idOne,
-        city: cityOne,
-      });
+    if (tour?.valid_tour === 1 && idOne) {
       triggerGPX(tour.gpx_file);
-      triggerFromTourGPX(tour.fromtour_gpx_file);
-      setCurrentFromTourGPX(tour.fromtour_gpx_file);
-      triggerToTourGPX(tour.totour_gpx_file);
-      setCurrentToTourGPX(tour.totour_gpx_file);
       setRenderImage(!!tour?.image_url);
+      if (cityOne && cityOne !== "no-city") {
+        triggerConnections({
+          id: idOne,
+          city: cityOne,
+        });
+        triggerFromTourGPX(tour.fromtour_gpx_file);
+        setCurrentFromTourGPX(tour.fromtour_gpx_file);
+        triggerToTourGPX(tour.totour_gpx_file);
+        setCurrentToTourGPX(tour.totour_gpx_file);
+      }
     }
   }, [tour]);
 
