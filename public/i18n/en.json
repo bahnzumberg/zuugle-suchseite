@@ -59,7 +59,12 @@
     "slowenisch": "Slovenian",
     "italienisch": "Italian",
     "englisch": "English",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "unknown": "Unknown",
+    "provider": "Tour portal"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",
@@ -177,10 +182,10 @@
     "weil_es_braucht_kein_auto": "Because: You don't need a car to get to nature. We will gladly tell you how.",
     "jetzt_oeffitour_suchen": "Search for hikes reachable using public transport",
     "öffi_bergtouren": "Hikes reachable using public transport",
-    "heimatbahnhoefe_in": "Home stations in",
+    "heimatbahnhoefe_in": "Stations in",
     "durchsuchte_portale": "searched tour portals",
     "wanderregionen": "Hiking regions",
-    "verfügbare_heimatbahnhöfe": "available home stations",
+    "verfügbare_heimatbahnhöfe": "available stations",
     "anzahl_öffi_verbindungen": "Number of public transport connections",
     "wanderdestinationen": "Hiking destinations",
     "oesterreich": "Austria",
@@ -243,6 +248,7 @@
     "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables."
   },
   "search": {
+    "search": "Search",
     "abbrechen": "Abort",
     "dein_heimatbahnhof": "Your main railway station",
     "ab_heimatbahnhof": "from",

@@ -3,44 +3,22 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime } from "../utils/globals";
+import { convertNumToTime, getTourLink } from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Chip, Link } from "@mui/material";
-import "/src/config.js";
+import { Tour } from "../models/Tour";
 
 const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 
-// TODO: move to more appropriate place --> models?
-export interface Tour {
-  url: string;
-  id: string;
-  image_url: string;
-  title: string;
-  range: string;
-  min_connection_duration: number;
-  min_connection_no_of_transfers: number;
-  avg_total_tour_duration: number;
-  ascent: number;
-  number_of_days: number;
-  provider: string;
-  provider_name: string;
-}
-
 export interface TourCardProps {
   tour: Tour;
-  onSelectTour: (tour: Tour) => void;
-  city: string;
-  provider: string;
+  city: string | null;
+  provider: string | null;
 }
 
-export default function TourCard({
-  tour,
-  onSelectTour,
-  city,
-  provider,
-}: TourCardProps) {
+export default function TourCard({ tour, city, provider }: TourCardProps) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
 
   // i18next
@@ -76,11 +54,11 @@ export default function TourCard({
   return (
     <Link
       href={tourLink}
-      onClick={() => onSelectTour(tour)}
       style={{
         textDecoration: "none",
         width: "100%",
         justifyItems: "center",
+        display: "grid",
       }}
       target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
     >
@@ -221,20 +199,4 @@ export default function TourCard({
       </Card>
     </Link>
   );
-}
-
-function getTourLink(tour: Tour, city: string, provider: string) {
-  if (city && city !== "no-city") {
-    if (provider === "bahnzumberg") {
-      return `${tour.url}ab-${city}/`;
-    } else {
-      return `/tour/${tour.id}/${city}`;
-    }
-  } else {
-    if (provider === "bahnzumberg") {
-      return `${tour.url}`;
-    } else {
-      return `/tour/${tour.id}/no-city`;
-    }
-  }
 }

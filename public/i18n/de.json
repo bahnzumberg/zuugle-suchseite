@@ -59,7 +59,12 @@
     "slowenisch": "Slowenisch",
     "italienisch": "Italienisch",
     "englisch": "Englisch",
-    "filter": "Filter"
+    "filter": "Filter",
+    "easy": "Leicht",
+    "medium": "Mittel",
+    "hard": "Schwer",
+    "unknown": "Unbekannt",
+    "provider": "Tourenportal"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -144,7 +149,7 @@
   "start": {
     "wartungsmodus": "Zuugle befindet sich gerade im Wartungsmodus. Bitte schau später wieder vorbei.",
     "tourenanzahl_untertitel": "Bergtouren im Alpenraum - erreichbar mit Bahn & Bus",
-    "heimatbahnhof": "ab Heimatbahnhof",
+    "heimatbahnhof": "ab Verkehrsknoten",
     "suche": "KI-Suche",
     "placeholder_suche": "Berggipfel, Region, ...",
     "ergebnisse_anzeigen": "Ergebnisse anzeigen",
@@ -177,10 +182,10 @@
     "weil_es_braucht_kein_auto": "Weil: Es braucht kein Auto, um in die Natur zu kommen. Wir sagen dir gerne wie.",
     "jetzt_oeffitour_suchen": "Jetzt Öffi-Tour suchen",
     "öffi_bergtouren": "Öffi-Bergtouren",
-    "heimatbahnhoefe_in": "Heimatbahnhöfe in",
+    "heimatbahnhoefe_in": "Verkehrsknoten in",
     "durchsuchte_portale": "durchsuchte Tourenportale",
     "wanderregionen": "Wanderregionen",
-    "verfügbare_heimatbahnhöfe": "verfügbare Heimatbahnhöfe",
+    "verfügbare_heimatbahnhöfe": "verfügbare Verkehrsknoten",
     "anzahl_öffi_verbindungen": "Anzahl Öffi-Verbindungen",
     "wanderdestinationen": "Wanderdestinationen",
     "oesterreich": "Österreich",
@@ -194,7 +199,7 @@
     "impressum": "Impressum",
     "helmet_title": "Zuugle - die Suchmaschine für Öffi-Bergtouren",
     "tourenanzahl_untertitel_city": "Bergtouren von {{capCity}} - erreichbar mit Bahn & Bus",
-    "mehr_abenteuer": "Entdecke jetzt weitere Öffi-Outdoor-Abenteuer",
+    "mehr_abenteuer": "Entdecke jetzt weitere Öffi-Outdoor-Abenteuer",
     "mehr_anzeigen": "Mehr anzeigen"
   },
   "details": {
@@ -243,11 +248,12 @@
     "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können."
   },
   "search": {
+    "search": "Suche",
     "abbrechen": "Abbrechen",
-    "dein_heimatbahnhof": "Dein Heimatbahnhof",
+    "dein_heimatbahnhof": "Dein Verkehrsknoten",
     "ab_heimatbahnhof": "ab",
     "keine_ergebnisse": "Keine Ergebnisse gefunden",
-    "waehle_dein_heimatbahnhof": "Wähle deinen Heimatbahnhof",
+    "waehle_dein_heimatbahnhof": "Wähle deinen Verkehrsknoten",
     "um_reise_berechnen_zu_koenen": "Um die Reise berechnen zu können",
     "oeffi_touren_alpenraum": "Öffi-Touren im Alpenraum",
     "keine_vorschlaege": "Keine Vorschläge"
