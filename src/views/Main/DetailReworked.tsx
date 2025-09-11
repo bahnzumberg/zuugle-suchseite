@@ -48,7 +48,7 @@ import {
 } from "../../features/apiSlice";
 import { Connection, ConnectionResult } from "../../models/Connections";
 import { useAppDispatch } from "../../hooks";
-import { cityUpdated } from "../../features/searchSlice";
+import { citySlugUpdated, cityUpdated } from "../../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
 
@@ -65,7 +65,8 @@ export default function DetailReworked() {
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
     useState(false);
-  const { cityOne, idOne } = useParams();
+  let { cityOne } = useParams();
+  const { idOne } = useParams();
 
   const { i18n } = useTranslation();
 
@@ -94,9 +95,17 @@ export default function DetailReworked() {
     if (allCities) {
       if (cityOne && cityOne !== "no-city") {
         const city = allCities.find((c) => c.value === cityOne);
-        dispatch(cityUpdated(city ?? null));
+        if (city) {
+          dispatch(cityUpdated(city));
+          dispatch(citySlugUpdated(city.value));
+        } else {
+          dispatch(cityUpdated(null));
+          dispatch(citySlugUpdated(null));
+          cityOne = "no-city";
+        }
       } else if (cityOne === "no-city") {
         dispatch(cityUpdated(null));
+        dispatch(citySlugUpdated(null));
       }
       setInitialized(true);
     }
