@@ -22,14 +22,12 @@ import ShuffleBlack from "../../icons/ShuffleBlack";
 import Seilbahn from "../../icons/Seilbahn";
 import Tram from "../../icons/Tram";
 import Car from "../../icons/Car";
-import { v4 as uuidv4 } from "uuid";
-
-const keys_1 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-const keys_2 = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
+import { Connection } from "../../models/Connections";
+import { t } from "i18next";
 
 dayjs.extend(duration);
 
-export const GetDepartureText = (connection, t) => {
+export const GetDepartureText = (connection: Connection | null) => {
   let isMobile = window.innerWidth <= 600;
 
   window.addEventListener("resize", () => {
@@ -39,7 +37,7 @@ export const GetDepartureText = (connection, t) => {
     return <Fragment></Fragment>;
   }
 
-  let depTime = connection.connection_departure_datetime.slice(11, 16);
+  const depTime = connection.connection_departure_datetime.slice(11, 16);
 
   const departureText =
     connection.connection_duration_minutes === 0
@@ -64,11 +62,11 @@ export const GetDepartureText = (connection, t) => {
   );
 };
 
-export const getReturnText = (connection, t) => {
+export const getReturnText = (connection: Connection) => {
   if (!connection) {
     return <Fragment></Fragment>;
   }
-  let retDepTime = connection.return_departure_datetime.slice(11, 16);
+  const retDepTime = connection.return_departure_datetime.slice(11, 16);
   const returnText =
     connection.return_duration_minutes === 0
       ? dayjs(connection.return_departure_datetime).format("DD.MM HH:mm")
@@ -80,8 +78,10 @@ export const getReturnText = (connection, t) => {
 };
 
 export const getNumberOfTransfers = (
-  connection,
-  field = "connection_no_of_transfers",
+  connection: Connection | null,
+  field:
+    | "return_no_of_transfers"
+    | "connection_no_of_transfers" = "connection_no_of_transfers",
 ) => {
   if (!connection) {
     return "";
@@ -90,8 +90,8 @@ export const getNumberOfTransfers = (
 };
 
 // Transport-type arrays
-let train_key = ["train_key", "Zug", "Train", "le train", "Treno", "Vlak"];
-let metro_key = [
+const train_key = ["train_key", "Zug", "Train", "le train", "Treno", "Vlak"];
+const metro_key = [
   "metro_key",
   "U Bahn",
   "Underground",
@@ -99,7 +99,7 @@ let metro_key = [
   "Metropolitana",
   "Podzemna železnica",
 ];
-let tram_key = [
+const tram_key = [
   "tram_key",
   "Strassenbahn",
   "Tram",
@@ -107,9 +107,9 @@ let tram_key = [
   "Tram",
   "Tramvaj",
 ];
-let bus_key = ["bus_key", "Bus", "Bus", "le bus", "Autobus", "Avtobus"];
-let car_key = ["car_key", "Taxi", "Taxi", "le taxi", "Taxi", "Taxi"];
-let transfer_key = [
+const bus_key = ["bus_key", "Bus", "Bus", "le bus", "Autobus", "Avtobus"];
+const car_key = ["car_key", "Taxi", "Taxi", "le taxi", "Taxi", "Taxi"];
+const transfer_key = [
   "transfer_key",
   "Umstiegszeit",
   "transfer time",
@@ -117,7 +117,7 @@ let transfer_key = [
   "tempo di trasferimento",
   "čas prestopa",
 ];
-let cableCar_key = [
+const cableCar_key = [
   "cableCar_key",
   "Seilbahn",
   "Cable car",
@@ -127,7 +127,7 @@ let cableCar_key = [
 ];
 
 // Transport icons
-const transportIcons = {
+const transportIcons: Record<string, JSX.Element> = {
   train_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
   metro_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
   tram_key: <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
@@ -168,7 +168,7 @@ const transportNameArrays = [
 ];
 
 // Get transport icon from text
-function getIconFromText(text) {
+function getIconFromText(text: string) {
   if (!text) return null;
 
   for (const transportArray of transportNameArrays) {
@@ -184,7 +184,7 @@ function getIconFromText(text) {
   return transportIcons["walk"];
 }
 
-function convertTimeToMinutes(timeString) {
+function convertTimeToMinutes(timeString: string) {
   // String in Teile zerlegen
   const parts = timeString.split(":");
   const hours = parseInt(parts[0]);
@@ -195,15 +195,18 @@ function convertTimeToMinutes(timeString) {
   return totalMinutes;
 }
 
-export const createReturnEntries = (entries, connection, t) => {
-  let toReturn = [];
+export const createReturnEntries = (
+  entries: string[],
+  connection: Connection,
+) => {
+  const toReturn = [];
   if (entries && entries.length > 0) {
-    let _entries = entries.filter((e) => e && e.length > 0);
+    const _entries = entries.filter((e) => e && e.length > 0);
     let newStart = "     ";
 
-    if (connection.totour_track_duration) {
+    if (connection.fromtour_track_duration) {
       newStart = dayjs(connection.return_departure_datetime)
-        .subtract(convertTimeToMinutes(connection["fromtour_track_duration"]))
+        .subtract(convertTimeToMinutes(connection.fromtour_track_duration))
         .format("HH:mm");
     }
 
@@ -212,7 +215,7 @@ export const createReturnEntries = (entries, connection, t) => {
     );
 
     for (let i = 0; i < _entries.length; i++) {
-      let entry = _entries[i];
+      const entry = _entries[i];
       if (i % 2 === 0) {
         let _text = entry.trim();
         if (
@@ -223,24 +226,25 @@ export const createReturnEntries = (entries, connection, t) => {
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text, keys_2[i], _entries.length));
+        toReturn.push(getDetailEntry(_text));
       } else {
-        toReturn.push(
-          getStationEntry(entry, i + 1 === _entries.length, keys_2[i]),
-        );
+        toReturn.push(getStationEntry(entry, i + 1 === _entries.length));
       }
     }
   }
   return toReturn;
 };
 
-export const createEntries = (entries, connection, t) => {
-  let toReturn = [];
+export const createEntries = (
+  entries: string[],
+  connection: Connection | null,
+) => {
+  const toReturn = [];
   if (entries && entries.length > 0) {
-    let _entries = entries.filter((e) => e && e.length > 0);
+    const _entries = entries.filter((e) => e && e.length > 0);
     toReturn.push(getDepartureEntry(_entries[0]));
     for (let i = 1; i < _entries.length; i++) {
-      let entry = _entries[i];
+      const entry = _entries[i];
       if ((i - 1) % 2 === 0) {
         let _text = entry.trim();
         if (
@@ -250,13 +254,13 @@ export const createEntries = (entries, connection, t) => {
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text, keys_1[i], _entries.length));
+        toReturn.push(getDetailEntry(_text));
       } else {
-        toReturn.push(getStationEntry(entry, i === _entries.length, keys_1[i]));
+        toReturn.push(getStationEntry(entry, i === _entries.length));
       }
     }
     let newStart = "     ";
-    if (connection.totour_track_duration) {
+    if (connection?.totour_track_duration) {
       newStart = dayjs(connection.connection_arrival_datetime)
         .add(convertTimeToMinutes(connection["totour_track_duration"]))
         .format("HH:mm");
@@ -268,7 +272,7 @@ export const createEntries = (entries, connection, t) => {
   return toReturn;
 };
 
-export const getDetailEntry = (entry, index, length) => {
+export const getDetailEntry = (entry: string) => {
   return (
     <TimelineItem key={randomKey(7)}>
       <TimelineOppositeContent
@@ -283,7 +287,7 @@ export const getDetailEntry = (entry, index, length) => {
       </TimelineSeparator>
       <TimelineContent
         sx={{
-          ...getBorder(index, length),
+          borderTop: "1px solid #EAEAEA",
           paddingTop: "16px",
           paddingBottom: "16px",
         }}
@@ -300,7 +304,7 @@ export const getDetailEntry = (entry, index, length) => {
   );
 };
 
-export const getStationEntry = (entry, isLast = false, index) => {
+export const getStationEntry = (entry: string, isLast = false) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
@@ -348,7 +352,7 @@ export const getStationEntry = (entry, isLast = false, index) => {
   );
 };
 
-export const getDepartureEntry = (entry) => {
+export const getDepartureEntry = (entry: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
@@ -383,7 +387,7 @@ export const getDepartureEntry = (entry) => {
   );
 };
 
-export const getArrivalEntry = (entry) => {
+export const getArrivalEntry = (entry: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
       <TimelineOppositeContent
@@ -422,18 +426,7 @@ export const getArrivalEntry = (entry) => {
   );
 };
 
-export const getBorder = (index, length) => {
-  if (index === length - 1) {
-    return {
-      borderBottom: "1px solid #EAEAEA",
-      borderTop: "1px solid #EAEAEA",
-    };
-  } else {
-    return { borderTop: "1px solid #EAEAEA" };
-  }
-};
-
-export function formatToHHMM(durationString) {
+export function formatToHHMM(durationString: string) {
   const parsedDuration = dayjs.duration(durationString);
 
   // Extract hours and minutes from the duration

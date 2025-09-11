@@ -5,14 +5,15 @@ import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineCon
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
 import { Tour } from "../../models/Tour";
+import { ConnectionResult } from "../../models/Connections";
 
 export interface ItineraryProps {
-  connectionData: any;
-  dateIndex: any;
-  updateConnIndex: any;
+  connectionData: ConnectionResult[] | undefined;
+  dateIndex: number;
+  updateConnIndex: (index: number) => void;
   tour: Tour | undefined;
-  city: any;
-  idOne: any;
+  city: string | undefined;
+  idOne: string | undefined;
 }
 const Itinerary = ({
   connectionData,
@@ -23,8 +24,6 @@ const Itinerary = ({
   idOne,
 }: ItineraryProps) => {
   const { t } = useTranslation();
-
-  const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
 
   return (
     <div className="tour-detail-itinerary-container">
@@ -45,7 +44,7 @@ const Itinerary = ({
                 connections={connectionData}
                 dateIndex={dateIndex}
                 loading={false}
-                duration={tourDuration}
+                duration={tour.duration}
                 tour={tour}
                 city={city}
                 idOne={idOne}

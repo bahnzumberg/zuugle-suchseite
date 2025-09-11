@@ -5,11 +5,16 @@ import "dayjs/locale/fr";
 import "dayjs/locale/it";
 import "dayjs/locale/sl";
 import { useTranslation } from "react-i18next";
+import { ConnectionResult } from "../../models/Connections";
 
-export type localeString = "fr" | "de" | "sl" | "it" | "en";
+export interface ItineraryCalendarProps {
+  connectionData: ConnectionResult[] | undefined;
+  dateIndex: number;
+  updateConnIndex: (index: number) => void;
+}
 
-const formatDate = (date: Dayjs, locale: localeString) => {
-  const formats = {
+const formatDate = (date: Dayjs, locale: string) => {
+  const formats: Record<string, string> = {
     fr: "dddd D MMMM YYYY",
     de: "dddd, D. MMMM YYYY",
     sl: "dddd, D. MMMM YYYY",
@@ -17,10 +22,10 @@ const formatDate = (date: Dayjs, locale: localeString) => {
     en: "dddd, D MMMM YYYY",
   };
   // Set locale and format the date
-  return date.locale(locale).format(formats[locale]);
+  return date.locale(locale).format(formats[locale] ?? "dddd D MMMM YYYY");
 };
 
-const dayOfWeek = (date: Dayjs, locale: localeString) => {
+const dayOfWeek = (date: Dayjs, locale: string) => {
   // Use the locale-aware formatting function for Day.js
   return date.locale(locale).format("dd");
 };
@@ -30,11 +35,15 @@ const isWe = (date: Dayjs) => {
   return d === 6 || d === 0; // In Day.js, Sunday is 0 and Saturday is 6
 };
 
-const isSelectedDay = (date: Dayjs, selectedDay) => {
+const isSelectedDay = (date: Dayjs, selectedDay: Dayjs) => {
   return date.isSame(selectedDay, "day");
 };
 
-const ItineraryCalendar = ({ connectionData, dateIndex, updateConnIndex }) => {
+const ItineraryCalendar = ({
+  connectionData,
+  dateIndex,
+  updateConnIndex,
+}: ItineraryCalendarProps) => {
   const { i18n } = useTranslation();
   let days = [];
 

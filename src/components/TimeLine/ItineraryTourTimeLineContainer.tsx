@@ -14,7 +14,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import { Fragment, useEffect, useState, useRef } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Anreise from "../../icons/Anreise";
 import Rueckreise from "../../icons/Rueckreise";
 import Überschreitung from "../../icons/Überschreitung";
@@ -29,23 +29,24 @@ import {
 } from "./utils";
 import { useTranslation } from "react-i18next";
 import { jsonToStringArray } from "../../utils/transformJson";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   convertNumToTime,
   simpleConvertNumToTime,
   randomKey,
+  useIsMobile,
 } from "../../utils/globals";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
+import { Connection, ConnectionResult } from "../../models/Connections";
 
 export interface ItineraryTourTimeLineContainerProps {
-  connections: any;
+  connections: ConnectionResult[] | undefined;
   loading: boolean;
-  duration: any;
+  duration: string;
   tour: Tour;
-  city: any;
-  dateIndex: any;
-  idOne: any;
+  city: string | undefined;
+  dateIndex: number;
+  idOne: string | undefined;
 }
 
 export default function ItineraryTourTimeLineContainer({
@@ -57,48 +58,38 @@ export default function ItineraryTourTimeLineContainer({
   dateIndex,
   idOne,
 }: ItineraryTourTimeLineContainerProps) {
+  const connectionsForDate =
+    city === "no-city" || !connections ? undefined : connections[dateIndex];
   //set connections to single one
-  if (city !== "no-city") connections = connections[dateIndex];
   const { data: cities = [] } = useGetCitiesQuery();
 
   const emptyConnArray =
-    !connections ||
-    (!!connections &&
-      Array.isArray(connections.connections) &&
-      connections.connections.length === 0);
+    !connectionsForDate || connectionsForDate.connections.length === 0;
 
-  const isMobile = useMediaQuery("(max-width:600px)");
+  const isMobile = useIsMobile();
 
-  const [entries, setEntries] = useState([]); //PARSED array[of strings], related to only one object, a departure description
-  const [returnEntries, setReturnEntries] = useState([]); //UNPARSED array[objects] with possibly a few return connections
+  const [entries, setEntries] = useState<string[]>([]); //PARSED array[of strings], related to only one object, a departure description
+  const [returnEntries, setReturnEntries] = useState<Connection[]>([]); //UNPARSED array[objects] with possibly a few return connections
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
   const [city_selected, setCity_selected] = useState(true);
 
-  const connectionsRef = useRef(
-    !!connections && !!dateIndex ? connections[dateIndex] : null,
-  );
-
   // the following two vars filled by fcn extractReturns
-  const twoReturns = [];
-  const remainingReturns = [];
+  const twoReturns: string[][] = [];
+  const remainingReturns: string[][] = [];
 
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (city !== "no-city") connectionsRef.current = connections[dateIndex];
-  }, [dateIndex, connections]);
 
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
     if (!emptyConnArray) {
-      let settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
+      const settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
       setEntries(settingEnt);
-      setReturnEntries(connections.returns);
+      setReturnEntries(connectionsForDate.returns);
       extractReturns();
     }
-  }, [connections]);
+  }, [connectionsForDate]);
 
   useEffect(() => {
     if (city === "no-city") {
@@ -110,13 +101,12 @@ export default function ItineraryTourTimeLineContainer({
 
   useEffect(() => {
     if (!!duration && typeof duration == "string") {
-      setformattedDuration(formatDuration(duration));
+      setformattedDuration(formatDuration(Number(duration)));
     }
   }, [duration]);
 
-  const formatDuration = (duration) => {
-    let _time = " ";
-    _time = !!duration && convertNumToTime(duration, true);
+  const formatDuration = (duration: number) => {
+    let _time = duration ? convertNumToTime(duration, true) : " ";
     _time = _time.replace(/\s*h\s*$/, "");
     return _time;
   };
@@ -124,18 +114,14 @@ export default function ItineraryTourTimeLineContainer({
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
     if (!emptyConnArray) {
-      return connections.connections[0];
+      return connectionsForDate.connections[0];
     } else return null;
   };
 
   //check if there are return connections and fill twoReturns / remainingReturns
   const extractReturns = () => {
-    if (
-      !!connections &&
-      !!connections.returns &&
-      connections.returns.length > 0
-    ) {
-      let array = connections.returns;
+    if (connectionsForDate?.returns && connectionsForDate.returns.length > 0) {
+      const array = connectionsForDate.returns;
       for (let index = 0; index < array.length; index++) {
         if (index <= 1) {
           twoReturns[index] = jsonToStringArray(array[index], "from", t);
@@ -152,21 +138,21 @@ export default function ItineraryTourTimeLineContainer({
   extractReturns();
 
   const _getDepartureText = () => {
-    let connection = getSingleConnection();
-    if (!!!connection) {
+    const connection = getSingleConnection();
+    if (!connection) {
       return <Fragment></Fragment>;
     }
     if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
     } else {
-      return `${t("Details.beste_anreise_kurz")}  (${simpleConvertNumToTime(connection.connection_duration_minutes / 60, true)})`;
+      return `${t("Details.beste_anreise_kurz")}  (${simpleConvertNumToTime(connection.connection_duration_minutes / 60)})`;
     }
   };
 
-  const _getReturnText = (index, retObj) => {
-    if (!!retObj.return_duration_minutes) {
-      return `${t("Details.rückreise")} ${index + 1}  (${simpleConvertNumToTime(retObj.return_duration_minutes / 60, true)})`;
-    } else if (!!!retObj) {
+  const _getReturnText = (index: number, retObj: Connection) => {
+    if (retObj.return_duration_minutes) {
+      return `${t("Details.rückreise")} ${index + 1}  (${simpleConvertNumToTime(retObj.return_duration_minutes / 60)})`;
+    } else if (!retObj) {
       return <Fragment></Fragment>;
     }
   };
@@ -213,7 +199,7 @@ export default function ItineraryTourTimeLineContainer({
           >
             <List>
               {!!cities &&
-                cities.map((_city, index) => {
+                cities.map((_city) => {
                   return (
                     <Link
                       href={`/tour/${idOne}/${_city.value}`}
@@ -336,7 +322,7 @@ export default function ItineraryTourTimeLineContainer({
                     >
                       {_getDepartureText()}
                     </Typography>
-                    {GetDepartureText(getSingleConnection(), t)}
+                    {GetDepartureText(getSingleConnection())}
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                     <Shuffle
@@ -366,7 +352,7 @@ export default function ItineraryTourTimeLineContainer({
               </AccordionSummary>
               <AccordionDetails>
                 <Timeline key={randomKey(7)}>
-                  {createEntries(entries, getSingleConnection(), t)}
+                  {createEntries(entries, getSingleConnection())}
                 </Timeline>
               </AccordionDetails>
             </Accordion>
@@ -391,7 +377,7 @@ export default function ItineraryTourTimeLineContainer({
                     position: "relative",
                     width: !isMobile ? "100%" : "calc(100% - 10px)",
                     boxSizing: "border-box",
-                    margin: !isMobile && "0 auto", // Center horizontally if mobile
+                    margin: "0 auto",
                   }}
                 >
                   <Box
@@ -522,7 +508,7 @@ export default function ItineraryTourTimeLineContainer({
                           fontSize: "20px",
                         }}
                       >
-                        {getReturnText(retObj, t)}
+                        {getReturnText(retObj)}
                       </Typography>
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
@@ -557,7 +543,7 @@ export default function ItineraryTourTimeLineContainer({
                 </AccordionSummary>
                 <AccordionDetails>
                   <Timeline>
-                    {createReturnEntries(twoReturns[index], retObj, t)}
+                    {createReturnEntries(twoReturns[index], retObj)}
                   </Timeline>
                 </AccordionDetails>
               </Accordion>
@@ -636,7 +622,7 @@ export default function ItineraryTourTimeLineContainer({
                             fontSize: "20px",
                           }}
                         >
-                          {getReturnText(retObj, t)}
+                          {getReturnText(retObj)}
                         </Typography>
                       </Box>
                       <Box sx={{ position: "absolute", right: 20, top: 20 }}>
@@ -671,11 +657,7 @@ export default function ItineraryTourTimeLineContainer({
                   </AccordionSummary>
                   <AccordionDetails>
                     <Timeline>
-                      {createReturnEntries(
-                        remainingReturns[index + 2],
-                        retObj,
-                        t,
-                      )}
+                      {createReturnEntries(remainingReturns[index + 2], retObj)}
                     </Timeline>
                   </AccordionDetails>
                 </Accordion>
