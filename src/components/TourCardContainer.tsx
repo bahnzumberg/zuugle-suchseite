@@ -12,7 +12,6 @@ import { useEffect } from "react";
 export interface TourCardContainerProps {
   tours: Tour[];
   hasMore: boolean;
-  isMoreToursLoading: boolean;
   fetchMore: () => void;
 }
 
@@ -22,15 +21,18 @@ export interface TourCardContainerProps {
 export default function TourCardContainer({
   tours,
   hasMore,
-  isMoreToursLoading,
   fetchMore,
 }: TourCardContainerProps) {
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
+  const LOADER_HEIGHT = 40;
 
   useEffect(() => {
     function needsMoreContent() {
-      return document.documentElement.scrollHeight <= window.innerHeight;
+      return (
+        document.documentElement.scrollHeight - (LOADER_HEIGHT + 10) <=
+        window.innerHeight
+      );
     }
     if (needsMoreContent() && hasMore) {
       fetchMore();
@@ -44,8 +46,9 @@ export default function TourCardContainer({
           dataLength={tours.length}
           next={fetchMore}
           hasMore={hasMore}
-          loader={isMoreToursLoading && <CircularProgress />}
+          loader={<CircularProgress size={LOADER_HEIGHT} />}
           endMessage={<p> </p>}
+          style={{ overflow: "hidden" }}
         >
           <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
             {tours.map((tour, index) => (

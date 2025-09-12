@@ -35,13 +35,15 @@ export default function Main() {
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours }] = useLazyGetToursQuery();
-  const [triggerMoreTours, { data: moreTours, isLoading: isMoreToursLoading }] =
-    useLazyGetToursQuery();
+  const [triggerMoreTours] = useLazyGetToursQuery();
   const [filterOn, setFilterOn] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     setPageTours(1);
+    setHasMore(true);
     triggerLoadTours({
       city: search.citySlug || "",
       filter: filter,
@@ -78,7 +80,10 @@ export default function Main() {
         currLanguage: search.language || undefined,
       }).unwrap();
       moreTours.then((data) => {
-        if (!data.tours) return;
+        if (!data.tours || data.tours.length === 0) {
+          setHasMore(false);
+          return;
+        }
         setTours([...tours, ...data.tours]);
       });
     }
@@ -137,8 +142,7 @@ export default function Main() {
     >
       <TourCardContainer
         tours={tours}
-        hasMore={true}
-        isMoreToursLoading={isMoreToursLoading}
+        hasMore={hasMore}
         fetchMore={() => setPageTours(pageTours + 1)}
       />
     </Box>
@@ -288,7 +292,6 @@ export default function Main() {
           {renderCardContainer()}
           <MapBtn
             handleClick={() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
               if (showMap) {
                 dispatch(boundsUpdated(null));
               }
