@@ -73,7 +73,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       ranges: fetchedFilter?.ranges ?? [],
       types: fetchedFilter?.types ?? [],
       languages: fetchedFilter?.languages ?? [],
-      difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
+      difficulties: fetchedFilter?.difficulties ?? [1, 2, 3],
       providers: fetchedFilter?.providers ?? [],
     };
   }, [fetchedFilter]);
