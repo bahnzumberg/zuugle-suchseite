@@ -170,7 +170,7 @@ export const api = createApi({
     }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
-        return `tours/filter?${toSearchParams(params)}`;
+        return `tours/filter?${toSearchParams(params)}&domain=${domain}`;
       },
       transformResponse: (response: FilterResponse) => {
         return { filter: response.filter, providers: response.providers };
