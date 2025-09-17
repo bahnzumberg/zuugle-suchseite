@@ -43,7 +43,9 @@ export default function CustomSelect({
     if (isSearchPage) {
       dispatch(searchPhraseUpdated(phrase));
     } else {
-      navigate(`/search?search=${phrase}&p=${provider}`);
+      navigate(
+        `/search?search=${phrase}` + (provider ? `&provider=${provider})` : ""),
+      );
     }
     setShowSearchModal(false);
   };
