@@ -1,5 +1,8 @@
-function getConnectionTypeString(CT) {
-  const connectionTypes = {
+import { Connection } from "../models/Connections";
+import { t } from "i18next";
+
+function getConnectionTypeString(CT: number) {
+  const connectionTypes: Record<number, string> = {
     1: "details.zug",
     2: "details.bus",
     3: "details.strassenbahn",
@@ -15,39 +18,19 @@ function getConnectionTypeString(CT) {
   return connectionTypes[CT];
 }
 
-export default async function transformToDescriptionDetail(descriptionJSON) {
-  let descriptionDetail = "";
-
-  for (let i = 0; i < descriptionJSON.length; i++) {
-    const connection = descriptionJSON[i];
-    const connectionType = getConnectionTypeString(connection.CT);
-
-    if (connection.T === "D") {
-      descriptionDetail += `${connection.DT} ${connection.DS}\n`;
-    } else if (connection.T === "C") {
-      descriptionDetail += `  |  ${connection.CD} Std mit ${connectionType} ${connection.CN} nach\n`;
-    } else if (connection.T === "T") {
-      descriptionDetail += `  =  ${connection.TD} Std Umstiegszeit\n`;
-    } else if (connection.T === "A") {
-      descriptionDetail += `${connection.AT} ${connection.AS}\n`;
-    }
-  }
-
-  return descriptionDetail;
-}
-
-export function jsonToStringArray(connection, toFrom = "to", t) {
+export function jsonToStringArray(
+  connection: Connection | null,
+  toFrom = "to",
+) {
   // toFrom is "to" or "from" , to use the right text in end or begining of array
   // this is done by using either "totour_track_duration" or "fromtour_track_duration"
 
-  let stringArray = [];
+  const stringArray = [];
   if (
-    !!(
-      connection?.connection_description_json &&
-      connection?.return_description_json
-    )
+    connection?.connection_description_json &&
+    connection?.return_description_json
   ) {
-    let descriptionJSON =
+    const descriptionJSON =
       toFrom === "to"
         ? connection.connection_description_json
         : connection.return_description_json;
@@ -86,7 +69,7 @@ export function jsonToStringArray(connection, toFrom = "to", t) {
   return stringArray;
 }
 
-function convertTimeToHHMM(timeString) {
+function convertTimeToHHMM(timeString: string) {
   // String in Teile zerlegen
   const parts = timeString.split(":");
   const hours = parseInt(parts[0]);

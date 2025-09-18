@@ -84,7 +84,7 @@ export default function ItineraryTourTimeLineContainer({
   // after the useEffect we have state "entries" being a strings array representing the connection details
   useEffect(() => {
     if (!emptyConnArray) {
-      const settingEnt = jsonToStringArray(getSingleConnection(), "to", t);
+      const settingEnt = jsonToStringArray(getSingleConnection(), "to");
       setEntries(settingEnt);
       setReturnEntries(connectionsForDate.returns);
       extractReturns();
@@ -124,11 +124,11 @@ export default function ItineraryTourTimeLineContainer({
       const array = connectionsForDate.returns;
       for (let index = 0; index < array.length; index++) {
         if (index <= 1) {
-          twoReturns[index] = jsonToStringArray(array[index], "from", t);
+          twoReturns[index] = jsonToStringArray(array[index], "from");
         }
 
         if (index > 1) {
-          remainingReturns[index] = jsonToStringArray(array[index], "from", t);
+          remainingReturns[index] = jsonToStringArray(array[index], "from");
         }
       }
       return;
