@@ -206,7 +206,7 @@ export const createReturnEntries = (
 
     if (connection.fromtour_track_duration) {
       newStart = dayjs(connection.return_departure_datetime)
-        .subtract(convertTimeToMinutes(connection.fromtour_track_duration))
+        .subtract(convertTimeToMinutes(connection.fromtour_track_duration), "m")
         .format("HH:mm");
     }
 
@@ -262,7 +262,7 @@ export const createEntries = (
     let newStart = "     ";
     if (connection?.totour_track_duration) {
       newStart = dayjs(connection.connection_arrival_datetime)
-        .add(convertTimeToMinutes(connection["totour_track_duration"]))
+        .add(convertTimeToMinutes(connection["totour_track_duration"]), "m")
         .format("HH:mm");
     }
     toReturn.push(
