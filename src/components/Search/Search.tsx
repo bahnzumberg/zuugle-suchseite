@@ -132,7 +132,9 @@ export default function Search({
                   }}
                 >
                   <span className="search-bar--searchPhase">
-                    {searchPhrase ?? t("start.suche")}
+                    {searchPhrase && searchPhrase.length > 0
+                      ? searchPhrase
+                      : t("start.suche")}
                   </span>
                 </Box>
               </Grid>
