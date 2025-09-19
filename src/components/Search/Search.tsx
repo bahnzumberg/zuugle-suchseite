@@ -86,8 +86,8 @@ export default function Search({
           <Box
             sx={{
               width: {
-                xs: !city && pageKey === "detail" ? "100%" : "200px",
-                md: !city && pageKey === "detail" ? "100%" : "486px",
+                xs: "200px",
+                md: "486px",
               },
             }}
           >
@@ -106,24 +106,9 @@ export default function Search({
                 }}
                 size={{
                   xs: 12,
-                  md: !city && pageKey === "detail" ? 12 : 6,
+                  md: 6,
                 }}
               >
-                {!city && pageKey === "detail" && (
-                  <Box
-                    sx={{
-                      textAlign: "left",
-                      ml: "14px",
-                      color: "#101010",
-                      fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
-                      fontSize: { xs: "14px", sm: "15px" },
-                      fontWeight: "500",
-                      lineHeight: "20px",
-                    }}
-                  >
-                    {t("search.um_reise_berechnen_zu_koenen")}
-                  </Box>
-                )}
                 <Box
                   sx={{
                     paddingLeft: "14px",
@@ -199,6 +184,7 @@ export default function Search({
                         fontSize: { xs: "14px", sm: "15px" },
                         fontWeight: "700",
                         lineHeight: "20px",
+                        textAlign: "left",
                       }}
                     >
                       {t("search.waehle_dein_heimatbahnhof")}

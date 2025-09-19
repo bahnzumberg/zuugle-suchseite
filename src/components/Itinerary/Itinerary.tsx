@@ -31,7 +31,7 @@ const Itinerary = ({
         <p className="tour-detail-itinerary-header">
           {t("Details.oeffi_fahrplan")}
         </p>
-        {tour?.valid_tour === 1 ? (
+        {tour && (tour.valid_tour === 1 || !city) ? (
           <>
             <ItineraryCalendar
               connectionData={connectionData}
@@ -39,7 +39,7 @@ const Itinerary = ({
               updateConnIndex={updateConnIndex}
             />
             <Divider sx={{ my: "24px" }} />
-            {(!!connectionData || city === "no-city") && (
+            {(connectionData || !city) && (
               <ItineraryTourTimeLineContainer
                 connections={connectionData}
                 dateIndex={dateIndex}

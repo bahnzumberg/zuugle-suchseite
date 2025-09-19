@@ -59,7 +59,7 @@ export default function ItineraryTourTimeLineContainer({
   idOne,
 }: ItineraryTourTimeLineContainerProps) {
   const connectionsForDate =
-    city === "no-city" || !connections ? undefined : connections[dateIndex];
+    !city || !connections ? undefined : connections[dateIndex];
   //set connections to single one
   const { data: cities = [] } = useGetCitiesQuery();
 
@@ -92,7 +92,7 @@ export default function ItineraryTourTimeLineContainer({
   }, [connectionsForDate]);
 
   useEffect(() => {
-    if (city === "no-city") {
+    if (!city) {
       setCity_selected(false);
     } else {
       setCity_selected(true);
