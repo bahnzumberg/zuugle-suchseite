@@ -3,6 +3,11 @@ export interface Provider {
   provider_name: string;
 }
 
+export interface Poi {
+  lat?: number;
+  lon?: number;
+}
+
 export interface FilterObject {
   s?: string;
   w?: string;
@@ -31,4 +36,5 @@ export interface FilterObject {
   languages?: string[];
   difficulties?: number[];
   providers?: string[];
+  poi?: Poi;
 }
