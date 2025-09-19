@@ -552,7 +552,7 @@ export default function DetailReworked() {
               </Box>
             </Box>
             <div>
-              {tour?.valid_tour === 1 && (
+              {track && (
                 <Box
                   sx={{ width: "100%", position: "relative" }}
                   className="tour-detail-map-container"
