@@ -5,14 +5,15 @@ import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineCon
 import { useTranslation } from "react-i18next";
 import { Divider, Typography } from "@mui/material";
 import { Tour } from "../../models/Tour";
+import { ConnectionResult } from "../../models/Connections";
 
 export interface ItineraryProps {
-  connectionData: any;
-  dateIndex: any;
-  updateConnIndex: any;
+  connectionData: ConnectionResult[] | undefined;
+  dateIndex: number;
+  updateConnIndex: (index: number) => void;
   tour: Tour | undefined;
-  city: any;
-  idOne: any;
+  city: string | undefined;
+  idOne: string | undefined;
 }
 const Itinerary = ({
   connectionData,
@@ -24,15 +25,13 @@ const Itinerary = ({
 }: ItineraryProps) => {
   const { t } = useTranslation();
 
-  const tourDuration = !!tour && !!tour.duration ? tour.duration : undefined;
-
   return (
     <div className="tour-detail-itinerary-container">
       <div className="tour-detail-itinerary">
         <p className="tour-detail-itinerary-header">
           {t("Details.oeffi_fahrplan")}
         </p>
-        {tour?.valid_tour === 1 ? (
+        {tour && (tour.valid_tour === 1 || !city) ? (
           <>
             <ItineraryCalendar
               connectionData={connectionData}
@@ -40,12 +39,12 @@ const Itinerary = ({
               updateConnIndex={updateConnIndex}
             />
             <Divider sx={{ my: "24px" }} />
-            {(!!connectionData || city === "no-city") && (
+            {(connectionData || !city) && (
               <ItineraryTourTimeLineContainer
                 connections={connectionData}
                 dateIndex={dateIndex}
                 loading={false}
-                duration={tourDuration}
+                duration={tour.duration}
                 tour={tour}
                 city={city}
                 idOne={idOne}

@@ -85,7 +85,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   useEffect(() => {
     if (showFilter) {
       triggerFetchFilter({
-        city: citySlug || "no-city",
+        city: citySlug || "",
         search: search || "",
       });
     }

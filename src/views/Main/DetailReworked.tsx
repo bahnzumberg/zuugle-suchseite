@@ -53,7 +53,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../..";
 
 export default function DetailReworked() {
-  const [initialized, setInitialized] = useState(false);
   const [activeConnection, setActiveConnection] =
     useState<ConnectionResult | null>(null);
   const [activeReturnConnection, setActiveReturnConnection] =
@@ -65,7 +64,7 @@ export default function DetailReworked() {
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
     useState(false);
-  let { cityOne } = useParams();
+  const { cityOne } = useParams();
   const { idOne } = useParams();
 
   const { i18n } = useTranslation();
@@ -101,28 +100,29 @@ export default function DetailReworked() {
         } else {
           dispatch(cityUpdated(null));
           dispatch(citySlugUpdated(null));
-          cityOne = "no-city";
         }
-      } else if (cityOne === "no-city") {
+      } else if (!cityOne || cityOne === "no-city") {
         dispatch(cityUpdated(null));
         dispatch(citySlugUpdated(null));
       }
-      setInitialized(true);
     }
   }, [allCities, cityOne]);
 
-  useEffect(() => {
-    if (initialized && city?.value && city.value !== cityOne) {
-      navigate(`/tour/${idOne}/${city?.value}`);
-    }
-  }, [city, initialized]);
-
   const shareUrl = () => {
     let _shareUrl = "";
-    if (cityOne && cityOne !== "no-city" && idOne) {
-      _shareUrl = `https://${window.location.host}/tour/${idOne}/${cityOne} `;
+    if (city && idOne) {
+      _shareUrl = `https://${window.location.host}/tour/${idOne}/${city.value} `;
     }
     return _shareUrl;
+  };
+
+  const providerUrl = () => {
+    let url = tour?.url;
+    // Bedingung für die spezielle URL-Konstruktion
+    if (tour?.provider === "bahnzumberg" && city) {
+      url += "ab-" + city.value + "/";
+    }
+    return url;
   };
 
   // Translation-related
@@ -145,9 +145,7 @@ export default function DetailReworked() {
   const navigate = useNavigate();
 
   const goToSearchPage = () => {
-    navigate(
-      `/search` + (cityOne && cityOne !== "no-city" ? `?city=${cityOne}` : ""),
-    );
+    navigate(`/search` + (city ? `?city=${city.value}` : ""));
   };
 
   const LoadingSpinner = () => (
@@ -174,13 +172,13 @@ export default function DetailReworked() {
       setTourDifficulty(tour.difficulty);
     }
     // only load connections if the tour is valid
-    if (tour?.valid_tour === 1 && idOne) {
+    if (tour && idOne) {
       triggerGPX(tour.gpx_file);
       setRenderImage(!!tour?.image_url);
-      if (cityOne && cityOne !== "no-city") {
+      if (city) {
         triggerConnections({
           id: idOne,
-          city: cityOne,
+          city: city.value,
         });
         triggerFromTourGPX(tour.fromtour_gpx_file);
         setCurrentFromTourGPX(tour.fromtour_gpx_file);
@@ -188,7 +186,7 @@ export default function DetailReworked() {
         setCurrentToTourGPX(tour.totour_gpx_file);
       }
     }
-  }, [tour]);
+  }, [tour, city]);
 
   useEffect(() => {
     const _mtm = (window._mtm = window._mtm || []);
@@ -493,7 +491,6 @@ export default function DetailReworked() {
           </Helmet>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
-              {/* close tab /modal in case no return history available  ###### section */}
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box
                   sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
@@ -505,7 +502,6 @@ export default function DetailReworked() {
                 </Box>
                 <DomainMenu />
               </Box>
-              {/* arrow close tab  ###### section */}
               <Box
                 sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                 onClick={handleCloseTab}
@@ -519,19 +515,6 @@ export default function DetailReworked() {
                   }}
                 />
               </Box>
-              {!searchParams.get("city") && !cityOne && (
-                <Box
-                  sx={{
-                    position: "fixed",
-                    right: 0,
-                    bottom: 0,
-                    top: 0,
-                    left: 0,
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    zIndex: "1300",
-                  }}
-                />
-              )}
             </Box>
             {/* search bar ###### section */}
             <Box
@@ -546,8 +529,8 @@ export default function DetailReworked() {
                 border: "2px solid #ddd",
                 width: "100%",
                 maxWidth: {
-                  xs: !searchParams.get("city") && !cityOne ? "360px" : "325px",
-                  md: !searchParams.get("city") && !cityOne ? "376px" : "600px",
+                  xs: "325px",
+                  md: "600px",
                 },
                 boxSizing: "border-box",
                 boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
@@ -569,7 +552,7 @@ export default function DetailReworked() {
               </Box>
             </Box>
             <div>
-              {tour?.valid_tour === 1 && (
+              {track && (
                 <Box
                   sx={{ width: "100%", position: "relative" }}
                   className="tour-detail-map-container"
@@ -595,18 +578,12 @@ export default function DetailReworked() {
                       {tour?.description}
                     </Typography>
                   </Box>
-                  <div
+                  <a
                     className="tour-detail-provider-container"
-                    onClick={() => {
-                      let url = tour?.url;
-
-                      // Bedingung für die spezielle URL-Konstruktion
-                      if (tour?.provider === "bahnzumberg" && cityOne) {
-                        url += "ab-" + cityOne + "/";
-                      }
-
-                      window.open(url);
-                    }}
+                    href={providerUrl()}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: "none" }}
                   >
                     <div className="tour-detail-provider-icon">
                       {!!tour && (
@@ -629,7 +606,7 @@ export default function DetailReworked() {
                         {tour?.url}
                       </span>
                     </div>
-                  </div>
+                  </a>
                   {renderImage && tour?.valid_tour === 1 && (
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
@@ -644,7 +621,7 @@ export default function DetailReworked() {
                       </div>
                     </Box>
                   )}
-                  {cityOne && cityOne !== "no-city" && !!idOne && (
+                  {city && idOne && (
                     <Box className="tour-detail-conditional-desktop">
                       {actionButtonPart}
                     </Box>
@@ -656,7 +633,7 @@ export default function DetailReworked() {
                     dateIndex={dateIndex}
                     updateConnIndex={updateConnIndex}
                     tour={tour}
-                    city={cityOne}
+                    city={city?.value}
                     idOne={idOne}
                   />
                 </Box>
@@ -674,14 +651,11 @@ export default function DetailReworked() {
                     </div>
                   </Box>
                 )}
-                {tour?.valid_tour === 1 &&
-                  cityOne &&
-                  cityOne !== "no-city" &&
-                  idOne && (
-                    <Box className="tour-detail-conditional-mobile">
-                      {actionButtonPart}
-                    </Box>
-                  )}
+                {tour?.valid_tour === 1 && city && idOne && (
+                  <Box className="tour-detail-conditional-mobile">
+                    {actionButtonPart}
+                  </Box>
+                )}
               </div>
             </div>
             <div></div>

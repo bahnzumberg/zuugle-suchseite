@@ -70,15 +70,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/search" element={<Main />} />
             <Route
-              path="/tour/:idOne/:cityOne"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <DetailReworked />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/tour"
+              path="/tour/:idOne/:cityOne?"
               element={
                 <Suspense fallback={<div>Loading…</div>}>
                   <DetailReworked />

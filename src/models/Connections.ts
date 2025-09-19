@@ -24,24 +24,27 @@ export interface Connection {
   return_duration_minutes: number;
   gpx_file: string;
 }
+type ConnectionType = "C" | "D" | "T" | "A";
+
 interface ReturnDescriptionJSON {
-  T: string;
+  T: ConnectionType;
   DS?: string;
   DT?: string;
   CD?: string;
   CN?: string;
-  CT?: number;
+  CT: number;
   AS?: string;
   AT?: string;
   TD?: string;
 }
 interface ConnectionDescriptionJSON {
-  T: string;
+  T: ConnectionType;
   DS?: string;
   DT?: string;
   CD?: string;
   CN?: string;
-  CT?: number;
+  CT: number;
   AS?: string;
   AT?: string;
+  TD?: string;
 }

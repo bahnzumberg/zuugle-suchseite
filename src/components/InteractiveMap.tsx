@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -23,8 +23,8 @@ export default function InteractiveMap({
   abreiseGpxPositions,
   scrollWheelZoom = false,
 }: InteractiveMapProps) {
-  const polyRef: React.Ref<L.Polyline> = useRef(null);
-  const mapRef: React.Ref<L.Map> = useRef(null);
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [poly, setPoly] = useState<L.Polyline | null>(null);
 
   const startIcon = L.icon({
     iconUrl: "/app_static/img/startpunkt.png",
@@ -46,32 +46,10 @@ export default function InteractiveMap({
   };
 
   useEffect(() => {
-    let map = mapRef.current;
-    const initializeMap = () => {
-      if (
-        mapRef.current?._leaflet_id !== null &&
-        mapRef.current?._leaflet_id !== undefined
-      ) {
-        mapRef.current._leaflet_id = null;
-      }
-    };
-    initializeMap();
-
-    return () => {
-      // remove the map when the component is unmounted
-      if (map) {
-        map = map.remove();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!!mapRef && !!mapRef.current) {
-      if (polyRef.current) {
-        mapRef.current.fitBounds(polyRef.current.getBounds());
-      }
+    if (map && poly) {
+      map.fitBounds(poly.getBounds());
     }
-  });
+  }, [map]);
 
   const getStartMarker = () => {
     if (anreiseGpxPositions.length > 0) {
@@ -94,20 +72,18 @@ export default function InteractiveMap({
 
   return (
     <MapContainer
-      ref={mapRef}
+      ref={setMap}
       scrollWheelZoom={scrollWheelZoom}
       maxZoom={15}
       center={[47.800499, 13.04441]}
       zoom={12}
       style={{ height: "100%", width: "100%" }}
       zoomControl={false}
-      // whenCreated={(mapInstance)=> { mapRef.current = mapInstance }}
     >
       <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
-          ref={polyRef}
-          // pathOptions={{ color: 'red' }}
+          ref={setPoly}
           pathOptions={{ weight: 5, color: "#FF7663" }}
           positions={gpxPositions}
         />
@@ -116,7 +92,6 @@ export default function InteractiveMap({
       {getEndMarker()}
       {!!anreiseGpxPositions && anreiseGpxPositions.length > 0 && (
         <Polyline
-          // pathOptions={{ color: 'blue' }}
           pathOptions={{
             weight: 5,
             color: "#FF7663",
@@ -129,7 +104,6 @@ export default function InteractiveMap({
       )}
       {!!abreiseGpxPositions && abreiseGpxPositions.length > 0 && (
         <Polyline
-          // pathOptions={{ color: 'green' }}
           pathOptions={{
             weight: 5,
             color: "#FF7663",

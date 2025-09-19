@@ -1,6 +1,7 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { theme } from "../theme";
 import { Tour } from "../models/Tour";
+import { i18n } from "i18next";
 
 export function getTourLink(
   tour: Tour,
@@ -22,9 +23,9 @@ export function getTourLink(
   }
 }
 
-export function convertNumToTime(number, nonseparate = false) {
+export function convertNumToTime(number: number, nonseparate = false) {
   // Check sign of given number
-  let sign = number >= 0 ? 1 : -1;
+  const sign = number >= 0 ? 1 : -1;
 
   // Set positive value of number of sign negative
   number = number * sign;
@@ -33,7 +34,7 @@ export function convertNumToTime(number, nonseparate = false) {
   const hour = Math.floor(number);
   let decpart = number - hour;
 
-  var min = 1 / 60;
+  const min = 1 / 60;
   // Round to nearest minute
   decpart = min * Math.round(decpart / min);
 
@@ -47,14 +48,14 @@ export function convertNumToTime(number, nonseparate = false) {
   return !nonseparate ? `${hour} h ${minute} min` : `${hour}:${minute} h`;
 }
 
-export const get_currLanguage = (i18n) => {
+export const get_currLanguage = (i18n: i18n) => {
   const resolvedLanguage = i18n.language;
   const storedLanguage = localStorage.getItem("lang");
   const currLanguage = storedLanguage || resolvedLanguage;
   return currLanguage;
 };
 
-export const simpleConvertNumToTime = (number) => {
+export const simpleConvertNumToTime = (number: number) => {
   let timeStr = convertNumToTime(number);
   timeStr = timeStr.replace(/ h/g, "").replace(/ min/g, "");
   if (!timeStr.includes(":")) {
@@ -63,26 +64,22 @@ export const simpleConvertNumToTime = (number) => {
   return timeStr;
 };
 
-export function formatNumber(number, postfix = "") {
+export function formatNumber(number: string, postfix = "") {
   return parseFloat(number).toLocaleString("de-AT") + postfix;
 }
 
-export function setOrRemoveSearchParam(searchParams, key, value) {
-  if (!!!value || value === "undefined") {
-    searchParams.delete(key);
-  } else {
-    searchParams.set(key, value);
-  }
-}
-
 export const parseFileName = (name: string, prefix = "", postfix = "") => {
-  const tr = { ä: "ae", ü: "ue", ö: "oe", ß: "ss" };
-  const _name = name.toLowerCase();
-  return `${prefix}${_name.replace(/\s/g, "_")}${postfix}`.replace(
-    /[äöüß]/g,
-    function ($0) {
-      return tr[$0];
-    },
+  const charMap: Record<string, string> = {
+    ä: "ae",
+    ü: "ue",
+    ö: "oe",
+    ß: "ss",
+    " ": "_",
+  };
+  return (
+    prefix +
+    name.toLowerCase().replace(/[äöüß ]/g, (char) => charMap[char] || char) +
+    postfix
   );
 };
 
@@ -212,22 +209,10 @@ export const isMobileDevice = () => {
 //     return meta.currLang+meta.canonical+meta.preconnect_bzb+meta.opengraph+meta.twitter;
 // }
 
-export const useResponsive = () => {
-  const matches = useMediaQuery("(max-width:600px)");
-  return !!matches;
-};
-
 export const useIsMobile = () => useMediaQuery(theme.breakpoints.down("md"));
 
-export function parseIfNeccessary(value) {
-  if (value && value.constructor === "test".constructor) {
-    value = JSON.parse(value);
-  }
-  return value;
-}
-
 export const getTopLevelDomain = () => {
-  let domain = window.location.hostname;
+  const domain = window.location.hostname;
   let tld = "at";
 
   if (domain.indexOf("zuugle.de") > 0) {
@@ -247,23 +232,27 @@ export const getTopLevelDomain = () => {
   return tld;
 };
 
-export const getTimeFromConnectionDescriptionEntry = (entry) => {
-  let _entry = !!entry ? entry.trim() : null;
+export const getTimeFromConnectionDescriptionEntry = (entry: string) => {
+  const _entry = entry ? entry.trim() : null;
   if (!!_entry && _entry.length > 5) {
     return _entry.substring(0, 5);
   }
   return "";
 };
 
-export const getTextFromConnectionDescriptionEntry = (entry) => {
-  let _entry = !!entry ? entry.trim() : null;
+export const getTextFromConnectionDescriptionEntry = (entry: string) => {
+  const _entry = entry ? entry.trim() : null;
   if (!!_entry && _entry.length > 5) {
     return _entry.substring(5);
   }
   return "";
 };
 
-export const shortenText = (text, atChar, maxLength) => {
+export const shortenText = (
+  text: string,
+  atChar: number,
+  maxLength: number,
+) => {
   let shortText = text;
   if (text.length > maxLength) {
     shortText = text.slice(atChar, maxLength).concat("...");
@@ -271,16 +260,7 @@ export const shortenText = (text, atChar, maxLength) => {
   return shortText;
 };
 
-// assuming a and b are ordered and equal length arrays; is of O(n) order
-export const orderedArraysEqual = (a, b) => {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-};
-
-export function randomKey(length) {
+export function randomKey(length: number) {
   let result = "";
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -295,7 +275,7 @@ export function randomKey(length) {
 
 export function getTLD() {
   // Mapping of domain substrings to TLDs
-  const tldMap = {
+  const tldMap: Record<string, string> = {
     "zuugle.de": "de",
     "zuugle.si": "si",
     "zuugle.it": "it",
@@ -317,7 +297,7 @@ export function getTLD() {
   return "at";
 }
 
-export const capitalize = (str) => {
+export const capitalize = (str: string) => {
   if (typeof str !== "string" || str.length === 0) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
