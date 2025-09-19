@@ -1,10 +1,10 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
-import {mergeGpxFilesToOne, last_two_characters} from "../utils/gpx/gpxUtils";
+import {mergeGpxFilesToOne, last_two_characters, hashedUrlsFromPoi} from "../utils/gpx/gpxUtils";
 import moment from "moment";
-import {getHost, replaceFilePath, round, get_domain_country, isNumber } from "../utils/utils";
-import {convertNumToTime, minutesFromMoment} from "../utils/helper";
+import {getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
+import {minutesFromMoment} from "../utils/helper";
 import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
 
@@ -230,16 +230,13 @@ const listWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // this referres to the column in table tour: The tour description is in which language
     const filter = req.query.filter;
+    const poi = req.query.poi;
 
-
-    let parsedBounds;
-
-    if (bounds) {
-        parsedBounds = JSON.parse(bounds);
-    }    
- 
+    const parsedBounds = bounds ? JSON.parse(bounds) : null;
     const coordinatesNorthEast = !!parsedBounds ? parsedBounds._northEast : null;
     const coordinatesSouthWest = !!parsedBounds ? parsedBounds._southWest : null;
+
+    const parsedPoi = poi ? JSON.parse(poi) : null;  
 
     // variables initialized depending on availability of 'map' in the request
     //const map = req && req.query && req.query.map === "true"; // add optional chaining
@@ -271,6 +268,7 @@ const listWrapper = async (req, res) => {
     let new_filter_where_languages = ``
     let new_filter_where_difficulties = ``
     let new_filter_where_providers = ``
+    let new_filter_where_poi = ``
 
     let filter_string = filter;
     let filterJSON = undefined;
@@ -455,6 +453,18 @@ const listWrapper = async (req, res) => {
         new_search_where_language = `AND text_lang='${language}'  `
     }
 
+    if(parsedPoi && parsedPoi.lat && parsedPoi.lng){
+        const radius = parsedPoi.radius ? parsedPoi.radius : 5000
+        const hashed_urls = await hashedUrlsFromPoi(parsedPoi.lat, parsedPoi.lng, radius)
+        if(hashed_urls === null) {
+            new_filter_where_poi = ``
+        } else if (hashed_urls.length !== 0) {
+            new_filter_where_poi = `AND t.hashed_url IN ${JSON.stringify(hashed_urls).replace("[", '(').replace("]", ')').replaceAll('"', "'")} `
+        } else {
+            new_filter_where_poi = `AND t.hashed_url IN ('null') ;`
+        }
+    }
+
     //filters the tours by coordinates
     //FE sends coordinate bounds which the user sees on the map --> tours that are within these coordinates are returned
     if(!!coordinatesNorthEast && !!coordinatesSouthWest){  
@@ -488,7 +498,8 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_types}
                                     ${new_filter_where_languages}
                                     ${new_filter_where_difficulties}
-                                    ${new_filter_where_providers}`;
+                                    ${new_filter_where_providers}
+                                    ${new_filter_where_poi}`;
 
     
     let temp_table = '';
