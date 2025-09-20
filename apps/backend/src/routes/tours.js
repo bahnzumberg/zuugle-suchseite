@@ -666,10 +666,17 @@ const listWrapper = async (req, res) => {
         let searchparam = '';
 
         if (search !== undefined && search !== null && search.length > 0 && req.query.city !== undefined) {
-            searchparam = search.replace(/'/g, "''").toLowerCase();
+            // Entfernt führende und nachfolgende Leerzeichen
+            searchparam = search.toLowerCase().trim();
 
             if (!!sql_count && sql_count > 1) {
-                await knex.raw(`INSERT INTO logsearchphrase(phrase, num_results, city_slug, menu_lang, country_code) VALUES('${searchparam}', ${sql_count}, '${req.query.city}', '${currLanguage}', '${get_domain_country(domain)}');`)
+                await knex('logsearchphrase').insert({
+                    phrase: searchparam,
+                    num_results: sql_count,
+                    city_slug: req.query.city,
+                    menu_lang: currLanguage,
+                    country_code: get_domain_country(domain)
+                });
             }
         }
     } catch (e) {
