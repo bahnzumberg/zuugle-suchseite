@@ -8,6 +8,52 @@ import moment from "moment";
 import {setTimeout} from "node:timers/promises";
 import knex from "../../knex";
 import {getHost} from "../utils";
+import crypto from 'crypto';
+
+// Global variable to store the hash of the London reference image.
+let londonReferenceHash = null;
+
+const createLondonReferenceHash = async (imagePath) => {
+    try {
+        const imageBuffer = await sharp(imagePath).toBuffer();
+        const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
+        return hash;
+    } catch (e) {
+        console.error("Error creating London reference hash:", e);
+        return null;
+    }
+}
+
+// New helper function to check if an image is the London placeholder.
+const isImageLondon = async (imagePath) => {
+    if (!londonReferenceHash) {
+        console.error("London reference hash is not available.");
+        return false;
+    }
+
+    try {
+        const imageBuffer = await sharp(imagePath).toBuffer();
+        const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
+
+        // Simple comparison of the SHA-256 hash.
+        if (hash === londonReferenceHash) {
+            return true;
+        }
+
+        // --- Zusatz-Logik für robustere Erkennung (optional, aber empfohlen) ---
+        // Wenn die einfache Hash-Prüfung fehlschlägt, kann es an minimalen Abweichungen liegen (z.B. unterschiedliche Metadaten).
+        // Ein Perceptual Hash (wie 'pHash') wäre besser, aber benötigt eine zusätzliche Bibliothek.
+        // Eine Alternative ist, einen kleineren Teil des Bildes zu überprüfen oder auf die Größe zu prüfen.
+        // In diesem Fall, wenn der Hash nicht übereinstimmt, ist die Wahrscheinlichkeit hoch, dass es kein Platzhalter ist.
+        // Sie könnten hier weitere Logik hinzufügen, wenn Sie feststellen, dass der einfache Hash nicht robust genug ist.
+        
+    } catch (e) {
+        console.error("Error checking image:", e);
+    }
+
+    return false;
+};
+
 
 const minimal_args = [
     '--autoplay-policy=user-gesture-required',
@@ -66,13 +112,34 @@ const setTourImageURL = async (tour_id, image_url) => {
     }
 }
 
+
 export const createImagesFromMap = async (ids) => {
+    let addParam = {};
+    let url = "";
+    let dir_go_up = "";
+
+
+    // This should be done only once when the function is first called.
+    if (!londonReferenceHash) {
+        if(process.env.NODE_ENV == "production"){ 
+            dir_go_up = "../../"; 
+        }
+        else {
+            dir_go_up = "../../../";
+        }
+
+        const londonImagePath = path.join(__dirname, dir_go_up, 'public/london.webp');
+        if (fs.existsSync(londonImagePath)) {
+            londonReferenceHash = await createLondonReferenceHash(londonImagePath);
+            console.log("London reference hash created:", londonReferenceHash);
+        } else {
+            console.error("London reference image not found:", londonImagePath);
+        }
+    }
+
     if(!!ids){
         let browser;
         try {
-            let addParam = {};
-            let url = "";
-            let dir_go_up = "";
             if(process.env.NODE_ENV == "production"){ 
                 dir_go_up = "../../"; 
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
@@ -125,26 +192,23 @@ export const createImagesFromMap = async (ids) => {
                                 console.error("gpxUtils.sharp.resize error: ",e)
                             }
 
-                            if (fs.existsSync(filePathSmallWebp)){
-                                try {
+                            if (fs.existsSync(filePathSmallWebp)) {
+                                // Check if the generated image is the London placeholder
+                                const isLondonImage = await isImageLondon(filePathSmallWebp);
+
+                                if (isLondonImage) {
+                                    console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
+                                    await fs.unlink(filePathSmallWebp);
+                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                } else {
+                                    // ... success case ...
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
-                                } catch(e){
-                                    console.error("gpxUtils error - nothing to delete: ",e);
+                                    await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
                                 }
-
-                                try {
-                                    // Now we want to insert the correct image_url into table tour
-                                    // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
-                                    await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
-                                } catch(e){
-                                    console.error("gpxUtils error: ",e);
-                                }
-                            }
-                            else {
-                                console.log(moment().format('HH:mm:ss'), ' Gpx image small file NOT created: ' + filePathSmallWebp);
-
-                                // In this case we set '/app_static/img/train_placeholder.webp'
+                            } else {
+                                // The file was not created, so set the placeholder
+                                console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
                                 await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
                             }
                         }

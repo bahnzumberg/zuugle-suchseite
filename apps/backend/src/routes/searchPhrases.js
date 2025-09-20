@@ -34,7 +34,7 @@ const listWrapper = async (req, res) => {
 
 //queries through the database table "logsearchphrase" and returns the phrases that start with the search phrase
 const createQuery = async (field, alias, city, search, language, tld) => {
-    let query = knex('logsearchphrase').select(`${field}`)
+    let query = knex('logsearchphrase').select(TRIM(`${field}`))
         .as(alias)
         .count('* as CNT')
         .whereNot(field, null)
@@ -53,7 +53,7 @@ const createQuery = async (field, alias, city, search, language, tld) => {
 
     query = query.andWhereRaw(`LOWER(${field}) LIKE '${search.toLowerCase()}%'`)
 
-    const queryResult = await query.groupBy(field)
+    const queryResult = await query.groupBy(TRIM(`${field}`))
         .orderBy(`CNT`, `desc`)
         .orderBy(field, `asc`)
         .limit(5);
