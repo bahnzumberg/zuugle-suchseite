@@ -157,7 +157,7 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
-            const chunkSize = 2;
+            const chunkSize = 1;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 // If the generation of the images is taking too long, it should stop at 23:00 in the evening
                 const now = new Date();
@@ -199,7 +199,26 @@ export const createImagesFromMap = async (ids) => {
                                 if (isLondonImage) {
                                     console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
                                     await fs.unlink(filePathSmallWebp);
-                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                    
+                                    try {
+                                        const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${ch}`);
+                                        let rangeSlug = null;
+                                        if (result.rows && result.rows.length > 0) {
+                                            rangeSlug = result.rows[0].range_slug;
+                                        }
+
+                                        if (rangeSlug) {
+                                            const imageUrl = `/public/range-image/${rangeSlug}.webp`;
+                                            console.log(moment().format('HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
+                                            await setTourImageURL(ch, imageUrl);
+                                        } else {
+                                            console.log(moment().format('HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
+                                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                        }
+                                    } catch (e) {
+                                        console.error("Error fetching range_slug:", e);
+                                        await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                    }
                                 } else {
                                     // ... success case ...
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
