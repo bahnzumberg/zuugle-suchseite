@@ -202,7 +202,10 @@ export const createImagesFromMap = async (ids) => {
                                     
                                     try {
                                         const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${ch}`);
-                                        const rangeSlug = result.rows[0]?.range_slug;
+                                        let rangeSlug = null;
+                                        if (result.rows && result.rows.length > 0) {
+                                            rangeSlug = result.rows[0].range_slug;
+                                        }
 
                                         if (rangeSlug) {
                                             const imageUrl = `/public/range-image/${rangeSlug}.webp`;
