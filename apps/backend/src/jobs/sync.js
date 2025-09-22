@@ -663,7 +663,7 @@ async function _syncGPX(id, h_url, title) {
 
 export async function syncGPXImage(){
     // let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
-    let allHashedUrls = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as hashed_url FROM tour");
+    let allHashedUrls = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as hashed_url FROM tour WHERE image_url IS NULL OR image_url='null';");
     if(!!allHashedUrls && allHashedUrls.rows){
         allHashedUrls = allHashedUrls.rows;
         let toCreate = [];

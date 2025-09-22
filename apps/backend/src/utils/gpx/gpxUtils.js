@@ -166,7 +166,7 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
-            const chunkSize = 1;
+            const chunkSize = 2;
             for (let i = 0; i < ids.length; i += chunkSize) {
                 // If the generation of the images is taking too long, it should stop at 23:00 in the evening
                 const now = new Date();
@@ -263,9 +263,9 @@ export const createImagesFromMap = async (ids) => {
                     else {
                         // The gpx_small.jpg already exists and doesn't have to be regenerated.   
                         if (isProd) {
-                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', true);
+                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', false);
                         } else {
-                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', true);
+                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', false);
                         }
                     }
                     
