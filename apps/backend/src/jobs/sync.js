@@ -678,8 +678,9 @@ export async function syncGPXImage(){
             await createImagesFromMap(toCreate.map(e => e.hashed_url));
         }
 
-        // console.log(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
-        await knex.raw(`UPDATE tour SET image_url='${getHost("")}/app_static/img/train_placeholder.webp' WHERE image_url IS NULL;`);
+        // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
+        // The cdn url can be used, as this is a static image.
+        await knex.raw(`UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL;`);
     }
     return true;
 
