@@ -94,7 +94,7 @@ const minimal_args = [
 ];
 
 
-const setTourImageURL = async (tour_id, image_url) => {
+const setTourImageURL = async (tour_id, image_url, force=false) => {
     if (!!tour_id) {
         if (image_url.length > 0) {
             if (image_url.substring(0,4) !== 'http') {
@@ -102,8 +102,14 @@ const setTourImageURL = async (tour_id, image_url) => {
             }
 
             try {
-                await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
-                // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                if (force) {
+                    await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`)
+                    // console.log(`Forcing update: UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`)
+                }
+                else {
+                    await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                    // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
+                }
             }
             catch(e) {
                 console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)
@@ -213,23 +219,23 @@ export const createImagesFromMap = async (ids) => {
                                         if (rangeSlug) {
                                             const imageUrl = `/public/range-image/${rangeSlug}.webp`;
                                             console.log(moment().format('HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
-                                            await setTourImageURL(ch, imageUrl);
+                                            await setTourImageURL(ch, imageUrl, true);
                                         } else {
                                             console.log(moment().format('HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
-                                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
                                         }
                                     } catch (e) {
                                         console.error("Error fetching range_slug:", e);
-                                        await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                        await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
                                     }
                                 } else {
                                     // ... success case ...
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
                                     if (isProd) {
-                                        await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
+                                        await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp', true);
                                     } else {
-                                        await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
+                                        await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp', true);
                                     }
 
                                 }
@@ -237,9 +243,9 @@ export const createImagesFromMap = async (ids) => {
                                 // The file was not created, so set the placeholder
                                 console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
                                 if (isProd) {
-                                    await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp');
+                                    await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp', true);
                                 } else {
-                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
                                 }
                             }
                         }
@@ -248,19 +254,18 @@ export const createImagesFromMap = async (ids) => {
                             
                             // In this case we set '/app_static/img/train_placeholder.webp'
                             if (isProd) {
-                                await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp');
+                                await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp', true);
                             } else {
-                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
                             }
                         } 
                     }
                     else {
                         // The gpx_small.jpg already exists and doesn't have to be regenerated.   
-                        // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
                         if (isProd) {
-                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', true);
                         } else {
-                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', true);
                         }
                     }
                     
