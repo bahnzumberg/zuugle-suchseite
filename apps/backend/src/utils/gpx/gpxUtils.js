@@ -117,11 +117,14 @@ export const createImagesFromMap = async (ids) => {
     let addParam = {};
     let url = "";
     let dir_go_up = "";
-
+    let isProd = false;
+    if (process.env.NODE_ENV == "production") {
+        isProd = true;
+    }
 
     // This should be done only once when the function is first called.
     if (!londonReferenceHash) {
-        if(process.env.NODE_ENV == "production"){ 
+        if(isProd){ 
             dir_go_up = "../../"; 
         }
         else {
@@ -140,7 +143,7 @@ export const createImagesFromMap = async (ids) => {
     if(!!ids){
         let browser;
         try {
-            if(process.env.NODE_ENV == "production"){ 
+            if(isProd){ 
                 dir_go_up = "../../"; 
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
@@ -223,25 +226,42 @@ export const createImagesFromMap = async (ids) => {
                                     // ... success case ...
                                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                                     await fs.unlink(filePath);
-                                    await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
+                                    if (isProd) {
+                                        await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
+                                    } else {
+                                        await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp');
+                                    }
+
                                 }
                             } else {
                                 // The file was not created, so set the placeholder
                                 console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
-                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                if (isProd) {
+                                    await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp');
+                                } else {
+                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                                }
                             }
                         }
                         else {
                             console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
                             
                             // In this case we set '/app_static/img/train_placeholder.webp'
-                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                            if (isProd) {
+                                await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp');
+                            } else {
+                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp');
+                            }
                         } 
                     }
                     else {
                         // The gpx_small.jpg already exists and doesn't have to be regenerated.   
                         // await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.jpg');
-                        await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                        if (isProd) {
+                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                        } else {
+                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp');
+                        }
                     }
                     
                     resolve();

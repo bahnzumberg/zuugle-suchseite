@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="21.474358"
+   height="21.037296"
+   viewBox="0 0 21.474358 21.037296"
+   fill="none"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="bahnzumberg.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="34.32"
+     inkscape:cx="10.562354"
+     inkscape:cy="9.8630536"
+     inkscape:window-width="1822"
+     inkscape:window-height="1051"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <circle
+     cx="10.547787"
+     cy="9.8484859"
+     r="12.5"
+     fill="#ffffff"
+     id="circle2" />
+  <path
+     id="path1241"
+     style="fill:#254980;stroke-width:1.253"
+     d="M 21.474358,10.518648 A 10.737179,10.518648 0 0 1 10.737179,21.037296 10.737179,10.518648 0 0 1 0,10.518648 10.737179,10.518648 0 0 1 10.737179,0 10.737179,10.518648 0 0 1 21.474358,10.518648 Z" />
+  <path
+     fill-rule="evenodd"
+     clip-rule="evenodd"
+     d="m 2.3602223,14.307537 c 0.013611,-0.03888 4.535807,-7.2379994 4.5472804,-7.2400304 0.00676,0 1.0285857,1.6214033 2.271258,3.6005554 1.2424843,1.978978 2.2666783,3.613669 2.2734753,3.630844 0.0093,0.02607 -0.61221,0.03051 -4.5447333,0.03051 -2.9108042,0 -4.5519037,-0.0067 -4.5472804,-0.02188 z M 16.757338,9.7554259 C 15.193637,7.2646456 13.905904,5.229156 13.894457,5.231475 c -0.02531,0.00858 -3.220316,5.087505 -3.22273,5.122378 0,0.01508 0.557481,0.912463 1.235866,1.994322 l 1.238101,1.970347 3.233999,0.0065 c 2.038821,0.0021 3.137328,0.01003 3.229794,0.02398 v -0.06792 c -2.68e-4,0.003 -4.47e-4,0.0049 -4.47e-4,0.0049 -0.0044,0 -1.285854,-2.037652 -2.851702,-4.5304891 z"
+     fill="#4992ff"
+     id="path4"
+     style="fill:#ffffff;stroke-width:0.882976" />
+</svg>
