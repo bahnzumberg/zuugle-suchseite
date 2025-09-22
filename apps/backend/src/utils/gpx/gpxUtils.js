@@ -117,8 +117,10 @@ export const createImagesFromMap = async (ids) => {
     let addParam = {};
     let url = "";
     let dir_go_up = "";
-    const isProd = process.env.NODE_ENV == "production";
-
+    let isProd = false;
+    if (process.env.NODE_ENV == "production") {
+        isProd = true;
+    }
 
     // This should be done only once when the function is first called.
     if (!londonReferenceHash) {
