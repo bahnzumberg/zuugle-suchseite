@@ -13,6 +13,10 @@ import crypto from 'crypto';
 // Global variable to store the hash of the London reference image.
 let londonReferenceHash = null;
 
+// Konstanten und globale Warteschlangen für die Parallelisierung
+const MAX_PARALLEL_DB_UPDATES = 5;
+const activeDbUpdates = []; // Warteschlange für Datenbank-Updates
+
 const createLondonReferenceHash = async (imagePath) => {
     try {
         const imageBuffer = await sharp(imagePath).toBuffer();
@@ -40,13 +44,6 @@ const isImageLondon = async (imagePath) => {
             return true;
         }
 
-        // --- Zusatz-Logik für robustere Erkennung (optional, aber empfohlen) ---
-        // Wenn die einfache Hash-Prüfung fehlschlägt, kann es an minimalen Abweichungen liegen (z.B. unterschiedliche Metadaten).
-        // Ein Perceptual Hash (wie 'pHash') wäre besser, aber benötigt eine zusätzliche Bibliothek.
-        // Eine Alternative ist, einen kleineren Teil des Bildes zu überprüfen oder auf die Größe zu prüfen.
-        // In diesem Fall, wenn der Hash nicht übereinstimmt, ist die Wahrscheinlichkeit hoch, dass es kein Platzhalter ist.
-        // Sie könnten hier weitere Logik hinzufügen, wenn Sie feststellen, dass der einfache Hash nicht robust genug ist.
-        
     } catch (e) {
         console.error("Error checking image:", e);
     }
@@ -104,11 +101,9 @@ const setTourImageURL = async (tour_id, image_url, force=false) => {
             try {
                 if (force) {
                     await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`)
-                    // console.log(`Forcing update: UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`)
                 }
                 else {
                     await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
-                    // console.log(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
                 }
             }
             catch(e) {
@@ -117,6 +112,102 @@ const setTourImageURL = async (tour_id, image_url, force=false) => {
         }
     }
 }
+
+// Hilfsfunktion, um auf einen freien Slot zu warten
+const waitForFreeSlot = async (queue, maxConcurrency) => {
+    while (queue.length >= maxConcurrency) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+};
+
+const dispatchDbUpdate = async (tourId, imageUrl, force) => {
+    await waitForFreeSlot(activeDbUpdates, MAX_PARALLEL_DB_UPDATES);
+    const updatePromise = setTourImageURL(tourId, imageUrl, force);
+    activeDbUpdates.push(updatePromise);
+    updatePromise.finally(() => {
+        const index = activeDbUpdates.indexOf(updatePromise);
+        if (index > -1) {
+            activeDbUpdates.splice(index, 1);
+        }
+    });
+    return updatePromise;
+};
+
+// Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
+const handleImagePlaceholder = async (tourId, isProd) => {
+    try {
+        const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`);
+        const rangeSlug = (result.rows && result.rows.length > 0) ? result.rows[0].range_slug : null;
+
+        if (rangeSlug) {
+            const imageUrl = `/public/range-image/${rangeSlug}.webp`;
+            console.log(moment().format('HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
+            await dispatchDbUpdate(tourId, isProd ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl, true);
+        } else {
+            console.log(moment().format('HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
+            await dispatchDbUpdate(tourId, isProd ? 'https://cdn.zuugle.at/img/train_placeholder.webp' : '/app_static/img/train_placeholder.webp', true);
+        }
+    } catch (e) {
+        console.error("Error in handleImagePlaceholder:", e);
+        await dispatchDbUpdate(tourId, isProd ? 'https://cdn.zuugle.at/img/train_placeholder.webp' : '/app_static/img/train_placeholder.webp', true);
+    }
+};
+
+// Neue Hilfsfunktion für die Bildgenerierung
+const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
+    let filePath = path.join(dirPath, ch+"_gpx.png");
+    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+
+    try {
+        if (!fs.existsSync(dirPath)){
+            fs.mkdirSync(dirPath);
+        }
+
+        await createImageFromMap(browser, filePath, url + lastTwoChars  + "/" + ch + ".gpx", 100);
+
+        if (fs.existsSync(filePath)){
+            try {
+                await sharp(filePath).resize({
+                    width: 784,
+                    height: 523,
+                    fit: "inside"
+                }).webp({quality: 15}).toFile(filePathSmallWebp);
+            }
+            catch(e) {
+                console.error("gpxUtils.sharp.resize error: ",e)
+            }
+
+            if (fs.existsSync(filePathSmallWebp)) {
+                await fs.unlink(filePath);
+                const isLondonImage = await isImageLondon(filePathSmallWebp);
+
+                if (isLondonImage) {
+                    console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
+                    await fs.unlink(filePathSmallWebp);
+                    await handleImagePlaceholder(ch, isProd);
+                } else {
+                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
+                    if (isProd) {
+                        await dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                    } else {
+                        await dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                    }
+                }
+            } else {
+                console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
+                await handleImagePlaceholder(ch, isProd);
+            }
+        }
+        else {
+            console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
+            await handleImagePlaceholder(ch, isProd);
+        }
+    } catch (e) {
+        console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
+        await handleImagePlaceholder(ch, isProd);
+    }
+};
 
 
 export const createImagesFromMap = async (ids) => {
@@ -166,113 +257,37 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
-            const chunkSize = 2;
-            for (let i = 0; i < ids.length; i += chunkSize) {
-                // If the generation of the images is taking too long, it should stop at 23:00 in the evening
+            // Dispatcher-Schleife: Verarbeitet die IDs seriell und verteilt die Aufgaben
+            for (const ch of ids) {
+                // If the generation of the images is taking too long, it should stop at 20:00 in the evening
                 const now = new Date();
                 const currentHour = now.getHours();
-                if (currentHour >= 23) {
+                if (currentHour >= 20) {
                     break;
                 }
 
-                const chunk = ids.slice(i, i + chunkSize);
-                await Promise.all(chunk.map(ch => new Promise(async resolve => {
-                    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters(ch)+"/")
-                    if (!fs.existsSync(dirPath)){ 
-                        fs.mkdirSync(dirPath);
+                let lastTwoChars  = last_two_characters(ch);
+                let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/")
+                let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+                
+                if (!!filePathSmallWebp && fs.existsSync(filePathSmallWebp)) {
+                    // Fall 1: Bild existiert bereits. Update-Job wird in die DB-Warteschlange geschoben.
+                    if (isProd) {
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
+                    } else {
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
                     }
-                    
-                    let filePath = path.join(dirPath, ch+"_gpx.png");
-                    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
-
-                    if (!!filePathSmallWebp && !!!fs.existsSync(filePathSmallWebp)) {
-                        await createImageFromMap(browser, filePath, url + last_two_characters(ch) + "/" + ch + ".gpx", 100);
-
-                        if (fs.existsSync(filePath)){
-                            try {
-                                await sharp(filePath).resize({
-                                    width: 784, // 392,
-                                    height: 523, // 261,
-                                    fit: "inside"
-                                    }).webp({quality: 15}) // Change to WebP format
-                                    .toFile(filePathSmallWebp);
-                            }
-                            catch(e) {
-                                console.error("gpxUtils.sharp.resize error: ",e)
-                            }
-
-                            if (fs.existsSync(filePathSmallWebp)) {
-                                // Check if the generated image is the London placeholder
-                                const isLondonImage = await isImageLondon(filePathSmallWebp);
-
-                                if (isLondonImage) {
-                                    console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
-                                    await fs.unlink(filePathSmallWebp);
-                                    
-                                    try {
-                                        const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${ch}`);
-                                        let rangeSlug = null;
-                                        if (result.rows && result.rows.length > 0) {
-                                            rangeSlug = result.rows[0].range_slug;
-                                        }
-
-                                        if (rangeSlug) {
-                                            const imageUrl = `/public/range-image/${rangeSlug}.webp`;
-                                            console.log(moment().format('HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
-                                            await setTourImageURL(ch, imageUrl, true);
-                                        } else {
-                                            console.log(moment().format('HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
-                                            await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
-                                        }
-                                    } catch (e) {
-                                        console.error("Error fetching range_slug:", e);
-                                        await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
-                                    }
-                                } else {
-                                    // ... success case ...
-                                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
-                                    await fs.unlink(filePath);
-                                    if (isProd) {
-                                        await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp', true);
-                                    } else {
-                                        await setTourImageURL(ch, '/public/gpx-image/' + last_two_characters(ch) + '/' + ch + '_gpx_small.webp', true);
-                                    }
-
-                                }
-                            } else {
-                                // The file was not created, so set the placeholder
-                                console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
-                                if (isProd) {
-                                    await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp', true);
-                                } else {
-                                    await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
-                                }
-                            }
-                        }
-                        else {
-                            console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
-                            
-                            // In this case we set '/app_static/img/train_placeholder.webp'
-                            if (isProd) {
-                                await setTourImageURL(ch, 'https://cdn.zuugle.at/img/train_placeholder.webp', true);
-                            } else {
-                                await setTourImageURL(ch, '/app_static/img/train_placeholder.webp', true);
-                            }
-                        } 
-                    }
-                    else {
-                        // The gpx_small.jpg already exists and doesn't have to be regenerated.   
-                        if (isProd) {
-                            await setTourImageURL(ch, 'https://cdn.zuugle.at/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', false);
-                        } else {
-                            await setTourImageURL(ch, '/public/gpx-image/'+last_two_characters(ch)+'/'+ch+'_gpx_small.webp', false);
-                        }
-                    }
-                    
-                    resolve();
-                })));
-
+                } else {
+                    // Fall 2: Bild muss neu erstellt werden. Dies wird seriell verarbeitet.
+                    await processAndCreateImage(ch, lastTwoChars , browser, isProd, dir_go_up, url);
+                }
             }
+            
+            // Warte auf den Abschluss aller Datenbank-Jobs in der Warteschlange
+            while (activeDbUpdates.length > 0) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            
         } catch (err) {
             console.log("Error in createImagesFromMap --> ",err.message);
         } finally {
@@ -295,9 +310,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
                 await setTimeout(10000);
                 await page.bringToFront();
                 await page.screenshot({ path: filePath, type: 'png' });
-                // await page.screenshot({path: filePath, type: "jpeg", quality: picquality});
                 await page.close();
-                // console.log("Created "+filePath)
             }
         }
     } catch (err) {

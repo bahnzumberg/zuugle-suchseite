@@ -662,25 +662,24 @@ async function _syncGPX(id, h_url, title) {
 
 
 export async function syncGPXImage(){
-    // let allHashedUrls = await knex.raw("SELECT DISTINCT hashed_url FROM tour;");
-    let allHashedUrls = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as hashed_url FROM tour WHERE image_url IS NULL OR image_url='null';");
-    if(!!allHashedUrls && allHashedUrls.rows){
-        allHashedUrls = allHashedUrls.rows;
+    let allIDs = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as id FROM tour WHERE image_url IS NULL OR image_url='null';");
+    if(!!allIDs && allIDs.rows){
+        allIDs = allIDs.rows;
         let toCreate = [];
-        for(let i=0; i<allHashedUrls.length; i++){
-            let entry = allHashedUrls[i];
+        for(let i=0; i<allIDs.length; i++){
+            let entry = allIDs[i];
             toCreate.push({
-                hashed_url: entry.hashed_url,
+                id: entry.id,
             })
         }
         if(!!toCreate){
             console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
-            await createImagesFromMap(toCreate.map(e => e.hashed_url));
+            await createImagesFromMap(toCreate.map(e => e.id));
         }
 
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
         // The cdn url can be used, as this is a static image.
-        await knex.raw(`UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL;`);
+        await knex.raw(`UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`);
     }
     return true;
 
