@@ -89,7 +89,7 @@ export default function StartTourCardContainer({
         </Grid>
       ))}
       <Grid display="flex" key={"image"} size={{ xs: 12, md: 6, lg: 4 }}>
-        {renderImage("/app_static/img/zuugle-ad.gif", "image1")}
+        {renderImage("https://cdn.zuugle.at/img/zuugle-ad.gif", "image1")}
       </Grid>
       {secondSet.map((tour, index) => (
         <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
