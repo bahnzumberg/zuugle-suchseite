@@ -154,8 +154,8 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 };
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (ch, last_two_characters, browser, isProd, dir_go_up, url) => {
-    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters+"/");
+const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
     let filePath = path.join(dirPath, ch+"_gpx.png");
     let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
 
@@ -164,7 +164,7 @@ const processAndCreateImage = async (ch, last_two_characters, browser, isProd, d
             fs.mkdirSync(dirPath);
         }
 
-        await createImageFromMap(browser, filePath, url + last_two_characters + "/" + ch + ".gpx", 100);
+        await createImageFromMap(browser, filePath, url + lastTwoChars  + "/" + ch + ".gpx", 100);
 
         if (fs.existsSync(filePath)){
             try {
@@ -189,9 +189,9 @@ const processAndCreateImage = async (ch, last_two_characters, browser, isProd, d
                 } else {
                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
-                        await dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters + '/' + ch + '_gpx_small.webp', true);
+                        await dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     } else {
-                        await dispatchDbUpdate(ch, '/public/gpx-image/' + last_two_characters + '/' + ch + '_gpx_small.webp', true);
+                        await dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     }
                 }
             } else {
@@ -266,20 +266,20 @@ export const createImagesFromMap = async (ids) => {
                     break;
                 }
 
-                let last_two_characters = last_two_characters(ch);
-                let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+last_two_characters+"/")
+                let lastTwoChars  = last_two_characters(ch);
+                let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/")
                 let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
                 
                 if (!!filePathSmallWebp && fs.existsSync(filePathSmallWebp)) {
                     // Fall 1: Bild existiert bereits. Update-Job wird in die DB-Warteschlange geschoben.
                     if (isProd) {
-                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + last_two_characters + '/' + ch + '_gpx_small.webp', false);
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
                     } else {
-                        dispatchDbUpdate(ch, '/public/gpx-image/' + last_two_characters + '/' + ch + '_gpx_small.webp', false);
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
                     }
                 } else {
                     // Fall 2: Bild muss neu erstellt werden. Dies wird seriell verarbeitet.
-                    await processAndCreateImage(ch, last_two_characters, browser, isProd, dir_go_up, url);
+                    await processAndCreateImage(ch, lastTwoChars , browser, isProd, dir_go_up, url);
                 }
             }
             
