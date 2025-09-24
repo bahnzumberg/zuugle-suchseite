@@ -12,7 +12,7 @@ import crypto from 'crypto';
 
 // Global variable to store the hash of the London reference image.
 let londonReferenceHash = null;
-let 502errorReferenceHash = null;
+let error502ReferenceHash = null;
 
 // Konstanten und globale Warteschlangen für die Parallelisierung
 const MAX_PARALLEL_DB_UPDATES = 5;
@@ -41,7 +41,7 @@ const isImageLondon = async (imagePath) => {
         const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
 
         // Simple comparison of the SHA-256 hash.
-        if (hash === londonReferenceHash || hash === 502errorReferenceHash) {
+        if (hash === londonReferenceHash || hash === error502ReferenceHash) {
             return true;
         }
 
@@ -237,12 +237,12 @@ export const createImagesFromMap = async (ids) => {
             console.error("London reference image not found:", londonImagePath);
         }
 
-        const 502errorImagePath = path.join(__dirname, dir_go_up, 'public/502-error.webp');
-        if (fs.existsSync(502errorImagePath)) {
-            502errorReferenceHash = await createLondonReferenceHash(502errorImagePath);
-            console.log("502 reference hash created:", 502errorReferenceHash);
+        const error502ImagePath = path.join(__dirname, dir_go_up, 'public/502-error.webp');
+        if (fs.existsSync(error502ImagePath)) {
+            error502ReferenceHash = await createLondonReferenceHash(error502ImagePath);
+            console.log("502 reference hash created:", error502ReferenceHash);
         } else {
-            console.error("502-error reference image not found:", 502errorReferenceHash);
+            console.error("502-error reference image not found:", error502ReferenceHash);
         }
     }
 
