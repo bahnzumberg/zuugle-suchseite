@@ -156,28 +156,33 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
-    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
-    let filePath = path.join(dirPath, ch+"_gpx.png");
-    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
+    let filePath = path.join(dirPath, ch + "_gpx.png");
+    let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
+    const MAX_GENERATION_TIME = 300000; // Timeout in milliseconds (5 minutes)
 
     try {
-        if (!fs.existsSync(dirPath)){
+        if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath);
         }
 
-        await createImageFromMap(browser, filePath, url + lastTwoChars  + "/" + ch + ".gpx", 100);
+        const generationPromise = createImageFromMap(browser, filePath, url + lastTwoChars + "/" + ch + ".gpx", 100);
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error('Image generation timeout')), MAX_GENERATION_TIME);
+        });
 
-        if (fs.existsSync(filePath)){
+        await Promise.race([generationPromise, timeoutPromise]);
+        
+        if (fs.existsSync(filePath)) {
             try {
                 await sharp(filePath).resize({
                     width: 784,
                     height: 523,
                     fit: "inside"
                 }).webp({quality: 15}).toFile(filePathSmallWebp);
-            }
-            catch(e) {
-                console.error("gpxUtils.sharp.resize error: ",e)
+            } catch (e) {
+                console.error("gpxUtils.sharp.resize error: ", e);
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
@@ -191,22 +196,27 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
                 } else {
                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
-                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
                     } else {
-                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
                     }
                 }
             } else {
                 console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
                 handleImagePlaceholder(ch, isProd);
             }
-        }
-        else {
+        } else {
             console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
             handleImagePlaceholder(ch, isProd);
         }
     } catch (e) {
-        console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
+        if (e.message === 'Image generation timeout') {
+            console.error(moment().format('HH:mm:ss'), `Timeout for image generation for ID ${ch}: ${e.message}`);
+        } else {
+            console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
+        }
+        
+        // Führt die Fehlerbehandlung aus und springt zum nächsten Bild
         handleImagePlaceholder(ch, isProd);
     }
 };
