@@ -93,8 +93,8 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 const tld = getTLD();
 
 const preloadUrl = isMobileDevice()
-  ? `/app_static/img/background_start_mobil_${tld}.webp`
-  : `/app_static/img/background_start_small_${tld}.webp`;
+  ? `https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp`
+  : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
 
 const currentPath = window.location.pathname;
 const noPreload =
@@ -114,7 +114,7 @@ if (!rootElement) {
             <link
               id="favicon"
               rel="icon"
-              href="/app_static/favicon.png"
+              href="https://cdn.zuugle.at/favicon.png"
               type="image/x-icon"
             />
             {!noPreload && <link rel="preload" href={preloadUrl} as="image" />}
