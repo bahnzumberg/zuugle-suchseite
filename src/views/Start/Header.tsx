@@ -31,7 +31,7 @@ export default function Header({
         <Box className="header-text">
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <img
-              src="/app_static/img/logo-white.png"
+              src="https://cdn.zuugle.at/img/zuugle_weiss.svg"
               height="16px"
               width="29px"
               alt="Zuugle"
