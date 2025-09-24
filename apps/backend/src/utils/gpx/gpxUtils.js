@@ -201,27 +201,27 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
                 if (isLondonImage) {
                     console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
                     await fs.unlink(filePathSmallWebp);
-                    await handleImagePlaceholder(ch, isProd);
+                    handleImagePlaceholder(ch, isProd);
                 } else {
                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
-                        await dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     } else {
-                        await dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     }
                 }
             } else {
                 console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
-                await handleImagePlaceholder(ch, isProd);
+                handleImagePlaceholder(ch, isProd);
             }
         }
         else {
             console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
-            await handleImagePlaceholder(ch, isProd);
+            handleImagePlaceholder(ch, isProd);
         }
     } catch (e) {
         console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
-        await handleImagePlaceholder(ch, isProd);
+        handleImagePlaceholder(ch, isProd);
     }
 };
 
