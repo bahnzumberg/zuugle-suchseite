@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="73"
+   height="40"
+   viewBox="0 0 73 40"
+   version="1.1"
+   id="svg21"
+   sodipodi:docname="zuugle.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata
+     id="metadata25">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>zuugle-logo-20210308@1x</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1548"
+     inkscape:window-height="1401"
+     id="namedview23"
+     showgrid="false"
+     inkscape:zoom="5.9590605"
+     inkscape:cx="108.49026"
+     inkscape:cy="18.459286"
+     inkscape:window-x="23"
+     inkscape:window-y="12"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg21"
+     inkscape:pagecheckerboard="0" />
+  <title
+     id="title2">zuugle-logo-20210308@1x</title>
+  <defs
+     id="defs5">
+    <polygon
+       id="path-1"
+       points="216.918,36.67 41.5713,36.67 41.5713,0.0004 216.918,0.0004 " />
+  </defs>
+  <g
+     id="zuugle-logo-20210308"
+     style="fill:#254980;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="matrix(2.2596929,0,0,2.1301097,0.21804679,-15.145307)">
+    <g
+       transform="translate(-41,-32)"
+       id="g18"
+       style="fill:#254980;fill-opacity:1">
+      <g
+         transform="translate(41,32)"
+         id="g16"
+         style="fill:#254980;fill-opacity:1">
+        <polygon
+           id="Fill-1"
+           points="17.663,25.8227 8.831,10.8867 5.3290705e-15,25.8227 "
+           style="fill:#254980;fill-opacity:1" />
+        <polygon
+           id="Fill-2"
+           points="21.2215,7.1357 14.9605,17.7257 19.7485,25.8237 32.2695,25.8237 "
+           style="fill:#254980;fill-opacity:1" />
+        <mask
+           id="mask-2"
+           fill="#ffffff">
+          <use
+             xlink:href="#path-1"
+             id="use9"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </mask>
+      </g>
+    </g>
+  </g>
+</svg>
