@@ -16,7 +16,9 @@ let error502ReferenceHash = null;
 
 // Konstanten und globale Warteschlangen für die Parallelisierung
 const MAX_PARALLEL_DB_UPDATES = 5;
+const MAX_PARALLEL_IMAGE_CREATION = 2; // Neue Konstante für die Parallelität der Bilderzeugung
 const activeDbUpdates = []; // Warteschlange für Datenbank-Updates
+const activeImageCreations = []; // Neue Warteschlange für die Bildgenerierung
 
 const createLondonReferenceHash = async (imagePath) => {
     try {
@@ -154,6 +156,19 @@ const handleImagePlaceholder = async (tourId, isProd) => {
     }
 };
 
+const dispatchImageCreation = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
+    await waitForFreeSlot(activeImageCreations, MAX_PARALLEL_IMAGE_CREATION);
+    const creationPromise = processAndCreateImage(ch, lastTwoChars, browser, isProd, dir_go_up, url);
+    activeImageCreations.push(creationPromise);
+    creationPromise.finally(() => {
+        const index = activeImageCreations.indexOf(creationPromise);
+        if (index > -1) {
+            activeImageCreations.splice(index, 1);
+        }
+    });
+    return creationPromise;
+};
+
 // Neue Hilfsfunktion für die Bildgenerierung
 const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
     let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
@@ -266,6 +281,8 @@ export const createImagesFromMap = async (ids) => {
                 ...addParam
             });
  
+            const allPromises = [];
+
             // Dispatcher-Schleife: Verarbeitet die IDs seriell und verteilt die Aufgaben
             for (const ch of ids) {
                 // If the generation of the images is taking too long, it should stop at 20:00 in the evening
@@ -279,24 +296,29 @@ export const createImagesFromMap = async (ids) => {
                 let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/")
                 let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
                 
-                if (!!filePathSmallWebp && fs.existsSync(filePathSmallWebp)) {
+                try {
+                    await fs.promises.stat(filePathSmallWebp);
                     // Fall 1: Bild existiert bereits. Update-Job wird in die DB-Warteschlange geschoben.
                     if (isProd) {
-                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
+                        allPromises.push(dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false));
                     } else {
-                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false);
+                        allPromises.push(dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', false));
                     }
-                } else {
-                    // Fall 2: Bild muss neu erstellt werden. Dies wird seriell verarbeitet.
-                    await processAndCreateImage(ch, lastTwoChars , browser, isProd, dir_go_up, url);
+                } catch(e) {
+                    if (e.code === 'ENOENT') {
+                        // Fall 2: Bild muss neu erstellt werden. Dies wird parallel verarbeitet.
+                        allPromises.push(dispatchImageCreation(ch, lastTwoChars, browser, isProd, dir_go_up, url));
+                    } else {
+                        console.error(`Error checking file for ID ${ch}:`, e);
+                        // Behandeln Sie andere Dateisystemfehler, indem Sie einen Platzhalter setzen
+                        allPromises.push(handleImagePlaceholder(ch, isProd));
+                    }
                 }
             }
-            
-            // Warte auf den Abschluss aller Datenbank-Jobs in der Warteschlange
-            while (activeDbUpdates.length > 0) {
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-            
+
+            // Warte auf den Abschluss aller Jobs in den Warteschlangen
+            await Promise.all(allPromises);
+
         } catch (err) {
             console.log("Error in createImagesFromMap --> ",err.message);
         } finally {
