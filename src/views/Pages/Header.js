@@ -13,7 +13,7 @@ export default function Header({ title, subTitle }) {
     <Box
       className={"header-container utils"}
       sx={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(/app_static/img/background_start_small_${tld}.webp)`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.zuugle.at/img/background_start_small_${tld}.webp)`,
         paddingLeft: 0,
         height: "300px",
       }}
@@ -31,7 +31,7 @@ export default function Header({ title, subTitle }) {
           sx={{ display: "flex", alignItems: "center", marginBottom: "16px" }}
         >
           <img
-            src={`/app_static/img/logo-white.png`}
+            src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
             height={"16px"}
             width={"29px"}
             alt="Zuugle Logo"
