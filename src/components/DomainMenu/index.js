@@ -591,7 +591,7 @@ function DomainMenu() {
         onClick={() => setShowDomainMenu(true)}
       >
         <img
-          src={`https://cdn.zuugle.at/img/logo-white.png`}
+          src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
           height={"19px"}
           width={"34px"}
           alt="Logo Zuugle"
