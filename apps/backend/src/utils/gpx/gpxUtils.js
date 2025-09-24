@@ -264,7 +264,7 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
 }
 
 
-export const createImagesFromMap = async (ids, isRecursiveCall = false)
+export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     let addParam = {};
     let url = "";
     let dir_go_up = "";
