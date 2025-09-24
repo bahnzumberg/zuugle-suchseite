@@ -156,33 +156,35 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
-    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
-    let filePath = path.join(dirPath, ch + "_gpx.png");
-    let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
-    const MAX_GENERATION_TIME = 300000; // Timeout in milliseconds (5 minutes)
+const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
+    let filePath = path.join(dirPath, ch+"_gpx.png");
+    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+    const MAX_GENERATION_TIME = 300000;
 
     try {
-        if (!fs.existsSync(dirPath)) {
+        if (!fs.existsSync(dirPath)){
             fs.mkdirSync(dirPath);
         }
 
-        const generationPromise = createImageFromMap(browser, filePath, url + lastTwoChars + "/" + ch + ".gpx", 100);
+        const generationPromise = createImageFromMap(browser, filePath, url + lastTwoChars  + "/" + ch + ".gpx", 100);
         const timeoutPromise = new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error('Image generation timeout')), MAX_GENERATION_TIME);
         });
 
         await Promise.race([generationPromise, timeoutPromise]);
-        
-        if (fs.existsSync(filePath)) {
+
+
+        if (fs.existsSync(filePath)){
             try {
                 await sharp(filePath).resize({
                     width: 784,
                     height: 523,
                     fit: "inside"
                 }).webp({quality: 15}).toFile(filePathSmallWebp);
-            } catch (e) {
-                console.error("gpxUtils.sharp.resize error: ", e);
+            }
+            catch(e) {
+                console.error("gpxUtils.sharp.resize error: ",e)
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
@@ -196,16 +198,17 @@ const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_u
                 } else {
                     console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
-                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     } else {
-                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     }
                 }
             } else {
                 console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
                 handleImagePlaceholder(ch, isProd);
             }
-        } else {
+        }
+        else {
             console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
             handleImagePlaceholder(ch, isProd);
         }
@@ -216,13 +219,52 @@ const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_u
             console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
         }
         
-        // Führt die Fehlerbehandlung aus und springt zum nächsten Bild
         handleImagePlaceholder(ch, isProd);
     }
 };
 
 
-export const createImagesFromMap = async (ids) => {
+// Neue Funktion zur Überprüfung und Neuerstellung alter Bilder
+const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
+    let idsToRecreate = [];
+    const allToursWithImages = await knex.raw(`SELECT id FROM tour;`); // Nur Touren mit URL-Eintrag prüfen
+    const thirtyDaysInMs = 2592000000;
+
+    for (const row of allToursWithImages.rows) {
+        const id = row.id;
+        const lastTwoChars = last_two_characters(id);
+        const filePath = path.join(__dirname, dir_go_up, "public/gpx-image/", lastTwoChars, id + "_gpx_small.webp");
+        
+        try {
+            const stats = await fs.promises.stat(filePath);
+            const isOlderThan30Days = (Date.now() - stats.mtimeMs) > thirtyDaysInMs;
+            const shouldBeDeleted = Math.random() < 0.1;
+            
+            if (isOlderThan30Days && shouldBeDeleted) {
+                console.log(moment().format('HH:mm:ss'), `Deleting old image for tour ID ${id}.`);
+                await fs.promises.unlink(filePath);
+                idsToRecreate.push(id);
+            }
+        } catch (e) {
+            if (e.code === 'ENOENT') {
+                console.log(moment().format('HH:mm:ss'), `Image for tour ID ${id} not found on disk. Adding to recreate list.`);
+                idsToRecreate.push(id);
+            } else {
+                console.error(`Error checking file for ID ${id}: `, e);
+            }
+        }
+    }
+
+    if (idsToRecreate.length > 0) {
+        console.log(moment().format('HH:mm:ss'), `Found ${idsToRecreate.length} images to recreate. Restarting image generation process...`);
+        await createImagesFromMap(idsToRecreate, true); // Übergibt das Flag 'true' um keine weitere Rekursion zuzulassen
+    } else {
+        console.log(moment().format('HH:mm:ss'), `No old images found to recreate.`);
+    }
+}
+
+
+export const createImagesFromMap = async (ids, isRecursiveCall = false)
     let addParam = {};
     let url = "";
     let dir_go_up = "";
@@ -343,6 +385,13 @@ export const createImagesFromMap = async (ids) => {
                 await browser.close();
             }
         }
+    }
+    
+    // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
+    if (!isRecursiveCall) {
+        console.log(moment().format('HH:mm:ss'), `Starting final check for old images...`);
+        await cleanAndRecreateOldImages(isProd, dir_go_up);
+        console.log(moment().format('HH:mm:ss'), `Final image check and recreation finished.`);
     }
 }
 
