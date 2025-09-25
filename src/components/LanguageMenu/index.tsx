@@ -59,7 +59,7 @@ function LanguageMenu() {
         }}
       >
         <img
-          src={`/app_static/img/langIcon.png`}
+          src={`https://cdn.zuugle.at/img/langIcon.png`}
           height={"23px"}
           width={"23px"}
           alt="Change Language here"
