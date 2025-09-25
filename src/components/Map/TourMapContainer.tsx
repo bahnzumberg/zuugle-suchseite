@@ -107,8 +107,7 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
 
   const createStartMarker = () => {
     return L.icon({
-      iconUrl: "/app_static/img/startpunkt.png", //the acutal picture
-      // shadowUrl: "app_static/img/pin-shadow.png", //the shadow of the icon
+      iconUrl: "https://cdn.zuugle.at/img/startpunkt.png", //the acutal picture
       iconSize: [33, 45], //size of the icon
       iconAnchor: [16, 46],
     });
