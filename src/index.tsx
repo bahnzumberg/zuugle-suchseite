@@ -1,6 +1,5 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Helmet } from "react-helmet";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { configureStore } from "@reduxjs/toolkit";
@@ -15,6 +14,8 @@ import searchReducer, {
 import filterReducer from "./features/filterSlice";
 import { api } from "./features/apiSlice";
 import { toBoundsObject } from "./utils/map_utils";
+import { Head } from "@unhead/react";
+import { createHead, UnheadProvider } from "@unhead/react/client";
 
 const persistedCity = localStorage.getItem("city");
 let cityObject: CityObject | null = null;
@@ -100,6 +101,8 @@ const currentPath = window.location.pathname;
 const noPreload =
   !currentPath.includes("/tour") || !currentPath.includes("/search");
 
+const head = createHead();
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   console.error("Root element not found");
@@ -110,16 +113,20 @@ if (!rootElement) {
     <React.StrictMode>
       <Provider store={store}>
         <BrowserRouter>
-          <Helmet>
-            <link
-              id="favicon"
-              rel="icon"
-              href="https://cdn.zuugle.at/favicon.png"
-              type="image/x-icon"
-            />
-            {!noPreload && <link rel="preload" href={preloadUrl} as="image" />}
-          </Helmet>
-          <App />
+          <UnheadProvider head={head}>
+            <Head>
+              <link
+                id="favicon"
+                rel="icon"
+                href="https://cdn.zuugle.at/favicon.png"
+                type="image/x-icon"
+              />
+              {!noPreload && (
+                <link rel="preload" href={preloadUrl} as="image" />
+              )}
+            </Head>
+            <App />
+          </UnheadProvider>
         </BrowserRouter>
       </Provider>
     </React.StrictMode>,
