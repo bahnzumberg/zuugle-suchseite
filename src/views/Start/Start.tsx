@@ -37,6 +37,7 @@ export default function Start() {
 
   usePageHeader({
     header: `Zuugle ${city?.label || t(getTranslatedCountryName())}`,
+    description: t("index.zuugle_description"),
   });
 
   const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery(

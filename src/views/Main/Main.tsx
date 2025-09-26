@@ -28,6 +28,7 @@ import Search from "../../components/Search/Search";
 import {
   DirectLink,
   extractCityFromLocation,
+  getTranslatedCountryName,
   usePageHeader,
 } from "../../utils/seoPageHelper";
 
@@ -47,6 +48,9 @@ export default function Main() {
 
   usePageHeader({
     header: `Zuugle ${t("main.ergebnisse")}`,
+    description: t("main.oeffi_bergtouren_fuer_cityname", {
+      "city.label": search.city?.label || t(getTranslatedCountryName()),
+    }),
   });
 
   useEffect(() => {
@@ -117,7 +121,6 @@ export default function Main() {
     _mtm.push({ pagetitel: "Suche" });
   }, []);
 
-  // TODO: understand what's going on here.
   useEffect(() => {
     if (!allCities) return;
     const city = extractCityFromLocation(location, allCities);
