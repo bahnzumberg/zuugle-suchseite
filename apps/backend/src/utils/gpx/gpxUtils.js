@@ -367,7 +367,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     for (const ch of idsForCreation) {
                         const now = new Date();
                         const currentHour = now.getHours();
-                        if (currentHour >= 20) {
+                        if (currentHour >= 23) {
                             console.log(moment().format('HH:mm:ss'), 'Stopping image creation due to time limit.');
                             break;
                         }
