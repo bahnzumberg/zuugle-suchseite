@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import { Head } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -450,14 +450,16 @@ export default function DetailReworked() {
         <LoadingSpinner />
       ) : (
         <>
-          <Helmet>
+          <Head>
             <title>{page_title}</title>
             <meta httpEquiv="content-language" content={`${currLanguage}`} />
-            <meta property="og:url" content={`${URL}`} />
+            <meta name="title" content={`${page_title}`} />
+            <meta name="description" content={`${description}`} />
+            <meta property="og:url" content={`${shareUrl()}`} />
             <meta property="og:title" content={`${page_title}`} />
             <meta property="og:description" content="" />
             <meta property="og:image" content={`${imageUrl}`} />
-            <meta property="twitter:url" content={`${URL}`} />
+            <meta property="twitter:url" content={`${shareUrl()}`} />
             <meta property="twitter:title" content={`${page_title}`} />
             <meta property="twitter:description" content={`${description}`} />
             <meta property="twitter:image" content={`${imageUrl}`} />
@@ -488,7 +490,7 @@ export default function DetailReworked() {
                   );
                 }
               })}
-          </Helmet>
+          </Head>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               <Box sx={{ display: "flex", alignItems: "center" }}>

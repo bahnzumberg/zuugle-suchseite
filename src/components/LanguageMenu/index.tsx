@@ -5,14 +5,18 @@ import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "../../hooks";
 import { languageUpdated } from "../../features/searchSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../..";
 
 function LanguageMenu() {
   const { i18n } = useTranslation();
 
   const resolvedLanguage = i18n.language;
   const storedLanguage = localStorage.getItem("lang");
-  const currLanguage = storedLanguage || resolvedLanguage;
-  const [Languages, setLanguages] = useState([
+  const reduxLanguage = useSelector(
+    (state: RootState) => state.search.language,
+  );
+  const [languages] = useState([
     { key: "en", nativeName: "English" },
     { key: "fr", nativeName: "Français" },
     { key: "de", nativeName: "Deutsch" },
@@ -22,27 +26,29 @@ function LanguageMenu() {
 
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    let currIndex = null;
-    if (currLanguage) {
-      currIndex = Languages.findIndex((lang) => lang.key === currLanguage);
-    }
-    const [langObject] = Languages.splice(currIndex, 1);
-    Languages.sort((a, b) => a.key.localeCompare(b.key));
-    Languages.unshift(langObject);
-    dispatch(languageUpdated(currLanguage));
-  }, [currLanguage, Languages]);
-
-  const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
-    i18n.language,
-  );
-  const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
   const setLanguage = (lng: string) => {
     localStorage.setItem("lang", lng);
     langChange(lng);
     setShowLanguageMenu(false);
     dispatch(languageUpdated(lng));
   };
+
+  useEffect(() => {
+    const currLanguage = reduxLanguage || storedLanguage || resolvedLanguage;
+    let currIndex = 0;
+    if (currLanguage) {
+      currIndex = languages.findIndex((lang) => lang.key === currLanguage);
+    }
+    const [langObject] = languages.splice(currIndex, 1);
+    languages.sort((a, b) => a.key.localeCompare(b.key));
+    languages.unshift(langObject);
+    setLanguage(currLanguage);
+  }, [reduxLanguage]);
+
+  const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
+    i18n.language,
+  );
+  const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
 
   return (
     <div>
@@ -53,7 +59,7 @@ function LanguageMenu() {
         }}
       >
         <img
-          src={`/app_static/img/langIcon.png`}
+          src={`https://cdn.zuugle.at/img/langIcon.png`}
           height={"23px"}
           width={"23px"}
           alt="Change Language here"
@@ -93,7 +99,7 @@ function LanguageMenu() {
               </span>
             </div>
             <div className="languageOptions">
-              {Languages.map((item) => (
+              {languages.map((item) => (
                 <span
                   className="languageItem"
                   onClick={() => setLanguage(item.key)}

@@ -31,7 +31,7 @@ export default function Footer() {
               rel="noreferrer"
             >
               <img
-                src="/app_static/img/BMLUK_Logo_srgb_EN.svg"
+                src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
                 height="100px"
                 alt="Funded by www.bmkluk.gv.at"
                 loading="lazy"
@@ -52,7 +52,7 @@ export default function Footer() {
           >
             <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
               <img
-                src="/app_static/img/Alpenkonvention_logo_gruen.webp"
+                src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
                 height="75px"
                 width="317px"
                 alt="Logo Alpenkonvention"
@@ -87,7 +87,7 @@ export default function Footer() {
                 }}
               >
                 <img
-                  src={`/app_static/img/logo140.png`}
+                  src={`https://cdn.zuugle.at/img/zuugle.svg`}
                   height={"20px"}
                   width={"36px"}
                   alt="Logo Zuugle"
@@ -160,7 +160,7 @@ export default function Footer() {
             <Box sx={{ textAlign: "right" }} className={"social-icons"}>
               <img
                 className={"cursor-link"}
-                src={`/app_static/img/logo-facebook.png`}
+                src={`https://cdn.zuugle.at/img/logo-facebook.png`}
                 width={"20px"}
                 height={"20px"}
                 onClick={() =>
@@ -172,7 +172,7 @@ export default function Footer() {
               &nbsp;{" "}
               <img
                 className={"cursor-link"}
-                src={`/app_static/img/logo-instagram.png`}
+                src={`https://cdn.zuugle.at/img/logo-instagram.png`}
                 width={"20px"}
                 height={"20px"}
                 style={{ marginLeft: "5px" }}
@@ -185,7 +185,7 @@ export default function Footer() {
               &nbsp;{" "}
               <img
                 className={"cursor-link"}
-                src={`/app_static/img/logo-github.png`}
+                src={`https://cdn.zuugle.at/img/logo-github.png`}
                 width={"20px"}
                 height={"20px"}
                 style={{ marginLeft: "5px" }}

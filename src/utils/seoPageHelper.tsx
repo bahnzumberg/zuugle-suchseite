@@ -1,39 +1,45 @@
 import * as React from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useHead } from "@unhead/react";
 import { CityObject } from "../features/searchSlice";
 
 export interface DirectLink {
   header: string;
-  description: string;
+  description?: string;
 }
 
-export const getPageHeader = (directLink: DirectLink) => {
-  if (directLink?.header) {
-    return (
-      <HelmetProvider>
-        <Helmet>
-          <title>{directLink.header}</title>
-          <meta name="og:title" content={directLink.header} />
-          <meta name="og:description" content={directLink.description} />
-        </Helmet>
-      </HelmetProvider>
-    );
-  }
-  return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Zuugle</title>
-        <meta
-          name="title"
-          content="Zuugle - die Suchmaschine für Öffi-Bergtouren"
-        />
-        <meta
-          name="description"
-          content="Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an."
-        />
-      </Helmet>
-    </HelmetProvider>
-  );
+export const usePageHeader = (directLink?: DirectLink) => {
+  const defaultTitle = "Zuugle";
+  const defaultDescription =
+    "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.";
+  const defaultMetaTitle = "Zuugle - die Suchmaschine für Öffi-Bergtouren";
+
+  const title = directLink?.header ?? defaultTitle;
+  const description = directLink?.description ?? defaultDescription;
+
+  useHead({
+    title,
+    meta: [
+      {
+        property: "og:title",
+        content: directLink?.header,
+      },
+      {
+        property: "og:description",
+        content: directLink?.description,
+      },
+      {
+        name: "title",
+        content: directLink?.header ?? defaultMetaTitle,
+      },
+      {
+        name: "description",
+        content: description,
+      },
+    ].filter(
+      // only keep meta tags with content
+      (meta): meta is Exclude<typeof meta, undefined> => !!meta?.content,
+    ),
+  });
 };
 
 export const extractCityFromLocation = (

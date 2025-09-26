@@ -27,12 +27,12 @@ export default function InteractiveMap({
   const [poly, setPoly] = useState<L.Polyline | null>(null);
 
   const startIcon = L.icon({
-    iconUrl: "/app_static/img/startpunkt.png",
+    iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
   const endIcon = L.icon({
-    iconUrl: "/app_static/img/zielpunkt.png",
+    iconUrl: "https://cdn.zuugle.at/img/zielpunkt.png",
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
