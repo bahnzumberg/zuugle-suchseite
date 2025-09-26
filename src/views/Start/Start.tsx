@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useIsMobile } from "../../utils/globals";
 import {
-  getPageHeader,
+  usePageHeader,
   getTranslatedCountryName,
 } from "../../utils/seoPageHelper";
 import Header from "./Header";
@@ -34,9 +34,10 @@ export default function Start() {
   const provider = useSelector((state: RootState) => state.search.provider);
   const language = useSelector((state: RootState) => state.search.language);
   const dispatch = useAppDispatch();
-  const country = getTranslatedCountryName();
 
-  getPageHeader({ header: `Zuugle ${t(`${country}`)}` });
+  usePageHeader({
+    header: `Zuugle ${city?.label || t(getTranslatedCountryName())}`,
+  });
 
   const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery(
     citySlug || undefined,

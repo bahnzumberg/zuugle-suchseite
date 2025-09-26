@@ -25,9 +25,14 @@ import {
 import { useAppDispatch } from "../../hooks";
 import TourCardContainer from "../../components/TourCardContainer";
 import Search from "../../components/Search/Search";
-import { DirectLink, extractCityFromLocation } from "../../utils/seoPageHelper";
+import {
+  DirectLink,
+  extractCityFromLocation,
+  usePageHeader,
+} from "../../utils/seoPageHelper";
 
 export default function Main() {
+  const { t } = useTranslation();
   const filter = useSelector((state: RootState) => state.filter);
   const search = useSelector((state: RootState) => state.search);
   const showMap = useSelector((state: RootState) => state.search.map);
@@ -39,6 +44,10 @@ export default function Main() {
   const [filterOn, setFilterOn] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const dispatch = useAppDispatch();
+
+  usePageHeader({
+    header: `Zuugle ${t("main.ergebnisse")}`,
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -88,8 +97,6 @@ export default function Main() {
       });
     }
   }, [pageTours]);
-
-  const { t } = useTranslation();
 
   const [directLink, setDirectLink] = useState<DirectLink | null>(null);
 
@@ -216,8 +223,6 @@ export default function Main() {
             </Typography>
           </Box>
         )}
-        {/* new top header */}
-        {/* {getPageHeader({ header: `Zuugle ${cityLabel}` })} */}
         <Box
           className="newHeader"
           sx={{
