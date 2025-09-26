@@ -193,6 +193,18 @@ CREATE TABLE logsearchphrase (
 );
 
 
+CREATE TABLE logsearchphrase_archive (
+      id SERIAL,
+      phrase varchar(250) DEFAULT NULL,
+      num_results int DEFAULT 0,
+      city_slug varchar(64) NOT NULL,
+      search_time timestamp DEFAULT CURRENT_TIMESTAMP,
+ 	   menu_lang VARCHAR(2) default NULL,
+	   country_code VARCHAR(2) default NULL,
+      PRIMARY KEY (id)
+);
+
+
 CREATE TABLE gpx (
       provider varchar(30) NOT NULL,
       hashed_url varchar(100) NOT NULL,

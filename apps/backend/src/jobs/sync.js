@@ -276,8 +276,14 @@ export async function fixTours(){
                     ) AS a;`);
                      
 
-    // Delete all the entries from logsearchphrase, which are older than 360 days.
-    await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '360 days';`);
+    // Archive all the entries from logsearchphrase, which are older than 180 days.
+    await knex.raw(`INSERT INTO logsearchphrase_archive (id, phrase, num_results, city_slug, search_time, menu_lang, country_code)
+                    SELECT id, phrase, num_results, city_slug, search_time, menu_lang, country_code
+                    FROM logsearchphrase
+                    WHERE search_time < NOW() - INTERVAL '180 days';`);
+    // Delete all the entries from logsearchphrase, which are older than 180 days.
+    await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '180 days';`);
+    
 
     // Check all entries of column image_url in table tour
     // First, we remove all images producing 404, which are already stored there - mainly provider bahnzumberg 
