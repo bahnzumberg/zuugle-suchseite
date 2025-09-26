@@ -28,11 +28,15 @@ const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
 export default function Start() {
+  const { t } = useTranslation();
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const city = useSelector((state: RootState) => state.search.city);
   const provider = useSelector((state: RootState) => state.search.provider);
   const language = useSelector((state: RootState) => state.search.language);
   const dispatch = useAppDispatch();
+  const country = getTranslatedCountryName();
+
+  getPageHeader({ header: `Zuugle ${t(`${country}`)}` });
 
   const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery(
     citySlug || undefined,
@@ -45,7 +49,6 @@ export default function Start() {
     },
   ] = useLazyGetToursQuery();
 
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -84,8 +87,6 @@ export default function Start() {
     }
   };
 
-  const country = getTranslatedCountryName();
-
   if (totals?.total_tours === 0) {
     return (
       <Suspense
@@ -115,7 +116,6 @@ export default function Start() {
       <>
         <SearchParamSync isMain={false} />
         <Box style={{ background: "#fff" }}>
-          {getPageHeader({ header: `Zuugle ${t(`${country}`)}` })}
           <Header
             totalTours={totals?.total_tours || 0}
             totalToursFromCity={totals?.tours_city || 0}

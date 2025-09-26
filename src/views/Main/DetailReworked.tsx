@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import { Head } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -450,7 +450,7 @@ export default function DetailReworked() {
         <LoadingSpinner />
       ) : (
         <>
-          <Helmet>
+          <Head>
             <title>{page_title}</title>
             <meta httpEquiv="content-language" content={`${currLanguage}`} />
             <meta property="og:url" content={`${URL}`} />
@@ -488,7 +488,7 @@ export default function DetailReworked() {
                   );
                 }
               })}
-          </Helmet>
+          </Head>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               <Box sx={{ display: "flex", alignItems: "center" }}>
