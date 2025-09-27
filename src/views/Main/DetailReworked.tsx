@@ -60,7 +60,6 @@ export default function DetailReworked() {
   const [dateIndex, setDateIndex] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [tourDifficulty, setTourDifficulty] = useState<string | null>(null);
-  const [renderImage, setRenderImage] = useState(false);
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
     useState(false);
@@ -174,7 +173,6 @@ export default function DetailReworked() {
     // only load connections if the tour is valid
     if (tour && idOne) {
       triggerGPX(tour.gpx_file);
-      setRenderImage(!!tour?.image_url);
       if (city) {
         triggerConnections({
           id: idOne,
@@ -609,20 +607,22 @@ export default function DetailReworked() {
                       </span>
                     </div>
                   </a>
-                  {renderImage && tour?.valid_tour === 1 && (
+                  {tour?.valid_tour === 1 && (
                     <Box className="tour-detail-conditional-desktop">
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
                         <img
                           src={tour?.image_url ?? ""}
                           onError={() => {
-                            setRenderImage(false);
+                            e.currentTarget.style.display = 'none';
                           }}
                           alt={tour?.title}
+                          fetchpriority="high"
+                          style={{ display: tour?.image_url ? 'block' : 'none' }}
                         />
                       </div>
                     </Box>
-                  )}
+                  )}                
                   {city && idOne && (
                     <Box className="tour-detail-conditional-desktop">
                       {actionButtonPart}
@@ -639,19 +639,21 @@ export default function DetailReworked() {
                     idOne={idOne}
                   />
                 </Box>
-                {renderImage && tour?.valid_tour === 1 && (
-                  <Box className="tour-detail-conditional-mobile">
-                    <Divider variant="middle" />
-                    <div className="tour-detail-img-container">
-                      <img
-                        src={tour?.image_url}
-                        onError={() => {
-                          setRenderImage(false);
-                        }}
-                        alt={tour?.title}
-                      />
-                    </div>
-                  </Box>
+                {tour?.valid_tour === 1 && (
+                    <Box className="tour-detail-conditional-desktop">
+                      <Divider variant="middle" />
+                      <div className="tour-detail-img-container">
+                        <img
+                          src={tour?.image_url ?? ""}
+                          onError={() => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                          alt={tour?.title}
+                          fetchpriority="high"
+                          style={{ display: tour?.image_url ? 'block' : 'none' }}
+                        />
+                      </div>
+                    </Box>
                 )}
                 {tour?.valid_tour === 1 && city && idOne && (
                   <Box className="tour-detail-conditional-mobile">
@@ -667,5 +669,4 @@ export default function DetailReworked() {
       )}
     </Box>
   );
-  // }
 }
