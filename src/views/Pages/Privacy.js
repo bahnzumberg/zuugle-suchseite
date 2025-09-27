@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
@@ -13,7 +13,7 @@ function Privacy({}) {
     </a>
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     var _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Datenschutzerklärung" });
   }, []);

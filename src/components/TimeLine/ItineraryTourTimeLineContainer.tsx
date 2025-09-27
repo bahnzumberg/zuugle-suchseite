@@ -1,4 +1,3 @@
-import * as React from "react";
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";

@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import React from "react";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 import { LeftArrow } from "./HorizontalScroll/LeftArrow";

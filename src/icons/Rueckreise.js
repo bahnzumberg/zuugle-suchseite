@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ReactComponent as YourSvg } from "./../icons/svg/ic_rückreise.svg";
 import { styles } from "./defaults";
 

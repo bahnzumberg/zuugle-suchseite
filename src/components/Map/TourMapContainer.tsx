@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useEffect, useState, lazy, Suspense, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,

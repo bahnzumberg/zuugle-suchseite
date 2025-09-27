@@ -1,5 +1,5 @@
 import { Box, Skeleton, Typography } from "@mui/material";
-import React, { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "../../utils/globals";

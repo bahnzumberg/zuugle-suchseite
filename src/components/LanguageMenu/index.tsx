@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { Modal } from "@mui/material";
@@ -48,7 +48,7 @@ function LanguageMenu() {
   const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
     i18n.language,
   );
-  const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   return (
     <div>

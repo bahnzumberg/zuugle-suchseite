@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import React from "react";
 import { isMobileDevice } from "../../utils/globals";
 
 const LINEAR_GRADIENT =

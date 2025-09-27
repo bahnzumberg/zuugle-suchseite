@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
-import React, { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { theme } from "./theme";

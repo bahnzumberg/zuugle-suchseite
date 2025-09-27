@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";

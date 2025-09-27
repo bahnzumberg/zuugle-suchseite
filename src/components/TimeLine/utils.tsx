@@ -7,7 +7,6 @@ import {
   getTimeFromConnectionDescriptionEntry,
   randomKey,
 } from "../../utils/globals";
-import * as React from "react";
 import TransportTrain from "../../icons/TransportTrain";
 import TransportBus from "../../icons/TransportBus";
 import TransportWalk from "../../icons/TransportWalk";

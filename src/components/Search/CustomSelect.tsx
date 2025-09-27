@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   InputBase,
   Grid,
@@ -33,9 +33,7 @@ export default function CustomSelect({
   const city = useSelector((state: RootState) => state.search.city);
   const language = useSelector((state: RootState) => state.search.language);
   const provider = useSelector((state: RootState) => state.search.provider);
-  const [searchString, setSearchString] = React.useState(
-    currentSearchPhrase || "",
-  );
+  const [searchString, setSearchString] = useState(currentSearchPhrase || "");
   const isSearchPage = window.location.pathname === "/search";
   const navigate = useNavigate();
 
