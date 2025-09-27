@@ -640,7 +640,7 @@ export default function DetailReworked() {
                   />
                 </Box>
                 {tour?.valid_tour === 1 && (
-                    <Box className="tour-detail-conditional-desktop">
+                    <Box className="tour-detail-conditional-mobile">
                       <Divider variant="middle" />
                       <div className="tour-detail-img-container">
                         <img
