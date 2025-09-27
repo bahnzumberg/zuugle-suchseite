@@ -617,7 +617,6 @@ export default function DetailReworked() {
                             e.currentTarget.style.display = 'none';
                           }}
                           alt={tour?.title}
-                          fetchpriority="high"
                           style={{ display: tour?.image_url ? 'block' : 'none' }}
                         />
                       </div>
@@ -649,7 +648,6 @@ export default function DetailReworked() {
                             e.currentTarget.style.display = 'none';
                           }}
                           alt={tour?.title}
-                          fetchpriority="high"
                           style={{ display: tour?.image_url ? 'block' : 'none' }}
                         />
                       </div>
