@@ -8,8 +8,9 @@ import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import Main from "./views/Main/Main";
 
+// Importiere DetailReworked und Main jetzt dynamisch
+const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
 const DetailReworked = lazy(() => import("./views/Main/DetailReworked"));
@@ -66,9 +67,30 @@ function App() {
           <Routes>
             <Route path="/" element={<Start />} />
             <Route path="/total" element={<Start />} />
-            <Route path="/imprint" element={<Impressum />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/search" element={<Main />} />
+            <Route
+              path="/imprint"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Impressum />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Privacy />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/search"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
             <Route
               path="/tour/:idOne/:cityOne?"
               element={
@@ -85,7 +107,14 @@ function App() {
                 </Suspense>
               }
             />
-            <Route path="/:city" element={<Main />} />
+            <Route
+              path="/:city"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
