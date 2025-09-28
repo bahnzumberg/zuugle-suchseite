@@ -192,35 +192,6 @@ export default function DetailReworked() {
       _mtm.push({ provider: tour.provider_name });
       _mtm.push({ range: tour.range });
       _mtm.push({ pagetitel: tour.title });
-
-      useHead({
-        title: page_title,
-        meta: [
-          { "http-equiv": "content-language", content: currLanguage },
-          { name: "title", content: page_title },
-          { name: "description", content: description },
-          { property: "og:url", content: shareUrl() },
-          { property: "og:title", content: page_title },
-          { property: "og:description", content: "" },
-          { property: "og:image", content: imageUrl },
-          { property: "twitter:url", content: shareUrl() },
-          { property: "twitter:title", content: page_title },
-          { property: "twitter:description", content: description },
-          { property: "twitter:image", content: imageUrl },
-        ],
-        link: [
-          {
-            rel: "alternate",
-            href: `https://${window.location.hostname}/tour/${idOne}/no-city`,
-          },
-          ...tour.canonical.map((entry) => ({
-            key: entry.zuugle_url,
-            rel: entry.canonical_yn === "y" ? "canonical" : "alternate",
-            href: `https://${entry.zuugle_url}`,
-            hrefLang: entry.href_lang,
-          })),
-        ],
-      });
     }
   }, [tour]);
 
@@ -470,6 +441,35 @@ export default function DetailReworked() {
     imageUrl = tour?.image_url ?? "";
     description = tour?.description ?? "";
   }
+
+  useHead({
+    title: page_title,
+    meta: [
+      { "http-equiv": "content-language", content: currLanguage },
+      { name: "title", content: page_title },
+      { name: "description", content: description },
+      { property: "og:url", content: shareUrl() },
+      { property: "og:title", content: page_title },
+      { property: "og:description", content: "" },
+      { property: "og:image", content: imageUrl },
+      { property: "twitter:url", content: shareUrl() },
+      { property: "twitter:title", content: page_title },
+      { property: "twitter:description", content: description },
+      { property: "twitter:image", content: imageUrl },
+    ],
+    link: [
+      {
+        rel: "alternate",
+        href: `https://${window.location.hostname}/tour/${idOne}/no-city`,
+      },
+      ...(tour?.canonical ?? []).map((entry) => ({
+        key: entry.zuugle_url,
+        rel: entry.canonical_yn === "y" ? "canonical" : "alternate",
+        href: `https://${entry.zuugle_url}`,
+        hrefLang: entry.href_lang,
+      })),
+    ],
+  });
 
   return (
     <Box sx={{ backgroundColor: "#fff" }}>
