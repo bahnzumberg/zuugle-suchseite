@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Head } from "@unhead/react";
+import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -192,6 +192,35 @@ export default function DetailReworked() {
       _mtm.push({ provider: tour.provider_name });
       _mtm.push({ range: tour.range });
       _mtm.push({ pagetitel: tour.title });
+
+      useHead({
+        title: page_title,
+        meta: [
+          { "http-equiv": "content-language", content: currLanguage },
+          { name: "title", content: page_title },
+          { name: "description", content: description },
+          { property: "og:url", content: shareUrl() },
+          { property: "og:title", content: page_title },
+          { property: "og:description", content: "" },
+          { property: "og:image", content: imageUrl },
+          { property: "twitter:url", content: shareUrl() },
+          { property: "twitter:title", content: page_title },
+          { property: "twitter:description", content: description },
+          { property: "twitter:image", content: imageUrl },
+        ],
+        link: [
+          {
+            rel: "alternate",
+            href: `https://${window.location.hostname}/tour/${idOne}/no-city`,
+          },
+          ...tour.canonical.map((entry) => ({
+            key: entry.zuugle_url,
+            rel: entry.canonical_yn === "y" ? "canonical" : "alternate",
+            href: `https://${entry.zuugle_url}`,
+            hrefLang: entry.href_lang,
+          })),
+        ],
+      });
     }
   }, [tour]);
 
@@ -448,47 +477,6 @@ export default function DetailReworked() {
         <LoadingSpinner />
       ) : (
         <>
-          <Head>
-            <title>{page_title}</title>
-            <meta httpEquiv="content-language" content={`${currLanguage}`} />
-            <meta name="title" content={`${page_title}`} />
-            <meta name="description" content={`${description}`} />
-            <meta property="og:url" content={`${shareUrl()}`} />
-            <meta property="og:title" content={`${page_title}`} />
-            <meta property="og:description" content="" />
-            <meta property="og:image" content={`${imageUrl}`} />
-            <meta property="twitter:url" content={`${shareUrl()}`} />
-            <meta property="twitter:title" content={`${page_title}`} />
-            <meta property="twitter:description" content={`${description}`} />
-            <meta property="twitter:image" content={`${imageUrl}`} />
-            <link
-              rel="alternate"
-              href={`https://${window.location.hostname}/tour/${idOne}/no-city`}
-            />
-            {tour?.valid_tour === 1 &&
-              tour.canonical.length > 0 &&
-              tour.canonical.map((entry) => {
-                if (entry.canonical_yn === "y") {
-                  return (
-                    <link
-                      key={entry.zuugle_url}
-                      rel="canonical"
-                      href={`https://${entry.zuugle_url}`}
-                      hrefLang={`${entry.href_lang}`}
-                    />
-                  );
-                } else {
-                  return (
-                    <link
-                      key={entry.zuugle_url}
-                      rel="alternate"
-                      href={`https://${entry.zuugle_url}`}
-                      hrefLang={`${entry.href_lang}`}
-                    />
-                  );
-                }
-              })}
-          </Head>
           <Box className="newHeader" sx={{ position: "relative" }}>
             <Box component={"div"} className="rowing blueDiv">
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -613,15 +601,17 @@ export default function DetailReworked() {
                       <div className="tour-detail-img-container">
                         <img
                           src={tour?.image_url ?? ""}
-                          onError={() => {
-                            e.currentTarget.style.display = 'none';
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
                           }}
                           alt={tour?.title}
-                          style={{ display: tour?.image_url ? 'block' : 'none' }}
+                          style={{
+                            display: tour?.image_url ? "block" : "none",
+                          }}
                         />
                       </div>
                     </Box>
-                  )}                
+                  )}
                   {city && idOne && (
                     <Box className="tour-detail-conditional-desktop">
                       {actionButtonPart}
@@ -639,19 +629,19 @@ export default function DetailReworked() {
                   />
                 </Box>
                 {tour?.valid_tour === 1 && (
-                    <Box className="tour-detail-conditional-mobile">
-                      <Divider variant="middle" />
-                      <div className="tour-detail-img-container">
-                        <img
-                          src={tour?.image_url ?? ""}
-                          onError={() => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                          alt={tour?.title}
-                          style={{ display: tour?.image_url ? 'block' : 'none' }}
-                        />
-                      </div>
-                    </Box>
+                  <Box className="tour-detail-conditional-mobile">
+                    <Divider variant="middle" />
+                    <div className="tour-detail-img-container">
+                      <img
+                        src={tour?.image_url ?? ""}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                        alt={tour?.title}
+                        style={{ display: tour?.image_url ? "block" : "none" }}
+                      />
+                    </div>
+                  </Box>
                 )}
                 {tour?.valid_tour === 1 && city && idOne && (
                   <Box className="tour-detail-conditional-mobile">
