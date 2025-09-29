@@ -27,7 +27,7 @@ export default function Header({
 
   if (totalTours === 0) {
     return (
-      <BackgroundImageLoader className="header-container" tld={tld}>
+      <BackgroundImageLoader tld={tld}>
         <Box className="header-text">
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <img
@@ -52,11 +52,7 @@ export default function Header({
   }
 
   return (
-    <BackgroundImageLoader
-      className="header-container"
-      sx={{ position: "relative" }}
-      tld={tld}
-    >
+    <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
       <Suspense fallback={<></>}>
         <Box className="rowing blueDiv">
           <DomainMenu />
