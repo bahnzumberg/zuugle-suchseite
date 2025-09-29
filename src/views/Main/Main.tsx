@@ -1,7 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 // Importiere die Karten-Komponente jetzt dynamisch
 const TourMapContainer = lazy(
   () => import("../../components/Map/TourMapContainer"),

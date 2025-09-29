@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { convertNumToTime, getTourLink } from "../../utils/globals";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { Tour } from "../../models/Tour";
 
 export default function PopupCard({
