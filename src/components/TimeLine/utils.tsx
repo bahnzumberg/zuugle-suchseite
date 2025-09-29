@@ -7,9 +7,6 @@ import {
   getTimeFromConnectionDescriptionEntry,
   randomKey,
 } from "../../utils/globals";
-import TransportTrain from "../../icons/TransportTrain";
-import TransportBus from "../../icons/TransportBus";
-import TransportWalk from "../../icons/TransportWalk";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import Box from "@mui/material/Box";
@@ -17,12 +14,9 @@ import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import MyTimeLineDot from "./MyTimeLineDot";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
-import ShuffleBlack from "../../icons/ShuffleBlack";
-import Seilbahn from "../../icons/Seilbahn";
-import Tram from "../../icons/Tram";
-import Car from "../../icons/Car";
 import { Connection } from "../../models/Connections";
 import { t } from "i18next";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 dayjs.extend(duration);
 
@@ -127,12 +121,30 @@ const cableCar_key = [
 
 // Transport icons
 const transportIcons: Record<string, JSX.Element> = {
-  train_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
-  metro_key: <TransportTrain style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
-  tram_key: <Tram style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
-  bus_key: <TransportBus style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
+  train_key: (
+    <CustomIcon
+      name="transportTrain"
+      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+    />
+  ),
+  metro_key: (
+    <CustomIcon
+      name="transportTrain"
+      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+    />
+  ),
+  tram_key: (
+    <CustomIcon name="tram" style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
+  ),
+  bus_key: (
+    <CustomIcon
+      name="transportBus"
+      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+    />
+  ),
   car_key: (
-    <Car
+    <CustomIcon
+      name="car"
       style={{
         strokeWidth: 2,
         stroke: "#4992FF",
@@ -142,7 +154,8 @@ const transportIcons: Record<string, JSX.Element> = {
     />
   ),
   cableCar_key: (
-    <Seilbahn
+    <CustomIcon
+      name="seilbahn"
       style={{
         strokeWidth: 2,
         stroke: "#4992FF",
@@ -151,8 +164,13 @@ const transportIcons: Record<string, JSX.Element> = {
       }}
     />
   ),
-  transfer_key: <ShuffleBlack style={{ strokeWidth: 0.8 }} />,
-  walk: <TransportWalk style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />,
+  transfer_key: <CustomIcon name="shuffleBlack" style={{ strokeWidth: 0.8 }} />,
+  walk: (
+    <CustomIcon
+      name="transportWalk"
+      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+    />
+  ),
 };
 
 // Array of arrays for transport-type

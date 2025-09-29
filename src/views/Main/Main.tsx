@@ -10,7 +10,6 @@ import { Typography, Skeleton } from "@mui/material";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import {
   useGetCitiesQuery,
@@ -33,6 +32,7 @@ import {
   getTranslatedCountryName,
   usePageHeader,
 } from "../../utils/seoPageHelper";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export default function Main() {
   const { t } = useTranslation();
@@ -242,7 +242,8 @@ export default function Main() {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link to={"/" + (provider ? `?p=${provider}` : "")}>
-                  <ArrowBefore
+                  <CustomIcon
+                    name="arrowBefore"
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Link>

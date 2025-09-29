@@ -1,8 +1,7 @@
 import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import TransportTrain from "../../icons/TransportTrain";
-import ClearSearchIcon from "../../icons/ClearSearchIcon";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 const CssTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -74,7 +73,7 @@ export default function CityInput({ city, setCity }: CityInputProps) {
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <TransportTrain />
+            <CustomIcon name="transportTrain" />
           </InputAdornment>
         ),
         endAdornment: (
@@ -83,7 +82,9 @@ export default function CityInput({ city, setCity }: CityInputProps) {
             sx={{ cursor: "pointer" }}
             onClick={() => handleSearchClearClick(true)}
           >
-            {city && <ClearSearchIcon />}
+            {city && (
+              <CustomIcon name="clearSearchIcon" style={{ strokeWidth: 0 }} />
+            )}
           </InputAdornment>
         ),
         className: "search-bar-input",

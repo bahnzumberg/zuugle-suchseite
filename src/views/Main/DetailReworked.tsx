@@ -28,10 +28,6 @@ import Footer from "../../components/Footer/Footer";
 import InteractiveMap from "../../components/InteractiveMap";
 import Itinerary from "../../components/Itinerary/Itinerary";
 import TourDetailProperties from "../../components/TourDetailProperties";
-import ArrowBefore from "../../icons/ArrowBefore";
-import Close from "../../icons/Close";
-import DownloadIcon from "../../icons/DownloadIcon";
-import ShareIcon from "../../icons/ShareIcon";
 import {
   get_currLanguage,
   parseFileName,
@@ -51,6 +47,7 @@ import { useAppDispatch } from "../../hooks";
 import { citySlugUpdated, cityUpdated } from "../../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =
@@ -58,7 +55,7 @@ export default function DetailReworked() {
   const [activeReturnConnection, setActiveReturnConnection] =
     useState<Connection | null>(null);
   const [dateIndex, setDateIndex] = useState(0);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [tourDifficulty, setTourDifficulty] = useState<string | null>(null);
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
@@ -299,7 +296,10 @@ export default function DetailReworked() {
               downloadGpx();
             }}
           >
-            <DownloadIcon />
+            <CustomIcon
+              name="downlaodIcon"
+              style={{ width: "25px", height: "25px" }}
+            />
             <span style={{ color: "#101010", width: "43px" }}>GPX</span>
             {isGpxLoading ? (
               <CircularProgress
@@ -323,7 +323,7 @@ export default function DetailReworked() {
           disabled={false}
           onClick={shareButtonHandler}
         >
-          <ShareIcon />
+          <CustomIcon name="shareIcon" />
           <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
             {t("details.teilen")}
           </span>
@@ -484,7 +484,8 @@ export default function DetailReworked() {
                   sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                   onClick={handleCloseTab}
                 >
-                  <ArrowBefore
+                  <CustomIcon
+                    name="arrowBefore"
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Box>
@@ -494,7 +495,8 @@ export default function DetailReworked() {
                 sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
                 onClick={handleCloseTab}
               >
-                <Close
+                <CustomIcon
+                  name="close"
                   style={{
                     stroke: "#fff",
                     fill: "#fff",
