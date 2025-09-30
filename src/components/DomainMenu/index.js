@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { Box, Modal, Typography } from "@mui/material";
 import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -582,7 +582,7 @@ function DomainMenu() {
     { id: 1, name: "Impressum", url: "https://" + domain + "/imprint" },
     { id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
   ];
-  const [showDomainMenu, setShowDomainMenu] = React.useState(false);
+  const [showDomainMenu, setShowDomainMenu] = useState(false);
 
   return (
     <Box component={"div"} className="colLeft">

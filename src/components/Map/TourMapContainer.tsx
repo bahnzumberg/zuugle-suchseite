@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useEffect, useState, lazy, Suspense, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -12,7 +11,6 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Box from "@mui/material/Box";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import { useSelector } from "react-redux";
 import {
   formatMapClusterNumber,
@@ -30,6 +28,7 @@ import {
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
 import PopupCard from "./PopupCard";
+import ClusterGroup from "./ClusterGroup";
 
 // There is also a Marker defined in leaflet. Should we use that instead?
 export interface Marker {
@@ -113,9 +112,7 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     });
   };
 
-  const createClusterCustomIcon = function (cluster: {
-    getChildCount: () => number;
-  }) {
+  const createClusterCustomIcon = function (cluster: L.MarkerCluster) {
     const clusterChildCount = cluster.getChildCount();
     const formattedCount = formatMapClusterNumber(clusterChildCount);
 
@@ -132,6 +129,13 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
       iconSize: iconSize,
     });
   };
+
+  const processedMarkers = markers.map((mark) => ({
+    id: mark.id,
+    position: L.latLng(mark.lat, mark.lon),
+    icon: createStartMarker(),
+    onClick: () => setActiveMarker(mark),
+  }));
 
   const debouncedBoundsUpdate = useDebouncedCallback(
     (bounds: L.LatLngBounds) => {
@@ -241,26 +245,16 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
           />
         )}
 
-        <MarkerClusterGroup
-          maxClusterRadius={100}
-          chunkedLoading //dass jeder marker einzeln geladen wird --> bessere performance
-          showCoverageOnHover={false}
-          removeOutsideVisibleBounds={true}
-          iconCreateFunction={createClusterCustomIcon} //das icon vom CLuster --> also wenn mehrere marker zusammengefasst werden
-        >
-          {markers.map((mark: Marker) => {
-            return (
-              <Marker
-                key={mark.id}
-                position={[mark.lat, mark.lon]}
-                icon={createStartMarker()}
-                eventHandlers={{
-                  click: () => setActiveMarker(mark),
-                }}
-              ></Marker>
-            );
-          })}
-        </MarkerClusterGroup>
+        <ClusterGroup
+          markers={processedMarkers}
+          createClusterCustomIcon={createClusterCustomIcon}
+          options={{
+            maxClusterRadius: 100,
+            chunkedLoading: true,
+            showCoverageOnHover: false,
+            removeOutsideVisibleBounds: true,
+          }}
+        />
         <ZoomControl position="bottomright" />
       </MapContainer>
     </Box>

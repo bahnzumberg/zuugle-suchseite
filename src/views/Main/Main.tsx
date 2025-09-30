@@ -1,10 +1,11 @@
-import * as React from "react";
 import { useEffect, useState, lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 // Importiere die Karten-Komponente jetzt dynamisch
-const TourMapContainer = lazy(() => import("../../components/Map/TourMapContainer"));
+const TourMapContainer = lazy(
+  () => import("../../components/Map/TourMapContainer"),
+);
 import { Typography, Skeleton } from "@mui/material";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
@@ -292,7 +293,11 @@ export default function Main() {
 
       {showMap && (
         <Box className={"map-container"}>
-          <Suspense fallback={<Skeleton variant="rectangular" width="100%" height="100%" />}>
+          <Suspense
+            fallback={
+              <Skeleton variant="rectangular" width="100%" height="100%" />
+            }
+          >
             <TourMapContainer markers={loadedTours?.markers || []} />
           </Suspense>
         </Box>

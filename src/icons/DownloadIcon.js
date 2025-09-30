@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ReactComponent as Icon } from "./svg/actions/download.svg";
 import { styles } from "./defaults";
 

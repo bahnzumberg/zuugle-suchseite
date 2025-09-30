@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router";
 import "dayjs/plugin/isBetween";
 import {
   EmailIcon,

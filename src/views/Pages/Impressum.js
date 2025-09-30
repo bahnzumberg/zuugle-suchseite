@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
@@ -8,7 +8,7 @@ function Impressum({}) {
   //Translation related
   const { t } = useTranslation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     var _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Impressum" });
   }, []);

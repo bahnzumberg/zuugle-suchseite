@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ReactComponent as YourSvg } from './svg/ic_überschreitung.svg';
 import {styles} from "./defaults";
 

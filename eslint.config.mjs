@@ -28,6 +28,8 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/ban-ts-comment": "off",
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
     },
   },
   {

@@ -1,4 +1,3 @@
-import React from "react";
 import CustomSelect from "./CustomSelect";
 import {
   Dialog,

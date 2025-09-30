@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ListIcon from "../../icons/List";
 import MapIcon from "../../icons/Map";
