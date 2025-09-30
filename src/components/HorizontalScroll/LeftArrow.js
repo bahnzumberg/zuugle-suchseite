@@ -23,7 +23,7 @@ export function LeftArrow() {
         style={{
           backgroundColor: "black",
           color: "#FFF",
-          opacity: !!isFirstItemVisible ? 0 : 0.6,
+          opacity: isFirstItemVisible ? 0 : 0.6,
         }}
         className={"react-horizontal-scrolling-arrow"}
       >

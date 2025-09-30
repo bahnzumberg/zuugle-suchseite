@@ -14,7 +14,7 @@ export default function PopupCard({
   tour: Tour;
   city: string;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   if (searchParams.get("filter")) searchParams.delete("filter");
   if (searchParams.get("map")) searchParams.delete("map");

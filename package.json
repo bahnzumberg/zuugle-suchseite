@@ -45,7 +45,8 @@
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "lint": "eslint --cache",
-    "lint:fix": "eslint --cache --fix"
+    "lint:fix": "eslint --cache --fix",
+    "tsc": "tsc --noEmit"
   },
   "lint-staged": {
     "**/*.js": "eslint --cache --fix --max-warnings 0",

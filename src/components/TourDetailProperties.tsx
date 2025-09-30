@@ -3,8 +3,12 @@ import { Typography, Divider } from "@mui/material";
 import { convertNumToTime, formatNumber } from "../utils/globals";
 import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
+import { Tour } from "../models/Tour";
 
-const TourDetailProperties = ({ tour }) => {
+export interface TourDetailPropertiesProps {
+  tour?: Tour;
+}
+const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 679);
 
   // const isDesktop = window.innerWidth >= 679;

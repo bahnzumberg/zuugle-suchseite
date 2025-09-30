@@ -85,7 +85,7 @@ export function getDefaultBoundsForDomain(domain: string): {
   return { ne: bounds.ne, sw: bounds.sw, center };
 }
 
-export function useDebouncedCallback<T extends (...args: any[]) => void>(
+export function useDebouncedCallback<T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number,
 ) {

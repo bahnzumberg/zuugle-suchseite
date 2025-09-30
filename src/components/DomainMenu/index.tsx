@@ -5,7 +5,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 function DomainMenu() {
-  let host = window.location.href;
+  const host = window.location.href;
 
   let listOfDomains = [];
   let domain = "www.zuugle.at";
