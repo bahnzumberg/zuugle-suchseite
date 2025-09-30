@@ -1,7 +1,7 @@
 import { Box, Skeleton, Typography } from "@mui/material";
 import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { useIsMobile } from "../../utils/globals";
 import {
   usePageHeader,
@@ -18,12 +18,10 @@ import { useSelector } from "react-redux";
 import SearchParamSync from "../../components/SearchParamSync";
 import { useAppDispatch } from "../../hooks";
 import { mapUpdated } from "../../features/searchSlice";
+import RangeCardContainer from "../../components/RangeCardContainer";
 
-const RangeCardContainer = lazy(
-  () => import("../../components/RangeCardContainer"),
-);
+// Dynamische Imports für nicht-kritische Komponenten
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-
 const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
@@ -182,6 +180,7 @@ export default function Start() {
                 >
                   {getRangeText()}
                 </Typography>
+                {/* RangeCardContainer ist wieder statisch importiert */}
                 <RangeCardContainer ranges={loadedTours.ranges} />
               </Box>
               <Box sx={{ marginTop: "80px" }}>
