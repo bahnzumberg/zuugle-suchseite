@@ -52,7 +52,9 @@ const createQuery = async (field, alias, city, search, language, tld) => {
     query = query.andWhereRaw(`search_time > CURRENT_DATE - INTERVAL '12 MONTH'`);
 
     const normalizedField = `LOWER(TRIM(${field}))`;
-    query = query.andWhereRaw(`${normalizedField} LIKE '${search.trim().toLowerCase()}%'`)
+    const searchTerm = `${search.trim().toLowerCase()}%`;
+    
+    query = query.andWhereRaw(`${normalizedField} LIKE ?`, [searchTerm]);
 
     const queryResult = await query.groupByRaw(normalizedField)
         .orderBy(`CNT`, `desc`)
