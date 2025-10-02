@@ -201,12 +201,11 @@ export default function Search({
           {!city && pageKey === "detail" ? (
             ""
           ) : (
-            // ) : !!initialIsMapView ? null : (
             <Box
               sx={{
                 marginLeft: "10px",
-                backgroundColor: activeFilter && "#FF7663",
-                borderColor: activeFilter && "#FF7663",
+                backgroundColor: activeFilter ? "#FF7663" : undefined,
+                borderColor: activeFilter ? "#FF7663" : undefined,
               }}
               className="filter-icon-container"
             >

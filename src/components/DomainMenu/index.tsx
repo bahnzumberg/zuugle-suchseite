@@ -7,7 +7,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 function DomainMenu() {
   const host = window.location.href;
 
-  let listOfDomains = [];
+  let listOfDomains: { id: number; name: string; url: string }[] = [];
   let domain = "www.zuugle.at";
 
   if (process.env.NODE_ENV === "development") {

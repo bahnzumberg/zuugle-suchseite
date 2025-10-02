@@ -111,11 +111,14 @@ export default function PopupCard({
                 ? "N/A"
                 : tour?.number_of_days > 1
                   ? tour?.number_of_days + " " + t("details.tage")
-                  : convertNumToTime(tour.avg_total_tour_duration, true)}
+                  : convertNumToTime(
+                      Number(tour.avg_total_tour_duration),
+                      true,
+                    )}
             </span>
           </Typography>
 
-          <Typography variant="blackP" styles={{ fontSize: "13px" }}>
+          <Typography variant="blackP" style={{ fontSize: "13px" }}>
             {t("filter.anstieg")} <br />
             <span style={{ fontSize: "13px" }}>
               {tour.ascent} {hm}

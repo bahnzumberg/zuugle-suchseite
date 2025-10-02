@@ -53,11 +53,6 @@ export default function CityInput({ city, setCity }: CityInputProps) {
     }
   };
 
-  const handleSearchClearClick = (e) => {
-    if (e) {
-      setCity("");
-    }
-  };
   return (
     <CssTextField
       className={"city-input"}
@@ -80,7 +75,7 @@ export default function CityInput({ city, setCity }: CityInputProps) {
           <InputAdornment
             position="end"
             sx={{ cursor: "pointer" }}
-            onClick={() => handleSearchClearClick(true)}
+            onClick={() => setCity("")}
           >
             {city && (
               <CustomIcon name="clearSearchIcon" style={{ strokeWidth: 0 }} />

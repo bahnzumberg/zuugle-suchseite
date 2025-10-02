@@ -14,6 +14,7 @@ function Privacy() {
   );
 
   useEffect(() => {
+    // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Datenschutzerklärung" });
   }, []);

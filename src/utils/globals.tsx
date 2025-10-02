@@ -64,8 +64,10 @@ export const simpleConvertNumToTime = (number: number) => {
   return timeStr;
 };
 
-export function formatNumber(number: string, postfix = "") {
-  return parseFloat(number).toLocaleString("de-AT") + postfix;
+export function formatNumber(number: string | number, postfix = "") {
+  const num = typeof number === "string" ? parseFloat(number) : number;
+  if (isNaN(num)) return "";
+  return num.toLocaleString("de-AT") + postfix;
 }
 
 export const parseFileName = (name: string, prefix = "", postfix = "") => {

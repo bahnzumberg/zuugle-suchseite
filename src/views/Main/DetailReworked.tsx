@@ -184,6 +184,7 @@ export default function DetailReworked() {
   }, [tour, city]);
 
   useEffect(() => {
+    // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
     if (tour) {
       _mtm.push({ provider: tour.provider_name });

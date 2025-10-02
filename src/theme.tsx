@@ -41,24 +41,6 @@ export const theme = createTheme({
         },
       },
     },
-    MuiSelect: {
-      styleOverrides: {
-        root: {
-          borderRadius: 100,
-        },
-        select: {},
-        "&:focus": {
-          backgroundColor: "#ffddec",
-          borderColor: "brown",
-        },
-        "&:before": {
-          borderColor: "orange",
-        },
-        "&:after": {
-          borderColor: "green",
-        },
-      },
-    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -88,8 +70,6 @@ export const theme = createTheme({
   typography: {
     fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
     fontSize: 14,
-    fontStyle: "normal",
-    letterSpacing: "0px",
     fontWeightLight: 300,
     fontWeightRegular: 400,
     fontWeightMedium: 500,
@@ -153,13 +133,11 @@ export const theme = createTheme({
     blueP: {
       fontSize: 12,
       color: "#4992FF",
-      BorderLeft: "1px  solid #000",
       fontWeight: 500,
     },
     blackP: {
       fontSize: 12,
       color: "#000",
-      BorderLeft: "1px #000 solid",
       fontWeight: 500,
     },
     h5alt: {
