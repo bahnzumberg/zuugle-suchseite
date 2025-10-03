@@ -3,8 +3,12 @@ import { Typography, Divider } from "@mui/material";
 import { convertNumToTime, formatNumber } from "../utils/globals";
 import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
+import { Tour } from "../models/Tour";
 
-const TourDetailProperties = ({ tour }) => {
+export interface TourDetailPropertiesProps {
+  tour?: Tour;
+}
+const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 679);
 
   // const isDesktop = window.innerWidth >= 679;
@@ -27,7 +31,7 @@ const TourDetailProperties = ({ tour }) => {
     };
   }, []);
 
-  const translateTourType = (type) => {
+  const translateTourType = (type: string) => {
     let translatedType = null;
     tourTypes.map((typ) => {
       type = type.toLowerCase();
@@ -66,7 +70,7 @@ const TourDetailProperties = ({ tour }) => {
             <Typography variant={"h5alt"}>
               {tour?.number_of_days > 1
                 ? tour?.number_of_days + " " + t("details.tage")
-                : convertNumToTime(tour?.avg_total_tour_duration, true)}
+                : convertNumToTime(Number(tour?.avg_total_tour_duration), true)}
             </Typography>
           </div>
           {/* only mobile: we need the horizontal divider here below to be visible */}

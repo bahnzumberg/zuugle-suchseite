@@ -34,10 +34,10 @@ function App() {
         i18next.changeLanguage("de");
         break;
     }
-    localStorage.setItem("visited", true);
+    localStorage.setItem("visited", String(true));
   }
 
-  // Matomo tracking
+  // @ts-expect-error matomo
   const _mtm = (window._mtm = window._mtm || []);
   useEffect(() => {
     _mtm.push({
@@ -49,7 +49,7 @@ function App() {
       s = d.getElementsByTagName("script")[0];
     g.defer = true;
     g.src = "https://stats.bahnzumberg.at/js/container_ANAXmMKf.js";
-    s.parentNode.insertBefore(g, s);
+    s.parentNode?.insertBefore(g, s);
     _mtm.push({ language: i18next.resolvedLanguage });
   }, []);
 

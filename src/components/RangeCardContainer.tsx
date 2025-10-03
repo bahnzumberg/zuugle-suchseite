@@ -63,7 +63,7 @@ export default function RangeCardContainer({
   );
 }
 
-function Card({ range }) {
+function Card({ range }: { range: RangeObject }) {
   return (
     <Box
       className={"react-horizontal-scrolling-card"}

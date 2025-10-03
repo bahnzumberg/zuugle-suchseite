@@ -41,11 +41,13 @@
     "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
     "build": "npm run build-app",
     "build-app": "webpack --config webpack.config_prod.js",
-    "format": "prettier --write --ignore-unknown $(git ls-files)",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "lint": "eslint --cache",
-    "lint:fix": "eslint --cache --fix"
+    "lint:fix": "eslint --cache --fix",
+    "tsc": "tsc --noEmit"
   },
   "lint-staged": {
     "**/*.js": "eslint --cache --fix --max-warnings 0",
