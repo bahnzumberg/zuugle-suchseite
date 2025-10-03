@@ -1,4 +1,3 @@
-import * as React from "react";
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -15,10 +14,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import { Fragment, useEffect, useState } from "react";
-import Anreise from "../../icons/Anreise";
-import Rueckreise from "../../icons/Rueckreise";
-import Überschreitung from "../../icons/Überschreitung";
-import Shuffle from "../../icons/Shuffle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   createEntries,
@@ -38,6 +33,7 @@ import {
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { Connection, ConnectionResult } from "../../models/Connections";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export interface ItineraryTourTimeLineContainerProps {
   connections: ConnectionResult[] | undefined;
@@ -302,7 +298,8 @@ export default function ItineraryTourTimeLineContainer({
                         alignItems: "center",
                       }}
                     >
-                      <Anreise /* icon */
+                      <CustomIcon
+                        name="anreise"
                         style={{
                           strokeWidth: 0.1,
                           stroke: "#FFFFFF",
@@ -325,7 +322,8 @@ export default function ItineraryTourTimeLineContainer({
                     {GetDepartureText(getSingleConnection())}
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                    <Shuffle
+                    <CustomIcon
+                      name="shuffle"
                       style={{
                         strokeWidth: 0.3,
                         stroke: "#4992FF",
@@ -397,7 +395,8 @@ export default function ItineraryTourTimeLineContainer({
                         alignItems: "center",
                       }}
                     >
-                      <Überschreitung
+                      <CustomIcon
+                        name="überschreitung"
                         style={{
                           strokeWidth: 0.1,
                           stroke: "#FFFFFF",
@@ -476,7 +475,8 @@ export default function ItineraryTourTimeLineContainer({
                           alignItems: "center",
                         }}
                       >
-                        <Rueckreise
+                        <CustomIcon
+                          name="rückreise"
                           style={{
                             strokeWidth: 0.1,
                             stroke: "#FFFFFF",
@@ -512,7 +512,8 @@ export default function ItineraryTourTimeLineContainer({
                       </Typography>
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                      <Shuffle
+                      <CustomIcon
+                        name="shuffle"
                         style={{
                           strokeWidth: 0.3,
                           stroke: "#4992FF",
@@ -592,7 +593,8 @@ export default function ItineraryTourTimeLineContainer({
                             alignItems: "center",
                           }}
                         >
-                          <Rueckreise
+                          <CustomIcon
+                            name="rückreise"
                             style={{
                               strokeWidth: 0.1,
                               stroke: "#FFFFFF",
@@ -626,7 +628,8 @@ export default function ItineraryTourTimeLineContainer({
                         </Typography>
                       </Box>
                       <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                        <Shuffle
+                        <CustomIcon
+                          name="shuffle"
                           style={{
                             strokeWidth: 0.3,
                             stroke: "#4992FF",

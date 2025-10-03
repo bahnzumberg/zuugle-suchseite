@@ -1,10 +1,9 @@
-import React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
-import "./index.css";
 import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import searchReducer, {
@@ -110,7 +109,7 @@ if (!rootElement) {
   const root = createRoot(rootElement);
 
   root.render(
-    <React.StrictMode>
+    <StrictMode>
       <Provider store={store}>
         <BrowserRouter>
           <UnheadProvider head={head}>
@@ -129,6 +128,6 @@ if (!rootElement) {
           </UnheadProvider>
         </BrowserRouter>
       </Provider>
-    </React.StrictMode>,
+    </StrictMode>,
   );
 }

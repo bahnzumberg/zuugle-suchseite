@@ -1,11 +1,10 @@
-import * as React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { convertNumToTime, getTourLink } from "../../utils/globals";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { Tour } from "../../models/Tour";
 
 export default function PopupCard({
@@ -15,7 +14,7 @@ export default function PopupCard({
   tour: Tour;
   city: string;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   if (searchParams.get("filter")) searchParams.delete("filter");
   if (searchParams.get("map")) searchParams.delete("map");
@@ -112,11 +111,14 @@ export default function PopupCard({
                 ? "N/A"
                 : tour?.number_of_days > 1
                   ? tour?.number_of_days + " " + t("details.tage")
-                  : convertNumToTime(tour.avg_total_tour_duration, true)}
+                  : convertNumToTime(
+                      Number(tour.avg_total_tour_duration),
+                      true,
+                    )}
             </span>
           </Typography>
 
-          <Typography variant="blackP" styles={{ fontSize: "13px" }}>
+          <Typography variant="blackP" style={{ fontSize: "13px" }}>
             {t("filter.anstieg")} <br />
             <span style={{ fontSize: "13px" }}>
               {tour.ascent} {hm}

@@ -7,6 +7,9 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
+    ignores: ["build/**", "server/**"], // <-- global ignore block
+  },
+  {
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"],
     plugins: { js },
     extends: ["js/recommended"],
@@ -28,10 +31,12 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/ban-ts-comment": "off",
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
     },
   },
   {
-    files: ["*config*"],
+    files: ["*config*.js"],
     extends: [tseslint.configs.disableTypeChecked],
     rules: {
       "@typescript-eslint/no-require-imports": "off", // allow "require" in these config files

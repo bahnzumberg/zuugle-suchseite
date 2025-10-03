@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { RootState } from "..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../hooks";

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useHead } from "@unhead/react";
 import { CityObject } from "../features/searchSlice";
 

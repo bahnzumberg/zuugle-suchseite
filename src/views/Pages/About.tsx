@@ -1,14 +1,15 @@
-import * as React from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
 import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-function About({}) {
+function About() {
   const { t } = useTranslation();
 
-  React.useEffect(() => {
-    var _mtm = (window._mtm = window._mtm || []);
+  useEffect(() => {
+    // @ts-expect-error matomo
+    const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "About" });
   }, []);
 

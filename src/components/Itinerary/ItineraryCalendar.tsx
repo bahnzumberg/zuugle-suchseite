@@ -1,4 +1,3 @@
-import React from "react";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/de";
 import "dayjs/locale/fr";

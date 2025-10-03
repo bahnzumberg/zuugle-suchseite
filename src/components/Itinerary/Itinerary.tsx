@@ -1,5 +1,3 @@
-import React from "react";
-// import { useEffect } from "react";
 import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import { useTranslation } from "react-i18next";

@@ -1,10 +1,9 @@
 import Button from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import ListIcon from "../../icons/List";
-import MapIcon from "../../icons/Map";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 const MapBtn = ({ handleClick }: { handleClick?: () => void }) => {
   const [t] = useTranslation();
@@ -14,7 +13,11 @@ const MapBtn = ({ handleClick }: { handleClick?: () => void }) => {
   const showMap = useSelector((state: RootState) => state.search.map);
 
   //initialiaze icon
-  const iconUsed = !showMap ? <MapIcon /> : <ListIcon />;
+  const iconUsed = !showMap ? (
+    <CustomIcon name="map" />
+  ) : (
+    <CustomIcon name="list" />
+  );
 
   useEffect(() => {
     // Update button text when language changes

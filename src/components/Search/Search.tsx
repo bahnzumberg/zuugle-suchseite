@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useSelector } from "react-redux";
@@ -7,17 +6,14 @@ import { hasContent } from "../../utils/globals";
 import { Link } from "react-router";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
-import FilterIcon from "../../icons/FilterIcon";
 import IconButton from "@mui/material/IconButton";
-import GoIcon from "../../icons/GoIcon";
 import AutosuggestSearch from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
-import SearchIcon from "../../icons/SearchIcon";
-import TransportTrain from "../../icons/TransportTrain";
 import { useMediaQuery } from "@mui/material";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";
 import { RootState } from "../..";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export interface SearchProps {
   pageKey: string;
@@ -80,7 +76,8 @@ export default function Search({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <SearchIcon
+          <CustomIcon
+            name="searchIcon"
             style={{ strokeWidth: 1, stroke: "#8b8b8b", fill: "#101010" }}
           />
           <Box
@@ -160,7 +157,8 @@ export default function Search({
                     >
                       <>
                         {!isMobile && (
-                          <TransportTrain
+                          <CustomIcon
+                            name="transportTrain"
                             style={{
                               strokeWidth: "1px",
                               fill: "#000",
@@ -203,12 +201,11 @@ export default function Search({
           {!city && pageKey === "detail" ? (
             ""
           ) : (
-            // ) : !!initialIsMapView ? null : (
             <Box
               sx={{
                 marginLeft: "10px",
-                backgroundColor: activeFilter && "#FF7663",
-                borderColor: activeFilter && "#FF7663",
+                backgroundColor: activeFilter ? "#FF7663" : undefined,
+                borderColor: activeFilter ? "#FF7663" : undefined,
               }}
               className="filter-icon-container"
             >
@@ -217,11 +214,13 @@ export default function Search({
                   onClick={() => setFilterOn(true)}
                   aria-label="Filter"
                 >
-                  <FilterIcon
-                    sx={{
+                  <CustomIcon
+                    name="filterIcon"
+                    style={{
                       transition: "stroke 0.3s",
                       strokeWidth: 1.25,
                       stroke: activeFilter ? "#fff" : "#101010",
+                      transform: "scale(0.675)",
                     }}
                   />
                 </IconButton>
@@ -244,7 +243,8 @@ export default function Search({
                       },
                     }}
                   >
-                    <GoIcon
+                    <CustomIcon
+                      name="goIcon"
                       style={{
                         transform: "scale(1.55)",
                         strokeWidth: 0,

@@ -1,15 +1,16 @@
 import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
-import React, { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Navigate, Route, Routes } from "react-router";
 import "./App.css";
 import { theme } from "./theme";
 import { getTopLevelDomain } from "./utils/globals";
 import Start from "./views/Start/Start";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import Main from "./views/Main/Main";
 
+// Importiere DetailReworked und Main jetzt dynamisch
+const Main = lazy(() => import("./views/Main/Main"));
 const Impressum = lazy(() => import("./views/Pages/Impressum"));
 const Privacy = lazy(() => import("./views/Pages/Privacy"));
 const DetailReworked = lazy(() => import("./views/Main/DetailReworked"));
@@ -33,10 +34,10 @@ function App() {
         i18next.changeLanguage("de");
         break;
     }
-    localStorage.setItem("visited", true);
+    localStorage.setItem("visited", String(true));
   }
 
-  // Matomo tracking
+  // @ts-expect-error matomo
   const _mtm = (window._mtm = window._mtm || []);
   useEffect(() => {
     _mtm.push({
@@ -48,7 +49,7 @@ function App() {
       s = d.getElementsByTagName("script")[0];
     g.defer = true;
     g.src = "https://stats.bahnzumberg.at/js/container_ANAXmMKf.js";
-    s.parentNode.insertBefore(g, s);
+    s.parentNode?.insertBefore(g, s);
     _mtm.push({ language: i18next.resolvedLanguage });
   }, []);
 
@@ -66,9 +67,30 @@ function App() {
           <Routes>
             <Route path="/" element={<Start />} />
             <Route path="/total" element={<Start />} />
-            <Route path="/imprint" element={<Impressum />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/search" element={<Main />} />
+            <Route
+              path="/imprint"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Impressum />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Privacy />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/search"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
             <Route
               path="/tour/:idOne/:cityOne?"
               element={
@@ -85,7 +107,14 @@ function App() {
                 </Suspense>
               }
             />
-            <Route path="/:city" element={<Main />} />
+            <Route
+              path="/:city"
+              element={
+                <Suspense fallback={<div>Loading…</div>}>
+                  <Main />
+                </Suspense>
+              }
+            />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

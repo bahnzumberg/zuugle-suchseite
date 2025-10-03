@@ -1,9 +1,13 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { getDomainText } from "../../utils/globals";
 
-export default function Header({ title, subTitle }) {
+export interface HeaderProps {
+  title: string;
+  subTitle?: string;
+}
+
+export default function Header({ title, subTitle }: HeaderProps) {
   let tld = window.location.hostname.slice(-2);
   if (tld.length !== 2) {
     tld = "at";

@@ -1,9 +1,7 @@
-import * as React from "react";
 import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import TransportTrain from "../../icons/TransportTrain";
-import ClearSearchIcon from "../../icons/ClearSearchIcon";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 const CssTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -55,11 +53,6 @@ export default function CityInput({ city, setCity }: CityInputProps) {
     }
   };
 
-  const handleSearchClearClick = (e) => {
-    if (e) {
-      setCity("");
-    }
-  };
   return (
     <CssTextField
       className={"city-input"}
@@ -75,16 +68,18 @@ export default function CityInput({ city, setCity }: CityInputProps) {
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <TransportTrain />
+            <CustomIcon name="transportTrain" />
           </InputAdornment>
         ),
         endAdornment: (
           <InputAdornment
             position="end"
             sx={{ cursor: "pointer" }}
-            onClick={() => handleSearchClearClick(true)}
+            onClick={() => setCity("")}
           >
-            {city && <ClearSearchIcon />}
+            {city && (
+              <CustomIcon name="clearSearchIcon" style={{ strokeWidth: 0 }} />
+            )}
           </InputAdornment>
         ),
         className: "search-bar-input",

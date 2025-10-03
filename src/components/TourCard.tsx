@@ -1,4 +1,3 @@
-import * as React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -178,11 +177,14 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               <span style={{ fontSize: "18px" }}>
                 {tour?.number_of_days > 1
                   ? tour?.number_of_days + " " + t("details.tage")
-                  : convertNumToTime(tour.avg_total_tour_duration, true)}
+                  : convertNumToTime(
+                      Number(tour.avg_total_tour_duration),
+                      true,
+                    )}
               </span>
             </Typography>
 
-            <Typography variant="blackP" styles={{}}>
+            <Typography variant="blackP">
               {len_too_long && anstieg_notlong ? (
                 <>
                   {t("filter.anstieg")}

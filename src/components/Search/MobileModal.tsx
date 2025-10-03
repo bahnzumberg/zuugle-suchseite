@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Box,
   Dialog,
@@ -11,10 +10,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTranslation } from "react-i18next";
-import SearchIcon from "../../icons/SearchIcon";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
-import TransportTrain from "../../icons/TransportTrain";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export interface MobileModalProps {
   showMobileModal: boolean;
@@ -93,7 +91,7 @@ export const MobileModal = ({
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon />
+                    <CustomIcon name="searchIcon" />
                   </InputAdornment>
                 ),
               },
@@ -112,7 +110,8 @@ export const MobileModal = ({
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <TransportTrain
+                    <CustomIcon
+                      name="transportTrain"
                       style={{
                         strokeWidth: "1px",
                         fill: "#000",

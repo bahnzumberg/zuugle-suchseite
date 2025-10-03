@@ -1,5 +1,5 @@
-import { Box, Skeleton, Typography } from "@mui/material";
-import React, { lazy, Suspense, useEffect } from "react";
+import { Box, Paper, Skeleton, Typography } from "@mui/material";
+import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useIsMobile } from "../../utils/globals";
@@ -18,12 +18,10 @@ import { useSelector } from "react-redux";
 import SearchParamSync from "../../components/SearchParamSync";
 import { useAppDispatch } from "../../hooks";
 import { mapUpdated } from "../../features/searchSlice";
+import RangeCardContainer from "../../components/RangeCardContainer";
 
-const RangeCardContainer = lazy(
-  () => import("../../components/RangeCardContainer"),
-);
+// Dynamische Imports für nicht-kritische Komponenten
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-
 const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
@@ -54,7 +52,7 @@ export default function Start() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // matomo
+    // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Startseite" });
   }, []);
@@ -130,7 +128,7 @@ export default function Start() {
           }
         >
           <Box style={{ background: "#fff" }}>
-            <Box elevation={0} className={"header-line"}>
+            <Paper elevation={0} className={"header-line"}>
               <Box
                 sx={{
                   paddingTop: "55px",
@@ -142,7 +140,7 @@ export default function Start() {
                   {t("start.zuugle_sucht_fuer_dich_2")}
                 </Typography>
               </Box>
-            </Box>
+            </Paper>
             <Box className={"start-body-container"}>
               <Box
                 sx={{
@@ -182,6 +180,7 @@ export default function Start() {
                 >
                   {getRangeText()}
                 </Typography>
+                {/* RangeCardContainer ist wieder statisch importiert */}
                 <RangeCardContainer ranges={loadedTours.ranges} />
               </Box>
               <Box sx={{ marginTop: "80px" }}>

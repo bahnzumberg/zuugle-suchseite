@@ -1,11 +1,10 @@
-import * as React from "react";
+import { useContext } from "react";
 import { VisibilityContext } from "react-horizontal-scrolling-menu";
 import { Button } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
 
 export function LeftArrow() {
-  const { isFirstItemVisible, scrollPrev } =
-    React.useContext(VisibilityContext);
+  const { isFirstItemVisible, scrollPrev } = useContext(VisibilityContext);
 
   return (
     <div
@@ -24,7 +23,7 @@ export function LeftArrow() {
         style={{
           backgroundColor: "black",
           color: "#FFF",
-          opacity: !!isFirstItemVisible ? 0 : 0.6,
+          opacity: isFirstItemVisible ? 0 : 0.6,
         }}
         className={"react-horizontal-scrolling-arrow"}
       >

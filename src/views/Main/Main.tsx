@@ -1,14 +1,15 @@
-import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import TourMapContainer from "../../components/Map/TourMapContainer";
-import { Typography } from "@mui/material";
+import { Link } from "react-router";
+// Importiere die Karten-Komponente jetzt dynamisch
+const TourMapContainer = lazy(
+  () => import("../../components/Map/TourMapContainer"),
+);
+import { Typography, Skeleton } from "@mui/material";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import ArrowBefore from "../../icons/ArrowBefore";
 import MapBtn from "../../components/Search/MapBtn";
 import {
   useGetCitiesQuery,
@@ -31,6 +32,7 @@ import {
   getTranslatedCountryName,
   usePageHeader,
 } from "../../utils/seoPageHelper";
+import { CustomIcon } from "../../icons/CustomIcon";
 
 export default function Main() {
   const { t } = useTranslation();
@@ -117,6 +119,7 @@ export default function Main() {
   }, [filter]);
 
   useEffect(() => {
+    // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({ pagetitel: "Suche" });
   }, []);
@@ -240,7 +243,8 @@ export default function Main() {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link to={"/" + (provider ? `?p=${provider}` : "")}>
-                  <ArrowBefore
+                  <CustomIcon
+                    name="arrowBefore"
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}
                   />
                 </Link>
@@ -291,7 +295,13 @@ export default function Main() {
 
       {showMap && (
         <Box className={"map-container"}>
-          <TourMapContainer markers={loadedTours?.markers || []} />
+          <Suspense
+            fallback={
+              <Skeleton variant="rectangular" width="100%" height="100%" />
+            }
+          >
+            <TourMapContainer markers={loadedTours?.markers || []} />
+          </Suspense>
         </Box>
       )}
       {totalToursHeader()}
