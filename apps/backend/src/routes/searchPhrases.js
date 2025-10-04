@@ -34,8 +34,8 @@ const listWrapper = async (req, res) => {
 
 //queries through the database table "logsearchphrase" and returns the phrases that start with the search phrase
 const createQuery = async (field, alias, city, search, language, tld) => {
-    let query = knex('logsearchphrase').select(TRIM(`${field}`))
-        .as(alias)
+    let query = knex('logsearchphrase')
+        .select(knex.raw('MIN(??) as ??', [field, alias])) // shortest original phrase
         .count('* as CNT')
         .whereNot(field, null)
         .andWhereNot(field, "")
@@ -51,16 +51,19 @@ const createQuery = async (field, alias, city, search, language, tld) => {
 
     query = query.andWhereRaw(`search_time > CURRENT_DATE - INTERVAL '12 MONTH'`);
 
-    query = query.andWhereRaw(`LOWER(${field}) LIKE '${search.toLowerCase()}%'`)
+    const normalizedField = `LOWER(TRIM(${field}))`;
+    const searchTerm = `${search.trim().toLowerCase()}%`;
+    
+    query = query.andWhereRaw(`${normalizedField} LIKE ?`, [searchTerm]);
 
-    const queryResult = await query.groupBy(TRIM(`${field}`))
+    const queryResult = await query.groupByRaw(normalizedField)
         .orderBy(`CNT`, `desc`)
-        .orderBy(field, `asc`)
+        .orderBy(alias, `asc`)
         .limit(5);
 
     const result = queryResult.map(entry => {
         return {
-            suggestion: entry[field]
+            suggestion: entry[alias]
         }
     })
     return result;
