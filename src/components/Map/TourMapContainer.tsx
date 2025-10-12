@@ -7,6 +7,7 @@ import {
   useMapEvents,
   ZoomControl,
   Popup,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -15,6 +16,8 @@ import { useSelector } from "react-redux";
 import {
   formatMapClusterNumber,
   getDefaultBoundsForDomain,
+  getMarkersBounds,
+  toLatLngBounds,
   useDebouncedCallback,
 } from "../../utils/map_utils";
 import "./popup-style.css";
@@ -22,13 +25,16 @@ import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
-import { boundsUpdated } from "../../features/searchSlice";
+import { boundsUpdated, poiUpdated } from "../../features/searchSlice";
 import {
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
 import PopupCard from "./PopupCard";
 import ClusterGroup from "./ClusterGroup";
+import "leaflet-contextmenu";
+import "leaflet-contextmenu/dist/leaflet.contextmenu.css";
+import ResizableCircle from "./ResizableCircle";
 
 // There is also a Marker defined in leaflet. Should we use that instead?
 export interface Marker {
@@ -39,12 +45,16 @@ export interface Marker {
 
 export interface TourMapContainerProps {
   markers: Marker[];
+  isLoading: boolean;
 }
 
 /**
  * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in Main.tsx.
  */
-export default function TourMapContainer({ markers }: TourMapContainerProps) {
+export default function TourMapContainer({
+  markers,
+  isLoading,
+}: TourMapContainerProps) {
   const isMobile = useIsMobile();
   const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
   const [triggerGPX] = useLazyGetGPXQuery();
@@ -59,8 +69,16 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     L.LatLngExpression[]
   >([]);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const poi = useSelector((state: RootState) => state.search.poi);
   const city = useSelector((state: RootState) => state.search.city);
+  const [markersInvalidated, setMarkersInvalidated] = useState(false);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!isLoading) {
+      setMarkersInvalidated(false);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     if (!activeMarker) {
@@ -161,6 +179,47 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     return null;
   }
 
+  function handlePoiSearch(coords: L.LatLng) {
+    dispatch(poiUpdated({ lat: coords.lat, lng: coords.lng, radius: 5000 }));
+    setMarkersInvalidated(true);
+  }
+
+  function MapBoundsUpdater() {
+    const map = useMap();
+    const bounds = useSelector((state: RootState) => state.search.bounds);
+
+    useEffect(() => {
+      // case 1: bounds are active and no poi search is active
+      if (!poi && bounds) {
+        const current = map.getBounds();
+        const newBounds = toLatLngBounds(bounds);
+
+        const latDiff = Math.abs(
+          current.getCenter().lat - newBounds.getCenter().lat,
+        );
+        const lngDiff = Math.abs(
+          current.getCenter().lng - newBounds.getCenter().lng,
+        );
+        const threshold = 0.0001;
+
+        if (latDiff > threshold || lngDiff > threshold) {
+          map.fitBounds(newBounds, { animate: true });
+        }
+      }
+      // case 2: poi search is active and tours are loaded
+      if (poi && !markersInvalidated) {
+        const markerBounds = getMarkersBounds(markers);
+        const poiBounds = L.latLng(poi.lat, poi.lng).toBounds(
+          poi.radius + 10000,
+        );
+        markerBounds.extend(poiBounds);
+        map.fitBounds(markerBounds, { animate: true });
+      }
+    }, [bounds, poi, markers]);
+
+    return null;
+  }
+
   return (
     <Box
       style={{
@@ -173,20 +232,30 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     >
       <MapContainer
         className="leaflet-container"
-        scrollWheelZoom={false} //if you can zoom with you mouse wheel
         zoomSnap={1}
         maxZoom={15} //how many times you can zoom
-        center={mapCenter} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+        center={mapCenter}
         zoom={7} //zoom level --> how much it is zoomed out
         style={{ height: "100%", width: "100%" }} //Size of the map
         zoomControl={false}
+        contextmenu={true}
+        contextmenuItems={[
+          {
+            text: "Search tours near this point",
+            icon: "https://cdn.zuugle.at/img/searchIcon.png",
+            callback: (e) => {
+              handlePoiSearch(e.latlng);
+            },
+          },
+        ]}
       >
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={16}
           maxNativeZoom={19}
         />
-        <MapBoundsSync />
+        {!poi && <MapBoundsSync />}
+        <MapBoundsUpdater />
 
         {selectedTour && activeMarker && (
           <Popup
@@ -255,6 +324,19 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
             removeOutsideVisibleBounds: true,
           }}
         />
+        {poi && (
+          <ResizableCircle
+            center={poi}
+            initialRadius={poi.radius}
+            onRadiusChange={(radius) => {
+              console.log(radius);
+              dispatch(poiUpdated({ ...poi, radius: radius }));
+            }}
+            onRemove={() => {
+              dispatch(poiUpdated(null));
+            }}
+          />
+        )}
         <ZoomControl position="bottomright" />
       </MapContainer>
     </Box>

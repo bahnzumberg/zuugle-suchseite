@@ -52,3 +52,27 @@
     font-size: 8px; /* Adjust font size for screens up to 400px */
   }
 }
+
+.circle-marker {
+  background: white;
+  border: 2px solid #4992ff;
+  color: #4992ff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.circle-marker:hover {
+  background: #4992ff;
+  color: white;
+}
+
+.circle-tooltip {
+  white-space: normal;
+  max-width: 200px;
+  width: 200px;
+}

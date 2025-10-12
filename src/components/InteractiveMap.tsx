@@ -37,11 +37,25 @@ export default function InteractiveMap({
   });
 
   const StartMarker = ({ position }: { position: L.LatLngExpression }) => {
-    return <Marker position={position} icon={startIcon}></Marker>;
+    return (
+      <Marker
+        position={position}
+        icon={startIcon}
+        contextmenu={false}
+        contextmenuItems={[]}
+      ></Marker>
+    );
   };
 
   const EndMarker = ({ position }: { position: L.LatLngExpression }) => {
-    return <Marker position={position} icon={endIcon}></Marker>;
+    return (
+      <Marker
+        position={position}
+        icon={endIcon}
+        contextmenu={false}
+        contextmenuItems={[]}
+      ></Marker>
+    );
   };
 
   useEffect(() => {
@@ -78,6 +92,8 @@ export default function InteractiveMap({
       zoom={12}
       style={{ height: "100%", width: "100%" }}
       zoomControl={false}
+      contextmenu={false}
+      contextmenuItems={[]}
     >
       <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
       {!!gpxPositions && gpxPositions.length > 0 && (
