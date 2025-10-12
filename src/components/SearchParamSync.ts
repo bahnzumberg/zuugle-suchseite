@@ -10,14 +10,13 @@ import {
   countryUpdated,
   languageUpdated,
   mapUpdated,
+  poiUpdated,
   providerUpdated,
   rangeUpdated,
   searchPhraseUpdated,
   typeUpdated,
 } from "../features/searchSlice";
 import { useGetCitiesQuery } from "../features/apiSlice";
-import L from "leaflet";
-import { toBoundsObject } from "../utils/map_utils";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { filterUpdated } from "../features/filterSlice";
 
@@ -74,10 +73,19 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
     updateParam(newParams, "currLanguage", isMain ? search.language : null);
+    if (!search.poi) {
+      updateParam(
+        newParams,
+        "bounds",
+        isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+      );
+    } else {
+      updateParam(newParams, "bounds", null);
+    }
     updateParam(
       newParams,
-      "bounds",
-      isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+      "poi",
+      isMain && search.poi ? JSON.stringify(search.poi) : null,
     );
     updateParam(
       newParams,
@@ -113,11 +121,18 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(mapUpdated(false));
       }
 
+      const poi = params.get("poi");
+      if (poi) {
+        const parsedPoi = JSON.parse(poi);
+        dispatch(poiUpdated(parsedPoi));
+      } else {
+        dispatch(poiUpdated(null));
+      }
+
       const bounds = params.get("bounds");
-      if (bounds) {
+      if (!poi && bounds) {
         const parsedBounds = JSON.parse(bounds);
-        if (parsedBounds instanceof L.LatLngBounds)
-          dispatch(boundsUpdated(toBoundsObject(parsedBounds)));
+        dispatch(boundsUpdated(parsedBounds));
       } else {
         dispatch(boundsUpdated(null));
       }
