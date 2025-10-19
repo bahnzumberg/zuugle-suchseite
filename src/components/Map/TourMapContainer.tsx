@@ -92,6 +92,7 @@ export default function TourMapContainer({
       return;
     }
 
+    setClickPosition(null);
     const loadTracks = async () => {
       try {
         const tour = await triggerTourDetails({
@@ -155,7 +156,13 @@ export default function TourMapContainer({
     id: mark.id,
     position: L.latLng(mark.lat, mark.lon),
     icon: createStartMarker(),
-    onClick: () => setActiveMarker(mark),
+    onClick: () => {
+      if (activeMarker?.id === mark.id) {
+        setActiveMarker(null);
+        return;
+      }
+      setActiveMarker(mark);
+    },
   }));
 
   function updateBounds(bounds: L.LatLngBounds) {
@@ -190,7 +197,12 @@ export default function TourMapContainer({
 
     return (
       clickPosition && (
-        <Popup position={clickPosition} className="area-search" autoPan={false}>
+        <Popup
+          position={clickPosition}
+          className="area-search"
+          autoPan={false}
+          key={`clickPosition_${clickPosition.lat}_${clickPosition.lng}`}
+        >
           <Button
             startIcon={<MapPinAreaIcon />}
             onClick={(e) => {
