@@ -42,7 +42,8 @@ export default function Main() {
   const provider = useSelector((state: RootState) => state.search.provider);
 
   const [tours, setTours] = useState<Tour[]>([]);
-  const [triggerLoadTours, { data: loadedTours }] = useLazyGetToursQuery();
+  const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
+    useLazyGetToursQuery();
   const [triggerMoreTours] = useLazyGetToursQuery();
   const [filterOn, setFilterOn] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -70,6 +71,7 @@ export default function Main() {
       country: search.country || undefined,
       type: search.type || undefined,
       currLanguage: search.language || undefined,
+      poi: search.poi || undefined,
     });
   }, [filter, search]);
 
@@ -93,6 +95,7 @@ export default function Main() {
         type: search.type || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
+        poi: search.poi || undefined,
       }).unwrap();
       moreTours.then((data) => {
         if (!data.tours || data.tours.length === 0) {
@@ -300,7 +303,10 @@ export default function Main() {
               <Skeleton variant="rectangular" width="100%" height="100%" />
             }
           >
-            <TourMapContainer markers={loadedTours?.markers || []} />
+            <TourMapContainer
+              markers={loadedTours?.markers || []}
+              isLoading={isToursLoading}
+            />
           </Suspense>
         </Box>
       )}

@@ -2,7 +2,7 @@
 .request-popup {
   padding-top: 2%;
 }
-.leaflet-popup-content {
+.request-popup .leaflet-popup-content {
   background: transparent; /* Remove white background */
   padding: 0; /* Remove padding */
   margin: 0; /* Remove margin */
@@ -17,14 +17,14 @@
     border-radius: 15px; */
 }
 
-.leaflet-popup-content-wrapper {
+.request-popup .leaflet-popup-content-wrapper {
   background: white; /* Remove background from wrapper */
   box-shadow: none; /* Remove box shadow */
   /* padding:10px; */
   border-radius: 20px;
 }
 
-.leaflet-popup-tip {
+.request-popup .leaflet-popup-tip {
   display: none; /* Remove the popup tip */
 }
 
@@ -51,4 +51,32 @@
   .tour-card-map {
     font-size: 8px; /* Adjust font size for screens up to 400px */
   }
+}
+
+.circle-marker {
+  background: white;
+  border: 2px solid #4992ff;
+  color: #4992ff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.circle-marker:hover {
+  background: #4992ff;
+  color: white;
+}
+
+.area-search-popup {
+  width: 250px;
+}
+
+.area-search .leaflet-popup-content {
+  margin: 0;
+  margin-right: 5px;
+  max-width: 200px;
 }
