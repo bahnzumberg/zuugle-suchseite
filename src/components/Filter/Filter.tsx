@@ -11,7 +11,6 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import WarningIcon from "@mui/icons-material/Warning";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
 import CloseIcon from "@mui/icons-material/Close";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -75,7 +74,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       languages: fetchedFilter?.languages ?? [],
       difficulties: fetchedFilter?.difficulties ?? [1, 2, 3],
       providers: fetchedFilter?.providers ?? [],
-      poi: undefined,
     };
   }, [fetchedFilter]);
 
@@ -468,18 +466,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     if (allProvidersSelected) setTempFilter({ ...tempFilter, providers: [] });
     else setTempFilter({ ...tempFilter, providers: fetchedFilter?.providers });
     setAllProvidersSelected(!allProvidersSelected);
-  };
-
-  const updatePoiValue = (value: string, field: "lat" | "lon") => {
-    const _value = value.trim();
-    setTempFilter({
-      ...tempFilter,
-      poi: {
-        ...tempFilter.poi,
-        [field]:
-          _value !== "" && Number.isFinite(+_value) ? +_value : undefined,
-      },
-    });
   };
 
   const style = {
@@ -1053,42 +1039,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   {getProviders()}
-                </Grid>
-              </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Grid
-                  container
-                  alignItems="center"
-                  justifyContent="left"
-                  gap={1}
-                >
-                  <Typography variant={"subtitle1"}>POI</Typography>
-                  {(!tempFilter.poi?.lat || !tempFilter.poi?.lon) && (
-                    <Box display="flex" alignItems="center" gap={0.5}>
-                      <WarningIcon color="error" fontSize="small" />
-                      <Typography sx={{ color: "error.main" }}>
-                        ungültige Koordinaten
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
-                <Grid container spacing={"10px"} sx={{ marginTop: "15px" }}>
-                  <Grid size={6}>
-                    <TextField
-                      label="lat"
-                      variant="outlined"
-                      value={tempFilter.poi?.lat ?? ""}
-                      onChange={(e) => updatePoiValue(e.target.value, "lat")}
-                    />
-                  </Grid>
-                  <Grid size={6}>
-                    <TextField
-                      label="lon"
-                      variant="outlined"
-                      value={tempFilter.poi?.lon ?? ""}
-                      onChange={(e) => updatePoiValue(e.target.value, "lon")}
-                    />
-                  </Grid>
                 </Grid>
               </Box>
             </Fragment>
