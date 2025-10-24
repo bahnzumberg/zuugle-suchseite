@@ -491,10 +491,11 @@ export async function hashedUrlsFromPoi(lat, lon, radius) {
     const sql = `
             SELECT DISTINCT hashed_url
             FROM gpx as g
-            WHERE earth_distance(
-                    ll_to_earth(g.lat, g.lon),
-                    ll_to_earth(:lat::double precision, :lon::double precision)
-                    ) <= :radius
+            WHERE earth_box(ll_to_earth(:lat, :lon), :radius) @> ll_to_earth(g.lat, g.lon)
+                AND earth_distance(
+                ll_to_earth(g.lat, g.lon),
+                ll_to_earth(:lat, :lon)
+              ) <= :radius;
             `;
     const result = await knex.raw(sql, { lat, lon, radius });
     if (!result) return [];
