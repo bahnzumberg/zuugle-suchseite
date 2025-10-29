@@ -18,7 +18,6 @@ import {
   getDefaultBoundsForDomain,
   getMarkersBounds,
   toLatLngBounds,
-  useDebouncedCallback,
 } from "../../utils/map_utils";
 import "./popup-style.css";
 import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
@@ -75,6 +74,7 @@ export default function TourMapContainer({
   const poi = useSelector((state: RootState) => state.search.poi);
   const city = useSelector((state: RootState) => state.search.city);
   const [markersInvalidated, setMarkersInvalidated] = useState(false);
+  const [isUserMoving, setIsUserMoving] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -176,15 +176,17 @@ export default function TourMapContainer({
     );
   }
 
-  const updateBoundsDebounced = useDebouncedCallback(updateBounds, 1000);
-
   function MapBoundsSync() {
     const map = useMapEvents({
+      movestart() {
+        setIsUserMoving(true);
+      },
       moveend() {
-        updateBoundsDebounced(map.getBounds());
+        updateBounds(map.getBounds());
+        setClickPosition(null);
+        setIsUserMoving(false);
       },
     });
-
     return null;
   }
 
@@ -238,6 +240,9 @@ export default function TourMapContainer({
     const bounds = useSelector((state: RootState) => state.search.bounds);
 
     useEffect(() => {
+      // Skip if user is actively moving the map
+      if (isUserMoving) return;
+
       // case 1: bounds are active and no poi search is active
       if (!poi && bounds) {
         const current = map.getBounds();
@@ -250,7 +255,6 @@ export default function TourMapContainer({
           current.getCenter().lng - newBounds.getCenter().lng,
         );
         const threshold = 0.0001;
-
         if (latDiff > threshold || lngDiff > threshold) {
           map.fitBounds(newBounds, { animate: true });
         }
