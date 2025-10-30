@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Polyline,
-  useMapEvents,
   ZoomControl,
-  Popup,
-  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -16,8 +13,6 @@ import { useSelector } from "react-redux";
 import {
   formatMapClusterNumber,
   getDefaultBoundsForDomain,
-  getMarkersBounds,
-  toLatLngBounds,
 } from "../../utils/map_utils";
 import "./popup-style.css";
 import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
@@ -29,12 +24,13 @@ import {
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
-import PopupCard from "./PopupCard";
+import { MemoizedPopupCard } from "./PopupCard";
 import ClusterGroup from "./ClusterGroup";
 import ResizableCircle from "./ResizableCircle";
-import { useTranslation } from "react-i18next";
-import { Button } from "@mui/material";
-import { MapPinAreaIcon } from "@phosphor-icons/react";
+import { MapClickHandler } from "./MapClickHandler";
+import { MapBoundsUpdater } from "./MapBoundsUpdater";
+import { MapBoundsSync } from "./MapBoundsSync";
+import { useSearchParams } from "react-router";
 
 // There is also a Marker defined in leaflet. Should we use that instead?
 export interface Marker {
@@ -55,7 +51,6 @@ export default function TourMapContainer({
   markers,
   isLoading,
 }: TourMapContainerProps) {
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
   const [triggerGPX] = useLazyGetGPXQuery();
@@ -76,6 +71,9 @@ export default function TourMapContainer({
   const [markersInvalidated, setMarkersInvalidated] = useState(false);
   const [isUserMoving, setIsUserMoving] = useState(false);
   const dispatch = useAppDispatch();
+
+  const [searchParams] = useSearchParams();
+  const provider = searchParams.get("p");
 
   useEffect(() => {
     if (!isLoading) {
@@ -126,14 +124,6 @@ export default function TourMapContainer({
     if (tourDetails) setSelectedTour(tourDetails);
   }, [tourDetails]);
 
-  const createStartMarker = () => {
-    return L.icon({
-      iconUrl: "https://cdn.zuugle.at/img/startpunkt.png", //the acutal picture
-      iconSize: [33, 45], //size of the icon
-      iconAnchor: [16, 46],
-    });
-  };
-
   const createClusterCustomIcon = function (cluster: L.MarkerCluster) {
     const clusterChildCount = cluster.getChildCount();
     const formattedCount = formatMapClusterNumber(clusterChildCount);
@@ -152,124 +142,54 @@ export default function TourMapContainer({
     });
   };
 
-  const processedMarkers = markers.map((mark) => ({
-    id: mark.id,
-    position: L.latLng(mark.lat, mark.lon),
-    icon: createStartMarker(),
-    onClick: () => {
-      if (activeMarker?.id === mark.id) {
-        setActiveMarker(null);
-        return;
-      }
-      setActiveMarker(mark);
-    },
-  }));
-
-  function updateBounds(bounds: L.LatLngBounds) {
-    dispatch(
-      boundsUpdated({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        west: bounds.getWest(),
-        east: bounds.getEast(),
+  const startMarker = useMemo(
+    // created once for the whole component lifetime
+    () =>
+      L.icon({
+        iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
+        iconSize: [33, 45],
+        iconAnchor: [16, 46],
       }),
-    );
-  }
+    [],
+  );
 
-  function MapBoundsSync() {
-    const map = useMapEvents({
-      movestart() {
-        setIsUserMoving(true);
-      },
-      moveend() {
-        updateBounds(map.getBounds());
-        setClickPosition(null);
-        setIsUserMoving(false);
-      },
-    });
-    return null;
-  }
+  const handleMarkerClick = useCallback((mark: Marker) => {
+    setActiveMarker((prev) => (prev?.id === mark.id ? null : mark));
+  }, []);
 
-  function ClickHandler() {
-    const map = useMapEvents({
-      click(e) {
-        setClickPosition(e.latlng);
-      },
-    });
+  const processedMarkers = useMemo(
+    () =>
+      markers.map((mark) => ({
+        id: mark.id,
+        position: L.latLng(mark.lat, mark.lon),
+        icon: startMarker,
+        onClick: () => handleMarkerClick(mark),
+      })),
+    [markers, startMarker, handleMarkerClick],
+  );
 
-    return (
-      clickPosition && (
-        <Popup
-          position={clickPosition}
-          className="area-search"
-          autoPan={false}
-          key={`clickPosition_${clickPosition.lat}_${clickPosition.lng}`}
-        >
-          <Button
-            startIcon={<MapPinAreaIcon />}
-            onClick={(e) => {
-              const bounds = map.getBounds();
-              const widthInMeters = map.distance(
-                bounds.getNorthWest(),
-                bounds.getNorthEast(),
-              );
-              const heightInMeters = map.distance(
-                bounds.getSouthWest(),
-                bounds.getNorthWest(),
-              );
-              const radius = Math.min(heightInMeters, widthInMeters) / 8;
-              handlePoiSearch(clickPosition, radius);
-              e.stopPropagation();
-            }}
-          >
-            {t("main.areaSearchTrigger")}
-          </Button>
-        </Popup>
-      )
-    );
-  }
+  const handlePoiSearch = useCallback(
+    (coords: L.LatLng, radius: number) => {
+      setClickPosition(null);
+      dispatch(poiUpdated({ lat: coords.lat, lng: coords.lng, radius }));
+      setMarkersInvalidated(true);
+    },
+    [dispatch],
+  );
 
-  function handlePoiSearch(coords: L.LatLng, radius: number) {
-    setClickPosition(null);
-    dispatch(poiUpdated({ lat: coords.lat, lng: coords.lng, radius: radius }));
-    setMarkersInvalidated(true);
-  }
-
-  function MapBoundsUpdater() {
-    const map = useMap();
-    const bounds = useSelector((state: RootState) => state.search.bounds);
-
-    useEffect(() => {
-      // Skip if user is actively moving the map
-      if (isUserMoving) return;
-
-      // case 1: bounds are active and no poi search is active
-      if (!poi && bounds) {
-        const current = map.getBounds();
-        const newBounds = toLatLngBounds(bounds);
-
-        const latDiff = Math.abs(
-          current.getCenter().lat - newBounds.getCenter().lat,
-        );
-        const lngDiff = Math.abs(
-          current.getCenter().lng - newBounds.getCenter().lng,
-        );
-        const threshold = 0.0001;
-        if (latDiff > threshold || lngDiff > threshold) {
-          map.fitBounds(newBounds, { animate: true });
-        }
-      }
-      // case 2: poi search is active and tours are loaded
-      if (poi && !markersInvalidated && !clickPosition) {
-        const markerBounds = getMarkersBounds(markers);
-        const poiBounds = L.latLng(poi.lat, poi.lng).toBounds(poi.radius * 3);
-        markerBounds.extend(poiBounds);
-        map.fitBounds(markerBounds, { animate: true });
-      }
-    }, [bounds, poi, markers]);
-
-    return null;
-  }
+  const updateBounds = useCallback(
+    (b: L.LatLngBounds) => {
+      dispatch(
+        boundsUpdated({
+          north: b.getNorth(),
+          south: b.getSouth(),
+          west: b.getWest(),
+          east: b.getEast(),
+        }),
+      );
+    },
+    [dispatch],
+  );
 
   return (
     <Box
@@ -295,26 +215,31 @@ export default function TourMapContainer({
           maxZoom={16}
           maxNativeZoom={19}
         />
-        {!poi && <MapBoundsSync />}
-        <MapBoundsUpdater />
-        <ClickHandler />
-
-        {selectedTour && activeMarker && (
-          <Popup
-            key={`popup_${selectedTour.id}`}
-            maxWidth={280}
-            maxHeight={210}
-            className="request-popup"
-            offset={L.point([0, -25])}
-            position={[activeMarker.lat, activeMarker.lon]}
-            autoPan={false}
-            eventHandlers={{
-              remove: () => setActiveMarker(null),
-            }}
-          >
-            <PopupCard tour={selectedTour} city={city?.value || ""} />
-          </Popup>
+        {!poi && (
+          <MapBoundsSync
+            setIsUserMoving={setIsUserMoving}
+            updateBounds={updateBounds}
+          />
         )}
+        <MapBoundsUpdater
+          isUserMoving={isUserMoving}
+          poi={poi}
+          markers={markers}
+          markersInvalidated={markersInvalidated}
+        />
+        <MapClickHandler
+          clickPosition={clickPosition}
+          setClickPosition={setClickPosition}
+          handlePoiSearch={handlePoiSearch}
+        />
+        <MemoizedPopupCard
+          tour={selectedTour}
+          city={city?.value || ""}
+          provider={provider}
+          activeMarker={activeMarker}
+          setActiveMarker={setActiveMarker}
+        />
+
         {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
           <Polyline

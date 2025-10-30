@@ -65,6 +65,7 @@ export default function ResizableCircle({
     }
   };
 
+  // TODO: move to separate files
   const trashSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
       viewBox="0 0 640 640">
