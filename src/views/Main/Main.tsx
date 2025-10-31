@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
 import { Link } from "react-router";
@@ -7,6 +7,7 @@ const TourMapContainer = lazy(
   () => import("../../components/Map/TourMapContainer"),
 );
 import { Typography, Skeleton } from "@mui/material";
+import debounce from "lodash.debounce";
 import DomainMenu from "../../components/DomainMenu";
 import LanguageMenu from "../../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
@@ -56,11 +57,19 @@ export default function Main() {
     }),
   });
 
+  const debouncedTrigger = useMemo(
+    () =>
+      debounce((params) => {
+        triggerLoadTours(params);
+      }, 1000),
+    [triggerLoadTours],
+  );
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     setPageTours(1);
     setHasMore(true);
-    triggerLoadTours({
+    const params = {
       city: search.citySlug || "",
       filter: filter,
       search: search.searchPhrase || "",
@@ -72,7 +81,12 @@ export default function Main() {
       type: search.type || undefined,
       currLanguage: search.language || undefined,
       poi: search.poi || undefined,
-    });
+    };
+    debouncedTrigger(params);
+    // Cleanup to cancel pending debounced calls
+    return () => {
+      debouncedTrigger.cancel();
+    };
   }, [filter, search]);
 
   useEffect(() => {
