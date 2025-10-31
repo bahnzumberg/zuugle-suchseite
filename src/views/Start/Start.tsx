@@ -165,7 +165,6 @@ export default function Start() {
                   tours={loadedTours.tours}
                   city={city?.value || ""}
                   isLoading={isToursLoading}
-                  isMobile={isMobile}
                   provider={provider}
                 />
               </Box>

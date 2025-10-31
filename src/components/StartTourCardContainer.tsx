@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { CircularProgress, Grid, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Key } from "react";
@@ -67,13 +67,13 @@ export interface StartTourCardContainerProps {
   tours: Tour[];
   city: string;
   isLoading: boolean;
-  isMobile: boolean;
   provider: string | null;
 }
 
 export default function StartTourCardContainer({
   tours,
   city,
+  isLoading,
   provider,
 }: StartTourCardContainerProps) {
   const { t } = useTranslation();
@@ -82,23 +82,29 @@ export default function StartTourCardContainer({
   const secondSet = tours.slice(4, 7);
 
   return (
-    <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
-      {firstSet.map((tour, index) => (
-        <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
-          <TourCard tour={tour} city={city} provider={provider} />
+    <>
+      {tours.length === 0 && isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
+          {firstSet.map((tour, index) => (
+            <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
+              <TourCard tour={tour} city={city} provider={provider} />
+            </Grid>
+          ))}
+          <Grid display="flex" key={"image"} size={{ xs: 12, md: 6, lg: 4 }}>
+            {renderImage("https://cdn.zuugle.at/img/zuugle-ad.gif", "image1")}
+          </Grid>
+          {secondSet.map((tour, index) => (
+            <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
+              <TourCard tour={tour} city={city} provider={provider} />
+            </Grid>
+          ))}
+          <Grid display="flex" key={"discover"} size={{ xs: 12, md: 6, lg: 4 }}>
+            {renderFourth(t)}
+          </Grid>
         </Grid>
-      ))}
-      <Grid display="flex" key={"image"} size={{ xs: 12, md: 6, lg: 4 }}>
-        {renderImage("https://cdn.zuugle.at/img/zuugle-ad.gif", "image1")}
-      </Grid>
-      {secondSet.map((tour, index) => (
-        <Grid display="flex" key={index} size={{ xs: 12, md: 6, lg: 4 }}>
-          <TourCard tour={tour} city={city} provider={provider} />
-        </Grid>
-      ))}
-      <Grid display="flex" key={"discover"} size={{ xs: 12, md: 6, lg: 4 }}>
-        {renderFourth(t)}
-      </Grid>
-    </Grid>
+      )}
+    </>
   );
 }
