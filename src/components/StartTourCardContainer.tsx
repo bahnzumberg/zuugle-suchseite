@@ -17,9 +17,11 @@ const renderImage = (imageSrc: string, key: Key) => (
   >
     <img
       src={imageSrc}
-      alt="Advertisment"
+      alt="Advertisement"
       className="tour_card_Image"
       loading="lazy"
+      width={395} // these help browsers reserve space instantly
+      height={335}
     />
   </Box>
 );
