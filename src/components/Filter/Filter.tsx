@@ -1,16 +1,4 @@
 import Box from "@mui/material/Box";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -36,6 +24,16 @@ import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
 import WarningIcon from "@mui/icons-material/Warning";
 import { geolocationUpdated } from "../../features/searchSlice";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import DialogContent from "@mui/material/DialogContent";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
+import DialogActions from "@mui/material/DialogActions";
+import Tooltip from "@mui/material/Tooltip";
 
 export interface FilterProps {
   showFilter: boolean;

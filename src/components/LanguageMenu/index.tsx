@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
-import { Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "../../hooks";
 import { languageUpdated } from "../../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
+import Modal from "@mui/material/Modal";
 
 function LanguageMenu() {
   const { i18n } = useTranslation();

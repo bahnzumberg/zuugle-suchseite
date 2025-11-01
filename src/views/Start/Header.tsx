@@ -1,4 +1,3 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
 import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { getDomainText, getTLD } from "../../utils/globals";
@@ -6,6 +5,9 @@ import BackgroundImageLoader from "./BackgroundImageLoader";
 import Search from "../../components/Search/Search";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const DomainMenu = lazy(() => import("../../components/DomainMenu"));
 const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
