@@ -42,7 +42,12 @@ export default function Header({
             </Typography>
           </Box>
           {isLoading ? (
-            <CircularProgress />
+            <Box
+              sx={{ display: "flex", justifyContent: "center" }}
+              marginTop={"80px"}
+            >
+              <CircularProgress size={60} sx={{ color: "#FFF" }} />
+            </Box>
           ) : (
             <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
           )}

@@ -428,8 +428,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (max-width: 600px) {
   .header-text {
-    padding-top: 10px;
-    padding-bottom: 40px;
+    padding-top: 0px;
     padding-left: 10px;
     font-size: 36px;
     letter-spacing: 0px;
@@ -447,6 +446,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
   .header-container {
     height: unset;
+    min-height: 310px;
     padding-bottom: 50px;
   }
 
