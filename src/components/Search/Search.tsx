@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next";
 import IconButton from "@mui/material/IconButton";
 import AutosuggestSearch from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
-import { useMediaQuery } from "@mui/material";
 import { theme } from "../../theme";
 import { MobileModal } from "./MobileModal";
 import { RootState } from "../..";
 import { CustomIcon } from "../../icons/CustomIcon";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export interface SearchProps {
   pageKey: string;

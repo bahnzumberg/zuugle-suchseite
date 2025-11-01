@@ -6,7 +6,6 @@ import { Link } from "react-router";
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
 );
-import { Typography, Skeleton } from "@mui/material";
 import debounce from "lodash.debounce";
 import DomainMenu from "../components/DomainMenu";
 import LanguageMenu from "../components/LanguageMenu";
@@ -32,6 +31,8 @@ import {
 } from "../utils/seoPageHelper";
 import { CustomIcon } from "../icons/CustomIcon";
 import { hasContent } from "../utils/globals";
+import Typography from "@mui/material/Typography";
+import Skeleton from "@mui/material/Skeleton";
 
 export default function Main() {
   const { t } = useTranslation();
