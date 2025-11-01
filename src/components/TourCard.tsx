@@ -6,8 +6,9 @@ import { convertNumToTime, getTourLink } from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
-import { Chip, Link } from "@mui/material";
 import { Tour } from "../models/Tour";
+import Link from "@mui/material/Link";
+import Chip from "@mui/material/Chip";
 
 const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 

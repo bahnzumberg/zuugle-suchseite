@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
 import { getDomainText } from "../utils/globals";
 
 export interface HeaderProps {

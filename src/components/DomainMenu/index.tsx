@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Box, Modal, Typography } from "@mui/material";
 import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
 
 function DomainMenu() {
   const host = window.location.href;
