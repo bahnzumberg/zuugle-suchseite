@@ -76,7 +76,7 @@ export default function Main() {
       range: search.range || undefined,
       country: search.country || undefined,
       currLanguage: search.language || undefined,
-      poi: search.poi || undefined,
+      geolocation: search.geolocation || undefined,
     };
     debouncedTrigger(params);
     // Cleanup to cancel pending debounced calls
@@ -104,7 +104,7 @@ export default function Main() {
         country: search.country || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
-        poi: search.poi || undefined,
+        geolocation: search.geolocation || undefined,
       }).unwrap();
       moreTours.then((data) => {
         if (!data.tours || data.tours.length === 0) {

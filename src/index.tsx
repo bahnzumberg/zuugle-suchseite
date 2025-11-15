@@ -34,7 +34,7 @@ function getPreloadedSearchState() {
     range: params.get("range") ?? null,
     country: params.get("country") ?? null,
     bounds: null,
-    poi: null,
+    geolocation: null,
   };
 }
 

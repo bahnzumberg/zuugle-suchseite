@@ -10,7 +10,7 @@ import {
   countryUpdated,
   languageUpdated,
   mapUpdated,
-  poiUpdated,
+  geolocationUpdated,
   providerUpdated,
   rangeUpdated,
   searchPhraseUpdated,
@@ -71,7 +71,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
     updateParam(newParams, "lang", isMain ? search.language : null);
-    if (!search.poi) {
+    if (!search.geolocation) {
       updateParam(
         newParams,
         "bounds",
@@ -82,8 +82,8 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     }
     updateParam(
       newParams,
-      "poi",
-      isMain && search.poi ? JSON.stringify(search.poi) : null,
+      "geolocation",
+      isMain && search.geolocation ? JSON.stringify(search.geolocation) : null,
     );
     updateParam(
       newParams,
@@ -118,16 +118,16 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(mapUpdated(false));
       }
 
-      const poi = params.get("poi");
-      if (poi) {
-        const parsedPoi = JSON.parse(poi);
-        dispatch(poiUpdated(parsedPoi));
+      const geolocation = params.get("geolocation");
+      if (geolocation) {
+        const parsedLocation = JSON.parse(geolocation);
+        dispatch(geolocationUpdated(parsedLocation));
       } else {
-        dispatch(poiUpdated(null));
+        dispatch(geolocationUpdated(null));
       }
 
       const bounds = params.get("bounds");
-      if (!poi && bounds) {
+      if (!geolocation && bounds) {
         const parsedBounds = JSON.parse(bounds);
         dispatch(boundsUpdated(parsedBounds));
       } else {

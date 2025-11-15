@@ -12,7 +12,7 @@ export interface BoundsObject {
   east: number;
 }
 
-export interface PoiWithRadius {
+export interface LocationWithRadius {
   lat: number;
   lng: number;
   radius: number;
@@ -28,7 +28,7 @@ export interface SearchState {
   provider: string | null;
   range: string | null;
   country: string | null;
-  poi: PoiWithRadius | null;
+  geolocation: LocationWithRadius | null;
 }
 
 const initialState: SearchState = {
@@ -41,7 +41,7 @@ const initialState: SearchState = {
   provider: null,
   range: null,
   country: null,
-  poi: null,
+  geolocation: null,
 };
 
 const searchSlice = createSlice({
@@ -75,8 +75,11 @@ const searchSlice = createSlice({
     countryUpdated: (state, action: PayloadAction<string | null>) => {
       state.country = action.payload;
     },
-    poiUpdated: (state, action: PayloadAction<PoiWithRadius | null>) => {
-      state.poi = action.payload;
+    geolocationUpdated: (
+      state,
+      action: PayloadAction<LocationWithRadius | null>,
+    ) => {
+      state.geolocation = action.payload;
     },
   },
 });
@@ -91,6 +94,6 @@ export const {
   providerUpdated,
   rangeUpdated,
   countryUpdated,
-  poiUpdated,
+  geolocationUpdated,
 } = searchSlice.actions;
 export default searchSlice.reducer;
