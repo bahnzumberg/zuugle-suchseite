@@ -44,6 +44,7 @@ import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
+import LanguageMenu from "../components/LanguageMenu";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =
@@ -488,19 +489,22 @@ export default function DetailReworked() {
                 </Box>
                 <DomainMenu />
               </Box>
-              <Box
-                sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-                onClick={handleCloseTab}
-              >
-                <CustomIcon
-                  name="close"
-                  style={{
-                    stroke: "#fff",
-                    fill: "#fff",
-                    width: "24px",
-                    height: "24px",
-                  }}
-                />
+              <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <LanguageMenu />
+                <Box
+                  sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                  onClick={handleCloseTab}
+                >
+                  <CustomIcon
+                    name="close"
+                    style={{
+                      stroke: "#fff",
+                      fill: "#fff",
+                      width: "24px",
+                      height: "24px",
+                    }}
+                  />
+                </Box>
               </Box>
             </Box>
             {/* search bar ###### section */}
