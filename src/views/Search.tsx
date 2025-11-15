@@ -4,36 +4,33 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router";
 // Importiere die Karten-Komponente jetzt dynamisch
 const TourMapContainer = lazy(
-  () => import("../../components/Map/TourMapContainer"),
+  () => import("../components/Map/TourMapContainer"),
 );
 import { Typography, Skeleton } from "@mui/material";
 import debounce from "lodash.debounce";
-import DomainMenu from "../../components/DomainMenu";
-import LanguageMenu from "../../components/LanguageMenu";
+import DomainMenu from "../components/DomainMenu";
+import LanguageMenu from "../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import MapBtn from "../../components/Search/MapBtn";
-import {
-  useGetCitiesQuery,
-  useLazyGetToursQuery,
-} from "../../features/apiSlice";
-import { Tour } from "../../models/Tour";
-import { RootState } from "../..";
-import SearchParamSync from "../../components/SearchParamSync";
+import MapBtn from "../components/Search/MapBtn";
+import { useGetCitiesQuery, useLazyGetToursQuery } from "../features/apiSlice";
+import { Tour } from "../models/Tour";
+import { RootState } from "../";
+import SearchParamSync from "../components/SearchParamSync";
 import {
   boundsUpdated,
   cityUpdated,
   mapUpdated,
-} from "../../features/searchSlice";
-import { useAppDispatch } from "../../hooks";
-import TourCardContainer from "../../components/TourCardContainer";
-import Search from "../../components/Search/Search";
+} from "../features/searchSlice";
+import { useAppDispatch } from "../hooks";
+import TourCardContainer from "../components/TourCardContainer";
+import Search from "../components/Search/Search";
 import {
   DirectLink,
   extractCityFromLocation,
   getTranslatedCountryName,
   usePageHeader,
-} from "../../utils/seoPageHelper";
-import { CustomIcon } from "../../icons/CustomIcon";
+} from "../utils/seoPageHelper";
+import { CustomIcon } from "../icons/CustomIcon";
 
 export default function Main() {
   const { t } = useTranslation();

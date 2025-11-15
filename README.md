@@ -1,5 +1,16 @@
 # Zuugle Suchseite
 
+## Paths and Query Parameters
+
+### Paths
+
+- `/`: [Start](src/views/Start) - Startseite
+- `/search`: [Search](src/views/Search.tsx) - Suchseite
+- `/tour/:id/:city`: [TourDetail](src/views/TourDetail.tsx) - Detailseite
+- `/privacy`: [Privacy](src/views/Privacy.tsx) - Datenschutzerkl&auml;rung
+- `/imprint`: [Imprint](src/views/Imprint.tsx)
+<!-- - `/about`: [About](src/views/Pages/About.tsx) TODO: About.tsx is currently not used -> Clean up or update. -->
+
 ## First time installation
 
 ### Install Volta
