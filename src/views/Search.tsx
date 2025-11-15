@@ -75,7 +75,6 @@ export default function Main() {
       provider: search.provider || undefined,
       range: search.range || undefined,
       country: search.country || undefined,
-      type: search.type || undefined,
       currLanguage: search.language || undefined,
       poi: search.poi || undefined,
     };
@@ -103,7 +102,6 @@ export default function Main() {
         provider: search.provider || undefined,
         range: search.range || undefined,
         country: search.country || undefined,
-        type: search.type || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
         poi: search.poi || undefined,

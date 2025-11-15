@@ -28,7 +28,6 @@ export interface SearchState {
   provider: string | null;
   range: string | null;
   country: string | null;
-  type: string | null;
   poi: PoiWithRadius | null;
 }
 
@@ -42,7 +41,6 @@ const initialState: SearchState = {
   provider: null,
   range: null,
   country: null,
-  type: null,
   poi: null,
 };
 
@@ -77,9 +75,6 @@ const searchSlice = createSlice({
     countryUpdated: (state, action: PayloadAction<string | null>) => {
       state.country = action.payload;
     },
-    typeUpdated: (state, action: PayloadAction<string | null>) => {
-      state.type = action.payload;
-    },
     poiUpdated: (state, action: PayloadAction<PoiWithRadius | null>) => {
       state.poi = action.payload;
     },
@@ -96,7 +91,6 @@ export const {
   providerUpdated,
   rangeUpdated,
   countryUpdated,
-  typeUpdated,
   poiUpdated,
 } = searchSlice.actions;
 export default searchSlice.reducer;
