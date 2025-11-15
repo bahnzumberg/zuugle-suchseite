@@ -68,9 +68,9 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateParam(newParams, "p", search.provider);
     updateParam(newParams, "range", isMain ? search.range : null);
     updateParam(newParams, "country", isMain ? search.country : null);
-    updateParam(newParams, "type", isMain ? search.type : null);
+    updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
-    updateParam(newParams, "currLanguage", isMain ? search.language : null);
+    updateParam(newParams, "lang", isMain ? search.language : null);
     if (!search.poi) {
       updateParam(
         newParams,
@@ -105,11 +105,11 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   useEffect(() => {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
+    updateReduxFromParam("lang", languageUpdated);
     if (isMain) {
       updateReduxFromParam("search", searchPhraseUpdated);
       updateReduxFromParam("range", rangeUpdated);
       updateReduxFromParam("country", countryUpdated);
-      updateReduxFromParam("currLanguage", languageUpdated);
 
       const map = params.get("map");
       if (map) {
