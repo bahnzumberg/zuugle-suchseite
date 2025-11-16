@@ -4,19 +4,19 @@ import Header from "./Header";
 import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-function Impressum() {
+function Imprint() {
   //Translation related
   const { t } = useTranslation();
 
   useEffect(() => {
     // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
-    _mtm.push({ pagetitel: "Impressum" });
+    _mtm.push({ pagetitel: "Imprint" });
   }, []);
 
   return (
     <Box className={"about-container"} sx={{ paddingBottom: "80px" }}>
-      <Header title={"Impressum"} />
+      <Header title={"Imprint"} />
 
       <Box className={"start-body-container static-container"}>
         <Box style={{ textAlign: "left" }}>
@@ -106,4 +106,4 @@ function Impressum() {
   );
 }
 
-export default Impressum;
+export default Imprint;

@@ -64,7 +64,9 @@
     "medium": "Medio",
     "hard": "Difficile",
     "unknown": "Sconosciuto",
-    "provider": "Portale"
+    "provider": "Portale",
+    "geolocation_search": "Cerca per geolocalizzazione",
+    "geolocation_search_warning": "coordinate non valide"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",

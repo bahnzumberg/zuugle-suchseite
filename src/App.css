@@ -552,14 +552,6 @@ body ::-webkit-scrollbar-thumb:hover {
     border-radius: 18px 18px 0 0px !important;
   }
 
-  .toggle-container-left {
-    padding-right: 16px !important;
-  }
-
-  .toggle-container-right {
-    padding-left: 16px !important;
-  }
-
   .filter-box {
     padding-left: 16px;
     padding-right: 16px;

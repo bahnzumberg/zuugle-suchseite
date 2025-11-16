@@ -29,13 +29,12 @@ function getPreloadedSearchState() {
     city: cityObject,
     citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
-    language: params.get("currLanguage") ?? null,
+    language: params.get("lang") ?? null,
     provider: params.get("p") ?? null,
     range: params.get("range") ?? null,
     country: params.get("country") ?? null,
-    type: params.get("type") ?? null,
     bounds: null,
-    poi: null,
+    geolocation: null,
   };
 }
 

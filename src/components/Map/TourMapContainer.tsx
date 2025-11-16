@@ -19,7 +19,7 @@ import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
-import { boundsUpdated, poiUpdated } from "../../features/searchSlice";
+import { boundsUpdated, geolocationUpdated } from "../../features/searchSlice";
 import {
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
@@ -66,7 +66,9 @@ export default function TourMapContainer({
   >([]);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [clickPosition, setClickPosition] = useState<L.LatLng | null>(null);
-  const poi = useSelector((state: RootState) => state.search.poi);
+  const geolocation = useSelector(
+    (state: RootState) => state.search.geolocation,
+  );
   const city = useSelector((state: RootState) => state.search.city);
   const [markersInvalidated, setMarkersInvalidated] = useState(false);
   const [isUserMoving, setIsUserMoving] = useState(false);
@@ -171,7 +173,9 @@ export default function TourMapContainer({
   const handlePoiSearch = useCallback(
     (coords: L.LatLng, radius: number) => {
       setClickPosition(null);
-      dispatch(poiUpdated({ lat: coords.lat, lng: coords.lng, radius }));
+      dispatch(
+        geolocationUpdated({ lat: coords.lat, lng: coords.lng, radius }),
+      );
       setMarkersInvalidated(true);
     },
     [dispatch],
@@ -215,7 +219,7 @@ export default function TourMapContainer({
           maxZoom={16}
           maxNativeZoom={19}
         />
-        {!poi && (
+        {!geolocation && (
           <MapBoundsSync
             setIsUserMoving={setIsUserMoving}
             updateBounds={updateBounds}
@@ -223,7 +227,7 @@ export default function TourMapContainer({
         )}
         <MapBoundsUpdater
           isUserMoving={isUserMoving}
-          poi={poi}
+          geolocation={geolocation}
           markers={markers}
           markersInvalidated={markersInvalidated}
         />
@@ -292,15 +296,15 @@ export default function TourMapContainer({
             removeOutsideVisibleBounds: true,
           }}
         />
-        {poi && (
+        {geolocation && (
           <ResizableCircle
-            center={poi}
-            initialRadius={poi.radius}
+            center={geolocation}
+            initialRadius={geolocation.radius}
             onRadiusChange={(radius) => {
-              dispatch(poiUpdated({ ...poi, radius: radius }));
+              dispatch(geolocationUpdated({ ...geolocation, radius: radius }));
             }}
             onRemove={(map: L.Map) => {
-              dispatch(poiUpdated(null));
+              dispatch(geolocationUpdated(null));
               updateBounds(map.getBounds());
             }}
           />

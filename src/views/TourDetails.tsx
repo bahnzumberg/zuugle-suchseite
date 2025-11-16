@@ -23,17 +23,13 @@ import {
   WhatsappIcon,
   WhatsappShareButton,
 } from "react-share";
-import DomainMenu from "../../components/DomainMenu";
-import Footer from "../../components/Footer/Footer";
-import InteractiveMap from "../../components/InteractiveMap";
-import Itinerary from "../../components/Itinerary/Itinerary";
-import TourDetailProperties from "../../components/TourDetailProperties";
-import {
-  get_currLanguage,
-  parseFileName,
-  shortenText,
-} from "../../utils/globals";
-import Search from "../../components/Search/Search";
+import DomainMenu from "../components/DomainMenu";
+import Footer from "../components/Footer/Footer";
+import InteractiveMap from "../components/InteractiveMap";
+import Itinerary from "../components/Itinerary/Itinerary";
+import TourDetailProperties from "../components/TourDetailProperties";
+import { get_currLanguage, parseFileName, shortenText } from "../utils/globals";
+import Search from "../components/Search/Search";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
@@ -41,13 +37,14 @@ import {
   useLazyGetConnectionsExtendedQuery,
   useLazyGetGPXQuery,
   useLazyGetProviderGpxOkQuery,
-} from "../../features/apiSlice";
-import { Connection, ConnectionResult } from "../../models/Connections";
-import { useAppDispatch } from "../../hooks";
-import { citySlugUpdated, cityUpdated } from "../../features/searchSlice";
+} from "../features/apiSlice";
+import { Connection, ConnectionResult } from "../models/Connections";
+import { useAppDispatch } from "../hooks";
+import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
 import { useSelector } from "react-redux";
-import { RootState } from "../..";
-import { CustomIcon } from "../../icons/CustomIcon";
+import { RootState } from "../";
+import { CustomIcon } from "../icons/CustomIcon";
+import LanguageMenu from "../components/LanguageMenu";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =
@@ -492,19 +489,22 @@ export default function DetailReworked() {
                 </Box>
                 <DomainMenu />
               </Box>
-              <Box
-                sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
-                onClick={handleCloseTab}
-              >
-                <CustomIcon
-                  name="close"
-                  style={{
-                    stroke: "#fff",
-                    fill: "#fff",
-                    width: "24px",
-                    height: "24px",
-                  }}
-                />
+              <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <LanguageMenu />
+                <Box
+                  sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                  onClick={handleCloseTab}
+                >
+                  <CustomIcon
+                    name="close"
+                    style={{
+                      stroke: "#fff",
+                      fill: "#fff",
+                      width: "24px",
+                      height: "24px",
+                    }}
+                  />
+                </Box>
               </Box>
             </Box>
             {/* search bar ###### section */}
