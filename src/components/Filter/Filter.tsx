@@ -575,9 +575,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid
                     sx={{
                       borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      paddingRight: "16px",
                     }}
-                    className={"toggle-container-left"}
                     size={6}
                   >
                     <Grid container spacing={0}>
@@ -598,11 +597,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
-                  >
+                  <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{mehrtagestour_label}</Typography>
@@ -634,9 +629,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid
                     sx={{
                       borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      paddingRight: "16px",
                     }}
-                    className={"toggle-container-left"}
                     size={6}
                   >
                     <Grid container spacing={0}>
@@ -657,11 +651,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
-                  >
+                  <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{wintertour_label}</Typography>
@@ -713,17 +703,15 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 <Grid container>
                   <Grid
                     sx={{
-                      borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      borderRight: { xs: "none", sm: "1px solid #EAEAEA" },
+                      paddingRight: { xs: 0, sm: "16px" },
                     }}
-                    className={"toggle-container-left"}
-                    size={6}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {anstieg_label} ({hm})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={100}
                       min={fetchedFilter?.minAscent ?? 0}
                       max={fetchedFilter?.maxAscent ?? 3000}
@@ -789,15 +777,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     )}
                   </Grid>
                   <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
+                    sx={{ paddingLeft: { xs: 0, sm: "16px" } }}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {abstieg_label} ({hm})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={100}
                       min={fetchedFilter?.minDescent ?? 0}
                       max={fetchedFilter?.maxDescent ?? 3000}
@@ -867,17 +853,15 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 <Grid container>
                   <Grid
                     sx={{
-                      borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      borderRight: { xs: "none", sm: "1px solid #EAEAEA" },
+                      paddingRight: { xs: 0, sm: "16px" },
                     }}
-                    className={"toggle-container-left"}
-                    size={6}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {anfahrtszeit_label} ({h})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={0.5}
                       min={fetchedFilter?.minTransportDuration ?? 0}
                       max={fetchedFilter?.maxTransportDuration ?? 50}
@@ -940,15 +924,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     </Box>
                   </Grid>
                   <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
+                    sx={{ paddingLeft: { xs: 0, sm: "16px" } }}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {gehdistanz_label} ({km})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={2}
                       min={fetchedFilter?.minDistance ?? 0}
                       max={fetchedFilter?.maxDistance ?? 80}
