@@ -34,7 +34,6 @@
     "react-router": "^7.9.6",
     "react-select": "^5.10.2",
     "react-share": "^5.2.2",
-    "watch": "^0.13.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
   },
