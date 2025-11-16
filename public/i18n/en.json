@@ -64,7 +64,9 @@
     "medium": "Medium",
     "hard": "Hard",
     "unknown": "Unknown",
-    "provider": "Tour portal"
+    "provider": "Tour portal",
+    "geolocation_search": "Geolocation search",
+    "geolocation_search_warning": "invalid coordinates"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",

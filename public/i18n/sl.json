@@ -64,7 +64,9 @@
     "medium": "Srednje",
     "hard": "Težavno",
     "unknown": "Neznano",
-    "provider": "Portal"
+    "provider": "Portal",
+    "geolocation_search": "Iskanje geolokacije",
+    "geolocation_search_warning": "neveljavne koordinate"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",

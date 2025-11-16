@@ -32,6 +32,8 @@ import { RootState } from "../..";
 import { areSetsEqual } from "../../utils/globals";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
+import WarningIcon from "@mui/icons-material/Warning";
+import { geolocationUpdated } from "../../features/searchSlice";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -42,6 +44,14 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const dispatch = useAppDispatch();
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const search = useSelector((state: RootState) => state.search.searchPhrase);
+  const geolocation = useSelector(
+    (state: RootState) => state.search.geolocation,
+  );
+  const [tempGeolocation, setTempGeolocation] = useState<{
+    lat?: number;
+    lng?: number;
+    radius?: number;
+  }>({});
 
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
@@ -98,13 +108,27 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     }
   }, [fetchedFilter, isFilterFetching, storedFilter]);
 
+  useEffect(() => {
+    setTempGeolocation(geolocation ?? {});
+  }, [geolocation]);
+
   function submitFilter() {
     dispatch(filterUpdated(getActiveFilterFields()));
+    if (tempGeolocation.lat && tempGeolocation.lng) {
+      dispatch(
+        geolocationUpdated({
+          lat: tempGeolocation.lat,
+          lng: tempGeolocation.lng,
+          radius: tempGeolocation.radius ?? 100,
+        }),
+      );
+    }
     setShowFilter(false);
   }
 
   function resetFilter() {
     dispatch(filterUpdated({}));
+    dispatch(geolocationUpdated(null));
     setShowFilter(false);
   }
 
@@ -232,7 +256,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
    * Count the number of fields in tempFilter which are different from default values.
    */
   const countFilterActive = () => {
-    return Object.values(getActiveFilterFields()).length;
+    const isGeolocationSearchActive = geolocation?.lat && geolocation?.lng;
+    return (
+      Object.values(getActiveFilterFields()).length +
+      (isGeolocationSearchActive ? 1 : 0)
+    );
   };
 
   function displayAsSelected<K extends keyof FilterObject>(
@@ -466,6 +494,31 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     if (allProvidersSelected) setTempFilter({ ...tempFilter, providers: [] });
     else setTempFilter({ ...tempFilter, providers: fetchedFilter?.providers });
     setAllProvidersSelected(!allProvidersSelected);
+  };
+
+  const updateGeolocation = (
+    value: string,
+    field: "lat" | "lng" | "radius",
+  ) => {
+    const _value = value.trim();
+    setTempGeolocation({
+      ...tempGeolocation,
+      [field]: _value !== "" && Number.isFinite(+_value) ? +_value : undefined,
+    });
+  };
+
+  // Called onBlur of lat/lon inputs
+  const handleAutoRadius = () => {
+    setTempGeolocation((prev) => {
+      if (
+        Number.isFinite(prev.lat) &&
+        Number.isFinite(prev.lng) &&
+        !Number.isFinite(prev.radius)
+      ) {
+        return { ...prev, radius: 100 };
+      }
+      return prev;
+    });
   };
 
   const style = {
@@ -1024,6 +1077,53 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   {getRanges()}
+                </Grid>
+              </Box>
+              <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
+                <Grid container alignItems="center" spacing={1}>
+                  <Typography variant={"subtitle1"}>
+                    {t("filter.geolocation_search")}
+                  </Typography>{" "}
+                  {!!tempGeolocation?.lat !== !!tempGeolocation?.lng && (
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <WarningIcon color="error" fontSize="small" />
+                      <Typography sx={{ color: "error.main" }}>
+                        {" " + t("filter.geolocation_search_warning") + " "}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+                <Grid container spacing={"10px"} sx={{ marginTop: "15px" }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="lat"
+                      fullWidth
+                      value={tempGeolocation?.lat ?? ""}
+                      onChange={(e) => updateGeolocation(e.target.value, "lat")}
+                      onBlur={handleAutoRadius}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="lon"
+                      fullWidth
+                      value={tempGeolocation?.lng ?? ""}
+                      onChange={(e) => updateGeolocation(e.target.value, "lng")}
+                      onBlur={handleAutoRadius}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container sx={{ mt: 2 }}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <TextField
+                      label="Radius (m)"
+                      fullWidth
+                      value={tempGeolocation?.radius ?? ""}
+                      onChange={(e) =>
+                        updateGeolocation(e.target.value, "radius")
+                      }
+                    />
+                  </Grid>
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>

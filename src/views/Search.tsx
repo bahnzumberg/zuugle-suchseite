@@ -31,6 +31,7 @@ import {
   usePageHeader,
 } from "../utils/seoPageHelper";
 import { CustomIcon } from "../icons/CustomIcon";
+import { hasContent } from "../utils/globals";
 
 export default function Main() {
   const { t } = useTranslation();
@@ -118,17 +119,11 @@ export default function Main() {
 
   const [directLink, setDirectLink] = useState<DirectLink | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState(false);
+  const activeFilter = useSelector(
+    (state: RootState) => hasContent(filter) || state.search.geolocation,
+  );
 
   const { data: allCities = [] } = useGetCitiesQuery();
-
-  useEffect(() => {
-    if (Object.values(filter).length) {
-      setActiveFilter(true);
-    } else {
-      setActiveFilter(false);
-    }
-  }, [filter]);
 
   useEffect(() => {
     // @ts-expect-error matomo

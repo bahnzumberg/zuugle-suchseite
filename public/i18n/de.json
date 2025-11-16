@@ -64,7 +64,9 @@
     "medium": "Mittel",
     "hard": "Schwer",
     "unknown": "Unbekannt",
-    "provider": "Tourenportal"
+    "provider": "Tourenportal",
+    "geolocation_search": "Geolocation Suche",
+    "geolocation_search_warning": "ungültige Koordinaten"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
