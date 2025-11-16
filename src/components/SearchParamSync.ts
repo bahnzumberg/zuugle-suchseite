@@ -121,6 +121,9 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
       const geolocation = params.get("geolocation");
       if (geolocation) {
         const parsedLocation = JSON.parse(geolocation);
+        if (!parsedLocation.radius) {
+          parsedLocation.radius = 100;
+        }
         dispatch(geolocationUpdated(parsedLocation));
       } else {
         dispatch(geolocationUpdated(null));
