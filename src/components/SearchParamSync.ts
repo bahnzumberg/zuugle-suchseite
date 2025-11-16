@@ -10,14 +10,12 @@ import {
   countryUpdated,
   languageUpdated,
   mapUpdated,
+  geolocationUpdated,
   providerUpdated,
   rangeUpdated,
   searchPhraseUpdated,
-  typeUpdated,
 } from "../features/searchSlice";
 import { useGetCitiesQuery } from "../features/apiSlice";
-import L from "leaflet";
-import { toBoundsObject } from "../utils/map_utils";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { filterUpdated } from "../features/filterSlice";
 
@@ -70,14 +68,22 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateParam(newParams, "p", search.provider);
     updateParam(newParams, "range", isMain ? search.range : null);
     updateParam(newParams, "country", isMain ? search.country : null);
-    updateParam(newParams, "type", isMain ? search.type : null);
     updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
-    updateParam(newParams, "currLanguage", isMain ? search.language : null);
+    updateParam(newParams, "lang", isMain ? search.language : null);
+    if (!search.geolocation) {
+      updateParam(
+        newParams,
+        "bounds",
+        isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+      );
+    } else {
+      updateParam(newParams, "bounds", null);
+    }
     updateParam(
       newParams,
-      "bounds",
-      isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+      "geolocation",
+      isMain && search.geolocation ? JSON.stringify(search.geolocation) : null,
     );
     updateParam(
       newParams,
@@ -99,12 +105,11 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   useEffect(() => {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
+    updateReduxFromParam("lang", languageUpdated);
     if (isMain) {
       updateReduxFromParam("search", searchPhraseUpdated);
       updateReduxFromParam("range", rangeUpdated);
       updateReduxFromParam("country", countryUpdated);
-      updateReduxFromParam("type", typeUpdated);
-      updateReduxFromParam("currLanguage", languageUpdated);
 
       const map = params.get("map");
       if (map) {
@@ -113,11 +118,21 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(mapUpdated(false));
       }
 
+      const geolocation = params.get("geolocation");
+      if (geolocation) {
+        const parsedLocation = JSON.parse(geolocation);
+        if (!parsedLocation.radius) {
+          parsedLocation.radius = 100;
+        }
+        dispatch(geolocationUpdated(parsedLocation));
+      } else {
+        dispatch(geolocationUpdated(null));
+      }
+
       const bounds = params.get("bounds");
-      if (bounds) {
+      if (!geolocation && bounds) {
         const parsedBounds = JSON.parse(bounds);
-        if (parsedBounds instanceof L.LatLngBounds)
-          dispatch(boundsUpdated(toBoundsObject(parsedBounds)));
+        dispatch(boundsUpdated(parsedBounds));
       } else {
         dispatch(boundsUpdated(null));
       }

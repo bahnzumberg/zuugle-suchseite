@@ -10,10 +10,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // Importiere DetailReworked und Main jetzt dynamisch
-const Main = lazy(() => import("./views/Main/Main"));
-const Impressum = lazy(() => import("./views/Pages/Impressum"));
-const Privacy = lazy(() => import("./views/Pages/Privacy"));
-const DetailReworked = lazy(() => import("./views/Main/DetailReworked"));
+const Main = lazy(() => import("./views/Search"));
+const Imprint = lazy(() => import("./views/Imprint"));
+const Privacy = lazy(() => import("./views/Privacy"));
+const DetailReworked = lazy(() => import("./views/TourDetails"));
 
 function App() {
   //check if first visit and change code to domain language
@@ -71,7 +71,7 @@ function App() {
               path="/imprint"
               element={
                 <Suspense fallback={<div>Loading…</div>}>
-                  <Impressum />
+                  <Imprint />
                 </Suspense>
               }
             />

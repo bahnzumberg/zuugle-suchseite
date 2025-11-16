@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
@@ -25,9 +25,9 @@ export default function Header({
 
   const tld = getTLD();
 
-  if (totalTours === 0) {
-    return (
-      <BackgroundImageLoader tld={tld}>
+  return (
+    <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
+      {totalTours === 0 ? (
         <Box className="header-text">
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <img
@@ -42,60 +42,58 @@ export default function Header({
             </Typography>
           </Box>
           {isLoading ? (
-            <CircularProgress />
+            <Box
+              sx={{ display: "flex", justifyContent: "center" }}
+              marginTop={"80px"}
+            >
+              <CircularProgress size={60} sx={{ color: "#FFF" }} />
+            </Box>
           ) : (
             <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
           )}
         </Box>
-      </BackgroundImageLoader>
-    );
-  }
+      ) : (
+        <>
+          <Box className="rowing blueDiv">
+            <DomainMenu />
+            <LanguageMenu />
+          </Box>
 
-  return (
-    <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
-      <Suspense fallback={<></>}>
-        <Box className="rowing blueDiv">
-          <DomainMenu />
-          <LanguageMenu />
-        </Box>
-      </Suspense>
-
-      <Box className="header-text">
-        {totalTours > 0 && (
-          <Typography variant="h1" sx={{ height: "162px" }}>
-            {!city
-              ? totalTours.toLocaleString()
-              : totalToursFromCity.toLocaleString()}{" "}
-            {t(
-              !city
-                ? "start.tourenanzahl_untertitel"
-                : "start.tourenanzahl_untertitel_city",
-              { capCity: city?.label },
-            )}
-          </Typography>
-        )}
-      </Box>
-
-      <Box
-        sx={{
-          bgcolor: "#FFF",
-          position: "absolute",
-          bottom: 0,
-          transform: "translate(-50%, 50%)",
-          display: "inline-flex",
-          borderRadius: "20px",
-          p: "12px 15px",
-          border: "2px solid #ddd",
-          width: "100%",
-          maxWidth: { xs: "325px", md: "600px" },
-          boxSizing: "border-box",
-          boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-        }}
-      >
-        <Box sx={{ width: "100%" }}>
-          <Search pageKey="start" isMain={false} />
-        </Box>
-      </Box>
+          <Box className="header-text">
+            <Typography variant="h1" sx={{ height: "162px" }}>
+              {!city
+                ? totalTours.toLocaleString()
+                : totalToursFromCity.toLocaleString()}{" "}
+              {t(
+                !city
+                  ? "start.tourenanzahl_untertitel"
+                  : "start.tourenanzahl_untertitel_city",
+                { capCity: city?.label },
+              )}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              bgcolor: "#FFF",
+              position: "absolute",
+              bottom: 0,
+              transform: "translate(-50%, 50%)",
+              display: "inline-flex",
+              borderRadius: "20px",
+              p: "12px 15px",
+              border: "2px solid #ddd",
+              width: "100%",
+              maxWidth: { xs: "325px", md: "600px" },
+              boxSizing: "border-box",
+              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Search pageKey="start" isMain={false} />
+            </Box>
+          </Box>
+        </>
+      )}
     </BackgroundImageLoader>
   );
 }

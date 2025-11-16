@@ -64,7 +64,9 @@
     "medium": "Moyenne",
     "hard": "Difficile",
     "unknown": "Inconnu",
-    "provider": "Portail"
+    "provider": "Portail",
+    "geolocation_search": "Recherche par géolocalisation",
+    "geolocation_search_warning": "Coordonnées non valides"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",
@@ -123,7 +125,9 @@
     "stop2stop": "Arrêt à arrêt",
     "oeffi_bergtouren_fuer_cityname": "Sorties en montagne à partir de {{city.label}}",
     "alle_bergtouren_von_cityname": "Sorties en montagne accessibles en train et en bus à partir de {{city.label}}",
-    "tour": "Randonnée"
+    "tour": "Randonnée",
+    "areaSearchTrigger": "Rechercher des randonnées qui visitent cette zone.",
+    "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées."
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",

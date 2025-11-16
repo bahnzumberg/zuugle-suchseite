@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import { Chip, Link } from "@mui/material";
 import { Tour } from "../models/Tour";
 
-// const DEFAULT_IMAGE = "/app_static/img/dummy.webp";
 const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 
 export interface TourCardProps {
@@ -27,7 +26,6 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
 
   useEffect(() => {
     if (JSON.stringify(tour.image_url) === "null") {
-      // setImage("/app_static/img/dummy.webp");
       setImage("https://cdn.zuugle.at/img/dummy.webp");
     } else {
       setImage(tour.image_url);
