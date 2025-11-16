@@ -4,36 +4,34 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router";
 // Importiere die Karten-Komponente jetzt dynamisch
 const TourMapContainer = lazy(
-  () => import("../../components/Map/TourMapContainer"),
+  () => import("../components/Map/TourMapContainer"),
 );
 import { Typography, Skeleton } from "@mui/material";
 import debounce from "lodash.debounce";
-import DomainMenu from "../../components/DomainMenu";
-import LanguageMenu from "../../components/LanguageMenu";
+import DomainMenu from "../components/DomainMenu";
+import LanguageMenu from "../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import MapBtn from "../../components/Search/MapBtn";
-import {
-  useGetCitiesQuery,
-  useLazyGetToursQuery,
-} from "../../features/apiSlice";
-import { Tour } from "../../models/Tour";
-import { RootState } from "../..";
-import SearchParamSync from "../../components/SearchParamSync";
+import MapBtn from "../components/Search/MapBtn";
+import { useGetCitiesQuery, useLazyGetToursQuery } from "../features/apiSlice";
+import { Tour } from "../models/Tour";
+import { RootState } from "../";
+import SearchParamSync from "../components/SearchParamSync";
 import {
   boundsUpdated,
   cityUpdated,
   mapUpdated,
-} from "../../features/searchSlice";
-import { useAppDispatch } from "../../hooks";
-import TourCardContainer from "../../components/TourCardContainer";
-import Search from "../../components/Search/Search";
+} from "../features/searchSlice";
+import { useAppDispatch } from "../hooks";
+import TourCardContainer from "../components/TourCardContainer";
+import Search from "../components/Search/Search";
 import {
   DirectLink,
   extractCityFromLocation,
   getTranslatedCountryName,
   usePageHeader,
-} from "../../utils/seoPageHelper";
-import { CustomIcon } from "../../icons/CustomIcon";
+} from "../utils/seoPageHelper";
+import { CustomIcon } from "../icons/CustomIcon";
+import { hasContent } from "../utils/globals";
 
 export default function Main() {
   const { t } = useTranslation();
@@ -78,9 +76,8 @@ export default function Main() {
       provider: search.provider || undefined,
       range: search.range || undefined,
       country: search.country || undefined,
-      type: search.type || undefined,
       currLanguage: search.language || undefined,
-      poi: search.poi || undefined,
+      geolocation: search.geolocation || undefined,
     };
     debouncedTrigger(params);
     // Cleanup to cancel pending debounced calls
@@ -106,10 +103,9 @@ export default function Main() {
         provider: search.provider || undefined,
         range: search.range || undefined,
         country: search.country || undefined,
-        type: search.type || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
-        poi: search.poi || undefined,
+        geolocation: search.geolocation || undefined,
       }).unwrap();
       moreTours.then((data) => {
         if (!data.tours || data.tours.length === 0) {
@@ -123,17 +119,11 @@ export default function Main() {
 
   const [directLink, setDirectLink] = useState<DirectLink | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState(false);
+  const activeFilter = useSelector(
+    (state: RootState) => hasContent(filter) || state.search.geolocation,
+  );
 
   const { data: allCities = [] } = useGetCitiesQuery();
-
-  useEffect(() => {
-    if (Object.values(filter).length) {
-      setActiveFilter(true);
-    } else {
-      setActiveFilter(false);
-    }
-  }, [filter]);
 
   useEffect(() => {
     // @ts-expect-error matomo

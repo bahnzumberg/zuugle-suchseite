@@ -5,17 +5,17 @@ import { getMarkersBounds, toLatLngBounds } from "../../utils/map_utils";
 import L from "leaflet";
 import { RootState } from "../..";
 import { Marker } from "./TourMapContainer";
-import { PoiWithRadius } from "../../features/searchSlice";
+import { LocationWithRadius } from "../../features/searchSlice";
 
 export interface MapBoundsUpdaterProps {
   isUserMoving: boolean;
-  poi: PoiWithRadius | null;
+  geolocation: LocationWithRadius | null;
   markers: Marker[];
   markersInvalidated: boolean;
 }
 export function MapBoundsUpdater({
   isUserMoving,
-  poi,
+  geolocation,
   markers,
   markersInvalidated,
 }: MapBoundsUpdaterProps) {
@@ -26,8 +26,8 @@ export function MapBoundsUpdater({
     // Skip if user is actively moving the map
     if (isUserMoving) return;
 
-    // case 1: bounds are active and no poi search is active
-    if (!poi && bounds) {
+    // case 1: bounds are active and no geolocation search is active
+    if (!geolocation && bounds) {
       const current = map.getBounds();
       const newBounds = toLatLngBounds(bounds);
 
@@ -42,14 +42,17 @@ export function MapBoundsUpdater({
         map.fitBounds(newBounds, { animate: true });
       }
     }
-    // case 2: poi search is active and tours are loaded
-    if (poi && !markersInvalidated) {
+    // case 2: geolocation search is active and tours are loaded
+    if (geolocation && !markersInvalidated) {
       const markerBounds = getMarkersBounds(markers);
-      const poiBounds = L.latLng(poi.lat, poi.lng).toBounds(poi.radius * 3);
-      markerBounds.extend(poiBounds);
+      const circleSearchBounds = L.latLng(
+        geolocation.lat,
+        geolocation.lng,
+      ).toBounds(geolocation.radius * 3);
+      markerBounds.extend(circleSearchBounds);
       map.fitBounds(markerBounds, { animate: true });
     }
-  }, [bounds, poi, markers]);
+  }, [bounds, geolocation, markers]);
 
   return null;
 }

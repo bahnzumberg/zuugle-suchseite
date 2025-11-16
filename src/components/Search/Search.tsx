@@ -45,8 +45,8 @@ export default function Search({
     [filterOn, setFilterOn] = useState(false);
   }
 
-  const activeFilter = useSelector((state: RootState) =>
-    hasContent(state.filter),
+  const activeFilter = useSelector(
+    (state: RootState) => hasContent(state.filter) || state.search.geolocation,
   );
 
   return (
