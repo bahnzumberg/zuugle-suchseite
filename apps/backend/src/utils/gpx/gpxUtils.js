@@ -476,3 +476,40 @@ const getSequenceFromFile = async (file) => {
     }
     return null;
 }
+
+/**
+ * Get all distinct hashed_url values that have at least one GPX point
+ * within `radius` metres of the supplied latitude/longitude.
+ *
+ * @param {number} lat    – latitude of the centre point (decimal degrees)
+ * @param {number} lon    – longitude of the centre point (decimal degrees)
+ * @param {number} radius – search radius in metres (e.g. 100)
+ * @returns {Promise<string[]> | Promise<null>} array of hashed_url strings
+ */
+export async function hashedUrlsFromPoi(lat, lon, radius) {
+  try {
+    const sql = `
+            SELECT DISTINCT hashed_url
+            FROM gpx as g
+            WHERE earth_box(ll_to_earth(:lat, :lon), :radius) @> ll_to_earth(g.lat, g.lon)
+                AND earth_distance(
+                ll_to_earth(g.lat, g.lon),
+                ll_to_earth(:lat, :lon)
+              ) <= :radius;
+            `;
+    const result = await knex.raw(sql, { lat, lon, radius });
+    if (!result) return [];
+    const rows = (function (res) {
+      if (!res) return [];
+      if (Array.isArray(res)) return res[0] || [];
+      return res.rows || [];
+    })(result);
+    return rows.map((r) => r.hashed_url);
+  } catch (e) {
+    console.error(
+      `Error obtaining tours within radius ${radius} from lat=${lat} and lon=${lon}: `,
+      e
+    );
+    return null;
+  }
+}

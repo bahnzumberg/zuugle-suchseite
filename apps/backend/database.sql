@@ -1,6 +1,8 @@
 SET SEARCH_PATH TO public;
 
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS earthdistance;
 
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS fahrplan;
@@ -223,6 +225,7 @@ CREATE INDEX ON gpx (waypoint);
 CREATE INDEX ON gpx (lat);
 CREATE INDEX ON gpx (lon);
 
+CREATE INDEX gpx_earth_idx ON gpx USING gist (ll_to_earth(lat, lon));
 
 
 CREATE TABLE city2tour (
