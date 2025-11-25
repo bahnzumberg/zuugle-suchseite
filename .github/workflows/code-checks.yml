@@ -17,11 +17,6 @@ jobs:
     name: Lint, Prettier, and Type Check
     runs-on: ubuntu-latest
 
-    # Prevent duplicate runs:
-    if: >
-      github.event_name == 'pull_request' ||
-      github.event.pull_request == null
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
