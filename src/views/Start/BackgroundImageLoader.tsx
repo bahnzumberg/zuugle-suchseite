@@ -16,8 +16,8 @@ const BackgroundImageLoader = ({
   children,
 }: BackgroundImageLoaderProps) => {
   const backgroundImage = isMobileDevice()
-    ? `${LINEAR_GRADIENT} url(/app_static/img/background_start_mobil_${tld}.webp)`
-    : `${LINEAR_GRADIENT} url(/app_static/img/background_start_small_${tld}.webp)`;
+    ? `${LINEAR_GRADIENT} url(https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp)`
+    : `${LINEAR_GRADIENT} url(https://cdn.zuugle.at/img/background_start_small_${tld}.webp)`;
 
   return (
     <Box

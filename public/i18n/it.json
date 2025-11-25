@@ -64,7 +64,9 @@
     "medium": "Medio",
     "hard": "Difficile",
     "unknown": "Sconosciuto",
-    "provider": "Portale"
+    "provider": "Portale",
+    "geolocation_search": "Cerca per geolocalizzazione",
+    "geolocation_search_warning": "coordinate non valide"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",
@@ -123,7 +125,9 @@
     "stop2stop": "Fermata a fermata",
     "oeffi_bergtouren_fuer_cityname": "Itinerari raggiungibili da {{city.label}}",
     "alle_bergtouren_von_cityname": "Itinerari raggiungibili in treno e autobus da {{city.label}}",
-    "tour": "Percorrenza"
+    "tour": "Percorrenza",
+    "areaSearchTrigger": "Cerca i percorsi che raggiungono questa zona.",
+    "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati."
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",

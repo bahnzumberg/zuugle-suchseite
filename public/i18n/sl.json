@@ -64,7 +64,9 @@
     "medium": "Srednje",
     "hard": "Težavno",
     "unknown": "Neznano",
-    "provider": "Portal"
+    "provider": "Portal",
+    "geolocation_search": "Iskanje geolokacije",
+    "geolocation_search_warning": "neveljavne koordinate"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
@@ -123,7 +125,9 @@
     "stop2stop": "Ustavi se, da se ustavi",
     "oeffi_bergtouren_fuer_cityname": "Gorskih tur in izletov iz {{city.label}}",
     "alle_bergtouren_von_cityname": "Gorskih tur in izletov iz {{city.label}} – dostopnih z vlakom in avtobusom",
-    "tour": "Tur"
+    "tour": "Tur",
+    "areaSearchTrigger": "Išči poti do tega območja.",
+    "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje."
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Varstvo podatkov nam je pomembno. Zato smo se odrekli številnim možnostim, ki so sicer tehnično izvedljive, a bi posegle v zasebnost naših obiskovalcev.",

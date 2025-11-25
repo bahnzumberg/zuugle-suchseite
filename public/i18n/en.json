@@ -64,7 +64,9 @@
     "medium": "Medium",
     "hard": "Hard",
     "unknown": "Unknown",
-    "provider": "Tour portal"
+    "provider": "Tour portal",
+    "geolocation_search": "Geolocation search",
+    "geolocation_search_warning": "invalid coordinates"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",
@@ -123,7 +125,9 @@
     "stop2stop": "Stop to stop",
     "oeffi_bergtouren_fuer_cityname": "Hikes reachable from {{city.label}}",
     "alle_bergtouren_von_cityname": "All hikes reachable via public transport from {{city.label}}",
-    "tour": "Tour"
+    "tour": "Tour",
+    "areaSearchTrigger": "Find tours that visit this area.",
+    "areaSearchTooltip": "Only tours that visit the marked area are shown."
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",

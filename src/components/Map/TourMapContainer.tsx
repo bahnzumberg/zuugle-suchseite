@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Polyline,
-  useMapEvents,
   ZoomControl,
-  Popup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -15,20 +13,24 @@ import { useSelector } from "react-redux";
 import {
   formatMapClusterNumber,
   getDefaultBoundsForDomain,
-  useDebouncedCallback,
 } from "../../utils/map_utils";
 import "./popup-style.css";
 import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
 import { Tour } from "../../models/Tour";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
-import { boundsUpdated } from "../../features/searchSlice";
+import { boundsUpdated, geolocationUpdated } from "../../features/searchSlice";
 import {
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
-import PopupCard from "./PopupCard";
+import { MemoizedPopupCard } from "./PopupCard";
 import ClusterGroup from "./ClusterGroup";
+import ResizableCircle from "./ResizableCircle";
+import { MapClickHandler } from "./MapClickHandler";
+import { MapBoundsUpdater } from "./MapBoundsUpdater";
+import { MapBoundsSync } from "./MapBoundsSync";
+import { useSearchParams } from "react-router";
 
 // There is also a Marker defined in leaflet. Should we use that instead?
 export interface Marker {
@@ -39,12 +41,16 @@ export interface Marker {
 
 export interface TourMapContainerProps {
   markers: Marker[];
+  isLoading: boolean;
 }
 
 /**
  * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in Main.tsx.
  */
-export default function TourMapContainer({ markers }: TourMapContainerProps) {
+export default function TourMapContainer({
+  markers,
+  isLoading,
+}: TourMapContainerProps) {
   const isMobile = useIsMobile();
   const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
   const [triggerGPX] = useLazyGetGPXQuery();
@@ -59,8 +65,23 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     L.LatLngExpression[]
   >([]);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [clickPosition, setClickPosition] = useState<L.LatLng | null>(null);
+  const geolocation = useSelector(
+    (state: RootState) => state.search.geolocation,
+  );
   const city = useSelector((state: RootState) => state.search.city);
+  const [markersInvalidated, setMarkersInvalidated] = useState(false);
+  const [isUserMoving, setIsUserMoving] = useState(false);
   const dispatch = useAppDispatch();
+
+  const [searchParams] = useSearchParams();
+  const provider = searchParams.get("p");
+
+  useEffect(() => {
+    if (!isLoading) {
+      setMarkersInvalidated(false);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     if (!activeMarker) {
@@ -71,6 +92,7 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
       return;
     }
 
+    setClickPosition(null);
     const loadTracks = async () => {
       try {
         const tour = await triggerTourDetails({
@@ -104,14 +126,6 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     if (tourDetails) setSelectedTour(tourDetails);
   }, [tourDetails]);
 
-  const createStartMarker = () => {
-    return L.icon({
-      iconUrl: "https://cdn.zuugle.at/img/startpunkt.png", //the acutal picture
-      iconSize: [33, 45], //size of the icon
-      iconAnchor: [16, 46],
-    });
-  };
-
   const createClusterCustomIcon = function (cluster: L.MarkerCluster) {
     const clusterChildCount = cluster.getChildCount();
     const formattedCount = formatMapClusterNumber(clusterChildCount);
@@ -130,36 +144,56 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     });
   };
 
-  const processedMarkers = markers.map((mark) => ({
-    id: mark.id,
-    position: L.latLng(mark.lat, mark.lon),
-    icon: createStartMarker(),
-    onClick: () => setActiveMarker(mark),
-  }));
+  const startMarker = useMemo(
+    // created once for the whole component lifetime
+    () =>
+      L.icon({
+        iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
+        iconSize: [33, 45],
+        iconAnchor: [16, 46],
+      }),
+    [],
+  );
 
-  const debouncedBoundsUpdate = useDebouncedCallback(
-    (bounds: L.LatLngBounds) => {
+  const handleMarkerClick = useCallback((mark: Marker) => {
+    setActiveMarker((prev) => (prev?.id === mark.id ? null : mark));
+  }, []);
+
+  const processedMarkers = useMemo(
+    () =>
+      markers.map((mark) => ({
+        id: mark.id,
+        position: L.latLng(mark.lat, mark.lon),
+        icon: startMarker,
+        onClick: () => handleMarkerClick(mark),
+      })),
+    [markers, startMarker, handleMarkerClick],
+  );
+
+  const handlePoiSearch = useCallback(
+    (coords: L.LatLng, radius: number) => {
+      setClickPosition(null);
+      dispatch(
+        geolocationUpdated({ lat: coords.lat, lng: coords.lng, radius }),
+      );
+      setMarkersInvalidated(true);
+    },
+    [dispatch],
+  );
+
+  const updateBounds = useCallback(
+    (b: L.LatLngBounds) => {
       dispatch(
         boundsUpdated({
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          west: bounds.getWest(),
-          east: bounds.getEast(),
+          north: b.getNorth(),
+          south: b.getSouth(),
+          west: b.getWest(),
+          east: b.getEast(),
         }),
       );
     },
-    1000,
-  ); // 1 second debounce
-
-  function MapBoundsSync() {
-    const map = useMapEvents({
-      moveend() {
-        debouncedBoundsUpdate(map.getBounds());
-      },
-    });
-
-    return null;
-  }
+    [dispatch],
+  );
 
   return (
     <Box
@@ -173,10 +207,9 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
     >
       <MapContainer
         className="leaflet-container"
-        scrollWheelZoom={false} //if you can zoom with you mouse wheel
         zoomSnap={1}
         maxZoom={15} //how many times you can zoom
-        center={mapCenter} //coordinates where the map will be centered --> what you will see when you render the map --> man sieht aber keine änderung wird also whs irgendwo gesetzt xD
+        center={mapCenter}
         zoom={7} //zoom level --> how much it is zoomed out
         style={{ height: "100%", width: "100%" }} //Size of the map
         zoomControl={false}
@@ -186,23 +219,31 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
           maxZoom={16}
           maxNativeZoom={19}
         />
-        <MapBoundsSync />
-
-        {selectedTour && activeMarker && (
-          <Popup
-            key={`popup_${selectedTour.id}`}
-            maxWidth={280}
-            maxHeight={210}
-            className="request-popup"
-            offset={L.point([0, -25])}
-            position={[activeMarker.lat, activeMarker.lon]}
-            eventHandlers={{
-              remove: () => setActiveMarker(null),
-            }}
-          >
-            <PopupCard tour={selectedTour} city={city?.value || ""} />
-          </Popup>
+        {!geolocation && (
+          <MapBoundsSync
+            setIsUserMoving={setIsUserMoving}
+            updateBounds={updateBounds}
+          />
         )}
+        <MapBoundsUpdater
+          isUserMoving={isUserMoving}
+          geolocation={geolocation}
+          markers={markers}
+          markersInvalidated={markersInvalidated}
+        />
+        <MapClickHandler
+          clickPosition={clickPosition}
+          setClickPosition={setClickPosition}
+          handlePoiSearch={handlePoiSearch}
+        />
+        <MemoizedPopupCard
+          tour={selectedTour}
+          city={city?.value || ""}
+          provider={provider}
+          activeMarker={activeMarker}
+          setActiveMarker={setActiveMarker}
+        />
+
         {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
           <Polyline
@@ -255,6 +296,19 @@ export default function TourMapContainer({ markers }: TourMapContainerProps) {
             removeOutsideVisibleBounds: true,
           }}
         />
+        {geolocation && (
+          <ResizableCircle
+            center={geolocation}
+            initialRadius={geolocation.radius}
+            onRadiusChange={(radius) => {
+              dispatch(geolocationUpdated({ ...geolocation, radius: radius }));
+            }}
+            onRemove={(map: L.Map) => {
+              dispatch(geolocationUpdated(null));
+              updateBounds(map.getBounds());
+            }}
+          />
+        )}
         <ZoomControl position="bottomright" />
       </MapContainer>
     </Box>

@@ -64,7 +64,9 @@
     "medium": "Mittel",
     "hard": "Schwer",
     "unknown": "Unbekannt",
-    "provider": "Tourenportal"
+    "provider": "Tourenportal",
+    "geolocation_search": "Geolocation Suche",
+    "geolocation_search_warning": "ungültige Koordinaten"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -123,7 +125,9 @@
     "stop2stop": "Stopp zu Stopp",
     "oeffi_bergtouren_fuer_cityname": "Öffi-Bergtouren für {{city.label }}",
     "alle_bergtouren_von_cityname": "Alle Bergtouren, die du von {{city.label }} aus, mit Bahn und Bus, erreichen kannst.",
-    "tour": "Tour"
+    "tour": "Tour",
+    "areaSearchTrigger": "Finde Touren die diese Gegend besuchen.",
+    "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten."
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",

@@ -1,5 +1,5 @@
-import { Box, Paper, Skeleton, Typography } from "@mui/material";
-import { lazy, Suspense, useEffect } from "react";
+import { Box, Paper, Typography } from "@mui/material";
+import { lazy, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useIsMobile } from "../../utils/globals";
@@ -87,118 +87,97 @@ export default function Start() {
     }
   };
 
-  if (totals?.total_tours === 0) {
-    return (
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        }
-      >
-        <Box>
-          <Header
-            totalTours={totals.total_tours}
-            totalToursFromCity={totals.tours_city}
-            isLoading={isTotalsLoading}
-          />
-          <Footer />
-        </Box>
-      </Suspense>
-    );
-  }
+  return (
+    <>
+      <SearchParamSync isMain={false} />
+      <Box style={{ background: "#fff" }}>
+        <Header
+          totalTours={totals?.total_tours || 0}
+          totalToursFromCity={totals?.tours_city || 0}
+          isLoading={isTotalsLoading}
+        />
+      </Box>
 
-  if (totals?.total_tours !== 0) {
-    return (
-      <>
-        <SearchParamSync isMain={false} />
-        <Box style={{ background: "#fff" }}>
-          <Header
-            totalTours={totals?.total_tours || 0}
-            totalToursFromCity={totals?.tours_city || 0}
-            isLoading={isTotalsLoading}
-          />
-        </Box>
-        <Suspense
-          fallback={
-            <Skeleton variant="rectangular" width="100vw" height="50vh" />
-          }
-        >
-          <Box style={{ background: "#fff" }}>
-            <Paper elevation={0} className={"header-line"}>
-              <Box
-                sx={{
-                  paddingTop: "55px",
-                  paddingBottom: "20px",
-                }}
+      {!isTotalsLoading && (
+        <>
+          {totals?.total_tours && totals?.total_tours > 0 && (
+            <>
+              <Box style={{ background: "#fff" }}>
+                <Paper elevation={0} className={"header-line"}>
+                  <Box
+                    sx={{
+                      paddingTop: "55px",
+                      paddingBottom: "20px",
+                    }}
+                  >
+                    <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                      {t("start.zuugle_sucht_fuer_dich_1")}{" "}
+                      {totals?.total_provider}{" "}
+                      {t("start.zuugle_sucht_fuer_dich_2")}
+                    </Typography>
+                  </Box>
+                </Paper>
+                <Box className={"start-body-container"}>
+                  <Box
+                    sx={{
+                      marginTop: "20px",
+                      padding: isMobile ? "30px 20px" : "30px 10px",
+                      background: "#EBEBEB",
+                      borderRadius: "30px",
+                    }}
+                  >
+                    <Typography
+                      variant={"h4"}
+                      sx={{
+                        textAlign: "left",
+                        paddingTop: "20px",
+                        paddingBottom: "15px",
+                        marginLeft: !isMobile ? "64px" : null,
+                      }}
+                    >
+                      {getFavouriteToursText()}
+                    </Typography>
+                    <StartTourCardContainer
+                      tours={loadedTours.tours}
+                      city={city?.value || ""}
+                      isLoading={isToursLoading}
+                      provider={provider}
+                    />
+                  </Box>
+                  <Box style={{ padding: "30px 40px" }}>
+                    <Typography
+                      variant={"h4"}
+                      sx={{
+                        textAlign: "left",
+                        paddingBottom: "15px",
+                        paddingTop: "15px",
+                      }}
+                    >
+                      {getRangeText()}
+                    </Typography>
+                    {/* RangeCardContainer ist wieder statisch importiert */}
+                    <RangeCardContainer ranges={loadedTours.ranges} />
+                  </Box>
+                  <Box sx={{ marginTop: "80px" }}>
+                    <KPIContainer
+                      totalTours={totals?.total_tours || 0}
+                      totalConnections={totals?.total_connections || 0}
+                      totalCities={totals?.total_cities || 0}
+                      totalProvider={totals?.total_provider || 0}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+              <Link
+                to={`/search/?map=true` + (provider ? `&p=${provider}` : "")}
               >
-                <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                  {t("start.zuugle_sucht_fuer_dich_1")} {totals?.total_provider}{" "}
-                  {t("start.zuugle_sucht_fuer_dich_2")}
-                </Typography>
-              </Box>
-            </Paper>
-            <Box className={"start-body-container"}>
-              <Box
-                sx={{
-                  marginTop: "20px",
-                  padding: isMobile ? "30px 20px" : "30px 10px",
-                  background: "#EBEBEB",
-                  borderRadius: "30px",
-                }}
-              >
-                <Typography
-                  variant={"h4"}
-                  sx={{
-                    textAlign: "left",
-                    paddingTop: "20px",
-                    paddingBottom: "15px",
-                    marginLeft: !isMobile ? "64px" : null,
-                  }}
-                >
-                  {getFavouriteToursText()}
-                </Typography>
-                <StartTourCardContainer
-                  tours={loadedTours.tours}
-                  city={city?.value || ""}
-                  isLoading={isToursLoading}
-                  isMobile={isMobile}
-                  provider={provider}
-                />
-              </Box>
-              <Box style={{ padding: "30px 40px" }}>
-                <Typography
-                  variant={"h4"}
-                  sx={{
-                    textAlign: "left",
-                    paddingBottom: "15px",
-                    paddingTop: "15px",
-                  }}
-                >
-                  {getRangeText()}
-                </Typography>
-                {/* RangeCardContainer ist wieder statisch importiert */}
-                <RangeCardContainer ranges={loadedTours.ranges} />
-              </Box>
-              <Box sx={{ marginTop: "80px" }}>
-                <KPIContainer
-                  totalTours={totals?.total_tours || 0}
-                  totalConnections={totals?.total_connections || 0}
-                  totalCities={totals?.total_cities || 0}
-                  totalProvider={totals?.total_provider || 0}
-                />
-              </Box>
-            </Box>
-          </Box>
-          <Link to={`/search/?map=true` + (provider ? `&p=${provider}` : "")}>
-            <MapBtn />
-          </Link>
+                <MapBtn />
+              </Link>
+            </>
+          )}
           <Footer />
-        </Suspense>
-      </>
-    );
-  }
+        </>
+      )}
+    </>
+  );
 }

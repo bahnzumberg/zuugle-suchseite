@@ -1,7 +1,6 @@
 import L from "leaflet";
 import { Marker } from "../components/Map/TourMapContainer";
 import { BoundsObject } from "../features/searchSlice";
-import { useCallback, useRef } from "react";
 
 export const formatMapClusterNumber = (number: number) => {
   // Absolute numbers
@@ -83,23 +82,6 @@ export function getDefaultBoundsForDomain(domain: string): {
   ];
 
   return { ne: bounds.ne, sw: bounds.sw, center };
-}
-
-export function useDebouncedCallback<T extends (...args: never[]) => void>(
-  callback: T,
-  delay: number,
-) {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  return useCallback(
-    (...args: Parameters<T>) => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    },
-    [callback, delay],
-  );
 }
 
 export const getMarkersBounds = (markers: Marker[]) => {

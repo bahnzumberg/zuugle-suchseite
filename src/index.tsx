@@ -6,13 +6,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
 import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
-import searchReducer, {
-  BoundsObject,
-  CityObject,
-} from "./features/searchSlice";
+import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import { api } from "./features/apiSlice";
-import { toBoundsObject } from "./utils/map_utils";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 
@@ -28,26 +24,17 @@ if (persistedCity) {
 
 function getPreloadedSearchState() {
   const params = new URLSearchParams(window.location.search);
-  const bounds = params.get("bounds");
-  let parsedBounds: BoundsObject | null = null;
-  if (bounds) {
-    try {
-      parsedBounds = toBoundsObject(JSON.parse(bounds));
-    } catch (e) {
-      console.error("Error parsing bounds", e);
-    }
-  }
   return {
     searchPhrase: params.get("search") ?? null,
     city: cityObject,
     citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
-    language: params.get("currLanguage") ?? null,
+    language: params.get("lang") ?? null,
     provider: params.get("p") ?? null,
     range: params.get("range") ?? null,
     country: params.get("country") ?? null,
-    type: params.get("type") ?? null,
-    bounds: parsedBounds,
+    bounds: null,
+    geolocation: null,
   };
 }
 

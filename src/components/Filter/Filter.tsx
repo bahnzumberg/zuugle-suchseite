@@ -32,6 +32,8 @@ import { RootState } from "../..";
 import { areSetsEqual } from "../../utils/globals";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
+import WarningIcon from "@mui/icons-material/Warning";
+import { geolocationUpdated } from "../../features/searchSlice";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -42,6 +44,14 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const dispatch = useAppDispatch();
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const search = useSelector((state: RootState) => state.search.searchPhrase);
+  const geolocation = useSelector(
+    (state: RootState) => state.search.geolocation,
+  );
+  const [tempGeolocation, setTempGeolocation] = useState<{
+    lat?: number;
+    lng?: number;
+    radius?: number;
+  }>({});
 
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
@@ -98,13 +108,27 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     }
   }, [fetchedFilter, isFilterFetching, storedFilter]);
 
+  useEffect(() => {
+    setTempGeolocation(geolocation ?? {});
+  }, [geolocation]);
+
   function submitFilter() {
     dispatch(filterUpdated(getActiveFilterFields()));
+    if (tempGeolocation.lat && tempGeolocation.lng) {
+      dispatch(
+        geolocationUpdated({
+          lat: tempGeolocation.lat,
+          lng: tempGeolocation.lng,
+          radius: tempGeolocation.radius ?? 100,
+        }),
+      );
+    }
     setShowFilter(false);
   }
 
   function resetFilter() {
     dispatch(filterUpdated({}));
+    dispatch(geolocationUpdated(null));
     setShowFilter(false);
   }
 
@@ -232,7 +256,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
    * Count the number of fields in tempFilter which are different from default values.
    */
   const countFilterActive = () => {
-    return Object.values(getActiveFilterFields()).length;
+    const isGeolocationSearchActive = geolocation?.lat && geolocation?.lng;
+    return (
+      Object.values(getActiveFilterFields()).length +
+      (isGeolocationSearchActive ? 1 : 0)
+    );
   };
 
   function displayAsSelected<K extends keyof FilterObject>(
@@ -468,6 +496,31 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     setAllProvidersSelected(!allProvidersSelected);
   };
 
+  const updateGeolocation = (
+    value: string,
+    field: "lat" | "lng" | "radius",
+  ) => {
+    const _value = value.trim();
+    setTempGeolocation({
+      ...tempGeolocation,
+      [field]: _value !== "" && Number.isFinite(+_value) ? +_value : undefined,
+    });
+  };
+
+  // Called onBlur of lat/lon inputs
+  const handleAutoRadius = () => {
+    setTempGeolocation((prev) => {
+      if (
+        Number.isFinite(prev.lat) &&
+        Number.isFinite(prev.lng) &&
+        !Number.isFinite(prev.radius)
+      ) {
+        return { ...prev, radius: 100 };
+      }
+      return prev;
+    });
+  };
+
   const style = {
     borderRadius: "18px",
   };
@@ -522,9 +575,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid
                     sx={{
                       borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      paddingRight: "16px",
                     }}
-                    className={"toggle-container-left"}
                     size={6}
                   >
                     <Grid container spacing={0}>
@@ -545,11 +597,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
-                  >
+                  <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{mehrtagestour_label}</Typography>
@@ -581,9 +629,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid
                     sx={{
                       borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      paddingRight: "16px",
                     }}
-                    className={"toggle-container-left"}
                     size={6}
                   >
                     <Grid container spacing={0}>
@@ -604,11 +651,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
-                  >
+                  <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
                         <Typography>{wintertour_label}</Typography>
@@ -660,17 +703,15 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 <Grid container>
                   <Grid
                     sx={{
-                      borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      borderRight: { xs: "none", sm: "1px solid #EAEAEA" },
+                      paddingRight: { xs: 0, sm: "16px" },
                     }}
-                    className={"toggle-container-left"}
-                    size={6}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {anstieg_label} ({hm})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={100}
                       min={fetchedFilter?.minAscent ?? 0}
                       max={fetchedFilter?.maxAscent ?? 3000}
@@ -736,15 +777,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     )}
                   </Grid>
                   <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
+                    sx={{ paddingLeft: { xs: 0, sm: "16px" } }}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {abstieg_label} ({hm})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={100}
                       min={fetchedFilter?.minDescent ?? 0}
                       max={fetchedFilter?.maxDescent ?? 3000}
@@ -814,17 +853,15 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 <Grid container>
                   <Grid
                     sx={{
-                      borderRight: "1px solid #EAEAEA",
-                      paddingRight: "24px",
+                      borderRight: { xs: "none", sm: "1px solid #EAEAEA" },
+                      paddingRight: { xs: 0, sm: "16px" },
                     }}
-                    className={"toggle-container-left"}
-                    size={6}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {anfahrtszeit_label} ({h})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={0.5}
                       min={fetchedFilter?.minTransportDuration ?? 0}
                       max={fetchedFilter?.maxTransportDuration ?? 50}
@@ -887,15 +924,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     </Box>
                   </Grid>
                   <Grid
-                    sx={{ paddingLeft: "24px" }}
-                    className={"toggle-container-right"}
-                    size={6}
+                    sx={{ paddingLeft: { xs: 0, sm: "16px" } }}
+                    size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
                       {gehdistanz_label} ({km})
                     </Typography>
                     <GeneralSlider
-                      containerSx={{ marginRight: "10px" }}
                       step={2}
                       min={fetchedFilter?.minDistance ?? 0}
                       max={fetchedFilter?.maxDistance ?? 80}
@@ -1024,6 +1059,53 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   {getRanges()}
+                </Grid>
+              </Box>
+              <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
+                <Grid container alignItems="center" spacing={1}>
+                  <Typography variant={"subtitle1"}>
+                    {t("filter.geolocation_search")}
+                  </Typography>{" "}
+                  {!!tempGeolocation?.lat !== !!tempGeolocation?.lng && (
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <WarningIcon color="error" fontSize="small" />
+                      <Typography sx={{ color: "error.main" }}>
+                        {" " + t("filter.geolocation_search_warning") + " "}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+                <Grid container spacing={"10px"} sx={{ marginTop: "15px" }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="lat"
+                      fullWidth
+                      value={tempGeolocation?.lat ?? ""}
+                      onChange={(e) => updateGeolocation(e.target.value, "lat")}
+                      onBlur={handleAutoRadius}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="lon"
+                      fullWidth
+                      value={tempGeolocation?.lng ?? ""}
+                      onChange={(e) => updateGeolocation(e.target.value, "lng")}
+                      onBlur={handleAutoRadius}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container sx={{ mt: 2 }}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <TextField
+                      label="Radius (m)"
+                      fullWidth
+                      value={tempGeolocation?.radius ?? ""}
+                      onChange={(e) =>
+                        updateGeolocation(e.target.value, "radius")
+                      }
+                    />
+                  </Grid>
                 </Grid>
               </Box>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>

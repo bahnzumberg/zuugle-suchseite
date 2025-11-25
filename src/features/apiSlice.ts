@@ -3,7 +3,7 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import { BoundsObject, CityObject } from "./searchSlice";
+import { BoundsObject, CityObject, LocationWithRadius } from "./searchSlice";
 import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../components/Map/TourMapContainer";
@@ -65,6 +65,7 @@ export interface ToursParams {
   type?: string;
   country?: string;
   currLanguage?: string;
+  geolocation?: LocationWithRadius;
 }
 
 export interface SearchParams {
@@ -151,9 +152,10 @@ export const api = createApi({
     }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
-        const { bounds, ...rest } = params;
-        const augmentedParams = { ...rest, domain: domain };
-        if (bounds) {
+        const { bounds, geolocation, ...rest } = params;
+        const augmentedParams = { ...rest, poi: geolocation, domain: domain };
+        if (!geolocation && bounds) {
+          // only use bounds when geolocation search is inactive
           const leafletBounds = toLatLngBounds(bounds);
           return `tours/?${toSearchParams({ ...augmentedParams, bounds: leafletBounds })}`;
         }
