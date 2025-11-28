@@ -1,19 +1,20 @@
 /**
  * Puppeteer Image Generation Test
- * 
- * Verifies that Puppeteer can successfully launch a browser and 
+ *
+ * Verifies that Puppeteer can successfully launch a browser and
  * generate map images from GPX tracks using the headless-leaflet page.
  */
 
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const path = require('path');
+const puppeteer = require("puppeteer");
+const fs = require("fs");
+const path = require("path");
 
-const TEST_GPX_URL = 'https://www.zuugle.at/public/gpx/04/28904.gpx';
-const HEADLESS_LEAFLET_URL = 'https://www.zuugle.at/public/headless-leaflet/index.html';
-const TEST_SCREENSHOT_PATH = path.join(__dirname, 'test_screenshot.png');
+const TEST_GPX_URL = "https://www.zuugle.at/public/gpx/04/28904.gpx";
+const HEADLESS_LEAFLET_URL =
+    "https://www.zuugle.at/public/headless-leaflet/index.html";
+const TEST_SCREENSHOT_PATH = path.join(__dirname, "test_screenshot.png");
 
-describe('Puppeteer Image Generation', () => {
+describe("Puppeteer Image Generation", () => {
     let browser;
 
     beforeAll(async () => {
@@ -21,15 +22,17 @@ describe('Puppeteer Image Generation', () => {
             browser = await puppeteer.launch({
                 headless: true,
                 args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu'
-                ]
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                ],
             });
         } catch (error) {
-            console.warn('Puppeteer browser launch failed:', error.message);
-            console.warn('Skipping Puppeteer tests - Chrome/Chromium not available');
+            console.warn("Puppeteer browser launch failed:", error.message);
+            console.warn(
+                "Skipping Puppeteer tests - Chrome/Chromium not available",
+            );
         }
     }, 60000);
 
@@ -43,18 +46,18 @@ describe('Puppeteer Image Generation', () => {
         }
     });
 
-    test('Browser can be launched', () => {
+    test("Browser can be launched", () => {
         if (!browser) {
-            console.warn('Browser not available - skipping test');
+            console.warn("Browser not available - skipping test");
             return;
         }
         expect(browser).toBeDefined();
         expect(browser.connected).toBe(true);
     });
 
-    test('Can take screenshot of headless-leaflet page with GPX', async () => {
+    test("Can take screenshot of headless-leaflet page with GPX", async () => {
         if (!browser) {
-            console.warn('Browser not available - skipping test');
+            console.warn("Browser not available - skipping test");
             return;
         }
 
@@ -64,17 +67,17 @@ describe('Puppeteer Image Generation', () => {
         // Navigate to headless-leaflet with GPX parameter
         const url = `${HEADLESS_LEAFLET_URL}?gpx=${TEST_GPX_URL}`;
         await page.goto(url, {
-            waitUntil: 'networkidle0',
-            timeout: 30000
+            waitUntil: "networkidle0",
+            timeout: 30000,
         });
 
         // Wait for map tiles and GPX to load
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
 
         // Take screenshot
         await page.screenshot({
             path: TEST_SCREENSHOT_PATH,
-            type: 'png'
+            type: "png",
         });
 
         await page.close();
@@ -90,9 +93,9 @@ describe('Puppeteer Image Generation', () => {
         expect(stats.size).toBeGreaterThan(10000);
     }, 60000);
 
-    test('Screenshot contains actual map content (not error page)', async () => {
+    test("Screenshot contains actual map content (not error page)", async () => {
         if (!browser) {
-            console.warn('Browser not available - skipping test');
+            console.warn("Browser not available - skipping test");
             return;
         }
 
@@ -101,19 +104,19 @@ describe('Puppeteer Image Generation', () => {
 
         const url = `${HEADLESS_LEAFLET_URL}?gpx=${TEST_GPX_URL}`;
         await page.goto(url, {
-            waitUntil: 'networkidle0',
-            timeout: 30000
+            waitUntil: "networkidle0",
+            timeout: 30000,
         });
 
         // Wait for map to render
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
 
         // Check that the map container exists
-        const mapContainer = await page.$('#map');
+        const mapContainer = await page.$("#map");
         expect(mapContainer).not.toBeNull();
 
         // Check that leaflet tiles are loaded
-        const tiles = await page.$$('.leaflet-tile-loaded');
+        const tiles = await page.$$(".leaflet-tile-loaded");
         console.log(`Loaded tiles: ${tiles.length}`);
         expect(tiles.length).toBeGreaterThan(0);
 

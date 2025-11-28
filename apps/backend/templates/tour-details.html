@@ -1,342 +1,373 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
     <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
-        <style type="text/css">
-            body {
-                font-size: 13px;
-                padding: 20px;
-                font-family: 'Open Sans', sans-serif;
-                color: #101010;
-            }
+        <head>
+            <meta charset="utf-8" />
+            <meta
+                name="viewport"
+                content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"
+            />
+            <style type="text/css">
+                body {
+                    font-size: 13px;
+                    padding: 20px;
+                    font-family: "Open Sans", sans-serif;
+                    color: #101010;
+                }
 
-            .property {
-                padding: 16px;
-                background-color: #F7F7F7;
-                border-radius: 16px;
-                width: 110px;
-                margin-bottom: 20px;
-                margin-right: 20px;
-            }
+                .property {
+                    padding: 16px;
+                    background-color: #f7f7f7;
+                    border-radius: 16px;
+                    width: 110px;
+                    margin-bottom: 20px;
+                    margin-right: 20px;
+                }
 
-            .image {
-                width: 100%;
-                margin-bottom: 20px;
-            }
+                .image {
+                    width: 100%;
+                    margin-bottom: 20px;
+                }
 
-            .timeline-li {
-                list-style: none;
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: -ms-flexbox;
-                display: flex;
-                position: relative;
-                min-height: 70px;
-                min-height: 0;
-            }
+                .timeline-li {
+                    list-style: none;
+                    display: -webkit-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    display: flex;
+                    position: relative;
+                    min-height: 70px;
+                    min-height: 0;
+                }
 
-            .timeline-opposite {
-                margin: 0;
-                font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
-                font-weight: 400;
-                font-size: 1rem;
-                line-height: 1.5;
-                color: #101010;
-                padding: 6px 16px;
-                margin-right: auto;
-                text-align: right;
-                -webkit-flex: 1;
-                -ms-flex: 1;
-                flex: 1;
-                -webkit-flex: 0.2;
-                -ms-flex: 0.2;
-                flex: 0.1;
-                padding-top: 0px;
-                line-height: 16px;
-                padding-bottom: 24px;
-            }
+                .timeline-opposite {
+                    margin: 0;
+                    font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+                    font-weight: 400;
+                    font-size: 1rem;
+                    line-height: 1.5;
+                    color: #101010;
+                    padding: 6px 16px;
+                    margin-right: auto;
+                    text-align: right;
+                    -webkit-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-flex: 0.2;
+                    -ms-flex: 0.2;
+                    flex: 0.1;
+                    padding-top: 0px;
+                    line-height: 16px;
+                    padding-bottom: 24px;
+                }
 
-            .timeline-separator {
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-flex-direction: column;
-                -ms-flex-direction: column;
-                flex-direction: column;
-                -webkit-flex: 0;
-                -ms-flex: 0;
-                flex: 0;
-                -webkit-align-items: center;
-                -webkit-box-align: center;
-                -ms-flex-align: center;
-                align-items: center;
-                min-width: 12px;
-            }
+                .timeline-separator {
+                    display: -webkit-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-flex-direction: column;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                    -webkit-flex: 0;
+                    -ms-flex: 0;
+                    flex: 0;
+                    -webkit-align-items: center;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    min-width: 12px;
+                }
 
-            .timeline-right {
-                margin: 0;
-                font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
-                font-weight: 400;
-                font-size: 1rem;
-                line-height: 1.5;
-                -webkit-flex: 1;
-                -ms-flex: 1;
-                flex: 1;
-                padding: 6px 16px;
-                text-align: left;
-                padding-top: 0px;
-                line-height: 16px;
-                padding-bottom: 24px;
-                color: #101010;
-            }
+                .timeline-right {
+                    margin: 0;
+                    font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+                    font-weight: 400;
+                    font-size: 1rem;
+                    line-height: 1.5;
+                    -webkit-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    padding: 6px 16px;
+                    text-align: left;
+                    padding-top: 0px;
+                    line-height: 16px;
+                    padding-bottom: 24px;
+                    color: #101010;
+                }
 
-            .timeline-dot {
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-align-self: baseline;
-                -ms-flex-item-align: baseline;
-                align-self: baseline;
-                border-style: solid;
-                border-width: 2px;
-                padding: 4px;
-                border-radius: 50%;
-                box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
-                margin: 11.5px 0;
-                border-color: transparent;
-                color: #fafafa;
-                background-color: #bdbdbd;
-                margin: 0px;
-                background-color: #4992FF;
-            }
+                .timeline-dot {
+                    display: -webkit-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-align-self: baseline;
+                    -ms-flex-item-align: baseline;
+                    align-self: baseline;
+                    border-style: solid;
+                    border-width: 2px;
+                    padding: 4px;
+                    border-radius: 50%;
+                    box-shadow:
+                        0px 2px 1px -1px rgb(0 0 0 / 20%),
+                        0px 1px 1px 0px rgb(0 0 0 / 14%),
+                        0px 1px 3px 0px rgb(0 0 0 / 12%);
+                    margin: 11.5px 0;
+                    border-color: transparent;
+                    color: #fafafa;
+                    background-color: #bdbdbd;
+                    margin: 0px;
+                    background-color: #4992ff;
+                }
 
-            .timeline-line {
-                width: 2px;
-                background-color: #bdbdbd;
-                -webkit-box-flex: 1;
-                -webkit-flex-grow: 1;
-                -ms-flex-positive: 1;
-                flex-grow: 1;
-                background-color: #4992FF;
-            }
+                .timeline-line {
+                    width: 2px;
+                    background-color: #bdbdbd;
+                    -webkit-box-flex: 1;
+                    -webkit-flex-grow: 1;
+                    -ms-flex-positive: 1;
+                    flex-grow: 1;
+                    background-color: #4992ff;
+                }
 
-            .image-connection {
-                display: flex;
-                /* flex-display: row; */
-                flex-direction: row;
-                margin-bottom: 10px;
-            }
+                .image-connection {
+                    display: flex;
+                    /* flex-display: row; */
+                    flex-direction: row;
+                    margin-bottom: 10px;
+                }
 
-            .image-connection div {
-                flex: 1;
-            }
-        </style>
+                .image-connection div {
+                    flex: 1;
+                }
+            </style>
+        </head>
+        <body>
+            <div style="width: 100%; text-align: right">
+                <img src="{{logo}}" width="70px" height="auto" />
+                <div>
+                    <a href="{{referral}}" style="color: #4992ff"
+                        >{{referral}}</a
+                    >
+                </div>
+            </div>
 
-    </head>
-<body>
+            <div>
+                <h1>{{title}}</h1>
+                <a href="{{url}}" target="_new">{{url}}</a>
+                <br /><br />
+            </div>
 
-<div style="width: 100%; text-align: right;">
-    <img src="{{logo}}" width="70px" height="auto"/>
-    <div>
-        <a href="{{referral}}" style="color: #4992FF">{{referral}}</a>
-    </div>
-</div>
+            {{#if image}}
+            <div class="image">
+                <h3>Überblick der beschriebenen Tour</h3>
+                <img src="{{image}}" width="100%" height="auto" />
+            </div>
+            {{/if}}
 
-<div>
-    <h1>{{title}}</h1>
-    <a href="{{url}}" target="_new">{{url}}</a>
-    <br><br>
-</div>
-
-{{#if image}}
-<div class="image">
-    <h3>Überblick der beschriebenen Tour</h3>
-    <img src={{image}} width="100%" height="auto"/>
-</div>
-{{/if}}
-
-
-<div class="image-connection">
-    {{#if imageConnection}}
-        <div style="margin-right: 5px;">
-            <h3>Fußweg von der Haltestelle zum Tourstart</h3>
-            <img src={{imageConnection}} width="100%" height="auto"/>
-        </div>
-    {{/if}}
-    {{#if imageReturn}}
-        <div style="margin-left: 5px;">
-            <h3>Fußweg vom Tourende zur Haltestelle</h3>
-            <img src={{imageReturn}} width="100%" height="auto" />
-        </div>
-    {{/if}}
-</div>
-
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
-    {{#each properties}}
-    <div class="property">
-        <div style="font-size: 16px; color: #8B8B8B">{{title}}</div>
-        <div style="font-size: 16px; font-weight: bold; margin-top: 10px">{{value}}</div>
-    </div>
-    {{/each}}
-</div>
-
-<div style="margin-top: 20px">
-    <div><h2>Anreise</h2></div>
-    <div style="border-radius: 16px; background-color: #F7F7F7; padding-top: 10px; padding-bottom: 10px; margin-top: 20px">
-        <div style="font-size: 16px; padding: 20px">Anreise {{departureText}} - Umstiege: {{connection_no_of_transfers}}</div>
-        <ul>
-            {{#each connectionEntries}}
-            <li class="timeline-li">
-                {{#if middleEntry}}
-                <div class="timeline-opposite">
-                    {{#if image}}
-                        <img src="{{image}}" width="24" height="24"/>
-                    {{else}}
-                        {{time}}
-                    {{/if}}
-
+            <div class="image-connection">
+                {{#if imageConnection}}
+                <div style="margin-right: 5px">
+                    <h3>Fußweg von der Haltestelle zum Tourstart</h3>
+                    <img src="{{imageConnection}}" width="100%" height="auto" />
+                </div>
+                {{/if}} {{#if imageReturn}}
+                <div style="margin-left: 5px">
+                    <h3>Fußweg vom Tourende zur Haltestelle</h3>
+                    <img src="{{imageReturn}}" width="100%" height="auto" />
                 </div>
                 {{/if}}
-                {{#if firstEntry}}
-                <div class="timeline-opposite">
-                    {{time}}
+            </div>
+
+            <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+                {{#each properties}}
+                <div class="property">
+                    <div style="font-size: 16px; color: #8b8b8b">{{title}}</div>
+                    <div
+                        style="
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin-top: 10px;
+                        "
+                    >
+                        {{value}}
+                    </div>
                 </div>
-                {{/if}}
-                {{#if lastEntry}}
-                <div class="timeline-opposite" style="padding-bottom: 0px; line-height: 16px; padding-top: 24px;">
-                    <div style="padding-bottom: 0px; line-height: 16px;">
-                        {{time}}
-                    </div>
-                </div>
-                {{/if}}
-
-                <div class="timeline-separator">
-                    {{#if firstEntry}}
-                    <span class="timeline-dot"></span>
-                    <span class="timeline-line"></span>
-                    {{/if}}
-                    {{#if lastEntry}}
-                    <span class="timeline-line"></span>
-                    <span class="timeline-dot"></span>
-                    {{/if}}
-                    {{#if middleEntry}}
-                    <span class="timeline-line"></span>
-                    {{/if}}
-                </div>
-                {{#if middleEntry}}
-                    <div class="timeline-right">
-                        {{#if detailEntry}}
-                            <span  style="color: #8B8B8B">{{text}}</span>
-                        {{else}}
-                            <span>{{text}}</span>
-
-                        {{/if}}
-
-                    </div>
-                {{/if}}
-                {{#if firstEntry}}
-                    <div class="timeline-right">
-                        {{text}}
-                    </div>
-                {{/if}}
-                {{#if lastEntry}}
-                    <div class="timeline-right">
-                        <div  style="position: absolute; bottom: 0;">
-                            {{text}}
-                        </div>
-                    </div>
-                {{/if}}
-            </li>
-            {{/each}}
-        </ul>
-    </div>
-
-
-</div>
-
-<div><p></p></div>
-<div><h2>Tour</h2></div>
-<div style="font-size: 16px; color: #000000; margin-bottom: 40px">
-    Die gesamte Beschreibung und die Fotos zu der Tour findest du auf: <a href="{{url}}" target="_new">{{url}}</a>.
-</div>
-<div><p></p></div>
-
-{{#if connectionAllReturns}}
-    <div style="margin-top: 20px">
-        <div><h2>Heimreise</h2></div>
-        {{#each connectionAllReturns}}
-        <div style="border-radius: 16px; background-color: #F7F7F7; padding-top: 10px; padding-bottom: 10px; margin-top: 20px">
-            <div style="font-size: 16px; padding: 20px">{{index}}. Rückreise {{returnText}} - Umstiege: {{return_no_of_transfers}}</div>
-            <ul>
-                {{#each connectionReturnEntries}}
-                <li class="timeline-li">
-                    {{#if middleEntry}}
-                    <div class="timeline-opposite">
-                        {{#if image}}
-                            <img src="{{image}}" width="24" height="24"/>
-                        {{else}}
-                            {{time}}
-                        {{/if}}
-                    </div>
-                    {{/if}}
-                    {{#if firstEntry}}
-                    <div class="timeline-opposite">
-                        {{time}}
-                    </div>
-                    {{/if}}
-                    {{#if lastEntry}}
-                    <div class="timeline-opposite" style="padding-bottom: 0px; line-height: 16px; padding-top: 24px;">
-                        <div style="padding-bottom: 0px; line-height: 16px;">
-                            {{time}}
-                        </div>
-                    </div>
-                    {{/if}}
-                    <div class="timeline-separator">
-                        {{#if firstEntry}}
-                        <span class="timeline-dot"></span>
-                        <span class="timeline-line"></span>
-                        {{/if}}
-                        {{#if lastEntry}}
-                        <span class="timeline-line"></span>
-                        <span class="timeline-dot"></span>
-                        {{/if}}
-                        {{#if middleEntry}}
-                        <span class="timeline-line"></span>
-                        {{/if}}
-                    </div>
-                    {{#if middleEntry}}
-                    <div class="timeline-right">
-                        {{#if detailEntry}}
-                        <span  style="color: #8B8B8B">{{text}}</span>
-                        {{else}}
-                        <span>{{text}}</span>
-                        {{/if}}
-                    </div>
-                    {{/if}}
-                    {{#if firstEntry}}
-                    <div class="timeline-right">
-                        {{text}}
-                    </div>
-                    {{/if}}
-                    {{#if lastEntry}}
-                    <div class="timeline-right">
-                        <div  style="position: absolute; bottom: 0;">
-                            {{text}}
-                        </div>
-                    </div>
-                    {{/if}}
-                </li>
                 {{/each}}
-            </ul>
-        </div>
-        {{/each}}
-    </div>
-{{/if}}
+            </div>
 
+            <div style="margin-top: 20px">
+                <div><h2>Anreise</h2></div>
+                <div
+                    style="
+                        border-radius: 16px;
+                        background-color: #f7f7f7;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        margin-top: 20px;
+                    "
+                >
+                    <div style="font-size: 16px; padding: 20px">
+                        Anreise {{departureText}} - Umstiege:
+                        {{connection_no_of_transfers}}
+                    </div>
+                    <ul>
+                        {{#each connectionEntries}}
+                        <li class="timeline-li">
+                            {{#if middleEntry}}
+                            <div class="timeline-opposite">
+                                {{#if image}}
+                                <img src="{{image}}" width="24" height="24" />
+                                {{else}} {{time}} {{/if}}
+                            </div>
+                            {{/if}} {{#if firstEntry}}
+                            <div class="timeline-opposite">{{time}}</div>
+                            {{/if}} {{#if lastEntry}}
+                            <div
+                                class="timeline-opposite"
+                                style="
+                                    padding-bottom: 0px;
+                                    line-height: 16px;
+                                    padding-top: 24px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        padding-bottom: 0px;
+                                        line-height: 16px;
+                                    "
+                                >
+                                    {{time}}
+                                </div>
+                            </div>
+                            {{/if}}
 
-</body>
+                            <div class="timeline-separator">
+                                {{#if firstEntry}}
+                                <span class="timeline-dot"></span>
+                                <span class="timeline-line"></span>
+                                {{/if}} {{#if lastEntry}}
+                                <span class="timeline-line"></span>
+                                <span class="timeline-dot"></span>
+                                {{/if}} {{#if middleEntry}}
+                                <span class="timeline-line"></span>
+                                {{/if}}
+                            </div>
+                            {{#if middleEntry}}
+                            <div class="timeline-right">
+                                {{#if detailEntry}}
+                                <span style="color: #8b8b8b">{{text}}</span>
+                                {{else}}
+                                <span>{{text}}</span>
+
+                                {{/if}}
+                            </div>
+                            {{/if}} {{#if firstEntry}}
+                            <div class="timeline-right">{{text}}</div>
+                            {{/if}} {{#if lastEntry}}
+                            <div class="timeline-right">
+                                <div style="position: absolute; bottom: 0">
+                                    {{text}}
+                                </div>
+                            </div>
+                            {{/if}}
+                        </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+
+            <div><p></p></div>
+            <div><h2>Tour</h2></div>
+            <div style="font-size: 16px; color: #000000; margin-bottom: 40px">
+                Die gesamte Beschreibung und die Fotos zu der Tour findest du
+                auf:
+                <a href="{{url}}" target="_new">{{url}}</a>.
+            </div>
+            <div><p></p></div>
+
+            {{#if connectionAllReturns}}
+            <div style="margin-top: 20px">
+                <div><h2>Heimreise</h2></div>
+                {{#each connectionAllReturns}}
+                <div
+                    style="
+                        border-radius: 16px;
+                        background-color: #f7f7f7;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        margin-top: 20px;
+                    "
+                >
+                    <div style="font-size: 16px; padding: 20px">
+                        {{index}}. Rückreise {{returnText}} - Umstiege:
+                        {{return_no_of_transfers}}
+                    </div>
+                    <ul>
+                        {{#each connectionReturnEntries}}
+                        <li class="timeline-li">
+                            {{#if middleEntry}}
+                            <div class="timeline-opposite">
+                                {{#if image}}
+                                <img src="{{image}}" width="24" height="24" />
+                                {{else}} {{time}} {{/if}}
+                            </div>
+                            {{/if}} {{#if firstEntry}}
+                            <div class="timeline-opposite">{{time}}</div>
+                            {{/if}} {{#if lastEntry}}
+                            <div
+                                class="timeline-opposite"
+                                style="
+                                    padding-bottom: 0px;
+                                    line-height: 16px;
+                                    padding-top: 24px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        padding-bottom: 0px;
+                                        line-height: 16px;
+                                    "
+                                >
+                                    {{time}}
+                                </div>
+                            </div>
+                            {{/if}}
+                            <div class="timeline-separator">
+                                {{#if firstEntry}}
+                                <span class="timeline-dot"></span>
+                                <span class="timeline-line"></span>
+                                {{/if}} {{#if lastEntry}}
+                                <span class="timeline-line"></span>
+                                <span class="timeline-dot"></span>
+                                {{/if}} {{#if middleEntry}}
+                                <span class="timeline-line"></span>
+                                {{/if}}
+                            </div>
+                            {{#if middleEntry}}
+                            <div class="timeline-right">
+                                {{#if detailEntry}}
+                                <span style="color: #8b8b8b">{{text}}</span>
+                                {{else}}
+                                <span>{{text}}</span>
+                                {{/if}}
+                            </div>
+                            {{/if}} {{#if firstEntry}}
+                            <div class="timeline-right">{{text}}</div>
+                            {{/if}} {{#if lastEntry}}
+                            <div class="timeline-right">
+                                <div style="position: absolute; bottom: 0">
+                                    {{text}}
+                                </div>
+                            </div>
+                            {{/if}}
+                        </li>
+                        {{/each}}
+                    </ul>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+        </body>
+    </head>
 </html>

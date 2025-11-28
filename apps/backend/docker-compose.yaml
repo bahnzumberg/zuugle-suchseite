@@ -1,30 +1,30 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  postgres-uat:
-    # Use the official image directly instead of building
-    image: pgvector/pgvector:pg16
-    container_name: zuugle-postgres-uat
-    restart: always
-    ports:
-      - "127.0.0.1:5434:5432"
-    environment:
-      POSTGRES_DB: zuugle_suchseite_db
-      POSTGRES_USER: zuugle_suche
-      POSTGRES_PASSWORD: docker
-    volumes:
-      # Mount the initialization SQL script directly
-      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    postgres-uat:
+        # Use the official image directly instead of building
+        image: pgvector/pgvector:pg16
+        container_name: zuugle-postgres-uat
+        restart: always
+        ports:
+            - "127.0.0.1:5434:5432"
+        environment:
+            POSTGRES_DB: zuugle_suchseite_db
+            POSTGRES_USER: zuugle_suche
+            POSTGRES_PASSWORD: docker
+        volumes:
+            # Mount the initialization SQL script directly
+            - ./database.sql:/docker-entrypoint-initdb.d/init.sql
 
-  postgres-dev:
-    image: pgvector/pgvector:pg16
-    container_name: zuugle-postgres-dev
-    restart: always
-    ports:
-      - "127.0.0.1:5433:5432"
-    environment:
-      POSTGRES_DB: zuugle_suchseite_dev
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: docker
-    volumes:
-      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    postgres-dev:
+        image: pgvector/pgvector:pg16
+        container_name: zuugle-postgres-dev
+        restart: always
+        ports:
+            - "127.0.0.1:5433:5432"
+        environment:
+            POSTGRES_DB: zuugle_suchseite_dev
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: docker
+        volumes:
+            - ./database.sql:/docker-entrypoint-initdb.d/init.sql

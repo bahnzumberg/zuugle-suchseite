@@ -1,104 +1,104 @@
 name: DEV Deploy
 on:
-  push:
-    branches:
-      - 'dev'
+    push:
+        branches:
+            - "dev"
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-    - uses: actions/checkout@v4
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        # node-version: '19.8.1'
-        node-version: '20.3.0'
+    build:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  # node-version: '19.8.1'
+                  node-version: "20.3.0"
 
-    - name: Cache node_modules
-      id: cache-npm
-      uses: actions/cache@v4
-      env:
-          cache-name: cache-node-modules
-      with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-            
-    - name: Install npm dependencies
-      run: npm install
-    - name: Run build task
-      run: npm run build
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@main
-      with:
-          SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
-          ARGS: '-rlgoDzvc -i --delete'
-          SOURCE: 'build/'
-          REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
-          TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
-          EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/'
-    - name: executing remote ssh command to restart the api using ssh key
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-          host: ${{ secrets.UAT_REMOTE_HOST }}
-          username: ${{ secrets.UAT_REMOTE_USER }}
-          key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.UAT_REMOTE_PORT }}
-          command_timeout: 60m
-          script: |
-            export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
-            cd ${{ secrets.DEV_REMOTE_TARGET }}
-            npm install --omit=dev
-            ./restore_databases.sh
-            pm2 restart all
+            - name: Cache node_modules
+              id: cache-npm
+              uses: actions/cache@v4
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: ~/.npm
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
-  test-api:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      issues: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.3.0'
-      - name: Install npm dependencies
-        run: npm install
-      - name: Run API Tests
-        env:
-          API_BASE_URL: https://dev.zuugle.at
-          API_USER: ${{ secrets.DEV_BASIC_AUTH_USER }}
-          API_PASSWORD: ${{ secrets.DEV_BASIC_AUTH_PASSWORD }}
-        run: npm test
-      - name: Close Issue on Success
-        if: success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue list \
-            --repo ${{ github.repository }} \
-            --state open \
-            --label "bug" \
-            --search "BUG: DEV API Tests Failed" \
-            --json number \
-            --jq '.[].number' \
-            | xargs -r -I {} gh issue close {} --comment "✅ DEV API Tests passed in workflow run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
-      - name: Create Issue on Failure
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue create \
-            --title "BUG: DEV API Tests Failed" \
-            --body "The automated API tests failed on DEV environment.\n\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\nCommit: ${{ github.sha }}\nActor: @${{ github.actor }}" \
-            --assignee "${{ github.actor }}" \
-            --label "bug"
+            - name: Install npm dependencies
+              run: npm install
+            - name: Run build task
+              run: npm run build
+            - name: Deploy to Server
+              uses: easingthemes/ssh-deploy@main
+              with:
+                  SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
+                  ARGS: "-rlgoDzvc -i --delete"
+                  SOURCE: "build/"
+                  REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
+                  REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
+                  TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
+                  EXCLUDE: "/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/"
+            - name: executing remote ssh command to restart the api using ssh key
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ secrets.UAT_REMOTE_HOST }}
+                  username: ${{ secrets.UAT_REMOTE_USER }}
+                  key: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.UAT_REMOTE_PORT }}
+                  command_timeout: 60m
+                  script: |
+                      export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
+                      cd ${{ secrets.DEV_REMOTE_TARGET }}
+                      npm install --omit=dev
+                      ./restore_databases.sh
+                      pm2 restart all
+
+    test-api:
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            issues: write
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.3.0"
+            - name: Install npm dependencies
+              run: npm install
+            - name: Run API Tests
+              env:
+                  API_BASE_URL: https://dev.zuugle.at
+                  API_USER: ${{ secrets.DEV_BASIC_AUTH_USER }}
+                  API_PASSWORD: ${{ secrets.DEV_BASIC_AUTH_PASSWORD }}
+              run: npm test
+            - name: Close Issue on Success
+              if: success()
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh issue list \
+                    --repo ${{ github.repository }} \
+                    --state open \
+                    --label "bug" \
+                    --search "BUG: DEV API Tests Failed" \
+                    --json number \
+                    --jq '.[].number' \
+                    | xargs -r -I {} gh issue close {} --comment "✅ DEV API Tests passed in workflow run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+            - name: Create Issue on Failure
+              if: failure()
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh issue create \
+                    --title "BUG: DEV API Tests Failed" \
+                    --body "The automated API tests failed on DEV environment.\n\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\nCommit: ${{ github.sha }}\nActor: @${{ github.actor }}" \
+                    --assignee "${{ github.actor }}" \
+                    --label "bug"
