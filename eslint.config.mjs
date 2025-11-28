@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import pluginReact from "eslint-plugin-react";
 import tseslint from "typescript-eslint";
-import prettier from "eslint-plugin-prettier/recommended";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
@@ -47,10 +47,5 @@ export default defineConfig([
       },
     },
   },
-  prettier,
-  {
-    rules: {
-      "prettier/prettier": "warn",
-    },
-  },
+  eslintConfigPrettier,
 ]);
