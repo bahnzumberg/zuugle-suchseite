@@ -20,3 +20,4 @@ src/knexfileTourenDb.js
 api.log
 test.json
 *Zone.Identifier
+.eslintcache
