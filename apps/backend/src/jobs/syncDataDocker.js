@@ -4,13 +4,13 @@ import cacheService from "../services/cache.js";
 
 console.log("Copy dump to container");
 copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
-    .then((_) => {
+    .then(() => {
         console.log("Truncate tables");
-        truncateAll().then((_) => {
+        truncateAll().then(() => {
             console.log("Restore from database dump (this will take a while)");
-            restoreDump().then((_) => {
+            restoreDump().then(() => {
                 console.log("Write KPIs");
-                writeKPIs().then(async (_) => {
+                writeKPIs().then(async () => {
                     console.log("Flushing cache...");
                     await cacheService.flush();
                     console.log("Cache flushed. Database ready!");

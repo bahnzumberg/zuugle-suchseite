@@ -17,21 +17,19 @@ import {
 } from "../utils/utils";
 import { minutesFromMoment } from "../utils/helper";
 import { convertDifficulty } from "../utils/dataConversion";
-// import logger from '../utils/logger';
 
-const fs = require("fs");
+import fs from "fs";
+import path from "path";
+import momenttz from "moment-timezone";
 
 const generateKey = (prefix, obj) => {
     const str = JSON.stringify(obj, Object.keys(obj).sort());
     const hash = crypto.createHash("sha256").update(str).digest("hex");
     return `${prefix}:${hash}`;
 };
-const path = require("path");
-const momenttz = require("moment-timezone");
 
 router.get("/", (req, res) => listWrapper(req, res));
 router.get("/filter", (req, res) => filterWrapper(req, res));
-router.get("/map", (req, res) => mapWrapper(req, res));
 router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
 
 router.get("/total", (req, res) => totalWrapper(req, res));
@@ -116,12 +114,6 @@ const getWrapper = async (req, res) => {
         return res.status(200).json(cached);
     }
 
-    // console.log("===================")
-    // console.log(" city from getWrapper : ", city )
-    // console.log(" req.params from getWrapper : ", req.params )
-    // console.log("===================")
-    // console.log(" req.query from getWrapper : ", (req.query) )
-    // console.log("===================")
     const tld = get_domain_country(domain);
 
     if (isNaN(id)) {
@@ -277,7 +269,7 @@ const getWrapper = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: "Internal server error: " + error,
         });
     }
 };
@@ -308,12 +300,8 @@ const listWrapper = async (req, res) => {
     const poi = req.query.poi;
 
     const parsedBounds = bounds ? JSON.parse(bounds) : null;
-    const coordinatesNorthEast = parsedBounds
-        ? parsedBounds._northEast
-        : null;
-    const coordinatesSouthWest = parsedBounds
-        ? parsedBounds._southWest
-        : null;
+    const coordinatesNorthEast = parsedBounds ? parsedBounds._northEast : null;
+    const coordinatesSouthWest = parsedBounds ? parsedBounds._southWest : null;
 
     const parsedPoi = poi ? JSON.parse(poi) : null;
 
@@ -353,8 +341,9 @@ const listWrapper = async (req, res) => {
     let filterJSON = undefined;
     try {
         filterJSON = JSON.parse(filter_string);
-    } catch (e) {
+    } catch (error) {
         filterJSON = undefined;
+        console.log("Error parsing filter JSON: ", error);
     }
 
     const defaultFilter = {
@@ -802,15 +791,11 @@ const listWrapper = async (req, res) => {
         await Promise.all(
             result.map(
                 (entry) =>
-                    new Promise(async (resolve) => {
+                    new Promise((resolve) => {
                         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
-                        entry = await prepareTourEntry(
-                            entry,
-                            city,
-                            domain,
-                            addDetails,
+                        prepareTourEntry(entry, city, domain, addDetails).then(
+                            (updatedEntry) => resolve(updatedEntry),
                         );
-                        resolve(entry);
                     }),
             ),
         );
@@ -1256,9 +1241,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
             moment(e.return_duration, "HH:mm:ss"),
         );
 
-        if (
-            !_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))
-        ) {
+        if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
         }
@@ -1289,28 +1272,6 @@ const compareConnectionReturns = (conn1, conn2) => {
             moment(conn2.return_arrival_datetime).format("HH:mm:ss") &&
         conn1.return_arrival_stop == conn2.return_arrival_stop
     );
-};
-
-const getWeekday = (date) => {
-    const day = moment(date).day();
-    switch (day) {
-        case 0:
-            return "sun";
-        case 1:
-            return "mon";
-        case 2:
-            return "tue";
-        case 3:
-            return "wed";
-        case 4:
-            return "thu";
-        case 5:
-            return "fri";
-        case 6:
-            return "sat";
-        default:
-            return "mon";
-    }
 };
 
 const tourGpxWrapper = async (req, res) => {
@@ -1392,46 +1353,6 @@ const tourGpxWrapper = async (req, res) => {
     }
 };
 
-const getMissingConnectionDays = (connections) => {
-    let toReturn = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-    if (!!connections && connections.length > 0) {
-        if (connections.find((c) => c.weekday === "sun")) {
-            toReturn = toReturn.filter((c) => c !== "So");
-        }
-        if (connections.find((c) => c.weekday === "mon")) {
-            toReturn = toReturn.filter((c) => c !== "Mo");
-        }
-        if (connections.find((c) => c.weekday === "tue")) {
-            toReturn = toReturn.filter((c) => c !== "Di");
-        }
-        if (connections.find((c) => c.weekday === "wed")) {
-            toReturn = toReturn.filter((c) => c !== "Mi");
-        }
-        if (connections.find((c) => c.weekday === "thu")) {
-            toReturn = toReturn.filter((c) => c !== "Do");
-        }
-        if (connections.find((c) => c.weekday === "fri")) {
-            toReturn = toReturn.filter((c) => c !== "Fr");
-        }
-        if (connections.find((c) => c.weekday === "sat")) {
-            toReturn = toReturn.filter((c) => c !== "Sa");
-        }
-    }
-    return toReturn;
-};
-
-const getConnectionsByWeekday = (connections, weekday) => {
-    if (!!connections && connections.length > 0) {
-        const found = connections.filter((c) => c.weekday === weekday);
-        if (!!found && found.length > 0) {
-            return found;
-        } else {
-            return getConnectionsByWeekday(connections, connections[0].weekday);
-        }
-    }
-    return [];
-};
-
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 
@@ -1483,6 +1404,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { ["hashed_url"]: remove, ...rest } = entry;
     return rest;
 };

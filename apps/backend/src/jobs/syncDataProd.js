@@ -10,16 +10,16 @@ import moment from "moment";
 
 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FULL LOAD");
 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC TOURS");
-syncTours().then((res) => {
+syncTours().then(() => {
     console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE SYNC TOURS");
     console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC CITIES");
-    syncCities().then((res2) => {
+    syncCities().then(() => {
         console.log(
             moment().format("YYYY.MM.DD HH:mm:ss"),
             " DONE SYNC CITIES",
         );
         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FIX TOURS");
-        fixTours().then((res4) => {
+        fixTours().then(() => {
             console.log(
                 moment().format("YYYY.MM.DD HH:mm:ss"),
                 " DONE FIX TOURS",
@@ -28,7 +28,7 @@ syncTours().then((res) => {
                 moment().format("YYYY.MM.DD HH:mm:ss"),
                 " START WRITE KPIs",
             );
-            writeKPIs().then((res5) => {
+            writeKPIs().then(() => {
                 console.log(
                     moment().format("YYYY.MM.DD HH:mm:ss"),
                     " DONE WRITING KPIs",
@@ -37,7 +37,7 @@ syncTours().then((res) => {
                     moment().format("YYYY.MM.DD HH:mm:ss"),
                     " START FETCH PROVIDER",
                 );
-                getProvider().then((res6) => {
+                getProvider().then(() => {
                     console.log(
                         moment().format("YYYY.MM.DD HH:mm:ss"),
                         " FETCHED PROVIDER",

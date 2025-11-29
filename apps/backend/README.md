@@ -21,7 +21,7 @@ and install all dependencies.
 1. Install (https://www.docker.com/) on your local machine
 2. Execute these two commands:
 
-    ```
+    ```bash
     docker build -t zuugle-postgres-db ./
 
     docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db

@@ -1,9 +1,9 @@
-const puppeteer = require("puppeteer");
-const path = require("path");
-const fs = require("fs-extra");
-let sharp = require("sharp");
-const convertXML = require("xml-js");
-const { create } = require("xmlbuilder2");
+import puppeteer from "puppeteer";
+import path from "path";
+import fs from "fs-extra";
+import sharp from "sharp";
+import convertXML from "xml-js";
+import { create } from "xmlbuilder2";
 import moment from "moment";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
@@ -614,12 +614,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     }
 };
 
-export const createImageFromMap = async (
-    browser,
-    filePath,
-    url,
-    picquality,
-) => {
+export const createImageFromMap = async (browser, filePath, url) => {
     try {
         if (filePath) {
             const page = await browser.newPage();

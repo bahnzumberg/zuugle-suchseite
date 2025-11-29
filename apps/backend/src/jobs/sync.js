@@ -5,12 +5,11 @@ import {
     createImagesFromMap,
     last_two_characters,
 } from "../utils/gpx/gpxUtils";
-import { getHost } from "../utils/utils";
 import moment from "moment";
-const { create } = require("xmlbuilder2");
-const fs = require("fs-extra");
-const path = require("path");
-const request = require("request");
+import { create } from "xmlbuilder2";
+import fs from "fs-extra";
+import path from "path";
+import request from "request";
 import { spawn } from "cross-spawn";
 
 const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
@@ -767,10 +766,11 @@ export async function syncGPX() {
                 var entry = allTours[i];
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
                 await _syncGPX(entry.id, entry.hashed_url, entry.title);
-            } catch (e) {
+            } catch (error) {
                 console.log(
                     moment().format("YYYY-MM-DD HH:mm:ss"),
-                    " Error in syncGPX",
+                    " Error in syncGPX: ",
+                    error,
                 );
             }
         }
