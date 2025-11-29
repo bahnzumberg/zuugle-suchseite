@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "declaration": true,
+        "isolatedModules": true,
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "noEmit": true,
+        "noFallthroughCasesInSwitch": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "es2015"
+    },
+    "include": ["./src/**/*"]
+}
