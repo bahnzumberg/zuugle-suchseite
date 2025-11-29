@@ -1,5 +1,4 @@
 import express from "express";
-// import bodyParser from 'body-parser';
 import cors from "cors";
 import tours from "./routes/tours";
 import cities from "./routes/cities";
