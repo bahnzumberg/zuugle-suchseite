@@ -362,18 +362,49 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     console.log(moment().format('HH:mm:ss'), 'All database updates finished.');
                 })(),
 
-                // Prozess 2: Bildgenerierung seriell abarbeiten
+                // Prozess 2: Bildgenerierung parallel abarbeiten
                 (async () => {
-                    for (const ch of idsForCreation) {
+                    const PARALLEL_LIMIT = 5; // Leave 3 CPUs free (8 total - 2 reserved)
+                    console.log(moment().format('HH:mm:ss'), `Starting parallel image creation with ${PARALLEL_LIMIT} workers...`);
+
+                    // Custom Concurrency Helper
+                    async function asyncPool(poolLimit, array, iteratorFn) {
+                        const ret = [];
+                        const executing = [];
+                        for (const item of array) {
+                            const p = Promise.resolve().then(() => iteratorFn(item, array));
+                            ret.push(p);
+
+                            if (poolLimit <= array.length) {
+                                const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+                                executing.push(e);
+                                if (executing.length >= poolLimit) {
+                                    await Promise.race(executing);
+                                }
+                            }
+                        }
+                        return Promise.all(ret);
+                    }
+
+                    let stopProcessing = false;
+
+                    await asyncPool(PARALLEL_LIMIT, idsForCreation, async (ch) => {
+                        if (stopProcessing) return;
+
                         const now = new Date();
                         const currentHour = now.getHours();
                         if (currentHour >= 23) {
-                            console.log(moment().format('HH:mm:ss'), 'Stopping image creation due to time limit.');
-                            break;
+                            if (!stopProcessing) {
+                                console.log(moment().format('HH:mm:ss'), 'Stopping image creation due to time limit.');
+                                stopProcessing = true;
+                            }
+                            return;
                         }
+
                         let lastTwoChars = last_two_characters(ch);
                         await processAndCreateImage(ch, lastTwoChars, browser, isProd, dir_go_up, url);
-                    }
+                    });
+
                     console.log(moment().format('HH:mm:ss'), 'All image creations finished.');
                 })()
             ]);
