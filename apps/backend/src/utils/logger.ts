@@ -2,7 +2,7 @@ import * as fs from "fs";
 import path from "path";
 
 // TESTING DETACHED HEAD STATE
-export default function (text) {
+export default function (text: string) {
     const onoffswitch = "on"; // values: on / off
 
     if (onoffswitch == "on" || process.env.NODE_ENV !== "production") {
@@ -21,14 +21,14 @@ export default function (text) {
             fs.writeFileSync(filePath, "");
         }
 
-        let date_ob = new Date();
-        let day = ("0" + date_ob.getDate()).slice(-2);
-        let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
-        let year = date_ob.getFullYear();
-        let hours = date_ob.getHours();
-        let minutes = date_ob.getMinutes();
-        let seconds = date_ob.getSeconds();
-        let log_date_time =
+        const date_ob = new Date();
+        const day = ("0" + date_ob.getDate()).slice(-2);
+        const month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+        const year = date_ob.getFullYear();
+        const hours = date_ob.getHours();
+        const minutes = date_ob.getMinutes();
+        const seconds = date_ob.getSeconds();
+        const log_date_time =
             year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds + " ";
 
         // add log entry

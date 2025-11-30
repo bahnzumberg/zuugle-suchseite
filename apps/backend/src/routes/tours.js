@@ -6,8 +6,8 @@ import crypto from "crypto";
 import { mergeGpxFilesToOne, last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
 import moment from "moment";
 import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
-import { minutesFromMoment } from "../utils/helper";
-import { convertDifficulty } from "../utils/dataConversion";
+import { minutesFromMoment } from "../utils/utils";
+import { convertDifficulty } from "../utils/utils";
 
 import fs from "fs";
 import path from "path";
