@@ -401,6 +401,10 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                             return;
                         }
 
+                        // Add random jitter (0-1000ms) to desynchronize workers and smooth CPU load
+                        const jitter = Math.floor(Math.random() * 1000);
+                        await new Promise(resolve => setTimeout(resolve, jitter));
+
                         let lastTwoChars = last_two_characters(ch);
                         await processAndCreateImage(ch, lastTwoChars, browser, isProd, dir_go_up, url);
                     });
