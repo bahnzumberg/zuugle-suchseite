@@ -142,10 +142,10 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 
         if (rangeSlug) {
             const imageUrl = `/public/range-image/${rangeSlug}.webp`;
-            console.log(moment().format('HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ` Found range_slug "${rangeSlug}", setting specific image URL.`);
             await dispatchDbUpdate(tourId, isProd ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl, true);
         } else {
-            console.log(moment().format('HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' No range_slug found, setting generic placeholder.');
             await dispatchDbUpdate(tourId, isProd ? 'https://cdn.zuugle.at/img/train_placeholder.webp' : '/app_static/img/train_placeholder.webp', true);
         }
     } catch (e) {
@@ -192,11 +192,11 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
                 const isLondonImage = await isImageLondon(filePathSmallWebp);
 
                 if (isLondonImage) {
-                    console.log(moment().format('HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
+                    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Detected London placeholder, replacing with standard image.');
                     await fs.unlink(filePathSmallWebp);
                     handleImagePlaceholder(ch, isProd);
                 } else {
-                    console.log(moment().format('HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
+                    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
                         dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
                     } else {
@@ -204,17 +204,17 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
                     }
                 }
             } else {
-                console.log(moment().format('HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
+                console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' NO gpx image small file created, replacing with standard image.');
                 handleImagePlaceholder(ch, isProd);
             }
         }
         else {
-            console.log(moment().format('HH:mm:ss'), ' NO image file created: ' + filePath);
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' NO image file created: ' + filePath);
             handleImagePlaceholder(ch, isProd);
         }
     } catch (e) {
         if (e.message === 'Image generation timeout') {
-            console.error(moment().format('HH:mm:ss'), `Timeout for image generation for ID ${ch}: ${e.message}`);
+            console.error(moment().format('YYYY-MM-DD HH:mm:ss'), `Timeout for image generation for ID ${ch}: ${e.message}`);
         } else {
             console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
         }
@@ -241,13 +241,13 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
             const shouldBeDeleted = Math.random() < 0.1;
             
             if (isOlderThan30Days && shouldBeDeleted) {
-                console.log(moment().format('HH:mm:ss'), `Deleting old image for tour ID ${id}.`);
+                console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Deleting old image for tour ID ${id}.`);
                 await fs.promises.unlink(filePath);
                 idsToRecreate.push(id);
             }
         } catch (e) {
             if (e.code === 'ENOENT') {
-                console.log(moment().format('HH:mm:ss'), `Image for tour ID ${id} not found on disk. Adding to recreate list.`);
+                console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Image for tour ID ${id} not found on disk. Adding to recreate list.`);
                 idsToRecreate.push(id);
             } else {
                 console.error(`Error checking file for ID ${id}: `, e);
@@ -256,10 +256,10 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
     }
 
     if (idsToRecreate.length > 0) {
-        console.log(moment().format('HH:mm:ss'), `Found ${idsToRecreate.length} images to recreate. Restarting image generation process...`);
+        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Found ${idsToRecreate.length} images to recreate. Restarting image generation process...`);
         await createImagesFromMap(idsToRecreate, true); // Übergibt das Flag 'true' um keine weitere Rekursion zuzulassen
     } else {
-        console.log(moment().format('HH:mm:ss'), `No old images found to recreate.`);
+        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `No old images found to recreate.`);
     }
 }
 
@@ -323,7 +323,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             const idsForCreation = [];
 
             // Dispatcher-Phase: Asynchrone Aufteilung der IDs
-            console.log(moment().format('HH:mm:ss'), `Starting dispatcher to classify ${ids.length} IDs...`);
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Starting dispatcher to classify ${ids.length} IDs...`);
             const classificationPromises = ids.map(async (ch) => {
                 let lastTwoChars = last_two_characters(ch);
                 let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars+"/");
@@ -342,7 +342,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 }
             });
             await Promise.all(classificationPromises);
-            console.log(moment().format('HH:mm:ss'), `Dispatcher finished. Found ${idsForUpdate.length} IDs for update and ${idsForCreation.length} IDs for creation.`);
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Dispatcher finished. Found ${idsForUpdate.length} IDs for update and ${idsForCreation.length} IDs for creation.`);
 
             // Abarbeitungs-Phase: Startet die beiden Prozesse parallel
             await Promise.all([
@@ -359,13 +359,13 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     while (activeDbUpdates.length > 0) {
                         await new Promise(resolve => setTimeout(resolve, 50));
                     }
-                    console.log(moment().format('HH:mm:ss'), 'All database updates finished.');
+                    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), 'All database updates finished.');
                 })(),
 
                 // Prozess 2: Bildgenerierung parallel abarbeiten
                 (async () => {
                     const PARALLEL_LIMIT = 5; // Leave 3 CPUs free (8 total - 2 reserved)
-                    console.log(moment().format('HH:mm:ss'), `Starting parallel image creation with ${PARALLEL_LIMIT} workers...`);
+                    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Starting parallel image creation with ${PARALLEL_LIMIT} workers...`);
 
                     // Custom Concurrency Helper
                     async function asyncPool(poolLimit, array, iteratorFn) {
@@ -395,7 +395,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         const currentHour = now.getHours();
                         if (currentHour >= 23) {
                             if (!stopProcessing) {
-                                console.log(moment().format('HH:mm:ss'), 'Stopping image creation due to time limit.');
+                                console.log(moment().format('YYYY-MM-DD HH:mm:ss'), 'Stopping image creation due to time limit.');
                                 stopProcessing = true;
                             }
                             return;
@@ -409,7 +409,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         await processAndCreateImage(ch, lastTwoChars, browser, isProd, dir_go_up, url);
                     });
 
-                    console.log(moment().format('HH:mm:ss'), 'All image creations finished.');
+                    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), 'All image creations finished.');
                 })()
             ]);
 
@@ -424,9 +424,9 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     
     // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
     if (!isRecursiveCall) {
-        console.log(moment().format('HH:mm:ss'), `Starting final check for old images...`);
+        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Starting final check for old images...`);
         await cleanAndRecreateOldImages(isProd, dir_go_up);
-        console.log(moment().format('HH:mm:ss'), `Final image check and recreation finished.`);
+        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Final image check and recreation finished.`);
     }
 }
 

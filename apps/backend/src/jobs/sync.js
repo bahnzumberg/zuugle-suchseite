@@ -360,7 +360,7 @@ const prepareDirectories = () => {
     let filePath='';
     let dirPaths = ['public/gpx/', 'public/gpx-image/', 'public/gpx-image-with-track/', 'public/gpx-track/', 'public/gpx-track/totour/', 'public/gpx-track/fromtour/'];
     
-    console.log(moment().format('HH:mm:ss'), ' Start deleting old files');
+    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Start deleting old files');
     for (const i in dirPaths) {
         if(process.env.NODE_ENV == "production"){
             filePath = path.join(__dirname, "../", dirPaths[i]);
@@ -601,7 +601,7 @@ export async function syncConnectionGPX() {
 export async function syncGPX() {
     prepareDirectories();
     var allTours = null;
-    console.log(moment().format('HH:mm:ss'), ' Creating gpx files for all tours');
+    console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Creating gpx files for all tours');
     allTours = await knex('tour').select(["title", "id", "hashed_url"]);
     var allTourlength = allTours.length;
     if (!!allTours && allTours.length > 0) {
@@ -611,7 +611,7 @@ export async function syncGPX() {
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
                 await _syncGPX(entry.id, entry.hashed_url, entry.title);
             } catch (e) {
-                console.log(moment().format('HH:mm:ss'), ' Error in syncGPX');
+                console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Error in syncGPX');
             }
         }
     }
@@ -679,7 +679,7 @@ export async function syncGPXImage(){
             })
         }
         if(!!toCreate){
-            console.log(moment().format('HH:mm:ss'), ' Start to create gpx image files');
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.id));
         }
 
