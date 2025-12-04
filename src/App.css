@@ -264,35 +264,6 @@ body ::-webkit-scrollbar-thumb:hover {
   min-height: 0 !important;
 }
 
-.main-search-bar
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  #react-select-3-placeholder,
-.main-search-bar
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  > div
-  #react-select-5-placeholder {
-  color: #000;
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 22.736px;
-  letter-spacing: -0.16px;
-}
-
 .main-search-bar > div > div > div > div > div > div > div > div > div > input {
   color: #000 !important;
   font-weight: 600 !important;
