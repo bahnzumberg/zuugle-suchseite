@@ -315,19 +315,15 @@ export default function Main() {
         </Box>
       )}
       {totalToursHeader()}
-      {!!tours && tours.length > 0 && (
-        <>
-          {renderCardContainer()}
-          <MapBtn
-            handleClick={() => {
-              if (showMap) {
-                dispatch(boundsUpdated(null));
-              }
-              dispatch(mapUpdated(!showMap));
-            }}
-          />
-        </>
-      )}
+      {!!tours && tours.length > 0 && renderCardContainer()}
+      <MapBtn
+        handleClick={() => {
+          if (showMap) {
+            dispatch(boundsUpdated(null));
+          }
+          dispatch(mapUpdated(!showMap));
+        }}
+      />
     </div>
   );
 }
