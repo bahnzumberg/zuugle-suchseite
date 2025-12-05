@@ -11,12 +11,15 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
-import { useLazyGetSearchPhrasesQuery } from "../../features/apiSlice";
+import {
+  useGetCitiesQuery,
+  useLazyGetSearchPhrasesQuery,
+} from "../../features/apiSlice";
 import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
-import { searchPhraseUpdated } from "../../features/searchSlice";
+import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 import { useNavigate } from "react-router";
 
 export interface CustomSelectProps {
@@ -34,16 +37,34 @@ export default function CustomSelect({
   const language = useSelector((state: RootState) => state.search.language);
   const provider = useSelector((state: RootState) => state.search.provider);
   const [searchString, setSearchString] = useState(currentSearchPhrase || "");
+  const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
   const navigate = useNavigate();
 
   const handleSelect = (phrase: string) => {
+    //if search phrase corresponds to a city, set the city
+    const matchedCity = allCities.find(
+      (city) =>
+        city.label.toLowerCase() === phrase.toLowerCase() ||
+        city.value.toLowerCase() === phrase.toLowerCase(),
+    );
     if (isSearchPage) {
-      dispatch(searchPhraseUpdated(phrase));
+      if (matchedCity) {
+        dispatch(cityUpdated(matchedCity));
+      } else {
+        dispatch(searchPhraseUpdated(phrase));
+      }
     } else {
-      navigate(
-        `/search?search=${phrase}` + (provider ? `&provider=${provider})` : ""),
-      );
+      const searchParams = new URLSearchParams();
+      if (matchedCity) {
+        searchParams.set("city", matchedCity.value);
+      } else {
+        searchParams.set("search", phrase);
+      }
+      if (provider) {
+        searchParams.set("provider", provider);
+      }
+      navigate(`/search?${searchParams.toString()}`);
     }
     setShowSearchModal(false);
   };
