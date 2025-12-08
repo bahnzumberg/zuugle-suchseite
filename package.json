@@ -28,7 +28,7 @@
     "react-dom": "^19.2.1",
     "react-horizontal-scrolling-menu": "^8.2.0",
     "react-i18next": "^15.7.4",
-    "react-infinite-scroll-component": "^6.1.0",
+    "react-infinite-scroll-component": "^6.1.1",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
     "react-router": "^7.10.0",
