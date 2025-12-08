@@ -31,7 +31,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
-    "react-router": "^7.10.0",
+    "react-router": "^7.10.1",
     "react-share": "^5.2.2",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
