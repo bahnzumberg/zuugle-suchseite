@@ -40,3 +40,41 @@ Dieses Projekt folgt einem strikten **UAT-First** Workflow.
 nvm install 20.5.0
 nvm use
 npm install
+```
+
+### 2. Datenbank Setup (Docker)
+PostgreSQL läuft lokal im Container auf Port 5433, um Konflikte zu vermeiden.
+```bash
+# Container bauen und starten
+docker build -t zuugle-postgres-db ./
+docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db
+
+# Daten importieren (Dump von uat-dump.zuugle.at)
+npm run import-data-docker
+```
+
+### 3. Server starten (Lokal)
+Startet die API und schreibt Logs.
+```bash
+npm run start
+```
+
+Hinweis: Logs prüfen unter zuugle-api/logs/api.logs.
+
+### 4. Build & Assets
+Um GPX-Files und Bilder zu generieren:
+```bash
+npm run build
+npm run import-files
+```
+
+## 🧪 Testing & Quality Assurance
+* **Automatisierte Tests:** Aktuell **NICHT** vorhanden. Agenten sollen keine Tests ausführen oder fehlschlagende Test-Runs halluzinieren.
+* **Linting:** Ein Linter-Setup ist in Arbeit (Branch eslint). Aktuell gilt: Halte dich an den bestehenden Code-Style (Standard JS/Node).
+* **Validierung:** Da keine Tests existieren, muss der Code durch npm run build und manuelles Starten (npm run start) verifiziert werden.
+
+## ✅ Definition of Done
+1. Code basiert auf dem aktuellen uat Stand.
+2. npm run build ist erfolgreich.
+3. Der Server startet lokal ohne Absturz (npm run start).
+4. Keine Hardcoded Credentials (nutze Environment Variables).
