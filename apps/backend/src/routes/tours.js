@@ -45,7 +45,7 @@ const totalWrapper = async (req, res) => {
                                 provider.value AS provider 
                                 FROM kpi AS tours 
                                 LEFT OUTER JOIN kpi AS tours_city 
-                                ON tours_city.name='total_tours_${city}' 
+                                ON tours_city.name= ?
                                 LEFT OUTER JOIN kpi AS conn 
                                 ON conn.name='total_connections' 
                                 LEFT OUTER JOIN kpi AS ranges 
@@ -53,7 +53,7 @@ const totalWrapper = async (req, res) => {
                                 LEFT OUTER JOIN kpi AS cities 
                                 ON cities.name='total_cities' 
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
-                                WHERE tours.name='total_tours';`);
+                                WHERE tours.name='total_tours';`, [`total_tours_${city}`]);
     
     res.status(200).json({success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
 }
@@ -82,9 +82,17 @@ const getWrapper = async (req, res) => {
     }
     
     let new_search_where_city = `AND c2t.stop_selector='y' `;
+    let bindings = [tld];
+
     if(!!city && city.length > 0 && city!='no-city'){
-        new_search_where_city = `AND c2t.city_slug='${city}' `
+        new_search_where_city = `AND c2t.city_slug=? `;
+        bindings.push(city);
     }
+
+    // Add id bindings for the first part of UNION
+    bindings.push(id);
+    // Add id binding for the second part of UNION
+    bindings.push(id);
 
     const sql = `SELECT 
                 id, 
@@ -127,9 +135,9 @@ const getWrapper = async (req, res) => {
                 FROM tour as t 
                 INNER JOIN city2tour AS c2t 
                 ON c2t.tour_id=t.id 
-                WHERE c2t.reachable_from_country='${tld}' 
+                WHERE c2t.reachable_from_country=?
                 ${new_search_where_city}
-                AND t.id=${id}
+                AND t.id=?
                 UNION 
                 SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
                 t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
@@ -140,9 +148,10 @@ const getWrapper = async (req, res) => {
                 0 as min_connection_duration,
                 0 as min_connection_no_of_transfers,
                 0 as avg_total_tour_duration
-                FROM tour_inactive as t WHERE t.id=${id}
+                FROM tour_inactive as t WHERE t.id=?
                 ORDER BY valid_tour DESC LIMIT 1) as a`
 
+    const sql3_bindings = [tld, id];
     const sql3= `SELECT 
                 id, 
                 url, 
@@ -184,19 +193,19 @@ const getWrapper = async (req, res) => {
                 FROM tour as t 
                 INNER JOIN city2tour AS c2t 
                 ON c2t.tour_id=t.id 
-                WHERE c2t.reachable_from_country='${tld}' 
-                AND t.id=${id}
+                WHERE c2t.reachable_from_country=?
+                AND t.id=?
                 ORDER BY valid_tour DESC LIMIT 1) as a`
                 
 
     try {
-        let entry2 = await knex.raw(sql)
+        let entry2 = await knex.raw(sql, bindings)
         let entry = entry2.rows[0]
 
         if (!entry) {
             // If above sql is empty, it might be, that the selected city has no working connection to the tour 
             // So the query checks the active tours without city and returns 2 as valid_tour
-            entry2 = await knex.raw(sql3)
+            entry2 = await knex.raw(sql3, sql3_bindings)
             entry = entry2.rows[0]
 
             if (!entry) {
