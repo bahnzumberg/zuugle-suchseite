@@ -54,3 +54,23 @@ jobs:
             export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
             pm2 restart all
             # /usr/local/zuugle/import-data-files.sh
+
+  test-api:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.3.0'
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Wait for server restart
+        run: sleep 15
+      - name: Run API Tests
+        env:
+          API_USER: ${{ secrets.UAT_BASIC_AUTH_USER }}
+          API_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}
+        run: npm test
