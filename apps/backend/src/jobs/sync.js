@@ -462,12 +462,14 @@ export async function restoreDump() {
     const dbDump = "/tmp/zuugle_postgresql.dump";
 
     console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
-
     const dockerProc = spawn("docker", [
       "exec", container,
-      "pg_restore", dbDump,
-      "-U", "postgres",
+      "pg_restore",
+      "-U", dbUser,
       "-d", dbName,
+      "--no-owner",
+      "--no-privileges",
+      dbDump
     ]);
     dockerProc.stdout.on("data", (data) => {
       console.log(`stdout: ${data}`);
