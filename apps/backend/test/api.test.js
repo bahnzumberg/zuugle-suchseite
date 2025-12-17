@@ -1,4 +1,4 @@
-const baseUrl = 'https://www2.zuugle.at';
+const baseUrl = process.env.API_BASE_URL || 'https://www2.zuugle.at';
 const apiUser = process.env.API_USER;
 const apiPass = process.env.API_PASSWORD;
 
