@@ -1057,11 +1057,11 @@ const filterWrapper = async (req, res) => {
 
 
 const connectionsExtendedWrapper = async (req, res) => {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
-    if(!!!id || !!!city){
+    if(isNaN(id) || !!!city){
         res.status(404).json({success: false});
         return;
     }
@@ -1087,10 +1087,10 @@ const connectionsExtendedWrapper = async (req, res) => {
                           FROM tour as t
                           INNER JOIN fahrplan as f
                           ON f.hashed_url=t.hashed_url
-                          WHERE t.id='${id}' 
-                          AND f.city_slug='${city}' 
+                          WHERE t.id=?
+                          AND f.city_slug=?
                           ORDER BY return_row ASC;`;
-    const fahrplan_result = await knex.raw(fahrplan_sql)    
+    const fahrplan_result = await knex.raw(fahrplan_sql, [id, city])
     
     if (!!fahrplan_result && !!fahrplan_result.rows) {
         connections = fahrplan_result.rows.map(connection => {
