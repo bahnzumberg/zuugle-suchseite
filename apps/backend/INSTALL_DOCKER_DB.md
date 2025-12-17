@@ -57,6 +57,7 @@ Corresponds to `postgres-uat` on port 5434.
   production: {
     client: 'pg',
     version: '16',
+    containerName: 'zuugle-postgres-uat', // Used by restore script
     connection: {
       host : 'localhost',
       port : 5434,
@@ -77,6 +78,7 @@ Corresponds to `postgres-dev` on port 5433.
   development: {
     client: 'pg',
     version: '16',
+    containerName: 'zuugle-postgres-dev', // Used by restore script
     connection: {
       host : 'localhost',
       port : 5433,

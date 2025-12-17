@@ -2,17 +2,24 @@
 import {
     writeKPIs,
     truncateAll,
-    restoreDump
+    restoreDump,
+    copyDump
 } from "./sync.js";
 
-console.log('Truncate tables');
-truncateAll().then(_ => {
-    console.log('Restore from database dump (this will take a while)');
-    restoreDump().then(_ => {
-        console.log('Write KPIs');
-        writeKPIs().then(_ => {
-            console.log('Database ready!');
-            process.exit();
-        })
+console.log('Copy dump to container');
+copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump").then(_ => {
+    console.log('Truncate tables');
+    truncateAll().then(_ => {
+        console.log('Restore from database dump (this will take a while)');
+        restoreDump().then(_ => {
+            console.log('Write KPIs');
+            writeKPIs().then(_ => {
+                console.log('Database ready!');
+                process.exit();
+            })
+        });
     });
+}).catch(err => {
+    console.error("Error during sync:", err);
+    process.exit(1);
 });
