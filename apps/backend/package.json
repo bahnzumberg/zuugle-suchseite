@@ -45,6 +45,7 @@
     "fs": "0.0.1-security",
     "fs-extra": "^11.1.1",
     "handlebars": "^4.7.7",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.0",
     "knex": "^3.0.1",
     "moment": "^2.29.4",

@@ -1,6 +1,8 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
+import cacheService from "../services/cache.js";
+import crypto from 'crypto';
 import {mergeGpxFilesToOne, last_two_characters, hashedUrlsFromPoi} from "../utils/gpx/gpxUtils";
 import moment from "moment";
 import {getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
@@ -9,6 +11,12 @@ import { convertDifficulty } from '../utils/dataConversion';
 // import logger from '../utils/logger';
 
 const fs = require('fs');
+
+const generateKey = (prefix, obj) => {
+    const str = JSON.stringify(obj, Object.keys(obj).sort());
+    const hash = crypto.createHash('sha256').update(str).digest('hex');
+    return `${prefix}:${hash}`;
+};
 const path = require('path');
 const momenttz = require('moment-timezone');
 
@@ -36,6 +44,13 @@ const providerWrapper = async (req, res) => {
  
 const totalWrapper = async (req, res) => {
     const city = req.query.city;
+
+    const cacheKey = `tours:total:${city || 'all'}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
     const total = await knex.raw(`SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
@@ -55,20 +70,29 @@ const totalWrapper = async (req, res) => {
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
                                 WHERE tours.name='total_tours';`, [`total_tours_${city}`]);
     
-    res.status(200).json({success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']});
+    const responseData = {success: true, total_tours: total.rows[0]['tours'],tours_city: total.rows[0]['tours_city'] ,total_connections: total.rows[0]['connections'], total_ranges: total.rows[0]['ranges'], total_cities: total.rows[0]['cities'], total_provider: total.rows[0]['provider']};
+    await cacheService.set(cacheKey, responseData);
+    res.status(200).json(responseData);
 }
 
 const getWrapper = async (req, res) => {
     
     const city = !!req.query.city ? req.query.city : !!req.params.city ? req.params.city : null;
     const id = parseInt(req.params.id, 10);
+    const domain = req.query.domain;
+
+    const cacheKey = generateKey('tours:get', { id, city, domain });
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
     // console.log("===================") 
     // console.log(" city from getWrapper : ", city )
     // console.log(" req.params from getWrapper : ", req.params )
     // console.log("===================") 
     // console.log(" req.query from getWrapper : ", (req.query) )
     // console.log("===================") 
-    const domain = req.query.domain;
     const tld = get_domain_country(domain);
 
     if (isNaN(id)) {
@@ -216,13 +240,21 @@ const getWrapper = async (req, res) => {
 
         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
         entry = await prepareTourEntry(entry, city, domain, true);
-        res.status(200).json({ success: true, tour: entry });
+        const responseData = { success: true, tour: entry };
+        await cacheService.set(cacheKey, responseData);
+        res.status(200).json(responseData);
     } catch (error) {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
 
 const listWrapper = async (req, res) => {
+    const cacheKey = generateKey('tours:list', req.query);
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
     const showRanges = !!req.query.ranges;
     const page = req.query.page || 1;
     const map = req.query.map;
@@ -768,20 +800,30 @@ const listWrapper = async (req, res) => {
     // the tours array, the total count of tours returned by the main query, the current page, and the 
     // ranges array (if showRanges is true).
 
-    res
-      .status(200)
-      .json({
+    const responseData = {
         success: true,
         tours: result,
         total: sql_count,
         page: page,
         ranges: ranges,
         markers: markers_array,
-      });
+      };
+
+    await cacheService.set(cacheKey, responseData);
+
+    res
+      .status(200)
+      .json(responseData);
 } // end of listWrapper
 
 
 const filterWrapper = async (req, res) => {
+    const cacheKey = generateKey('tours:filter', req.query);
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
     const search = req.query.search;
     const city = req.query.city;
     const domain = req.query.domain;
@@ -1007,7 +1049,9 @@ const filterWrapper = async (req, res) => {
         console.log("Drop temp table failed: ", err)
     }
 
-    res.status(200).json({success: true, filter: filterresult, providers: providers});
+    const responseData = {success: true, filter: filterresult, providers: providers};
+    await cacheService.set(cacheKey, responseData);
+    res.status(200).json(responseData);
 } // end of filterWrapper
 
 
