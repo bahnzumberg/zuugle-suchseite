@@ -1,6 +1,7 @@
 # PostgreSQL Setup for www2.zuugle.at (UAT & DEV)
 
 This setup provides two isolated PostgreSQL instances running in Docker containers, as requested.
+This configuration is intended for the `uat` and `dev` branches/environments on the `www2` server. It does not affect the production environment setup.
 
 ## Components
 
@@ -39,6 +40,52 @@ This setup provides two isolated PostgreSQL instances running in Docker containe
     0 7 * * * /path/to/zuugle-api/restore_databases.sh >> /path/to/zuugle-api/logs/restore.log 2>&1
     ```
 
+## Knexfile Configuration
+
+You must configure `src/knexfile.js` on the `www2` server to connect to these local Docker instances.
+
+**UAT (Production Profile)**
+Corresponds to `postgres-uat` on port 5432.
+```javascript
+  production: {
+    client: 'pg',
+    version: '16',
+    connection: {
+      host : 'localhost',
+      port : 5432,
+      user : 'zuugle_suche',
+      password : 'docker', // Corresponds to POSTGRES_PASSWORD in docker-compose.yml
+      database : 'zuugle_suchseite_db'
+    },
+    pool: {
+      min: 2,
+      max: 10
+    }
+  }
+```
+
+**DEV (Development Profile)**
+Corresponds to `postgres-dev` on port 5433.
+```javascript
+  development: {
+    client: 'pg',
+    version: '16',
+    connection: {
+      host : 'localhost',
+      port : 5433,
+      user : 'postgres',
+      password : 'docker',
+      database : 'zuugle_suchseite_dev'
+    },
+    pool: {
+      min: 2,
+      max: 10
+    }
+  }
+```
+
+The `restore_databases.sh` script automatically sets `NODE_ENV` to `production` (for UAT) and `development` (for DEV) during the restore process, ensuring `knex` uses the correct configuration block.
+
 ## Configuration Details
 
 *   **UAT**:
@@ -49,5 +96,3 @@ This setup provides two isolated PostgreSQL instances running in Docker containe
     *   DB: `zuugle_suchseite_dev`
     *   User: `postgres`
     *   Port: `5433`
-
-The `restore_databases.sh` script automatically handles the environment variables needed for `src/jobs/syncDataDocker.js` to connect to the correct database container.
