@@ -74,6 +74,7 @@ jobs:
         run: npm install
       - name: Run API Tests
         env:
+          API_BASE_URL: https://www2.zuugle.at
           API_USER: ${{ secrets.UAT_BASIC_AUTH_USER }}
           API_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}
         run: npm test
