@@ -419,13 +419,14 @@ export async function truncateAll(){
 
 export async function restoreDump() {
   return new Promise((resolve, reject) => {
-    const container = "zuugle-container";
-    const dbName = "zuugle_suchseite_dev";
-    const dbDump = "zuugle_postgresql.dump";
+    const container = process.env.DB_CONTAINER_NAME || "zuugle-container";
+    const dbName = process.env.DB_NAME || "zuugle_suchseite_dev";
+    const dbUser = process.env.DB_USER || "postgres";
+    const dbDump = "/tmp/zuugle_postgresql.dump";
     const dockerProc = spawn("docker", [
       "exec", container,
       "pg_restore", dbDump,
-      "-U", "postgres",
+      "-U", dbUser,
       "-d", dbName,
     ]);
     dockerProc.stdout.on("data", (data) => {
