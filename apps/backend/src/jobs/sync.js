@@ -403,23 +403,33 @@ const deleteFilesOlder30days = async (dirPath) => {
                 }
             }
         }
-    } catch (err) {
-        // console.error(`Error processing directory: ${dirPath}`, err);
+    } catch (e) {
+        console.error('Error processing directory in deleteFilesOlder30days:', e);
     }
 };
 
 export async function truncateAll() {
-    await knex.raw(`TRUNCATE city;`);
-    await knex.raw(`TRUNCATE fahrplan;`);
-    await knex.raw(`TRUNCATE kpi;`);
-    await knex.raw(`TRUNCATE provider;`);
-    await knex.raw(`TRUNCATE tour;`);
-    await knex.raw(`TRUNCATE tour_inactive;`);
-    await knex.raw(`TRUNCATE city2tour;`);
-    await knex.raw(`TRUNCATE gpx;`);
-    await knex.raw(`TRUNCATE logsearchphrase;`);
-    await knex.raw(`TRUNCATE tracks;`);
-    await knex.raw(`TRUNCATE canonical_alternate;`);
+    const tables = [
+        'city',
+        'fahrplan',
+        'kpi',
+        'provider',
+        'tour',
+        'tour_inactive',
+        'city2tour',
+        'gpx',
+        'logsearchphrase',
+        'tracks',
+        'canonical_alternate'
+    ];
+    for (const tbl of tables) {
+        try {
+            await knex.raw(`TRUNCATE ${tbl};`);
+        } catch (err) {
+            // Ignore errors for missing tables (e.g., canonical_alternate may not exist yet)
+            console.warn(`TRUNCATE ${tbl} failed (ignored):`, err.message);
+        }
+    }
 }
 
 function getContainerName() {
