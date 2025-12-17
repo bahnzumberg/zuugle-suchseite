@@ -432,26 +432,18 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
 
 export const createImageFromMap = async (browser, filePath, url, picquality) => {
-    console.log('  [DEBUG] createImageFromMap started for:', filePath);
     try {
         if (!!filePath) {
-            console.log('  [DEBUG] Creating new page...');
             const page = await browser.newPage();
             if (!!page) {
-                console.log('  [DEBUG] Page created, setting options...');
                 await page.emulateMediaType('print');
                 await page.setCacheEnabled(false);
-                console.log('  [DEBUG] Navigating to URL:', url);
                 const safeUrl = url.replace('localhost', '127.0.0.1');
                 await page.goto(safeUrl, { timeout: 30000, waitUntil: 'networkidle2' });
-                console.log('  [DEBUG] Navigation complete, waiting 10s...');
                 await delay(10000);
-                console.log('  [DEBUG] Wait complete, taking screenshot...');
                 await page.bringToFront();
                 await page.screenshot({ path: filePath, type: 'png' });
-                console.log('  [DEBUG] Screenshot saved, closing page...');
                 await page.close();
-                console.log('  [DEBUG] Page closed successfully');
             }
         }
     } catch (err) {
