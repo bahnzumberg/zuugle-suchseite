@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 // import bodyParser from 'body-parser';
 import cors from 'cors';
 import tours from './routes/tours';
@@ -26,6 +28,30 @@ if(process.env.NODE_ENV === "production"){
 
 let corsOptions = getZuugleCors();
 
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Zuugle API',
+            version: '1.0.0',
+            description: 'API documentation for Zuugle Backend',
+        },
+        servers: [
+            {
+                url: 'http://localhost:8080',
+                description: 'Local server',
+            },
+            {
+                url: 'https://www2.zuugle.at',
+                description: 'UAT server',
+            }
+        ],
+    },
+    apis: ['./src/routes/*.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
 let app = express();
 
 process.setMaxListeners(0);
@@ -38,6 +64,8 @@ app.use(express.urlencoded({limit: '1024mb',extended: false}));
 app.options("/public/*", cors(corsOptions));
 //static file access
 app.use("/public", cors(corsOptions), express.static('public'));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/tours', cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);

@@ -1,6 +1,34 @@
 import express from 'express';
 let router = express.Router();
 import knex from "../knex";
+
+/**
+ * @swagger
+ * /api/cities:
+ *   get:
+ *     summary: List cities
+ *     description: Retrieve a list of cities, optionally filtered by search term.
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for city name.
+ *       - in: query
+ *         name: all
+ *         schema:
+ *           type: boolean
+ *         description: If true, returns all cities.
+ *       - in: query
+ *         name: domain
+ *         schema:
+ *           type: string
+ *         description: Domain to determine country.
+ *     responses:
+ *       200:
+ *         description: A list of cities.
+ */
 router.get('/', (req, res) => listWrapper(req, res));
 import {get_domain_country} from "../utils/utils"
 
