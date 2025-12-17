@@ -20,10 +20,16 @@ This configuration is intended for the `uat` and `dev` branches/environments on 
 1.  **Start the databases:**
     Navigate to the repository root and run:
     ```bash
-    docker-compose up -d --build
+    docker-compose up -d
     ```
 
-2.  **Initial Restore:**
+2.  **Reset / Clean up:**
+    To remove the databases and start fresh (this deletes all data!):
+    ```bash
+    docker-compose down -v
+    ```
+
+3.  **Initial Restore:**
     Run the restore script manually once to verify and populate data:
     ```bash
     ./restore_databases.sh
