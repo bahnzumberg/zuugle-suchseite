@@ -7,6 +7,7 @@ import language from './routes/language';
 import authenticate from "./middlewares/authenticate";
 import {getZuugleCors, hostMiddleware} from "./utils/zuugleCors";
 import searchPhrases from "./routes/searchPhrases";
+import { swaggerDocs } from "./utils/swagger";
 
 process.env.TZ = 'Europe/Berlin';
 
@@ -44,5 +45,6 @@ app.use('/api/cities', cors(corsOptions), hostMiddleware, authenticate, cities);
 app.use('/api/language', cors(corsOptions), hostMiddleware, authenticate, language);
 app.use('/api/searchPhrases', cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
 
+swaggerDocs(app);
 
 app.listen(port, () => console.log('Running on localhost:' + port));
