@@ -5,7 +5,7 @@ This configuration is intended for the `uat` and `dev` branches/environments on 
 
 ## Components
 
-1.  **docker-compose.yml**: Defines two services:
+1.  **docker-compose.yaml**: Defines two services:
     *   `postgres-uat`: Mapped to port `127.0.0.1:5432` (Standard).
     *   `postgres-dev`: Mapped to port `127.0.0.1:5433` (Dev).
     *   Both containers are accessible only from localhost.
@@ -54,7 +54,7 @@ Corresponds to `postgres-uat` on port 5432.
       host : 'localhost',
       port : 5432,
       user : 'zuugle_suche',
-      password : 'docker', // Corresponds to POSTGRES_PASSWORD in docker-compose.yml
+      password : 'docker', // Corresponds to POSTGRES_PASSWORD in docker-compose.yaml
       database : 'zuugle_suchseite_db'
     },
     pool: {
