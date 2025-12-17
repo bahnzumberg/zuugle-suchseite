@@ -464,9 +464,12 @@ export async function restoreDump() {
     console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
     const dockerProc = spawn("docker", [
       "exec", container,
-      "pg_restore", dbDump,
+      "pg_restore",
       "-U", dbUser,
       "-d", dbName,
+      "--no-owner",
+      "--no-privileges",
+      dbDump
     ]);
     dockerProc.stdout.on("data", (data) => {
       console.log(`stdout: ${data}`);
