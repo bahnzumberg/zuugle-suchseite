@@ -13,11 +13,11 @@
   },
   "scripts": {
     "start": "nodemon --trace-warnings --watch ./src --exec babel-node -- src/index.js",
-    "build": "babel src -d build && cp -r ./templates  ./build/templates && cp package.json build/ && cp package-lock.json build/",
+    "build": "babel src -d build && cp -r ./templates  ./build/templates && cp Dockerfile database.sql docker-compose.yml restore_databases.sh INSTALL_DOCKER_DB.md ./build/",
     "test": "jest",
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncData.js",
-    "import-data-docker": "docker cp zuugle_postgresql.dump zuugle-container:/ && node build/jobs/syncDataDocker.js",
+    "import-data-docker": "docker cp zuugle_postgresql.dump zuugle-container:/tmp/ && node build/jobs/syncDataDocker.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
     "import-files-prod": "node build/jobs/syncFiles.js",
@@ -59,8 +59,6 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "sharp": "^0.33.4",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
     "watch": "^1.0.2",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
