@@ -51,7 +51,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
           TARGET: ${{ secrets.PROD_REMOTE_TARGET_API }}
-          EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/, /package.json'
+          EXCLUDE: '/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/'
     - name: executing remote ssh command to restart the api using ssh key
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -61,4 +61,6 @@ jobs:
           port: ${{ secrets.PROD_REMOTE_PORT }}
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v20.5.0/bin:/root/.nvm/versions/node/v20.3.0/bin
+            cd ${{ secrets.PROD_REMOTE_TARGET_API }}
+            npm install --omit=dev
             pm2 restart all

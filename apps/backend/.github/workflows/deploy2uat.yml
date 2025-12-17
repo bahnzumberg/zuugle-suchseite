@@ -53,7 +53,8 @@ jobs:
           script: |
             export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
             cd ${{ secrets.UAT_REMOTE_TARGET }}
-            npm install --production
+            npm install --omit=dev
+            ./restore_databases.sh
             pm2 restart all
             # /usr/local/zuugle/import-data-files.sh
 

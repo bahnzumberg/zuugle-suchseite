@@ -23,8 +23,22 @@ if [ -z "$CONTAINER_NAME" ]; then
     exit 1
 fi
 
-echo "Downloading dump..."
-wget -q https://uat-dump.zuugle.at/zuugle_postgresql.dump -O zuugle_postgresql.dump
+# Use date-based filename to avoid redundant downloads
+TODAY=$(date +%Y-%m-%d)
+DUMP_FILE="zuugle_postgresql_${TODAY}.dump"
+
+if [ -f "$DUMP_FILE" ]; then
+    echo "Dump for today ($TODAY) already exists, skipping download."
+else
+    echo "Downloading dump for $TODAY..."
+    wget -q https://uat-dump.zuugle.at/zuugle_postgresql.dump -O "$DUMP_FILE"
+    
+    # Clean up old dump files (keep only today's)
+    find . -maxdepth 1 -name "zuugle_postgresql_*.dump" ! -name "$DUMP_FILE" -delete 2>/dev/null || true
+fi
+
+# Create symlink for syncDataDocker.js compatibility
+ln -sf "$DUMP_FILE" zuugle_postgresql.dump
 
 # Locate the sync script
 if [ -f "build/jobs/syncDataDocker.js" ]; then
@@ -40,3 +54,4 @@ echo "Restoring $CONTAINER_NAME (NODE_ENV=$NODE_ENV)..."
 node $SCRIPT_PATH
 
 echo "$CONTAINER_NAME restored successfully."
+
