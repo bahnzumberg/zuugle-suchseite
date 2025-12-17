@@ -1,5 +1,6 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
+import knexConfig from "../knexfile";
 import {createImagesFromMap, last_two_characters} from "../utils/gpx/gpxUtils";
 import {getHost} from "../utils/utils";
 import moment from "moment";
@@ -417,11 +418,51 @@ export async function truncateAll(){
     await knex.raw(`TRUNCATE canonical_alternate;`);
 }
 
+function getContainerName() {
+    const env = process.env.NODE_ENV || 'development';
+    if (knexConfig[env] && knexConfig[env].containerName) {
+        return knexConfig[env].containerName;
+    }
+    return process.env.DB_CONTAINER_NAME || "zuugle-container";
+}
+
+export async function copyDump(localPath, remotePath) {
+    return new Promise((resolve, reject) => {
+        const container = getContainerName();
+        console.log(`Copying dump to container ${container}...`);
+        const dockerProc = spawn("docker", [
+            "cp",
+            localPath,
+            `${container}:${remotePath}`
+        ]);
+
+        dockerProc.stderr.on("data", (data) => {
+            console.error(`docker cp stderr: ${data}`);
+        });
+
+        dockerProc.on("close", (code) => {
+            if (code === 0) {
+                console.log(`Dump copied successfully to ${container}:${remotePath}`);
+                resolve(undefined);
+            } else {
+                reject(new Error(`docker cp exited with code ${code}`));
+            }
+        });
+    });
+}
+
 export async function restoreDump() {
   return new Promise((resolve, reject) => {
-    const container = "zuugle-container";
-    const dbName = "zuugle_suchseite_dev";
-    const dbDump = "zuugle_postgresql.dump";
+    const env = process.env.NODE_ENV || 'development';
+    const config = knexConfig[env];
+
+    const container = getContainerName();
+    const dbName = (config && config.connection && config.connection.database) ? config.connection.database : (process.env.DB_NAME || "zuugle_suchseite_dev");
+    const dbUser = (config && config.connection && config.connection.user) ? config.connection.user : (process.env.DB_USER || "postgres");
+    const dbDump = "/tmp/zuugle_postgresql.dump";
+
+    console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
+
     const dockerProc = spawn("docker", [
       "exec", container,
       "pg_restore", dbDump,
