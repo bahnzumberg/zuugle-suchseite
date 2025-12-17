@@ -3,12 +3,18 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Check if running on server (knexfile.js in same directory) or local dev (knexfile.js in src/)
+if [ ! -f "knexfile.js" ]; then
+    echo "You are developing on your local machine? Please run 'npm run import-data-docker'"
+    exit 0
+fi
+
 # Read containerName from knexfile.js based on NODE_ENV
 NODE_ENV="${NODE_ENV:-production}"
 export NODE_ENV
 
 CONTAINER_NAME=$(node -e "
-  const config = require('./src/knexfile.js');
+  const config = require('./knexfile.js');
   const env = process.env.NODE_ENV || 'production';
   console.log(config[env]?.containerName || '');
 ")
