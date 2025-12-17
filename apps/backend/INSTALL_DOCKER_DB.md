@@ -10,10 +10,12 @@ This configuration is intended for the `uat` and `dev` branches/environments on 
     *   `postgres-dev`: Mapped to port `127.0.0.1:5433` (Dev).
     *   Both containers are accessible only from localhost.
 
-2.  **restore_databases.sh**: A script to:
-    *   Download the daily UAT dump.
-    *   Restore it to `postgres-uat` (and run `syncDataDocker.js` with UAT config).
-    *   Restore it to `postgres-dev` (and run `syncDataDocker.js` with DEV config).
+2.  **restore_databases.sh**: A script that:
+    *   Reads `containerName` from `src/knexfile.js` for the current `NODE_ENV`
+    *   Downloads the daily UAT dump
+    *   Restores it to the matching Docker container only
+    *   On UAT server (with `containerName: 'zuugle-postgres-uat'`) → restores UAT
+    *   On DEV server (with `containerName: 'zuugle-postgres-dev'`) → restores DEV
 
 ## Installation
 
