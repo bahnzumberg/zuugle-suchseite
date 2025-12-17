@@ -1,5 +1,8 @@
 import express from 'express';
 import knex from "../knex";
+
+let router = express.Router();
+
 /**
  * @swagger
  * /api/language:
@@ -17,6 +20,8 @@ import knex from "../knex";
  *       200:
  *         description: Language code.
  */
+router.get('/', (req, res) => languageWrapper(req, res));
+
 const languageWrapper = async (req, res) => {
   const tld = req.query.tld;
 
@@ -38,4 +43,4 @@ const languageWrapper = async (req, res) => {
   }
 };
 
-export default languageWrapper;
+export default router;

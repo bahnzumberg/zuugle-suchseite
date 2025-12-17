@@ -42,17 +42,25 @@ const swaggerOptions = {
                 description: 'Local server',
             },
             {
-                url: 'https://www2.zuugle.at',
-                description: 'UAT server',
-            },
-            {
                 url: 'https://dev.zuugle.at',
                 description: 'DEV server',
             },
-            {
-                url: 'https://www.zuugle.at',
-                description: 'PROD server',
-            }
+            // UAT
+            { url: 'https://www2.zuugle.at', description: 'UAT server (AT)' },
+            { url: 'https://www2.zuugle.de', description: 'UAT server (DE)' },
+            { url: 'https://www2.zuugle.si', description: 'UAT server (SI)' },
+            { url: 'https://www2.zuugle.it', description: 'UAT server (IT)' },
+            { url: 'https://www2.zuugle.ch', description: 'UAT server (CH)' },
+            { url: 'https://www2.zuugle.li', description: 'UAT server (LI)' },
+            { url: 'https://www2.zuugle.fr', description: 'UAT server (FR)' },
+            // PROD
+            { url: 'https://www.zuugle.at', description: 'PROD server (AT)' },
+            { url: 'https://www.zuugle.de', description: 'PROD server (DE)' },
+            { url: 'https://www.zuugle.si', description: 'PROD server (SI)' },
+            { url: 'https://www.zuugle.it', description: 'PROD server (IT)' },
+            { url: 'https://www.zuugle.ch', description: 'PROD server (CH)' },
+            { url: 'https://www.zuugle.li', description: 'PROD server (LI)' },
+            { url: 'https://www.zuugle.fr', description: 'PROD server (FR)' },
         ],
     },
     apis: ['./src/routes/*.js'],
