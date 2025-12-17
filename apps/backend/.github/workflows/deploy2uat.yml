@@ -69,14 +69,27 @@ jobs:
         with:
           node-version: '20.3.0'
       - name: Install npm dependencies
-        run: npm ci
+        run: npm install
       - name: Wait for server restart
-        run: sleep 15
+        run: sleep 30
       - name: Run API Tests
         env:
           API_USER: ${{ secrets.UAT_BASIC_AUTH_USER }}
           API_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}
         run: npm test
+      - name: Close Issue on Success
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --state open \
+            --label "bug" \
+            --search "BUG: UAT API Tests Failed" \
+            --json number \
+            --jq '.[].number' \
+            | xargs -r -I {} gh issue close {} --comment "✅ API Tests passed in workflow run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
       - name: Create Issue on Failure
         if: failure()
         env:
