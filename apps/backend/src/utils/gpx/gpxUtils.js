@@ -5,9 +5,9 @@ let sharp = require('sharp');
 const convertXML = require('xml-js');
 const { create } = require('xmlbuilder2');
 import moment from "moment";
-import {setTimeout} from "node:timers/promises";
+import { setTimeout } from "node:timers/promises";
 import knex from "../../knex";
-import {getHost} from "../utils";
+import { getHost } from "../utils";
 import crypto from 'crypto';
 
 // Global variable to store the hash of the London reference image.
@@ -92,10 +92,10 @@ const minimal_args = [
 ];
 
 
-const setTourImageURL = async (tour_id, image_url, force=false) => {
+const setTourImageURL = async (tour_id, image_url, force = false) => {
     if (!!tour_id) {
         if (image_url.length > 0) {
-            if (image_url.substring(0,4) !== 'http') {
+            if (image_url.substring(0, 4) !== 'http') {
                 image_url = getHost('') + image_url;
             }
 
@@ -107,7 +107,7 @@ const setTourImageURL = async (tour_id, image_url, force=false) => {
                     await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`)
                 }
             }
-            catch(e) {
+            catch (e) {
                 console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e)
             }
         }
@@ -156,18 +156,18 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_up, url) => {
-    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars +"/");
-    let filePath = path.join(dirPath, ch+"_gpx.png");
-    let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
+    let filePath = path.join(dirPath, ch + "_gpx.png");
+    let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
     const MAX_GENERATION_TIME = 300000;
 
     try {
-        if (!fs.existsSync(dirPath)){
+        if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath);
         }
 
-        const generationPromise = createImageFromMap(browser, filePath, url + lastTwoChars  + "/" + ch + ".gpx", 100);
+        const generationPromise = createImageFromMap(browser, filePath, url + lastTwoChars + "/" + ch + ".gpx", 100);
         const timeoutPromise = new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error('Image generation timeout')), MAX_GENERATION_TIME);
         });
@@ -175,16 +175,16 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
         await Promise.race([generationPromise, timeoutPromise]);
 
 
-        if (fs.existsSync(filePath)){
+        if (fs.existsSync(filePath)) {
             try {
                 await sharp(filePath).resize({
                     width: 784,
                     height: 523,
                     fit: "inside"
-                }).webp({quality: 15}).toFile(filePathSmallWebp);
+                }).webp({ quality: 15 }).toFile(filePathSmallWebp);
             }
-            catch(e) {
-                console.error("gpxUtils.sharp.resize error: ",e)
+            catch (e) {
+                console.error("gpxUtils.sharp.resize error: ", e)
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
@@ -198,9 +198,9 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
                 } else {
                     console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Gpx image small file created: ' + filePathSmallWebp);
                     if (isProd) {
-                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, 'https://cdn.zuugle.at/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
                     } else {
-                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars  + '/' + ch + '_gpx_small.webp', true);
+                        dispatchDbUpdate(ch, '/public/gpx-image/' + lastTwoChars + '/' + ch + '_gpx_small.webp', true);
                     }
                 }
             } else {
@@ -218,7 +218,7 @@ const processAndCreateImage = async (ch, lastTwoChars , browser, isProd, dir_go_
         } else {
             console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
         }
-        
+
         handleImagePlaceholder(ch, isProd);
     }
 };
@@ -234,12 +234,12 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
         const id = row.id;
         const lastTwoChars = last_two_characters(id);
         const filePath = path.join(__dirname, dir_go_up, "public/gpx-image/", lastTwoChars, id + "_gpx_small.webp");
-        
+
         try {
             const stats = await fs.promises.stat(filePath);
             const isOlderThan30Days = (Date.now() - stats.mtimeMs) > thirtyDaysInMs;
             const shouldBeDeleted = Math.random() < 0.1;
-            
+
             if (isOlderThan30Days && shouldBeDeleted) {
                 console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Deleting old image for tour ID ${id}.`);
                 await fs.promises.unlink(filePath);
@@ -275,8 +275,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
     // This should be done only once when the function is first called.
     if (!londonReferenceHash) {
-        if(isProd){ 
-            dir_go_up = "../../"; 
+        if (isProd) {
+            dir_go_up = "../../";
         }
         else {
             dir_go_up = "../../../";
@@ -299,13 +299,13 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         }
     }
 
-    if(!!ids){
+    if (!!ids) {
         let browser;
         try {
-            if(isProd){ 
-                dir_go_up = "../../"; 
+            if (isProd) {
+                dir_go_up = "../../";
                 url = "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
-                addParam.executablePath = path.resolve(__dirname,'../../node_modules/puppeteer/.local-chromium/linux-1022525/chrome-linux/chrome')
+                // Puppeteer v24+ automatically manages Chrome downloads, no need to specify executablePath
             }
             else {
                 dir_go_up = "../../../";
@@ -315,10 +315,10 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             browser = await puppeteer.launch({
                 args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800', ...minimal_args],
                 protocolTimeout: 240000,
-                defaultViewport: {width: 1200, height: 800},
+                defaultViewport: { width: 1200, height: 800 },
                 ...addParam
             });
- 
+
             const idsForUpdate = [];
             const idsForCreation = [];
 
@@ -326,12 +326,12 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Starting dispatcher to classify ${ids.length} IDs...`);
             const classificationPromises = ids.map(async (ch) => {
                 let lastTwoChars = last_two_characters(ch);
-                let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/"+lastTwoChars+"/");
-                let filePathSmallWebp = path.join(dirPath, ch+"_gpx_small.webp");
+                let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
+                let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
                 try {
                     await fs.promises.stat(filePathSmallWebp);
                     idsForUpdate.push(ch);
-                } catch(e) {
+                } catch (e) {
                     if (e.code === 'ENOENT') {
                         idsForCreation.push(ch);
                     } else {
@@ -414,14 +414,14 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             ]);
 
         } catch (err) {
-            console.log("Error in createImagesFromMap --> ",err.message);
+            console.log("Error in createImagesFromMap --> ", err.message);
         } finally {
             if (browser) {
                 await browser.close();
             }
         }
     }
-    
+
     // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
     if (!isRecursiveCall) {
         console.log(moment().format('YYYY-MM-DD HH:mm:ss'), `Starting final check for old images...`);
@@ -431,14 +431,14 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 }
 
 
-export const createImageFromMap = async (browser, filePath,  url, picquality) => {
+export const createImageFromMap = async (browser, filePath, url, picquality) => {
     try {
-        if(!!filePath){
+        if (!!filePath) {
             const page = await browser.newPage();
             if (!!page) {
-                await page.emulateMediaType('print'); 
+                await page.emulateMediaType('print');
                 await page.setCacheEnabled(false);
-                await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' }); 
+                await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' });
                 await setTimeout(10000);
                 await page.bringToFront();
                 await page.screenshot({ path: filePath, type: 'png' });
@@ -446,7 +446,7 @@ export const createImageFromMap = async (browser, filePath,  url, picquality) =>
             }
         }
     } catch (err) {
-        console.log('Error in createImageFromMap error: Could not generate ',filePath)
+        console.log('Error in createImageFromMap error: Could not generate ', filePath)
         console.log('Errormessage:', err.message);
     }
 }
@@ -462,7 +462,7 @@ export function last_two_characters(h_url) {
             return "0" + hashed_url;
         }
         else {
-            return "00";    
+            return "00";
         }
     }
     else {
@@ -475,21 +475,21 @@ export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => 
     let trackAnreise = await getSequenceFromFile(fileAnreise);
     let trackAbreise = await getSequenceFromFile(fileAbreise);
     try {
-        if(!!fileMain){
+        if (!!fileMain) {
             const fileContent = await fs.readFile(fileMain, 'utf-8');
             let json = convertXML.xml2js(fileContent);
-            if(json && json.elements.length > 0 && json.elements[0].elements){
-                if(!!trackAnreise && trackAnreise.elements){
-                    json.elements[0].elements.splice(0, 0, trackAnreise );
+            if (json && json.elements.length > 0 && json.elements[0].elements) {
+                if (!!trackAnreise && trackAnreise.elements) {
+                    json.elements[0].elements.splice(0, 0, trackAnreise);
                 }
-                if(!!trackAbreise && trackAbreise.elements){
+                if (!!trackAbreise && trackAbreise.elements) {
                     json.elements[0].elements.push(trackAbreise);
                 }
             }
             const doc = create(convertXML.js2xml(json));
-            return doc.end({prettyPrint: true});
+            return doc.end({ prettyPrint: true });
         }
-    } catch(e){
+    } catch (e) {
         console.error(e);
     }
 
@@ -499,14 +499,14 @@ export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => 
 const getSequenceFromFile = async (file) => {
     try {
         const fileContent = await fs.readFile(file, 'utf-8');
-        if(!!fileContent){
+        if (!!fileContent) {
             const jsObj = convertXML.xml2js(fileContent);
-            if(!!jsObj && jsObj.elements.length > 0 && jsObj.elements[0].elements.length > 0){
-                const found = jsObj.elements[0].elements[0];   
+            if (!!jsObj && jsObj.elements.length > 0 && jsObj.elements[0].elements.length > 0) {
+                const found = jsObj.elements[0].elements[0];
                 return found;
             }
         }
-    } catch(e){
+    } catch (e) {
         console.error(e);
     }
     return null;
@@ -522,8 +522,8 @@ const getSequenceFromFile = async (file) => {
  * @returns {Promise<string[]> | Promise<null>} array of hashed_url strings
  */
 export async function hashedUrlsFromPoi(lat, lon, radius) {
-  try {
-    const sql = `
+    try {
+        const sql = `
             SELECT DISTINCT hashed_url
             FROM gpx as g
             WHERE earth_box(ll_to_earth(:lat, :lon), :radius) @> ll_to_earth(g.lat, g.lon)
@@ -532,19 +532,19 @@ export async function hashedUrlsFromPoi(lat, lon, radius) {
                 ll_to_earth(:lat, :lon)
               ) <= :radius;
             `;
-    const result = await knex.raw(sql, { lat, lon, radius });
-    if (!result) return [];
-    const rows = (function (res) {
-      if (!res) return [];
-      if (Array.isArray(res)) return res[0] || [];
-      return res.rows || [];
-    })(result);
-    return rows.map((r) => r.hashed_url);
-  } catch (e) {
-    console.error(
-      `Error obtaining tours within radius ${radius} from lat=${lat} and lon=${lon}: `,
-      e
-    );
-    return null;
-  }
+        const result = await knex.raw(sql, { lat, lon, radius });
+        if (!result) return [];
+        const rows = (function (res) {
+            if (!res) return [];
+            if (Array.isArray(res)) return res[0] || [];
+            return res.rows || [];
+        })(result);
+        return rows.map((r) => r.hashed_url);
+    } catch (e) {
+        console.error(
+            `Error obtaining tours within radius ${radius} from lat=${lat} and lon=${lon}: `,
+            e
+        );
+        return null;
+    }
 }

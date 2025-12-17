@@ -1,8 +1,8 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
-import {createImagesFromMap, last_two_characters} from "../utils/gpx/gpxUtils";
-import {getHost} from "../utils/utils";
+import { createImagesFromMap, last_two_characters } from "../utils/gpx/gpxUtils";
+import { getHost } from "../utils/utils";
 import moment from "moment";
 const { create } = require('xmlbuilder2');
 const fs = require('fs-extra');
@@ -50,18 +50,18 @@ async function update_tours_from_tracks() {
 }
 
 
-export async function fixTours(){
+export async function fixTours() {
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
     await knex.raw(`DELETE FROM tour WHERE hashed_url NOT IN (SELECT hashed_url FROM fahrplan GROUP BY hashed_url);`);
-    
+
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'german', full_text ) WHERE text_lang='de';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'english', full_text ) WHERE text_lang ='en';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'italian', full_text ) WHERE text_lang ='it';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'simple', full_text ) WHERE text_lang ='sl';`);
     await knex.raw(`UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`);
-    
+
     await knex.raw(`DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`);
 
     // This step creates a table, which establishes the connection between cities and tours.
@@ -114,7 +114,7 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
-    
+
     // Store for every tour and city the minimal number of transfers (changing between trains/busses)
     await knex.raw(`UPDATE city2tour AS c SET min_connection_no_of_transfers = i.min_connection_no_of_transfers
                     FROM (
@@ -145,8 +145,8 @@ export async function fixTours(){
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
-    
-    if(process.env.NODE_ENV == "production"){
+
+    if (process.env.NODE_ENV == "production") {
         // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
 
         await update_tours_from_tracks();
@@ -188,7 +188,7 @@ export async function fixTours(){
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
         }
-        catch(e) {
+        catch (e) {
             console.log(e)
         }
 
@@ -209,7 +209,7 @@ export async function fixTours(){
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
         }
-        catch(e) {
+        catch (e) {
             console.log(e)
         }
     }
@@ -275,7 +275,7 @@ export async function fixTours(){
                         INNER JOIN tour AS t
                         ON t.id=c2t.tour_id
                     ) AS a;`);
-                     
+
 
     // Archive all the entries from logsearchphrase, which are older than 180 days.
     await knex.raw(`INSERT INTO logsearchphrase_archive (id, phrase, num_results, city_slug, search_time, menu_lang, country_code)
@@ -284,7 +284,7 @@ export async function fixTours(){
                     WHERE search_time < NOW() - INTERVAL '180 days';`);
     // Delete all the entries from logsearchphrase, which are older than 180 days.
     await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '180 days';`);
-    
+
 
     // Check all entries of column image_url in table tour
     // First, we remove all images producing 404, which are already stored there - mainly provider bahnzumberg 
@@ -301,35 +301,35 @@ export async function fixTours(){
                     else {
                         const options = {
                             timeout: 10000 // Set timeout to 10 seconds (default might be lower)
-                        };                   
+                        };
                         request(entry.image_url, options, (error, response) => {
-                            if (error ||  response.statusCode != 200) {
+                            if (error || response.statusCode != 200) {
                                 // console.log("Response: ", response)
                                 // console.log("Error: ", error)
                                 knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
                                 // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
                             }
-                        });                     
+                        });
                     }
                 }
-                catch(err){
+                catch (err) {
                     console.log('const updatePromises = tour_image_url.map: ', err)
                 }
             });
             await Promise.all(updatePromises);
         }
-        catch(err){
+        catch (err) {
             console.log('error: ', err)
         }
     }
 }
 
 
-export async function copyRangeImage(){
+export async function copyRangeImage() {
     let dir_go_up = "../../";
     let ranges = [];
-    if(process.env.NODE_ENV == "production"){ 
-        dir_go_up = "../"; 
+    if (process.env.NODE_ENV == "production") {
+        dir_go_up = "../";
     }
 
     try {
@@ -346,8 +346,8 @@ export async function copyRangeImage(){
             const fs_target = path.join(__dirname, dir_go_up, 'public/range-image/' + range.range_slug + '.webp');
 
             if (!fs.existsSync(fs_target)) {
-            await fs.promises.copyFile(fs_source, fs_target);
-            console.log("No image for range found. Copying from default: ", fs_target);
+                await fs.promises.copyFile(fs_source, fs_target);
+                console.log("No image for range found. Copying from default: ", fs_target);
             }
         }
     } catch (error) {
@@ -358,20 +358,24 @@ export async function copyRangeImage(){
 
 const prepareDirectories = () => {
     // We need a basic set of directories, which are created now, if they do not exist yet
-    let filePath='';
+    let filePath = '';
     let dirPaths = ['public/gpx/', 'public/gpx-image/', 'public/gpx-image-with-track/', 'public/gpx-track/', 'public/gpx-track/totour/', 'public/gpx-track/fromtour/'];
-    
+
     console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Start deleting old files');
     for (const i in dirPaths) {
-        if(process.env.NODE_ENV == "production"){
+        // On server (production): __dirname = /root/suchseite/api/jobs/
+        //   -> We need to go up one level to /root/suchseite/api/ where public/ is
+        // On local (development): __dirname = .../src/jobs/
+        //   -> We need to go up two levels to project root where public/ is
+        if (process.env.NODE_ENV == "production") {
             filePath = path.join(__dirname, "../", dirPaths[i]);
         } else {
             filePath = path.join(__dirname, "../../", dirPaths[i]);
         }
 
-        if (!fs.existsSync(filePath)){
-            fs.mkdirSync(filePath);
-        }    
+        if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath, { recursive: true });
+        }
 
         // All files, which are older than 30 days, are deleted now. This means they have to be 
         // recreated new and by this we ensure all is updated and unused files are removed.
@@ -385,26 +389,26 @@ const deleteFilesOlder30days = async (dirPath) => {
     try {
         const dirents = await fs.readdir(dirPath);
         for (const dirent of dirents) {
-          const filePath = path.join(dirPath, dirent);
-          const stats = await fs.stat(filePath);
-    
-          // Check if it's a directory and recurse
-          if (stats.isDirectory()) {
-            await deleteFilesOlder30days(filePath);
-          } else if (stats.isFile()) {
-            const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
-            if (isOlderThan30Days && Math.random() < 0.15) { // Delete with 15% probability
-              await fs.unlink(filePath);
-              // console.log(`Deleted ${filePath}`);
+            const filePath = path.join(dirPath, dirent);
+            const stats = await fs.stat(filePath);
+
+            // Check if it's a directory and recurse
+            if (stats.isDirectory()) {
+                await deleteFilesOlder30days(filePath);
+            } else if (stats.isFile()) {
+                const isOlderThan30Days = Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
+                if (isOlderThan30Days && Math.random() < 0.15) { // Delete with 15% probability
+                    await fs.unlink(filePath);
+                    // console.log(`Deleted ${filePath}`);
+                }
             }
-          }
         }
-      } catch (err) {
+    } catch (err) {
         // console.error(`Error processing directory: ${dirPath}`, err);
-      }
+    }
 };
 
-export async function truncateAll(){
+export async function truncateAll() {
     await knex.raw(`TRUNCATE city;`);
     await knex.raw(`TRUNCATE fahrplan;`);
     await knex.raw(`TRUNCATE kpi;`);
@@ -452,43 +456,43 @@ export async function copyDump(localPath, remotePath) {
 }
 
 export async function restoreDump() {
-  return new Promise((resolve, reject) => {
-    const env = process.env.NODE_ENV || 'development';
-    const config = knexConfig[env];
+    return new Promise((resolve, reject) => {
+        const env = process.env.NODE_ENV || 'development';
+        const config = knexConfig[env];
 
-    const container = getContainerName();
-    const dbName = (config && config.connection && config.connection.database) ? config.connection.database : (process.env.DB_NAME || "zuugle_suchseite_dev");
-    const dbUser = (config && config.connection && config.connection.user) ? config.connection.user : (process.env.DB_USER || "postgres");
-    const dbDump = "/tmp/zuugle_postgresql.dump";
+        const container = getContainerName();
+        const dbName = (config && config.connection && config.connection.database) ? config.connection.database : (process.env.DB_NAME || "zuugle_suchseite_dev");
+        const dbUser = (config && config.connection && config.connection.user) ? config.connection.user : (process.env.DB_USER || "postgres");
+        const dbDump = "/tmp/zuugle_postgresql.dump";
 
-    console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
-    const dockerProc = spawn("docker", [
-      "exec", container,
-      "pg_restore",
-      "-U", dbUser,
-      "-d", dbName,
-      "--no-owner",
-      "--no-privileges",
-      dbDump
-    ]);
-    dockerProc.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
+        console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
+        const dockerProc = spawn("docker", [
+            "exec", container,
+            "pg_restore",
+            "-U", dbUser,
+            "-d", dbName,
+            "--no-owner",
+            "--no-privileges",
+            dbDump
+        ]);
+        dockerProc.stdout.on("data", (data) => {
+            console.log(`stdout: ${data}`);
+        });
+        dockerProc.stderr.on("data", (data) => {
+            reject(new Error(data));
+        });
+        dockerProc.on("close", (code) => {
+            if (code === 0) {
+                console.log(`pg_restore executed successfully`);
+                resolve(undefined);
+            } else {
+                reject(new Error(`pg_restore exited with code ${code}`));
+            }
+        });
     });
-    dockerProc.stderr.on("data", (data) => {
-      reject(new Error(data));
-    });
-    dockerProc.on("close", (code) => {
-      if (code === 0) {
-        console.log(`pg_restore executed successfully`);
-        resolve(undefined);
-      } else {
-        reject(new Error(`pg_restore exited with code ${code}`));
-      }
-    });
-  });
 }
 
-export async function writeKPIs(){
+export async function writeKPIs() {
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_tours';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;`);
 
@@ -544,10 +548,10 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
 }
 
 
-export async function generateTestdata(){
+export async function generateTestdata() {
     try {
         await knex.raw(`DELETE FROM logsearchphrase WHERE phrase LIKE 'TEST%';`);
-    
+
         /* Testdata into logsearchphrase */
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Troppberg', 4,'wien', 'it', 'IT');`);
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Schneeberg', 0,'linz', 'de', 'AT');`);
@@ -565,7 +569,7 @@ export async function generateTestdata(){
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 4,'bozen', 'it', 'IT');`);
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hütte', 5,'ljubljana', 'sl', 'SI');`);
         await knex.raw(`INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Klettern', 1,'wien', 'fr', 'AT');`);
-    } catch(err){
+    } catch (err) {
         console.log('error: ', err);
         return false;
     }
@@ -636,7 +640,7 @@ export async function syncConnectionGPX() {
     while (activeFileWrites.length > 0) {
         await new Promise(resolve => setTimeout(resolve, 50));
     }
-    
+
     return true;
 }
 
@@ -710,18 +714,18 @@ async function _syncGPX(id, h_url, title) {
 }
 
 
-export async function syncGPXImage(){
+export async function syncGPXImage() {
     let allIDs = await knex.raw("SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as id FROM tour WHERE image_url IS NULL OR image_url='null';");
-    if(!!allIDs && allIDs.rows){
+    if (!!allIDs && allIDs.rows) {
         allIDs = allIDs.rows;
         let toCreate = [];
-        for(let i=0; i<allIDs.length; i++){
+        for (let i = 0; i < allIDs.length; i++) {
             let entry = allIDs[i];
             toCreate.push({
                 id: entry.id,
             })
         }
-        if(!!toCreate){
+        if (!!toCreate) {
             console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ' Start to create gpx image files');
             await createImagesFromMap(toCreate.map(e => e.id));
         }
@@ -735,10 +739,10 @@ export async function syncGPXImage(){
 }
 
 
-async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele"){
-    if(!!data){
+async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldLng = "lon", fieldEle = "ele") {
+    if (!!data) {
         // console.log(`createFileFromGpx ${filePath}`)
-        
+
         const root = create({ version: '1.0' })
             .ele('gpx', { version: "1.1", xmlns: "http://www.topografix.com/GPX/1/1", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance" })
             .ele('trk')
@@ -746,21 +750,21 @@ async function createFileFromGpx(data, filePath, title, fieldLat = "lat", fieldL
             .ele('trkseg');
 
         data.forEach(wp => {
-            root.ele('trkpt', {lat: wp[fieldLat], lon: wp[fieldLng]})
+            root.ele('trkpt', { lat: wp[fieldLat], lon: wp[fieldLng] })
                 .ele('ele').txt(wp[fieldEle]);
         });
 
         const xml = root.end({ prettyPrint: true });
-        if(!!xml){
+        if (!!xml) {
             await fs.writeFileSync(filePath, xml);
-            const filedisc = fs.openSync(filePath) 
+            const filedisc = fs.openSync(filePath)
             fs.close(filedisc);
         }
     }
 }
 
 
-export async function syncTours(){
+export async function syncTours() {
     // Set Maintenance mode for Zuugle (webpage is disabled)
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
 
@@ -771,13 +775,13 @@ export async function syncTours(){
     const countResult = await knexTourenDb('vw_touren_to_search').count('* as anzahl');
 
     let count = 0;
-    if(!!countResult && countResult.length == 1 && countResult[0]["anzahl"]){
+    if (!!countResult && countResult.length == 1 && countResult[0]["anzahl"]) {
         count = countResult[0]["anzahl"];
     }
 
-    const modulo = Math.ceil( count / limit, 0 );
+    const modulo = Math.ceil(count / limit, 0);
 
-    for (let i=0; i<modulo; i++) {
+    for (let i = 0; i < modulo; i++) {
         const query = knexTourenDb.raw(`SELECT
                                         t.id,
                                         t.url,
@@ -825,7 +829,7 @@ export async function syncTours(){
                                         WHERE t.id % ${modulo} = ${i};`);
 
         const result = await query;
-        if(!!result && result.length > 0 && result[0].length > 0){
+        if (!!result && result.length > 0 && result[0].length > 0) {
             bulk_insert_tours(result[0]);
         }
     }
@@ -836,15 +840,15 @@ export async function syncTours(){
 
 
 
-export async function syncCities(){
+export async function syncCities() {
     const query = knexTourenDb('vw_cities_to_search').select();
     const result = await query;
-    if(!!result && result.length > 0){
-        for(let i=0; i<result.length; i++){
+    if (!!result && result.length > 0) {
+        for (let i = 0; i < result.length; i++) {
             await knex.raw(`insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`);
         }
     }
-    
+
 }
 
 const calcMonthOrder = (entry) => {
@@ -852,27 +856,27 @@ const calcMonthOrder = (entry) => {
     // Then it takes the sorting fitting to the current month and calculates the sorting value.
     // This function is called to set the column "month_order" in tables "tour".
     // As the sorting is ASC, we need to return the best match as a low and the worst match as a high number.
- 
+
     const d = new Date();
     let month = d.getMonth();
 
-    let entryScore = 
-        [{name: "jan", value: entry.jan},
-        {name: "feb", value: entry.feb},
-        {name: "mar", value: entry.mar},
-        {name: "apr", value: entry.apr},
-        {name: "may", value: entry.may},
-        {name: "jun", value: entry.jun},
-        {name: "jul", value: entry.jul},
-        {name: "aug", value: entry.aug},
-        {name: "sep", value: entry.sep},
-        {name: "oct", value: entry.oct},
-        {name: "nov", value: entry.nov},
-        {name: "dec", value: entry.dec}];
+    let entryScore =
+        [{ name: "jan", value: entry.jan },
+        { name: "feb", value: entry.feb },
+        { name: "mar", value: entry.mar },
+        { name: "apr", value: entry.apr },
+        { name: "may", value: entry.may },
+        { name: "jun", value: entry.jun },
+        { name: "jul", value: entry.jul },
+        { name: "aug", value: entry.aug },
+        { name: "sep", value: entry.sep },
+        { name: "oct", value: entry.oct },
+        { name: "nov", value: entry.nov },
+        { name: "dec", value: entry.dec }];
 
     let MonthScore = [
         ['jan', 'feb', 'dec', 'mar', 'nov', 'apr', 'oct', 'may', 'sep', 'jun', 'aug', 'jul'],
-        ['feb', 'jan', 'mar', 'apr', 'dec', 'may', 'nov', 'jun', 'oct', 'jul', 'sep', 'aug'], 
+        ['feb', 'jan', 'mar', 'apr', 'dec', 'may', 'nov', 'jun', 'oct', 'jul', 'sep', 'aug'],
         ['mar', 'feb', 'apr', 'jan', 'may', 'jun', 'dec', 'jul', 'nov', 'aug', 'oct', 'sep'],
         ['apr', 'mar', 'may', 'feb', 'jun', 'jan', 'jul', 'aug', 'dec', 'sep', 'nov', 'oct'],
         ['may', 'apr', 'jun', 'mar', 'jul', 'feb', 'aug', 'jan', 'sep', 'oct', 'dec', 'nov'],
@@ -886,12 +890,12 @@ const calcMonthOrder = (entry) => {
     ];
 
     let Monthname = '';
-    for(let i=0;i<=11;i++){
+    for (let i = 0; i <= 11; i++) {
         Monthname = MonthScore[month][i];
         var Monthobject = entryScore.find(Monthvalue => Monthvalue.name === Monthname);
 
-        if (Monthobject.value=='true') {
-            return Math.floor(i/6)*2;
+        if (Monthobject.value == 'true') {
+            return Math.floor(i / 6) * 2;
         }
     }
     return 1;
@@ -902,60 +906,60 @@ const calcMonthOrder = (entry) => {
 const bulk_insert_tours = async (entries) => {
     let sql_values = '';
 
-    for (let i=0; i<entries.length; i++) {
+    for (let i = 0; i < entries.length; i++) {
         let entry = entries[i];
-        
+
         if (i != 0) {
             sql_values = sql_values + ",";
         }
         sql_values = sql_values + "(" +
-                     entry.id + "," + 
-                     "'" + entry.url + "'" + "," +
-                     "'" + entry.provider + "'" + "," +
-                     "'" + entry.hashed_url + "'" + "," +
-                     "'" + entry.description + "'" + "," +
-                     "'" + entry.image_url + "'," +
-                     entry.ascent + "," +
-                     entry.descent + "," +
-                     entry.difficulty + "," +
-                     "'" + entry.difficulty_orig + "'" + "," +
-                     entry.duration + "," +
-                     entry.distance + "," +
-                     "'" + entry.title + "'" + "," +
-                     "'" + entry.typ + "'" + "," +
-                     "'" + entry.country + "'" + "," +
-                     "'" + entry.state + "'" + "," +
-                     "'" + entry.range_slug + "'" + "," +
-                     "'" + entry.range_name + "'" + "," +
-                     "'" + entry.season + "'" + "," +
-                     entry.number_of_days + "," +
-                     entry.jan + "," +
-                     entry.feb + "," +
-                     entry.mar + "," +
-                     entry.apr + "," +
-                     entry.may + "," +
-                     entry.jun + "," +
-                     entry.jul + "," +
-                     entry.aug + "," +
-                     entry.sep + "," +
-                     entry.oct + "," +
-                     entry.nov + "," +
-                     entry.dec + "," +
-                     calcMonthOrder(entry) + "," +
-                     entry.traverse + "," +
-                     entry.quality_rating + "," +
-                     "'" + entry.full_text + "'" + ",";
-        
-        if (entry.ai_search_column==null) {
-             sql_values = sql_values + "null,"
+            entry.id + "," +
+            "'" + entry.url + "'" + "," +
+            "'" + entry.provider + "'" + "," +
+            "'" + entry.hashed_url + "'" + "," +
+            "'" + entry.description + "'" + "," +
+            "'" + entry.image_url + "'," +
+            entry.ascent + "," +
+            entry.descent + "," +
+            entry.difficulty + "," +
+            "'" + entry.difficulty_orig + "'" + "," +
+            entry.duration + "," +
+            entry.distance + "," +
+            "'" + entry.title + "'" + "," +
+            "'" + entry.typ + "'" + "," +
+            "'" + entry.country + "'" + "," +
+            "'" + entry.state + "'" + "," +
+            "'" + entry.range_slug + "'" + "," +
+            "'" + entry.range_name + "'" + "," +
+            "'" + entry.season + "'" + "," +
+            entry.number_of_days + "," +
+            entry.jan + "," +
+            entry.feb + "," +
+            entry.mar + "," +
+            entry.apr + "," +
+            entry.may + "," +
+            entry.jun + "," +
+            entry.jul + "," +
+            entry.aug + "," +
+            entry.sep + "," +
+            entry.oct + "," +
+            entry.nov + "," +
+            entry.dec + "," +
+            calcMonthOrder(entry) + "," +
+            entry.traverse + "," +
+            entry.quality_rating + "," +
+            "'" + entry.full_text + "'" + ",";
+
+        if (entry.ai_search_column == null) {
+            sql_values = sql_values + "null,"
         }
         else {
-             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
+            sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
         }
-        
-        sql_values = sql_values + 
-                     "'" + entry.text_lang + "'" + "," +
-                     entry.maxele + ")";
+
+        sql_values = sql_values +
+            "'" + entry.text_lang + "'" + "," +
+            entry.maxele + ")";
     }
 
     const sql_insert = `INSERT INTO tour (id, 
@@ -1003,7 +1007,7 @@ const bulk_insert_tours = async (entries) => {
     try {
         await knex.raw(sql_insert)
         return true;
-    } catch(err){
+    } catch (err) {
         console.log('error: ', err)
         return false;
     }
