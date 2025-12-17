@@ -12,90 +12,9 @@ const fs = require('fs');
 const path = require('path');
 const momenttz = require('moment-timezone');
 
-/**
- * @swagger
- * /api/tours:
- *   get:
- *     summary: List tours
- *     description: Retrieve a list of tours with pagination and filtering.
- *     tags: [Tours]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number.
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Search term.
- *       - in: query
- *         name: city
- *         schema:
- *           type: string
- *         description: City slug.
- *     responses:
- *       200:
- *         description: List of tours.
- */
 router.get('/', (req, res) => listWrapper(req, res));
-
-/**
- * @swagger
- * /api/tours/filter:
- *   get:
- *     summary: Filter tours based on criteria
- *     description: Retrieve a list of tours that match the provided filter criteria (city, range, type, etc.).
- *     tags: [Tours]
- *     parameters:
- *       - in: query
- *         name: city
- *         schema:
- *           type: string
- *         description: City slug to filter by.
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Search term.
- *     responses:
- *       200:
- *         description: Successful response with filter results and providers.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 filter:
- *                   type: object
- *                 providers:
- *                   type: array
- */
 router.get('/filter', (req, res) => filterWrapper(req, res));
 router.get('/map', (req, res) => mapWrapper(req, res));
-
-/**
- * @swagger
- * /api/tours/provider/{provider}:
- *   get:
- *     summary: Get provider info
- *     description: Check if provider allows GPX download.
- *     tags: [Tours]
- *     parameters:
- *       - in: path
- *         name: provider
- *         schema:
- *           type: string
- *         required: true
- *         description: Provider ID.
- *     responses:
- *       200:
- *         description: Provider info.
- */
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 

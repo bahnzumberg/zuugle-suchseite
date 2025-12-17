@@ -13,11 +13,11 @@
   },
   "scripts": {
     "start": "nodemon --trace-warnings --watch ./src --exec babel-node -- src/index.js",
-    "build": "babel src -d build && cp -r ./templates  ./build/templates",
+    "build": "babel src -d build && cp -r ./templates  ./build/templates && cp package.json build/ && cp package-lock.json build/",
     "test": "jest",
     "import-data": "node build/jobs/syncData.js",
     "import-data-full": "node build/jobs/syncData.js",
-    "import-data-docker": "docker cp zuugle_postgresql.dump zuugle-container:/tmp/ && node build/jobs/syncDataDocker.js",
+    "import-data-docker": "docker cp zuugle_postgresql.dump zuugle-container:/ && node build/jobs/syncDataDocker.js",
     "import-data-prod": "node build/jobs/syncDataProd.js",
     "import-files": "node build/jobs/syncFiles.js",
     "import-files-prod": "node build/jobs/syncFiles.js",

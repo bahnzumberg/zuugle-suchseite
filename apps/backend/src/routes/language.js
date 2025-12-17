@@ -1,26 +1,8 @@
 import express from 'express';
 import knex from "../knex";
-
 let router = express.Router();
+router.get('/language', (req, res) => languageWrapper(req, res));
 
-/**
- * @swagger
- * /api/language:
- *   get:
- *     summary: Get language
- *     description: Determine language based on top search phrases for the country.
- *     tags: [Language]
- *     parameters:
- *       - in: query
- *         name: tld
- *         schema:
- *           type: string
- *         description: Country code (TLD).
- *     responses:
- *       200:
- *         description: Language code.
- */
-router.get('/', (req, res) => languageWrapper(req, res));
 
 const languageWrapper = async (req, res) => {
   const tld = req.query.tld;
@@ -43,4 +25,4 @@ const languageWrapper = async (req, res) => {
   }
 };
 
-export default router;
+export default languageWrapper;
