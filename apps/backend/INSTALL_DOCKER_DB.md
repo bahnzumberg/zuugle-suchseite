@@ -6,7 +6,7 @@ This configuration is intended for the `uat` and `dev` branches/environments on 
 ## Components
 
 1.  **docker-compose.yaml**: Defines two services:
-    *   `postgres-uat`: Mapped to port `127.0.0.1:5432` (Standard).
+    *   `postgres-uat`: Mapped to port `127.0.0.1:5434` (to avoid conflict with system DB on 5432).
     *   `postgres-dev`: Mapped to port `127.0.0.1:5433` (Dev).
     *   Both containers are accessible only from localhost.
 
@@ -45,14 +45,15 @@ This configuration is intended for the `uat` and `dev` branches/environments on 
 You must configure `src/knexfile.js` on the `www2` server to connect to these local Docker instances.
 
 **UAT (Production Profile)**
-Corresponds to `postgres-uat` on port 5432.
+Corresponds to `postgres-uat` on port 5434.
+**Important:** Do NOT use port 5432 as it is likely used by the live production database.
 ```javascript
   production: {
     client: 'pg',
     version: '16',
     connection: {
       host : 'localhost',
-      port : 5432,
+      port : 5434,
       user : 'zuugle_suche',
       password : 'docker', // Corresponds to POSTGRES_PASSWORD in docker-compose.yaml
       database : 'zuugle_suchseite_db'
@@ -91,7 +92,7 @@ The `restore_databases.sh` script automatically sets `NODE_ENV` to `production` 
 *   **UAT**:
     *   DB: `zuugle_suchseite_db`
     *   User: `zuugle_suche`
-    *   Port: `5432`
+    *   Port: `5434`
 *   **DEV**:
     *   DB: `zuugle_suchseite_dev`
     *   User: `postgres`
