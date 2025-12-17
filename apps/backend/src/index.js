@@ -44,6 +44,14 @@ const swaggerOptions = {
             {
                 url: 'https://www2.zuugle.at',
                 description: 'UAT server',
+            },
+            {
+                url: 'https://dev.zuugle.at',
+                description: 'DEV server',
+            },
+            {
+                url: 'https://www.zuugle.at',
+                description: 'PROD server',
             }
         ],
     },

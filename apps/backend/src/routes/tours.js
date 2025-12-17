@@ -77,6 +77,25 @@ router.get('/', (req, res) => listWrapper(req, res));
  */
 router.get('/filter', (req, res) => filterWrapper(req, res));
 router.get('/map', (req, res) => mapWrapper(req, res));
+
+/**
+ * @swagger
+ * /api/tours/provider/{provider}:
+ *   get:
+ *     summary: Get provider info
+ *     description: Check if provider allows GPX download.
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: provider
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Provider ID.
+ *     responses:
+ *       200:
+ *         description: Provider info.
+ */
 router.get('/provider/:provider', (req, res) => providerWrapper(req, res));
 
 
