@@ -438,7 +438,7 @@ export const createImageFromMap = async (browser, filePath, url, picquality) => 
             if (!!page) {
                 await page.emulateMediaType('print');
                 await page.setCacheEnabled(false);
-                await page.goto(url, { timeout: 30000, waitUntil: 'networkidle0' });
+                await page.goto(url, { timeout: 30000, waitUntil: 'networkidle2' });
                 await setTimeout(10000);
                 await page.bringToFront();
                 await page.screenshot({ path: filePath, type: 'png' });
