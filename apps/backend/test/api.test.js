@@ -11,7 +11,32 @@ const getHeaders = () => {
     return headers;
 };
 
+const waitForServer = async (url, retries = 24, delay = 5000) => { // 24 * 5s = 120s
+    for (let i = 0; i < retries; i++) {
+        try {
+            console.log(`Checking server status... ${i + 1}/${retries}`);
+            const res = await fetch(url, { headers: getHeaders() });
+            if (res.status !== 502 && res.status !== 503 && res.status !== 504) {
+                console.log(`Server responded with ${res.status}. Ready.`);
+                return;
+            }
+        } catch (e) {
+            console.log(`Server check failed: ${e.message}`);
+        }
+        await new Promise(r => setTimeout(r, delay));
+    }
+    throw new Error('Server not ready after multiple attempts');
+};
+
 describe('Zuugle API UAT Tests', () => {
+
+    beforeAll(async () => {
+        // Wait for server to be ready
+        if (baseUrl.startsWith('http')) {
+            await waitForServer(`${baseUrl}/api/cities?domain=www.zuugle.at`);
+        }
+    }, 130000);
+
     test('GET /api/cities returns 200 and list of cities', async () => {
         const url = `${baseUrl}/api/cities?domain=www.zuugle.at`;
         const response = await fetch(url, { headers: getHeaders() });

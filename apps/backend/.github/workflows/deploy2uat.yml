@@ -70,8 +70,6 @@ jobs:
           node-version: '20.3.0'
       - name: Install npm dependencies
         run: npm install
-      - name: Wait for server restart
-        run: sleep 30
       - name: Run API Tests
         env:
           API_USER: ${{ secrets.UAT_BASIC_AUTH_USER }}
