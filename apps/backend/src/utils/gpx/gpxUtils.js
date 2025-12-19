@@ -96,7 +96,7 @@ const minimal_args = [
 ];
 
 const setTourImageURL = async (tour_id, image_url, force = false) => {
-    if (!!tour_id) {
+    if (tour_id) {
         if (image_url.length > 0) {
             if (image_url.substring(0, 4) !== "http") {
                 image_url = getHost("") + image_url;
@@ -414,7 +414,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         }
     }
 
-    if (!!ids) {
+    if (ids) {
         let browser;
         try {
             if (isProd) {
@@ -621,9 +621,9 @@ export const createImageFromMap = async (
     picquality,
 ) => {
     try {
-        if (!!filePath) {
+        if (filePath) {
             const page = await browser.newPage();
-            if (!!page) {
+            if (page) {
                 await page.emulateMediaType("print");
                 await page.setCacheEnabled(false);
                 const safeUrl = url.replace("localhost", "127.0.0.1");
@@ -647,7 +647,7 @@ export const createImageFromMap = async (
 };
 
 export function last_two_characters(h_url) {
-    if (!!h_url) {
+    if (h_url) {
         const hashed_url = "" + h_url;
 
         if (hashed_url.length >= 2) {
@@ -670,7 +670,7 @@ export const mergeGpxFilesToOne = async (
     let trackAnreise = await getSequenceFromFile(fileAnreise);
     let trackAbreise = await getSequenceFromFile(fileAbreise);
     try {
-        if (!!fileMain) {
+        if (fileMain) {
             const fileContent = await fs.readFile(fileMain, "utf-8");
             let json = convertXML.xml2js(fileContent);
             if (json && json.elements.length > 0 && json.elements[0].elements) {
@@ -694,7 +694,7 @@ export const mergeGpxFilesToOne = async (
 const getSequenceFromFile = async (file) => {
     try {
         const fileContent = await fs.readFile(file, "utf-8");
-        if (!!fileContent) {
+        if (fileContent) {
             const jsObj = convertXML.xml2js(fileContent);
             if (
                 !!jsObj &&

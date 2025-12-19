@@ -58,7 +58,7 @@ const listWrapper = async (req, res) => {
 
     let result = [];
 
-    if (!!getAll) {
+    if (getAll) {
         result = await knex("city")
             .select()
             .where(where)

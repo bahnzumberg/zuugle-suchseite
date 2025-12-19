@@ -42,7 +42,7 @@ export function getHost(origin) {
 }
 
 export const replaceFilePath = (filePath) => {
-    if (!!!filePath) {
+    if (!filePath) {
         return filePath;
     }
     return ("" + filePath).split("\\").join("/");

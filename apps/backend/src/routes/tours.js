@@ -102,9 +102,9 @@ const totalWrapper = async (req, res) => {
 };
 
 const getWrapper = async (req, res) => {
-    const city = !!req.query.city
+    const city = req.query.city
         ? req.query.city
-        : !!req.params.city
+        : req.params.city
           ? req.params.city
           : null;
     const id = parseInt(req.params.id, 10);
@@ -129,7 +129,7 @@ const getWrapper = async (req, res) => {
         return;
     }
 
-    if (!!!id) {
+    if (!id) {
         res.status(404).json({ success: false });
         return;
     }
@@ -308,10 +308,10 @@ const listWrapper = async (req, res) => {
     const poi = req.query.poi;
 
     const parsedBounds = bounds ? JSON.parse(bounds) : null;
-    const coordinatesNorthEast = !!parsedBounds
+    const coordinatesNorthEast = parsedBounds
         ? parsedBounds._northEast
         : null;
-    const coordinatesSouthWest = !!parsedBounds
+    const coordinatesSouthWest = parsedBounds
         ? parsedBounds._southWest
         : null;
 
@@ -599,7 +599,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_poi}`;
 
     let temp_table = "";
-    if (!!city) {
+    if (city) {
         temp_table = `temp_` + tld + city.replace(/-/g, "_") + `_` + Date.now();
     } else {
         temp_table = `temp_` + tld + `_` + Date.now();
@@ -735,7 +735,7 @@ const listWrapper = async (req, res) => {
     let markers_result = ""; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
 
-    if (!!map) {
+    if (map) {
         try {
             // markers-related / searchIncluded
             const markers_sql = `SELECT 
@@ -827,7 +827,7 @@ const listWrapper = async (req, res) => {
     let ranges = [];
     let range_result = undefined;
 
-    if (!!showRanges) {
+    if (showRanges) {
         const months = [
             "jan",
             "feb",
@@ -933,7 +933,7 @@ const filterWrapper = async (req, res) => {
     }
 
     let temp_table = "";
-    if (!!city) {
+    if (city) {
         temp_table = `temp_` + tld + city.replace(/-/g, "_") + `_` + Date.now();
     } else {
         temp_table = `temp_` + tld + `_` + Date.now();
@@ -1123,14 +1123,14 @@ const filterWrapper = async (req, res) => {
 
 const connectionsExtendedWrapper = async (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const city = !!req.query.city
+    const city = req.query.city
         ? req.query.city
-        : !!req.params.city
+        : req.params.city
           ? req.params.city
           : null;
     const domain = req.query.domain;
 
-    if (isNaN(id) || !!!city) {
+    if (isNaN(id) || !city) {
         res.status(404).json({ success: false });
         return;
     }
@@ -1204,7 +1204,7 @@ const connectionsExtendedWrapper = async (req, res) => {
                 moment(e.return_duration, "HH:mm:ss"),
             );
 
-            if (!!!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
+            if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
                 duplicatesRemoved.push(e);
             }
@@ -1226,7 +1226,7 @@ const connectionsExtendedWrapper = async (req, res) => {
     if (result && result.length > 0) {
         if (
             !!result[result.length - 1] &&
-            (!!!result[result.length - 1].connections ||
+            (!result[result.length - 1].connections ||
                 result[result.length - 1].connections.length == 0)
         ) {
             result = result.slice(0, -1);
@@ -1257,7 +1257,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
         );
 
         if (
-            !!!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))
+            !_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))
         ) {
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
             _duplicatesRemoved.push(e);
@@ -1315,7 +1315,7 @@ const getWeekday = (date) => {
 
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
-    const type = !!req.query.type ? req.query.type : "gpx";
+    const type = req.query.type ? req.query.type : "gpx";
     const key = req.query.key;
     const keyAnreise = req.query.key_anreise;
     const keyAbreise = req.query.key_abreise;
@@ -1354,7 +1354,7 @@ const tourGpxWrapper = async (req, res) => {
                 filePathAnreise,
                 filePathAbreise,
             );
-            if (!!xml) {
+            if (xml) {
                 res.status(200).send(xml);
             } else {
                 res.status(400).json({ success: false });
@@ -1395,25 +1395,25 @@ const tourGpxWrapper = async (req, res) => {
 const getMissingConnectionDays = (connections) => {
     let toReturn = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
     if (!!connections && connections.length > 0) {
-        if (!!connections.find((c) => c.weekday === "sun")) {
+        if (connections.find((c) => c.weekday === "sun")) {
             toReturn = toReturn.filter((c) => c !== "So");
         }
-        if (!!connections.find((c) => c.weekday === "mon")) {
+        if (connections.find((c) => c.weekday === "mon")) {
             toReturn = toReturn.filter((c) => c !== "Mo");
         }
-        if (!!connections.find((c) => c.weekday === "tue")) {
+        if (connections.find((c) => c.weekday === "tue")) {
             toReturn = toReturn.filter((c) => c !== "Di");
         }
-        if (!!connections.find((c) => c.weekday === "wed")) {
+        if (connections.find((c) => c.weekday === "wed")) {
             toReturn = toReturn.filter((c) => c !== "Mi");
         }
-        if (!!connections.find((c) => c.weekday === "thu")) {
+        if (connections.find((c) => c.weekday === "thu")) {
             toReturn = toReturn.filter((c) => c !== "Do");
         }
-        if (!!connections.find((c) => c.weekday === "fri")) {
+        if (connections.find((c) => c.weekday === "fri")) {
             toReturn = toReturn.filter((c) => c !== "Fr");
         }
-        if (!!connections.find((c) => c.weekday === "sat")) {
+        if (connections.find((c) => c.weekday === "sat")) {
             toReturn = toReturn.filter((c) => c !== "Sa");
         }
     }
@@ -1438,8 +1438,8 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     const host = getHost(domain);
     entry.gpx_file = `${host}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
 
-    if (!!addDetails) {
-        if (!!city) {
+    if (addDetails) {
+        if (city) {
             const toTour = await knex("fahrplan")
                 .select("totour_track_key")
                 .where({ hashed_url: entry.hashed_url, city_slug: city })
@@ -1478,7 +1478,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
                           FROM canonical_alternate
                           WHERE id=${entry.id};`;
         const canonical = await knex.raw(canon_sql);
-        if (!!canonical) {
+        if (canonical) {
             entry.canonical = canonical.rows;
         }
     }

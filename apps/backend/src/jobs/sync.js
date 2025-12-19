@@ -301,7 +301,7 @@ export async function fixTours() {
         .select(["id", "image_url"])
         .whereNotNull("image_url");
 
-    if (!!tour_image_url) {
+    if (tour_image_url) {
         try {
             const updatePromises = tour_image_url.map(async (entry) => {
                 try {
@@ -706,9 +706,9 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title) {
             fs.mkdirSync(filePath);
         }
         filePath = path.join(filePath, fileName);
-        if (!!key) {
+        if (key) {
             var trackPoints = null;
-            if (!!!fs.existsSync(filePath)) {
+            if (!fs.existsSync(filePath)) {
                 // Schritt 1: Serielle Datenbankabfrage.
                 trackPoints = await knex("tracks")
                     .select()
@@ -745,7 +745,7 @@ export async function syncConnectionGPX() {
         .select(["totour_track_key"])
         .whereNotNull("totour_track_key")
         .groupBy("totour_track_key");
-    if (!!toTourFahrplan) {
+    if (toTourFahrplan) {
         // Serielle Verarbeitung der "toTour"-Fahrpläne
         for (const entry of toTourFahrplan) {
             await _syncConnectionGPX(
@@ -763,7 +763,7 @@ export async function syncConnectionGPX() {
         .select(["fromtour_track_key"])
         .whereNotNull("fromtour_track_key")
         .groupBy("fromtour_track_key");
-    if (!!fromTourFahrplan) {
+    if (fromTourFahrplan) {
         // Serielle Verarbeitung der "fromTour"-Fahrpläne
         for (const entry of fromTourFahrplan) {
             await _syncConnectionGPX(
@@ -846,7 +846,7 @@ async function _syncGPX(id, h_url, title) {
         }
         var filePathName = filePath + fileName;
         var waypoints = null;
-        if (!!!fs.existsSync(filePathName)) {
+        if (!fs.existsSync(filePathName)) {
             try {
                 // Schritt 1: Serielle Datenbankabfrage. Die Funktion wartet hier.
                 waypoints = await knex("gpx")
@@ -894,7 +894,7 @@ export async function syncGPXImage() {
                 id: entry.id,
             });
         }
-        if (!!toCreate) {
+        if (toCreate) {
             console.log(
                 moment().format("YYYY-MM-DD HH:mm:ss"),
                 " Start to create gpx image files",
@@ -919,7 +919,7 @@ async function createFileFromGpx(
     fieldLng = "lon",
     fieldEle = "ele",
 ) {
-    if (!!data) {
+    if (data) {
         // console.log(`createFileFromGpx ${filePath}`)
 
         const root = create({ version: "1.0" })
@@ -941,7 +941,7 @@ async function createFileFromGpx(
         });
 
         const xml = root.end({ prettyPrint: true });
-        if (!!xml) {
+        if (xml) {
             await fs.writeFileSync(filePath, xml);
             const filedisc = fs.openSync(filePath);
             fs.close(filedisc);
