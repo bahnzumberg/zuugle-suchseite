@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "engines": {
-        "node": "^20.17.0",
+        "node": "^20.19.6",
         "npm": ">=9.5"
     },
     "bugs": {
@@ -85,6 +85,6 @@
         "xmlbuilder2": "^3.0.2"
     },
     "volta": {
-        "node": "20.17.0"
+        "node": "20.19.6"
     }
 }

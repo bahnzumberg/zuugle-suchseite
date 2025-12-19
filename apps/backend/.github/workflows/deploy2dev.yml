@@ -12,8 +12,7 @@ jobs:
             - name: Install Node.js
               uses: actions/setup-node@v4
               with:
-                  # node-version: '19.8.1'
-                  node-version: "20.3.0"
+                  node-version: "20.19.6"
 
             - name: Cache node_modules
               id: cache-npm
@@ -52,7 +51,7 @@ jobs:
                   port: ${{ secrets.UAT_REMOTE_PORT }}
                   command_timeout: 60m
                   script: |
-                      export PATH=$PATH:/root/.nvm/versions/node/v20.3.0/bin
+                      export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
                       cd ${{ secrets.DEV_REMOTE_TARGET }}
                       npm install --omit=dev
                       ./restore_databases.sh
@@ -70,7 +69,7 @@ jobs:
             - name: Install Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20.3.0"
+                  node-version: "20.19.6"
             - name: Install npm dependencies
               run: npm install
             - name: Run API Tests
