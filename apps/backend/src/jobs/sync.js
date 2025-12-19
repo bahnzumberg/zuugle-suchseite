@@ -1,10 +1,7 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
-import {
-    createImagesFromMap,
-    last_two_characters,
-} from "../utils/gpx/gpxUtils";
+import { createImagesFromMap, last_two_characters } from "../utils/gpx/gpxUtils";
 import moment from "moment";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
@@ -290,15 +287,11 @@ export async function fixTours() {
                     FROM logsearchphrase
                     WHERE search_time < NOW() - INTERVAL '180 days';`);
     // Delete all the entries from logsearchphrase, which are older than 180 days.
-    await knex.raw(
-        `DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '180 days';`,
-    );
+    await knex.raw(`DELETE FROM logsearchphrase WHERE search_time < NOW() - INTERVAL '180 days';`);
 
     // Check all entries of column image_url in table tour
     // First, we remove all images producing 404, which are already stored there - mainly provider bahnzumberg
-    const tour_image_url = await knex("tour")
-        .select(["id", "image_url"])
-        .whereNotNull("image_url");
+    const tour_image_url = await knex("tour").select(["id", "image_url"]).whereNotNull("image_url");
 
     if (tour_image_url) {
         try {
@@ -306,13 +299,9 @@ export async function fixTours() {
                 try {
                     if (
                         entry.image_url !=
-                        encodeURI(entry.image_url)
-                            .replace(/%5B/g, "[")
-                            .replace(/%5D/g, "]")
+                        encodeURI(entry.image_url).replace(/%5B/g, "[").replace(/%5D/g, "]")
                     ) {
-                        await knex.raw(
-                            `UPDATE tour SET image_url = NULL WHERE id=${entry.id}`,
-                        );
+                        await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
                         // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
                     } else {
                         const options = {
@@ -322,18 +311,13 @@ export async function fixTours() {
                             if (error || response.statusCode != 200) {
                                 // console.log("Response: ", response)
                                 // console.log("Error: ", error)
-                                knex.raw(
-                                    `UPDATE tour SET image_url = NULL WHERE id=${entry.id}`,
-                                );
+                                knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
                                 // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
                             }
                         });
                     }
                 } catch (err) {
-                    console.log(
-                        "const updatePromises = tour_image_url.map: ",
-                        err,
-                    );
+                    console.log("const updatePromises = tour_image_url.map: ", err);
                 }
             });
             await Promise.all(updatePromises);
@@ -362,11 +346,7 @@ export async function copyRangeImage() {
 
     try {
         for (const range of ranges) {
-            const fs_source = path.join(
-                __dirname,
-                dir_go_up,
-                "public/range-image/default.webp",
-            );
+            const fs_source = path.join(__dirname, dir_go_up, "public/range-image/default.webp");
             const fs_target = path.join(
                 __dirname,
                 dir_go_up,
@@ -375,10 +355,7 @@ export async function copyRangeImage() {
 
             if (!fs.existsSync(fs_target)) {
                 await fs.promises.copyFile(fs_source, fs_target);
-                console.log(
-                    "No image for range found. Copying from default: ",
-                    fs_target,
-                );
+                console.log("No image for range found. Copying from default: ", fs_target);
             }
         }
     } catch (error) {
@@ -398,10 +375,7 @@ const prepareDirectories = () => {
         "public/gpx-track/fromtour/",
     ];
 
-    console.log(
-        moment().format("YYYY-MM-DD HH:mm:ss"),
-        " Start deleting old files",
-    );
+    console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Start deleting old files");
     for (const i in dirPaths) {
         // On server (production): __dirname = /root/suchseite/api/jobs/
         //   -> We need to go up one level to /root/suchseite/api/ where public/ is
@@ -455,11 +429,7 @@ export async function copyDump(localPath, remotePath) {
     return new Promise((resolve, reject) => {
         const container = getContainerName();
         console.log(`Copying dump to container ${container}...`);
-        const dockerProc = spawn("docker", [
-            "cp",
-            localPath,
-            `${container}:${remotePath}`,
-        ]);
+        const dockerProc = spawn("docker", ["cp", localPath, `${container}:${remotePath}`]);
 
         dockerProc.stderr.on("data", (data) => {
             console.error(`docker cp stderr: ${data}`);
@@ -467,9 +437,7 @@ export async function copyDump(localPath, remotePath) {
 
         dockerProc.on("close", (code) => {
             if (code === 0) {
-                console.log(
-                    `Dump copied successfully to ${container}:${remotePath}`,
-                );
+                console.log(`Dump copied successfully to ${container}:${remotePath}`);
                 resolve(undefined);
             } else {
                 reject(new Error(`docker cp exited with code ${code}`));
@@ -494,9 +462,7 @@ export async function restoreDump() {
                 : process.env.DB_USER || "postgres";
         const dbDump = "/tmp/zuugle_postgresql.dump";
 
-        console.log(
-            `Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`,
-        );
+        console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
         const dockerProc = spawn("docker", [
             "exec",
             container,
@@ -528,9 +494,7 @@ export async function restoreDump() {
 
 export async function writeKPIs() {
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_tours';`);
-    await knex.raw(
-        `INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;`,
-    );
+    await knex.raw(`INSERT INTO kpi SELECT 'total_tours', COUNT(id) FROM tour;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name LIKE 'total_tours_%';`);
     await knex.raw(`INSERT INTO kpi SELECT 
@@ -542,32 +506,22 @@ export async function writeKPIs() {
                                     GROUP BY f.city_slug;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
-    await knex.raw(
-        `INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;`,
-    );
+    await knex.raw(`INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_ranges';`);
-    await knex.raw(
-        `INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;`,
-    );
+    await knex.raw(`INSERT INTO kpi SELECT 'total_ranges', COUNT(DISTINCT range) FROM tour;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_cities';`);
-    await knex.raw(
-        `INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;`,
-    );
+    await knex.raw(`INSERT INTO kpi SELECT 'total_cities', COUNT(DISTINCT city_slug) FROM city;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_provider';`);
-    await knex.raw(
-        `INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`,
-    );
+    await knex.raw(`INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`);
 }
 
 export async function getProvider(retryCount = 0, maxRetries = 3) {
     try {
         await knex.raw(`TRUNCATE provider;`);
-        const query_result = await knexTourenDb(
-            "vw_provider_to_search",
-        ).select();
+        const query_result = await knexTourenDb("vw_provider_to_search").select();
 
         if (query_result.length > 0) {
             for (const entry of query_result) {
@@ -583,9 +537,7 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
         console.error("Error in getProvider:", err);
 
         if (retryCount < maxRetries) {
-            console.log(
-                `Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`,
-            );
+            console.log(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
             return getProvider(retryCount + 1, maxRetries);
         } else {
             console.error("Max retries reached. Giving up.");
@@ -596,9 +548,7 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
 
 export async function generateTestdata() {
     try {
-        await knex.raw(
-            `DELETE FROM logsearchphrase WHERE phrase LIKE 'TEST%';`,
-        );
+        await knex.raw(`DELETE FROM logsearchphrase WHERE phrase LIKE 'TEST%';`);
 
         /* Testdata into logsearchphrase */
         await knex.raw(
@@ -716,9 +666,7 @@ export async function syncConnectionGPX() {
         for (const entry of toTourFahrplan) {
             await _syncConnectionGPX(
                 entry.totour_track_key,
-                "public/gpx-track/totour/" +
-                    last_two_characters(entry.totour_track_key) +
-                    "/",
+                "public/gpx-track/totour/" + last_two_characters(entry.totour_track_key) + "/",
                 entry.totour_track_key + ".gpx",
                 "Station zur Tour",
             );
@@ -734,9 +682,7 @@ export async function syncConnectionGPX() {
         for (const entry of fromTourFahrplan) {
             await _syncConnectionGPX(
                 entry.fromtour_track_key,
-                "public/gpx-track/fromtour/" +
-                    last_two_characters(entry.fromtour_track_key) +
-                    "/",
+                "public/gpx-track/fromtour/" + last_two_characters(entry.fromtour_track_key) + "/",
                 entry.fromtour_track_key + ".gpx",
                 "Tour zur Station",
             );
@@ -754,10 +700,7 @@ export async function syncConnectionGPX() {
 export async function syncGPX() {
     prepareDirectories();
     var allTours = null;
-    console.log(
-        moment().format("YYYY-MM-DD HH:mm:ss"),
-        " Creating gpx files for all tours",
-    );
+    console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Creating gpx files for all tours");
     allTours = await knex("tour").select(["title", "id", "hashed_url"]);
     var allTourlength = allTours.length;
     if (!!allTours && allTours.length > 0) {
@@ -767,11 +710,7 @@ export async function syncGPX() {
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
                 await _syncGPX(entry.id, entry.hashed_url, entry.title);
             } catch (error) {
-                console.log(
-                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                    " Error in syncGPX: ",
-                    error,
-                );
+                console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Error in syncGPX: ", error);
             }
         }
     }
@@ -792,21 +731,9 @@ async function _syncGPX(id, h_url, title) {
         var fileName = id + ".gpx";
         var filePath = "";
         if (process.env.NODE_ENV == "production") {
-            filePath = path.join(
-                __dirname,
-                "../",
-                "public/gpx/",
-                last_two_characters(id),
-                "/",
-            );
+            filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
         } else {
-            filePath = path.join(
-                __dirname,
-                "../../",
-                "public/gpx/",
-                last_two_characters(id),
-                "/",
-            );
+            filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
         }
         if (!fs.existsSync(filePath)) {
             fs.mkdirSync(filePath, { recursive: true });
@@ -821,17 +748,10 @@ async function _syncGPX(id, h_url, title) {
                     .where({ hashed_url: h_url })
                     .orderBy("waypoint");
             } catch (err) {
-                console.log(
-                    "Error in _syncGPX while trying to execute waypoints query: ",
-                    err,
-                );
+                console.log("Error in _syncGPX while trying to execute waypoints query: ", err);
             }
             if (!!waypoints && waypoints.length > 0 && !!filePathName) {
-                const writePromise = createFileFromGpx(
-                    waypoints,
-                    filePathName,
-                    title,
-                );
+                const writePromise = createFileFromGpx(waypoints, filePathName, title);
                 // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
                 activeFileWrites.push(writePromise);
                 writePromise.finally(() => {
@@ -862,10 +782,7 @@ export async function syncGPXImage() {
             });
         }
         if (toCreate) {
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                " Start to create gpx image files",
-            );
+            console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Start to create gpx image files");
             await createImagesFromMap(toCreate.map((e) => e.id));
         }
 
@@ -924,9 +841,7 @@ export async function syncTours() {
     await knex.raw(`TRUNCATE tour;`);
 
     let limit = 100;
-    const countResult = await knexTourenDb("vw_touren_to_search").count(
-        "* as anzahl",
-    );
+    const countResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
 
     let count = 0;
     if (!!countResult && countResult.length == 1 && countResult[0]["anzahl"]) {
@@ -1031,182 +946,24 @@ const calcMonthOrder = (entry) => {
     ];
 
     let MonthScore = [
-        [
-            "jan",
-            "feb",
-            "dec",
-            "mar",
-            "nov",
-            "apr",
-            "oct",
-            "may",
-            "sep",
-            "jun",
-            "aug",
-            "jul",
-        ],
-        [
-            "feb",
-            "jan",
-            "mar",
-            "apr",
-            "dec",
-            "may",
-            "nov",
-            "jun",
-            "oct",
-            "jul",
-            "sep",
-            "aug",
-        ],
-        [
-            "mar",
-            "feb",
-            "apr",
-            "jan",
-            "may",
-            "jun",
-            "dec",
-            "jul",
-            "nov",
-            "aug",
-            "oct",
-            "sep",
-        ],
-        [
-            "apr",
-            "mar",
-            "may",
-            "feb",
-            "jun",
-            "jan",
-            "jul",
-            "aug",
-            "dec",
-            "sep",
-            "nov",
-            "oct",
-        ],
-        [
-            "may",
-            "apr",
-            "jun",
-            "mar",
-            "jul",
-            "feb",
-            "aug",
-            "jan",
-            "sep",
-            "oct",
-            "dec",
-            "nov",
-        ],
-        [
-            "jun",
-            "may",
-            "jul",
-            "apr",
-            "aug",
-            "mar",
-            "sep",
-            "feb",
-            "oct",
-            "jan",
-            "nov",
-            "dec",
-        ],
-        [
-            "jul",
-            "jun",
-            "aug",
-            "sep",
-            "may",
-            "oct",
-            "apr",
-            "nov",
-            "mar",
-            "feb",
-            "dec",
-            "jan",
-        ],
-        [
-            "aug",
-            "jul",
-            "sep",
-            "jun",
-            "oct",
-            "may",
-            "nov",
-            "apr",
-            "dec",
-            "jan",
-            "mar",
-            "feb",
-        ],
-        [
-            "sep",
-            "oct",
-            "aug",
-            "nov",
-            "jul",
-            "dec",
-            "jun",
-            "jan",
-            "may",
-            "feb",
-            "apr",
-            "mar",
-        ],
-        [
-            "oct",
-            "sep",
-            "nov",
-            "aug",
-            "dec",
-            "jan",
-            "jul",
-            "feb",
-            "jun",
-            "mar",
-            "may",
-            "apr",
-        ],
-        [
-            "nov",
-            "oct",
-            "dec",
-            "jan",
-            "sep",
-            "feb",
-            "aug",
-            "mar",
-            "jul",
-            "apr",
-            "jun",
-            "may",
-        ],
-        [
-            "dec",
-            "jan",
-            "nov",
-            "feb",
-            "oct",
-            "mar",
-            "sep",
-            "apr",
-            "aug",
-            "may",
-            "jul",
-            "jun",
-        ],
+        ["jan", "feb", "dec", "mar", "nov", "apr", "oct", "may", "sep", "jun", "aug", "jul"],
+        ["feb", "jan", "mar", "apr", "dec", "may", "nov", "jun", "oct", "jul", "sep", "aug"],
+        ["mar", "feb", "apr", "jan", "may", "jun", "dec", "jul", "nov", "aug", "oct", "sep"],
+        ["apr", "mar", "may", "feb", "jun", "jan", "jul", "aug", "dec", "sep", "nov", "oct"],
+        ["may", "apr", "jun", "mar", "jul", "feb", "aug", "jan", "sep", "oct", "dec", "nov"],
+        ["jun", "may", "jul", "apr", "aug", "mar", "sep", "feb", "oct", "jan", "nov", "dec"],
+        ["jul", "jun", "aug", "sep", "may", "oct", "apr", "nov", "mar", "feb", "dec", "jan"],
+        ["aug", "jul", "sep", "jun", "oct", "may", "nov", "apr", "dec", "jan", "mar", "feb"],
+        ["sep", "oct", "aug", "nov", "jul", "dec", "jun", "jan", "may", "feb", "apr", "mar"],
+        ["oct", "sep", "nov", "aug", "dec", "jan", "jul", "feb", "jun", "mar", "may", "apr"],
+        ["nov", "oct", "dec", "jan", "sep", "feb", "aug", "mar", "jul", "apr", "jun", "may"],
+        ["dec", "jan", "nov", "feb", "oct", "mar", "sep", "apr", "aug", "may", "jul", "jun"],
     ];
 
     let Monthname = "";
     for (let i = 0; i <= 11; i++) {
         Monthname = MonthScore[month][i];
-        var Monthobject = entryScore.find(
-            (Monthvalue) => Monthvalue.name === Monthname,
-        );
+        var Monthobject = entryScore.find((Monthvalue) => Monthvalue.name === Monthname);
 
         if (Monthobject.value == "true") {
             return Math.floor(i / 6) * 2;
@@ -1333,8 +1090,7 @@ const bulk_insert_tours = async (entries) => {
             sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
         }
 
-        sql_values =
-            sql_values + "'" + entry.text_lang + "'" + "," + entry.maxele + ")";
+        sql_values = sql_values + "'" + entry.text_lang + "'" + "," + entry.maxele + ")";
     }
 
     const sql_insert = `INSERT INTO tour (id, 

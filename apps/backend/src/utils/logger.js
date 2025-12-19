@@ -8,8 +8,7 @@ export default function (text) {
     if (onoffswitch == "on" || process.env.NODE_ENV !== "production") {
         // Either onoffswitch is set to 'on' or we are not on prod or uat
 
-        const proddevPath =
-            process.env.NODE_ENV !== "production" ? "../../" : "../../";
+        const proddevPath = process.env.NODE_ENV !== "production" ? "../../" : "../../";
         const filePath = path.join(__dirname, proddevPath, "logs/api.log");
 
         // Ensure the directory exists
@@ -30,18 +29,7 @@ export default function (text) {
         let minutes = date_ob.getMinutes();
         let seconds = date_ob.getSeconds();
         let log_date_time =
-            year +
-            "-" +
-            month +
-            "-" +
-            day +
-            " " +
-            hours +
-            ":" +
-            minutes +
-            ":" +
-            seconds +
-            " ";
+            year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds + " ";
 
         // add log entry
         fs.appendFileSync(filePath, log_date_time + text + "\n");

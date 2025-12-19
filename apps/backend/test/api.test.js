@@ -17,11 +17,7 @@ const waitForServer = async (url, retries = 24, delay = 5000) => {
         try {
             console.log(`Checking server status... ${i + 1}/${retries}`);
             const res = await fetch(url, { headers: getHeaders() });
-            if (
-                res.status !== 502 &&
-                res.status !== 503 &&
-                res.status !== 504
-            ) {
+            if (res.status !== 502 && res.status !== 503 && res.status !== 504) {
                 console.log(`Server responded with ${res.status}. Ready.`);
                 return;
             }

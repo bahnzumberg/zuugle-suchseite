@@ -39,8 +39,7 @@ export const getZuugleCors = () => {
 
 export const hostMiddleware = (req, res, next) => {
     const isPostman =
-        !!req.headers["user-agent"] &&
-        req.headers["user-agent"].indexOf("Postman") >= 0;
+        !!req.headers["user-agent"] && req.headers["user-agent"].indexOf("Postman") >= 0;
     const hostWhitelist = [
         "localhost:8080",
         "localhost:3000",

@@ -31,14 +31,7 @@ const listWrapper = async (req, res) => {
     const language = req.query.language;
     const tld = req.query.tld.toUpperCase();
 
-    const item = await createQuery(
-        "phrase",
-        "search_phrase",
-        city,
-        search,
-        language,
-        tld,
-    );
+    const item = await createQuery("phrase", "search_phrase", city, search, language, tld);
 
     const result = item;
 
@@ -62,9 +55,7 @@ const createQuery = async (field, alias, city, search, language, tld) => {
         query = query.andWhere("menu_lang", language);
     }
 
-    query = query.andWhereRaw(
-        `search_time > CURRENT_DATE - INTERVAL '12 MONTH'`,
-    );
+    query = query.andWhereRaw(`search_time > CURRENT_DATE - INTERVAL '12 MONTH'`);
 
     const normalizedField = `LOWER(TRIM(${field}))`;
     const searchTerm = `${search.trim().toLowerCase()}%`;

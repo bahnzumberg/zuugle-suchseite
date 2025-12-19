@@ -40,20 +40,8 @@ app.use("/public", cors(corsOptions), express.static("public"));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
-app.use(
-    "/api/language",
-    cors(corsOptions),
-    hostMiddleware,
-    authenticate,
-    language,
-);
-app.use(
-    "/api/searchPhrases",
-    cors(corsOptions),
-    hostMiddleware,
-    authenticate,
-    searchPhrases,
-);
+app.use("/api/language", cors(corsOptions), hostMiddleware, authenticate, language);
+app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
 swaggerDocs(app);
 
 app.listen(port, () => console.log("Running on localhost:" + port));

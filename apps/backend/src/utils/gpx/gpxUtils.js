@@ -21,10 +21,7 @@ const activeDbUpdates = []; // Warteschlange für Datenbank-Updates
 const createLondonReferenceHash = async (imagePath) => {
     try {
         const imageBuffer = await sharp(imagePath).toBuffer();
-        const hash = crypto
-            .createHash("sha256")
-            .update(imageBuffer)
-            .digest("hex");
+        const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
         return hash;
     } catch (e) {
         console.error("Error creating London reference hash:", e);
@@ -41,10 +38,7 @@ const isImageLondon = async (imagePath) => {
 
     try {
         const imageBuffer = await sharp(imagePath).toBuffer();
-        const hash = crypto
-            .createHash("sha256")
-            .update(imageBuffer)
-            .digest("hex");
+        const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
 
         // Simple comparison of the SHA-256 hash.
         if (hash === londonReferenceHash || hash === error502ReferenceHash) {
@@ -104,19 +98,14 @@ const setTourImageURL = async (tour_id, image_url, force = false) => {
 
             try {
                 if (force) {
-                    await knex.raw(
-                        `UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`,
-                    );
+                    await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`);
                 } else {
                     await knex.raw(
                         `UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
                     );
                 }
             } catch (e) {
-                console.error(
-                    `Error in setTourImageURL with tour_id=${tour_id}: `,
-                    e,
-                );
+                console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e);
             }
         }
     }
@@ -145,13 +134,8 @@ const dispatchDbUpdate = async (tourId, imageUrl, force) => {
 // Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
 const handleImagePlaceholder = async (tourId, isProd) => {
     try {
-        const result = await knex.raw(
-            `SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`,
-        );
-        const rangeSlug =
-            result.rows && result.rows.length > 0
-                ? result.rows[0].range_slug
-                : null;
+        const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`);
+        const rangeSlug = result.rows && result.rows.length > 0 ? result.rows[0].range_slug : null;
 
         if (rangeSlug) {
             const imageUrl = `/public/range-image/${rangeSlug}.webp`;
@@ -161,9 +145,7 @@ const handleImagePlaceholder = async (tourId, isProd) => {
             );
             await dispatchDbUpdate(
                 tourId,
-                isProd
-                    ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp`
-                    : imageUrl,
+                isProd ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl,
                 true,
             );
         } else {
@@ -192,19 +174,8 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 };
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (
-    ch,
-    lastTwoChars,
-    browser,
-    isProd,
-    dir_go_up,
-    url,
-) => {
-    let dirPath = path.join(
-        __dirname,
-        dir_go_up,
-        "public/gpx-image/" + lastTwoChars + "/",
-    );
+const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
+    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
     let filePath = path.join(dirPath, ch + "_gpx.png");
     let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
     const MAX_GENERATION_TIME = 300000;
@@ -221,10 +192,7 @@ const processAndCreateImage = async (
             100,
         );
         const timeoutPromise = new Promise((resolve, reject) => {
-            setTimeout(
-                () => reject(new Error("Image generation timeout")),
-                MAX_GENERATION_TIME,
-            );
+            setTimeout(() => reject(new Error("Image generation timeout")), MAX_GENERATION_TIME);
         });
 
         await Promise.race([generationPromise, timeoutPromise]);
@@ -272,11 +240,7 @@ const processAndCreateImage = async (
                     } else {
                         dispatchDbUpdate(
                             ch,
-                            "/public/gpx-image/" +
-                                lastTwoChars +
-                                "/" +
-                                ch +
-                                "_gpx_small.webp",
+                            "/public/gpx-image/" + lastTwoChars + "/" + ch + "_gpx_small.webp",
                             true,
                         );
                     }
@@ -328,8 +292,7 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
 
         try {
             const stats = await fs.promises.stat(filePath);
-            const isOlderThan30Days =
-                Date.now() - stats.mtimeMs > thirtyDaysInMs;
+            const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
             const shouldBeDeleted = Math.random() < 0.1;
 
             if (isOlderThan30Days && shouldBeDeleted) {
@@ -360,10 +323,7 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
         );
         await createImagesFromMap(idsToRecreate, true); // Übergibt das Flag 'true' um keine weitere Rekursion zuzulassen
     } else {
-        console.log(
-            moment().format("YYYY-MM-DD HH:mm:ss"),
-            `No old images found to recreate.`,
-        );
+        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), `No old images found to recreate.`);
     }
 };
 
@@ -384,33 +344,20 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             dir_go_up = "../../../";
         }
 
-        const londonImagePath = path.join(
-            __dirname,
-            dir_go_up,
-            "public/london.webp",
-        );
+        const londonImagePath = path.join(__dirname, dir_go_up, "public/london.webp");
         if (fs.existsSync(londonImagePath)) {
-            londonReferenceHash =
-                await createLondonReferenceHash(londonImagePath);
+            londonReferenceHash = await createLondonReferenceHash(londonImagePath);
             console.log("London reference hash created:", londonReferenceHash);
         } else {
             console.error("London reference image not found:", londonImagePath);
         }
 
-        const error502ImagePath = path.join(
-            __dirname,
-            dir_go_up,
-            "public/502-error.webp",
-        );
+        const error502ImagePath = path.join(__dirname, dir_go_up, "public/502-error.webp");
         if (fs.existsSync(error502ImagePath)) {
-            error502ReferenceHash =
-                await createLondonReferenceHash(error502ImagePath);
+            error502ReferenceHash = await createLondonReferenceHash(error502ImagePath);
             console.log("502 reference hash created:", error502ReferenceHash);
         } else {
-            console.error(
-                "502-error reference image not found:",
-                error502ReferenceHash,
-            );
+            console.error("502-error reference image not found:", error502ReferenceHash);
         }
     }
 
@@ -455,10 +402,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     dir_go_up,
                     "public/gpx-image/" + lastTwoChars + "/",
                 );
-                let filePathSmallWebp = path.join(
-                    dirPath,
-                    ch + "_gpx_small.webp",
-                );
+                let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
                 try {
                     await fs.promises.stat(filePathSmallWebp);
                     idsForUpdate.push(ch);
@@ -497,11 +441,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         } else {
                             dispatchDbUpdate(
                                 ch,
-                                "/public/gpx-image/" +
-                                    lastTwoChars +
-                                    "/" +
-                                    ch +
-                                    "_gpx_small.webp",
+                                "/public/gpx-image/" + lastTwoChars + "/" + ch + "_gpx_small.webp",
                                 false,
                             );
                         }
@@ -528,15 +468,11 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         const ret = [];
                         const executing = [];
                         for (const item of array) {
-                            const p = Promise.resolve().then(() =>
-                                iteratorFn(item, array),
-                            );
+                            const p = Promise.resolve().then(() => iteratorFn(item, array));
                             ret.push(p);
 
                             if (poolLimit <= array.length) {
-                                const e = p.then(() =>
-                                    executing.splice(executing.indexOf(e), 1),
-                                );
+                                const e = p.then(() => executing.splice(executing.indexOf(e), 1));
                                 executing.push(e);
                                 if (executing.length >= poolLimit) {
                                     await Promise.race(executing);
@@ -548,42 +484,36 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                     let stopProcessing = false;
 
-                    await asyncPool(
-                        PARALLEL_LIMIT,
-                        idsForCreation,
-                        async (ch) => {
-                            if (stopProcessing) return;
+                    await asyncPool(PARALLEL_LIMIT, idsForCreation, async (ch) => {
+                        if (stopProcessing) return;
 
-                            const now = new Date();
-                            const currentHour = now.getHours();
-                            if (currentHour >= 23) {
-                                if (!stopProcessing) {
-                                    console.log(
-                                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                                        "Stopping image creation due to time limit.",
-                                    );
-                                    stopProcessing = true;
-                                }
-                                return;
+                        const now = new Date();
+                        const currentHour = now.getHours();
+                        if (currentHour >= 23) {
+                            if (!stopProcessing) {
+                                console.log(
+                                    moment().format("YYYY-MM-DD HH:mm:ss"),
+                                    "Stopping image creation due to time limit.",
+                                );
+                                stopProcessing = true;
                             }
+                            return;
+                        }
 
-                            // Add random jitter (0-1000ms) to desynchronize workers and smooth CPU load
-                            const jitter = Math.floor(Math.random() * 1000);
-                            await new Promise((resolve) =>
-                                setTimeout(resolve, jitter),
-                            );
+                        // Add random jitter (0-1000ms) to desynchronize workers and smooth CPU load
+                        const jitter = Math.floor(Math.random() * 1000);
+                        await new Promise((resolve) => setTimeout(resolve, jitter));
 
-                            let lastTwoChars = last_two_characters(ch);
-                            await processAndCreateImage(
-                                ch,
-                                lastTwoChars,
-                                browser,
-                                isProd,
-                                dir_go_up,
-                                url,
-                            );
-                        },
-                    );
+                        let lastTwoChars = last_two_characters(ch);
+                        await processAndCreateImage(
+                            ch,
+                            lastTwoChars,
+                            browser,
+                            isProd,
+                            dir_go_up,
+                            url,
+                        );
+                    });
 
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -633,10 +563,7 @@ export const createImageFromMap = async (browser, filePath, url) => {
             }
         }
     } catch (err) {
-        console.log(
-            "Error in createImageFromMap error: Could not generate ",
-            filePath,
-        );
+        console.log("Error in createImageFromMap error: Could not generate ", filePath);
         console.log("Errormessage:", err.message);
     }
 };
@@ -657,11 +584,7 @@ export function last_two_characters(h_url) {
     }
 }
 
-export const mergeGpxFilesToOne = async (
-    fileMain,
-    fileAnreise,
-    fileAbreise,
-) => {
+export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => {
     let trackAnreise = await getSequenceFromFile(fileAnreise);
     let trackAbreise = await getSequenceFromFile(fileAbreise);
     try {
@@ -691,11 +614,7 @@ const getSequenceFromFile = async (file) => {
         const fileContent = await fs.readFile(file, "utf-8");
         if (fileContent) {
             const jsObj = convertXML.xml2js(fileContent);
-            if (
-                !!jsObj &&
-                jsObj.elements.length > 0 &&
-                jsObj.elements[0].elements.length > 0
-            ) {
+            if (!!jsObj && jsObj.elements.length > 0 && jsObj.elements[0].elements.length > 0) {
                 const found = jsObj.elements[0].elements[0];
                 return found;
             }

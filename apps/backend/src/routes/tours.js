@@ -3,18 +3,9 @@ let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
 import crypto from "crypto";
-import {
-    mergeGpxFilesToOne,
-    last_two_characters,
-    hashedUrlsFromPoi,
-} from "../utils/gpx/gpxUtils";
+import { mergeGpxFilesToOne, last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
 import moment from "moment";
-import {
-    getHost,
-    replaceFilePath,
-    get_domain_country,
-    isNumber,
-} from "../utils/utils";
+import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/helper";
 import { convertDifficulty } from "../utils/dataConversion";
 
@@ -33,9 +24,7 @@ router.get("/filter", (req, res) => filterWrapper(req, res));
 router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
 
 router.get("/total", (req, res) => totalWrapper(req, res));
-router.get("/:id/connections-extended", (req, res) =>
-    connectionsExtendedWrapper(req, res),
-);
+router.get("/:id/connections-extended", (req, res) => connectionsExtendedWrapper(req, res));
 router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
 router.get("/:id/:city", (req, res) => getWrapper(req, res));
 
@@ -100,11 +89,7 @@ const totalWrapper = async (req, res) => {
 };
 
 const getWrapper = async (req, res) => {
-    const city = req.query.city
-        ? req.query.city
-        : req.params.city
-          ? req.params.city
-          : null;
+    const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
     const id = parseInt(req.params.id, 10);
     const domain = req.query.domain;
 
@@ -362,10 +347,7 @@ const listWrapper = async (req, res) => {
         ...filterJSON,
     };
 
-    if (
-        typeof filterJSON !== "undefined" &&
-        filter_string != `{ ignore_filter: 'true' }`
-    ) {
+    if (typeof filterJSON !== "undefined" && filter_string != `{ ignore_filter: 'true' }`) {
         if (filterJSON["singleDayTour"] && !filterJSON["multipleDayTour"]) {
             new_filter_where_singleDayTour = `AND t.number_of_days=1 `;
         }
@@ -394,17 +376,11 @@ const listWrapper = async (req, res) => {
             new_filter_where_Ascent += `AND t.ascent <= ${filterJSON["maxAscent"]} `;
         }
 
-        if (
-            isNumber(filterJSON["minDescent"]) &&
-            filterJSON["minDescent"] >= 0
-        ) {
+        if (isNumber(filterJSON["minDescent"]) && filterJSON["minDescent"] >= 0) {
             new_filter_where_Descent += `AND t.descent >= ${filterJSON["minDescent"]} `;
         }
 
-        if (
-            isNumber(filterJSON["maxDescent"]) &&
-            filterJSON["maxDescent"] >= 0
-        ) {
+        if (isNumber(filterJSON["maxDescent"]) && filterJSON["maxDescent"] >= 0) {
             new_filter_where_Descent += `AND t.descent <= ${filterJSON["maxDescent"]} `;
         }
 
@@ -422,17 +398,11 @@ const listWrapper = async (req, res) => {
             new_filter_where_TransportDuration += `AND c2t.min_connection_duration <= ${filterJSON["maxTransportDuration"] * 60} `;
         }
 
-        if (
-            isNumber(filterJSON["minDistance"]) &&
-            filterJSON["minDistance"] > 0
-        ) {
+        if (isNumber(filterJSON["minDistance"]) && filterJSON["minDistance"] > 0) {
             new_filter_where_Distance += `AND t.distance >= ${filterJSON["minDistance"]} `;
         }
 
-        if (
-            isNumber(filterJSON["maxDistance"]) &&
-            filterJSON["maxDistance"] > 0
-        ) {
+        if (isNumber(filterJSON["maxDistance"]) && filterJSON["maxDistance"] > 0) {
             new_filter_where_Distance += `AND t.distance <= ${filterJSON["maxDistance"]} `;
         }
 
@@ -539,11 +509,7 @@ const listWrapper = async (req, res) => {
 
     if (parsedPoi && parsedPoi.lat && parsedPoi.lng) {
         const radius = parsedPoi.radius ? parsedPoi.radius : 5000;
-        const hashed_urls = await hashedUrlsFromPoi(
-            parsedPoi.lat,
-            parsedPoi.lng,
-            radius,
-        );
+        const hashed_urls = await hashedUrlsFromPoi(parsedPoi.lat, parsedPoi.lng, radius);
         if (hashed_urls === null) {
             new_filter_where_poi = ``;
         } else if (hashed_urls.length !== 0) {
@@ -697,9 +663,7 @@ const listWrapper = async (req, res) => {
         if (result_sql && result_sql.rows) {
             result = result_sql.rows;
         } else {
-            console.log(
-                "knex.raw(new_search_sql): result or result.rows is null or undefined.",
-            );
+            console.log("knex.raw(new_search_sql): result or result.rows is null or undefined.");
         }
     } catch (error) {
         console.log("Error firing new_search_sql:", error);
@@ -710,9 +674,7 @@ const listWrapper = async (req, res) => {
     // ****************************************************************
     let sql_count = 0;
     try {
-        let count_query = knex.raw(
-            `SELECT COUNT(*) AS row_count FROM ${temp_table};`,
-        );
+        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM ${temp_table};`);
         let sql_count_call = await count_query;
         sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
         // console.log("count_sql: ", count_sql)
@@ -795,8 +757,8 @@ const listWrapper = async (req, res) => {
                 (entry) =>
                     new Promise((resolve) => {
                         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
-                        prepareTourEntry(entry, city, domain, addDetails).then(
-                            (updatedEntry) => resolve(updatedEntry),
+                        prepareTourEntry(entry, city, domain, addDetails).then((updatedEntry) =>
+                            resolve(updatedEntry),
                         );
                     }),
             ),
@@ -964,9 +926,7 @@ const filterWrapper = async (req, res) => {
 
     await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`);
     await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`);
-    await knex.raw(
-        `CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`,
-    );
+    await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`);
     await knex.raw(`CREATE INDEX idx_provider ON ${temp_table} (provider);`);
 
     let kpi_sql = `SELECT 
@@ -1110,11 +1070,7 @@ const filterWrapper = async (req, res) => {
 
 const connectionsExtendedWrapper = async (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const city = req.query.city
-        ? req.query.city
-        : req.params.city
-          ? req.params.city
-          : null;
+    const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
     const domain = req.query.domain;
 
     if (isNaN(id) || !city) {
@@ -1160,9 +1116,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             )
                 .tz("Europe/Berlin")
                 .format();
-            connection.return_departure_datetime = momenttz(
-                connection.return_departure_datetime,
-            )
+            connection.return_departure_datetime = momenttz(connection.return_departure_datetime)
                 .tz("Europe/Berlin")
                 .format();
             return connection;
@@ -1176,9 +1130,7 @@ const connectionsExtendedWrapper = async (req, res) => {
 
     while (today.isBefore(end)) {
         const byWeekday = connections.filter(
-            (conn) =>
-                moment(conn.calendar_date).format("DD.MM.YYYY") ==
-                today.format("DD.MM.YYYY"),
+            (conn) => moment(conn.calendar_date).format("DD.MM.YYYY") == today.format("DD.MM.YYYY"),
         );
         const duplicatesRemoved = [];
 
@@ -1187,9 +1139,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.connection_duration_minutes = minutesFromMoment(
                 moment(e.connection_duration, "HH:mm:ss"),
             );
-            e.return_duration_minutes = minutesFromMoment(
-                moment(e.return_duration, "HH:mm:ss"),
-            );
+            e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
             if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
                 e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
@@ -1200,11 +1150,7 @@ const connectionsExtendedWrapper = async (req, res) => {
         result.push({
             date: today.format(),
             connections: duplicatesRemoved,
-            returns: getReturnConnectionsByConnection(
-                connections,
-                domain,
-                today,
-            ),
+            returns: getReturnConnectionsByConnection(connections, domain, today),
         });
         today.add(1, "day");
     }
@@ -1228,9 +1174,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
     let _duplicatesRemoved = [];
 
     _connections = connections.filter(
-        (conn) =>
-            moment(conn.calendar_date).format("DD.MM.YYYY") ==
-            today.format("DD.MM.YYYY"),
+        (conn) => moment(conn.calendar_date).format("DD.MM.YYYY") == today.format("DD.MM.YYYY"),
     );
 
     //filter and map
@@ -1239,9 +1183,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
         e.connection_duration_minutes = minutesFromMoment(
             moment(e.connection_duration, "HH:mm:ss"),
         );
-        e.return_duration_minutes = minutesFromMoment(
-            moment(e.return_duration, "HH:mm:ss"),
-        );
+        e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
         if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
             e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
@@ -1287,15 +1229,10 @@ const tourGpxWrapper = async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=31557600");
 
     try {
-        let BASE_PATH =
-            process.env.NODE_ENV === "production" ? "../" : "../../";
+        let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
         if (type == "all") {
             let filePathMain = replaceFilePath(
-                path.join(
-                    __dirname,
-                    BASE_PATH,
-                    `/public/gpx/${last_two_characters(id)}/${id}.gpx`,
-                ),
+                path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`),
             );
             let filePathAbreise = replaceFilePath(
                 path.join(
@@ -1312,11 +1249,7 @@ const tourGpxWrapper = async (req, res) => {
                 ),
             );
 
-            const xml = await mergeGpxFilesToOne(
-                filePathMain,
-                filePathAnreise,
-                filePathAbreise,
-            );
+            const xml = await mergeGpxFilesToOne(filePathMain, filePathAnreise, filePathAbreise);
             if (xml) {
                 res.status(200).send(xml);
             } else {

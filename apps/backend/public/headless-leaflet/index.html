@@ -6,11 +6,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link
-            rel="shortcut icon"
-            type="image/x-icon"
-            href="docs/images/favicon.ico"
-        />
+        <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
 
         <link
             rel="stylesheet"
@@ -59,34 +55,23 @@
 
             function getStartIcon() {}
 
-            var map = L.map("map", { zoomControl: false }).setView(
-                [51.505, -0.09],
-                14,
-            );
+            var map = L.map("map", { zoomControl: false }).setView([51.505, -0.09], 14);
 
             // We use deliberately png instead of webp here, because the png is higher quality
-            var tiles = L.tileLayer(
-                "https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png",
-                {
-                    maxZoom: 17,
-                    id: "mapbox/streets-v11",
-                    tileSize: 512,
-                    zoomOffset: -1,
-                },
-            ).addTo(map);
+            var tiles = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
+                maxZoom: 17,
+                id: "mapbox/streets-v11",
+                tileSize: 512,
+                zoomOffset: -1,
+            }).addTo(map);
 
             if (gpxTrackUrls.length > 0) {
                 new L.GPX(gpxTrackUrls[0], {
                     async: true,
                     marker_options: {
                         startIconUrl:
-                            gpxTrackUrls.length == 1
-                                ? "startpunkt.png"
-                                : "transparent.png",
-                        endIconUrl:
-                            gpxTrackUrls.length == 1
-                                ? "zielpunkt.png"
-                                : "transparent.png",
+                            gpxTrackUrls.length == 1 ? "startpunkt.png" : "transparent.png",
+                        endIconUrl: gpxTrackUrls.length == 1 ? "zielpunkt.png" : "transparent.png",
                         shadowUrl: "pin-shadow.png",
                     },
                     polyline_options: {

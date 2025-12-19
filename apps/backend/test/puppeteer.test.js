@@ -10,8 +10,7 @@ import fs from "fs";
 import path from "path";
 
 const TEST_GPX_URL = "https://www.zuugle.at/public/gpx/04/28904.gpx";
-const HEADLESS_LEAFLET_URL =
-    "https://www.zuugle.at/public/headless-leaflet/index.html";
+const HEADLESS_LEAFLET_URL = "https://www.zuugle.at/public/headless-leaflet/index.html";
 const TEST_SCREENSHOT_PATH = path.join(__dirname, "test_screenshot.png");
 
 describe("Puppeteer Image Generation", () => {
@@ -30,9 +29,7 @@ describe("Puppeteer Image Generation", () => {
             });
         } catch (error) {
             console.warn("Puppeteer browser launch failed:", error.message);
-            console.warn(
-                "Skipping Puppeteer tests - Chrome/Chromium not available",
-            );
+            console.warn("Skipping Puppeteer tests - Chrome/Chromium not available");
         }
     }, 60000);
 
