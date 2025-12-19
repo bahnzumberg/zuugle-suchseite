@@ -340,7 +340,9 @@ const listWrapper = async (req, res) => {
     let filter_string = filter;
     let filterJSON = undefined;
     try {
-        filterJSON = JSON.parse(filter_string);
+        if (filter_string) {
+            filterJSON = JSON.parse(filter_string);
+        }
     } catch (error) {
         filterJSON = undefined;
         console.log("Error parsing filter JSON: ", error);
