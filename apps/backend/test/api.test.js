@@ -1,17 +1,18 @@
-const baseUrl = process.env.API_BASE_URL || 'https://www2.zuugle.at';
+const baseUrl = process.env.API_BASE_URL || "https://www2.zuugle.at";
 const apiUser = process.env.API_USER;
 const apiPass = process.env.API_PASSWORD;
 
 const getHeaders = () => {
     const headers = {};
     if (apiUser && apiPass) {
-        const auth = Buffer.from(`${apiUser}:${apiPass}`).toString('base64');
-        headers['Authorization'] = `Basic ${auth}`;
+        const auth = Buffer.from(`${apiUser}:${apiPass}`).toString("base64");
+        headers["Authorization"] = `Basic ${auth}`;
     }
     return headers;
 };
 
-const waitForServer = async (url, retries = 24, delay = 5000) => { // 24 * 5s = 120s
+const waitForServer = async (url, retries = 24, delay = 5000) => {
+    // 24 * 5s = 120s
     for (let i = 0; i < retries; i++) {
         try {
             console.log(`Checking server status... ${i + 1}/${retries}`);
@@ -23,21 +24,20 @@ const waitForServer = async (url, retries = 24, delay = 5000) => { // 24 * 5s = 
         } catch (e) {
             console.log(`Server check failed: ${e.message}`);
         }
-        await new Promise(r => setTimeout(r, delay));
+        await new Promise((r) => setTimeout(r, delay));
     }
-    throw new Error('Server not ready after multiple attempts');
+    throw new Error("Server not ready after multiple attempts");
 };
 
-describe('Zuugle API UAT Tests', () => {
-
+describe("Zuugle API UAT Tests", () => {
     beforeAll(async () => {
         // Wait for server to be ready
-        if (baseUrl.startsWith('http')) {
+        if (baseUrl.startsWith("http")) {
             await waitForServer(`${baseUrl}/api/cities?domain=www.zuugle.at`);
         }
     }, 130000);
 
-    test('GET /api/cities returns 200 and list of cities', async () => {
+    test("GET /api/cities returns 200 and list of cities", async () => {
         const url = `${baseUrl}/api/cities?domain=www.zuugle.at`;
         const response = await fetch(url, { headers: getHeaders() });
         expect(response.status).toBe(200);
@@ -47,7 +47,7 @@ describe('Zuugle API UAT Tests', () => {
         expect(data.cities.length).toBeGreaterThan(0);
     });
 
-    test('GET /api/tours returns 200 and list of tours', async () => {
+    test("GET /api/tours returns 200 and list of tours", async () => {
         const url = `${baseUrl}/api/tours?domain=www.zuugle.at&city=wien`;
         const response = await fetch(url, { headers: getHeaders() });
         expect(response.status).toBe(200);
@@ -56,7 +56,7 @@ describe('Zuugle API UAT Tests', () => {
         expect(Array.isArray(data.tours)).toBe(true);
     });
 
-    test('GET /api/tours/filter returns 200 and filter options', async () => {
+    test("GET /api/tours/filter returns 200 and filter options", async () => {
         const url = `${baseUrl}/api/tours/filter?domain=www.zuugle.at&city=wien`;
         const response = await fetch(url, { headers: getHeaders() });
         expect(response.status).toBe(200);

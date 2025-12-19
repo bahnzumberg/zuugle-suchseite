@@ -11,7 +11,6 @@ public/gpx-track/totour/*/*.gpx
 public/gpx-track/fromtour/*/*.gpx
 public/range-image/desktop.ini
 public/range-image/*.jpg
-package-lock.json
 src/firebase.json
 src/knexfile.js
 src/knexfileTourenDb.js
@@ -20,3 +19,4 @@ src/knexfileTourenDb.js
 api.log
 test.json
 *Zone.Identifier
+.eslintcache
