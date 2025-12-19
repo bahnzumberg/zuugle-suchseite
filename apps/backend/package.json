@@ -24,7 +24,7 @@
         "generate-testdata": "node build/jobs/generateTestdata.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "prepare": "husky",
+        "prepare": "husky || true",
         "lint-staged": "lint-staged",
         "lint": "eslint --cache",
         "lint:fix": "eslint --cache --fix"
