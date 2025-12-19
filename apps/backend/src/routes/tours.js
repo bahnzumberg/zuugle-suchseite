@@ -1339,7 +1339,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line no-unused-vars
     const { ["hashed_url"]: remove, ...rest } = entry;
     return rest;
 };

@@ -54,8 +54,7 @@
         "husky": "^9.1.7",
         "lint-staged": "^16.2.7",
         "nodemon": "^3.0.1",
-        "prettier": "^3.7.1",
-        "typescript-eslint": "^8.48.0"
+        "prettier": "^3.7.1"
     },
     "dependencies": {
         "cors": "^2.8.5",
