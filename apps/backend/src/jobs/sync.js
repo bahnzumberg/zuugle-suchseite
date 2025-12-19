@@ -417,39 +417,6 @@ const prepareDirectories = () => {
         if (!fs.existsSync(filePath)) {
             fs.mkdirSync(filePath, { recursive: true });
         }
-
-        // All files, which are older than 30 days, are deleted now. This means they have to be
-        // recreated new and by this we ensure all is updated and unused files are removed.
-        // deleteFilesOlder30days(filePath); We do this from now on after we generated all Image database entries and generated all images
-    }
-    // console.log(moment().format('HH:mm:ss'), ' Finished deleting old files');
-};
-
-const deleteFilesOlder30days = async (dirPath) => {
-    try {
-        const dirents = await fs.readdir(dirPath);
-        for (const dirent of dirents) {
-            const filePath = path.join(dirPath, dirent);
-            const stats = await fs.stat(filePath);
-
-            // Check if it's a directory and recurse
-            if (stats.isDirectory()) {
-                await deleteFilesOlder30days(filePath);
-            } else if (stats.isFile()) {
-                const isOlderThan30Days =
-                    Date.now() - stats.mtimeMs > 2592000000; // 30 days in milliseconds
-                if (isOlderThan30Days && Math.random() < 0.15) {
-                    // Delete with 15% probability
-                    await fs.unlink(filePath);
-                    // console.log(`Deleted ${filePath}`);
-                }
-            }
-        }
-    } catch (e) {
-        console.error(
-            "Error processing directory in deleteFilesOlder30days:",
-            e,
-        );
     }
 };
 
