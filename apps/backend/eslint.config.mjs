@@ -29,5 +29,9 @@ export default defineConfig([
         language: "markdown/gfm",
         extends: ["markdown/recommended"],
     },
+    {
+        files: ["**/*.test.js"],
+        languageOptions: { globals: globals.jest },
+    },
     eslintConfigPrettier,
 ]);

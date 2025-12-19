@@ -12,7 +12,7 @@ if (config.cache && config.cache.enabled) {
 
     redis.on("error", (err) => {
         // Log error but don't crash
-        // console.error('Redis error:', err.message);
+        console.error("Redis error:", err.message);
     });
 }
 
