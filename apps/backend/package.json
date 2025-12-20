@@ -13,7 +13,7 @@
     },
     "scripts": {
         "start": "nodemon --trace-warnings --watch ./src --exec babel-node -- src/index.js",
-        "build": "babel src -d build && cp Dockerfile database.sql docker-compose.yaml restore_databases.sh INSTALL_DOCKER_DB.md package.json package-lock.json ./build/ && sed -i 's|node build/|node |g' ./build/package.json",
+        "build": "babel src -d build && cp Dockerfile database.sql docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && sed -i 's|node build/|node |g' ./build/package.json",
         "test": "jest",
         "import-data": "node build/jobs/syncData.js",
         "import-data-full": "node build/jobs/syncData.js",
