@@ -2,43 +2,43 @@ name: UAT Deploy
 on:
   push:
     branches:
-      - 'uat'
+      - "uat"
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v4
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.5.0'
-        
-    - name: Cache node_modules
-      id: cache-npm
-      uses: actions/cache@v4
-      env:
-        cache-name: cache-node-modules
-      with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-          
-    - name: Install npm dependencies
-      run: npm install
-    - name: Run build task
-      run: npm run build
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@main
-      with:
+      - uses: actions/checkout@v6
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20.19.3"
+
+      - name: Cache node_modules
+        id: cache-npm
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install npm dependencies
+        run: npm install
+      - name: Run build task
+        run: npm run build
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        with:
           SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
-          ARGS: '-rlgoDzvc -i --delete'
-          SOURCE: 'build/'
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "build/"
           REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
           TARGET: ${{ secrets.PROD_REMOTE_TARGET_SUCHSEITE }}
-          EXCLUDE: '/dist/, /node_modules/'
+          EXCLUDE: "/dist/, /node_modules/"
