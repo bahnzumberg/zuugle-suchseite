@@ -224,3 +224,8 @@ export const areSetsEqual = (set1: Set<any>, set2: Set<any>): boolean =>
 export function hasContent(obj: unknown): boolean {
   return obj != null && Object.keys(obj).length > 0;
 }
+
+export function constructImageUrl(tourId: number) {
+  const folder = (tourId % 100).toString().padStart(2, "0");
+  return `https://cdn.zuugle.at/gpx-image/${folder}/${tourId}_gpx_small.webp`;
+}

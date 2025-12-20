@@ -2,7 +2,11 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime, getTourLink } from "../utils/globals";
+import {
+  constructImageUrl,
+  convertNumToTime,
+  getTourLink,
+} from "../utils/globals";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
@@ -25,8 +29,14 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
   const hm = t("details.hm_hoehenmeter");
 
   useEffect(() => {
-    if (JSON.stringify(tour.image_url) === "null") {
-      setImage("https://cdn.zuugle.at/img/dummy.webp");
+    // If image_url is missing or "null" (stringified null from backend check in original code), try to construct it
+    if (!tour.image_url || JSON.stringify(tour.image_url) === "null") {
+      // Fallback to constructed URL
+      // If constructImageUrl is not safe for all cases, we might need a check, but it seems consistent.
+      // However, if the tour really has no image (e.g. no GPX), this might result in a 404 image.
+      // But currently it shows dummy image which is better than nothing, but user complains about missing map images.
+      // The issue is that backend returns null for image_url when limit=10.
+      setImage(constructImageUrl(tour.id));
     } else {
       setImage(tour.image_url);
     }
@@ -71,6 +81,12 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             image={image}
             height="150"
             alt={`${tour?.title}`}
+            onError={() => {
+              // Fallback to dummy image if loading fails
+              if (image !== DEFAULT_IMAGE) {
+                setImage(DEFAULT_IMAGE);
+              }
+            }}
           />
           <Chip
             sx={{
