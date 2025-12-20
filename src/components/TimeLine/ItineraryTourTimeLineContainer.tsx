@@ -18,7 +18,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   createEntries,
   createReturnEntries,
-  GetDepartureText,
+  DepartureText,
   getReturnText,
   getNumberOfTransfers,
 } from "./utils";
@@ -27,7 +27,6 @@ import { jsonToStringArray } from "../../utils/transformJson";
 import {
   convertNumToTime,
   simpleConvertNumToTime,
-  randomKey,
   useIsMobile,
 } from "../../utils/globals";
 import { useGetCitiesQuery } from "../../features/apiSlice";
@@ -199,10 +198,9 @@ export default function ItineraryTourTimeLineContainer({
                   return (
                     <Link
                       href={`/tour/${idOne}/${_city.value}`}
-                      key={randomKey(7)}
+                      key={_city.value}
                     >
                       <ListItem
-                        key={randomKey(7)}
                         sx={{
                           borderRadius: "12px",
                           padding: "5px",
@@ -261,7 +259,7 @@ export default function ItineraryTourTimeLineContainer({
             {/* ... first accordion ... */}
             <Accordion
               sx={{ borderRadius: "18px !important" }}
-              key={randomKey(7)}
+              key="departure-accordion"
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box
@@ -319,7 +317,7 @@ export default function ItineraryTourTimeLineContainer({
                     >
                       {_getDepartureText()}
                     </Typography>
-                    {GetDepartureText(getSingleConnection())}
+                    <DepartureText connection={getSingleConnection()} />
                   </Box>
                   <Box sx={{ position: "absolute", right: 20, top: 20 }}>
                     <CustomIcon
@@ -349,7 +347,7 @@ export default function ItineraryTourTimeLineContainer({
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
-                <Timeline key={randomKey(7)}>
+                <Timeline position="right">
                   {createEntries(entries, getSingleConnection())}
                 </Timeline>
               </AccordionDetails>
@@ -362,7 +360,7 @@ export default function ItineraryTourTimeLineContainer({
                 backgroundColor: "transparent",
                 boxShadow: "none",
               }}
-              key={randomKey(7)}
+              key="duration-accordion"
             >
               <AccordionDetails>
                 <Box
@@ -437,7 +435,7 @@ export default function ItineraryTourTimeLineContainer({
             {returnEntries.slice(0, 2).map((retObj, index) => (
               //3rd Accordion / additional return connections
               <Accordion
-                key={randomKey(7)}
+                key={`return-connection-${index}`}
                 sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
               >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -543,7 +541,7 @@ export default function ItineraryTourTimeLineContainer({
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Timeline>
+                  <Timeline position="right">
                     {createReturnEntries(twoReturns[index], retObj)}
                   </Timeline>
                 </AccordionDetails>
@@ -553,7 +551,7 @@ export default function ItineraryTourTimeLineContainer({
             {getMore &&
               returnEntries.slice(2).map((retObj, index) => (
                 <Accordion
-                  key={randomKey(7)}
+                  key={`more-return-connection-${index}`}
                   sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
                 >
                   {/* ... AccordionSummary and AccordionDetails ... */}
@@ -574,7 +572,6 @@ export default function ItineraryTourTimeLineContainer({
                         margin: !isMobile ? "0 auto" : "0 40px", // Center horizontally if mobile
                         maxWidth: isMobile ? "260px" : null,
                       }}
-                      key={randomKey(7)}
                     >
                       <Box
                         style={{
@@ -659,7 +656,7 @@ export default function ItineraryTourTimeLineContainer({
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Timeline>
+                    <Timeline position="right">
                       {createReturnEntries(remainingReturns[index + 2], retObj)}
                     </Timeline>
                   </AccordionDetails>
@@ -670,7 +667,7 @@ export default function ItineraryTourTimeLineContainer({
             {!getMore && returnEntries.length > 2 && (
               <Accordion
                 sx={{ backgroundColor: "transparent", boxShadow: "none" }}
-                key={randomKey(7)}
+                key="more-connections-button"
               >
                 {/* ... Box with text and onClick ... */}
                 <Box
