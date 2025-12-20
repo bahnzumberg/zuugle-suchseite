@@ -32,16 +32,16 @@ jobs:
               run: npm install
             - name: Run build task
               run: npm run build
-            #- name: executing remote ssh command to backup app
-            #  uses: appleboy/ssh-action@v1.0.0
-            #  with:
-            #      host: ${{ secrets.PROD_REMOTE_HOST }}
-            #      username: ${{ secrets.PROD_REMOTE_USER }}
-            #      key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-            #      port: ${{ secrets.PROD_REMOTE_PORT }}
-            #      script: |
-            #          rm /root/suchseite/backup/api.tar.gz
-            #          tar -zcvf /root/suchseite/backup/api.tar.gz --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-image --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-track ${{ secrets.PROD_REMOTE_TARGET_API }}
+            - name: executing remote ssh command to backup app
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ secrets.PROD_REMOTE_HOST }}
+                  username: ${{ secrets.PROD_REMOTE_USER }}
+                  key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.PROD_REMOTE_PORT }}
+                  script: |
+                      rm /root/suchseite/backup/api.tar.gz
+                      tar -zcvf /root/suchseite/backup/api.tar.gz --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-image --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx --exclude=${{ secrets.PROD_REMOTE_TARGET_API }}public/gpx-track ${{ secrets.PROD_REMOTE_TARGET_API }}
             - name: Deploy to Server
               uses: easingthemes/ssh-deploy@main
               with:
