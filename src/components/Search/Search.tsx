@@ -49,6 +49,16 @@ export default function Search({
     (state: RootState) => hasContent(state.filter) || state.search.geolocation,
   );
 
+  const handleOpenModal = (type: "search" | "city") => {
+    if (isMobile) {
+      setShowMobileModal(true);
+    } else if (type === "search") {
+      setShowSearchModal(true);
+    } else {
+      setShowCitySearch(true);
+    }
+  };
+
   return (
     <Fragment>
       <MobileModal
@@ -93,14 +103,18 @@ export default function Search({
                 sx={{
                   paddingRight: "16px",
                   padding: 0,
+                  cursor: "pointer",
                 }}
-                onClick={() => {
-                  if (isMobile) {
-                    setShowMobileModal(true);
-                  } else {
-                    setShowSearchModal(true);
+                role="button"
+                tabIndex={0}
+                aria-label={t("start.suche")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleOpenModal("search");
                   }
                 }}
+                onClick={() => handleOpenModal("search")}
                 size={{
                   xs: 12,
                   md: 6,
@@ -122,13 +136,21 @@ export default function Search({
               </Grid>
               {/* city -----   modal ----  below */}
               <Grid
-                onClick={() => {
-                  if (isMobile) {
-                    setShowMobileModal(true);
-                  } else {
-                    setShowCitySearch(true);
+                onClick={() => handleOpenModal("city")}
+                role="button"
+                tabIndex={0}
+                aria-label={
+                  city?.label
+                    ? `${t("search.ab_heimatbahnhof")} ${city?.label}`
+                    : t("start.heimatbahnhof")
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleOpenModal("city");
                   }
                 }}
+                sx={{ cursor: "pointer" }}
                 display="flex"
                 alignItems="center"
                 size={{
