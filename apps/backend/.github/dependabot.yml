@@ -8,5 +8,19 @@ updates:
     - package-ecosystem: "npm" # See documentation for possible values
       directory: "/" # Location of package manifests
       schedule:
-          interval: "weekly"
+          interval: "monthly"
       target-branch: "uat"
+      labels:
+          - "npm dependencies"
+
+      # Ignore patch updates entirely
+      ignore:
+          - dependency-name: "*"
+            update-types:
+                - "version-update:semver-patch"
+
+      # Group ALL minor updates into one PR
+      groups:
+          minor-updates:
+              update-types:
+                  - "minor"
