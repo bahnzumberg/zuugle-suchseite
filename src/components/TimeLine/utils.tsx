@@ -5,7 +5,7 @@ import duration from "dayjs/plugin/duration";
 import {
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
-  randomKey,
+  useIsMobile,
 } from "../../utils/globals";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
@@ -20,12 +20,13 @@ import { CustomIcon } from "../../icons/CustomIcon";
 
 dayjs.extend(duration);
 
-export const GetDepartureText = (connection: Connection | null) => {
-  let isMobile = window.innerWidth <= 600;
+export const DepartureText = ({
+  connection,
+}: {
+  connection: Connection | null;
+}) => {
+  const isMobile = useIsMobile();
 
-  window.addEventListener("resize", () => {
-    isMobile = window.innerWidth <= 600;
-  });
   if (!connection) {
     return <Fragment></Fragment>;
   }
@@ -228,7 +229,10 @@ export const createReturnEntries = (
     }
 
     toReturn.push(
-      getDepartureEntry(`${newStart} ${t("details.ankunft_bei_tourende")}`),
+      getDepartureEntry(
+        `${newStart} ${t("details.ankunft_bei_tourende")}`,
+        "departure-start",
+      ),
     );
 
     for (let i = 0; i < _entries.length; i++) {
@@ -243,9 +247,11 @@ export const createReturnEntries = (
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text));
+        toReturn.push(getDetailEntry(_text, `detail-${i}`));
       } else {
-        toReturn.push(getStationEntry(entry, i + 1 === _entries.length));
+        toReturn.push(
+          getStationEntry(entry, i + 1 === _entries.length, `station-${i}`),
+        );
       }
     }
   }
@@ -259,7 +265,7 @@ export const createEntries = (
   const toReturn = [];
   if (entries && entries.length > 0) {
     const _entries = entries.filter((e) => e && e.length > 0);
-    toReturn.push(getDepartureEntry(_entries[0]));
+    toReturn.push(getDepartureEntry(_entries[0], "departure-first"));
     for (let i = 1; i < _entries.length; i++) {
       const entry = _entries[i];
       if ((i - 1) % 2 === 0) {
@@ -271,9 +277,11 @@ export const createEntries = (
         ) {
           _text = _text.substring(1);
         }
-        toReturn.push(getDetailEntry(_text));
+        toReturn.push(getDetailEntry(_text, `detail-${i}`));
       } else {
-        toReturn.push(getStationEntry(entry, i === _entries.length));
+        toReturn.push(
+          getStationEntry(entry, i === _entries.length, `station-${i}`),
+        );
       }
     }
     let newStart = "     ";
@@ -283,15 +291,18 @@ export const createEntries = (
         .format("HH:mm");
     }
     toReturn.push(
-      getArrivalEntry(`${newStart} ${t("details.ankunft_bei_tourstart")}`),
+      getArrivalEntry(
+        `${newStart} ${t("details.ankunft_bei_tourstart")}`,
+        "arrival-end",
+      ),
     );
   }
   return toReturn;
 };
 
-export const getDetailEntry = (entry: string) => {
+export const getDetailEntry = (entry: string, key: string) => {
   return (
-    <TimelineItem key={randomKey(7)}>
+    <TimelineItem key={key}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
@@ -321,9 +332,9 @@ export const getDetailEntry = (entry: string) => {
   );
 };
 
-export const getStationEntry = (entry: string, isLast = false) => {
+export const getStationEntry = (entry: string, isLast = false, key: string) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
+    <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{
@@ -369,9 +380,9 @@ export const getStationEntry = (entry: string, isLast = false) => {
   );
 };
 
-export const getDepartureEntry = (entry: string) => {
+export const getDepartureEntry = (entry: string, key: string) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
+    <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{
@@ -404,9 +415,9 @@ export const getDepartureEntry = (entry: string) => {
   );
 };
 
-export const getArrivalEntry = (entry: string) => {
+export const getArrivalEntry = (entry: string, key: string) => {
   return (
-    <TimelineItem sx={{ minHeight: 0 }} key={randomKey(7)}>
+    <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
         color="text.secondary"
         sx={{ flex: 0.2, paddingTop: "24px", paddingBottom: 0 }}
