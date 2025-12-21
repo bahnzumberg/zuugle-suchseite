@@ -16,7 +16,6 @@ const BackgroundImageLoader = ({
       className={"header-container"}
       sx={{
         position: "relative",
-        overflow: "hidden",
         ...sx,
       }}
     >
