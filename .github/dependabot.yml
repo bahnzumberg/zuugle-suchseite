@@ -8,15 +8,31 @@ updates:
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     target-branch: "uat"
     labels:
       - "github-actions dependencies"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     target-branch: "uat"
     labels:
       - "npm dependencies"
+
+    # Ignore patch updates entirely
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
+
+    # Group ALL minor updates into one PR
+    groups:
+      minor-updates:
+        update-types:
+          - "minor"
