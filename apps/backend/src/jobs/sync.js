@@ -3,6 +3,7 @@ import knex from "../knex";
 import knexConfig from "../knexfile";
 import { createImagesFromMap, last_two_characters } from "../utils/gpx/gpxUtils";
 import moment from "moment";
+import cacheService from "../services/cache.js";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
@@ -781,13 +782,20 @@ export async function syncGPXImage() {
                 id: entry.id,
             });
         }
+            // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
+            // The cdn url can be used, as this is a static image.
+            await knex.raw(
+                `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
+            );
+
+            console.log("FLUSHING CACHE (Intermediate)...");
+            await cacheService.flush();
+
         if (toCreate) {
             console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Start to create gpx image files");
             await createImagesFromMap(toCreate.map((e) => e.id));
         }
 
-        // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
-        // The cdn url can be used, as this is a static image.
         await knex.raw(
             `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
         );
