@@ -1291,6 +1291,10 @@ const tourGpxWrapper = async (req, res) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 
+    if (!entry.image_url || entry.image_url === "null") {
+        entry.image_url = "https://cdn.zuugle.at/img/train_placeholder.webp";
+    }
+
     const host = getHost(domain);
     entry.gpx_file = `${host}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
 
