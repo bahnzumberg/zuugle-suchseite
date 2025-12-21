@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
 import "./translations/i18n";
-import { getTLD, isMobileDevice } from "./utils/globals";
+import { getTLD } from "./utils/globals";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import { api } from "./features/apiSlice";
@@ -79,7 +79,8 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 
 const tld = getTLD();
 
-const preloadUrl = isMobileDevice()
+const isMobile = window.matchMedia("(max-width: 900px)").matches;
+const preloadUrl = isMobile
   ? `https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp`
   : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
 
