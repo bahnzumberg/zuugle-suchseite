@@ -925,7 +925,6 @@ const filterWrapper = async (req, res) => {
     // Where Condition is only depending on country, city and search term(s)
 
     let kpis = [];
-    let bindings = [];
     let types = [];
     let text = [];
     let ranges = [];
@@ -933,6 +932,7 @@ const filterWrapper = async (req, res) => {
     let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND t.stop_selector='y' `;
     let new_search_where_searchterm = "";
+    let bindings = [tld];
 
     if (!!city && city.length > 0) {
         where_city = ` AND t.city_slug=? `;
@@ -959,7 +959,6 @@ const filterWrapper = async (req, res) => {
     // Use a random string to avoid SQL injection via city name in table name
     const randomSuffix = crypto.randomBytes(6).toString("hex");
     const temp_table = `temp_${tld}_${Date.now()}_${randomSuffix}`;
-    // logger.info("temp_table: ", temp_table)
 
     let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
                     SELECT 
@@ -980,7 +979,7 @@ const filterWrapper = async (req, res) => {
                     min(t.min_connection_duration) AS min_connection_duration,
                     max(t.max_connection_duration) AS max_connection_duration
                     FROM city2tour_flat AS t 
-                    WHERE t.reachable_from_country='${tld}'  
+                    WHERE t.reachable_from_country=?
                     ${where_city}
                     ${new_search_where_searchterm}
                     GROUP BY
