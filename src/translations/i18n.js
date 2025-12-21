@@ -27,6 +27,12 @@ i18n
     // da das Backend die Dateien dynamisch lädt.
     backend: {
       loadPath: "/app_static/i18n/{{lng}}.json", // Pfad zu den JSON-Dateien im Build-Verzeichnis
+      requestOptions: {
+        cache: "no-cache",
+        credentials: "include",
+      },
+      crossDomain: true,
+      withCredentials: true,
     },
     //lng: "de", // Diese Zeile muss auskommentiert bleiben, da du LanguageDetector verwendest
     fallbackLng: "de",
