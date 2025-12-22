@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 import {
   useGetCitiesQuery,
   useLazyGetSearchPhrasesQuery,
@@ -28,6 +29,7 @@ export interface CustomSelectProps {
 export default function CustomSelect({
   setShowSearchModal,
 }: CustomSelectProps) {
+  const { t } = useTranslation();
   const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
@@ -113,7 +115,10 @@ export default function CustomSelect({
           />
 
           {/* Clear Button */}
-          <IconButton onClick={() => setSearchString("")}>
+          <IconButton
+            onClick={() => setSearchString("")}
+            aria-label={t("search.abbrechen")}
+          >
             <Close sx={{ fontSize: 16, color: "#8b8b8b" }} />
           </IconButton>
         </Grid>
@@ -131,6 +136,8 @@ export default function CustomSelect({
               handleSelect(searchString);
               ev.preventDefault();
             }}
+            title={t("search.search")}
+            aria-label={t("search.search")}
           >
             <ArrowForward sx={{ fontSize: 24, color: "#4992ff" }} />
           </IconButton>
@@ -158,11 +165,9 @@ export default function CustomSelect({
                       alignItems: "center",
                     }}
                   >
-                    <IconButton>
-                      <LocationOnOutlined
-                        style={{ fontSize: "24px", color: "#8b8b8b" }}
-                      />
-                    </IconButton>
+                    <LocationOnOutlined
+                      style={{ fontSize: "24px", color: "#8b8b8b" }}
+                    />
                   </div>
                 </ListItemIcon>
                 <ListItemText primary={option?.suggestion} />
