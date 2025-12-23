@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
-import "./fonts.css";
-import "./translations/i18n";
+import i18n from "./translations/i18n";
+import { I18nextProvider } from "react-i18next";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
@@ -111,7 +111,9 @@ if (!rootElement) {
                 <link rel="preload" href={preloadUrl} as="image" />
               )}
             </Head>
-            <App />
+            <I18nextProvider i18n={i18n}>
+              <App />
+            </I18nextProvider>
           </UnheadProvider>
         </BrowserRouter>
       </Provider>
