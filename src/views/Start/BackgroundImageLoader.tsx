@@ -1,4 +1,4 @@
-import Box from "@mui/material/Box";
+import { Box } from "@mui/material";
 import { isMobileDevice } from "../../utils/globals";
 
 const LINEAR_GRADIENT =

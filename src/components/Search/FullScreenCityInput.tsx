@@ -6,16 +6,18 @@ import { useGetCitiesQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { theme } from "../../theme";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "../../hooks";
 import { CityObject, cityUpdated } from "../../features/searchSlice";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 export interface FullScreenCityInputProps {
   showCitySearch: boolean;

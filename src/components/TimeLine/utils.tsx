@@ -1,5 +1,5 @@
 import { Fragment, JSX } from "react";
-import Typography from "@mui/material/Typography";
+import { Typography } from "@mui/material";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import {

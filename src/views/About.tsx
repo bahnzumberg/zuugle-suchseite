@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
-import Typography from "@mui/material/Typography";
+import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 function About() {

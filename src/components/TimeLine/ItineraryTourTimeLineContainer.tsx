@@ -1,6 +1,14 @@
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Divider,
+  Typography,
+  Link,
+} from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -25,12 +33,6 @@ import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { Connection, ConnectionResult } from "../../models/Connections";
 import { CustomIcon } from "../../icons/CustomIcon";
-import Typography from "@mui/material/Typography";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import Accordion from "@mui/material/Accordion";
-import Divider from "@mui/material/Divider";
-import Link from "@mui/material/Link";
 
 export interface ItineraryTourTimeLineContainerProps {
   connections: ConnectionResult[] | undefined;

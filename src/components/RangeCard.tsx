@@ -1,8 +1,8 @@
 import Typography from "@mui/material/Typography";
+import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { RangeObject } from "../features/apiSlice";
-import Paper from "@mui/material/Paper";
 
 export interface RangeCardProps {
   range: RangeObject;

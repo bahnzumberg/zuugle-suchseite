@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
+import { Typography, Divider } from "@mui/material";
 import { convertNumToTime, formatNumber } from "../utils/globals";
 import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
 import { Tour } from "../models/Tour";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 
 export interface TourDetailPropertiesProps {
   tour?: Tour;

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { VisibilityContext } from "react-horizontal-scrolling-menu";
-import Button from "@mui/material/Button";
-import ChevronRight from "@mui/icons-material/ChevronRight";
+import { Button } from "@mui/material";
+import { ChevronRight } from "@mui/icons-material";
 
 export function RightArrow() {
   const { isLastItemVisible, scrollNext } = useContext(VisibilityContext);

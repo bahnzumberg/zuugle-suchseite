@@ -1,10 +1,9 @@
 import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
 import { useTranslation } from "react-i18next";
+import { Divider, Typography } from "@mui/material";
 import { Tour } from "../../models/Tour";
 import { ConnectionResult } from "../../models/Connections";
-import Divider from "@mui/material/Divider";
-import Typography from "@mui/material/Typography";
 
 export interface ItineraryProps {
   connectionData: ConnectionResult[] | undefined;

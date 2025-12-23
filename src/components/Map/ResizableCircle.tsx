@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Circle, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { t } from "i18next";
-import Typography from "@mui/material/Typography";
+import { Typography } from "@mui/material";
 
 interface ResizableCircleProps {
   center: L.LatLngExpression;
