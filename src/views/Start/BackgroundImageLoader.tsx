@@ -21,7 +21,6 @@ const BackgroundImageLoader = ({
       className={"header-container"}
       sx={{
         position: "relative",
-        overflow: "hidden",
         ...sx,
       }}
     >
@@ -37,7 +36,7 @@ const BackgroundImageLoader = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          zIndex: -1,
+          zIndex: 0,
           pointerEvents: "none",
         }}
       />
@@ -52,11 +51,13 @@ const BackgroundImageLoader = ({
           height: "100%",
           background:
             "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45))",
-          zIndex: -1,
+          zIndex: 1,
+          pointerEvents: "none",
         }}
       />
 
-      {children}
+      {/* Content wrapper with higher z-index */}
+      <Box sx={{ position: "relative", zIndex: 2 }}>{children}</Box>
     </Box>
   );
 };
