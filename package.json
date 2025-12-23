@@ -45,7 +45,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "lint": "eslint --cache",
+    "lint": "tsc --noEmit && eslint --cache",
     "lint:fix": "eslint --cache --fix",
     "tsc": "tsc --noEmit",
     "test:e2e": "playwright test"
