@@ -6,6 +6,7 @@
   },
   "version": "3.0.0",
   "private": true,
+  "sideEffects": ["*.css", "*.scss", "*.sass", "*.less"],
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -45,7 +46,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "lint": "eslint --cache",
+    "lint": "tsc --noEmit && eslint --cache",
     "lint:fix": "eslint --cache --fix",
     "tsc": "tsc --noEmit",
     "test:e2e": "playwright test"
