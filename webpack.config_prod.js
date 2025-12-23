@@ -128,8 +128,8 @@ module.exports = {
         leaflet: {
           test: /[\\/]node_modules[\\/](leaflet|react-leaflet|react-leaflet-cluster|leaflet.markercluster|leaflet-src)[\\/]/,
           name: "leaflet",
-          chunks: "all",
-          priority: 20, // Mittlere Priorität für Leaflet
+          chunks: "async", // Only load when dynamically imported (lazy)
+          priority: 20,
           enforce: true,
         },
         i18n: {

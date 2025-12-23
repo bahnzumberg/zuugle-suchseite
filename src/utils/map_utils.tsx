@@ -1,5 +1,5 @@
 import L from "leaflet";
-import { Marker } from "../components/Map/TourMapContainer";
+import { Marker } from "../models/mapTypes";
 import { BoundsObject } from "../features/searchSlice";
 
 export const formatMapClusterNumber = (number: number) => {
@@ -46,16 +46,6 @@ export const getMarkersListFromBounds = (
   }
   return [];
 };
-
-export function parseGPX(gpxText: string): L.LatLngExpression[] {
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(gpxText, "application/xml");
-  const points = Array.from(xml.getElementsByTagName("trkpt"));
-  return points.map((pt) => [
-    parseFloat(pt.getAttribute("lat")!),
-    parseFloat(pt.getAttribute("lon")!),
-  ]);
-}
 
 export function getDefaultBoundsForDomain(domain: string): {
   ne: [number, number];

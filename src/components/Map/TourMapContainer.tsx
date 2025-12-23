@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
+  Marker as LeafletMarker,
   Polyline,
   ZoomControl,
 } from "react-leaflet";
@@ -17,6 +17,7 @@ import {
 import "./popup-style.css";
 import { getTopLevelDomain, useIsMobile } from "../../utils/globals";
 import { Tour } from "../../models/Tour";
+import { Marker } from "../../models/mapTypes";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
 import { boundsUpdated, geolocationUpdated } from "../../features/searchSlice";
@@ -32,12 +33,8 @@ import { MapBoundsUpdater } from "./MapBoundsUpdater";
 import { MapBoundsSync } from "./MapBoundsSync";
 import { useSearchParams } from "react-router";
 
-// There is also a Marker defined in leaflet. Should we use that instead?
-export interface Marker {
-  id: number;
-  lat: number;
-  lon: number;
-}
+// Re-export Marker for backward compatibility
+export type { Marker };
 
 export interface TourMapContainerProps {
   markers: Marker[];
