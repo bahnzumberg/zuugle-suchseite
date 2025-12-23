@@ -26,3 +26,5 @@ yarn-error.log*
 .idea
 
 *.iml
+playwright-report/
+test-results/
