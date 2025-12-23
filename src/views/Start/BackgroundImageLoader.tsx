@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import { useHead } from "@unhead/react";
 import { isMobileDevice } from "../../utils/globals";
 
 const LINEAR_GRADIENT =
@@ -15,9 +16,23 @@ const BackgroundImageLoader = ({
   sx,
   children,
 }: BackgroundImageLoaderProps) => {
-  const backgroundImage = isMobileDevice()
-    ? `${LINEAR_GRADIENT} url(https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp)`
-    : `${LINEAR_GRADIENT} url(https://cdn.zuugle.at/img/background_start_small_${tld}.webp)`;
+  const imageUrl = isMobileDevice()
+    ? `https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp`
+    : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
+
+  // Preload the LCP image for faster loading
+  useHead({
+    link: [
+      {
+        rel: "preload",
+        as: "image",
+        href: imageUrl,
+        fetchpriority: "high",
+      },
+    ],
+  });
+
+  const backgroundImage = `${LINEAR_GRADIENT} url(${imageUrl})`;
 
   return (
     <Box
