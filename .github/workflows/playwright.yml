@@ -1,0 +1,57 @@
+name: Playwright Integration Tests
+
+on:
+  deployment_status:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *' # Run daily at 6am
+
+jobs:
+  test:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Development')
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 10.20.0
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Install Playwright Browsers
+      run: pnpm exec playwright install --with-deps
+
+    - name: Run Playwright tests
+      run: pnpm exec playwright test
+      env:
+        BASE_URL: https://dev.zuugle.at
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Create Issue on Failure
+      if: failure()
+      uses: dacbd/create-issue-action@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: "Integration Test Failure on Dev"
+        body: |
+          ### Integration Test Failed
+
+          The Playwright integration tests failed on [dev.zuugle.at](https://dev.zuugle.at).
+
+          Please check the [Action Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
