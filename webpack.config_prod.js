@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
@@ -40,10 +41,10 @@ module.exports = {
           },
         },
       },
-      // Korrekte Regel für CSS mit style-loader
+      // CSS-Regel mit MiniCssExtractPlugin für separate CSS-Dateien
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       // Korrekte Regel für SVG-Dateien als React-Komponenten
       {
@@ -81,7 +82,10 @@ module.exports = {
         { from: "./src/icons/svg", to: "app_static/icons" },
       ],
     }),
-    // MiniCssExtractPlugin ist jetzt entfernt
+    // MiniCssExtractPlugin für separate CSS-Dateien
+    new MiniCssExtractPlugin({
+      filename: "./app_static/[name].[contenthash].css",
+    }),
     new webpack.DefinePlugin({}),
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
