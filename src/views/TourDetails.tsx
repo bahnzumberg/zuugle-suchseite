@@ -1,6 +1,5 @@
 import * as React from "react";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import { Divider } from "@mui/material";
 import fileDownload from "js-file-download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -45,6 +44,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
 import LanguageMenu from "../components/LanguageMenu";
+import Divider from "@mui/material/Divider";
 
 export default function DetailReworked() {
   const [activeConnection, setActiveConnection] =

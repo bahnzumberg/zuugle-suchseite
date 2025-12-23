@@ -1,10 +1,12 @@
-import { CircularProgress, Grid, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Key } from "react";
 import { useTranslation } from "react-i18next";
 import TourCard from "./TourCard";
 import { Tour } from "../models/Tour";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
 
 const renderImage = (imageSrc: string, key: Key) => (
   <Box

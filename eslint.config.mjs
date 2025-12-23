@@ -33,6 +33,12 @@ export default defineConfig([
       "@typescript-eslint/ban-ts-comment": "off",
       "react/jsx-uses-react": "off",
       "react/react-in-jsx-scope": "off",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [{ regex: "^@mui/[^/]+$" }],
+        },
+      ],
     },
   },
   {
