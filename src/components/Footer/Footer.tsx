@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
@@ -164,56 +165,70 @@ export default function Footer() {
               md: 2,
             }}
           >
-            <Box sx={{ textAlign: "right" }} className={"social-icons"}>
-              <a
+            <Box
+              sx={{
+                textAlign: "right",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+              className={"social-icons"}
+            >
+              <IconButton
+                component="a"
                 href="https://www.facebook.com/bahnzumberg/"
                 target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Facebook"
+                size="small"
+                title="Facebook"
               >
                 <img
-                  className={"cursor-link"}
                   src={`https://cdn.zuugle.at/img/logo-facebook.png`}
                   width={"20px"}
                   height={"20px"}
-                  loading="lazy"
                   alt="Facebook"
+                  loading="lazy"
                 />
-              </a>{" "}
-              &nbsp;{" "}
-              <a
+              </IconButton>
+
+              <IconButton
+                component="a"
                 href="https://www.instagram.com/bahnzumberg/"
                 target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Instagram"
+                size="small"
+                title="Instagram"
+                sx={{ marginLeft: "5px" }}
               >
                 <img
-                  className={"cursor-link"}
                   src={`https://cdn.zuugle.at/img/logo-instagram.png`}
                   width={"20px"}
                   height={"20px"}
-                  style={{ marginLeft: "5px" }}
-                  loading="lazy"
                   alt="Instagram"
+                  loading="lazy"
                 />
-              </a>{" "}
-              &nbsp;{" "}
-              <a
+              </IconButton>
+
+              <IconButton
+                component="a"
                 href="https://github.com/bahnzumberg/"
                 target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
+                rel="noopener noreferrer"
+                aria-label="Visit us on GitHub"
+                size="small"
+                title="GitHub"
+                sx={{ marginLeft: "5px" }}
               >
                 <img
-                  className={"cursor-link"}
                   src={`https://cdn.zuugle.at/img/logo-github.png`}
                   width={"20px"}
                   height={"20px"}
-                  style={{ marginLeft: "5px" }}
-                  loading="lazy"
                   alt="GitHub"
+                  loading="lazy"
                 />
-              </a>
+              </IconButton>
             </Box>
           </Grid>
         </Grid>
