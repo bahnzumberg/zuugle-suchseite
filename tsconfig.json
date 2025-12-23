@@ -15,6 +15,11 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["src/**/*", "eslint.config.mjs"],
+  "include": [
+    "src/**/*",
+    "eslint.config.mjs",
+    "playwright.config.ts",
+    "tests/integration/**/*"
+  ],
   "exclude": ["node_modules", "build"]
 }
