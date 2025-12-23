@@ -1,14 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  InputBase,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
@@ -22,6 +12,17 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
 import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 import { useNavigate } from "react-router";
+import Close from "@mui/icons-material/Close";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import List from "@mui/material/List";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import LocationOnOutlined from "@mui/icons-material/LocationOnOutlined";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;

@@ -1,4 +1,3 @@
-import { Box, Paper, Typography } from "@mui/material";
 import { lazy, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
@@ -19,6 +18,9 @@ import SearchParamSync from "../../components/SearchParamSync";
 import { useAppDispatch } from "../../hooks";
 import { mapUpdated } from "../../features/searchSlice";
 import RangeCardContainer from "../../components/RangeCardContainer";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
 // Dynamische Imports für nicht-kritische Komponenten
 const KPIContainer = lazy(() => import("../../components/KPIContainer"));
