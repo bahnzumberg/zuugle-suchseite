@@ -4,7 +4,8 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
-import "./translations/i18n";
+import i18n from "./translations/i18n";
+import { I18nextProvider } from "react-i18next";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
@@ -84,8 +85,7 @@ const preloadUrl = isMobileDevice()
   : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
 
 const currentPath = window.location.pathname;
-const noPreload =
-  !currentPath.includes("/tour") || !currentPath.includes("/search");
+const shouldPreload = currentPath === "/" || currentPath === "/total";
 
 const head = createHead();
 
@@ -107,11 +107,13 @@ if (!rootElement) {
                 href="https://cdn.zuugle.at/favicon.png"
                 type="image/x-icon"
               />
-              {!noPreload && (
+              {shouldPreload && (
                 <link rel="preload" href={preloadUrl} as="image" />
               )}
             </Head>
-            <App />
+            <I18nextProvider i18n={i18n}>
+              <App />
+            </I18nextProvider>
           </UnheadProvider>
         </BrowserRouter>
       </Provider>
