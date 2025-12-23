@@ -13,7 +13,7 @@ test.describe("Search Functionality", () => {
     const input = page.locator("input").first();
     try {
       await expect(input).toBeVisible({ timeout: 5000 });
-    } catch (e) {
+    } catch {
       console.log(
         "Input not found on home page immediately. Checking for other elements.",
       );

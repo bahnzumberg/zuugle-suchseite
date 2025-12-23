@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
+import "./fonts.css";
 import "./translations/i18n";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import searchReducer, { CityObject } from "./features/searchSlice";
@@ -84,8 +85,7 @@ const preloadUrl = isMobileDevice()
   : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
 
 const currentPath = window.location.pathname;
-const noPreload =
-  !currentPath.includes("/tour") || !currentPath.includes("/search");
+const shouldPreload = currentPath === "/" || currentPath === "/total";
 
 const head = createHead();
 
@@ -107,7 +107,7 @@ if (!rootElement) {
                 href="https://cdn.zuugle.at/favicon.png"
                 type="image/x-icon"
               />
-              {!noPreload && (
+              {shouldPreload && (
                 <link rel="preload" href={preloadUrl} as="image" />
               )}
             </Head>
