@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Header from "./Header";
+import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import Typography from "@mui/material/Typography";
 
 function Imprint() {
   //Translation related

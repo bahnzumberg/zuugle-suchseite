@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
+import {
+  InputBase,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { ArrowForward, Close, LocationOnOutlined } from "@mui/icons-material";
-import { useTranslation } from "react-i18next";
 import {
   useGetCitiesQuery,
   useLazyGetSearchPhrasesQuery,
@@ -12,17 +21,6 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
 import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 import { useNavigate } from "react-router";
-import Close from "@mui/icons-material/Close";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import List from "@mui/material/List";
-import ArrowForward from "@mui/icons-material/ArrowForward";
-import LocationOnOutlined from "@mui/icons-material/LocationOnOutlined";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;
@@ -30,7 +28,6 @@ export interface CustomSelectProps {
 export default function CustomSelect({
   setShowSearchModal,
 }: CustomSelectProps) {
-  const { t } = useTranslation();
   const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
@@ -116,10 +113,7 @@ export default function CustomSelect({
           />
 
           {/* Clear Button */}
-          <IconButton
-            onClick={() => setSearchString("")}
-            aria-label={t("search.abbrechen")}
-          >
+          <IconButton onClick={() => setSearchString("")}>
             <Close sx={{ fontSize: 16, color: "#8b8b8b" }} />
           </IconButton>
         </Grid>
@@ -137,8 +131,6 @@ export default function CustomSelect({
               handleSelect(searchString);
               ev.preventDefault();
             }}
-            title={t("search.search")}
-            aria-label={t("search.search")}
           >
             <ArrowForward sx={{ fontSize: 24, color: "#4992ff" }} />
           </IconButton>
@@ -166,9 +158,11 @@ export default function CustomSelect({
                       alignItems: "center",
                     }}
                   >
-                    <LocationOnOutlined
-                      style={{ fontSize: "24px", color: "#8b8b8b" }}
-                    />
+                    <IconButton>
+                      <LocationOnOutlined
+                        style={{ fontSize: "24px", color: "#8b8b8b" }}
+                      />
+                    </IconButton>
                   </div>
                 </ListItemIcon>
                 <ListItemText primary={option?.suggestion} />

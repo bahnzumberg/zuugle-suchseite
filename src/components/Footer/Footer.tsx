@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, IconButton, Tooltip } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 const currentDate = new Date();
@@ -156,66 +156,42 @@ export default function Footer() {
               md: 2,
             }}
           >
-            <Box
-              sx={{ textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end" }}
-              className={"social-icons"}
-            >
-              <Tooltip title="Facebook">
-                <IconButton
-                  component="a"
-                  href="https://www.facebook.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on Facebook"
-                  size="small"
-                >
-                  <img
-                    src={`https://cdn.zuugle.at/img/logo-facebook.png`}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="Facebook"
-                    loading="lazy"
-                  />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Instagram">
-                <IconButton
-                  component="a"
-                  href="https://www.instagram.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on Instagram"
-                  size="small"
-                  sx={{ marginLeft: "5px" }}
-                >
-                  <img
-                    src={`https://cdn.zuugle.at/img/logo-instagram.png`}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="Instagram"
-                    loading="lazy"
-                  />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="GitHub">
-                <IconButton
-                  component="a"
-                  href="https://github.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on GitHub"
-                  size="small"
-                  sx={{ marginLeft: "5px" }}
-                >
-                  <img
-                    src={`https://cdn.zuugle.at/img/logo-github.png`}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="GitHub"
-                    loading="lazy"
-                  />
-                </IconButton>
-              </Tooltip>
+            <Box sx={{ textAlign: "right" }} className={"social-icons"}>
+              <img
+                className={"cursor-link"}
+                src={`https://cdn.zuugle.at/img/logo-facebook.png`}
+                width={"20px"}
+                height={"20px"}
+                onClick={() =>
+                  window.open("https://www.facebook.com/bahnzumberg/")
+                }
+                loading="lazy"
+                alt="Facebook"
+              />{" "}
+              &nbsp;{" "}
+              <img
+                className={"cursor-link"}
+                src={`https://cdn.zuugle.at/img/logo-instagram.png`}
+                width={"20px"}
+                height={"20px"}
+                style={{ marginLeft: "5px" }}
+                onClick={() =>
+                  window.open("https://www.instagram.com/bahnzumberg/")
+                }
+                loading="lazy"
+                alt="Instagram"
+              />{" "}
+              &nbsp;{" "}
+              <img
+                className={"cursor-link"}
+                src={`https://cdn.zuugle.at/img/logo-github.png`}
+                width={"20px"}
+                height={"20px"}
+                style={{ marginLeft: "5px" }}
+                onClick={() => window.open("https://github.com/bahnzumberg/")}
+                loading="lazy"
+                alt="GitHub"
+              />
             </Box>
           </Grid>
         </Grid>
