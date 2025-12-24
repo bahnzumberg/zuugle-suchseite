@@ -3,12 +3,10 @@ name: Code Checks
 on:
     push:
         branches:
-            - "dev"
             - "uat"
             - "main"
     pull_request:
         branches:
-            - "dev"
             - "uat"
             - "main"
 
