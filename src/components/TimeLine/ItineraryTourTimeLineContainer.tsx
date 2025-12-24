@@ -16,11 +16,8 @@ import {
 } from "./utils";
 import { useTranslation } from "react-i18next";
 import { jsonToStringArray } from "../../utils/transformJson";
-import {
-  convertNumToTime,
-  simpleConvertNumToTime,
-  useIsMobile,
-} from "../../utils/globals";
+import { convertNumToTime, simpleConvertNumToTime } from "../../utils/globals";
+import { useIsMobile } from "../../utils/muiUtils";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { Connection, ConnectionResult } from "../../models/Connections";

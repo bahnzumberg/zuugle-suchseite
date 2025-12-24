@@ -1,5 +1,3 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { theme } from "../theme";
 import { Tour } from "../models/Tour";
 import { i18n } from "i18next";
 
@@ -123,8 +121,6 @@ export const isMobileDevice = () => {
     navigator.userAgent,
   );
 };
-
-export const useIsMobile = () => useMediaQuery(theme.breakpoints.down("md"));
 
 export const getTopLevelDomain = () => {
   const domain = window.location.hostname;
