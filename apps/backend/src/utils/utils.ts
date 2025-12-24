@@ -1,10 +1,6 @@
 import moment from "moment";
 
-/**
- * @param {string} [domain]
- * @returns {string}
- */
-export function get_domain_country(domain) {
+export function get_domain_country(domain?: string) {
     if (domain == null) {
         return "AT"; // domain is undefined or null
     } else if (domain.indexOf("zuugle.de") >= 0) {
@@ -24,19 +20,11 @@ export function get_domain_country(domain) {
     }
 }
 
-/**
- * @param {unknown} value
- * @returns {boolean}
- */
-export function isNumber(value) {
+export function isNumber(value: unknown) {
     return typeof value === "number";
 }
 
-/**
- * @param {string} origin
- * @returns {string}
- */
-export function getHost(origin) {
+export function getHost(origin: string) {
     if (process.env.NODE_ENV === "production") {
         if (origin.length > 0) {
             return `https://${origin}`;
@@ -47,11 +35,7 @@ export function getHost(origin) {
     return "http://localhost:8080";
 }
 
-/**
- * @param {string} filePath
- * @returns {string}
- */
-export const replaceFilePath = (filePath) => {
+export const replaceFilePath = (filePath: string) => {
     if (!filePath) {
         return filePath;
     }
@@ -62,24 +46,15 @@ export const getAllLanguages = () => {
     return ["en", "de", "it", "fr", "sl"];
 };
 
-/**
- * @param {string} datetime
- * @returns {number}
- */
-export function minutesFromMoment(datetime) {
+export function minutesFromMoment(datetime: string) {
     const hours = moment(datetime).get("hour");
     const minutes = moment(datetime).get("minute");
     return hours * 60 + minutes;
 }
 
-/**
- * Convert the "difficulty" value into a text value
- * @param {number} difficulty
- * @returns {string}
- */
-export const convertDifficulty = (difficulty) => {
-    /** @type {Record<number, string>} */
-    const map = {
+// convert the "difficulty" value into a text value of types
+export const convertDifficulty = (difficulty: number): string => {
+    const map: Record<number, string> = {
         1: "Leicht",
         2: "Mittel",
         3: "Schwer",
