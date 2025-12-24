@@ -1,6 +1,7 @@
 #!/usr/bin/node
 import { getProvider, writeKPIs, fixTours, syncCities, syncTours } from "./sync";
 import moment from "moment";
+import cacheService from "../services/cache.js";
 
 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FULL LOAD");
 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC TOURS");
@@ -16,8 +17,11 @@ syncTours().then(() => {
             writeKPIs().then(() => {
                 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
                 console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FETCH PROVIDER");
-                getProvider().then(() => {
+                getProvider().then(async () => {
                     console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FETCHED PROVIDER");
+                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FLUSHING CACHE...");
+                    await cacheService.flush();
+                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " CACHE FLUSHED.");
                     process.exit();
                 });
             });
