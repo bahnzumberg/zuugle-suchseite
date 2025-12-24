@@ -571,7 +571,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_poi}`;
 
     // Use a random string to avoid SQL injection via city name in table name
-    const randomSuffix = Math.random().toString(36).substring(7);
+    const randomSuffix = crypto.randomBytes(6).toString("hex");
     const temp_table = `temp_${tld}_${Date.now()}_${randomSuffix}`;
 
     const temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
@@ -903,7 +903,7 @@ const filterWrapper = async (req, res) => {
     }
 
     // Use a random string to avoid SQL injection via city name in table name
-    const randomSuffix = Math.random().toString(36).substring(7);
+    const randomSuffix = crypto.randomBytes(6).toString("hex");
     const temp_table = `temp_${tld}_${Date.now()}_${randomSuffix}`;
     // console.log("temp_table: ", temp_table)
 
