@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker as LeafletMarker,
   Polyline,
   ZoomControl,
 } from "react-leaflet";
