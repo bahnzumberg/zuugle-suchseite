@@ -1,5 +1,6 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -103,6 +104,7 @@ export default function Footer() {
                   href="https://verein.bahn-zum-berg.at"
                   target="_blank"
                   rel="noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <Typography
                     sx={{
@@ -117,36 +119,40 @@ export default function Footer() {
                 </a>
               </Grid>
               <Grid size="grow">
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                  }}
-                  className={"cursor-link"}
-                  onClick={() =>
-                    window.open(
-                      `${window.location.protocol}//${window.location.host}/privacy`,
-                    )
-                  }
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.datenschutz")}
-                </Typography>
+                  <Typography
+                    sx={{
+                      marginLeft: "10px",
+                      textDecoration: "underline",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.datenschutz")}
+                  </Typography>
+                </Link>
               </Grid>
               <Grid size="grow">
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                  }}
-                  className={"cursor-link"}
-                  onClick={() =>
-                    window.open(
-                      `${window.location.protocol}//${window.location.host}/imprint`,
-                    )
-                  }
+                <Link
+                  to="/imprint"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.impressum")}
-                </Typography>
+                  <Typography
+                    sx={{
+                      marginLeft: "10px",
+                      textDecoration: "underline",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.impressum")}
+                  </Typography>
+                </Link>
               </Grid>
             </Grid>
           </Grid>
@@ -157,41 +163,55 @@ export default function Footer() {
             }}
           >
             <Box sx={{ textAlign: "right" }} className={"social-icons"}>
-              <img
-                className={"cursor-link"}
-                src={`https://cdn.zuugle.at/img/logo-facebook.png`}
-                width={"20px"}
-                height={"20px"}
-                onClick={() =>
-                  window.open("https://www.facebook.com/bahnzumberg/")
-                }
-                loading="lazy"
-                alt="Facebook"
-              />{" "}
+              <a
+                href="https://www.facebook.com/bahnzumberg/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Facebook"
+              >
+                <img
+                  className={"cursor-link"}
+                  src={`https://cdn.zuugle.at/img/logo-facebook.png`}
+                  width={"20px"}
+                  height={"20px"}
+                  loading="lazy"
+                  alt="Facebook"
+                />
+              </a>{" "}
               &nbsp;{" "}
-              <img
-                className={"cursor-link"}
-                src={`https://cdn.zuugle.at/img/logo-instagram.png`}
-                width={"20px"}
-                height={"20px"}
-                style={{ marginLeft: "5px" }}
-                onClick={() =>
-                  window.open("https://www.instagram.com/bahnzumberg/")
-                }
-                loading="lazy"
-                alt="Instagram"
-              />{" "}
+              <a
+                href="https://www.instagram.com/bahnzumberg/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+              >
+                <img
+                  className={"cursor-link"}
+                  src={`https://cdn.zuugle.at/img/logo-instagram.png`}
+                  width={"20px"}
+                  height={"20px"}
+                  style={{ marginLeft: "5px" }}
+                  loading="lazy"
+                  alt="Instagram"
+                />
+              </a>{" "}
               &nbsp;{" "}
-              <img
-                className={"cursor-link"}
-                src={`https://cdn.zuugle.at/img/logo-github.png`}
-                width={"20px"}
-                height={"20px"}
-                style={{ marginLeft: "5px" }}
-                onClick={() => window.open("https://github.com/bahnzumberg/")}
-                loading="lazy"
-                alt="GitHub"
-              />
+              <a
+                href="https://github.com/bahnzumberg/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
+              >
+                <img
+                  className={"cursor-link"}
+                  src={`https://cdn.zuugle.at/img/logo-github.png`}
+                  width={"20px"}
+                  height={"20px"}
+                  style={{ marginLeft: "5px" }}
+                  loading="lazy"
+                  alt="GitHub"
+                />
+              </a>
             </Box>
           </Grid>
         </Grid>

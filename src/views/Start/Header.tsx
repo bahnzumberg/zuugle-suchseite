@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
@@ -55,8 +55,10 @@ export default function Header({
       ) : (
         <>
           <Box className="rowing blueDiv">
-            <DomainMenu />
-            <LanguageMenu />
+            <Suspense fallback={null}>
+              <DomainMenu />
+              <LanguageMenu />
+            </Suspense>
           </Box>
 
           <Box className="header-text">

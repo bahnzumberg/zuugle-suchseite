@@ -5,7 +5,7 @@ import { LeftArrow } from "./HorizontalScroll/LeftArrow";
 import { RightArrow } from "./HorizontalScroll/RightArrow";
 import RangeCard from "./RangeCard";
 import { RangeObject } from "../features/apiSlice";
-import { useIsMobile } from "../utils/globals";
+import { useIsMobile } from "../utils/muiUtils";
 import { Link } from "react-router";
 
 export interface RangeCardContainerProps {

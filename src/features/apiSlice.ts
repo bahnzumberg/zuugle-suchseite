@@ -6,8 +6,8 @@ import {
 import { BoundsObject, CityObject, LocationWithRadius } from "./searchSlice";
 import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
-import { Marker } from "../components/Map/TourMapContainer";
-import { parseGPX, toLatLngBounds } from "../utils/map_utils";
+import { Marker } from "../models/mapTypes";
+import { parseGPX } from "../utils/gpx_utils";
 import { ConnectionResult } from "../models/Connections";
 
 export interface CityResponse {
@@ -155,9 +155,8 @@ export const api = createApi({
         const { bounds, geolocation, ...rest } = params;
         const augmentedParams = { ...rest, poi: geolocation, domain: domain };
         if (!geolocation && bounds) {
-          // only use bounds when geolocation search is inactive
-          const leafletBounds = toLatLngBounds(bounds);
-          return `tours/?${toSearchParams({ ...augmentedParams, bounds: leafletBounds })}`;
+          // Pass bounds directly - API handles the format
+          return `tours/?${toSearchParams({ ...augmentedParams, bounds })}`;
         }
         return `tours/?${toSearchParams(augmentedParams)}`;
       },
@@ -178,7 +177,7 @@ export const api = createApi({
         return { filter: response.filter, providers: response.providers };
       },
     }),
-    getGPX: build.query<L.LatLngExpression[], string>({
+    getGPX: build.query<[number, number][], string>({
       queryFn: async (url) => {
         try {
           const res = await fetch(url);

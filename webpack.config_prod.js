@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
@@ -40,10 +41,10 @@ module.exports = {
           },
         },
       },
-      // Korrekte Regel für CSS mit style-loader
+      // CSS-Regel mit MiniCssExtractPlugin für separate CSS-Dateien
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       // Korrekte Regel für SVG-Dateien als React-Komponenten
       {
@@ -81,7 +82,10 @@ module.exports = {
         { from: "./src/icons/svg", to: "app_static/icons" },
       ],
     }),
-    // MiniCssExtractPlugin ist jetzt entfernt
+    // MiniCssExtractPlugin für separate CSS-Dateien
+    new MiniCssExtractPlugin({
+      filename: "./app_static/[name].[contenthash].css",
+    }),
     new webpack.DefinePlugin({}),
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
@@ -111,35 +115,49 @@ module.exports = {
           test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
           name: "react-vendors",
           chunks: "all",
-          priority: 30, // Erhöhte Priorität
+          priority: 30,
           enforce: true,
         },
         mui: {
-          test: /[\\/]node_modules[\\/]@mui[\\/]/,
+          test: /[\\/]node_modules[\\/]@mui[\\/](?!x-date-pickers)/,
           name: "mui",
-          chunks: "all",
-          priority: 20, // Mittlere Priorität für MUI
+          chunks: "async", // Only load when dynamically imported (lazy routes)
+          priority: 20,
+          enforce: true,
+        },
+        datePickers: {
+          test: /[\\/]node_modules[\\/](@mui[\\/]x-date-pickers|dayjs)[\\/]/,
+          name: "date-pickers",
+          chunks: "async", // Only load when Filter component is used
+          priority: 25,
           enforce: true,
         },
         leaflet: {
           test: /[\\/]node_modules[\\/](leaflet|react-leaflet|react-leaflet-cluster|leaflet.markercluster|leaflet-src)[\\/]/,
           name: "leaflet",
-          chunks: "all",
-          priority: 20, // Mittlere Priorität für Leaflet
+          chunks: "async",
+          priority: 20,
+          enforce: true,
+        },
+        horizontalScroll: {
+          test: /[\\/]node_modules[\\/]react-horizontal-scrolling-menu[\\/]/,
+          name: "horizontal-scroll",
+          chunks: "async",
+          priority: 25,
           enforce: true,
         },
         i18n: {
           test: /[\\/]node_modules[\\/](i18next|react-i18next|i18next-http-backend|i18next-browser-languagedetector)[\\/]/,
           name: "i18n",
           chunks: "all",
-          priority: 20, // Mittlere Priorität für i18n
+          priority: 20,
           enforce: true,
         },
         redux: {
           test: /[\\/]node_modules[\\/](redux|@reduxjs)[\\/]/,
           name: "redux",
           chunks: "all",
-          priority: 20, // Mittlere Priorität für Redux
+          priority: 20,
           enforce: true,
         },
       },

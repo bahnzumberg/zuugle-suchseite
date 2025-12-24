@@ -7,7 +7,7 @@ import { Tour } from "../../models/Tour";
 import React from "react";
 import { Popup } from "react-leaflet";
 import L from "leaflet";
-import { Marker } from "./TourMapContainer";
+import { Marker } from "../../models/mapTypes";
 import { t } from "i18next";
 
 function PopupCard({
