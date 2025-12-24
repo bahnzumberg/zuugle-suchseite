@@ -20,3 +20,5 @@ api.log
 test.json
 *Zone.Identifier
 .eslintcache
+.env
+zuugle_postgresql.dump

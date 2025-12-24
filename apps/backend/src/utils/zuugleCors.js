@@ -1,4 +1,7 @@
-import express from "express";
+/** @typedef {import('express').Request} Request */
+/** @typedef {import('express').Response} Response */
+/** @typedef {import('express').NextFunction} NextFunction */
+
 //configuration allows a server to accept requests from specific domains ("whitelist")
 // and reject requests from all other domains.
 export const getZuugleCors = () => {
@@ -27,10 +30,11 @@ export const getZuugleCors = () => {
     ];
 
     const corsOptions = {
-        origin: function (
-            origin: string | undefined,
-            callback: (err: Error | null, allow?: boolean) => void,
-        ) {
+        /**
+         * @param {string | undefined} origin
+         * @param {(err: Error | null, allow?: boolean) => void} callback
+         */
+        origin: function (origin, callback) {
             if (origin === undefined || whitelist.indexOf(origin) !== -1) {
                 callback(null, true);
             } else {
@@ -41,11 +45,12 @@ export const getZuugleCors = () => {
     return corsOptions;
 };
 
-export const hostMiddleware = (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-) => {
+/**
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ */
+export const hostMiddleware = (req, res, next) => {
     const isPostman =
         !!req.headers["user-agent"] && req.headers["user-agent"].indexOf("Postman") >= 0;
     const hostWhitelist = [

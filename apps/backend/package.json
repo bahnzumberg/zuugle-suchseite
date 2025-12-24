@@ -18,6 +18,7 @@
         "import-data": "node build/jobs/syncDataProd.js",
         "import-data-full": "node build/jobs/syncDataProd.js",
         "import-data-docker": "node build/jobs/syncDataDocker.js",
+        "import-data-docker-download": "node build/jobs/syncDataDockerDownload.js",
         "import-data-prod": "node build/jobs/syncDataProd.js",
         "import-files": "node build/jobs/syncFiles.js",
         "import-files-prod": "node build/jobs/syncFiles.js",
@@ -40,6 +41,7 @@
     "devDependencies": {
         "@babel/cli": "^7.28.3",
         "@babel/core": "^7.28.5",
+        "@babel/node": "^7.28.0",
         "@babel/plugin-transform-runtime": "^7.28.5",
         "@babel/preset-env": "^7.28.5",
         "@babel/preset-typescript": "^7.28.5",

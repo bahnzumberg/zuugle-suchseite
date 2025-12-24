@@ -1,24 +1,10 @@
 version: "3.8"
 
+# Local development setup: Single PostgreSQL + Valkey cache
 services:
-    postgres-uat:
-        # Use the official image directly instead of building
+    postgres:
         image: pgvector/pgvector:pg16
-        container_name: zuugle-postgres-uat
-        restart: always
-        ports:
-            - "127.0.0.1:5434:5432"
-        environment:
-            POSTGRES_DB: zuugle_suchseite_db
-            POSTGRES_USER: zuugle_suche
-            POSTGRES_PASSWORD: docker
-        volumes:
-            # Mount the initialization SQL script directly
-            - ./database.sql:/docker-entrypoint-initdb.d/init.sql
-
-    postgres-dev:
-        image: pgvector/pgvector:pg16
-        container_name: zuugle-postgres-dev
+        container_name: zuugle-container
         restart: always
         ports:
             - "127.0.0.1:5433:5432"
@@ -28,3 +14,10 @@ services:
             POSTGRES_PASSWORD: docker
         volumes:
             - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+
+    valkey:
+        image: valkey/valkey:8-alpine
+        container_name: zuugle-valkey
+        restart: always
+        ports:
+            - "127.0.0.1:6379:6379"

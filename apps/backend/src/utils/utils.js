@@ -1,6 +1,10 @@
 import moment from "moment";
 
-export function get_domain_country(domain?: string) {
+/**
+ * @param {string} [domain]
+ * @returns {string}
+ */
+export function get_domain_country(domain) {
     if (domain == null) {
         return "AT"; // domain is undefined or null
     } else if (domain.indexOf("zuugle.de") >= 0) {
@@ -20,11 +24,19 @@ export function get_domain_country(domain?: string) {
     }
 }
 
-export function isNumber(value: unknown) {
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function isNumber(value) {
     return typeof value === "number";
 }
 
-export function getHost(origin: string) {
+/**
+ * @param {string} origin
+ * @returns {string}
+ */
+export function getHost(origin) {
     if (process.env.NODE_ENV === "production") {
         if (origin.length > 0) {
             return `https://${origin}`;
@@ -35,7 +47,11 @@ export function getHost(origin: string) {
     return "http://localhost:8080";
 }
 
-export const replaceFilePath = (filePath: string) => {
+/**
+ * @param {string} filePath
+ * @returns {string}
+ */
+export const replaceFilePath = (filePath) => {
     if (!filePath) {
         return filePath;
     }
@@ -46,15 +62,24 @@ export const getAllLanguages = () => {
     return ["en", "de", "it", "fr", "sl"];
 };
 
-export function minutesFromMoment(datetime: string) {
+/**
+ * @param {string} datetime
+ * @returns {number}
+ */
+export function minutesFromMoment(datetime) {
     const hours = moment(datetime).get("hour");
     const minutes = moment(datetime).get("minute");
     return hours * 60 + minutes;
 }
 
-// convert the "difficulty" value into a text value of types
-export const convertDifficulty = (difficulty: number): string => {
-    const map: Record<number, string> = {
+/**
+ * Convert the "difficulty" value into a text value
+ * @param {number} difficulty
+ * @returns {string}
+ */
+export const convertDifficulty = (difficulty) => {
+    /** @type {Record<number, string>} */
+    const map = {
         1: "Leicht",
         2: "Mittel",
         3: "Schwer",

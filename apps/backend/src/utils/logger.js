@@ -2,7 +2,10 @@ import * as fs from "fs";
 import path from "path";
 
 // TESTING DETACHED HEAD STATE
-export default function (text: string) {
+/**
+ * @param {string} text
+ */
+export default function (text) {
     const onoffswitch = "on"; // values: on / off
 
     if (onoffswitch == "on" || process.env.NODE_ENV !== "production") {
