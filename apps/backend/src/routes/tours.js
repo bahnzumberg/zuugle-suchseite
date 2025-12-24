@@ -821,7 +821,13 @@ const listWrapper = async (req, res) => {
                             ORDER BY SUM(1.0/(c2t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
                             LIMIT 10`;
 
-        range_result = await knex.raw(range_sql);
+        // Build bindings for range query based on what new_search_where_city needs
+        const range_bindings = [];
+        if (!!city && city.length > 0) {
+            range_bindings.push(city);
+        }
+
+        range_result = await knex.raw(range_sql, range_bindings);
         // console.log("range_sql: ", range_sql)
 
         if (!!range_result && !!range_result.rows) {
