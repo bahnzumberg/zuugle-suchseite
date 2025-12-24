@@ -1,5 +1,7 @@
 import Box from "@mui/material/Box";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CloseIcon from "@mui/icons-material/Close";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Grid from "@mui/material/Grid";
@@ -879,46 +881,50 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     />
 
                     <Box sx={{ marginTop: "15px" }}>
-                      <Grid container spacing={"10px"}>
-                        <Grid size={6}>
-                          <TimeField
-                            label={minimum_label}
-                            variant="outlined"
-                            value={dayjs()
-                              .startOf("day")
-                              .add(
-                                getFilterValue("minTransportDuration", 0),
-                                "hours",
-                              )}
-                            format="HH:mm"
-                            onChange={(value) =>
-                              setTempFilter({
-                                ...tempFilter,
-                                minTransportDuration: getDurationAsHours(value),
-                              })
-                            }
-                          />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Grid container spacing={"10px"}>
+                          <Grid size={6}>
+                            <TimeField
+                              label={minimum_label}
+                              variant="outlined"
+                              value={dayjs()
+                                .startOf("day")
+                                .add(
+                                  getFilterValue("minTransportDuration", 0),
+                                  "hours",
+                                )}
+                              format="HH:mm"
+                              onChange={(value) =>
+                                setTempFilter({
+                                  ...tempFilter,
+                                  minTransportDuration:
+                                    getDurationAsHours(value),
+                                })
+                              }
+                            />
+                          </Grid>
+                          <Grid size={6}>
+                            <TimeField
+                              label={maximum_label}
+                              variant="outlined"
+                              value={dayjs()
+                                .startOf("day")
+                                .add(
+                                  getFilterValue("maxTransportDuration", 50),
+                                  "hours",
+                                )}
+                              format="HH:mm"
+                              onChange={(value) =>
+                                setTempFilter({
+                                  ...tempFilter,
+                                  maxTransportDuration:
+                                    getDurationAsHours(value),
+                                })
+                              }
+                            />
+                          </Grid>
                         </Grid>
-                        <Grid size={6}>
-                          <TimeField
-                            label={maximum_label}
-                            variant="outlined"
-                            value={dayjs()
-                              .startOf("day")
-                              .add(
-                                getFilterValue("maxTransportDuration", 50),
-                                "hours",
-                              )}
-                            format="HH:mm"
-                            onChange={(value) =>
-                              setTempFilter({
-                                ...tempFilter,
-                                maxTransportDuration: getDurationAsHours(value),
-                              })
-                            }
-                          />
-                        </Grid>
-                      </Grid>
+                      </LocalizationProvider>
                     </Box>
                   </Grid>
                   <Grid

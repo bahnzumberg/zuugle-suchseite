@@ -1,126 +1,120 @@
-import { ThemeProvider } from "@mui/material/styles";
-import i18next from "i18next";
-import { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { lazy, Suspense } from "react";
+import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
-import { theme } from "./theme";
-import { getTopLevelDomain } from "./utils/globals";
-import Start from "./views/Start/Start";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import StartSkeleton from "./views/Start/StartSkeleton";
 
-// Importiere DetailReworked und Main jetzt dynamisch
-const Main = lazy(() => import("./views/Search"));
-const Imprint = lazy(() => import("./views/Imprint"));
-const Privacy = lazy(() => import("./views/Privacy"));
-const DetailReworked = lazy(() => import("./views/TourDetails"));
+// Lazy load the themed app shell (includes MUI ThemeProvider)
+const ThemedApp = lazy(() => import("./ThemedApp"));
+
+// Simple loading fallback for non-start routes
+function SimpleLoader() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        background: "#fff",
+      }}
+    >
+      <div
+        style={{
+          width: "40px",
+          height: "40px",
+          border: "3px solid #f3f3f3",
+          borderTop: "3px solid #4A7C59",
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
 
 function App() {
-  //check if first visit and change code to domain language
-  if (!localStorage.getItem("visited")) {
-    const domain = getTopLevelDomain();
-    //switch to domain language
-    switch (domain) {
-      case "si":
-        i18next.changeLanguage("sl");
-        break;
-      case "fr":
-        i18next.changeLanguage("fr");
-        break;
-      case "it":
-        i18next.changeLanguage("it");
-        break;
-      default:
-        i18next.changeLanguage("de");
-        break;
-    }
-    localStorage.setItem("visited", String(true));
-  }
-
-  // @ts-expect-error matomo
-  const _mtm = (window._mtm = window._mtm || []);
-  useEffect(() => {
-    _mtm.push({
-      "mtm.startTime": new Date().getTime(),
-      event: "mtm.Start",
-    });
-    const d = document,
-      g = d.createElement("script"),
-      s = d.getElementsByTagName("script")[0];
-    g.defer = true;
-    g.src = "https://stats.bahnzumberg.at/js/container_ANAXmMKf.js";
-    s.parentNode?.insertBefore(g, s);
-    _mtm.push({ language: i18next.resolvedLanguage });
-  }, []);
-
   return (
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <div
-          className="App"
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Start />} />
-            <Route path="/total" element={<Start />} />
-            <Route
-              path="/imprint"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Imprint />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/privacy"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Privacy />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/search"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Main />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/tour/:idOne/:cityOne?"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <DetailReworked />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/provider/:provider"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <DetailReworked />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/:city"
-              element={
-                <Suspense fallback={<div>Loading…</div>}>
-                  <Main />
-                </Suspense>
-              }
-            />
+    <div
+      className="App"
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Routes>
+        {/* Start page with skeleton fallback */}
+        <Route
+          path="/"
+          element={
+            <Suspense fallback={<StartSkeleton />}>
+              <ThemedApp routeKey="start" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/total"
+          element={
+            <Suspense fallback={<StartSkeleton />}>
+              <ThemedApp routeKey="start" />
+            </Suspense>
+          }
+        />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </LocalizationProvider>
-    </ThemeProvider>
+        {/* Other routes with simple loader */}
+        <Route
+          path="/imprint"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="imprint" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="privacy" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="search" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/tour/:idOne/:cityOne?"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="tour" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/provider/:provider"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="provider" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/:city"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <ThemedApp routeKey="city" />
+            </Suspense>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   );
 }
 

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { getMarkersBounds, toLatLngBounds } from "../../utils/map_utils";
 import L from "leaflet";
 import { RootState } from "../..";
-import { Marker } from "./TourMapContainer";
+import { Marker } from "../../models/mapTypes";
 import { LocationWithRadius } from "../../features/searchSlice";
 
 export interface MapBoundsUpdaterProps {

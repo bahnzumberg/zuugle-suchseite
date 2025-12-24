@@ -1,7 +1,7 @@
-import { lazy, useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { useIsMobile } from "../../utils/globals";
+import { useIsMobile } from "../../utils/muiUtils";
 import {
   usePageHeader,
   getTranslatedCountryName,
@@ -23,9 +23,9 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 // Dynamische Imports für nicht-kritische Komponenten
-const KPIContainer = lazy(() => import("../../components/KPIContainer"));
-const MapBtn = lazy(() => import("../../components/Search/MapBtn"));
-const Footer = lazy(() => import("../../components/Footer/Footer"));
+import KPIContainer from "../../components/KPIContainer";
+import MapBtn from "../../components/Search/MapBtn";
+import Footer from "../../components/Footer/Footer";
 
 export default function Start() {
   const { t } = useTranslation();

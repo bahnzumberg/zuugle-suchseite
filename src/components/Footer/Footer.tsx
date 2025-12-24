@@ -3,6 +3,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -106,6 +107,7 @@ export default function Footer() {
                   href="https://verein.bahn-zum-berg.at"
                   target="_blank"
                   rel="noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <Typography
                     sx={{
@@ -120,36 +122,40 @@ export default function Footer() {
                 </a>
               </Grid>
               <Grid size="grow">
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                  }}
-                  className={"cursor-link"}
-                  onClick={() =>
-                    window.open(
-                      `${window.location.protocol}//${window.location.host}/privacy`,
-                    )
-                  }
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.datenschutz")}
-                </Typography>
+                  <Typography
+                    sx={{
+                      marginLeft: "10px",
+                      textDecoration: "underline",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.datenschutz")}
+                  </Typography>
+                </Link>
               </Grid>
               <Grid size="grow">
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                  }}
-                  className={"cursor-link"}
-                  onClick={() =>
-                    window.open(
-                      `${window.location.protocol}//${window.location.host}/imprint`,
-                    )
-                  }
+                <Link
+                  to="/imprint"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.impressum")}
-                </Typography>
+                  <Typography
+                    sx={{
+                      marginLeft: "10px",
+                      textDecoration: "underline",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.impressum")}
+                  </Typography>
+                </Link>
               </Grid>
             </Grid>
           </Grid>

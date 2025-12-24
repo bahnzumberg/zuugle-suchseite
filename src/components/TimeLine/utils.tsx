@@ -5,8 +5,8 @@ import duration from "dayjs/plugin/duration";
 import {
   getTextFromConnectionDescriptionEntry,
   getTimeFromConnectionDescriptionEntry,
-  useIsMobile,
 } from "../../utils/globals";
+import { useIsMobile } from "../../utils/muiUtils";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import Box from "@mui/material/Box";
