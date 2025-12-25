@@ -1,6 +1,7 @@
 import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
 import { CustomIcon } from "../../icons/CustomIcon";
 
 const CssTextField = styled(TextField)({
@@ -72,13 +73,16 @@ export default function CityInput({ city, setCity }: CityInputProps) {
           </InputAdornment>
         ),
         endAdornment: (
-          <InputAdornment
-            position="end"
-            sx={{ cursor: "pointer" }}
-            onClick={() => setCity("")}
-          >
+          <InputAdornment position="end">
             {city && (
-              <CustomIcon name="clearSearchIcon" style={{ strokeWidth: 0 }} />
+              <IconButton
+                aria-label="clear city input"
+                onClick={() => setCity("")}
+                edge="end"
+                size="small"
+              >
+                <CustomIcon name="clearSearchIcon" style={{ strokeWidth: 0 }} />
+              </IconButton>
             )}
           </InputAdornment>
         ),
