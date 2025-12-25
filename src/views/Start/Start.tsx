@@ -1,5 +1,5 @@
 import { Box, Paper, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useIsMobile } from "../../utils/muiUtils";
@@ -33,6 +33,9 @@ export default function Start() {
   const language = useSelector((state: RootState) => state.search.language);
   const dispatch = useAppDispatch();
 
+  // Flag to prevent multiple API calls during initialization
+  const [isInitialized, setIsInitialized] = useState(false);
+
   usePageHeader({
     header: `Zuugle ${city?.label || t(getTranslatedCountryName())}`,
     description: t("index.zuugle_description"),
@@ -61,7 +64,16 @@ export default function Start() {
     dispatch(mapUpdated(false));
   }, []);
 
+  // Wait for SearchParamSync to finish updating Redux before allowing API calls
   useEffect(() => {
+    const timer = setTimeout(() => setIsInitialized(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Only trigger after initialization to prevent duplicate calls
+    if (!isInitialized) return;
+
     triggerLoadTours({
       limit: 10,
       city: citySlug ?? "",
@@ -69,7 +81,7 @@ export default function Start() {
       ranges: true,
       currLanguage: language || undefined,
     });
-  }, [citySlug, provider, language]);
+  }, [citySlug, provider, language, isInitialized]);
 
   const getRangeText = () => {
     if (city) {
