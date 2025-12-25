@@ -1164,6 +1164,7 @@ export async function populateCity2TourFlat() {
             c2t.city_slug,
             t.id, 
             t.provider, 
+            p.provider_name,
             t.hashed_url, 
             t.url, 
             t.title, 
