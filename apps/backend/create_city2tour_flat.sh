@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS city2tour_flat (
     city_slug varchar(64) NOT NULL,
     id int NOT NULL,
     provider varchar(30),
+    provider_name varchar(150) NOT NULL,
     hashed_url varchar(100),
     url varchar(1024),
     title varchar(255),
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS city2tour_flat (
 );
 
 INSERT INTO city2tour_flat (
-    reachable_from_country, city_slug, id, provider, hashed_url, url, 
+    reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
     title, image_url, type, country, state, range_slug, range, 
     text_lang, difficulty_orig, season, max_ele, 
     connection_arrival_stop_lon, connection_arrival_stop_lat, 
@@ -66,6 +67,7 @@ SELECT DISTINCT
     c2t.city_slug,
     t.id, 
     t.provider, 
+    p.provider_name,
     t.hashed_url, 
     t.url, 
     t.title, 
@@ -98,7 +100,8 @@ SELECT DISTINCT
     t.ai_search_column,
     c2t.stop_selector
 FROM city2tour AS c2t 
-INNER JOIN tour AS t ON c2t.tour_id = t.id;
+INNER JOIN tour AS t ON c2t.tour_id = t.id
+INNER JOIN provider AS p ON t.provider = p.provider;
 
 CREATE INDEX IF NOT EXISTS city2tour_flat_ai_search_idx ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
 CREATE INDEX IF NOT EXISTS city2tour_flat_search_idx ON city2tour_flat USING GIN (search_column);

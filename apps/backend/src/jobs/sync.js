@@ -1150,7 +1150,7 @@ export async function populateCity2TourFlat() {
         await knex.raw(`TRUNCATE city2tour_flat;`);
 
         await knex.raw(`INSERT INTO city2tour_flat (
-            reachable_from_country, city_slug, id, provider, hashed_url, url, 
+            reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
             title, image_url, type, country, state, range_slug, range, 
             text_lang, difficulty_orig, season, max_ele, 
             connection_arrival_stop_lon, connection_arrival_stop_lat, 
@@ -1196,7 +1196,8 @@ export async function populateCity2TourFlat() {
             t.ai_search_column,
             c2t.stop_selector
         FROM city2tour AS c2t 
-        INNER JOIN tour AS t ON c2t.tour_id = t.id;`);
+        INNER JOIN tour AS t ON c2t.tour_id = t.id
+        INNER JOIN provider AS p ON t.provider = p.provider;`);
 
         await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
         await knex.raw(`ANALYZE city2tour_flat;`);

@@ -364,22 +364,28 @@ const listWrapper = async (req, res) => {
     const country = req.query.country;
     const type = req.query.type;
     const domain = req.query.domain;
+    const tld = get_domain_country(domain).toUpperCase();
     const provider = req.query.provider;
     const language = req.query.language; // this referres to the column in table tour: The tour description is in which language
     const filter = req.query.filter;
     const poi = req.query.poi;
 
     const parsedBounds = bounds ? JSON.parse(bounds) : null;
-    const coordinatesNorthEast = parsedBounds ? parsedBounds._northEast : null;
-    const coordinatesSouthWest = parsedBounds ? parsedBounds._southWest : null;
+    // Round coordinates to 4 decimal places (~11m precision) to improve cache hit rate
+    const coordinatesNorthEast = parsedBounds
+        ? {
+              lat: Math.ceil(parsedBounds.north * 1000) / 1000,
+              lng: Math.ceil(parsedBounds.east * 1000) / 1000,
+          }
+        : null;
+    const coordinatesSouthWest = parsedBounds
+        ? {
+              lat: Math.floor(parsedBounds.south * 1000) / 1000,
+              lng: Math.floor(parsedBounds.west * 1000) / 1000,
+          }
+        : null;
 
     const parsedPoi = poi ? JSON.parse(poi) : null;
-
-    // variables initialized depending on availability of 'map' in the request
-    //const map = req && req.query && req.query.map === "true"; // add optional chaining
-    //let useLimit = !!!map;  // initialise with true
-    //let addDetails = !!!map; // initialise with true
-    let addDetails = true;
 
     let new_search_where_searchterm = ``;
     let new_search_order_searchterm = ``;
@@ -533,8 +539,6 @@ const listWrapper = async (req, res) => {
         }
     }
 
-    const tld = get_domain_country(domain).toUpperCase();
-
     if (typeof search === "string" && search.trim() !== "") {
         let postgresql_language_code = "german";
 
@@ -667,7 +671,8 @@ const listWrapper = async (req, res) => {
     const cachedIds = await cacheService.get(cacheKeyIds);
     if (cachedIds) {
         cachedTourIds = cachedIds;
-        // console.log("Cache hit: Tour IDs were not queried from database");
+        // console.log("Cache hit: Tour IDs were not queried from database. key=" + cacheKeyIds);
+        // console.log("global_where_condition_bound=" + JSON.stringify(global_where_condition_bound));
     } else {
         // Safe to interpolate tld directly: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
         const tour_ids_sql = `SELECT 
@@ -718,36 +723,50 @@ const listWrapper = async (req, res) => {
     const endIndex = startIndex + 9;
     const pagedTourIds = cachedTourIds.slice(startIndex, endIndex);
 
+    // Early return if pagination exceeds available results (e.g., page 2 when only 8 results exist)
+    if (pagedTourIds.length === 0) {
+        const responseData = {
+            success: true,
+            tours: [],
+            total: tour_count,
+            page: page,
+            ranges: [],
+            markers: [],
+        };
+        return res.status(200).json(responseData);
+    }
+
     const new_search_sql = `SELECT 
                         t.id, 
                         t.provider, 
-                        t.hashed_url, 
+                        t.provider_name,
+                        -- t.hashed_url, 
                         t.url, 
                         t.title, 
                         t.image_url,
-                        t.type, 
-                        t.country, 
-                        t.state, 
-                        t.range_slug, 
+                        -- t.type, 
+                        -- t.country, 
+                        -- t.state, 
+                        -- t.range_slug, 
                         t.range, 
-                        t.text_lang, 
-                        t.difficulty_orig,
-                        t.season,
-                        t.max_ele,
-                        t.connection_arrival_stop_lon,
-                        t.connection_arrival_stop_lat,
+                        -- t.text_lang, 
+                        -- t.difficulty_orig,
+                        -- t.season,
+                        -- t.max_ele,
+                        -- t.connection_arrival_stop_lon,
+                        -- t.connection_arrival_stop_lat,
                         t.min_connection_duration,
                         t.min_connection_no_of_transfers, 
                         ROUND(t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                         t.ascent, 
-                        t.descent, 
-                        t.difficulty, 
-                        t.duration, 
-                        t.distance, 
-                        t.number_of_days, 
-                        t.traverse, 
-                        t.quality_rating,
-                        t.month_order
+                        -- t.descent, 
+                        -- t.difficulty, 
+                        -- t.duration, 
+                        -- t.distance, 
+                        -- t.traverse, 
+                        -- t.quality_rating,
+                        -- t.month_order,
+                        t.number_of_days
                         FROM city2tour_flat AS t 
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
@@ -762,7 +781,7 @@ const listWrapper = async (req, res) => {
         if (result_sql && result_sql.rows) {
             result = result_sql.rows;
         } else {
-            console.log("knex.raw(new_search_sql): result or result.rows is null or undefined.");
+            // console.log("knex.raw(new_search_sql): result or result.rows is null or undefined.");
         }
     } catch (error) {
         console.log("Error firing new_search_sql:", error);
@@ -774,21 +793,22 @@ const listWrapper = async (req, res) => {
     let markers_result = ""; //markers-related : to return map markers positions from database
     let markers_array = []; // markers-related : to be filled by either cases(with or without "search included")
 
-    if (map) {
+    if (map === "true" || map === true) {
         try {
             // markers-related / searchIncluded
             const markers_sql = `SELECT 
-                            t.id, 
+                            t.tour_id as id, 
                             t.connection_arrival_stop_lat as lat,
                             t.connection_arrival_stop_lon as lon
                             FROM city2tour AS t 
                             WHERE t.reachable_from_country='${tld}'
-                            AND t.id IN (${cachedTourIds.join(", ")})
+                            AND t.tour_id IN (${cachedTourIds.join(", ")})
                             ${where_city_bound}
                             AND t.connection_arrival_stop_lat IS NOT NULL 
                             AND t.connection_arrival_stop_lon IS NOT NULL;`;
             markers_result = await knex.raw(markers_sql); // fire the DB call here
 
+            // console.log("markers_result: ", markers_result);
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows; // This is to be passed to the response below
@@ -803,26 +823,6 @@ const listWrapper = async (req, res) => {
     // Log search phrase on first page only (fire & forget - don't wait for result)
     if (page === 1 && search && req.query.city) {
         logSearchPhrase(search, tour_count, req.query.city, currLanguage, domain);
-    }
-
-    // preparing tour entries
-    // this code maps over the query result and applies the function prepareTourEntry to each entry. The prepareTourEntry
-    // function returns a modified version of the entry that includes additional data and formatting.
-    // The function also sets the 'is_map_entry' property of the entry to true if map is truthy.
-    // The function uses Promise.all to wait for all promises returned by 'prepareTourEntry' to resolve before
-    // returning the final result array.
-    if (result && Array.isArray(result)) {
-        await Promise.all(
-            result.map(
-                (entry) =>
-                    new Promise((resolve) => {
-                        // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
-                        prepareTourEntry(entry, city, domain, addDetails).then((updatedEntry) =>
-                            resolve(updatedEntry),
-                        );
-                    }),
-            ),
-        );
     }
 
     /** add ranges to result */
@@ -841,7 +841,7 @@ const listWrapper = async (req, res) => {
         const cachedRanges = await cacheService.get(cachedKeyRanges);
         if (cachedRanges) {
             ranges = cachedRanges;
-            console.log("Cache hit: Tour ranges were not queried from database");
+            // console.log("Cache hit: Tour ranges were not queried from database");
         } else {
             const months = [
                 "jan",
@@ -1012,7 +1012,7 @@ const filterWrapper = async (req, res) => {
                 MIN(t.min_connection_duration/60) AS minTransportDuration,
                 MAX(t.max_connection_duration/60) AS maxTransportDuration
                 FROM ${temp_table} t;`;
-    //console.log("kpi_sql: ", kpi_sql)
+    // console.log("kpi_sql: ", kpi_sql)
 
     let kpi_result = await knex.raw(kpi_sql);
     if (!!kpi_result && !!kpi_result.rows) {

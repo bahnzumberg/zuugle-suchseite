@@ -179,7 +179,7 @@ INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;
 CREATE TABLE provider (
       provider varchar(30) NOT NULL,
       provider_name varchar(150) NOT NULL,
-	  allow_gpx_download varchar(1) default 'y',
+	allow_gpx_download varchar(1) default 'y',
       PRIMARY KEY (provider)
 );
 
@@ -255,6 +255,7 @@ CREATE TABLE city2tour_flat (
     city_slug varchar(64) NOT NULL,
     id int NOT NULL,
     provider varchar(30),
+    provider_name varchar(150) NOT NULL,
     hashed_url varchar(100),
     url varchar(1024),
     title varchar(255),
