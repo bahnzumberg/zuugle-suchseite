@@ -71,6 +71,8 @@ export async function fixTours() {
         `UPDATE tour SET search_column = to_tsvector( 'french', full_text ) WHERE text_lang ='fr';`,
     );
 
+    await knex.raw(`ANALYZE tour;`);
+
     await knex.raw(
         `DELETE FROM city WHERE city_slug NOT IN (SELECT DISTINCT city_slug FROM fahrplan);`,
     );
@@ -253,6 +255,8 @@ export async function fixTours() {
                     ) AS e
                     WHERE ct.tour_id=e.tour_id
                     AND ct.city_slug=e.city_slug;`);
+
+    await knex.raw(`ANALYZE city2tour;`);
 
     // fill information about canonical and alternate links
     await knex.raw(`TRUNCATE canonical_alternate;`);
