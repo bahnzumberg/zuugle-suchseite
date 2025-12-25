@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS gpx;
 DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS tracks;
 DROP TABLE IF EXISTS canonical_alternate;
+DROP TABLE IF EXISTS city2tour_flat;
 
 
 CREATE TABLE tour (
@@ -245,6 +246,54 @@ CREATE TABLE city2tour (
 CREATE INDEX ON city2tour (tour_id);
 CREATE INDEX ON city2tour (city_slug);
 CREATE INDEX ON city2tour (reachable_from_country);
+
+
+
+
+CREATE TABLE city2tour_flat (
+    reachable_from_country varchar(2) NOT NULL,
+    city_slug varchar(64) NOT NULL,
+    id int NOT NULL,
+    provider varchar(30),
+    hashed_url varchar(100),
+    url varchar(1024),
+    title varchar(255),
+    image_url varchar(1024),
+    type varchar(255),
+    country varchar(128),
+    state varchar(128),
+    range_slug varchar(128),
+    range varchar(128),
+    text_lang VARCHAR(2),
+    difficulty_orig varchar(45),
+    season varchar(1),
+    max_ele INT,
+    connection_arrival_stop_lon decimal(12,9),
+    connection_arrival_stop_lat decimal(12,9),
+    min_connection_duration int,
+    max_connection_duration int,
+    min_connection_no_of_transfers INTEGER,
+    avg_total_tour_duration decimal(6,2),
+    ascent int,
+    descent int,
+    difficulty int,
+    duration decimal(6,2),
+    distance decimal(6,2),
+    number_of_days int,
+    traverse int,
+    quality_rating integer,
+    month_order int,
+    search_column tsvector,
+    ai_search_column vector(1024),
+    stop_selector char(1),
+    PRIMARY KEY (reachable_from_country, city_slug, id)
+);
+
+CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+CREATE INDEX ON city2tour_flat USING GIN (search_column);
+CREATE INDEX ON city2tour_flat (stop_selector);
+CREATE INDEX ON city2tour_flat (text_lang);
+
 
 
 CREATE TABLE tracks (

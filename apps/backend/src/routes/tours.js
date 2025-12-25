@@ -13,10 +13,77 @@ import fs from "fs";
 import path from "path";
 import momenttz from "moment-timezone";
 
+/**
+ * Generates a unique cache key based on a prefix and an object (usually query parameters).
+ * @param {string} prefix - The prefix for the cache key (e.g., 'tours:list').
+ * @param {object} obj - The object to stringify and append to the key.
+ * @returns {string} The generated cache key.
+ */
 const generateKey = (prefix, obj) => {
     const str = JSON.stringify(obj, Object.keys(obj).sort());
     const hash = crypto.createHash("sha256").update(str).digest("hex");
     return `${prefix}:${hash}`;
+};
+
+/**
+ * Replaces SQL placeholders (?) with escaped values for safe SQL string generation.
+ * @param {string} sql - SQL string with ? placeholders.
+ * @param {array} bindings - Array of values to bind.
+ * @returns {string} SQL string with values safely interpolated.
+ */
+const bindValues = (sql, bindings) => {
+    let index = 0;
+    const result = sql.replace(/\?/g, () => {
+        if (index >= bindings.length) {
+            throw new Error("Not enough bindings for SQL placeholders");
+        }
+        const value = bindings[index++];
+
+        // Escape the value based on type
+        if (value === null || value === undefined) {
+            return "NULL";
+        } else if (typeof value === "string") {
+            // Escape single quotes by doubling them (SQL standard)
+            return `'${value.replace(/'/g, "''")}'`;
+        } else if (typeof value === "number") {
+            return String(value);
+        } else if (typeof value === "boolean") {
+            return value ? "true" : "false";
+        } else {
+            // For objects/arrays, convert to JSON string and escape
+            return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
+        }
+    });
+
+    // Normalize whitespace: replace multiple spaces/newlines with a single space
+    return result.replace(/\s+/g, " ").trim();
+};
+
+/**
+ * Logs search phrases to the database asynchronously (fire & forget).
+ * @param {string} search - The search term.
+ * @param {number} resultCount - Number of results found.
+ * @param {string} citySlug - City slug.
+ * @param {string} language - Menu language.
+ * @param {string} domain - Domain for country detection.
+ */
+const logSearchPhrase = async (search, resultCount, citySlug, language, domain) => {
+    try {
+        if (!search || search.trim().length === 0 || !citySlug || resultCount <= 1) {
+            return;
+        }
+
+        const searchparam = search.toLowerCase().trim();
+        await knex("logsearchphrase").insert({
+            phrase: searchparam,
+            num_results: resultCount,
+            city_slug: citySlug,
+            menu_lang: language,
+            country_code: get_domain_country(domain),
+        });
+    } catch (e) {
+        console.error("error inserting into logsearchphrase: ", e);
+    }
 };
 
 router.get("/", (req, res) => listWrapper(req, res));
@@ -28,6 +95,12 @@ router.get("/:id/connections-extended", (req, res) => connectionsExtendedWrapper
 router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
 router.get("/:id/:city", (req, res) => getWrapper(req, res));
 
+/**
+ * Checks if the requested provider matches the valid provider for a tour and returns the
+ * GPX download permission status.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const providerWrapper = async (req, res) => {
     const provider = req.params.provider;
     const approved = await knex("provider")
@@ -44,6 +117,12 @@ const providerWrapper = async (req, res) => {
     }
 };
 
+/**
+ * Retrieves total statistics (KPIs) for the tours, connections, ranges, cities, and providers.
+ * If a city is specified in the query, the stats are filtered for that city.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const totalWrapper = async (req, res) => {
     const city = req.query.city;
 
@@ -88,6 +167,12 @@ const totalWrapper = async (req, res) => {
     res.status(200).json(responseData);
 };
 
+/**
+ * Fetches the details of a specific tour by its ID.
+ * Includes connection information, validation status, and checks for active/inactive related tours.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const getWrapper = async (req, res) => {
     const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
     const id = parseInt(req.params.id, 10);
@@ -111,11 +196,11 @@ const getWrapper = async (req, res) => {
         return;
     }
 
-    let new_search_where_city = `AND c2t.stop_selector='y' `;
+    let new_search_where_city = `AND t.stop_selector='y' `;
     let bindings = [tld];
 
     if (!!city && city.length > 0 && city != "no-city") {
-        new_search_where_city = `AND c2t.city_slug=? `;
+        new_search_where_city = `AND t.city_slug=? `;
         bindings.push(city);
     }
 
@@ -124,6 +209,7 @@ const getWrapper = async (req, res) => {
     // Add id binding for the second part of UNION
     bindings.push(id);
 
+    // Safe to interpolate tld directly in SQL: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
     const sql = `SELECT 
                 id, 
                 url, 
@@ -154,34 +240,34 @@ const getWrapper = async (req, res) => {
                 ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                 valid_tour
                 FROM ( 
-                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
-                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
-                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
-                t.month_order, t.quality_rating, t.max_ele,
+                SELECT t.id, t.url, t.provider, t.hashed_url, tour.description, tour.image_url, tour.ascent,
+                tour.descent, tour.difficulty, tour.difficulty_orig , tour.duration, tour.distance, tour.title, tour.type,
+                tour.number_of_days, tour.traverse, tour.country, tour.state, tour.range_slug, tour.range, tour.season,
+                tour.month_order, tour.quality_rating, tour.max_ele,
                 1 AS valid_tour,
-                c2t.min_connection_duration,
-                c2t.min_connection_no_of_transfers,
-                c2t.avg_total_tour_duration
-                FROM tour as t 
-                INNER JOIN city2tour AS c2t 
-                ON c2t.tour_id=t.id 
-                WHERE c2t.reachable_from_country=?
+                t.min_connection_duration,
+                t.min_connection_no_of_transfers,
+                t.avg_total_tour_duration
+                FROM city2tour_flat as t
+                INNER JOIN tour as tour ON tour.id=t.id
+                WHERE t.reachable_from_country=?
                 ${new_search_where_city}
                 AND t.id=?
                 UNION 
-                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent, 
-                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type, 
-                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, 
+                SELECT tour_inactive.id, tour_inactive.url, tour_inactive.provider, tour_inactive.hashed_url, tour_inactive.description, tour_inactive.image_url, tour_inactive.ascent, 
+                tour_inactive.descent, tour_inactive.difficulty, tour_inactive.difficulty_orig , tour_inactive.duration, tour_inactive.distance, tour_inactive.title, tour_inactive.type, 
+                tour_inactive.number_of_days, tour_inactive.traverse, tour_inactive.country, tour_inactive.state, tour_inactive.range_slug, tour_inactive.range, 
                 'g' as season, 0 as month_order, 0 as quality_rating, 
                 0 as max_ele, 
                 0 AS valid_tour,
                 0 as min_connection_duration,
                 0 as min_connection_no_of_transfers,
                 0 as avg_total_tour_duration
-                FROM tour_inactive as t WHERE t.id=?
+                FROM tour_inactive WHERE tour_inactive.id=?
                 ORDER BY valid_tour DESC LIMIT 1) as a`;
 
     const sql3_bindings = [tld, id];
+    // Safe to interpolate tld directly in SQL: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
     const sql3 = `SELECT 
                 id, 
                 url, 
@@ -212,18 +298,17 @@ const getWrapper = async (req, res) => {
                 ROUND(avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                 valid_tour
                 FROM ( 
-                SELECT t.id, t.url, t.provider, t.hashed_url, t.description, t.image_url, t.ascent,
-                t.descent, t.difficulty, t.difficulty_orig , t.duration, t.distance, t.title, t.type,
-                t.number_of_days, t.traverse, t.country, t.state, t.range_slug, t.range, t.season,
-                t.month_order, t.quality_rating, t.max_ele,
+                SELECT t.id, t.url, t.provider, t.hashed_url, tour.description, tour.image_url, tour.ascent,
+                tour.descent, tour.difficulty, tour.difficulty_orig , tour.duration, tour.distance, tour.title, tour.type,
+                tour.number_of_days, tour.traverse, tour.country, tour.state, tour.range_slug, tour.range, tour.season,
+                tour.month_order, tour.quality_rating, tour.max_ele,
                 2 AS valid_tour,
-                c2t.min_connection_duration,
-                c2t.min_connection_no_of_transfers,
-                c2t.avg_total_tour_duration
-                FROM tour as t 
-                INNER JOIN city2tour AS c2t 
-                ON c2t.tour_id=t.id 
-                WHERE c2t.reachable_from_country=?
+                t.min_connection_duration,
+                t.min_connection_no_of_transfers,
+                t.avg_total_tour_duration
+                FROM city2tour_flat as t
+                INNER JOIN tour as tour ON tour.id=t.id 
+                WHERE t.reachable_from_country=?
                 AND t.id=?
                 ORDER BY valid_tour DESC LIMIT 1) as a`;
 
@@ -259,13 +344,13 @@ const getWrapper = async (req, res) => {
     }
 };
 
+/**
+ * Main search endpoint. Lists tours based on various filters such as search term, city, range,
+ * range_slug, statistics (KPIs), and more. Supports pagination and caching.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const listWrapper = async (req, res) => {
-    const cacheKey = generateKey("tours:list", req.query);
-    const cached = await cacheService.get(cacheKey);
-    if (cached) {
-        return res.status(200).json(cached);
-    }
-
     const showRanges = !!req.query.ranges;
     const page = req.query.page || 1;
     const map = req.query.map;
@@ -298,7 +383,6 @@ const listWrapper = async (req, res) => {
 
     let new_search_where_searchterm = ``;
     let new_search_order_searchterm = ``;
-    let new_search_where_city = ``;
     let new_search_where_country = ``;
     let new_search_where_state = ``;
     let new_search_where_range = ``;
@@ -390,14 +474,14 @@ const listWrapper = async (req, res) => {
             isNumber(filterJSON["minTransportDuration"]) &&
             filterJSON["minTransportDuration"] >= 0
         ) {
-            new_filter_where_TransportDuration += `AND c2t.min_connection_duration >= ${filterJSON["minTransportDuration"] * 60} `;
+            new_filter_where_TransportDuration += `AND t.min_connection_duration >= ${filterJSON["minTransportDuration"] * 60} `;
         }
 
         if (
             isNumber(filterJSON["maxTransportDuration"]) &&
             filterJSON["maxTransportDuration"] >= 0
         ) {
-            new_filter_where_TransportDuration += `AND c2t.min_connection_duration <= ${filterJSON["maxTransportDuration"] * 60} `;
+            new_filter_where_TransportDuration += `AND t.min_connection_duration <= ${filterJSON["maxTransportDuration"] * 60} `;
         }
 
         if (isNumber(filterJSON["minDistance"]) && filterJSON["minDistance"] > 0) {
@@ -450,13 +534,6 @@ const listWrapper = async (req, res) => {
     }
 
     const tld = get_domain_country(domain).toUpperCase();
-
-    if (!!city && city.length > 0) {
-        new_search_where_city = `AND c2t.city_slug=? `;
-        bindings.push(city);
-    } else {
-        new_search_where_city = `AND c2t.stop_selector='y' `;
-    }
 
     if (typeof search === "string" && search.trim() !== "") {
         let postgresql_language_code = "german";
@@ -541,12 +618,11 @@ const listWrapper = async (req, res) => {
         const latSW = coordinatesSouthWest.lat.toString();
         const lngSW = coordinatesSouthWest.lng.toString();
 
-        new_search_where_map = `AND c2t.connection_arrival_stop_lon between (?)::numeric and (?)::numeric AND c2t.connection_arrival_stop_lat between (?)::numeric AND (?)::numeric `;
+        new_search_where_map = `AND t.connection_arrival_stop_lon between (?)::numeric and (?)::numeric AND t.connection_arrival_stop_lat between (?)::numeric AND (?)::numeric `;
         bindings.push(lngSW, lngNE, latSW, latNE);
     }
 
-    const global_where_condition = `${new_search_where_city}
-                                    ${new_search_where_searchterm}
+    const global_where_condition = `${new_search_where_searchterm}
                                     ${new_search_where_range}
                                     ${new_search_where_state}
                                     ${new_search_where_country}
@@ -570,56 +646,77 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_providers}
                                     ${new_filter_where_poi}`;
 
-    // Use a random string to avoid SQL injection via city name in table name
-    const randomSuffix = crypto.randomBytes(6).toString("hex");
-    const temp_table = `temp_${tld}_${Date.now()}_${randomSuffix}`;
+    // Create a version with actual values for cache key generation
+    const global_where_condition_bound = bindValues(global_where_condition, bindings);
+    const new_search_order_searchterm_bound = bindValues(
+        new_search_order_searchterm,
+        order_bindings,
+    );
+    const where_city_bound =
+        city && city.length > 0
+            ? `AND t.city_slug='${city.replace(/'/g, "''")}'`
+            : `AND t.stop_selector='y'`;
 
-    const temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
-                        SELECT 
-                        t.id, 
-                        t.provider, 
-                        t.hashed_url, 
-                        t.url, 
-                        t.title, 
-                        t.image_url,
-                        t.type, 
-                        t.country, 
-                        t.state, 
-                        t.range_slug, 
-                        t.range, 
-                        t.text_lang, 
-                        t.difficulty_orig,
-                        t.season,
-                        t.max_ele,
-                        c2t.connection_arrival_stop_lon,
-                        c2t.connection_arrival_stop_lat,
-                        c2t.min_connection_duration,
-                        c2t.min_connection_no_of_transfers, 
-                        c2t.avg_total_tour_duration,
-                        t.ascent, 
-                        t.descent, 
-                        t.difficulty, 
-                        t.duration, 
-                        t.distance, 
-                        t.number_of_days, 
-                        t.traverse, 
-                        t.quality_rating,
-                        t.month_order,
-                        t.search_column,
-                        t.ai_search_column
-                        FROM city2tour AS c2t 
-                        INNER JOIN tour AS t 
-                        ON c2t.tour_id=t.id 
-                        WHERE c2t.reachable_from_country=?
-                        ${global_where_condition};`;
-    await knex.raw(temporary_sql, [tld, ...bindings]);
-    // console.log("temporary_sql = ", temporary_sql);
-
-    try {
-        await knex.raw(`CREATE INDEX idx_id ON ${temp_table} (id);`);
-    } catch (error) {
-        console.log("Error creating index idx_id:", error);
+    // Generate List of IDs, which is hopefully already in Valkey, so it should be really fast
+    let cachedTourIds = [];
+    const cacheKeyIds = generateKey("tours:ids", {
+        tld,
+        city,
+        condition: global_where_condition_bound,
+    });
+    const cachedIds = await cacheService.get(cacheKeyIds);
+    if (cachedIds) {
+        cachedTourIds = cachedIds;
+        // console.log("Cache hit: Tour IDs were not queried from database");
+    } else {
+        // Safe to interpolate tld directly: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
+        const tour_ids_sql = `SELECT 
+                            t.id
+                            FROM city2tour_flat as t
+                            WHERE t.reachable_from_country='${tld}'
+                            ${where_city_bound}
+                            ${global_where_condition_bound}
+                            ORDER BY 
+                            CASE WHEN t.text_lang='${language}' THEN 1 ELSE 0 END DESC,
+                            ${new_search_order_searchterm_bound}
+                            t.month_order ASC, 
+                            t.number_of_days ASC,
+                            CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
+                            TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,
+                            TRUNC(t.min_connection_duration / 30, 0) ASC, 
+                            t.traverse DESC, 
+                            t.quality_rating DESC,
+                            FLOOR(t.duration) ASC,
+                            MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
+        const tour_ids = await knex.raw(tour_ids_sql);
+        cachedTourIds = tour_ids.rows.map((row) => row.id);
+        await cacheService.set(cacheKeyIds, cachedTourIds);
+        // console.log("Cache miss: Tour IDs were queried from database");
     }
+
+    // ****************************************************************
+    // GET THE COUNT
+    // ****************************************************************
+    const tour_count = cachedTourIds.length;
+
+    // Safety check: if no tour IDs cached, return empty result
+    if (tour_count === 0) {
+        // console.log("No cached tour IDs - returning empty result");
+        const responseData = {
+            success: true,
+            tours: [],
+            total: 0,
+            page: page,
+            ranges: [],
+            markers: [],
+        };
+        return res.status(200).json(responseData);
+    }
+
+    // Get only the 9 tour IDs for the current page (cachedTourIds is already sorted)
+    const startIndex = 9 * (page - 1);
+    const endIndex = startIndex + 9;
+    const pagedTourIds = cachedTourIds.slice(startIndex, endIndex);
 
     const new_search_sql = `SELECT 
                         t.id, 
@@ -651,27 +748,17 @@ const listWrapper = async (req, res) => {
                         t.traverse, 
                         t.quality_rating,
                         t.month_order
-                        FROM ${temp_table} AS t 
-                        ORDER BY 
-                        CASE WHEN t.text_lang=? THEN 1 ELSE 0 END DESC,
-                        ${new_search_order_searchterm}
-                        t.month_order ASC, 
-                        t.number_of_days ASC,
-                        CASE WHEN t.ascent BETWEEN 600 AND 1200 THEN 0 ELSE 1 END ASC, 
-                        TRUNC(t.min_connection_no_of_transfers*t.min_connection_no_of_transfers/2) ASC,
-                        TRUNC(t.min_connection_duration / 30, 0) ASC, 
-                        t.traverse DESC, 
-                        t.quality_rating DESC,
-                        FLOOR(t.duration) ASC,
-                        MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC
-                        LIMIT 9 OFFSET ${9 * (page - 1)};`;
+                        FROM city2tour_flat AS t 
+                        WHERE t.reachable_from_country='${tld}'
+                        ${where_city_bound}
+                        AND t.id IN (${pagedTourIds.join(", ")});`;
 
-    // console.log("new_search_sql: ", new_search_sql)
+    // console.log("new_search_sql: ", new_search_sql);
 
     let result_sql = null;
     let result = [];
     try {
-        result_sql = await knex.raw(new_search_sql, [currLanguage, ...order_bindings]); // fire the DB call here
+        result_sql = await knex.raw(new_search_sql); // fire the DB call here
         if (result_sql && result_sql.rows) {
             result = result_sql.rows;
         } else {
@@ -679,19 +766,6 @@ const listWrapper = async (req, res) => {
         }
     } catch (error) {
         console.log("Error firing new_search_sql:", error);
-    }
-
-    // ****************************************************************
-    // GET THE COUNT
-    // ****************************************************************
-    let sql_count = 0;
-    try {
-        let count_query = knex.raw(`SELECT COUNT(*) AS row_count FROM ${temp_table};`);
-        let sql_count_call = await count_query;
-        sql_count = parseInt(sql_count_call.rows[0].row_count, 10);
-        // console.log("count_sql: ", count_sql)
-    } catch (error) {
-        console.log("Error retrieving count:", error);
     }
 
     // ****************************************************************
@@ -707,8 +781,11 @@ const listWrapper = async (req, res) => {
                             t.id, 
                             t.connection_arrival_stop_lat as lat,
                             t.connection_arrival_stop_lon as lon
-                            FROM ${temp_table} AS t 
-                            WHERE t.connection_arrival_stop_lat IS NOT NULL 
+                            FROM city2tour AS t 
+                            WHERE t.reachable_from_country='${tld}'
+                            AND t.id IN (${cachedTourIds.join(", ")})
+                            ${where_city_bound}
+                            AND t.connection_arrival_stop_lat IS NOT NULL 
                             AND t.connection_arrival_stop_lon IS NOT NULL;`;
             markers_result = await knex.raw(markers_sql); // fire the DB call here
 
@@ -723,38 +800,9 @@ const listWrapper = async (req, res) => {
         }
     }
 
-    try {
-        await knex.raw(`DROP TABLE ${temp_table};`);
-    } catch (err) {
-        console.log("Drop temp table failed: ", err);
-    }
-
-    //logsearchphrase
-    //This code first logs the search phrase and the number of results in a database table called logsearchphrase if a search was performed. It replaces any single quotes in the search parameter with double quotes, which is necessary to insert the search parameter into the SQL statement.
-    try {
-        let searchparam = "";
-
-        if (
-            search !== undefined &&
-            search !== null &&
-            search.length > 0 &&
-            req.query.city !== undefined
-        ) {
-            // Entfernt führende und nachfolgende Leerzeichen
-            searchparam = search.toLowerCase().trim();
-
-            if (!!sql_count && sql_count > 1) {
-                await knex("logsearchphrase").insert({
-                    phrase: searchparam,
-                    num_results: sql_count,
-                    city_slug: req.query.city,
-                    menu_lang: currLanguage,
-                    country_code: get_domain_country(domain),
-                });
-            }
-        }
-    } catch (e) {
-        console.error("error inserting into logsearchphrase: ", e);
+    // Log search phrase on first page only (fire & forget - don't wait for result)
+    if (page === 1 && search && req.query.city) {
+        logSearchPhrase(search, tour_count, req.query.city, currLanguage, domain);
     }
 
     // preparing tour entries
@@ -789,49 +837,50 @@ const listWrapper = async (req, res) => {
     let range_result = undefined;
 
     if (showRanges) {
-        const months = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec",
-        ];
-        const shortMonth = months[new Date().getMonth()];
-        const range_sql = `SELECT
-                            t.range_slug,
-                            t.range,
-                            CONCAT('https://cdn.zuugle.at/range-image/', t.range_slug, '.webp') as image_url,
-                            SUM(1.0/(c2t.min_connection_no_of_transfers+1)) AS attract
-                            FROM city2tour AS c2t 
-                            INNER JOIN tour AS t 
-                            ON c2t.tour_id=t.id 
-                            WHERE c2t.reachable_from_country='${tld}'
-                            ${new_search_where_city}
-                            AND ${shortMonth}='true'
-                            AND t.range_slug IS NOT NULL
-                            AND t.range IS NOT NULL
-                            GROUP BY 1, 2, 3
-                            ORDER BY SUM(1.0/(c2t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
-                            LIMIT 10`;
+        const cachedKeyRanges = generateKey("tours:ranges", { tld, city });
+        const cachedRanges = await cacheService.get(cachedKeyRanges);
+        if (cachedRanges) {
+            ranges = cachedRanges;
+            console.log("Cache hit: Tour ranges were not queried from database");
+        } else {
+            const months = [
+                "jan",
+                "feb",
+                "mar",
+                "apr",
+                "may",
+                "jun",
+                "jul",
+                "aug",
+                "sep",
+                "oct",
+                "nov",
+                "dec",
+            ];
+            const shortMonth = months[new Date().getMonth()];
+            const range_sql = `SELECT
+                                t.range_slug,
+                                t.range,
+                                CONCAT('https://cdn.zuugle.at/range-image/', t.range_slug, '.webp') as image_url,
+                                SUM(1.0/(t.min_connection_no_of_transfers+1)) AS attract
+                                FROM city2tour_flat AS t
+                                INNER JOIN tour AS tour ON tour.id=t.id
+                                WHERE t.reachable_from_country='${tld}'
+                                ${where_city_bound}
+                                AND tour.${shortMonth}='true'
+                                AND t.range_slug IS NOT NULL
+                                AND t.range IS NOT NULL
+                                GROUP BY 1, 2, 3
+                                ORDER BY SUM(1.0/(t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
+                                LIMIT 10`;
 
-        // Build bindings for range query based on what new_search_where_city needs
-        const range_bindings = [];
-        if (!!city && city.length > 0) {
-            range_bindings.push(city);
-        }
+            range_result = await knex.raw(range_sql);
+            // console.log("range_sql: ", range_sql)
 
-        range_result = await knex.raw(range_sql, range_bindings);
-        // console.log("range_sql: ", range_sql)
-
-        if (!!range_result && !!range_result.rows) {
-            ranges = range_result.rows;
+            if (!!range_result && !!range_result.rows) {
+                ranges = range_result.rows;
+            }
+            await cacheService.set(cachedKeyRanges, ranges);
         }
     }
 
@@ -845,17 +894,20 @@ const listWrapper = async (req, res) => {
     const responseData = {
         success: true,
         tours: result,
-        total: sql_count,
+        total: tour_count,
         page: page,
         ranges: ranges,
         markers: markers_array,
     };
-
-    await cacheService.set(cacheKey, responseData);
-
     res.status(200).json(responseData);
 }; // end of listWrapper
 
+/**
+ * Returns available filter options (types, ranges, providers, min/max values) that match
+ * the current search criteria (search term, city, domain).
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const filterWrapper = async (req, res) => {
     const cacheKey = generateKey("tours:filter", req.query);
     const cached = await cacheService.get(cacheKey);
@@ -877,11 +929,11 @@ const filterWrapper = async (req, res) => {
     let ranges = [];
     let providers = [];
     let tld = get_domain_country(domain).toUpperCase();
-    let where_city = ` AND c2t.stop_selector='y' `;
+    let where_city = ` AND t.stop_selector='y' `;
     let new_search_where_searchterm = "";
 
     if (!!city && city.length > 0) {
-        where_city = ` AND c2t.city_slug=? `;
+        where_city = ` AND t.city_slug=? `;
         bindings.push(city);
     }
 
@@ -923,12 +975,10 @@ const filterWrapper = async (req, res) => {
                     max(t.descent) AS max_descent,
                     min(t.distance) AS min_distance,
                     max(t.distance) AS max_distance,
-                    min(c2t.min_connection_duration) AS min_connection_duration,
-                    max(c2t.max_connection_duration) AS max_connection_duration
-                    FROM city2tour AS c2t 
-                    INNER JOIN tour AS t 
-                    ON c2t.tour_id=t.id                          
-                    WHERE c2t.reachable_from_country='${tld}'  
+                    min(t.min_connection_duration) AS min_connection_duration,
+                    max(t.max_connection_duration) AS max_connection_duration
+                    FROM city2tour_flat AS t 
+                    WHERE t.reachable_from_country='${tld}'  
                     ${where_city}
                     ${new_search_where_searchterm}
                     GROUP BY
@@ -1086,6 +1136,12 @@ const filterWrapper = async (req, res) => {
     res.status(200).json(responseData);
 }; // end of filterWrapper
 
+/**
+ * Retrieves detailed public transport connection schedules (outbound and return) for a specific tour and city.
+ * Returns connections for the next 7 days.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const connectionsExtendedWrapper = async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
@@ -1187,6 +1243,13 @@ const connectionsExtendedWrapper = async (req, res) => {
     res.status(200).json({ success: true, result: result });
 };
 
+/**
+ * Helper function to filter and map return connections that match the date of the outbound connection.
+ * @param {Array} connections - List of all available connections.
+ * @param {string} domain - The domain to generate GPX links for.
+ * @param {Moment} today - The specific date to filter for.
+ * @returns {Array} List of unique return connections for the given date.
+ */
 const getReturnConnectionsByConnection = (connections, domain, today) => {
     let _connections = [];
     let _duplicatesRemoved = [];
@@ -1211,6 +1274,13 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
     return _duplicatesRemoved;
 };
 
+/**
+ * Helper function to compare two connection objects to check if they represent the same trip
+ * (based on departure and arrival times).
+ * @param {object} trans1 - First connection object.
+ * @param {object} trans2 - Second connection object.
+ * @returns {boolean} True if they are the same, false otherwise.
+ */
 const compareConnections = (trans1, trans2) => {
     return (
         trans1 != null &&
@@ -1224,6 +1294,12 @@ const compareConnections = (trans1, trans2) => {
     );
 };
 
+/**
+ * Helper function to compare two return connection objects to check if they represent the same trip.
+ * @param {object} conn1 - First return connection object.
+ * @param {object} conn2 - Second return connection object.
+ * @returns {boolean} True if they are the same, false otherwise.
+ */
 const compareConnectionReturns = (conn1, conn2) => {
     return (
         conn1 != null &&
@@ -1236,6 +1312,12 @@ const compareConnectionReturns = (conn1, conn2) => {
     );
 };
 
+/**
+ * Serves the GPX file for a tour.
+ * Can merge the main tour track with arrival (anreise) and departure (abreise) tracks if requested (`type=all`).
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
     const type = req.query.type ? req.query.type : "gpx";
@@ -1306,6 +1388,15 @@ const tourGpxWrapper = async (req, res) => {
     }
 };
 
+/**
+ * Formats a tour entry for the frontend.
+ * Adds full image URLs, provider names, difficulty text, and canonical/alternate links.
+ * @param {object} entry - The raw tour entry from the database.
+ * @param {string} city - The city slug (optional) to link specific transport tracks.
+ * @param {string} domain - The domain for URL generation.
+ * @param {boolean} addDetails - Whether to fetch extra details like provider name and canonical links.
+ * @returns {object} The formatted tour entry.
+ */
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 

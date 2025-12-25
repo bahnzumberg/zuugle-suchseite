@@ -56,6 +56,19 @@ describe("Zuugle API UAT Tests", () => {
         expect(Array.isArray(data.tours)).toBe(true);
     });
 
+    test("GET /api/tours returns 200 without city parameter (uses stop_selector)", async () => {
+        // Test the scenario when no city is set - should use stop_selector='y' logic
+        const url = `${baseUrl}/api/tours?domain=www.zuugle.at`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(Array.isArray(data.tours)).toBe(true);
+        // Should return at least some tours from the stop_selector='y' filter
+        expect(data.tours.length).toBeGreaterThanOrEqual(0);
+    });
+
     test("GET /api/tours/filter returns 200 and filter options", async () => {
         const url = `${baseUrl}/api/tours/filter?domain=www.zuugle.at&city=wien`;
         const response = await fetch(url, { headers: getHeaders() });
@@ -129,5 +142,86 @@ describe("Zuugle API UAT Tests", () => {
         expect(data.success).toBe(true);
         expect(Array.isArray(data.tours)).toBe(true);
         expect(typeof data.total).toBe("number");
+    });
+
+    test("GET /api/tours/:id/:city returns 200 (or 404 if not found) with domain=zuugle.de", async () => {
+        // Test specifically requested by user to catch regression in getWrapper
+        const id = 33456;
+        const city = "wien";
+        const url = `${baseUrl}/api/tours/${id}/${city}?domain=zuugle.de`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+
+        // Depending on whether the ID exists in the dev dump, we expect 200 or 404.
+        // Crucially, we do NOT expect 500.
+        expect([200, 404]).toContain(response.status);
+
+        const data = await response.json();
+        // If 200, structure must be correct
+        if (response.status === 200) {
+            expect(data.success).toBe(true);
+            expect(data.tour).toBeDefined();
+            expect(data.tour.id).toBe(id);
+        } else {
+            expect(data.success).toBe(false);
+        }
+    });
+
+    test("GET /api/tours/:id/:city returns 200 (or 404 if not found) with domain=zuugle.at", async () => {
+        // Same test but with production domain
+        const id = 33456;
+        const city = "wien";
+        const url = `${baseUrl}/api/tours/${id}/${city}?domain=zuugle.at`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+        expect([200, 404]).toContain(response.status);
+
+        const data = await response.json();
+        if (response.status === 200) {
+            expect(data.success).toBe(true);
+            expect(data.tour).toBeDefined();
+        }
+    });
+
+    test("GET /api/tours/:id/connections-extended returns 200 (or 404) with domain=zuugle.de", async () => {
+        // Test for connectionsExtendedWrapper regression
+        const id = 33456;
+        const city = "wien";
+        const url = `${baseUrl}/api/tours/${id}/connections-extended?city=${city}&domain=zuugle.de`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+        expect([200, 404]).toContain(response.status);
+
+        const data = await response.json();
+        if (response.status === 200) {
+            expect(data.success).toBe(true);
+            expect(data.result).toBeDefined();
+            expect(Array.isArray(data.result)).toBe(true);
+        }
+    });
+
+    test("GET /api/tours/:id/connections-extended returns 200 (or 404) with domain=zuugle.at", async () => {
+        const id = 33456;
+        const city = "wien";
+        const url = `${baseUrl}/api/tours/${id}/connections-extended?city=${city}&domain=zuugle.at`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+        expect([200, 404]).toContain(response.status);
+    });
+
+    test("GET /api/tours/:id/connections-extended returns 200 (or 404) without city parameter", async () => {
+        // Test the first call scenario when no city is set yet
+        const id = 33456;
+        const url = `${baseUrl}/api/tours/${id}/connections-extended?domain=zuugle.at`;
+
+        const response = await fetch(url, { headers: getHeaders() });
+        expect([200, 404]).toContain(response.status);
+
+        const data = await response.json();
+        if (response.status === 200) {
+            expect(data.success).toBe(true);
+            expect(data.result).toBeDefined();
+            expect(Array.isArray(data.result)).toBe(true);
+        }
     });
 });

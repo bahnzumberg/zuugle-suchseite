@@ -406,6 +406,7 @@ export async function truncateAll() {
         "logsearchphrase",
         "tracks",
         "canonical_alternate",
+        "city2tour_flat",
     ];
     for (const tbl of tables) {
         try {
@@ -1143,3 +1144,67 @@ const bulk_insert_tours = async (entries) => {
         return false;
     }
 };
+
+export async function populateCity2TourFlat() {
+    try {
+        await knex.raw(`TRUNCATE city2tour_flat;`);
+
+        await knex.raw(`INSERT INTO city2tour_flat (
+            reachable_from_country, city_slug, id, provider, hashed_url, url, 
+            title, image_url, type, country, state, range_slug, range, 
+            text_lang, difficulty_orig, season, max_ele, 
+            connection_arrival_stop_lon, connection_arrival_stop_lat, 
+            min_connection_duration, max_connection_duration, min_connection_no_of_transfers, 
+            avg_total_tour_duration, ascent, descent, difficulty, duration, 
+            distance, number_of_days, traverse, quality_rating, month_order, 
+            search_column, ai_search_column, stop_selector
+        )
+        SELECT DISTINCT
+            c2t.reachable_from_country,
+            c2t.city_slug,
+            t.id, 
+            t.provider, 
+            t.hashed_url, 
+            t.url, 
+            t.title, 
+            t.image_url,
+            t.type, 
+            t.country, 
+            t.state, 
+            t.range_slug, 
+            t.range, 
+            t.text_lang, 
+            t.difficulty_orig,
+            t.season,
+            t.max_ele,
+            c2t.connection_arrival_stop_lon,
+            c2t.connection_arrival_stop_lat,
+            c2t.min_connection_duration,
+            c2t.max_connection_duration,
+            c2t.min_connection_no_of_transfers, 
+            c2t.avg_total_tour_duration,
+            t.ascent, 
+            t.descent, 
+            t.difficulty, 
+            t.duration, 
+            t.distance, 
+            t.number_of_days, 
+            t.traverse, 
+            t.quality_rating,
+            t.month_order,
+            t.search_column,
+            t.ai_search_column,
+            c2t.stop_selector
+        FROM city2tour AS c2t 
+        INNER JOIN tour AS t ON c2t.tour_id = t.id;`);
+
+        await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
+        await knex.raw(`ANALYZE city2tour_flat;`);
+
+        console.log("city2tour_flat populated successfully.");
+        return true;
+    } catch (err) {
+        console.error("Error populating city2tour_flat:", err);
+        throw err;
+    }
+}
