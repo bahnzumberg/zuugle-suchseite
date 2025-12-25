@@ -1,6 +1,7 @@
 const baseUrl = process.env.API_BASE_URL || "https://www2.zuugle.at";
-const apiUser = process.env.API_USER;
-const apiPass = process.env.API_PASSWORD;
+// Basic auth for UAT/DEV environments (prevents Google indexing, not for security)
+const apiUser = process.env.API_USER || "bzb";
+const apiPass = process.env.API_PASSWORD || "bzb";
 
 const getHeaders = () => {
     const headers = {};
