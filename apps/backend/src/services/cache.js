@@ -50,8 +50,22 @@ const flush = async () => {
     }
 };
 
+const getStats = async () => {
+    if (!redis || redis.status !== "ready") return null;
+    try {
+        const info = await redis.info("stats");
+        const hits = info.match(/keyspace_hits:(\d+)/)?.[1] || "0";
+        const misses = info.match(/keyspace_misses:(\d+)/)?.[1] || "0";
+        return { hits: parseInt(hits), misses: parseInt(misses) };
+    } catch (e) {
+        console.warn("Cache getStats failed:", e.message);
+        return null;
+    }
+};
+
 export default {
     get,
     set,
     flush,
+    getStats,
 };

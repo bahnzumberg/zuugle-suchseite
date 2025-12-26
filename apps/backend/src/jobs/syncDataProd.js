@@ -32,6 +32,23 @@ syncTours().then(() => {
                     console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FETCH PROVIDER");
                     getProvider().then(async () => {
                         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FETCHED PROVIDER");
+
+                        // Log cache statistics before flushing
+                        const stats = await cacheService.getStats();
+                        if (stats) {
+                            const total = stats.hits + stats.misses;
+                            const hitRate = total > 0 ? ((stats.hits / total) * 100).toFixed(1) : 0;
+                            console.log(
+                                moment().format("YYYY.MM.DD HH:mm:ss"),
+                                ` CACHE STATS (previous day): hits=${stats.hits}, misses=${stats.misses}, hit_rate=${hitRate}%`,
+                            );
+                        } else {
+                            console.log(
+                                moment().format("YYYY.MM.DD HH:mm:ss"),
+                                " CACHE STATS: unavailable",
+                            );
+                        }
+
                         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FLUSHING CACHE...");
                         await cacheService.flush();
                         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " CACHE FLUSHED.");
