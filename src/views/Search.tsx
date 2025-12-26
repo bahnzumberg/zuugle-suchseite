@@ -250,7 +250,10 @@ export default function Main() {
           <Box component={"div"} className="rowing blueDiv">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                <Link to={"/" + (provider ? `?p=${provider}` : "")}>
+                <Link
+                  to={"/" + (provider ? `?p=${provider}` : "")}
+                  aria-label={t("start.zurueck")}
+                >
                   <CustomIcon
                     name="arrowBefore"
                     style={{ stroke: "#fff", width: "34px", height: "34px" }}

@@ -204,7 +204,8 @@
     "helmet_title": "Zuugle - the search engine for mountain tours reachable via public transport",
     "tourenanzahl_untertitel_city": "hikes reachable via public transport from {{capCity}}",
     "mehr_abenteuer": "Discover more sustainable outdoor adventures now",
-    "mehr_anzeigen": "Show more"
+    "mehr_anzeigen": "Show more",
+    "zurueck": "Back"
   },
   "details": {
     "track_gps_geraet": "Download track for GPS-device",
