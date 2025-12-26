@@ -204,7 +204,8 @@
     "helmet_title": "Zuugle – iskalnik za gorske ture, dostopne z javnim prevozom",
     "tourenanzahl_untertitel_city": "gorskih tur in izletov iz {{capCity}} – dostopnih z vlakom in avtobusom",
     "mehr_abenteuer": "Odkrijte več trajnostnih pustolovščin na prostem",
-    "mehr_anzeigen": "Pokaži več"
+    "mehr_anzeigen": "Pokaži več",
+    "zurueck": "Nazaj"
   },
   "details": {
     "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
