@@ -204,7 +204,8 @@
     "helmet_title": "Zuugle - die Suchmaschine für Öffi-Bergtouren",
     "tourenanzahl_untertitel_city": "Bergtouren von {{capCity}} - erreichbar mit Bahn & Bus",
     "mehr_abenteuer": "Entdecke jetzt weitere Öffi-Outdoor-Abenteuer",
-    "mehr_anzeigen": "Mehr anzeigen"
+    "mehr_anzeigen": "Mehr anzeigen",
+    "zurueck": "Zurück"
   },
   "details": {
     "track_gps_geraet": "Track für GPS-Gerät herunterladen",
