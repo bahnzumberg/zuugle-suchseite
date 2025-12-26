@@ -204,7 +204,8 @@
     "helmet_title": "Zuugle - le moteur de recherche pour les sorties en montagne sans voiture",
     "tourenanzahl_untertitel_city": "Sorties en montagne accessibles en train et en bus à partir de {{capCity}}",
     "mehr_abenteuer": "Découvrez d'autres aventures durables en plein air",
-    "mehr_anzeigen": "Afficher plus"
+    "mehr_anzeigen": "Afficher plus",
+    "zurueck": "Retour"
   },
   "details": {
     "track_gps_geraet": "Télécharger la trace GPX",
