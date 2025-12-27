@@ -55,14 +55,16 @@
 
             function getStartIcon() {}
 
-            var map = L.map("map", { zoomControl: false }).setView([51.505, -0.09], 14);
+            // Coordinates of London. This is easy to check and to replace with a valid image.
+            var map = L.map("map", { zoomControl: false, attributionControl: false }).setView(
+                [51.505, -0.09],
+                14,
+            );
 
-            // We use deliberately png instead of webp here, because the png is higher quality
-            var tiles = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
+            // var tiles = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
+            var tiles = L.tileLayer("https://tile.bahnzumberg.at/{z}/{x}/{y}.png", {
                 maxZoom: 17,
-                id: "mapbox/streets-v11",
-                tileSize: 512,
-                zoomOffset: -1,
+                attribution: "",
             }).addTo(map);
 
             if (gpxTrackUrls.length > 0) {

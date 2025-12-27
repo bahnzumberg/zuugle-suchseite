@@ -436,7 +436,9 @@ export async function copyDump(localPath, remotePath) {
         console.log(`Copying dump to container ${container}...`);
         const dockerProc = spawn("docker", ["cp", localPath, `${container}:${remotePath}`]);
 
+        let stderrData = "";
         dockerProc.stderr.on("data", (data) => {
+            stderrData += data.toString();
             console.error(`docker cp stderr: ${data}`);
         });
 
@@ -445,7 +447,23 @@ export async function copyDump(localPath, remotePath) {
                 console.log(`Dump copied successfully to ${container}:${remotePath}`);
                 resolve(undefined);
             } else {
-                reject(new Error(`docker cp exited with code ${code}`));
+                // Check for specific error: container not running
+                if (
+                    stderrData.includes("is not running") ||
+                    stderrData.includes("No such container")
+                ) {
+                    console.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
+                    console.error(
+                        `   Please start the container first with: docker start ${container}\n`,
+                    );
+                    reject(
+                        new Error(
+                            `Docker container "${container}" is not running. Start it with: docker start ${container}`,
+                        ),
+                    );
+                } else {
+                    reject(new Error(`docker cp exited with code ${code}: ${stderrData}`));
+                }
             }
         });
     });
@@ -484,11 +502,31 @@ export async function restoreDump() {
             console.log(`stdout: ${data}`);
         });
         dockerProc.stderr.on("data", (data) => {
-            reject(new Error(data));
+            const errorMessage = data.toString();
+
+            // Check for specific error: container not running
+            if (errorMessage.includes("is not running")) {
+                console.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
+                console.error(
+                    `   Please start the container first with: docker start ${container}\n`,
+                );
+                reject(
+                    new Error(
+                        `Docker container "${container}" is not running. Start it with: docker start ${container}`,
+                    ),
+                );
+            } else {
+                reject(new Error(errorMessage));
+            }
         });
-        dockerProc.on("close", (code) => {
+        dockerProc.on("close", async (code) => {
             if (code === 0) {
                 console.log(`pg_restore executed successfully`);
+                // Clear CDN URLs from image_url so local import-files regenerates them with local path
+                // This is how the run "npm run import-data" would have left the column on production
+                await knex.raw(
+                    `UPDATE tour SET image_url = NULL WHERE image_url LIKE 'https://cdn.zuugle.at%';`,
+                );
                 resolve(undefined);
             } else {
                 reject(new Error(`pg_restore exited with code ${code}`));
@@ -795,6 +833,9 @@ export async function syncGPXImage() {
         // The cdn url can be used, as this is a static image.
         await knex.raw(
             `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
+        );
+        await knex.raw(
+            `UPDATE city2tour_flat SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
         );
     }
     return true;

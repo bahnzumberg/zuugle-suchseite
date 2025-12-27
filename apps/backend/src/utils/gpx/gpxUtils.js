@@ -89,6 +89,130 @@ const minimal_args = [
     "--use-mock-keychain",
 ];
 
+// ============================================================================
+// Tile Pre-Warming Functions
+// ============================================================================
+
+// Map dimensions used by headless-leaflet (from gpxUtils createImageFromMap viewport)
+const MAP_WIDTH = 1200;
+const MAP_HEIGHT = 800;
+const TILE_SERVER_API = "https://tile.bahnzumberg.at/api/check-tiles";
+const TILE_CHECK_BATCH_SIZE = 1000;
+
+/**
+ * Calculate bounding box from GPX data for a tour
+ */
+const calculateBoundingBox = async (tourId) => {
+    try {
+        const result = await knex.raw(`
+            SELECT MIN(lat) as min_lat, MAX(lat) as max_lat,
+                   MIN(lon) as min_lon, MAX(lon) as max_lon
+            FROM gpx WHERE hashed_url = (SELECT hashed_url FROM tour WHERE id = ${tourId})
+        `);
+        if (result.rows && result.rows.length > 0) {
+            return result.rows[0];
+        }
+    } catch (e) {
+        console.error(`Error calculating bounding box for tour ${tourId}:`, e);
+    }
+    return null;
+};
+
+/**
+ * Convert longitude to tile X coordinate
+ */
+const lonToTileX = (lon, zoom) => {
+    return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+};
+
+/**
+ * Convert latitude to tile Y coordinate
+ */
+const latToTileY = (lat, zoom) => {
+    const latRad = (lat * Math.PI) / 180;
+    return Math.floor(
+        ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * Math.pow(2, zoom),
+    );
+};
+
+/**
+ * Calculate zoom level that fitBounds would use (matching Leaflet behavior)
+ * Based on 1200x800 viewport with 15% padding
+ */
+const calculateZoomLevel = (bounds) => {
+    if (!bounds || !bounds.min_lat || !bounds.max_lat || !bounds.min_lon || !bounds.max_lon) {
+        return 14; // Default fallback
+    }
+
+    // Find the highest zoom level that fits the bounds in 1200x800 viewport
+    for (let z = 17; z >= 1; z--) {
+        const tilesX = lonToTileX(bounds.max_lon, z) - lonToTileX(bounds.min_lon, z) + 1;
+        const tilesY = latToTileY(bounds.min_lat, z) - latToTileY(bounds.max_lat, z) + 1;
+
+        if (tilesX * 256 <= MAP_WIDTH && tilesY * 256 <= MAP_HEIGHT) {
+            return z;
+        }
+    }
+    return 10; // Minimum reasonable zoom
+};
+
+/**
+ * Get all tile coordinates for a bounding box at a given zoom level
+ */
+const getTilesForBounds = (bounds, zoom) => {
+    if (!bounds || !bounds.min_lat) return [];
+
+    const tiles = [];
+    const minX = lonToTileX(bounds.min_lon, zoom);
+    const maxX = lonToTileX(bounds.max_lon, zoom);
+    const minY = latToTileY(bounds.max_lat, zoom); // Note: Y is inverted
+    const maxY = latToTileY(bounds.min_lat, zoom);
+
+    for (let x = minX; x <= maxX; x++) {
+        for (let y = minY; y <= maxY; y++) {
+            tiles.push(`${zoom}/${x}/${y}`);
+        }
+    }
+    return tiles;
+};
+
+/**
+ * Check tile availability via tile server API (with automatic batching)
+ */
+const checkTilesAvailability = async (tiles) => {
+    if (!tiles || tiles.length === 0) {
+        return new Set();
+    }
+
+    const allMissing = new Set();
+
+    // Split into batches
+    for (let i = 0; i < tiles.length; i += TILE_CHECK_BATCH_SIZE) {
+        const batch = tiles.slice(i, i + TILE_CHECK_BATCH_SIZE);
+        try {
+            const response = await fetch(TILE_SERVER_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tiles: batch }),
+            });
+            const data = await response.json();
+            if (data.missing && Array.isArray(data.missing)) {
+                data.missing.forEach((t) => allMissing.add(t));
+            }
+        } catch (e) {
+            console.error(`Error checking tiles batch ${i / TILE_CHECK_BATCH_SIZE + 1}:`, e);
+            // On API error, assume all tiles in batch are missing (conservative approach)
+            batch.forEach((t) => allMissing.add(t));
+        }
+    }
+
+    return allMissing;
+};
+
+// ============================================================================
+// End Tile Pre-Warming Functions
+// ============================================================================
+
 const setTourImageURL = async (tour_id, image_url, force = false) => {
     if (tour_id) {
         if (image_url.length > 0) {
@@ -99,9 +223,15 @@ const setTourImageURL = async (tour_id, image_url, force = false) => {
             try {
                 if (force) {
                     await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`);
+                    await knex.raw(
+                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id};`,
+                    );
                 } else {
                     await knex.raw(
                         `UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
+                    );
+                    await knex.raw(
+                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
                     );
                 }
             } catch (e) {
@@ -132,7 +262,7 @@ const dispatchDbUpdate = async (tourId, imageUrl, force) => {
 };
 
 // Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
-const handleImagePlaceholder = async (tourId, isProd) => {
+const handleImagePlaceholder = async (tourId, useCDN) => {
     try {
         const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`);
         const rangeSlug = result.rows && result.rows.length > 0 ? result.rows[0].range_slug : null;
@@ -145,7 +275,7 @@ const handleImagePlaceholder = async (tourId, isProd) => {
             );
             await dispatchDbUpdate(
                 tourId,
-                isProd ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl,
+                useCDN ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl,
                 true,
             );
         } else {
@@ -155,7 +285,7 @@ const handleImagePlaceholder = async (tourId, isProd) => {
             );
             await dispatchDbUpdate(
                 tourId,
-                isProd
+                useCDN
                     ? "https://cdn.zuugle.at/img/train_placeholder.webp"
                     : "/app_static/img/train_placeholder.webp",
                 true,
@@ -165,7 +295,7 @@ const handleImagePlaceholder = async (tourId, isProd) => {
         console.error("Error in handleImagePlaceholder:", e);
         await dispatchDbUpdate(
             tourId,
-            isProd
+            useCDN
                 ? "https://cdn.zuugle.at/img/train_placeholder.webp"
                 : "/app_static/img/train_placeholder.webp",
             true,
@@ -174,10 +304,10 @@ const handleImagePlaceholder = async (tourId, isProd) => {
 };
 
 // Neue Hilfsfunktion für die Bildgenerierung
-const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_up, url) => {
+const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_go_up, url) => {
     let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
-    let filePath = path.join(dirPath, ch + "_gpx.png");
-    let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
+    let filePath = path.join(dirPath, tourId + "_gpx.png");
+    let filePathSmallWebp = path.join(dirPath, tourId + "_gpx_small.webp");
     const MAX_GENERATION_TIME = 300000;
 
     try {
@@ -188,7 +318,7 @@ const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_u
         const generationPromise = createImageFromMap(
             browser,
             filePath,
-            url + lastTwoChars + "/" + ch + ".gpx",
+            url + lastTwoChars + "/" + tourId + ".gpx",
             100,
         );
         const timeoutPromise = new Promise((resolve, reject) => {
@@ -221,26 +351,26 @@ const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_u
                         " Detected London placeholder, replacing with standard image.",
                     );
                     await fs.unlink(filePathSmallWebp);
-                    handleImagePlaceholder(ch, isProd);
+                    handleImagePlaceholder(tourId, useCDN);
                 } else {
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
                         " Gpx image small file created: " + filePathSmallWebp,
                     );
-                    if (isProd) {
+                    if (useCDN) {
                         dispatchDbUpdate(
-                            ch,
+                            tourId,
                             "https://cdn.zuugle.at/gpx-image/" +
                                 lastTwoChars +
                                 "/" +
-                                ch +
+                                tourId +
                                 "_gpx_small.webp",
                             true,
                         );
                     } else {
                         dispatchDbUpdate(
-                            ch,
-                            "/public/gpx-image/" + lastTwoChars + "/" + ch + "_gpx_small.webp",
+                            tourId,
+                            "/public/gpx-image/" + lastTwoChars + "/" + tourId + "_gpx_small.webp",
                             true,
                         );
                     }
@@ -250,33 +380,99 @@ const processAndCreateImage = async (ch, lastTwoChars, browser, isProd, dir_go_u
                     moment().format("YYYY-MM-DD HH:mm:ss"),
                     " NO gpx image small file created, replacing with standard image.",
                 );
-                handleImagePlaceholder(ch, isProd);
+                handleImagePlaceholder(tourId, useCDN);
             }
         } else {
             console.log(
                 moment().format("YYYY-MM-DD HH:mm:ss"),
                 " NO image file created: " + filePath,
             );
-            handleImagePlaceholder(ch, isProd);
+            handleImagePlaceholder(tourId, useCDN);
         }
     } catch (e) {
         if (e.message === "Image generation timeout") {
             console.error(
                 moment().format("YYYY-MM-DD HH:mm:ss"),
-                `Timeout for image generation for ID ${ch}: ${e.message}`,
+                `Timeout for image generation for ID ${tourId}: ${e.message}`,
             );
         } else {
-            console.error(`Error in processAndCreateImage for ID ${ch}:`, e);
+            console.error(`Error in processAndCreateImage for ID ${tourId}:`, e);
         }
 
-        handleImagePlaceholder(ch, isProd);
+        handleImagePlaceholder(tourId, useCDN);
+    }
+};
+
+// Pre-warm tiles for images older than 30 days (they will be deleted soon)
+const preWarmOldImageTiles = async (dir_go_up) => {
+    const thirtyDaysInMs = 2592000000;
+    const allTiles = new Set();
+
+    console.log(
+        moment().format("YYYY-MM-DD HH:mm:ss"),
+        "Pre-warming tiles for images older than 30 days...",
+    );
+
+    const allTours = await knex.raw(
+        `SELECT id FROM tour WHERE gpx_image NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+    );
+
+    for (const row of allTours.rows) {
+        const id = row.id;
+        const lastTwoChars = last_two_characters(id);
+        const filePath = path.join(
+            __dirname,
+            dir_go_up,
+            "public/gpx-image/",
+            lastTwoChars,
+            id + "_gpx_small.webp",
+        );
+
+        try {
+            const stats = await fs.promises.stat(filePath);
+            const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
+
+            if (isOlderThan30Days) {
+                // Calculate tiles for this tour
+                const bounds = await calculateBoundingBox(id);
+                if (bounds && bounds.min_lat) {
+                    const zoom = calculateZoomLevel(bounds);
+                    const tiles = getTilesForBounds(bounds, zoom);
+                    tiles.forEach((t) => allTiles.add(t));
+                }
+            }
+        } catch (e) {
+            // File doesn't exist - we need the tiles for when the image gets generated
+            if (e.code === "ENOENT") {
+                const bounds = await calculateBoundingBox(id);
+                if (bounds && bounds.min_lat) {
+                    const zoom = calculateZoomLevel(bounds);
+                    const tiles = getTilesForBounds(bounds, zoom);
+                    tiles.forEach((t) => allTiles.add(t));
+                }
+            }
+        }
+    }
+
+    if (allTiles.size > 0) {
+        console.log(
+            moment().format("YYYY-MM-DD HH:mm:ss"),
+            `Sending ${allTiles.size} tiles from old images to tile server for pre-warming...`,
+        );
+        // Just call the API to queue the tiles - we don't care about the response
+        await checkTilesAvailability([...allTiles]);
+        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "Pre-warming request sent.");
+    } else {
+        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "No old images found for pre-warming.");
     }
 };
 
 // Neue Funktion zur Überprüfung und Neuerstellung alter Bilder
-const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
+const cleanAndRecreateOldImages = async (dir_go_up) => {
     let idsToRecreate = [];
-    const allToursWithImages = await knex.raw(`SELECT id FROM tour;`); // Nur Touren mit URL-Eintrag prüfen
+    const allToursWithImages = await knex.raw(
+        `SELECT id FROM tour WHERE gpx_image NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+    );
     const thirtyDaysInMs = 2592000000;
 
     for (const row of allToursWithImages.rows) {
@@ -330,20 +526,26 @@ const cleanAndRecreateOldImages = async (isProd, dir_go_up) => {
 export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     let addParam = {};
     let url = "";
-    let dir_go_up = "";
     let isProd = false;
     if (process.env.NODE_ENV == "production") {
         isProd = true;
     }
 
+    // useCDN is true only if: isProd=true AND (USE_CDN is not set OR USE_CDN="true")
+    // useCDN is false if: isProd=false OR USE_CDN="false"
+    const useCDN = isProd && process.env.USE_CDN !== "false";
+    console.log("USE_CDN: ", useCDN);
+
+    // We need to distingiush between local development and production (like) server environment
+    let dir_go_up = "";
+    if (process.env.NODE_ENV == "production") {
+        dir_go_up = "../../";
+    } else {
+        dir_go_up = "../../../";
+    }
+
     // This should be done only once when the function is first called.
     if (!londonReferenceHash) {
-        if (isProd) {
-            dir_go_up = "../../";
-        } else {
-            dir_go_up = "../../../";
-        }
-
         const londonImagePath = path.join(__dirname, dir_go_up, "public/london.webp");
         if (fs.existsSync(londonImagePath)) {
             londonReferenceHash = await createLondonReferenceHash(londonImagePath);
@@ -365,12 +567,10 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         let browser;
         try {
             if (isProd) {
-                dir_go_up = "../../";
                 url =
                     "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 // Puppeteer v24+ automatically manages Chrome downloads, no need to specify executablePath
             } else {
-                dir_go_up = "../../../";
                 url =
                     "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
             }
@@ -395,24 +595,24 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 moment().format("YYYY-MM-DD HH:mm:ss"),
                 `Starting dispatcher to classify ${ids.length} IDs...`,
             );
-            const classificationPromises = ids.map(async (ch) => {
-                let lastTwoChars = last_two_characters(ch);
+            const classificationPromises = ids.map(async (tourID) => {
+                let lastTwoChars = last_two_characters(tourID);
                 let dirPath = path.join(
                     __dirname,
                     dir_go_up,
                     "public/gpx-image/" + lastTwoChars + "/",
                 );
-                let filePathSmallWebp = path.join(dirPath, ch + "_gpx_small.webp");
+                let filePathSmallWebp = path.join(dirPath, tourID + "_gpx_small.webp");
                 try {
                     await fs.promises.stat(filePathSmallWebp);
-                    idsForUpdate.push(ch);
+                    idsForUpdate.push(tourID);
                 } catch (e) {
                     if (e.code === "ENOENT") {
-                        idsForCreation.push(ch);
+                        idsForCreation.push(tourID);
                     } else {
-                        console.error(`Error checking file for ID ${ch}:`, e);
+                        console.error(`Error checking file for ID ${tourID}:`, e);
                         // Behandeln Sie andere Dateisystemfehler
-                        idsForUpdate.push(ch); // Update-Pfad als Fallback
+                        idsForUpdate.push(tourID); // Update-Pfad als Fallback
                     }
                 }
             });
@@ -426,22 +626,26 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             await Promise.all([
                 // Prozess 1: Datenbank-Updates parallel abarbeiten
                 (async () => {
-                    for (const ch of idsForUpdate) {
-                        let lastTwoChars = last_two_characters(ch);
-                        if (isProd) {
+                    for (const tourID of idsForUpdate) {
+                        let lastTwoChars = last_two_characters(tourID);
+                        if (useCDN) {
                             dispatchDbUpdate(
-                                ch,
+                                tourID,
                                 "https://cdn.zuugle.at/gpx-image/" +
                                     lastTwoChars +
                                     "/" +
-                                    ch +
+                                    tourID +
                                     "_gpx_small.webp",
                                 false,
                             );
                         } else {
                             dispatchDbUpdate(
-                                ch,
-                                "/public/gpx-image/" + lastTwoChars + "/" + ch + "_gpx_small.webp",
+                                tourID,
+                                "/public/gpx-image/" +
+                                    lastTwoChars +
+                                    "/" +
+                                    tourID +
+                                    "_gpx_small.webp",
                                 false,
                             );
                         }
@@ -455,13 +659,48 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     );
                 })(),
 
-                // Prozess 2: Bildgenerierung parallel abarbeiten
+                // Prozess 2: Bildgenerierung mit Tile Pre-Warming
                 (async () => {
-                    const PARALLEL_LIMIT = 5; // Leave 3 CPUs free (8 total - 2 reserved)
+                    const PARALLEL_LIMIT = 5;
+                    const RETRY_INTERVAL_MS = 600000; // 10 minutes
+
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
-                        `Starting parallel image creation with ${PARALLEL_LIMIT} workers...`,
+                        `Starting tile pre-warming check for ${idsForCreation.length} tours...`,
                     );
+
+                    // Phase 1: Calculate tiles for all tours
+                    const tourTileMap = new Map(); // Tour-ID -> Set of tiles
+                    const allTiles = new Set();
+
+                    for (const tourId of idsForCreation) {
+                        const bounds = await calculateBoundingBox(tourId);
+                        if (bounds && bounds.min_lat) {
+                            const zoom = calculateZoomLevel(bounds);
+                            const tiles = getTilesForBounds(bounds, zoom);
+                            tourTileMap.set(tourId, new Set(tiles));
+                            tiles.forEach((t) => allTiles.add(t));
+                        } else {
+                            // No GPX data, will use placeholder
+                            tourTileMap.set(tourId, new Set());
+                        }
+                    }
+
+                    console.log(
+                        moment().format("YYYY-MM-DD HH:mm:ss"),
+                        `Calculated ${allTiles.size} distinct tiles for ${idsForCreation.length} tours.`,
+                    );
+
+                    // Phase 2: Check tile availability
+                    let missingTiles = await checkTilesAvailability([...allTiles]);
+                    console.log(
+                        moment().format("YYYY-MM-DD HH:mm:ss"),
+                        `Tile check result: ${missingTiles.size} tiles missing.`,
+                    );
+
+                    // Phase 3: Process with retry loop
+                    let pendingTours = [...idsForCreation];
+                    let stopProcessing = false;
 
                     // Custom Concurrency Helper
                     async function asyncPool(poolLimit, array, iteratorFn) {
@@ -482,38 +721,84 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         return Promise.all(ret);
                     }
 
-                    let stopProcessing = false;
-
-                    await asyncPool(PARALLEL_LIMIT, idsForCreation, async (ch) => {
-                        if (stopProcessing) return;
-
+                    while (pendingTours.length > 0 && !stopProcessing) {
+                        // Check time limit
                         const now = new Date();
-                        const currentHour = now.getHours();
-                        if (currentHour >= 23) {
-                            if (!stopProcessing) {
-                                console.log(
-                                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                                    "Stopping image creation due to time limit.",
-                                );
-                                stopProcessing = true;
-                            }
-                            return;
+                        if (now.getHours() >= 23) {
+                            console.log(
+                                moment().format("YYYY-MM-DD HH:mm:ss"),
+                                "Stopping tile pre-warming due to time limit (23:00).",
+                            );
+                            stopProcessing = true;
+                            break;
                         }
 
-                        // Add random jitter (0-1000ms) to desynchronize workers and smooth CPU load
-                        const jitter = Math.floor(Math.random() * 1000);
-                        await new Promise((resolve) => setTimeout(resolve, jitter));
+                        // Find tours with all tiles available
+                        const readyTours = pendingTours.filter((tourId) => {
+                            const tiles = tourTileMap.get(tourId);
+                            if (!tiles || tiles.size === 0) return true; // No tiles needed (placeholder case)
+                            return [...tiles].every((t) => !missingTiles.has(t));
+                        });
 
-                        let lastTwoChars = last_two_characters(ch);
-                        await processAndCreateImage(
-                            ch,
-                            lastTwoChars,
-                            browser,
-                            isProd,
-                            dir_go_up,
-                            url,
-                        );
-                    });
+                        if (readyTours.length > 0) {
+                            console.log(
+                                moment().format("YYYY-MM-DD HH:mm:ss"),
+                                `Processing ${readyTours.length} tours with available tiles...`,
+                            );
+
+                            await asyncPool(PARALLEL_LIMIT, readyTours, async (tourID) => {
+                                if (stopProcessing) return;
+
+                                const currentHour = new Date().getHours();
+                                if (currentHour >= 23) {
+                                    if (!stopProcessing) {
+                                        console.log(
+                                            moment().format("YYYY-MM-DD HH:mm:ss"),
+                                            "Stopping image creation due to time limit.",
+                                        );
+                                        stopProcessing = true;
+                                    }
+                                    return;
+                                }
+
+                                const jitter = Math.floor(Math.random() * 1000);
+                                await new Promise((resolve) => setTimeout(resolve, jitter));
+
+                                let lastTwoChars = last_two_characters(tourID);
+                                await processAndCreateImage(
+                                    tourID,
+                                    lastTwoChars,
+                                    browser,
+                                    useCDN,
+                                    dir_go_up,
+                                    url,
+                                );
+                            });
+
+                            // Remove processed tours
+                            pendingTours = pendingTours.filter((id) => !readyTours.includes(id));
+                        }
+
+                        // If there are still pending tours, wait and retry
+                        if (pendingTours.length > 0 && !stopProcessing) {
+                            console.log(
+                                moment().format("YYYY-MM-DD HH:mm:ss"),
+                                `Waiting 10 minutes for ${pendingTours.length} tours with missing tiles...`,
+                            );
+                            await delay(RETRY_INTERVAL_MS);
+
+                            // Re-check tiles for remaining tours
+                            const remainingTiles = new Set();
+                            pendingTours.forEach((id) => {
+                                tourTileMap.get(id)?.forEach((t) => remainingTiles.add(t));
+                            });
+                            missingTiles = await checkTilesAvailability([...remainingTiles]);
+                            console.log(
+                                moment().format("YYYY-MM-DD HH:mm:ss"),
+                                `Re-check result: ${missingTiles.size} tiles still missing.`,
+                            );
+                        }
+                    }
 
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -521,6 +806,10 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     );
                 })(),
             ]);
+
+            // Track if there were pending tours (for final cleanup decision)
+            // This is a simplified check - in practice pendingTours from the async block
+            // would need to be communicated differently, but time check is the main gate
         } catch (err) {
             console.log("Error in createImagesFromMap --> ", err.message);
         } finally {
@@ -531,16 +820,29 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     }
 
     // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
+    // Nur ausführen wenn: nicht rekursiv UND vor 23:00
     if (!isRecursiveCall) {
-        console.log(
-            moment().format("YYYY-MM-DD HH:mm:ss"),
-            `Starting final check for old images...`,
-        );
-        await cleanAndRecreateOldImages(isProd, dir_go_up);
-        console.log(
-            moment().format("YYYY-MM-DD HH:mm:ss"),
-            `Final image check and recreation finished.`,
-        );
+        const currentHour = new Date().getHours();
+
+        if (currentHour < 23) {
+            console.log(
+                moment().format("YYYY-MM-DD HH:mm:ss"),
+                `Starting final check for old images...`,
+            );
+            await cleanAndRecreateOldImages(dir_go_up);
+            console.log(
+                moment().format("YYYY-MM-DD HH:mm:ss"),
+                `Final image check and recreation finished.`,
+            );
+        } else {
+            console.log(
+                moment().format("YYYY-MM-DD HH:mm:ss"),
+                "Skipping cleanAndRecreateOldImages due to time limit (23:00+).",
+            );
+        }
+
+        // Always pre-warm tiles for old images as the very last step
+        await preWarmOldImageTiles(dir_go_up);
     }
 };
 
@@ -568,14 +870,14 @@ export const createImageFromMap = async (browser, filePath, url) => {
     }
 };
 
-export function last_two_characters(h_url) {
-    if (h_url) {
-        const hashed_url = "" + h_url;
+export function last_two_characters(original) {
+    if (original) {
+        const new_string = "" + original;
 
-        if (hashed_url.length >= 2) {
-            return hashed_url.substring(hashed_url.length - 2).toString();
-        } else if (hashed_url.length == 1) {
-            return "0" + hashed_url;
+        if (new_string.length >= 2) {
+            return new_string.substring(new_string.length - 2).toString();
+        } else if (new_string.length == 1) {
+            return "0" + new_string;
         } else {
             return "00";
         }
