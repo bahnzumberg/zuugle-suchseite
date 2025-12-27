@@ -79,7 +79,11 @@ export default function InteractiveMap({
       style={{ height: "100%", width: "100%" }}
       zoomControl={false}
     >
-      <TileLayer url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png" />
+      <TileLayer
+        url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
+        maxZoom={17}
+        attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
+      />
       {!!gpxPositions && gpxPositions.length > 0 && (
         <Polyline
           ref={setPoly}

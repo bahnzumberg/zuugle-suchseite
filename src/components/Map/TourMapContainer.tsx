@@ -208,8 +208,9 @@ export default function TourMapContainer({
       >
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
-          maxZoom={16}
-          maxNativeZoom={19}
+          maxZoom={17}
+          maxNativeZoom={17}
+          attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
         {!geolocation && (
           <MapBoundsSync
