@@ -414,7 +414,7 @@ const preWarmOldImageTiles = async (dir_go_up) => {
     );
 
     const allTours = await knex.raw(
-        `SELECT id FROM tour WHERE gpx_image NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+        `SELECT id FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
     );
 
     for (const row of allTours.rows) {
@@ -471,7 +471,7 @@ const preWarmOldImageTiles = async (dir_go_up) => {
 const cleanAndRecreateOldImages = async (dir_go_up) => {
     let idsToRecreate = [];
     const allToursWithImages = await knex.raw(
-        `SELECT id FROM tour WHERE gpx_image NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+        `SELECT id FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
     );
     const thirtyDaysInMs = 2592000000;
 
