@@ -1400,7 +1400,7 @@ const tourGpxWrapper = async (req, res) => {
 const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 
-    if (!entry.image_url || entry.image_url === "null") {
+    if (!entry.image_url || entry.image_url.length < 5) {
         entry.image_url = "https://cdn.zuugle.at/img/train_placeholder.webp";
     }
 
