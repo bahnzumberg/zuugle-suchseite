@@ -531,6 +531,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         isProd = true;
     }
 
+    console.log("USE_CDN: ", process.env.USE_CDN);
+    console.log("NODE_ENV: ", process.env.NODE_ENV);
     // useCDN is true only if: isProd=true AND (USE_CDN is not set OR USE_CDN="true")
     // useCDN is false if: isProd=false OR USE_CDN="false"
     const useCDN = isProd && process.env.USE_CDN !== "false";
