@@ -1,34 +1,4 @@
-const baseUrl = process.env.API_BASE_URL || "https://www2.zuugle.at";
-// Basic auth for UAT/DEV environments (prevents Google indexing, not for security)
-const apiUser = process.env.API_USER || "bzb";
-const apiPass = process.env.API_PASSWORD || "bzb";
-
-const getHeaders = () => {
-    const headers = {};
-    if (apiUser && apiPass) {
-        const auth = Buffer.from(`${apiUser}:${apiPass}`).toString("base64");
-        headers["Authorization"] = `Basic ${auth}`;
-    }
-    return headers;
-};
-
-const waitForServer = async (url, retries = 24, delay = 5000) => {
-    // 24 * 5s = 120s
-    for (let i = 0; i < retries; i++) {
-        try {
-            console.log(`Checking server status... ${i + 1}/${retries}`);
-            const res = await fetch(url, { headers: getHeaders() });
-            if (res.status !== 502 && res.status !== 503 && res.status !== 504) {
-                console.log(`Server responded with ${res.status}. Ready.`);
-                return;
-            }
-        } catch (e) {
-            console.log(`Server check failed: ${e.message}`);
-        }
-        await new Promise((r) => setTimeout(r, delay));
-    }
-    throw new Error("Server not ready after multiple attempts");
-};
+import { baseUrl, getHeaders, waitForServer } from "./testConfig.js";
 
 describe("Zuugle API UAT Tests", () => {
     beforeAll(async () => {

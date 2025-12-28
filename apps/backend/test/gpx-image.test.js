@@ -10,6 +10,7 @@ import fs from "fs-extra";
 import path from "path";
 import sharp from "sharp";
 import crypto from "crypto";
+import { baseUrl, apiUser, apiPass } from "./testConfig.js";
 
 // Test configuration
 const TEST_TOUR_ID = 28308;
@@ -19,8 +20,8 @@ const TEMP_PNG_PATH = path.join(__dirname, "fixtures/gpx_image_temp.png");
 
 // Same settings as in gpxUtils.js
 const VIEWPORT = { width: 1200, height: 800 };
-const GPX_URL = `http://localhost:8080/public/gpx/08/${TEST_TOUR_ID}.gpx`;
-const HEADLESS_URL = `http://localhost:8080/public/headless-leaflet/index.html?gpx=${GPX_URL}`;
+const GPX_URL = `${baseUrl}/public/gpx/08/${TEST_TOUR_ID}.gpx`;
+const HEADLESS_URL = `${baseUrl}/public/headless-leaflet/index.html?gpx=${GPX_URL}`;
 
 /**
  * Helper to create SHA-256 hash of an image
@@ -77,6 +78,15 @@ describe("GPX Image Generation", () => {
 
         // Generate the image (same process as createImageFromMap in gpxUtils.js)
         const page = await browser.newPage();
+
+        // Set basic auth credentials if available
+        if (apiUser && apiPass) {
+            await page.authenticate({
+                username: apiUser,
+                password: apiPass,
+            });
+        }
+
         await page.emulateMediaType("print");
         await page.setCacheEnabled(false);
 
