@@ -217,7 +217,10 @@ const setTourImageURL = async (tour_id, image_url, force = false) => {
     if (tour_id) {
         if (image_url.length > 0) {
             if (image_url.substring(0, 4) !== "http") {
-                image_url = getHost("") + image_url;
+                if (process.env.NODE_ENV !== "production") {
+                    // on local development, we need to add the host
+                    image_url = getHost("") + image_url;
+                }
             }
 
             try {
@@ -531,8 +534,6 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         isProd = true;
     }
 
-    console.log("USE_CDN: ", process.env.USE_CDN);
-    console.log("NODE_ENV: ", process.env.NODE_ENV);
     // useCDN is true only if: isProd=true AND (USE_CDN is not set OR USE_CDN="true")
     // useCDN is false if: isProd=false OR USE_CDN="false"
     const useCDN = isProd && process.env.USE_CDN !== "false";
