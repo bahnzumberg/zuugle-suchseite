@@ -1,6 +1,13 @@
 import express from "express";
 let router = express.Router();
 import knex from "../knex";
+import cacheService from "../services/cache";
+import { get_domain_country } from "../utils/utils";
+
+// Generate cache key for cities
+const generateCacheKey = (params) => {
+    return `cities:${JSON.stringify(params)}`;
+};
 
 /**
  * @swagger
@@ -47,29 +54,43 @@ import knex from "../knex";
  *                         description: The city name
  */
 router.get("/", (req, res) => listWrapper(req, res));
-import { get_domain_country } from "../utils/utils";
 
 const listWrapper = async (req, res) => {
     const search = req.query.search;
     const getAll = req.query.all;
     const domain = req.query.domain;
+
+    // Check cache first
+    const cacheKey = generateCacheKey({ domain, search, all: getAll });
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
     let where = {};
     where["city_country"] = get_domain_country(domain);
 
     let result = [];
 
     if (getAll) {
-        result = await knex("city").select().where(where).orderBy("city", "asc");
+        result = await knex("city")
+            .select("city_slug", "city_name")
+            .where(where)
+            .orderBy("city", "asc");
     } else {
         if (!!search && search.length > 0) {
             result = await knex("city")
-                .select()
+                .select("city_slug", "city_name")
                 .where(where)
                 .andWhereRaw(`LOWER(city_name) LIKE '%${search.toLowerCase()}%'`)
                 .orderBy("city", "asc")
                 .limit(100);
         } else {
-            result = await knex("city").select().where(where).orderBy("city", "asc").limit(100);
+            result = await knex("city")
+                .select("city_slug", "city_name")
+                .where(where)
+                .orderBy("city", "asc")
+                .limit(100);
         }
     }
 
@@ -80,7 +101,9 @@ const listWrapper = async (req, res) => {
         };
     });
 
-    res.status(200).json({ success: true, cities: result });
+    const responseData = { success: true, cities: result };
+    await cacheService.set(cacheKey, responseData);
+    res.status(200).json(responseData);
 };
 
 export default router;

@@ -10,9 +10,17 @@ if (config.cache && config.cache.enabled) {
         retryStrategy: (times) => Math.min(times * 100, 3000), // Retry up to 3s delay
     });
 
+    let errorLogged = false;
     redis.on("error", (err) => {
-        // Log error but don't crash
-        console.error("Redis error:", err.message);
+        // Log error only once
+        if (!errorLogged) {
+            console.error("Redis error:", err.message);
+            errorLogged = true;
+        }
+    });
+
+    redis.on("connect", () => {
+        errorLogged = false; // Reset when connected
     });
 }
 
