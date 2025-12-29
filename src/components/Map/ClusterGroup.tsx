@@ -29,19 +29,25 @@ export default function ClusterGroup({
       ...options,
     });
 
-    markers.forEach(({ position, icon, onClick }) => {
-      const marker = L.marker(position, icon ? { icon } : undefined);
+    // First add cluster group to map
+    map.addLayer(clusterGroup);
 
+    // Create all markers
+    const leafletMarkers = markers.map(({ position, icon, onClick }) => {
+      const marker = L.marker(position, icon ? { icon } : undefined);
       if (onClick) {
         marker.on("click", onClick);
       }
-
-      clusterGroup.addLayer(marker);
+      return marker;
     });
 
-    map.addLayer(clusterGroup);
+    // Add all markers at once
+    if (leafletMarkers.length > 0) {
+      clusterGroup.addLayers(leafletMarkers);
+    }
 
     return () => {
+      clusterGroup.clearLayers();
       map.removeLayer(clusterGroup);
     };
   }, [map, markers, createClusterCustomIcon, options]);

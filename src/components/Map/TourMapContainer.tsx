@@ -118,7 +118,7 @@ export default function TourMapContainer({
     if (tourDetails) setSelectedTour(tourDetails);
   }, [tourDetails]);
 
-  const createClusterCustomIcon = function (cluster: L.MarkerCluster) {
+  const createClusterCustomIcon = useCallback((cluster: L.MarkerCluster) => {
     const clusterChildCount = cluster.getChildCount();
     const formattedCount = formatMapClusterNumber(clusterChildCount);
 
@@ -134,7 +134,7 @@ export default function TourMapContainer({
       className: "custom-marker-cluster",
       iconSize: iconSize,
     });
-  };
+  }, []);
 
   const startMarker = useMemo(
     // created once for the whole component lifetime
@@ -284,7 +284,7 @@ export default function TourMapContainer({
           createClusterCustomIcon={createClusterCustomIcon}
           options={{
             maxClusterRadius: 100,
-            chunkedLoading: true,
+            chunkedLoading: false,
             showCoverageOnHover: false,
             removeOutsideVisibleBounds: true,
           }}
