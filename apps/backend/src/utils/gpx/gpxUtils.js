@@ -10,45 +10,60 @@ import knex from "../../knex";
 import { getHost } from "../utils";
 import crypto from "crypto";
 
-// Global variable to store the hash of the London reference image.
-let londonReferenceHash = null;
-let error502ReferenceHash = null;
+// Error image detection - stores hashes of known error images (London, 502, white, etc.)
+// To add a new error image: just add the filename to ERROR_IMAGE_FILES
+const ERROR_IMAGE_FILES = ["error-london.webp", "error-502.webp", "error-white.webp"];
+const errorImageHashes = new Set();
 
 // Konstanten und globale Warteschlangen für die Parallelisierung
 const MAX_PARALLEL_DB_UPDATES = 5;
 const activeDbUpdates = []; // Warteschlange für Datenbank-Updates
 
-const createLondonReferenceHash = async (imagePath) => {
+const createImageHash = async (imagePath) => {
     try {
         const imageBuffer = await sharp(imagePath).toBuffer();
         const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
         return hash;
     } catch (e) {
-        console.error("Error creating London reference hash:", e);
+        console.error("Error creating image hash:", e);
         return null;
     }
 };
 
-// New helper function to check if an image is the London placeholder.
-const isImageLondon = async (imagePath) => {
-    if (!londonReferenceHash) {
-        console.error("London reference hash is not available.");
+// Initialize error image hashes from files in public/ directory
+const initErrorImageHashes = async (dir_go_up) => {
+    if (errorImageHashes.size > 0) return; // Already initialized
+
+    for (const filename of ERROR_IMAGE_FILES) {
+        const imagePath = path.join(__dirname, dir_go_up, "public/" + filename);
+        if (fs.existsSync(imagePath)) {
+            const hash = await createImageHash(imagePath);
+            if (hash) {
+                errorImageHashes.add(hash);
+                console.log(
+                    `Error image hash created for ${filename}: ${hash.substring(0, 16)}...`,
+                );
+            }
+        } else {
+            console.warn(`Error reference image not found: ${imagePath}`);
+        }
+    }
+};
+
+// Check if an image matches any known error image
+const isErrorImage = async (imagePath) => {
+    if (errorImageHashes.size === 0) {
+        console.error("Error image hashes not initialized.");
         return false;
     }
 
     try {
-        const imageBuffer = await sharp(imagePath).toBuffer();
-        const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
-
-        // Simple comparison of the SHA-256 hash.
-        if (hash === londonReferenceHash || hash === error502ReferenceHash) {
-            return true;
-        }
+        const hash = await createImageHash(imagePath);
+        return errorImageHashes.has(hash);
     } catch (e) {
         console.error("Error checking image:", e);
+        return false;
     }
-
-    return false;
 };
 
 const minimal_args = [
@@ -89,129 +104,8 @@ const minimal_args = [
     "--use-mock-keychain",
 ];
 
-// ============================================================================
-// Tile Pre-Warming Functions
-// ============================================================================
-
-// Map dimensions used by headless-leaflet (from gpxUtils createImageFromMap viewport)
-const MAP_WIDTH = 1200;
-const MAP_HEIGHT = 800;
-const TILE_SERVER_API = "https://tile.bahnzumberg.at/api/check-tiles";
-const TILE_CHECK_BATCH_SIZE = 1000;
-
-/**
- * Calculate bounding box from GPX data for a tour
- */
-const calculateBoundingBox = async (tourId) => {
-    try {
-        const result = await knex.raw(`
-            SELECT MIN(lat) as min_lat, MAX(lat) as max_lat,
-                   MIN(lon) as min_lon, MAX(lon) as max_lon
-            FROM gpx WHERE hashed_url = (SELECT hashed_url FROM tour WHERE id = ${tourId})
-        `);
-        if (result.rows && result.rows.length > 0) {
-            return result.rows[0];
-        }
-    } catch (e) {
-        console.error(`Error calculating bounding box for tour ${tourId}:`, e);
-    }
-    return null;
-};
-
-/**
- * Convert longitude to tile X coordinate
- */
-const lonToTileX = (lon, zoom) => {
-    return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
-};
-
-/**
- * Convert latitude to tile Y coordinate
- */
-const latToTileY = (lat, zoom) => {
-    const latRad = (lat * Math.PI) / 180;
-    return Math.floor(
-        ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * Math.pow(2, zoom),
-    );
-};
-
-/**
- * Calculate zoom level that fitBounds would use (matching Leaflet behavior)
- * Based on 1200x800 viewport with 15% padding
- */
-const calculateZoomLevel = (bounds) => {
-    if (!bounds || !bounds.min_lat || !bounds.max_lat || !bounds.min_lon || !bounds.max_lon) {
-        return 14; // Default fallback
-    }
-
-    // Find the highest zoom level that fits the bounds in 1200x800 viewport
-    for (let z = 17; z >= 1; z--) {
-        const tilesX = lonToTileX(bounds.max_lon, z) - lonToTileX(bounds.min_lon, z) + 1;
-        const tilesY = latToTileY(bounds.min_lat, z) - latToTileY(bounds.max_lat, z) + 1;
-
-        if (tilesX * 256 <= MAP_WIDTH && tilesY * 256 <= MAP_HEIGHT) {
-            return z;
-        }
-    }
-    return 10; // Minimum reasonable zoom
-};
-
-/**
- * Get all tile coordinates for a bounding box at a given zoom level
- */
-const getTilesForBounds = (bounds, zoom) => {
-    if (!bounds || !bounds.min_lat) return [];
-
-    const tiles = [];
-    const minX = lonToTileX(bounds.min_lon, zoom);
-    const maxX = lonToTileX(bounds.max_lon, zoom);
-    const minY = latToTileY(bounds.max_lat, zoom); // Note: Y is inverted
-    const maxY = latToTileY(bounds.min_lat, zoom);
-
-    for (let x = minX; x <= maxX; x++) {
-        for (let y = minY; y <= maxY; y++) {
-            tiles.push(`${zoom}/${x}/${y}`);
-        }
-    }
-    return tiles;
-};
-
-/**
- * Check tile availability via tile server API (with automatic batching)
- */
-const checkTilesAvailability = async (tiles) => {
-    if (!tiles || tiles.length === 0) {
-        return new Set();
-    }
-
-    const allMissing = new Set();
-
-    // Split into batches
-    for (let i = 0; i < tiles.length; i += TILE_CHECK_BATCH_SIZE) {
-        const batch = tiles.slice(i, i + TILE_CHECK_BATCH_SIZE);
-        try {
-            const response = await fetch(TILE_SERVER_API, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tiles: batch }),
-            });
-            const data = await response.json();
-            if (data.missing && Array.isArray(data.missing)) {
-                data.missing.forEach((t) => allMissing.add(t));
-            }
-        } catch (e) {
-            console.error(`Error checking tiles batch ${i / TILE_CHECK_BATCH_SIZE + 1}:`, e);
-            // On API error, assume all tiles in batch are missing (conservative approach)
-            batch.forEach((t) => allMissing.add(t));
-        }
-    }
-
-    return allMissing;
-};
-
-// ============================================================================
-// End Tile Pre-Warming Functions
-// ============================================================================
+// Note: Tile pre-warming functions have been moved to scripts/prewarm_tiles.py
+// Run the Python script before image generation to pre-warm tiles on the tile server.
 
 const setTourImageURL = async (tour_id, image_url, force = false) => {
     if (tour_id) {
@@ -307,6 +201,7 @@ const handleImagePlaceholder = async (tourId, useCDN) => {
 };
 
 // Neue Hilfsfunktion für die Bildgenerierung
+// Returns: 'success' | 'error_image' | 'failed'
 const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_go_up, url) => {
     let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
     let filePath = path.join(dirPath, tourId + "_gpx.png");
@@ -346,15 +241,15 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
 
             if (fs.existsSync(filePathSmallWebp)) {
                 await fs.unlink(filePath);
-                const isLondonImage = await isImageLondon(filePathSmallWebp);
+                const isError = await isErrorImage(filePathSmallWebp);
 
-                if (isLondonImage) {
+                if (isError) {
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
-                        " Detected London placeholder, replacing with standard image.",
+                        ` Detected error image for tour ${tourId} - will retry later.`,
                     );
                     await fs.unlink(filePathSmallWebp);
-                    handleImagePlaceholder(tourId, useCDN);
+                    return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -377,13 +272,15 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                             true,
                         );
                     }
+                    return "success";
                 }
             } else {
                 console.log(
                     moment().format("YYYY-MM-DD HH:mm:ss"),
-                    " NO gpx image small file created, replacing with standard image.",
+                    " NO gpx image small file created for tour " + tourId,
                 );
                 handleImagePlaceholder(tourId, useCDN);
+                return "failed";
             }
         } else {
             console.log(
@@ -391,6 +288,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                 " NO image file created: " + filePath,
             );
             handleImagePlaceholder(tourId, useCDN);
+            return "failed";
         }
     } catch (e) {
         if (e.message === "Image generation timeout") {
@@ -403,70 +301,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
         }
 
         handleImagePlaceholder(tourId, useCDN);
-    }
-};
-
-// Pre-warm tiles for images older than 30 days (they will be deleted soon)
-const preWarmOldImageTiles = async (dir_go_up) => {
-    const thirtyDaysInMs = 2592000000;
-    const allTiles = new Set();
-
-    console.log(
-        moment().format("YYYY-MM-DD HH:mm:ss"),
-        "Pre-warming tiles for images older than 30 days...",
-    );
-
-    const allTours = await knex.raw(
-        `SELECT id FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
-    );
-
-    for (const row of allTours.rows) {
-        const id = row.id;
-        const lastTwoChars = last_two_characters(id);
-        const filePath = path.join(
-            __dirname,
-            dir_go_up,
-            "public/gpx-image/",
-            lastTwoChars,
-            id + "_gpx_small.webp",
-        );
-
-        try {
-            const stats = await fs.promises.stat(filePath);
-            const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
-
-            if (isOlderThan30Days) {
-                // Calculate tiles for this tour
-                const bounds = await calculateBoundingBox(id);
-                if (bounds && bounds.min_lat) {
-                    const zoom = calculateZoomLevel(bounds);
-                    const tiles = getTilesForBounds(bounds, zoom);
-                    tiles.forEach((t) => allTiles.add(t));
-                }
-            }
-        } catch (e) {
-            // File doesn't exist - we need the tiles for when the image gets generated
-            if (e.code === "ENOENT") {
-                const bounds = await calculateBoundingBox(id);
-                if (bounds && bounds.min_lat) {
-                    const zoom = calculateZoomLevel(bounds);
-                    const tiles = getTilesForBounds(bounds, zoom);
-                    tiles.forEach((t) => allTiles.add(t));
-                }
-            }
-        }
-    }
-
-    if (allTiles.size > 0) {
-        console.log(
-            moment().format("YYYY-MM-DD HH:mm:ss"),
-            `Sending ${allTiles.size} tiles from old images to tile server for pre-warming...`,
-        );
-        // Just call the API to queue the tiles - we don't care about the response
-        await checkTilesAvailability([...allTiles]);
-        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "Pre-warming request sent.");
-    } else {
-        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "No old images found for pre-warming.");
+        return "failed";
     }
 };
 
@@ -547,24 +382,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         dir_go_up = "../../../";
     }
 
-    // This should be done only once when the function is first called.
-    if (!londonReferenceHash) {
-        const londonImagePath = path.join(__dirname, dir_go_up, "public/london.webp");
-        if (fs.existsSync(londonImagePath)) {
-            londonReferenceHash = await createLondonReferenceHash(londonImagePath);
-            console.log("London reference hash created:", londonReferenceHash);
-        } else {
-            console.error("London reference image not found:", londonImagePath);
-        }
-
-        const error502ImagePath = path.join(__dirname, dir_go_up, "public/502-error.webp");
-        if (fs.existsSync(error502ImagePath)) {
-            error502ReferenceHash = await createLondonReferenceHash(error502ImagePath);
-            console.log("502 reference hash created:", error502ReferenceHash);
-        } else {
-            console.error("502-error reference image not found:", error502ReferenceHash);
-        }
-    }
+    // Initialize error image hashes (London, 502, white, etc.)
+    await initErrorImageHashes(dir_go_up);
 
     if (ids) {
         let browser;
@@ -662,50 +481,17 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     );
                 })(),
 
-                // Prozess 2: Bildgenerierung mit Tile Pre-Warming
+                // Prozess 2: Bildgenerierung (ohne Tile Pre-Warming)
+                // Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
                 (async () => {
                     const PARALLEL_LIMIT = 5;
-                    const RETRY_INTERVAL_MS = 600000; // 10 minutes
 
                     console.log(
                         moment().format("YYYY-MM-DD HH:mm:ss"),
-                        `Starting tile pre-warming check for ${idsForCreation.length} tours...`,
+                        `Starting image generation for ${idsForCreation.length} tours...`,
                     );
 
-                    // Phase 1: Calculate tiles for all tours
-                    const tourTileMap = new Map(); // Tour-ID -> Set of tiles
-                    const allTiles = new Set();
-
-                    for (const tourId of idsForCreation) {
-                        const bounds = await calculateBoundingBox(tourId);
-                        if (bounds && bounds.min_lat) {
-                            const zoom = calculateZoomLevel(bounds);
-                            const tiles = getTilesForBounds(bounds, zoom);
-                            tourTileMap.set(tourId, new Set(tiles));
-                            tiles.forEach((t) => allTiles.add(t));
-                        } else {
-                            // No GPX data, will use placeholder
-                            tourTileMap.set(tourId, new Set());
-                        }
-                    }
-
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        `Calculated ${allTiles.size} distinct tiles for ${idsForCreation.length} tours.`,
-                    );
-
-                    // Phase 2: Check tile availability
-                    let missingTiles = await checkTilesAvailability([...allTiles]);
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        `Tile check result: ${missingTiles.size} tiles missing.`,
-                    );
-
-                    // Phase 3: Process with retry loop
-                    let pendingTours = [...idsForCreation];
-                    let stopProcessing = false;
-
-                    // Custom Concurrency Helper
+                    // Simple parallel processing without tile checking
                     async function asyncPool(poolLimit, array, iteratorFn) {
                         const ret = [];
                         const executing = [];
@@ -724,83 +510,96 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         return Promise.all(ret);
                     }
 
-                    while (pendingTours.length > 0 && !stopProcessing) {
+                    let stopProcessing = false;
+                    const errorImageTours = []; // Tours that generated error images
+
+                    // Main processing loop
+                    await asyncPool(PARALLEL_LIMIT, idsForCreation, async (tourID) => {
+                        if (stopProcessing) return;
+
                         // Check time limit
-                        const now = new Date();
-                        if (now.getHours() >= 23) {
-                            console.log(
-                                moment().format("YYYY-MM-DD HH:mm:ss"),
-                                "Stopping tile pre-warming due to time limit (23:00).",
-                            );
-                            stopProcessing = true;
-                            break;
+                        const currentHour = new Date().getHours();
+                        if (currentHour >= 23) {
+                            if (!stopProcessing) {
+                                console.log(
+                                    moment().format("YYYY-MM-DD HH:mm:ss"),
+                                    "Stopping image creation due to time limit (23:00).",
+                                );
+                                stopProcessing = true;
+                            }
+                            return;
                         }
 
-                        // Find tours with all tiles available
-                        const readyTours = pendingTours.filter((tourId) => {
-                            const tiles = tourTileMap.get(tourId);
-                            if (!tiles || tiles.size === 0) return true; // No tiles needed (placeholder case)
-                            return [...tiles].every((t) => !missingTiles.has(t));
+                        // Small jitter to avoid thundering herd
+                        const jitter = Math.floor(Math.random() * 1000);
+                        await new Promise((resolve) => setTimeout(resolve, jitter));
+
+                        let lastTwoChars = last_two_characters(tourID);
+                        const result = await processAndCreateImage(
+                            tourID,
+                            lastTwoChars,
+                            browser,
+                            useCDN,
+                            dir_go_up,
+                            url,
+                        );
+
+                        if (result === "error_image") {
+                            errorImageTours.push(tourID);
+                        }
+                    });
+
+                    console.log(
+                        moment().format("YYYY-MM-DD HH:mm:ss"),
+                        `Main image generation finished. ${errorImageTours.length} tours had error images.`,
+                    );
+
+                    // Retry loop for tours that had error images
+                    if (errorImageTours.length > 0 && !stopProcessing) {
+                        console.log(
+                            moment().format("YYYY-MM-DD HH:mm:ss"),
+                            `Waiting 60 seconds before retrying ${errorImageTours.length} failed tours...`,
+                        );
+                        await new Promise((resolve) => setTimeout(resolve, 60000));
+
+                        console.log(
+                            moment().format("YYYY-MM-DD HH:mm:ss"),
+                            `Starting retry for ${errorImageTours.length} tours...`,
+                        );
+
+                        await asyncPool(PARALLEL_LIMIT, errorImageTours, async (tourID) => {
+                            if (stopProcessing) return;
+
+                            const currentHour = new Date().getHours();
+                            if (currentHour >= 23) {
+                                stopProcessing = true;
+                                return;
+                            }
+
+                            const jitter = Math.floor(Math.random() * 1000);
+                            await new Promise((resolve) => setTimeout(resolve, jitter));
+
+                            let lastTwoChars = last_two_characters(tourID);
+                            const result = await processAndCreateImage(
+                                tourID,
+                                lastTwoChars,
+                                browser,
+                                useCDN,
+                                dir_go_up,
+                                url,
+                            );
+
+                            // If still error_image after retry, set placeholder
+                            if (result === "error_image") {
+                                console.log(
+                                    moment().format("YYYY-MM-DD HH:mm:ss"),
+                                    ` Tour ${tourID} still failed after retry - setting placeholder.`,
+                                );
+                                handleImagePlaceholder(tourID, useCDN);
+                            }
                         });
 
-                        if (readyTours.length > 0) {
-                            console.log(
-                                moment().format("YYYY-MM-DD HH:mm:ss"),
-                                `Processing ${readyTours.length} tours with available tiles...`,
-                            );
-
-                            await asyncPool(PARALLEL_LIMIT, readyTours, async (tourID) => {
-                                if (stopProcessing) return;
-
-                                const currentHour = new Date().getHours();
-                                if (currentHour >= 23) {
-                                    if (!stopProcessing) {
-                                        console.log(
-                                            moment().format("YYYY-MM-DD HH:mm:ss"),
-                                            "Stopping image creation due to time limit.",
-                                        );
-                                        stopProcessing = true;
-                                    }
-                                    return;
-                                }
-
-                                const jitter = Math.floor(Math.random() * 1000);
-                                await new Promise((resolve) => setTimeout(resolve, jitter));
-
-                                let lastTwoChars = last_two_characters(tourID);
-                                await processAndCreateImage(
-                                    tourID,
-                                    lastTwoChars,
-                                    browser,
-                                    useCDN,
-                                    dir_go_up,
-                                    url,
-                                );
-                            });
-
-                            // Remove processed tours
-                            pendingTours = pendingTours.filter((id) => !readyTours.includes(id));
-                        }
-
-                        // If there are still pending tours, wait and retry
-                        if (pendingTours.length > 0 && !stopProcessing) {
-                            console.log(
-                                moment().format("YYYY-MM-DD HH:mm:ss"),
-                                `Waiting 10 minutes for ${pendingTours.length} tours with missing tiles...`,
-                            );
-                            await delay(RETRY_INTERVAL_MS);
-
-                            // Re-check tiles for remaining tours
-                            const remainingTiles = new Set();
-                            pendingTours.forEach((id) => {
-                                tourTileMap.get(id)?.forEach((t) => remainingTiles.add(t));
-                            });
-                            missingTiles = await checkTilesAvailability([...remainingTiles]);
-                            console.log(
-                                moment().format("YYYY-MM-DD HH:mm:ss"),
-                                `Re-check result: ${missingTiles.size} tiles still missing.`,
-                            );
-                        }
+                        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "Retry loop finished.");
                     }
 
                     console.log(
@@ -844,8 +643,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             );
         }
 
-        // Always pre-warm tiles for old images as the very last step
-        await preWarmOldImageTiles(dir_go_up);
+        // Note: Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
+        // Run it before image generation with: python3 scripts/prewarm_tiles.py
     }
 };
 
