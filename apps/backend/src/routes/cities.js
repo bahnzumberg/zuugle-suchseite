@@ -82,7 +82,7 @@ const listWrapper = async (req, res) => {
             result = await knex("city")
                 .select("city_slug", "city_name")
                 .where(where)
-                .andWhereRaw(`LOWER(city_name) LIKE '%${search.toLowerCase()}%'`)
+                .andWhereRaw(`LOWER(city_name) LIKE ?`, [`%${search.toLowerCase()}%`])
                 .orderBy("city", "asc")
                 .limit(100);
         } else {
