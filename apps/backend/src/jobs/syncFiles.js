@@ -1,28 +1,22 @@
 #!/usr/bin/node
 import { syncConnectionGPX, syncGPX, syncGPXImage, copyRangeImage } from "./sync";
-import moment from "moment";
 import cacheService from "../services/cache.js";
+import logger from "../utils/logger";
 
-console.log("START CREATE GPX FILES: ", moment().format("YYYY-MM-DD HH:mm:ss"));
+logger.info("START CREATE GPX FILES");
 syncGPX().then(() => {
-    console.log("END CREATE GPX FILES: ", moment().format("YYYY-MM-DD HH:mm:ss"));
-    console.log("START CREATE GPX ANREISE/ABREISE FILES: ", moment().format("YYYY-MM-DD HH:mm:ss"));
+    logger.info("END CREATE GPX FILES");
+    logger.info("START CREATE GPX ANREISE/ABREISE FILES");
     syncConnectionGPX("dev").then(() => {
-        console.log(
-            "END CREATE GPX ANREISE/ABREISE FILES: ",
-            moment().format("YYYY-MM-DD HH:mm:ss"),
-        );
-        console.log("START CREATE GPX IMAGE FILES: ", moment().format("YYYY-MM-DD HH:mm:ss"));
+        logger.info("END CREATE GPX ANREISE/ABREISE FILES");
+        logger.info("START CREATE GPX IMAGE FILES");
         syncGPXImage().then(() => {
-            console.log("END CREATE GPX IMAGE FILES: ", moment().format("YYYY-MM-DD HH:mm:ss"));
-            console.log(
-                "START COPYING RANGE IMAGE FILES: ",
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-            );
+            logger.info("END CREATE GPX IMAGE FILES");
+            logger.info("START COPYING RANGE IMAGE FILES");
             copyRangeImage().then(async () => {
-                console.log("FLUSHING CACHE...");
+                logger.info("FLUSHING CACHE...");
                 await cacheService.flush();
-                console.log("CACHE FLUSHED.");
+                logger.info("CACHE FLUSHED.");
                 process.exit();
             });
         });

@@ -24,9 +24,11 @@ module.exports = {
       port : 5433,
       user : 'postgres',
       password : 'docker',
-      database : 'zuugle_suchseite_dev'
+      database : 'zuugle_suchseite_dev',
+      debug: false
     }
   },
+  debug: true,
   pool: {
     min: 2, // Minimum number of connections in the pool
     max: 10 // Maximum number of connections in the pool

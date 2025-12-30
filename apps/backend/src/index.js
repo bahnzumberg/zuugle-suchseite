@@ -7,13 +7,14 @@ import authenticate from "./middlewares/authenticate";
 import { getZuugleCors, hostMiddleware } from "./utils/zuugleCors";
 import searchPhrases from "./routes/searchPhrases";
 import { swaggerDocs } from "./utils/swagger";
+import logger from "./utils/logger";
 
 process.env.TZ = "Europe/Berlin";
 
 /* start api */
 let port = 8080;
-console.log("__dirname=", __dirname);
-console.log("process.env.NODE_ENV", process.env.NODE_ENV);
+logger.info("__dirname=", __dirname);
+logger.info("process.env.NODE_ENV=", process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === "production") {
     if (__dirname.includes("/dev-api")) {
@@ -49,4 +50,4 @@ app.use("/api/language", cors(corsOptions), hostMiddleware, authenticate, langua
 app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
 swaggerDocs(app);
 
-app.listen(port, () => console.log("Running on localhost:" + port));
+app.listen(port, () => logger.info("Running on localhost:" + port));

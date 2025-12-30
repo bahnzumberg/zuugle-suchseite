@@ -1,37 +1,57 @@
-import * as fs from "fs";
-import path from "path";
+/**
+ * Centralized logging utility with consistent timestamps.
+ * Format: YYYY-MM-DD HH:mm:ss [LEVEL] message
+ */
 
-// TESTING DETACHED HEAD STATE
-export default function (text: string) {
-    const onoffswitch = "on"; // values: on / off
+const getTimestamp = (): string => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
-    if (onoffswitch == "on" || process.env.NODE_ENV !== "production") {
-        // Either onoffswitch is set to 'on' or we are not on prod or uat
+const formatMessage = (level: string, args: unknown[]): string => {
+    const timestamp = getTimestamp();
+    const message = args
+        .map((arg) => {
+            if (arg instanceof Error) {
+                return arg.stack || arg.message;
+            }
+            if (typeof arg === "object") {
+                try {
+                    return JSON.stringify(arg);
+                } catch {
+                    return String(arg);
+                }
+            }
+            return String(arg);
+        })
+        .join(" ");
+    return `${timestamp} [${level}] ${message}`;
+};
 
-        const proddevPath = process.env.NODE_ENV !== "production" ? "../../" : "../../";
-        const filePath = path.join(__dirname, proddevPath, "logs/api.log");
+const logger = {
+    info: (...args: unknown[]): void => {
+        console.log(formatMessage("INFO", args));
+    },
 
-        // Ensure the directory exists
-        if (!fs.existsSync(path.dirname(filePath))) {
-            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    error: (...args: unknown[]): void => {
+        console.error(formatMessage("ERROR", args));
+    },
+
+    warn: (...args: unknown[]): void => {
+        console.warn(formatMessage("WARN", args));
+    },
+
+    debug: (...args: unknown[]): void => {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(formatMessage("DEBUG", args));
         }
+    },
+};
 
-        // Create file when not existent yet
-        if (!fs.existsSync(filePath)) {
-            fs.writeFileSync(filePath, "");
-        }
-
-        const date_ob = new Date();
-        const day = ("0" + date_ob.getDate()).slice(-2);
-        const month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
-        const year = date_ob.getFullYear();
-        const hours = date_ob.getHours();
-        const minutes = date_ob.getMinutes();
-        const seconds = date_ob.getSeconds();
-        const log_date_time =
-            year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds + " ";
-
-        // add log entry
-        fs.appendFileSync(filePath, log_date_time + text + "\n");
-    }
-}
+export default logger;

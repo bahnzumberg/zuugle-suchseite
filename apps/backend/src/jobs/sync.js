@@ -2,12 +2,12 @@ import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
 import { createImagesFromMap, last_two_characters } from "../utils/gpx/gpxUtils";
-import moment from "moment";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
 import request from "request";
 import { spawn } from "cross-spawn";
+import logger from "../utils/logger";
 
 const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
 const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
@@ -198,7 +198,7 @@ export async function fixTours() {
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
         } catch (e) {
-            console.log(e);
+            logger.info(e);
         }
 
         try {
@@ -218,7 +218,7 @@ export async function fixTours() {
                         AND ct.connection_arrival_stop_lat IS NOT NULL
                         GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
         } catch (e) {
-            console.log(e);
+            logger.info(e);
         }
     }
 
@@ -306,27 +306,27 @@ export async function fixTours() {
                         encodeURI(entry.image_url).replace(/%5B/g, "[").replace(/%5D/g, "]")
                     ) {
                         await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
-                        // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
+                        // logger.info("Id "+entry.id+" wurde auf NULL gesetzt")
                     } else {
                         const options = {
                             timeout: 10000, // Set timeout to 10 seconds (default might be lower)
                         };
                         request(entry.image_url, options, (error, response) => {
                             if (error || response.statusCode != 200) {
-                                // console.log("Response: ", response)
-                                // console.log("Error: ", error)
+                                // logger.info("Response: ", response)
+                                // logger.info("Error: ", error)
                                 knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
-                                // console.log("Id "+entry.id+" wurde auf NULL gesetzt")
+                                // logger.info("Id "+entry.id+" wurde auf NULL gesetzt")
                             }
                         });
                     }
                 } catch (err) {
-                    console.log("const updatePromises = tour_image_url.map: ", err);
+                    logger.info("const updatePromises = tour_image_url.map: ", err);
                 }
             });
             await Promise.all(updatePromises);
         } catch (err) {
-            console.log("error: ", err);
+            logger.info("error: ", err);
         }
     }
 }
@@ -345,7 +345,7 @@ export async function copyRangeImage() {
         );
         ranges = range_result.rows;
     } catch (error) {
-        console.error("Error querying the database:", error);
+        logger.error("Error querying the database:", error);
     }
 
     try {
@@ -359,11 +359,11 @@ export async function copyRangeImage() {
 
             if (!fs.existsSync(fs_target)) {
                 await fs.promises.copyFile(fs_source, fs_target);
-                console.log("No image for range found. Copying from default: ", fs_target);
+                logger.info("No image for range found. Copying from default: ", fs_target);
             }
         }
     } catch (error) {
-        console.error("Error copying images:", error);
+        logger.error("Error copying images:", error);
     }
 }
 
@@ -379,7 +379,7 @@ const prepareDirectories = () => {
         "public/gpx-track/fromtour/",
     ];
 
-    console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Start deleting old files");
+    logger.info(" Start deleting old files");
     for (const i in dirPaths) {
         // On server (production): __dirname = /root/suchseite/api/jobs/
         //   -> We need to go up one level to /root/suchseite/api/ where public/ is
@@ -417,7 +417,7 @@ export async function truncateAll() {
             await knex.raw(`TRUNCATE ${tbl};`);
         } catch (err) {
             // Ignore errors for missing tables (e.g., canonical_alternate may not exist yet)
-            console.warn(`TRUNCATE ${tbl} failed (ignored):`, err.message);
+            logger.warn(`TRUNCATE ${tbl} failed (ignored):`, err.message);
         }
     }
 }
@@ -433,18 +433,18 @@ function getContainerName() {
 export async function copyDump(localPath, remotePath) {
     return new Promise((resolve, reject) => {
         const container = getContainerName();
-        console.log(`Copying dump to container ${container}...`);
+        logger.info(`Copying dump to container ${container}...`);
         const dockerProc = spawn("docker", ["cp", localPath, `${container}:${remotePath}`]);
 
         let stderrData = "";
         dockerProc.stderr.on("data", (data) => {
             stderrData += data.toString();
-            console.error(`docker cp stderr: ${data}`);
+            logger.error(`docker cp stderr: ${data}`);
         });
 
         dockerProc.on("close", (code) => {
             if (code === 0) {
-                console.log(`Dump copied successfully to ${container}:${remotePath}`);
+                logger.info(`Dump copied successfully to ${container}:${remotePath}`);
                 resolve(undefined);
             } else {
                 // Check for specific error: container not running
@@ -452,8 +452,8 @@ export async function copyDump(localPath, remotePath) {
                     stderrData.includes("is not running") ||
                     stderrData.includes("No such container")
                 ) {
-                    console.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
-                    console.error(
+                    logger.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
+                    logger.error(
                         `   Please start the container first with: docker start ${container}\n`,
                     );
                     reject(
@@ -485,7 +485,7 @@ export async function restoreDump() {
                 : process.env.DB_USER || "postgres";
         const dbDump = "/tmp/zuugle_postgresql.dump";
 
-        console.log(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
+        logger.info(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
         const dockerProc = spawn("docker", [
             "exec",
             container,
@@ -499,15 +499,15 @@ export async function restoreDump() {
             dbDump,
         ]);
         dockerProc.stdout.on("data", (data) => {
-            console.log(`stdout: ${data}`);
+            logger.info(`stdout: ${data}`);
         });
         dockerProc.stderr.on("data", (data) => {
             const errorMessage = data.toString();
 
             // Check for specific error: container not running
             if (errorMessage.includes("is not running")) {
-                console.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
-                console.error(
+                logger.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
+                logger.error(
                     `   Please start the container first with: docker start ${container}\n`,
                 );
                 reject(
@@ -521,7 +521,7 @@ export async function restoreDump() {
         });
         dockerProc.on("close", async (code) => {
             if (code === 0) {
-                console.log(`pg_restore executed successfully`);
+                logger.info(`pg_restore executed successfully`);
                 // Clear CDN URLs from image_url so local import-files regenerates them with local path
                 // This is how the run "npm run import-data" would have left the column on production
                 await knex.raw(
@@ -577,13 +577,13 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
         }
         return true; // Success
     } catch (err) {
-        console.error("Error in getProvider:", err);
+        logger.error("Error in getProvider:", err);
 
         if (retryCount < maxRetries) {
-            console.log(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
+            logger.info(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
             return getProvider(retryCount + 1, maxRetries);
         } else {
-            console.error("Max retries reached. Giving up.");
+            logger.error("Max retries reached. Giving up.");
             return false; // Failure
         }
     }
@@ -643,7 +643,7 @@ export async function generateTestdata() {
             `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Klettern', 1,'wien', 'fr', 'AT');`,
         );
     } catch (err) {
-        console.log("error: ", err);
+        logger.info("error: ", err);
         return false;
     }
 }
@@ -694,7 +694,7 @@ async function _syncConnectionGPX(key, partFilePath, fileName, title) {
             }
         }
     } catch (e) {
-        console.error("Error in _syncConnectionGPX:", e);
+        logger.error("Error in _syncConnectionGPX:", e);
     }
 }
 
@@ -743,7 +743,7 @@ export async function syncConnectionGPX() {
 export async function syncGPX() {
     prepareDirectories();
     var allTours = null;
-    console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Creating gpx files for all tours");
+    logger.info(" Creating gpx files for all tours");
     allTours = await knex("tour").select(["title", "id", "hashed_url"]);
     var allTourlength = allTours.length;
     if (!!allTours && allTours.length > 0) {
@@ -753,7 +753,7 @@ export async function syncGPX() {
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
                 await _syncGPX(entry.id, entry.hashed_url, entry.title);
             } catch (error) {
-                console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Error in syncGPX: ", error);
+                logger.info(" Error in syncGPX: ", error);
             }
         }
     }
@@ -791,7 +791,7 @@ async function _syncGPX(id, h_url, title) {
                     .where({ hashed_url: h_url })
                     .orderBy("waypoint");
             } catch (err) {
-                console.log("Error in _syncGPX while trying to execute waypoints query: ", err);
+                logger.info("Error in _syncGPX while trying to execute waypoints query: ", err);
             }
             if (!!waypoints && waypoints.length > 0 && !!filePathName) {
                 const writePromise = createFileFromGpx(waypoints, filePathName, title);
@@ -806,8 +806,8 @@ async function _syncGPX(id, h_url, title) {
             }
         }
     } catch (err) {
-        console.error(err);
-        console.log("Error in _syncGPX while trying to generate a gpx file");
+        logger.error(err);
+        logger.info("Error in _syncGPX while trying to generate a gpx file");
     }
 }
 
@@ -825,7 +825,7 @@ export async function syncGPXImage() {
             });
         }
         if (toCreate) {
-            console.log(moment().format("YYYY-MM-DD HH:mm:ss"), " Start to create gpx image files");
+            logger.info(" Start to create gpx image files");
             await createImagesFromMap(toCreate.map((e) => e.id));
         }
 
@@ -850,7 +850,7 @@ async function createFileFromGpx(
     fieldEle = "ele",
 ) {
     if (data) {
-        // console.log(`createFileFromGpx ${filePath}`)
+        // logger.info(`createFileFromGpx ${filePath}`)
 
         const root = create({ version: "1.0" })
             .ele("gpx", {
@@ -1179,13 +1179,13 @@ const bulk_insert_tours = async (entries) => {
                                           text_lang,
                                           max_ele)
                                           VALUES ${sql_values}`;
-    // console.log(sql_insert)
+    // logger.info(sql_insert)
 
     try {
         await knex.raw(sql_insert);
         return true;
     } catch (err) {
-        console.log("error: ", err);
+        logger.info("error: ", err);
         return false;
     }
 };
@@ -1248,10 +1248,10 @@ export async function populateCity2TourFlat() {
         await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
         await knex.raw(`ANALYZE city2tour_flat;`);
 
-        console.log("city2tour_flat populated successfully.");
+        logger.info("city2tour_flat populated successfully.");
         return true;
     } catch (err) {
-        console.error("Error populating city2tour_flat:", err);
+        logger.error("Error populating city2tour_flat:", err);
         throw err;
     }
 }

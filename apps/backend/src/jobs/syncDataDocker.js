@@ -1,21 +1,22 @@
 #!/usr/bin/node
 import { writeKPIs, truncateAll, restoreDump, copyDump, populateCity2TourFlat } from "./sync.js";
 import cacheService from "../services/cache.js";
+import logger from "../utils/logger";
 
-console.log("Copy dump to container");
+logger.info("Copy dump to container");
 copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
     .then(() => {
-        console.log("Truncate tables");
+        logger.info("Truncate tables");
         truncateAll().then(() => {
-            console.log("Restore from database dump (this will take a while)");
+            logger.info("Restore from database dump (this will take a while)");
             restoreDump().then(() => {
-                console.log("Populate city2tour_flat");
+                logger.info("Populate city2tour_flat");
                 populateCity2TourFlat().then(() => {
-                    console.log("Write KPIs");
+                    logger.info("Write KPIs");
                     writeKPIs().then(async () => {
-                        console.log("Flushing cache...");
+                        logger.info("Flushing cache...");
                         await cacheService.flush();
-                        console.log("Cache flushed. Database ready!");
+                        logger.info("Cache flushed. Database ready!");
                         process.exit();
                     });
                 });
@@ -23,6 +24,6 @@ copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
         });
     })
     .catch((err) => {
-        console.error("Error during sync:", err);
+        logger.error("Error during sync:", err);
         process.exit(1);
     });

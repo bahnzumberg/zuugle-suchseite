@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import config from "../config.js";
+import logger from "../utils/logger";
 
 let redis = null;
 
@@ -14,7 +15,7 @@ if (config.cache && config.cache.enabled) {
     redis.on("error", (err) => {
         // Log error only once
         if (!errorLogged) {
-            console.error("Redis error:", err.message);
+            logger.error("Redis error:", err.message);
             errorLogged = true;
         }
     });
@@ -34,7 +35,7 @@ const get = async (key) => {
         if (!data) return null;
         return JSON.parse(data);
     } catch (e) {
-        console.warn("Cache get failed:", e.message);
+        logger.warn("Cache get failed:", e.message);
         return null;
     }
 };
@@ -44,7 +45,7 @@ const set = async (key, value, ttl = config.cache.ttl) => {
     try {
         await redis.set(key, JSON.stringify(value), "EX", ttl);
     } catch (e) {
-        console.warn("Cache set failed:", e.message);
+        logger.warn("Cache set failed:", e.message);
     }
 };
 
@@ -52,9 +53,9 @@ const flush = async () => {
     if (!redis || redis.status !== "ready") return;
     try {
         await redis.flushall();
-        console.log("Cache flushed.");
+        logger.info("Cache flushed.");
     } catch (e) {
-        console.error("Cache flush failed:", e.message);
+        logger.error("Cache flush failed:", e.message);
     }
 };
 
@@ -66,7 +67,7 @@ const getStats = async () => {
         const misses = info.match(/keyspace_misses:(\d+)/)?.[1] || "0";
         return { hits: parseInt(hits), misses: parseInt(misses) };
     } catch (e) {
-        console.warn("Cache getStats failed:", e.message);
+        logger.warn("Cache getStats failed:", e.message);
         return null;
     }
 };

@@ -4,11 +4,11 @@ import fs from "fs-extra";
 import sharp from "sharp";
 import convertXML from "xml-js";
 import { create } from "xmlbuilder2";
-import moment from "moment";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
 import { getHost } from "../utils";
 import crypto from "crypto";
+import logger from "../logger";
 
 // Error image detection - stores hashes of known error images (London, 502, white, etc.)
 // To add a new error image: just add the filename to ERROR_IMAGE_FILES
@@ -25,27 +25,27 @@ const createImageHash = async (imagePath) => {
         const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
         return hash;
     } catch (e) {
-        console.error("Error creating image hash:", e);
+        logger.error("Error creating image hash:", e);
         return null;
     }
 };
 
-// Initialize error image hashes from files in public/ directory
-const initErrorImageHashes = async (dir_go_up) => {
+// Initialize error image hashes from error-images/ directory (same folder as this file)
+const initErrorImageHashes = async () => {
     if (errorImageHashes.size > 0) return; // Already initialized
 
     for (const filename of ERROR_IMAGE_FILES) {
-        const imagePath = path.join(__dirname, dir_go_up, "public/" + filename);
+        const imagePath = path.join(__dirname, "error-images", filename);
         if (fs.existsSync(imagePath)) {
             const hash = await createImageHash(imagePath);
             if (hash) {
                 errorImageHashes.add(hash);
-                console.log(
+                logger.info(
                     `Error image hash created for ${filename}: ${hash.substring(0, 16)}...`,
                 );
             }
         } else {
-            console.warn(`Error reference image not found: ${imagePath}`);
+            logger.warn(`Error reference image not found: ${imagePath}`);
         }
     }
 };
@@ -53,7 +53,7 @@ const initErrorImageHashes = async (dir_go_up) => {
 // Check if an image matches any known error image
 const isErrorImage = async (imagePath) => {
     if (errorImageHashes.size === 0) {
-        console.error("Error image hashes not initialized.");
+        logger.error("Error image hashes not initialized.");
         return false;
     }
 
@@ -61,7 +61,7 @@ const isErrorImage = async (imagePath) => {
         const hash = await createImageHash(imagePath);
         return errorImageHashes.has(hash);
     } catch (e) {
-        console.error("Error checking image:", e);
+        logger.error("Error checking image:", e);
         return false;
     }
 };
@@ -132,7 +132,7 @@ const setTourImageURL = async (tour_id, image_url, force = false) => {
                     );
                 }
             } catch (e) {
-                console.error(`Error in setTourImageURL with tour_id=${tour_id}: `, e);
+                logger.error(`Error in setTourImageURL with tour_id=${tour_id}:`, e);
             }
         }
     }
@@ -166,20 +166,14 @@ const handleImagePlaceholder = async (tourId, useCDN) => {
 
         if (rangeSlug) {
             const imageUrl = `/public/range-image/${rangeSlug}.webp`;
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                ` Found range_slug "${rangeSlug}", setting specific image URL.`,
-            );
+            logger.info(`Found range_slug "${rangeSlug}", setting specific image URL.`);
             await dispatchDbUpdate(
                 tourId,
                 useCDN ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl,
                 true,
             );
         } else {
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                " No range_slug found, setting generic placeholder.",
-            );
+            logger.info("No range_slug found, setting generic placeholder.");
             await dispatchDbUpdate(
                 tourId,
                 useCDN
@@ -189,7 +183,7 @@ const handleImagePlaceholder = async (tourId, useCDN) => {
             );
         }
     } catch (e) {
-        console.error("Error in handleImagePlaceholder:", e);
+        logger.error("Error in handleImagePlaceholder:", e);
         await dispatchDbUpdate(
             tourId,
             useCDN
@@ -236,25 +230,18 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                     .webp({ quality: 15 })
                     .toFile(filePathSmallWebp);
             } catch (e) {
-                console.error("gpxUtils.sharp.resize error: ", e);
+                logger.error("gpxUtils.sharp.resize error:", e);
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
                 await fs.unlink(filePath);
                 const isError = await isErrorImage(filePathSmallWebp);
-
                 if (isError) {
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        ` Detected error image for tour ${tourId} - will retry later.`,
-                    );
+                    logger.info(`Detected error image for tour ${tourId} - will retry later.`);
                     await fs.unlink(filePathSmallWebp);
                     return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        " Gpx image small file created: " + filePathSmallWebp,
-                    );
+                    logger.debug("Gpx image small file created:", filePathSmallWebp);
                     if (useCDN) {
                         dispatchDbUpdate(
                             tourId,
@@ -275,29 +262,20 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                     return "success";
                 }
             } else {
-                console.log(
-                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                    " NO gpx image small file created for tour " + tourId,
-                );
+                logger.warn("NO gpx image small file created for tour", tourId);
                 handleImagePlaceholder(tourId, useCDN);
                 return "failed";
             }
         } else {
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                " NO image file created: " + filePath,
-            );
+            logger.warn("NO image file created:", filePath);
             handleImagePlaceholder(tourId, useCDN);
             return "failed";
         }
     } catch (e) {
         if (e.message === "Image generation timeout") {
-            console.error(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                `Timeout for image generation for ID ${tourId}: ${e.message}`,
-            );
+            logger.error(`Timeout for image generation for ID ${tourId}:`, e.message);
         } else {
-            console.error(`Error in processAndCreateImage for ID ${tourId}:`, e);
+            logger.error(`Error in processAndCreateImage for ID ${tourId}:`, e);
         }
 
         handleImagePlaceholder(tourId, useCDN);
@@ -330,34 +308,27 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
             const shouldBeDeleted = Math.random() < 0.1;
 
             if (isOlderThan30Days && shouldBeDeleted) {
-                console.log(
-                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                    `Deleting old image for tour ID ${id}.`,
-                );
+                logger.info(`Deleting old image for tour ID ${id}.`);
                 await fs.promises.unlink(filePath);
                 idsToRecreate.push(id);
             }
         } catch (e) {
             if (e.code === "ENOENT") {
-                console.log(
-                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                    `Image for tour ID ${id} not found on disk. Adding to recreate list.`,
-                );
+                logger.info(`Image for tour ID ${id} not found on disk. Adding to recreate list.`);
                 idsToRecreate.push(id);
             } else {
-                console.error(`Error checking file for ID ${id}: `, e);
+                logger.error(`Error checking file for ID ${id}:`, e);
             }
         }
     }
 
     if (idsToRecreate.length > 0) {
-        console.log(
-            moment().format("YYYY-MM-DD HH:mm:ss"),
+        logger.info(
             `Found ${idsToRecreate.length} images to recreate. Restarting image generation process...`,
         );
         await createImagesFromMap(idsToRecreate, true); // Übergibt das Flag 'true' um keine weitere Rekursion zuzulassen
     } else {
-        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), `No old images found to recreate.`);
+        logger.info(`No old images found to recreate.`);
     }
 };
 
@@ -372,7 +343,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     // useCDN is true only if: isProd=true AND (USE_CDN is not set OR USE_CDN="true")
     // useCDN is false if: isProd=false OR USE_CDN="false"
     const useCDN = isProd && process.env.USE_CDN !== "false";
-    console.log("USE_CDN: ", useCDN);
+    logger.info("USE_CDN:", useCDN);
 
     // We need to distingiush between local development and production (like) server environment
     let dir_go_up = "";
@@ -383,7 +354,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     }
 
     // Initialize error image hashes (London, 502, white, etc.)
-    await initErrorImageHashes(dir_go_up);
+    await initErrorImageHashes();
 
     if (ids) {
         let browser;
@@ -413,10 +384,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             const idsForCreation = [];
 
             // Dispatcher-Phase: Asynchrone Aufteilung der IDs
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                `Starting dispatcher to classify ${ids.length} IDs...`,
-            );
+            logger.info(`Starting dispatcher to classify ${ids.length} IDs...`);
             const classificationPromises = ids.map(async (tourID) => {
                 let lastTwoChars = last_two_characters(tourID);
                 let dirPath = path.join(
@@ -432,15 +400,14 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     if (e.code === "ENOENT") {
                         idsForCreation.push(tourID);
                     } else {
-                        console.error(`Error checking file for ID ${tourID}:`, e);
+                        logger.error(`Error checking file for ID ${tourID}:`, e);
                         // Behandeln Sie andere Dateisystemfehler
                         idsForUpdate.push(tourID); // Update-Pfad als Fallback
                     }
                 }
             });
             await Promise.all(classificationPromises);
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
+            logger.info(
                 `Dispatcher finished. Found ${idsForUpdate.length} IDs for update and ${idsForCreation.length} IDs for creation.`,
             );
 
@@ -475,10 +442,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     while (activeDbUpdates.length > 0) {
                         await new Promise((resolve) => setTimeout(resolve, 50));
                     }
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        "All database updates finished.",
-                    );
+                    logger.info("All database updates finished.");
                 })(),
 
                 // Prozess 2: Bildgenerierung (ohne Tile Pre-Warming)
@@ -486,10 +450,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 (async () => {
                     const PARALLEL_LIMIT = 5;
 
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        `Starting image generation for ${idsForCreation.length} tours...`,
-                    );
+                    logger.info(`Starting image generation for ${idsForCreation.length} tours...`);
 
                     // Simple parallel processing without tile checking
                     async function asyncPool(poolLimit, array, iteratorFn) {
@@ -521,10 +482,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         const currentHour = new Date().getHours();
                         if (currentHour >= 23) {
                             if (!stopProcessing) {
-                                console.log(
-                                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                                    "Stopping image creation due to time limit (23:00).",
-                                );
+                                logger.info("Stopping image creation due to time limit (23:00).");
                                 stopProcessing = true;
                             }
                             return;
@@ -549,23 +507,18 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         }
                     });
 
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
+                    logger.info(
                         `Main image generation finished. ${errorImageTours.length} tours had error images.`,
                     );
 
                     // Retry loop for tours that had error images
                     if (errorImageTours.length > 0 && !stopProcessing) {
-                        console.log(
-                            moment().format("YYYY-MM-DD HH:mm:ss"),
+                        logger.info(
                             `Waiting 60 seconds before retrying ${errorImageTours.length} failed tours...`,
                         );
                         await new Promise((resolve) => setTimeout(resolve, 60000));
 
-                        console.log(
-                            moment().format("YYYY-MM-DD HH:mm:ss"),
-                            `Starting retry for ${errorImageTours.length} tours...`,
-                        );
+                        logger.info(`Starting retry for ${errorImageTours.length} tours...`);
 
                         await asyncPool(PARALLEL_LIMIT, errorImageTours, async (tourID) => {
                             if (stopProcessing) return;
@@ -591,21 +544,17 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                             // If still error_image after retry, set placeholder
                             if (result === "error_image") {
-                                console.log(
-                                    moment().format("YYYY-MM-DD HH:mm:ss"),
-                                    ` Tour ${tourID} still failed after retry - setting placeholder.`,
+                                logger.info(
+                                    `Tour ${tourID} still failed after retry - setting placeholder.`,
                                 );
                                 handleImagePlaceholder(tourID, useCDN);
                             }
                         });
 
-                        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), "Retry loop finished.");
+                        logger.info("Retry loop finished.");
                     }
 
-                    console.log(
-                        moment().format("YYYY-MM-DD HH:mm:ss"),
-                        "All image creations finished.",
-                    );
+                    logger.info("All image creations finished.");
                 })(),
             ]);
 
@@ -613,7 +562,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             // This is a simplified check - in practice pendingTours from the async block
             // would need to be communicated differently, but time check is the main gate
         } catch (err) {
-            console.log("Error in createImagesFromMap --> ", err.message);
+            logger.error("Error in createImagesFromMap:", err.message);
         } finally {
             if (browser) {
                 await browser.close();
@@ -627,20 +576,11 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         const currentHour = new Date().getHours();
 
         if (currentHour < 23) {
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                `Starting final check for old images...`,
-            );
+            logger.info(`Starting final check for old images...`);
             await cleanAndRecreateOldImages(dir_go_up);
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                `Final image check and recreation finished.`,
-            );
+            logger.info(`Final image check and recreation finished.`);
         } else {
-            console.log(
-                moment().format("YYYY-MM-DD HH:mm:ss"),
-                "Skipping cleanAndRecreateOldImages due to time limit (23:00+).",
-            );
+            logger.info("Skipping cleanAndRecreateOldImages due to time limit (23:00+).");
         }
 
         // Note: Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
@@ -667,8 +607,8 @@ export const createImageFromMap = async (browser, filePath, url) => {
             }
         }
     } catch (err) {
-        console.log("Error in createImageFromMap error: Could not generate ", filePath);
-        console.log("Errormessage:", err.message);
+        logger.error("Error in createImageFromMap, could not generate:", filePath);
+        logger.error("Error message:", err.message);
     }
 };
 
@@ -707,7 +647,7 @@ export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => 
             return doc.end({ prettyPrint: true });
         }
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 
     return null;
@@ -724,7 +664,7 @@ const getSequenceFromFile = async (file) => {
             }
         }
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
     return null;
 };
@@ -758,8 +698,8 @@ export async function hashedUrlsFromPoi(lat, lon, radius) {
         })(result);
         return rows.map((r) => r.hashed_url);
     } catch (e) {
-        console.error(
-            `Error obtaining tours within radius ${radius} from lat=${lat} and lon=${lon}: `,
+        logger.error(
+            `Error obtaining tours within radius ${radius} from lat=${lat} and lon=${lon}:`,
             e,
         );
         return null;
