@@ -2,11 +2,18 @@
  * Shared Test Configuration
  *
  * This module provides common configuration and utilities for all tests.
+ *
+ * LOCAL: Tests run against http://localhost:8080 (default)
+ * CI/CD: Tests run against https://www2.zuugle.at with credentials from GitHub Secrets:
+ *        - API_BASE_URL
+ *        - API_USER (from UAT_BASIC_AUTH_USER)
+ *        - API_PASSWORD (from UAT_BASIC_AUTH_PASSWORD)
  */
 
-export const baseUrl = process.env.API_BASE_URL || "https://www2.zuugle.at";
-export const apiUser = process.env.API_USER || "bzb";
-export const apiPass = process.env.API_PASSWORD || "bzb";
+// Default to localhost for local development, override via environment variables for CI
+export const baseUrl = process.env.API_BASE_URL || "http://localhost:8080";
+export const apiUser = process.env.API_USER || "";
+export const apiPass = process.env.API_PASSWORD || "";
 
 /**
  * Get HTTP headers with Basic Auth if credentials are available
