@@ -338,6 +338,7 @@ const getWrapper = async (req, res) => {
         await cacheService.set(cacheKey, responseData);
         res.status(200).json(responseData);
     } catch (error) {
+        logger.error("Error in getWrapper for tour", id, ":", error);
         res.status(500).json({
             success: false,
             message: "Internal server error: " + error,
