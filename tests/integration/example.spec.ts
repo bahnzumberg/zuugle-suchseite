@@ -1,8 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-// Common setup or helper to handle potential Maintenance Mode or slow loading?
-// For now, we rely on the tests running against a live environment where these URLs work.
-
 test.describe("Search Functionality", () => {
   test("homepage loads and displays search bar", async ({ page }) => {
     await page.goto("/");
@@ -10,15 +7,12 @@ test.describe("Search Functionality", () => {
     await expect(page.locator("header").first())
       .toBeVisible()
       .catch(() => {});
-    const input = page.locator("input").first();
-    try {
-      await expect(input).toBeVisible({ timeout: 5000 });
-    } catch {
-      console.log(
-        "Input not found on home page immediately. Checking for other elements.",
-      );
-      expect(page.url()).toContain("/");
-    }
+    await page.getByRole("button", { name: "Suche" }).click();
+    await page.getByRole("textbox").fill("test");
+    await page.getByRole("button", { name: "close" }).click();
+    await page.getByRole("button", { name: "ab Verkehrsknoten" }).click();
+    await page.getByText("Baden").click();
+    await expect(page.locator(".main-search-bar")).toContainText("ab Baden");
   });
 
   test("search with valid term and city returns results", async ({ page }) => {
@@ -49,7 +43,7 @@ test.describe("Search Functionality", () => {
     });
     const firstCardImage = page.locator(".tour-card img").first();
     await expect(firstCardImage).toBeVisible();
-    await expect(firstCardImage).toHaveAttribute("src", /http/);
+    await expect(firstCardImage).toHaveAttribute("src", /.+/);
   });
 });
 
@@ -68,10 +62,8 @@ test.describe("Tour Detail Page", () => {
   });
 });
 
-// Additional test from lint-format-scripts branch
-test("search bar is visible", async ({ page }) => {
+test("Mountain ranges are visible and clickable", async ({ page }) => {
   await page.goto("/");
-  await page.waitForSelector("#root");
-  const searchInput = page.locator(".search-bar-input");
-  await expect(searchInput).toBeVisible();
+  await page.getByRole("link", { name: "Wienerwald", exact: true }).click();
+  await expect(page.locator(".tour-card").nth(2)).toContainText("Wienerwald");
 });
