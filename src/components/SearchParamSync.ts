@@ -118,9 +118,15 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(mapUpdated(false));
       }
 
+      // geolocation comes either as "geolocation" or as separate "lat", "lng" and "radius"
+      const lat = params.get("lat");
+      const lng = params.get("lng");
+      const radius = params.get("radius");
       const geolocation = params.get("geolocation");
-      if (geolocation) {
-        const parsedLocation = JSON.parse(geolocation);
+      if (geolocation || (lat && lng)) {
+        const parsedLocation = geolocation
+          ? JSON.parse(geolocation)
+          : { lat: lat, lng: lng, radius: radius };
         if (!parsedLocation.radius) {
           parsedLocation.radius = 100;
         }
