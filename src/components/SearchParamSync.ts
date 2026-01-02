@@ -63,7 +63,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
   }
 
   useEffect(() => {
-    const newParams = new URLSearchParams(params);
+    const newParams = new URLSearchParams();
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
     updateParam(newParams, "range", isMain ? search.range : null);
