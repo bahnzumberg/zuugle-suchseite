@@ -12,7 +12,6 @@ import {
   mapUpdated,
   geolocationUpdated,
   providerUpdated,
-  rangeUpdated,
   searchPhraseUpdated,
 } from "../features/searchSlice";
 import { useGetCitiesQuery } from "../features/apiSlice";
@@ -66,7 +65,6 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     const newParams = new URLSearchParams();
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
-    updateParam(newParams, "range", isMain ? search.range : null);
     updateParam(newParams, "country", isMain ? search.country : null);
     updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
@@ -108,8 +106,6 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateReduxFromParam("lang", languageUpdated);
     if (isMain) {
       updateReduxFromParam("search", searchPhraseUpdated);
-      updateReduxFromParam("range", rangeUpdated);
-      updateReduxFromParam("country", countryUpdated);
 
       const map = params.get("map");
       if (map) {
@@ -143,13 +139,21 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
         dispatch(boundsUpdated(null));
       }
 
-      const filter = params.get("filter");
-      if (filter) {
-        const parsedFilter = JSON.parse(filter);
+      const filterParam = params.get("filter");
+      let parsedFilter = {};
+      if (filterParam) {
+        parsedFilter = JSON.parse(filterParam);
         dispatch(filterUpdated(parsedFilter));
       } else {
         dispatch(filterUpdated({}));
       }
+
+      // if range is set like this -> update range in filter
+      const range = params.get("range");
+      if (range) {
+        dispatch(filterUpdated({ ...parsedFilter, ranges: [range] }));
+      }
+      updateReduxFromParam("country", countryUpdated);
     }
   }, []);
 
