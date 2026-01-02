@@ -1,0 +1,65 @@
+name: Playwright Integration Tests on Production
+
+on:
+  workflow_run:
+    workflows: ["PROD Deploy"]
+    types:
+      - completed
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *" # Run daily at 6am on production
+
+jobs:
+  test:
+    # Only run if deployment succeeded or if triggered by schedule or manually
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+        env:
+          BASE_URL: https://www.zuugle.at
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-production
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Create Issue on Failure
+        if: failure()
+        uses: dacbd/create-issue-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Integration Test Failure on Production"
+          body: |
+            ### Integration Test Failed
+
+            The Playwright integration tests failed on **Production** (https://www.zuugle.at).
+
+            **Trigger:** ${{ github.event_name }}
+            ${{ github.event_name == 'workflow_run' && format('**Deployment Run:** {0}', github.event.workflow_run.html_url) || '' }}
+
+            Please check the [Test Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
