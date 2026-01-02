@@ -1,0 +1,62 @@
+name: Playwright PR Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    # Only run for PRs from dev or uat branches (these are already deployed)
+    if: github.head_ref == 'dev' || github.head_ref == 'uat'
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Determine environment to test
+        id: set-url
+        run: |
+          if [ "${{ github.head_ref }}" == "uat" ]; then
+            echo "base_url=https://www2.zuugle.at" >> $GITHUB_OUTPUT
+            echo "env_name=UAT" >> $GITHUB_OUTPUT
+          else
+            echo "base_url=https://dev.zuugle.at" >> $GITHUB_OUTPUT
+            echo "env_name=Development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+        env:
+          BASE_URL: ${{ steps.set-url.outputs.base_url }}
+
+      - name: Publish Test Results
+        uses: mikepenz/action-junit-report@v6
+        if: always()
+        with:
+          report_paths: "playwright-report/results.xml"
+          detailed_summary: true
+          include_passed: true
+          check_name: "Playwright Test Results (${{ steps.set-url.outputs.env_name }})"
+          comment: true
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: playwright-report-pr-${{ github.event.pull_request.number }}
+          path: playwright-report/
+          retention-days: 30
