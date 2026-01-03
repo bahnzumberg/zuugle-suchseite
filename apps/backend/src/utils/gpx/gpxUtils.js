@@ -289,7 +289,7 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
     const allToursWithImages = await knex.raw(
         `SELECT id FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
     );
-    const thirtyDaysInMs = 2592000000;
+    const thirtyDaysInMs = 259200000; //TODO: this is temporarily set to 3 days, set back to 30 days when all images have been updated
 
     for (const row of allToursWithImages.rows) {
         const id = row.id;
