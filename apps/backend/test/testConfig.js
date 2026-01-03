@@ -4,7 +4,7 @@
  * This module provides common configuration and utilities for all tests.
  *
  * LOCAL: Tests run against http://localhost:8080 (default)
- * CI/CD: Tests run against https://www2.zuugle.at with credentials from GitHub Secrets:
+ * CI/CD: Tests run against https://www2.zuugle.at or https://dev.zuugle.at or https://www.zuugle.at with credentials from GitHub Secrets:
  *        - API_BASE_URL
  *        - API_USER (from UAT_BASIC_AUTH_USER)
  *        - API_PASSWORD (from UAT_BASIC_AUTH_PASSWORD)
