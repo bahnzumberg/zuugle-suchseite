@@ -128,15 +128,6 @@ describe("GPX Image Generation", () => {
         console.log(`Generated: ${generatedHash}`);
         console.log(`Reference: ${referenceHash}`);
 
-        // On CI (GitHub Actions), image rendering may differ slightly due to
-        // different fonts/libraries. Skip exact hash comparison there.
-        if (process.env.CI) {
-            // Just verify the image was created with reasonable size
-            const stats = await fs.stat(GENERATED_IMAGE_PATH);
-            expect(stats.size).toBeGreaterThan(1000); // At least 1KB
-            console.log("CI environment detected - skipping exact hash comparison");
-        } else {
-            expect(generatedHash).toBe(referenceHash);
-        }
+        expect(generatedHash).toBe(referenceHash);
     }, 120000);
 });
