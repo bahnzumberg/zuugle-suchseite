@@ -19,7 +19,7 @@ copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
             restoreDump().then(() => {
                 logger.info("Populate city2tour_flat");
                 populateCity2TourFlat().then(() => {
-                    console.log("Generate Sitemaps");
+                    logger.info("Generate Sitemaps");
                     generateSitemaps().then(() => {
                         logger.info("Write KPIs");
                         writeKPIs().then(async () => {
