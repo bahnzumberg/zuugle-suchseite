@@ -48,9 +48,9 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     (state: RootState) => state.search.geolocation,
   );
   const [tempGeolocation, setTempGeolocation] = useState<{
-    lat?: number;
-    lng?: number;
-    radius?: number;
+    lat?: number | string;
+    lng?: number | string;
+    radius?: number | string;
   }>({});
 
   // Handle 3 filter objects:
@@ -114,14 +114,20 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   function submitFilter() {
     dispatch(filterUpdated(getActiveFilterFields()));
-    if (tempGeolocation.lat && tempGeolocation.lng) {
+    const lat = parseFloat(tempGeolocation.lat as string);
+    const lng = parseFloat(tempGeolocation.lng as string);
+    const radius = parseFloat(tempGeolocation.radius as string);
+
+    if (isFinite(lat) && isFinite(lng)) {
       dispatch(
         geolocationUpdated({
-          lat: tempGeolocation.lat,
-          lng: tempGeolocation.lng,
-          radius: tempGeolocation.radius ?? 100,
+          lat,
+          lng,
+          radius: isFinite(radius) ? radius : 100,
         }),
       );
+    } else {
+      dispatch(geolocationUpdated(null));
     }
     setShowFilter(false);
   }
@@ -500,22 +506,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     value: string,
     field: "lat" | "lng" | "radius",
   ) => {
-    const _value = value.trim();
     setTempGeolocation({
       ...tempGeolocation,
-      [field]: _value !== "" && Number.isFinite(+_value) ? +_value : undefined,
+      [field]: value,
     });
   };
 
   // Called onBlur of lat/lon inputs
   const handleAutoRadius = () => {
     setTempGeolocation((prev) => {
-      if (
-        Number.isFinite(prev.lat) &&
-        Number.isFinite(prev.lng) &&
-        !Number.isFinite(prev.radius)
-      ) {
-        return { ...prev, radius: 100 };
+      const lat = parseFloat(prev.lat as string);
+      const lng = parseFloat(prev.lng as string);
+      const radius = parseFloat(prev.radius as string);
+
+      if (isFinite(lat) && isFinite(lng) && !isFinite(radius)) {
+        return { ...prev, radius: "100" };
       }
       return prev;
     });

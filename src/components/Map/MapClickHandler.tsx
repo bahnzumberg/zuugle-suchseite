@@ -40,8 +40,12 @@ export function MapClickHandler({
             bounds.getSouthWest(),
             bounds.getNorthWest(),
           );
-          const radius = Math.min(height, width) / 8;
-          handlePoiSearch(clickPosition, radius);
+          const radius = Math.round(Math.min(height, width) / 8);
+          const roundedPosition = {
+            lat: parseFloat(clickPosition.lat.toFixed(6)),
+            lng: parseFloat(clickPosition.lng.toFixed(6)),
+          } as L.LatLng;
+          handlePoiSearch(roundedPosition, radius);
           e.stopPropagation();
         }}
       >

@@ -61,6 +61,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
         display: "grid",
       }}
       target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
+      rel={city && city !== "no-city" ? "noopener noreferrer" : undefined}
     >
       <Card
         className="tour-card"
@@ -98,7 +99,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
           >
             <img
               src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
-              alt={tour.provider_name}
+              alt=""
               style={{
                 borderRadius: "100%",
                 height: "18px",
