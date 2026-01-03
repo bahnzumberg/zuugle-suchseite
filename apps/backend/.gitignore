@@ -22,3 +22,4 @@ test.json
 .eslintcache
 .env
 zuugle_postgresql.dump
+public/sitemap_*.xml

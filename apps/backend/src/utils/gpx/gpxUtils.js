@@ -6,7 +6,7 @@ import convertXML from "xml-js";
 import { create } from "xmlbuilder2";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
-import { getHost } from "../utils";
+import { getHost } from "../utils.ts";
 import crypto from "crypto";
 import logger from "../logger";
 

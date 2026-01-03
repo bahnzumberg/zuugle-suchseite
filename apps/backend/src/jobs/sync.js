@@ -48,6 +48,8 @@ async function update_tours_from_tracks() {
 }
 
 export async function fixTours() {
+    // This function is not necessary to be executed using the Docker image.
+    //
     // For the case, that the load of table fahrplan did not work fully and not for every tour
     // datasets are in table fahrplan available, we delete as a short term solution all
     // tours, which have no datasets in table fahrplan.
@@ -257,33 +259,6 @@ export async function fixTours() {
                     AND ct.city_slug=e.city_slug;`);
 
     await knex.raw(`ANALYZE city2tour;`);
-
-    // fill information about canonical and alternate links
-    await knex.raw(`TRUNCATE canonical_alternate;`);
-    await knex.raw(`INSERT INTO canonical_alternate (id, city_slug, canonical_yn, zuugle_url, href_lang)
-                    SELECT
-                    tour_id,
-                    city_slug,
-                    CASE WHEN ranking=1 THEN 'y' ELSE 'n' END AS canonical_yn,
-                    zuugle_url,
-                    hreflang
-                    FROM (
-                        SELECT 
-                        RANK() OVER(PARTITION BY c2t.tour_id ORDER BY c2t.min_connection_no_of_transfers ASC, c2t.min_connection_duration ASC, c2t.stop_selector DESC, c2t.city_slug ASC) AS ranking,
-                        c2t.tour_id,
-                        c2t.city_slug,
-                        CONCAT('www.zuugle.', LOWER(c2t.reachable_from_country), '/tour/', c2t.tour_id, '/', c2t.city_slug) AS zuugle_url,
-                        CASE WHEN c2t.reachable_from_country='SI' THEN 'sl-si' 
-                            WHEN c2t.reachable_from_country='DE' THEN 'de-de'
-                            WHEN c2t.reachable_from_country='IT' THEN 'it-it'
-                            WHEN c2t.reachable_from_country='CH' THEN 'de-ch'
-                            WHEN c2t.reachable_from_country='LI' THEN 'de-li'
-                            WHEN c2t.reachable_from_country='FR' THEN 'fr-fr'
-                            ELSE 'de-at' END AS hreflang	
-                        FROM city2tour AS c2t
-                        INNER JOIN tour AS t
-                        ON t.id=c2t.tour_id
-                    ) AS a;`);
 
     // Archive all the entries from logsearchphrase, which are older than 180 days.
     await knex.raw(`INSERT INTO logsearchphrase_archive (id, phrase, num_results, city_slug, search_time, menu_lang, country_code)
@@ -1253,5 +1228,156 @@ export async function populateCity2TourFlat() {
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);
         throw err;
+    }
+}
+
+export async function generateSitemaps() {
+    try {
+        console.log("Starting sitemap generation...");
+
+        // fill information about canonical and alternate links
+        console.log("Populating canonical_alternate table...");
+        await knex.raw(`TRUNCATE canonical_alternate;`);
+        await knex.raw(`INSERT INTO canonical_alternate (id, city_slug, canonical_yn, zuugle_url, href_lang)
+                        SELECT
+                        tour_id,
+                        city_slug,
+                        CASE WHEN ranking=1 THEN 'y' ELSE 'n' END AS canonical_yn,
+                        zuugle_url,
+                        hreflang
+                        FROM (
+                            SELECT 
+                            RANK() OVER(PARTITION BY c2t.tour_id ORDER BY c2t.min_connection_no_of_transfers ASC, c2t.min_connection_duration ASC, c2t.stop_selector DESC, c2t.city_slug ASC) AS ranking,
+                            c2t.tour_id,
+                            c2t.city_slug,
+                            CONCAT('www.zuugle.', LOWER(c2t.reachable_from_country), '/tour/', c2t.tour_id, '/', c2t.city_slug) AS zuugle_url,
+                            CASE WHEN c2t.reachable_from_country='SI' THEN 'sl-si' 
+                                WHEN c2t.reachable_from_country='DE' THEN 'de-de'
+                                WHEN c2t.reachable_from_country='IT' THEN 'it-it'
+                                WHEN c2t.reachable_from_country='CH' THEN 'de-ch'
+                                WHEN c2t.reachable_from_country='LI' THEN 'de-li'
+                                WHEN c2t.reachable_from_country='FR' THEN 'fr-fr'
+                                ELSE 'de-at' END AS hreflang	
+                            FROM city2tour AS c2t
+                            INNER JOIN tour AS t
+                            ON t.id=c2t.tour_id
+                        ) AS a;`);
+        console.log("Population complete.");
+
+        // Get distinct languages/domains
+        const languages = await knex("canonical_alternate")
+            .distinct("href_lang")
+            .pluck("href_lang");
+
+        console.log(`Found ${languages.length} languages:`, languages);
+
+        for (const lang of languages) {
+            console.log(`Processing ${lang}...`);
+
+            // Map lang to country code for filename (e.g., de-at -> at)
+            const countryCode = lang.split("-")[1] || lang;
+            const fileName = `sitemap_${countryCode}.xml`;
+
+            // Adjust public path based on environment similar to sync.js
+            let publicPath = "";
+            if (process.env.NODE_ENV == "production") {
+                publicPath = path.join(__dirname, "../../public");
+            } else {
+                publicPath = path.join(__dirname, "../../public");
+            }
+            // Ensure public directory exists (it should)
+            const filePath = path.join(publicPath, fileName);
+
+            // Fetch URLs for this language using the requested SQL
+            const urls = await knex.raw(
+                `
+                SELECT 
+                lower(city.city_country) AS country,
+                c.city_slug,
+                c.zuugle_url,
+                c.href_lang,
+                ROUND((COALESCE(t.quality_rating, 0)+1.0)/(SELECT MAX(quality_rating)+3.7 FROM tour),2) AS priority
+                FROM canonical_alternate AS c
+                INNER JOIN tour AS t
+                ON c.id=t.id
+                INNER JOIN city AS city
+                ON city.city_slug=c.city_slug
+                WHERE canonical_yn='y' AND c.href_lang = ?
+            `,
+                [lang],
+            );
+
+            const rows = urls.rows;
+
+            if (rows.length === 0) {
+                console.log(`No URLs found for ${lang}, skipping.`);
+                continue;
+            }
+
+            // Determine base URL from the first result or a mapping
+            // Assuming zuugle_url contains the full domain or path.
+            // Based on previous code: zuugle_url was like 'www.zuugle.at/tour/...'
+            // We need the domain for the static pages.
+            // Extract domain from the first row's zuugle_url
+            let firstUrl = rows[0].zuugle_url;
+            if (!firstUrl.startsWith("http")) {
+                firstUrl = "https://" + firstUrl;
+            }
+            const urlObj = new URL(firstUrl);
+            const domain = urlObj.origin;
+
+            // Build XML
+            const root = create({ version: "1.0", encoding: "UTF-8" }).ele("urlset", {
+                xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+            });
+
+            // Add static pages
+            const staticPages = [
+                { loc: `${domain}/`, priority: "1.0" },
+                { loc: `${domain}/search/`, priority: "1.0" },
+            ];
+
+            for (const page of staticPages) {
+                root.ele("url")
+                    .ele("loc")
+                    .txt(page.loc)
+                    .up()
+                    .ele("changefreq")
+                    .txt("weekly")
+                    .up()
+                    .ele("priority")
+                    .txt(page.priority)
+                    .up();
+            }
+
+            for (const row of rows) {
+                let url = row.zuugle_url;
+                if (!url.startsWith("http")) {
+                    url = "https://" + url;
+                }
+                root.ele("url")
+                    .ele("loc")
+                    .txt(url)
+                    .up()
+                    .ele("changefreq")
+                    .txt("weekly")
+                    .up()
+                    .ele("priority")
+                    .txt(row.priority) // Use calculated priority
+                    .up();
+            }
+
+            // Convert to XML string
+            const xml = root.end({ prettyPrint: true });
+
+            // Write to file
+            await fs.ensureDir(publicPath);
+            await fs.writeFile(filePath, xml);
+            console.log(`Generated ${filePath} with ${rows.length} URLs.`);
+        }
+
+        console.log("Sitemap generation complete.");
+    } catch (e) {
+        console.error("Error generating sitemaps:", e);
     }
 }

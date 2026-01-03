@@ -1,5 +1,12 @@
 #!/usr/bin/node
-import { writeKPIs, truncateAll, restoreDump, copyDump, populateCity2TourFlat } from "./sync.js";
+import {
+    writeKPIs,
+    truncateAll,
+    restoreDump,
+    copyDump,
+    populateCity2TourFlat,
+    generateSitemaps,
+} from "./sync.js";
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
 
@@ -12,12 +19,15 @@ copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
             restoreDump().then(() => {
                 logger.info("Populate city2tour_flat");
                 populateCity2TourFlat().then(() => {
-                    logger.info("Write KPIs");
-                    writeKPIs().then(async () => {
-                        logger.info("Flushing cache...");
-                        await cacheService.flush();
-                        logger.info("Cache flushed. Database ready!");
-                        process.exit();
+                    console.log("Generate Sitemaps");
+                    generateSitemaps().then(() => {
+                        logger.info("Write KPIs");
+                        writeKPIs().then(async () => {
+                            logger.info("Flushing cache...");
+                            await cacheService.flush();
+                            logger.info("Cache flushed. Database ready!");
+                            process.exit();
+                        });
                     });
                 });
             });
