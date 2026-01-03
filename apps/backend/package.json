@@ -13,7 +13,10 @@
     },
     "scripts": {
         "start": "nodemon --watch ./src --exec ts-node -- src/index.js",
-        "build": "babel src -d build --extensions .js,.ts && cp Dockerfile database.sql docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && cp -r src/utils/gpx/error-images build/utils/gpx/ && sed -i 's|node build/|node |g' ./build/package.json",
+        "build": "npm run build:compile && npm run build:copy && npm run build:patch",
+        "build:compile": "babel src -d build --extensions .js,.ts",
+        "build:copy": "cp Dockerfile database.sql docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && cp -r src/utils/gpx/error-images build/utils/gpx/ && cp -r public build/",
+        "build:patch": "sed -i 's|node build/|node |g' ./build/package.json",
         "test": "jest",
         "import-data": "node build/jobs/syncDataProd.js",
         "import-data-full": "node build/jobs/syncDataProd.js",
