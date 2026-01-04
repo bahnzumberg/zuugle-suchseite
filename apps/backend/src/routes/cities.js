@@ -102,7 +102,7 @@ const listWrapper = async (req, res) => {
     });
 
     const responseData = { success: true, cities: result };
-    await cacheService.set(cacheKey, responseData);
+    cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 };
 

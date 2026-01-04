@@ -126,8 +126,10 @@ const providerWrapper = async (req, res) => {
  */
 const totalWrapper = async (req, res) => {
     const city = req.query.city;
+    const domain = req.query.domain;
+    const tld = get_domain_country(domain).toUpperCase();
 
-    const cacheKey = `tours:total:${city || "all"}`;
+    const cacheKey = `tours:total:${city || "all"}:${tld}`;
     const cached = await cacheService.get(cacheKey);
     if (cached) {
         return res.status(200).json(cached);
@@ -137,6 +139,7 @@ const totalWrapper = async (req, res) => {
         `SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
+                                COALESCE(tours_country.value, tours.value, 0) AS tours_country,
                                 conn.value as connections,
                                 ranges.value AS ranges,
                                 cities.value AS cities,
@@ -144,6 +147,8 @@ const totalWrapper = async (req, res) => {
                                 FROM kpi AS tours 
                                 LEFT OUTER JOIN kpi AS tours_city 
                                 ON tours_city.name= ?
+                                LEFT OUTER JOIN kpi AS tours_country 
+                                ON tours_country.name= ?
                                 LEFT OUTER JOIN kpi AS conn 
                                 ON conn.name='total_connections' 
                                 LEFT OUTER JOIN kpi AS ranges 
@@ -152,19 +157,20 @@ const totalWrapper = async (req, res) => {
                                 ON cities.name='total_cities' 
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
                                 WHERE tours.name='total_tours';`,
-        [`total_tours_${city}`],
+        [`total_tours_${city}`, `total_tours_${tld}`],
     );
 
     const responseData = {
         success: true,
         total_tours: total.rows[0]["tours"],
         tours_city: total.rows[0]["tours_city"],
+        tours_country: total.rows[0]["tours_country"],
         total_connections: total.rows[0]["connections"],
         total_ranges: total.rows[0]["ranges"],
         total_cities: total.rows[0]["cities"],
         total_provider: total.rows[0]["provider"],
     };
-    await cacheService.set(cacheKey, responseData);
+    cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 };
 
@@ -335,7 +341,7 @@ const getWrapper = async (req, res) => {
         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
         entry = await prepareTourEntry(entry, city, domain, true);
         const responseData = { success: true, tour: entry };
-        await cacheService.set(cacheKey, responseData);
+        cacheService.set(cacheKey, responseData);
         res.status(200).json(responseData);
     } catch (error) {
         logger.error("Error in getWrapper for tour", id, ":", error);
@@ -697,7 +703,7 @@ const listWrapper = async (req, res) => {
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
-        await cacheService.set(cacheKeyIds, cachedTourIds);
+        cacheService.set(cacheKeyIds, cachedTourIds);
         // logger.info("Cache miss: Tour IDs were queried from database");
     }
 
@@ -882,7 +888,7 @@ const listWrapper = async (req, res) => {
             if (!!range_result && !!range_result.rows) {
                 ranges = range_result.rows;
             }
-            await cacheService.set(cachedKeyRanges, ranges);
+            cacheService.set(cachedKeyRanges, ranges);
         }
     }
 
@@ -1133,7 +1139,7 @@ const filterWrapper = async (req, res) => {
         filter: filterresult,
         providers: providers,
     };
-    await cacheService.set(cacheKey, responseData);
+    cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 }; // end of filterWrapper
 
