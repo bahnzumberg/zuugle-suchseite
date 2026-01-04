@@ -361,6 +361,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         try {
             if (isProd) {
                 url =
+                    // TODO: shouldn't that depend on the current environment? I.e. dev/uat/prod?
                     "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
                 // Puppeteer v24+ automatically manages Chrome downloads, no need to specify executablePath
             } else {
