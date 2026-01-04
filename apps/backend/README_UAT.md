@@ -17,7 +17,7 @@ The UAT server runs three Docker containers:
 ### 1. Start Docker containers
 
 ```bash
-docker-compose -f docker-compose.uat.yaml up -d
+docker compose -f docker-compose.uat.yaml up -d
 ```
 
 ### 2. Verify containers are running
@@ -100,16 +100,16 @@ Add this line (adjust paths):
 
 ```bash
 # Stop all containers
-docker-compose -f docker-compose.uat.yaml down
+docker compose -f docker-compose.uat.yaml down
 
 # Start containers
-docker-compose -f docker-compose.uat.yaml up -d
+docker compose -f docker-compose.uat.yaml up -d
 
 # Reset everything (deletes all data!)
-docker-compose -f docker-compose.uat.yaml down -v
+docker compose -f docker-compose.uat.yaml down -v
 
 # View logs
-docker-compose -f docker-compose.uat.yaml logs -f
+docker compose -f docker-compose.uat.yaml logs -f
 ```
 
 ## Configuration Summary

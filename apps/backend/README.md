@@ -20,10 +20,10 @@ and install all dependencies.
 
 1. Install [Docker](https://www.docker.com/) on your local machine
 
-2. Start all containers using docker-compose:
+2. Start all containers using docker compose:
 
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
     This starts:
@@ -38,7 +38,7 @@ and install all dependencies.
 
     You should see `zuugle-container` and `zuugle-valkey` in the list.
 
-> **Note:** For UAT environment with two PostgreSQL instances, use `docker-compose -f docker-compose.uat.yaml up -d` instead.
+> **Note:** For UAT environment with two PostgreSQL instances, use `docker compose -f docker-compose.uat.yaml up -d` instead.
 
 ### Setup database connection files
 
@@ -98,15 +98,15 @@ And in a new terminal start the update script:
 
 Stop all containers:
 
-    docker-compose down
+    docker compose down
 
 Start containers again:
 
-    docker-compose up -d
+    docker compose up -d
 
 View logs:
 
-    docker-compose logs -f
+    docker compose logs -f
 
 ## Follow frontend Readme
 

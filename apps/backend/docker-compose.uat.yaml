@@ -1,7 +1,7 @@
 version: "3.8"
 
 # UAT environment setup: Two PostgreSQL instances + Valkey cache
-# Usage: docker-compose -f docker-compose.uat.yaml up -d
+# Usage: docker compose -f docker-compose.uat.yaml up -d
 services:
     postgres-uat:
         image: pgvector/pgvector:pg16

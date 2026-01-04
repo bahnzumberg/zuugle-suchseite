@@ -13,7 +13,10 @@
     },
     "scripts": {
         "start": "nodemon --watch ./src --exec ts-node -- src/index.js",
-        "build": "babel src -d build --extensions .js,.ts && cp Dockerfile database.sql docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && sed -i 's|node build/|node |g' ./build/package.json",
+        "build": "npm run build:compile && npm run build:copy && npm run build:patch",
+        "build:compile": "babel src -d build --extensions .js,.ts",
+        "build:copy": "cp Dockerfile database.sql docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && cp -r src/utils/gpx/error-images build/utils/gpx/ && cp -r public build/",
+        "build:patch": "sed -i 's|node build/|node |g' ./build/package.json",
         "test": "jest",
         "import-data": "node build/jobs/syncDataProd.js",
         "import-data-full": "node build/jobs/syncDataProd.js",
@@ -52,7 +55,7 @@
         "babel-jest": "^30.2.0",
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
-        "globals": "^16.5.0",
+        "globals": "^17.0.0",
         "husky": "^9.1.7",
         "jest": "^30.2.0",
         "lint-staged": "^16.2.7",
@@ -60,7 +63,7 @@
         "prettier": "^3.7.4",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.50.1"
+        "typescript-eslint": "^8.51.0"
     },
     "dependencies": {
         "@babel/runtime": "^7.28.4",

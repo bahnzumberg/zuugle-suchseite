@@ -8,6 +8,7 @@ import moment from "moment";
 import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
 import { convertDifficulty } from "../utils/utils";
+import logger from "../utils/logger";
 
 import fs from "fs";
 import path from "path";
@@ -82,7 +83,7 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
             country_code: get_domain_country(domain),
         });
     } catch (e) {
-        console.error("error inserting into logsearchphrase: ", e);
+        logger.error("error inserting into logsearchphrase: ", e);
     }
 };
 
@@ -337,6 +338,7 @@ const getWrapper = async (req, res) => {
         await cacheService.set(cacheKey, responseData);
         res.status(200).json(responseData);
     } catch (error) {
+        logger.error("Error in getWrapper for tour", id, ":", error);
         res.status(500).json({
             success: false,
             message: "Internal server error: " + error,
@@ -422,7 +424,7 @@ const listWrapper = async (req, res) => {
         }
     } catch (error) {
         filterJSON = undefined;
-        console.log("Error parsing filter JSON: ", error);
+        logger.info("Error parsing filter JSON: ", error);
     }
 
     const defaultFilter = {
@@ -561,14 +563,14 @@ const listWrapper = async (req, res) => {
             bindings.push(postgresql_language_code, search);
             new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
             order_bindings.push(postgresql_language_code, search);
-            // console.log("Websearch")
+            // logger.info("Websearch")
         } else {
             new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding(?)) < 0.6 `;
             bindings.push(`query: ${search.toLowerCase()}`);
 
             new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding(?)) ASC, `;
             order_bindings.push(`query: ${search}`);
-            // console.log("AI search")
+            // logger.info("AI search")
         }
     }
 
@@ -671,8 +673,8 @@ const listWrapper = async (req, res) => {
     const cachedIds = await cacheService.get(cacheKeyIds);
     if (cachedIds) {
         cachedTourIds = cachedIds;
-        // console.log("Cache hit: Tour IDs were not queried from database. key=" + cacheKeyIds);
-        // console.log("global_where_condition_bound=" + JSON.stringify(global_where_condition_bound));
+        // logger.info("Cache hit: Tour IDs were not queried from database. key=" + cacheKeyIds);
+        // logger.info("global_where_condition_bound=" + JSON.stringify(global_where_condition_bound));
     } else {
         // Safe to interpolate tld directly: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
         const tour_ids_sql = `SELECT 
@@ -696,7 +698,7 @@ const listWrapper = async (req, res) => {
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
         await cacheService.set(cacheKeyIds, cachedTourIds);
-        // console.log("Cache miss: Tour IDs were queried from database");
+        // logger.info("Cache miss: Tour IDs were queried from database");
     }
 
     // ****************************************************************
@@ -706,7 +708,7 @@ const listWrapper = async (req, res) => {
 
     // Safety check: if no tour IDs cached, return empty result
     if (tour_count === 0) {
-        // console.log("No cached tour IDs - returning empty result");
+        // logger.info("No cached tour IDs - returning empty result");
         const responseData = {
             success: true,
             tours: [],
@@ -772,7 +774,7 @@ const listWrapper = async (req, res) => {
                         ${where_city_bound}
                         AND t.id IN (${pagedTourIds.join(", ")});`;
 
-    // console.log("new_search_sql: ", new_search_sql);
+    // logger.info("new_search_sql: ", new_search_sql);
 
     let result_sql = null;
     let result = [];
@@ -781,10 +783,10 @@ const listWrapper = async (req, res) => {
         if (result_sql && result_sql.rows) {
             result = result_sql.rows;
         } else {
-            // console.log("knex.raw(new_search_sql): result or result.rows is null or undefined.");
+            // logger.info("knex.raw(new_search_sql): result or result.rows is null or undefined.");
         }
     } catch (error) {
-        console.log("Error firing new_search_sql:", error);
+        logger.info("Error firing new_search_sql:", error);
     }
 
     // ****************************************************************
@@ -808,15 +810,15 @@ const listWrapper = async (req, res) => {
                             AND t.connection_arrival_stop_lon IS NOT NULL;`;
             markers_result = await knex.raw(markers_sql); // fire the DB call here
 
-            // console.log("markers_result: ", markers_result);
+            // logger.info("markers_result: ", markers_result);
             // markers-related
             if (!!markers_result && !!markers_result.rows) {
                 markers_array = markers_result.rows; // This is to be passed to the response below
             } else {
-                console.log("markers_result is null or undefined");
+                logger.info("markers_result is null or undefined");
             }
         } catch (error) {
-            console.log("tours.js: error retrieving markers_result:" + error);
+            logger.info("tours.js: error retrieving markers_result:" + error);
         }
     }
 
@@ -841,7 +843,7 @@ const listWrapper = async (req, res) => {
         const cachedRanges = await cacheService.get(cachedKeyRanges);
         if (cachedRanges) {
             ranges = cachedRanges;
-            // console.log("Cache hit: Tour ranges were not queried from database");
+            // logger.info("Cache hit: Tour ranges were not queried from database");
         } else {
             const months = [
                 "jan",
@@ -875,7 +877,7 @@ const listWrapper = async (req, res) => {
                                 LIMIT 10`;
 
             range_result = await knex.raw(range_sql);
-            // console.log("range_sql: ", range_sql)
+            // logger.info("range_sql: ", range_sql)
 
             if (!!range_result && !!range_result.rows) {
                 ranges = range_result.rows;
@@ -923,7 +925,6 @@ const filterWrapper = async (req, res) => {
     // Where Condition is only depending on country, city and search term(s)
 
     let kpis = [];
-    let bindings = [];
     let types = [];
     let text = [];
     let ranges = [];
@@ -931,6 +932,7 @@ const filterWrapper = async (req, res) => {
     let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND t.stop_selector='y' `;
     let new_search_where_searchterm = "";
+    let bindings = [tld];
 
     if (!!city && city.length > 0) {
         where_city = ` AND t.city_slug=? `;
@@ -957,7 +959,6 @@ const filterWrapper = async (req, res) => {
     // Use a random string to avoid SQL injection via city name in table name
     const randomSuffix = crypto.randomBytes(6).toString("hex");
     const temp_table = `temp_${tld}_${Date.now()}_${randomSuffix}`;
-    // console.log("temp_table: ", temp_table)
 
     let temporary_sql = `CREATE TEMP TABLE ${temp_table} AS
                     SELECT 
@@ -978,7 +979,7 @@ const filterWrapper = async (req, res) => {
                     min(t.min_connection_duration) AS min_connection_duration,
                     max(t.max_connection_duration) AS max_connection_duration
                     FROM city2tour_flat AS t 
-                    WHERE t.reachable_from_country='${tld}'  
+                    WHERE t.reachable_from_country=?
                     ${where_city}
                     ${new_search_where_searchterm}
                     GROUP BY
@@ -1012,7 +1013,7 @@ const filterWrapper = async (req, res) => {
                 MIN(t.min_connection_duration/60) AS minTransportDuration,
                 MAX(t.max_connection_duration/60) AS maxTransportDuration
                 FROM ${temp_table} t;`;
-    // console.log("kpi_sql: ", kpi_sql)
+    // logger.info("kpi_sql: ", kpi_sql)
 
     let kpi_result = await knex.raw(kpi_sql);
     if (!!kpi_result && !!kpi_result.rows) {
@@ -1059,7 +1060,7 @@ const filterWrapper = async (req, res) => {
     if (!!types_result && !!types_result.rows) {
         types = types_result.rows;
     }
-    // console.log("types / Sportarten: ", types)
+    // logger.info("types / Sportarten: ", types)
 
     let text_sql = `SELECT 
                     t.text_lang
@@ -1071,7 +1072,7 @@ const filterWrapper = async (req, res) => {
     if (!!text_result && !!text_result.rows) {
         text = text_result.rows;
     }
-    // console.log("text_lang: ", text)
+    // logger.info("text_lang: ", text)
 
     let range_sql = `SELECT 
                     t.range
@@ -1084,7 +1085,7 @@ const filterWrapper = async (req, res) => {
     if (!!range_result && !!range_result.rows) {
         ranges = range_result.rows;
     }
-    // console.log("ranges: ", ranges)
+    // logger.info("ranges: ", ranges)
 
     let provider_sql = `SELECT 
                     t.provider,
@@ -1119,12 +1120,12 @@ const filterWrapper = async (req, res) => {
         maxTransportDuration: _maxTransportDuration,
         languages: text.map((textObj) => textObj.text_lang),
     };
-    // console.log("filterresult: ", filterresult)
+    // logger.info("filterresult: ", filterresult)
 
     try {
         await knex.raw(`DROP TABLE ${temp_table};`);
     } catch (err) {
-        console.log("Drop temp table failed: ", err);
+        logger.info("Drop temp table failed: ", err);
     }
 
     const responseData = {
@@ -1378,13 +1379,13 @@ const tourGpxWrapper = async (req, res) => {
 
             let stream = fs.createReadStream(filePath);
             stream.on("error", (error) => {
-                console.log("error: ", error);
+                logger.info("error: ", error);
                 res.status(500).json({ success: false });
             });
             stream.on("open", () => stream.pipe(res));
         }
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 };
 

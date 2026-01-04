@@ -41,7 +41,7 @@ jobs:
                   REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
                   REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
                   TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
-                  EXCLUDE: "/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/, *.md"
+                  EXCLUDE: "/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/gpx/, /public/gpx-image/, /public/gpx-image-with-track/, /public/gpx-track/, /public/robots.txt, *.md"
             - name: executing remote ssh command to restart the api using ssh key
               uses: appleboy/ssh-action@v1.0.0
               with:
@@ -75,8 +75,8 @@ jobs:
             - name: Run API Tests
               env:
                   API_BASE_URL: https://dev.zuugle.at
-                  API_USER: ${{ secrets.DEV_BASIC_AUTH_USER }}
-                  API_PASSWORD: ${{ secrets.DEV_BASIC_AUTH_PASSWORD }}
+                  API_USER: ${{ secrets.UAT_BASIC_AUTH_USER }} # uat and dev use same credentials
+                  API_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}
               run: npm test
             - name: Close Issue on Success
               if: success()
