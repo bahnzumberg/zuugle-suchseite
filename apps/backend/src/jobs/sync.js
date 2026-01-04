@@ -522,6 +522,11 @@ export async function writeKPIs() {
                                     INNER JOIN tour AS t
                                     ON f.hashed_url=t.hashed_url
                                     GROUP BY f.city_slug;`);
+    await knex.raw(`INSERT INTO kpi SELECT
+                                    CONCAT('total_tours_',reachable_from_country) AS NAME,
+                                    COUNT(DISTINCT tour_id) AS VALUE
+                                    FROM city2tour
+                                    GROUP BY reachable_from_country;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;`);
