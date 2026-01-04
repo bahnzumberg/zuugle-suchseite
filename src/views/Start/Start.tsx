@@ -106,7 +106,7 @@ export default function Start() {
       <SearchParamSync isMain={false} />
       <Box style={{ background: "#fff" }}>
         <Header
-          totalTours={totals?.total_tours || 0}
+          totalTours={totals?.tours_country || 0}
           totalToursFromCity={totals?.tours_city || 0}
           isLoading={isTotalsLoading}
         />
