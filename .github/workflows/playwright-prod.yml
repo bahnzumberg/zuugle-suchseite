@@ -1,0 +1,66 @@
+name: Playwright Integration Tests on Production
+
+on:
+  workflow_run:
+    workflows: ["PROD Deploy"]
+    types:
+      - completed
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *" # Run daily at 6am on production
+
+jobs:
+  test:
+    # Only run if deployment succeeded or if triggered by schedule or manually
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        id: playwright
+        run: npm run test:e2e
+        env:
+          BASE_URL: https://www.zuugle.at
+
+      - name: Publish Test Results
+        id: test-results
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: "playwright-report/results.xml"
+          include_passed: false
+          check_name: "Playwright Test Results (Production)"
+
+      - uses: actions/upload-artifact@v6
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          name: playwright-report-production
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "::error title=Playwright Tests Failed::Production tests failed. Check the workflow run for details."
+          if [ -n "${{ steps.test-results.outputs.failed }}" ]; then
+            echo "::notice::Failed: ${{ steps.test-results.outputs.failed }} | Passed: ${{ steps.test-results.outputs.passed }} | Total: ${{ steps.test-results.outputs.total }}"
+          fi
