@@ -40,9 +40,7 @@ const initErrorImageHashes = async () => {
             const hash = await createImageHash(imagePath);
             if (hash) {
                 errorImageHashes.add(hash);
-                logger.info(
-                    `Error image hash created for ${filename}: ${hash.substring(0, 16)}...`,
-                );
+                logger.info(`Image hash created for ${filename}: ${hash.substring(0, 16)}...`);
             }
         } else {
             logger.warn(`Error reference image not found: ${imagePath}`);
@@ -230,15 +228,32 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                     .webp({ quality: 15 })
                     .toFile(filePathSmallWebp);
             } catch (e) {
-                logger.error("gpxUtils.sharp.resize error:", e);
+                logger.warn(`gpxUtils.sharp.resize error for tour ${tourId}: ${e.message}`);
+                // Try to delete corrupt source file
+                try {
+                    if (await fs.pathExists(filePath)) {
+                        await fs.unlink(filePath);
+                    }
+                } catch {
+                    // ignore
+                }
+                return "error_image"; // Trigger retry
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
-                await fs.unlink(filePath);
+                try {
+                    await fs.unlink(filePath);
+                } catch {
+                    // ignore ENOENT
+                }
                 const isError = await isErrorImage(filePathSmallWebp);
                 if (isError) {
                     logger.info(`Detected error image for tour ${tourId} - will retry later.`);
-                    await fs.unlink(filePathSmallWebp);
+                    try {
+                        await fs.unlink(filePathSmallWebp);
+                    } catch {
+                        // ignore ENOENT
+                    }
                     return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
                     logger.debug("Gpx image small file created:", filePathSmallWebp);

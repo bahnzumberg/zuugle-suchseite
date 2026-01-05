@@ -69,7 +69,7 @@ CREATE INDEX ON tour (month_order);
 CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
-CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
+-- CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
 
 
 CREATE TABLE tour_inactive (
@@ -290,7 +290,12 @@ CREATE TABLE city2tour_flat (
     PRIMARY KEY (reachable_from_country, city_slug, id)
 );
 
-CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+-- CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+CREATE INDEX ON city2tour_flat 
+USING hnsw (ai_search_column vector_l2_ops) 
+WITH (m = 24, ef_construction = 128);
+-- maybe on PROD even: WITH (m = 32, ef_construction = 200);
+
 CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
