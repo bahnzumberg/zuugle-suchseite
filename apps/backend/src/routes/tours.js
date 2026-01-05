@@ -119,6 +119,34 @@ const providerWrapper = async (req, res) => {
 };
 
 /**
+ * Retrieves the embedding for a given text, checks the cache first.
+ * @param {string} text - The text to generate an embedding for.
+ * @returns {Promise<string>} The embedding vector as string.
+ */
+const getCachedEmbedding = async (text) => {
+    try {
+        const textLower = text.toLowerCase();
+        const cacheKey = generateKey("embedding", { text: textLower });
+        const cached = await cacheService.get(cacheKey);
+
+        if (cached) {
+            return cached;
+        }
+
+        const result = await knex.raw("SELECT get_embedding(?) as embedding", [textLower]);
+        if (result && result.rows && result.rows.length > 0) {
+            const embedding = result.rows[0].embedding;
+            // Cache for 30 days (effectively static)
+            cacheService.set(cacheKey, embedding, 30 * 24 * 60 * 60);
+            return embedding;
+        }
+    } catch (e) {
+        logger.error("Error getting embedding:", e);
+    }
+    return null;
+};
+
+/**
  * Retrieves total statistics (KPIs) for the tours, connections, ranges, cities, and providers.
  * If a city is specified in the query, the stats are filtered for that city.
  * @param {object} req - Express request object.
@@ -561,22 +589,28 @@ const listWrapper = async (req, res) => {
         }
 
         // If there is more than one search term, the AI is superior,
-        // is there only a single word, the standard websearch of PostgreSQL ist better.
+        // if there is only a single word, the standard websearch of PostgreSQL ist better.
+        let is_one_search_term = search.trim().split(/\s+/).length === 1;
+        if (!is_one_search_term) {
+            const embedding = await getCachedEmbedding(`query: ${search}`);
+            if (embedding) {
+                new_search_where_searchterm = `AND ai_search_column <-> ? < 0.6 `;
+                bindings.push(embedding);
+                new_search_order_searchterm = `ai_search_column <-> ? ASC, `;
+                order_bindings.push(embedding);
+                // logger.info("AI search")
+            } else {
+                is_one_search_term = true;
+            }
+        }
 
-        if (search.trim().split(/\s+/).length === 1) {
-            // search consists of a single word
+        if (is_one_search_term) {
+            // search consists of a single word and fallback for AI search
             new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery(?, ?) `;
             bindings.push(postgresql_language_code, search);
             new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
             order_bindings.push(postgresql_language_code, search);
             // logger.info("Websearch")
-        } else {
-            new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding(?)) < 0.6 `;
-            bindings.push(`query: ${search.toLowerCase()}`);
-
-            new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding(?)) ASC, `;
-            order_bindings.push(`query: ${search}`);
-            // logger.info("AI search")
         }
     }
 
