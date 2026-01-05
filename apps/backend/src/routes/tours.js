@@ -69,12 +69,19 @@ const bindValues = (sql, bindings) => {
  * @param {string} domain - Domain for country detection.
  */
 const logSearchPhrase = async (search, resultCount, citySlug, language, domain) => {
+    if (!citySlug || citySlug.length === 0) {
+        citySlug = "no_city_selected";
+    }
     try {
         if (!search || search.trim().length === 0 || !citySlug || resultCount <= 1) {
             return;
         }
 
-        const searchparam = search.toLowerCase().trim();
+        // To remove for sure blank spaces at the start and end of the search term
+        const searchparam = search
+            .toString()
+            .replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "")
+            .toLowerCase();
         await knex("logsearchphrase").insert({
             phrase: searchparam,
             num_results: resultCount,
@@ -600,6 +607,7 @@ const listWrapper = async (req, res) => {
                 order_bindings.push(embedding);
                 // logger.info("AI search")
             } else {
+                // embedding not found, fallback to websearch - even though the search term consists of more than one word
                 is_one_search_term = true;
             }
         }
