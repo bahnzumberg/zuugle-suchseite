@@ -814,11 +814,9 @@ export async function syncGPXImage() {
 
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
         // The cdn url can be used, as this is a static image.
+        // city2tour_flat is automatically updated via database trigger trg_update_tour_image
         await knex.raw(
             `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
-        );
-        await knex.raw(
-            `UPDATE city2tour_flat SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
         );
     }
     return true;
