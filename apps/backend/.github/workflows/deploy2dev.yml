@@ -54,7 +54,7 @@ jobs:
                       export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
                       cd ${{ secrets.DEV_REMOTE_TARGET }}
                       npm install --omit=dev
-                      ./restore_databases.sh
+                      ./restore_databases.sh --structure
                       pm2 restart all
 
     test-api:
