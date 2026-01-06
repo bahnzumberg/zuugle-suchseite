@@ -116,17 +116,12 @@ const setTourImageURL = async (tour_id, image_url, force = false) => {
             }
 
             try {
+                // city2tour_flat is automatically updated via database trigger trg_update_tour_image
                 if (force) {
                     await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`);
-                    await knex.raw(
-                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id};`,
-                    );
                 } else {
                     await knex.raw(
                         `UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
-                    );
-                    await knex.raw(
-                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
                     );
                 }
             } catch (e) {

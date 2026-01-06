@@ -300,6 +300,24 @@ CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
 
+CREATE OR REPLACE FUNCTION sync_tour_image_to_flat()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE city2tour_flat
+    SET image_url = COALESCE(NULLIF(NEW.image_url, ''), 'https://cdn.zuugle.at/img/train_placeholder.webp')
+    WHERE id = NEW.id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;
+
+CREATE TRIGGER trg_update_tour_image
+AFTER UPDATE OF image_url ON tour
+FOR EACH ROW
+WHEN (OLD.image_url IS DISTINCT FROM NEW.image_url)
+EXECUTE FUNCTION sync_tour_image_to_flat();
 
 
 CREATE TABLE tracks (
