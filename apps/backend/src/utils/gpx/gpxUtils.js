@@ -489,6 +489,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                     let stopProcessing = false;
                     const errorImageTours = []; // Tours that generated error images
+                    let successCount = 0; // Counter for successfully generated images
 
                     // Main processing loop
                     await asyncPool(PARALLEL_LIMIT, idsForCreation, async (tourID) => {
@@ -520,6 +521,13 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                         if (result === "error_image") {
                             errorImageTours.push(tourID);
+                        } else if (result === "success") {
+                            successCount++;
+                            if (successCount % 1000 === 0) {
+                                logger.info(
+                                    `Progress: ${successCount} images successfully generated.`,
+                                );
+                            }
                         }
                     });
 
