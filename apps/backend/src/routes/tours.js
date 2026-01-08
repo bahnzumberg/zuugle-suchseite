@@ -69,12 +69,19 @@ const bindValues = (sql, bindings) => {
  * @param {string} domain - Domain for country detection.
  */
 const logSearchPhrase = async (search, resultCount, citySlug, language, domain) => {
+    if (!citySlug || citySlug.length === 0) {
+        citySlug = "no_city_selected";
+    }
     try {
         if (!search || search.trim().length === 0 || !citySlug || resultCount <= 1) {
             return;
         }
 
-        const searchparam = search.toLowerCase().trim();
+        // To remove for sure blank spaces at the start and end of the search term
+        const searchparam = search
+            .toString()
+            .replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "")
+            .toLowerCase();
         await knex("logsearchphrase").insert({
             phrase: searchparam,
             num_results: resultCount,
@@ -119,6 +126,34 @@ const providerWrapper = async (req, res) => {
 };
 
 /**
+ * Retrieves the embedding for a given text, checks the cache first.
+ * @param {string} text - The text to generate an embedding for.
+ * @returns {Promise<string>} The embedding vector as string.
+ */
+const getCachedEmbedding = async (text) => {
+    try {
+        const textLower = text.toLowerCase();
+        const cacheKey = generateKey("embedding", { text: textLower });
+        const cached = await cacheService.get(cacheKey);
+
+        if (cached) {
+            return cached;
+        }
+
+        const result = await knex.raw("SELECT get_embedding(?) as embedding", [textLower]);
+        if (result && result.rows && result.rows.length > 0) {
+            const embedding = result.rows[0].embedding;
+            // Cache for 30 days (effectively static)
+            cacheService.set(cacheKey, embedding, 30 * 24 * 60 * 60);
+            return embedding;
+        }
+    } catch (e) {
+        logger.error("Error getting embedding:", e);
+    }
+    return null;
+};
+
+/**
  * Retrieves total statistics (KPIs) for the tours, connections, ranges, cities, and providers.
  * If a city is specified in the query, the stats are filtered for that city.
  * @param {object} req - Express request object.
@@ -126,8 +161,10 @@ const providerWrapper = async (req, res) => {
  */
 const totalWrapper = async (req, res) => {
     const city = req.query.city;
+    const domain = req.query.domain;
+    const tld = get_domain_country(domain).toUpperCase();
 
-    const cacheKey = `tours:total:${city || "all"}`;
+    const cacheKey = `tours:total:${city || "all"}:${tld}`;
     const cached = await cacheService.get(cacheKey);
     if (cached) {
         return res.status(200).json(cached);
@@ -137,6 +174,7 @@ const totalWrapper = async (req, res) => {
         `SELECT 
                                 tours.value as tours,
                                 COALESCE(tours_city.value, 0) AS tours_city,
+                                COALESCE(tours_country.value, tours.value, 0) AS tours_country,
                                 conn.value as connections,
                                 ranges.value AS ranges,
                                 cities.value AS cities,
@@ -144,6 +182,8 @@ const totalWrapper = async (req, res) => {
                                 FROM kpi AS tours 
                                 LEFT OUTER JOIN kpi AS tours_city 
                                 ON tours_city.name= ?
+                                LEFT OUTER JOIN kpi AS tours_country 
+                                ON tours_country.name= ?
                                 LEFT OUTER JOIN kpi AS conn 
                                 ON conn.name='total_connections' 
                                 LEFT OUTER JOIN kpi AS ranges 
@@ -152,19 +192,20 @@ const totalWrapper = async (req, res) => {
                                 ON cities.name='total_cities' 
                                 LEFT OUTER JOIN kpi AS provider ON provider.name='total_provider' 
                                 WHERE tours.name='total_tours';`,
-        [`total_tours_${city}`],
+        [`total_tours_${city}`, `total_tours_${tld}`],
     );
 
     const responseData = {
         success: true,
         total_tours: total.rows[0]["tours"],
         tours_city: total.rows[0]["tours_city"],
+        tours_country: total.rows[0]["tours_country"],
         total_connections: total.rows[0]["connections"],
         total_ranges: total.rows[0]["ranges"],
         total_cities: total.rows[0]["cities"],
         total_provider: total.rows[0]["provider"],
     };
-    await cacheService.set(cacheKey, responseData);
+    cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 };
 
@@ -335,7 +376,7 @@ const getWrapper = async (req, res) => {
         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
         entry = await prepareTourEntry(entry, city, domain, true);
         const responseData = { success: true, tour: entry };
-        await cacheService.set(cacheKey, responseData);
+        cacheService.set(cacheKey, responseData);
         res.status(200).json(responseData);
     } catch (error) {
         logger.error("Error in getWrapper for tour", id, ":", error);
@@ -555,22 +596,29 @@ const listWrapper = async (req, res) => {
         }
 
         // If there is more than one search term, the AI is superior,
-        // is there only a single word, the standard websearch of PostgreSQL ist better.
+        // if there is only a single word, the standard websearch of PostgreSQL ist better.
+        let is_one_search_term = search.trim().split(/\s+/).length === 1;
+        if (!is_one_search_term) {
+            const embedding = await getCachedEmbedding(`query: ${search}`);
+            if (embedding) {
+                new_search_where_searchterm = `AND ai_search_column <-> ? < 0.6 `;
+                bindings.push(embedding);
+                new_search_order_searchterm = `ai_search_column <-> ? ASC, `;
+                order_bindings.push(embedding);
+                // logger.info("AI search")
+            } else {
+                // embedding not found, fallback to websearch - even though the search term consists of more than one word
+                is_one_search_term = true;
+            }
+        }
 
-        if (search.trim().split(/\s+/).length === 1) {
-            // search consists of a single word
+        if (is_one_search_term) {
+            // search consists of a single word and fallback for AI search
             new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery(?, ?) `;
             bindings.push(postgresql_language_code, search);
             new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
             order_bindings.push(postgresql_language_code, search);
             // logger.info("Websearch")
-        } else {
-            new_search_where_searchterm = `AND ai_search_column <-> (SELECT get_embedding(?)) < 0.6 `;
-            bindings.push(`query: ${search.toLowerCase()}`);
-
-            new_search_order_searchterm = `ai_search_column <-> (SELECT get_embedding(?)) ASC, `;
-            order_bindings.push(`query: ${search}`);
-            // logger.info("AI search")
         }
     }
 
@@ -697,7 +745,7 @@ const listWrapper = async (req, res) => {
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
-        await cacheService.set(cacheKeyIds, cachedTourIds);
+        cacheService.set(cacheKeyIds, cachedTourIds);
         // logger.info("Cache miss: Tour IDs were queried from database");
     }
 
@@ -882,7 +930,7 @@ const listWrapper = async (req, res) => {
             if (!!range_result && !!range_result.rows) {
                 ranges = range_result.rows;
             }
-            await cacheService.set(cachedKeyRanges, ranges);
+            cacheService.set(cachedKeyRanges, ranges);
         }
     }
 
@@ -1133,7 +1181,7 @@ const filterWrapper = async (req, res) => {
         filter: filterresult,
         providers: providers,
     };
-    await cacheService.set(cacheKey, responseData);
+    cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 }; // end of filterWrapper
 

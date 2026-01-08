@@ -3,6 +3,17 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Parse arguments
+REBUILD_STRUCTURE=false
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -s|--structure) REBUILD_STRUCTURE=true ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
 # Central dump location on server
 DUMP_DIR="/usr/local/zuugle/uat-dump"
 
@@ -30,6 +41,41 @@ if [ -z "$CONTAINER_NAME" ]; then
     echo "  production: { containerName: 'zuugle-postgres-uat', ... }"
     echo "  development: { containerName: 'zuugle-postgres-dev', ... }"
     exit 1
+fi
+
+# Database credentials
+DB_NAME=$(node -e "
+  const config = require('./knexfile.js');
+  const env = process.env.NODE_ENV || 'production';
+  console.log(config[env]?.connection?.database || '');
+")
+DB_USER=$(node -e "
+  const config = require('./knexfile.js');
+  const env = process.env.NODE_ENV || 'production';
+  console.log(config[env]?.connection?.user || '');
+")
+
+if [ -z "$DB_NAME" ]; then
+    echo "Error: No database name found in knexfile.js for NODE_ENV=$NODE_ENV"
+    exit 1
+fi
+
+if [ -z "$DB_USER" ]; then
+    echo "Error: No database user found in knexfile.js for NODE_ENV=$NODE_ENV"
+    exit 1
+fi
+
+# Rebuild database structure if --structure flag is set
+if [ "$REBUILD_STRUCTURE" = true ]; then
+    echo "Rebuilding database structure from database.sql..."
+    
+    if [ -f "database.sql" ]; then
+        cat database.sql | docker exec -i "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME"
+        echo "Structure rebuild completed."
+    else
+        echo "Error: database.sql not found!"
+        exit 1
+    fi
 fi
 
 # Use date-based filename to avoid redundant downloads

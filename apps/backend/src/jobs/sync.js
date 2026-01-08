@@ -522,6 +522,11 @@ export async function writeKPIs() {
                                     INNER JOIN tour AS t
                                     ON f.hashed_url=t.hashed_url
                                     GROUP BY f.city_slug;`);
+    await knex.raw(`INSERT INTO kpi SELECT
+                                    CONCAT('total_tours_',reachable_from_country) AS NAME,
+                                    COUNT(DISTINCT tour_id) AS VALUE
+                                    FROM city2tour
+                                    GROUP BY reachable_from_country;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
     await knex.raw(`INSERT INTO kpi SELECT 'total_connections', COUNT(id) FROM fahrplan;`);
@@ -555,7 +560,10 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
         logger.error("Error in getProvider:", err);
 
         if (retryCount < maxRetries) {
-            logger.info(`Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries})`);
+            logger.info(
+                `Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries}) in 25 seconds...`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 25000));
             return getProvider(retryCount + 1, maxRetries);
         } else {
             logger.error("Max retries reached. Giving up.");
@@ -806,11 +814,9 @@ export async function syncGPXImage() {
 
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
         // The cdn url can be used, as this is a static image.
+        // city2tour_flat is automatically updated via database trigger trg_update_tour_image
         await knex.raw(
             `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
-        );
-        await knex.raw(
-            `UPDATE city2tour_flat SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
         );
     }
     return true;
@@ -1169,7 +1175,16 @@ export async function populateCity2TourFlat() {
     try {
         await knex.raw(`TRUNCATE city2tour_flat;`);
 
-        await knex.raw(`INSERT INTO city2tour_flat (
+        // Get all countries to iterate over
+        const countriesResult = await knex.raw(
+            `SELECT DISTINCT reachable_from_country FROM city2tour ORDER BY reachable_from_country`,
+        );
+        const countries = countriesResult.rows.map((r) => r.reachable_from_country);
+
+        for (const country of countries) {
+            logger.info(`Populating city2tour_flat for country: ${country}`);
+            await knex.raw(
+                `INSERT INTO city2tour_flat (
             reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
             title, image_url, type, country, state, range_slug, range, 
             text_lang, difficulty_orig, season, max_ele, 
@@ -1218,12 +1233,17 @@ export async function populateCity2TourFlat() {
             c2t.stop_selector
         FROM city2tour AS c2t 
         INNER JOIN tour AS t ON c2t.tour_id = t.id
-        INNER JOIN provider AS p ON t.provider = p.provider;`);
+        INNER JOIN provider AS p ON t.provider = p.provider
+        WHERE c2t.reachable_from_country = ?;`,
+                [country],
+            );
+        }
 
+        logger.info("START CLUSTERING city2tour_flat");
         await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
         await knex.raw(`ANALYZE city2tour_flat;`);
 
-        logger.info("city2tour_flat populated successfully.");
+        // logger.info("city2tour_flat populated successfully.");
         return true;
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);
@@ -1233,10 +1253,10 @@ export async function populateCity2TourFlat() {
 
 export async function generateSitemaps() {
     try {
-        console.log("Starting sitemap generation...");
+        // console.log("Starting sitemap generation...");
 
         // fill information about canonical and alternate links
-        console.log("Populating canonical_alternate table...");
+        // console.log("Populating canonical_alternate table...");
         await knex.raw(`TRUNCATE canonical_alternate;`);
         await knex.raw(`INSERT INTO canonical_alternate (id, city_slug, canonical_yn, zuugle_url, href_lang)
                         SELECT
@@ -1262,17 +1282,17 @@ export async function generateSitemaps() {
                             INNER JOIN tour AS t
                             ON t.id=c2t.tour_id
                         ) AS a;`);
-        console.log("Population complete.");
+        // console.log("Population complete.");
 
         // Get distinct languages/domains
         const languages = await knex("canonical_alternate")
             .distinct("href_lang")
             .pluck("href_lang");
 
-        console.log(`Found ${languages.length} languages:`, languages);
+        // console.log(`Found ${languages.length} languages:`, languages);
 
         for (const lang of languages) {
-            console.log(`Processing ${lang}...`);
+            // console.log(`Processing ${lang}...`);
 
             // Map lang to country code for filename (e.g., de-at -> at)
             const countryCode = lang.split("-")[1] || lang;
@@ -1310,7 +1330,7 @@ export async function generateSitemaps() {
             const rows = urls.rows;
 
             if (rows.length === 0) {
-                console.log(`No URLs found for ${lang}, skipping.`);
+                // console.log(`No URLs found for ${lang}, skipping.`);
                 continue;
             }
 
@@ -1373,10 +1393,11 @@ export async function generateSitemaps() {
             // Write to file
             await fs.ensureDir(publicPath);
             await fs.writeFile(filePath, xml);
-            console.log(`Generated ${filePath} with ${rows.length} URLs.`);
+            await fs.writeFile(filePath, xml);
+            // console.log(`Generated ${filePath} with ${rows.length} URLs.`);
         }
 
-        console.log("Sitemap generation complete.");
+        // console.log("Sitemap generation complete.");
     } catch (e) {
         console.error("Error generating sitemaps:", e);
     }

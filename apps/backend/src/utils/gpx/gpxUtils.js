@@ -15,9 +15,14 @@ import logger from "../logger";
 const ERROR_IMAGE_FILES = ["error-london.webp", "error-502.webp", "error-white.webp"];
 const errorImageHashes = new Set();
 
-// Konstanten und globale Warteschlangen für die Parallelisierung
-const MAX_PARALLEL_DB_UPDATES = 5;
-const activeDbUpdates = []; // Warteschlange für Datenbank-Updates
+// Konstanten für Batch-Update-Queue
+const BATCH_SIZE = 500; // Updates werden alle 500 Bilder gebatcht
+const MAX_RETRIES = 3; // Maximale Anzahl Wiederholungsversuche bei DB-Fehlern
+const RETRY_DELAY_MS = 30000; // Wartezeit zwischen Retries (30 Sekunden)
+
+// Batch-Update-Queue für effiziente DB-Updates
+const updateQueue = [];
+let flushPromise = null; // Verhindert parallele Flush-Aufrufe
 
 const createImageHash = async (imagePath) => {
     try {
@@ -40,9 +45,7 @@ const initErrorImageHashes = async () => {
             const hash = await createImageHash(imagePath);
             if (hash) {
                 errorImageHashes.add(hash);
-                logger.info(
-                    `Error image hash created for ${filename}: ${hash.substring(0, 16)}...`,
-                );
+                logger.info(`Image hash created for ${filename}: ${hash.substring(0, 16)}...`);
             }
         } else {
             logger.warn(`Error reference image not found: ${imagePath}`);
@@ -107,55 +110,136 @@ const minimal_args = [
 // Note: Tile pre-warming functions have been moved to scripts/prewarm_tiles.py
 // Run the Python script before image generation to pre-warm tiles on the tile server.
 
-const setTourImageURL = async (tour_id, image_url, force = false) => {
-    if (tour_id) {
-        if (image_url.length > 0) {
-            if (image_url.substring(0, 4) !== "http") {
-                if (process.env.NODE_ENV !== "production") {
-                    // on local development, we need to add the host
-                    image_url = getHost("") + image_url;
-                }
-            }
+/**
+ * Fügt ein Update zur Queue hinzu und flusht automatisch bei BATCH_SIZE
+ * @param {number} tourId - Tour ID
+ * @param {string} imageUrl - Bild-URL
+ * @param {boolean} force - Überschreiben auch wenn nicht NULL
+ */
+const queueDbUpdate = (tourId, imageUrl, force = false) => {
+    if (!tourId || !imageUrl || imageUrl.length === 0) return;
 
-            try {
-                if (force) {
-                    await knex.raw(`UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id};`);
-                    await knex.raw(
-                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id};`,
-                    );
-                } else {
-                    await knex.raw(
-                        `UPDATE tour SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
-                    );
-                    await knex.raw(
-                        `UPDATE city2tour_flat SET image_url='${image_url}' WHERE id=${tour_id} AND image_url IS NULL;`,
-                    );
-                }
-            } catch (e) {
-                logger.error(`Error in setTourImageURL with tour_id=${tour_id}:`, e);
-            }
+    // URL normalisieren für lokale Entwicklung
+    let normalizedUrl = imageUrl;
+    if (imageUrl.substring(0, 4) !== "http") {
+        if (process.env.NODE_ENV !== "production") {
+            normalizedUrl = getHost("") + imageUrl;
         }
+    }
+
+    updateQueue.push({ tourId, imageUrl: normalizedUrl, force });
+
+    // Automatisch flushen wenn BATCH_SIZE erreicht
+    if (updateQueue.length >= BATCH_SIZE) {
+        flushUpdateQueue();
     }
 };
 
-// Hilfsfunktion, um auf einen freien Slot zu warten
-const waitForFreeSlot = async (queue, maxConcurrency) => {
-    while (queue.length >= maxConcurrency) {
-        await delay(50);
+/**
+ * Flusht die Update-Queue und führt Batch-UPDATE aus
+ * @param {number} retryCount - Aktueller Retry-Versuch
+ */
+const flushUpdateQueue = async (retryCount = 0) => {
+    if (updateQueue.length === 0) return;
+
+    // Verhindere parallele Flush-Aufrufe
+    if (flushPromise && retryCount === 0) {
+        await flushPromise;
     }
+
+    const batch = updateQueue.splice(0, Math.min(updateQueue.length, BATCH_SIZE));
+    if (batch.length === 0) return;
+
+    // Trenne force und non-force Updates
+    const forceUpdates = batch.filter((u) => u.force);
+    const normalUpdates = batch.filter((u) => !u.force);
+
+    const executeUpdate = async (updates, isForce) => {
+        if (updates.length === 0) return;
+
+        try {
+            // Baue CASE-Statement für Batch-Update
+            const caseStatements = updates
+                .map(
+                    ({ tourId, imageUrl }) =>
+                        `WHEN ${tourId} THEN '${imageUrl.replace(/'/g, "''")}'`,
+                )
+                .join(" ");
+            const ids = updates.map((u) => u.tourId).join(",");
+
+            // city2tour_flat wird via Database-Trigger aktualisiert
+            if (isForce) {
+                await knex.raw(`
+                    UPDATE tour 
+                    SET image_url = CASE id ${caseStatements} END 
+                    WHERE id IN (${ids});
+                `);
+            } else {
+                await knex.raw(`
+                    UPDATE tour 
+                    SET image_url = CASE id ${caseStatements} END 
+                    WHERE id IN (${ids}) AND image_url IS NULL;
+                `);
+            }
+
+            logger.info(`Batch update: ${updates.length} tours updated (force=${isForce})`);
+        } catch (e) {
+            if (retryCount < MAX_RETRIES) {
+                logger.warn(
+                    `Batch update failed, retrying in ${RETRY_DELAY_MS / 1000}s... (attempt ${retryCount + 1}/${MAX_RETRIES})`,
+                );
+                await delay(RETRY_DELAY_MS);
+                // Zurück in Queue für Retry
+                updateQueue.unshift(...updates);
+                return flushUpdateQueue(retryCount + 1);
+            } else {
+                logger.error(`Batch update failed after ${MAX_RETRIES} retries:`, e);
+                // Bei totalem Fehlschlag: Einzelne Updates als Fallback
+                logger.info(`Falling back to individual updates for ${updates.length} tours...`);
+                for (const { tourId, imageUrl, force } of updates) {
+                    try {
+                        if (force) {
+                            await knex.raw(
+                                `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId};`,
+                            );
+                        } else {
+                            await knex.raw(
+                                `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId} AND image_url IS NULL;`,
+                            );
+                        }
+                    } catch (individualError) {
+                        logger.error(
+                            `Individual update failed for tour ${tourId}:`,
+                            individualError,
+                        );
+                    }
+                }
+            }
+        }
+    };
+
+    flushPromise = (async () => {
+        await executeUpdate(forceUpdates, true);
+        await executeUpdate(normalUpdates, false);
+    })();
+
+    await flushPromise;
+    flushPromise = null;
 };
 
-const dispatchDbUpdate = async (tourId, imageUrl, force) => {
-    await waitForFreeSlot(activeDbUpdates, MAX_PARALLEL_DB_UPDATES);
-    const updatePromise = setTourImageURL(tourId, imageUrl, force);
-    activeDbUpdates.push(updatePromise);
-    updatePromise.finally(() => {
-        const index = activeDbUpdates.indexOf(updatePromise);
-        if (index > -1) {
-            activeDbUpdates.splice(index, 1);
-        }
-    });
-    return updatePromise;
+/**
+ * Flusht alle verbleibenden Updates am Ende der Verarbeitung
+ */
+const flushAllPendingUpdates = async () => {
+    while (updateQueue.length > 0) {
+        await flushUpdateQueue();
+    }
+    logger.info("All pending DB updates flushed.");
+};
+
+// Legacy-Funktion für Kompatibilität (wird intern auf Queue umgeleitet)
+const dispatchDbUpdate = (tourId, imageUrl, force) => {
+    queueDbUpdate(tourId, imageUrl, force);
 };
 
 // Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
@@ -230,15 +314,32 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                     .webp({ quality: 15 })
                     .toFile(filePathSmallWebp);
             } catch (e) {
-                logger.error("gpxUtils.sharp.resize error:", e);
+                logger.warn(`gpxUtils.sharp.resize error for tour ${tourId}: ${e.message}`);
+                // Try to delete corrupt source file
+                try {
+                    if (await fs.pathExists(filePath)) {
+                        await fs.unlink(filePath);
+                    }
+                } catch {
+                    // ignore
+                }
+                return "error_image"; // Trigger retry
             }
 
             if (fs.existsSync(filePathSmallWebp)) {
-                await fs.unlink(filePath);
+                try {
+                    await fs.unlink(filePath);
+                } catch {
+                    // ignore ENOENT
+                }
                 const isError = await isErrorImage(filePathSmallWebp);
                 if (isError) {
                     logger.info(`Detected error image for tour ${tourId} - will retry later.`);
-                    await fs.unlink(filePathSmallWebp);
+                    try {
+                        await fs.unlink(filePathSmallWebp);
+                    } catch {
+                        // ignore ENOENT
+                    }
                     return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
                     logger.debug("Gpx image small file created:", filePathSmallWebp);
@@ -440,16 +541,14 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                             );
                         }
                     }
-                    while (activeDbUpdates.length > 0) {
-                        await new Promise((resolve) => setTimeout(resolve, 50));
-                    }
-                    logger.info("All database updates finished.");
+                    // Flush alle gepufferten Updates
+                    await flushAllPendingUpdates();
                 })(),
 
                 // Prozess 2: Bildgenerierung (ohne Tile Pre-Warming)
                 // Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
                 (async () => {
-                    const PARALLEL_LIMIT = 5;
+                    const PARALLEL_LIMIT = isProd ? 5 : 2;
 
                     logger.info(`Starting image generation for ${idsForCreation.length} tours...`);
 
@@ -474,6 +573,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                     let stopProcessing = false;
                     const errorImageTours = []; // Tours that generated error images
+                    let successCount = 0; // Counter for successfully generated images
 
                     // Main processing loop
                     await asyncPool(PARALLEL_LIMIT, idsForCreation, async (tourID) => {
@@ -505,6 +605,13 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                         if (result === "error_image") {
                             errorImageTours.push(tourID);
+                        } else if (result === "success") {
+                            successCount++;
+                            if (successCount % 1000 === 0) {
+                                logger.info(
+                                    `Progress: ${successCount} images successfully generated.`,
+                                );
+                            }
                         }
                     });
 
@@ -562,6 +669,9 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             // Track if there were pending tours (for final cleanup decision)
             // This is a simplified check - in practice pendingTours from the async block
             // would need to be communicated differently, but time check is the main gate
+
+            // Finales Flush der Update-Queue (falls noch Updates ausstehen)
+            await flushAllPendingUpdates();
         } catch (err) {
             logger.error("Error in createImagesFromMap:", err.message);
         } finally {

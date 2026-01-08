@@ -12,10 +12,11 @@ DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS tour_inactive;
 DROP TABLE IF EXISTS city2tour;
 DROP TABLE IF EXISTS gpx;
-DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS tracks;
 DROP TABLE IF EXISTS canonical_alternate;
 DROP TABLE IF EXISTS city2tour_flat;
+DROP TABLE IF EXISTS logsearchphrase;
+DROP TABLE IF EXISTS logsearchphrase_archive;
 
 
 CREATE TABLE tour (
@@ -69,7 +70,7 @@ CREATE INDEX ON tour (month_order);
 CREATE INDEX ON tour (range);
 CREATE INDEX ON tour (traverse);
 CREATE INDEX ON tour (title);
-CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
+-- CREATE INDEX ON tour USING hnsw (ai_search_column vector_l2_ops);
 
 
 CREATE TABLE tour_inactive (
@@ -290,11 +291,34 @@ CREATE TABLE city2tour_flat (
     PRIMARY KEY (reachable_from_country, city_slug, id)
 );
 
-CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+-- CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+CREATE INDEX ON city2tour_flat 
+USING hnsw (ai_search_column vector_l2_ops) 
+WITH (m = 24, ef_construction = 128);
+-- maybe on PROD even: WITH (m = 32, ef_construction = 200);
+
 CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
 
+CREATE OR REPLACE FUNCTION sync_tour_image_to_flat()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE city2tour_flat
+    SET image_url = COALESCE(NULLIF(NEW.image_url, ''), 'https://cdn.zuugle.at/img/train_placeholder.webp')
+    WHERE id = NEW.id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;
+
+CREATE TRIGGER trg_update_tour_image
+AFTER UPDATE OF image_url ON tour
+FOR EACH ROW
+WHEN (OLD.image_url IS DISTINCT FROM NEW.image_url)
+EXECUTE FUNCTION sync_tour_image_to_flat();
 
 
 CREATE TABLE tracks (
