@@ -12,10 +12,11 @@ DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS tour_inactive;
 DROP TABLE IF EXISTS city2tour;
 DROP TABLE IF EXISTS gpx;
-DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS tracks;
 DROP TABLE IF EXISTS canonical_alternate;
 DROP TABLE IF EXISTS city2tour_flat;
+DROP TABLE IF EXISTS logsearchphrase;
+DROP TABLE IF EXISTS logsearchphrase_archive;
 
 
 CREATE TABLE tour (
