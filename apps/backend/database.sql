@@ -196,6 +196,9 @@ CREATE TABLE logsearchphrase (
       PRIMARY KEY (id)
 );
 
+CREATE INDEX ON logsearchphrase (LOWER(TRIM(phrase)));
+
+
 
 CREATE TABLE logsearchphrase_archive (
       id SERIAL,
@@ -300,6 +303,7 @@ WITH (m = 24, ef_construction = 128);
 CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
+CREATE INDEX ON city2tour_flat (id);
 
 CREATE OR REPLACE FUNCTION sync_tour_image_to_flat()
 RETURNS TRIGGER AS $$
