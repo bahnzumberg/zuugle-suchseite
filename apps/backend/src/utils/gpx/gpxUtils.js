@@ -364,12 +364,12 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                 }
             } else {
                 logger.warn("NO gpx image small file created for tour", tourId);
-                handleImagePlaceholder(tourId, useCDN);
+                await handleImagePlaceholder(tourId, useCDN);
                 return "failed";
             }
         } else {
             logger.warn("NO image file created:", filePath);
-            handleImagePlaceholder(tourId, useCDN);
+            await handleImagePlaceholder(tourId, useCDN);
             return "failed";
         }
     } catch (e) {
@@ -379,7 +379,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
             logger.error(`Error in processAndCreateImage for ID ${tourId}:`, e);
         }
 
-        handleImagePlaceholder(tourId, useCDN);
+        await handleImagePlaceholder(tourId, useCDN);
         return "failed";
     }
 };
@@ -655,7 +655,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                                 logger.info(
                                     `Tour ${tourID} still failed after retry - setting placeholder.`,
                                 );
-                                handleImagePlaceholder(tourID, useCDN);
+                                await handleImagePlaceholder(tourID, useCDN);
                             }
                         });
 
