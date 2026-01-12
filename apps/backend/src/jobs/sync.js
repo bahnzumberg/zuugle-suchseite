@@ -936,14 +936,35 @@ export async function syncTours() {
     ); // This is the needed size for the tour detail page
 }
 
-export async function syncCities() {
-    const query = knexTourenDb("vw_cities_to_search").select();
-    const result = await query;
-    if (!!result && result.length > 0) {
-        for (let i = 0; i < result.length; i++) {
-            await knex.raw(
-                `insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`,
+export async function syncCities(retryCount = 0, maxRetries = 3) {
+    try {
+        const query = knexTourenDb("vw_cities_to_search").select(
+            "city_slug",
+            "city_name",
+            "city_country",
+        );
+        const result = await query;
+        if (!!result && result.length > 0) {
+            for (let i = 0; i < result.length; i++) {
+                await knex.raw(
+                    `insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`,
+                );
+            }
+        }
+        return true; // Success
+    } catch (err) {
+        logger.error("Error in syncCities:", err);
+
+        if (retryCount < maxRetries) {
+            const waitTime = 25000 * (retryCount + 1); // Exponential backoff: 25s, 50s, 75s
+            logger.info(
+                `Retrying syncCities (attempt ${retryCount + 1} of ${maxRetries}) in ${waitTime / 1000} seconds...`,
             );
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+            return syncCities(retryCount + 1, maxRetries);
+        } else {
+            logger.error("Max retries reached for syncCities. Giving up.");
+            return false; // Failure
         }
     }
 }
