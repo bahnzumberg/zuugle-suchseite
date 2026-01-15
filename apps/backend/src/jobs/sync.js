@@ -936,14 +936,35 @@ export async function syncTours() {
     ); // This is the needed size for the tour detail page
 }
 
-export async function syncCities() {
-    const query = knexTourenDb("vw_cities_to_search").select();
-    const result = await query;
-    if (!!result && result.length > 0) {
-        for (let i = 0; i < result.length; i++) {
-            await knex.raw(
-                `insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`,
+export async function syncCities(retryCount = 0, maxRetries = 3) {
+    try {
+        const query = knexTourenDb("vw_cities_to_search").select(
+            "city_slug",
+            "city_name",
+            "city_country",
+        );
+        const result = await query;
+        if (!!result && result.length > 0) {
+            for (let i = 0; i < result.length; i++) {
+                await knex.raw(
+                    `insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`,
+                );
+            }
+        }
+        return true; // Success
+    } catch (err) {
+        logger.error("Error in syncCities:", err);
+
+        if (retryCount < maxRetries) {
+            const waitTime = 25000 * (retryCount + 1); // Linear backoff: 25s, 50s, 75s
+            logger.info(
+                `Retrying syncCities (attempt ${retryCount + 1} of ${maxRetries}) in ${waitTime / 1000} seconds...`,
             );
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+            return syncCities(retryCount + 1, maxRetries);
+        } else {
+            logger.error("Max retries reached for syncCities. Giving up.");
+            return false; // Failure
         }
     }
 }
@@ -1173,18 +1194,21 @@ const bulk_insert_tours = async (entries) => {
 
 export async function populateCity2TourFlat() {
     try {
-        await knex.raw(`TRUNCATE city2tour_flat;`);
+        // 1. Drop old temp table if exists and create new table with same structure
+        logger.info("Creating city2tour_flat_new table");
+        await knex.raw(`DROP TABLE IF EXISTS city2tour_flat_new;`);
+        await knex.raw(`CREATE TABLE city2tour_flat_new (LIKE city2tour_flat INCLUDING ALL);`);
 
-        // Get all countries to iterate over
+        // 2. Populate new table (country by country)
         const countriesResult = await knex.raw(
             `SELECT DISTINCT reachable_from_country FROM city2tour ORDER BY reachable_from_country`,
         );
         const countries = countriesResult.rows.map((r) => r.reachable_from_country);
 
         for (const country of countries) {
-            logger.info(`Populating city2tour_flat for country: ${country}`);
+            logger.info(`Populating city2tour_flat_new for country: ${country}`);
             await knex.raw(
-                `INSERT INTO city2tour_flat (
+                `INSERT INTO city2tour_flat_new (
             reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
             title, image_url, type, country, state, range_slug, range, 
             text_lang, difficulty_orig, season, max_ele, 
@@ -1239,11 +1263,32 @@ export async function populateCity2TourFlat() {
             );
         }
 
-        logger.info("START CLUSTERING city2tour_flat");
-        await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
-        await knex.raw(`ANALYZE city2tour_flat;`);
+        // 3. Optimize new table
+        logger.info("CLUSTERING city2tour_flat_new");
+        await knex.raw(`CLUSTER city2tour_flat_new USING city2tour_flat_new_pkey;`);
+        await knex.raw(`ANALYZE city2tour_flat_new;`);
 
-        // logger.info("city2tour_flat populated successfully.");
+        // 4. Atomic swap
+        logger.info("Swapping tables atomically");
+        await knex.transaction(async (trx) => {
+            // Drop trigger before dropping table to prevent it from breaking
+            await trx.raw(`DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;`);
+
+            await trx.raw(`DROP TABLE city2tour_flat;`);
+            await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
+            await trx.raw(`ALTER INDEX city2tour_flat_new_pkey RENAME TO city2tour_flat_pkey;`);
+
+            // Recreate trigger on the new table
+            await trx.raw(`
+                CREATE TRIGGER trg_update_tour_image
+                AFTER UPDATE OF image_url ON tour
+                FOR EACH ROW
+                WHEN (OLD.image_url IS DISTINCT FROM NEW.image_url)
+                EXECUTE FUNCTION sync_tour_image_to_flat();
+            `);
+        });
+
+        logger.info("city2tour_flat rebuilt successfully");
         return true;
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);

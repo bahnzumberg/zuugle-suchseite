@@ -21,18 +21,24 @@ syncTours().then(() => {
         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FIX TOURS");
         fixTours().then(() => {
             console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE FIX TOURS");
-            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START POPULATE city2tour_flat");
-            populateCity2TourFlat().then(() => {
+            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START WRITE KPIs");
+            writeKPIs().then(() => {
+                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
                 console.log(
                     moment().format("YYYY.MM.DD HH:mm:ss"),
-                    " DONE POPULATE city2tour_flat",
+                    " START POPULATE city2tour_flat",
                 );
-                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START GENERATE SITEMAPS");
-                generateSitemaps().then(() => {
-                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE GENERATE SITEMAPS");
-                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START WRITE KPIs");
-                    writeKPIs().then(() => {
-                        console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
+                populateCity2TourFlat().then(() => {
+                    console.log(
+                        moment().format("YYYY.MM.DD HH:mm:ss"),
+                        " DONE POPULATE city2tour_flat",
+                    );
+                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START GENERATE SITEMAPS");
+                    generateSitemaps().then(() => {
+                        console.log(
+                            moment().format("YYYY.MM.DD HH:mm:ss"),
+                            " DONE GENERATE SITEMAPS",
+                        );
                         console.log(
                             moment().format("YYYY.MM.DD HH:mm:ss"),
                             " START FETCH PROVIDER",
