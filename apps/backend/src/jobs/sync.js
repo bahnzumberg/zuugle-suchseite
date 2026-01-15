@@ -1271,8 +1271,20 @@ export async function populateCity2TourFlat() {
         // 4. Atomic swap
         logger.info("Swapping tables atomically");
         await knex.transaction(async (trx) => {
+            // Drop trigger before dropping table to prevent it from breaking
+            await trx.raw(`DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;`);
+
             await trx.raw(`DROP TABLE city2tour_flat;`);
             await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
+
+            // Recreate trigger on the new table
+            await trx.raw(`
+                CREATE TRIGGER trg_update_tour_image
+                AFTER UPDATE OF image_url ON tour
+                FOR EACH ROW
+                WHEN (OLD.image_url IS DISTINCT FROM NEW.image_url)
+                EXECUTE FUNCTION sync_tour_image_to_flat();
+            `);
         });
 
         logger.info("city2tour_flat rebuilt successfully");
