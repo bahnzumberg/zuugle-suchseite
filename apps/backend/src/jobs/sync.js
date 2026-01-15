@@ -956,7 +956,7 @@ export async function syncCities(retryCount = 0, maxRetries = 3) {
         logger.error("Error in syncCities:", err);
 
         if (retryCount < maxRetries) {
-            const waitTime = 25000 * (retryCount + 1); // Exponential backoff: 25s, 50s, 75s
+            const waitTime = 25000 * (retryCount + 1); // Linear backoff: 25s, 50s, 75s
             logger.info(
                 `Retrying syncCities (attempt ${retryCount + 1} of ${maxRetries}) in ${waitTime / 1000} seconds...`,
             );
