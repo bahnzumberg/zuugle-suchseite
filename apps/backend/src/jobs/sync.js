@@ -1276,6 +1276,7 @@ export async function populateCity2TourFlat() {
 
             await trx.raw(`DROP TABLE city2tour_flat;`);
             await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
+            await trx.raw(`ALTER INDEX city2tour_flat_new_pkey RENAME TO city2tour_flat_pkey;`);
 
             // Recreate trigger on the new table
             await trx.raw(`
