@@ -1194,18 +1194,21 @@ const bulk_insert_tours = async (entries) => {
 
 export async function populateCity2TourFlat() {
     try {
-        await knex.raw(`TRUNCATE city2tour_flat;`);
+        // 1. Drop old temp table if exists and create new table with same structure
+        logger.info("Creating city2tour_flat_new table");
+        await knex.raw(`DROP TABLE IF EXISTS city2tour_flat_new;`);
+        await knex.raw(`CREATE TABLE city2tour_flat_new (LIKE city2tour_flat INCLUDING ALL);`);
 
-        // Get all countries to iterate over
+        // 2. Populate new table (country by country)
         const countriesResult = await knex.raw(
             `SELECT DISTINCT reachable_from_country FROM city2tour ORDER BY reachable_from_country`,
         );
         const countries = countriesResult.rows.map((r) => r.reachable_from_country);
 
         for (const country of countries) {
-            logger.info(`Populating city2tour_flat for country: ${country}`);
+            logger.info(`Populating city2tour_flat_new for country: ${country}`);
             await knex.raw(
-                `INSERT INTO city2tour_flat (
+                `INSERT INTO city2tour_flat_new (
             reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
             title, image_url, type, country, state, range_slug, range, 
             text_lang, difficulty_orig, season, max_ele, 
@@ -1260,11 +1263,19 @@ export async function populateCity2TourFlat() {
             );
         }
 
-        logger.info("START CLUSTERING city2tour_flat");
-        await knex.raw(`CLUSTER city2tour_flat USING city2tour_flat_pkey;`);
-        await knex.raw(`ANALYZE city2tour_flat;`);
+        // 3. Optimize new table
+        logger.info("CLUSTERING city2tour_flat_new");
+        await knex.raw(`CLUSTER city2tour_flat_new USING city2tour_flat_new_pkey;`);
+        await knex.raw(`ANALYZE city2tour_flat_new;`);
 
-        // logger.info("city2tour_flat populated successfully.");
+        // 4. Atomic swap
+        logger.info("Swapping tables atomically");
+        await knex.transaction(async (trx) => {
+            await trx.raw(`DROP TABLE city2tour_flat;`);
+            await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
+        });
+
+        logger.info("city2tour_flat rebuilt successfully");
         return true;
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);

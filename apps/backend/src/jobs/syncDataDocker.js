@@ -17,12 +17,12 @@ copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
         truncateAll().then(() => {
             logger.info("Restore from database dump (this will take a while)");
             restoreDump().then(() => {
-                logger.info("Populate city2tour_flat");
-                populateCity2TourFlat().then(() => {
-                    logger.info("Generate Sitemaps");
-                    generateSitemaps().then(() => {
-                        logger.info("Write KPIs");
-                        writeKPIs().then(async () => {
+                logger.info("Write KPIs");
+                writeKPIs().then(() => {
+                    logger.info("Populate city2tour_flat");
+                    populateCity2TourFlat().then(() => {
+                        logger.info("Generate Sitemaps");
+                        generateSitemaps().then(async () => {
                             logger.info("Flushing cache...");
                             await cacheService.flush();
                             logger.info("Cache flushed. Database ready!");
