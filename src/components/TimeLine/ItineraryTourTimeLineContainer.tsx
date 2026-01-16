@@ -48,22 +48,19 @@ export default function ItineraryTourTimeLineContainer({
   dateIndex,
   idOne,
 }: ItineraryTourTimeLineContainerProps) {
+  const { data: cities = [] } = useGetCitiesQuery();
+  const isMobile = useIsMobile();
+
   const connectionsForDate =
     !city || !connections ? undefined : connections[dateIndex];
-  //set connections to single one
-  const { data: cities = [] } = useGetCitiesQuery();
-
   const emptyConnArray =
     !connectionsForDate || connectionsForDate.connections.length === 0;
-
-  const isMobile = useIsMobile();
 
   const [entries, setEntries] = useState<string[]>([]); //PARSED array[of strings], related to only one object, a departure description
   const [returnEntries, setReturnEntries] = useState<Connection[]>([]); //UNPARSED array[objects] with possibly a few return connections
 
   const [getMore, setGetMore] = useState(false);
   const [formattedDuration, setformattedDuration] = useState("n/a");
-  const [city_selected, setCity_selected] = useState(true);
 
   // the following two vars filled by fcn extractReturns
   const twoReturns: string[][] = [];
@@ -80,14 +77,6 @@ export default function ItineraryTourTimeLineContainer({
       extractReturns();
     }
   }, [connectionsForDate]);
-
-  useEffect(() => {
-    if (!city) {
-      setCity_selected(false);
-    } else {
-      setCity_selected(true);
-    }
-  }, [city]);
 
   useEffect(() => {
     if (!!duration && typeof duration == "string") {
@@ -163,7 +152,7 @@ export default function ItineraryTourTimeLineContainer({
             textAlign: "center",
           }}
         >
-          {!city_selected ? (
+          {!city ? (
             <>
               <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                 {t("details.bitte_stadt_waehlen")}
@@ -176,7 +165,7 @@ export default function ItineraryTourTimeLineContainer({
             </Typography>
           )}
         </Box>
-        {!city_selected && (
+        {!city && (
           <Box
             sx={{
               bgcolor: "#FFFFFF",
