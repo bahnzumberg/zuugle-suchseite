@@ -1197,18 +1197,14 @@ export async function populateCity2TourFlat() {
         // 1. Drop old temp table if exists and create new table with same structure
         logger.info("Creating city2tour_flat_new table");
         await knex.raw(`DROP TABLE IF EXISTS city2tour_flat_new;`);
-        await knex.raw(`CREATE TABLE city2tour_flat_new (LIKE city2tour_flat INCLUDING ALL);`);
+        // Only structure, no indices, no contrains to speed up insert
+        await knex.raw(`CREATE TABLE city2tour_flat_new (LIKE city2tour_flat);`);
+        // No logging necessary as long as we are on helper table
+        await knex.raw(`ALTER TABLE city2tour_flat_new SET UNLOGGED;`);
 
-        // 2. Populate new table (country by country)
-        const countriesResult = await knex.raw(
-            `SELECT DISTINCT reachable_from_country FROM city2tour ORDER BY reachable_from_country`,
-        );
-        const countries = countriesResult.rows.map((r) => r.reachable_from_country);
-
-        for (const country of countries) {
-            logger.info(`Populating city2tour_flat_new for country: ${country}`);
-            await knex.raw(
-                `INSERT INTO city2tour_flat_new (
+        // 2. Populate new table
+        await knex.raw(
+            `INSERT INTO city2tour_flat_new (
             reachable_from_country, city_slug, id, provider, provider_name, hashed_url, url, 
             title, image_url, type, country, state, range_slug, range, 
             text_lang, difficulty_orig, season, max_ele, 
@@ -1258,17 +1254,27 @@ export async function populateCity2TourFlat() {
         FROM city2tour AS c2t 
         INNER JOIN tour AS t ON c2t.tour_id = t.id
         INNER JOIN provider AS p ON t.provider = p.provider
-        WHERE c2t.reachable_from_country = ?;`,
-                [country],
-            );
-        }
+        ORDER BY c2t.reachable_from_country, c2t.city_slug, t.id;`,
+        );
 
-        // 3. Optimize new table
-        logger.info("CLUSTERING city2tour_flat_new");
-        await knex.raw(`CLUSTER city2tour_flat_new USING city2tour_flat_new_pkey;`);
+        // 3. Create Indices
+        logger.info("Creating indices on city2tour_flat_new");
+        await knex.raw(
+            `ALTER TABLE city2tour_flat_new ADD PRIMARY KEY (reachable_from_country, city_slug, id);`,
+        );
+        await knex.raw(`CREATE INDEX ON city2tour_flat_new 
+            USING hnsw (ai_search_column vector_l2_ops) 
+            WITH (m = 24, ef_construction = 128);`);
+        await knex.raw(`CREATE INDEX ON city2tour_flat_new USING GIN (search_column);`);
+        await knex.raw(`CREATE INDEX ON city2tour_flat_new (stop_selector);`);
+        await knex.raw(`CREATE INDEX ON city2tour_flat_new (text_lang);`);
+        await knex.raw(`CREATE INDEX ON city2tour_flat_new (id);`);
+
+        // 4. Optimize new table
         await knex.raw(`ANALYZE city2tour_flat_new;`);
+        await knex.raw(`ALTER TABLE city2tour_flat_new SET LOGGED;`);
 
-        // 4. Atomic swap
+        // 5. Atomic swap
         logger.info("Swapping tables atomically");
         await knex.transaction(async (trx) => {
             // Drop trigger before dropping table to prevent it from breaking
