@@ -24,27 +24,40 @@ export interface Connection {
   return_duration_minutes: number;
   gpx_file: string;
 }
-type ConnectionType = "C" | "D" | "T" | "A";
 
-interface ReturnDescriptionJSON {
-  T: ConnectionType;
-  DS?: string;
-  DT?: string;
-  CD?: string;
-  CN?: string;
-  CT: number;
-  AS?: string;
-  AT?: string;
-  TD?: string;
+interface DepartureJSON {
+  T: "D";
+  DT: string; // DepartureTime
+  DS: string; // DepartureStop
 }
-interface ConnectionDescriptionJSON {
-  T: ConnectionType;
-  DS?: string;
-  DT?: string;
-  CD?: string;
-  CN?: string;
-  CT: number;
-  AS?: string;
-  AT?: string;
-  TD?: string;
+
+interface TransferJSON {
+  T: "T";
+  TD: string; // TransferDuration
 }
+
+interface ArrivalJSON {
+  T: "A";
+  AT: string; // ArrivalTime
+  AS: string; // ArrivalStop
+}
+
+interface ConnectionJSON {
+  T: "C";
+  CD: string; // ConnectionDuration
+  CN: string; // ConnectionName
+  CT: number; // ConnectionType
+  CI?: string; // ConnectionInfo for example "Rufbus, Reservierung unter +431234567"
+}
+
+type ReturnDescriptionJSON =
+  | DepartureJSON
+  | TransferJSON
+  | ArrivalJSON
+  | ConnectionJSON;
+
+type ConnectionDescriptionJSON =
+  | DepartureJSON
+  | TransferJSON
+  | ArrivalJSON
+  | ConnectionJSON;
