@@ -17,7 +17,7 @@ export interface Connection {
   totour_track_duration: string;
   fromtour_track_duration: string;
   connection_description_json: ConnectionDescriptionJSON[];
-  return_description_json: ReturnDescriptionJSON[];
+  return_description_json: ConnectionDescriptionJSON[];
   totour_track_key: number;
   fromtour_track_key: number;
   connection_duration_minutes: number;
@@ -25,39 +25,47 @@ export interface Connection {
   gpx_file: string;
 }
 
-interface DepartureJSON {
+export interface DepartureJSON {
   T: "D";
   DT: string; // DepartureTime
   DS: string; // DepartureStop
 }
 
-interface TransferJSON {
+export interface TransferJSON {
   T: "T";
   TD: string; // TransferDuration
 }
 
-interface ArrivalJSON {
+export interface ArrivalJSON {
   T: "A";
   AT: string; // ArrivalTime
   AS: string; // ArrivalStop
 }
 
-interface ConnectionJSON {
+export interface ConnectionJSON {
   T: "C";
   CD: string; // ConnectionDuration
   CN: string; // ConnectionName
-  CT: number; // ConnectionType
+  CT: ConnectionType; // ConnectionType
   CI?: string; // ConnectionInfo for example "Rufbus, Reservierung unter +431234567"
 }
 
-type ReturnDescriptionJSON =
+export type ConnectionDescriptionJSON =
   | DepartureJSON
   | TransferJSON
   | ArrivalJSON
   | ConnectionJSON;
 
-type ConnectionDescriptionJSON =
-  | DepartureJSON
-  | TransferJSON
-  | ArrivalJSON
-  | ConnectionJSON;
+export enum ConnectionType {
+  TRAIN = 1,
+  BUS = 2,
+  TRAM = 3,
+  SUBWAY = 4,
+  MONORAIL = 5,
+  COG_TRAIN = 6,
+  FUNICULAR = 7,
+  CABLE_CAR = 8,
+  FERRY = 9,
+  TAXI = 10,
+  OTHER = 20,
+}
