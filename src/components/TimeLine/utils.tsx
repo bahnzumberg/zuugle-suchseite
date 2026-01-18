@@ -112,24 +112,17 @@ const transportIcons: Record<string, JSX.Element> = {
     />
   ),
   car_key: (
-    <CustomIcon
-      name="car"
-      style={{
-        strokeWidth: 2,
-        stroke: "#4992FF",
-        width: "24px",
-        height: "24px",
-      }}
-    />
+    <CustomIcon name="car" style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
   ),
   cableCar_key: (
     <CustomIcon
       name="seilbahn"
       style={{
         strokeWidth: 2,
-        stroke: "#4992FF",
+        stroke: "#1976D2",
         width: "24px",
         height: "24px",
+        fill: "none",
       }}
     />
   ),
