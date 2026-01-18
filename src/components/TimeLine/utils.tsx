@@ -167,18 +167,18 @@ function getIconForConnectionDescriptionEntry(
   }
 }
 
-const connectionTypes: Record<number, string> = {
-  1: "details.zug",
-  2: "details.bus",
-  3: "details.strassenbahn",
-  4: "details.u_bahn",
-  5: "details.einschienenbahn",
-  6: "details.zahnradbahn",
-  7: "details.standseilbahn",
-  8: "details.seilbahn",
-  9: "details.faehre",
-  10: "details.taxi",
-  20: "details.verschiedenes",
+const connectionTypes: Record<ConnectionType, string> = {
+  [ConnectionType.TRAIN]: "details.zug",
+  [ConnectionType.BUS]: "details.bus",
+  [ConnectionType.TRAM]: "details.strassenbahn",
+  [ConnectionType.SUBWAY]: "details.u_bahn",
+  [ConnectionType.MONORAIL]: "details.einschienenbahn",
+  [ConnectionType.COG_TRAIN]: "details.zahnradbahn",
+  [ConnectionType.FUNICULAR]: "details.standseilbahn",
+  [ConnectionType.CABLE_CAR]: "details.seilbahn",
+  [ConnectionType.FERRY]: "details.faehre",
+  [ConnectionType.TAXI]: "details.taxi",
+  [ConnectionType.OTHER]: "details.verschiedenes",
 };
 
 function getTextForConnectionDescriptionEntry(
