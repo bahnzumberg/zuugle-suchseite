@@ -5,18 +5,18 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
-  createEntries,
-  createReturnEntries,
   DepartureText,
   getReturnText,
   getNumberOfTransfers,
+  formatDuration,
+  createEntries,
+  createReturnEntries,
 } from "./utils";
 import { useTranslation } from "react-i18next";
-import { jsonToStringArray } from "../../utils/transformJson";
-import { convertNumToTime, simpleConvertNumToTime } from "../../utils/globals";
+import { simpleConvertNumToTime } from "../../utils/globals";
 import { useIsMobile } from "../../utils/muiUtils";
 import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
@@ -48,58 +48,21 @@ export default function ItineraryTourTimeLineContainer({
   dateIndex,
   idOne,
 }: ItineraryTourTimeLineContainerProps) {
+  const { t } = useTranslation();
+  const { data: cities = [] } = useGetCitiesQuery();
+  const isMobile = useIsMobile();
+
   const connectionsForDate =
     !city || !connections ? undefined : connections[dateIndex];
-  //set connections to single one
-  const { data: cities = [] } = useGetCitiesQuery();
-
   const emptyConnArray =
     !connectionsForDate || connectionsForDate.connections.length === 0;
 
-  const isMobile = useIsMobile();
-
-  const [entries, setEntries] = useState<string[]>([]); //PARSED array[of strings], related to only one object, a departure description
-  const [returnEntries, setReturnEntries] = useState<Connection[]>([]); //UNPARSED array[objects] with possibly a few return connections
-
   const [getMore, setGetMore] = useState(false);
-  const [formattedDuration, setformattedDuration] = useState("n/a");
-  const [city_selected, setCity_selected] = useState(true);
 
-  // the following two vars filled by fcn extractReturns
-  const twoReturns: string[][] = [];
-  const remainingReturns: string[][] = [];
-
-  const { t } = useTranslation();
-
-  // after the useEffect we have state "entries" being a strings array representing the connection details
-  useEffect(() => {
-    if (!emptyConnArray) {
-      const settingEnt = jsonToStringArray(getSingleConnection(), "to");
-      setEntries(settingEnt);
-      setReturnEntries(connectionsForDate.returns);
-      extractReturns();
-    }
-  }, [connectionsForDate]);
-
-  useEffect(() => {
-    if (!city) {
-      setCity_selected(false);
-    } else {
-      setCity_selected(true);
-    }
-  }, [city]);
-
-  useEffect(() => {
-    if (!!duration && typeof duration == "string") {
-      setformattedDuration(formatDuration(Number(duration)));
-    }
-  }, [duration]);
-
-  const formatDuration = (duration: number) => {
-    let _time = duration ? convertNumToTime(duration, true) : " ";
-    _time = _time.replace(/\s*h\s*$/, "");
-    return _time;
-  };
+  const formattedDuration =
+    !!duration && typeof duration === "string"
+      ? formatDuration(Number(duration))
+      : "n/a";
 
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
@@ -107,25 +70,6 @@ export default function ItineraryTourTimeLineContainer({
       return connectionsForDate.connections[0];
     } else return null;
   };
-
-  //check if there are return connections and fill twoReturns / remainingReturns
-  const extractReturns = () => {
-    if (connectionsForDate?.returns && connectionsForDate.returns.length > 0) {
-      const array = connectionsForDate.returns;
-      for (let index = 0; index < array.length; index++) {
-        if (index <= 1) {
-          twoReturns[index] = jsonToStringArray(array[index], "from");
-        }
-
-        if (index > 1) {
-          remainingReturns[index] = jsonToStringArray(array[index], "from");
-        }
-      }
-      return;
-    }
-    return null;
-  };
-  extractReturns();
 
   const _getDepartureText = () => {
     const connection = getSingleConnection();
@@ -163,7 +107,7 @@ export default function ItineraryTourTimeLineContainer({
             textAlign: "center",
           }}
         >
-          {!city_selected ? (
+          {!city ? (
             <>
               <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                 {t("details.bitte_stadt_waehlen")}
@@ -176,7 +120,7 @@ export default function ItineraryTourTimeLineContainer({
             </Typography>
           )}
         </Box>
-        {!city_selected && (
+        {!city && (
           <Box
             sx={{
               bgcolor: "#FFFFFF",
@@ -343,7 +287,7 @@ export default function ItineraryTourTimeLineContainer({
               </AccordionSummary>
               <AccordionDetails>
                 <Timeline position="right">
-                  {createEntries(entries, getSingleConnection())}
+                  {createEntries(getSingleConnection())}
                 </Timeline>
               </AccordionDetails>
             </Accordion>
@@ -427,7 +371,7 @@ export default function ItineraryTourTimeLineContainer({
 
             <Divider sx={{ mb: "24px" }} />
             {/* Rendering first 2 return connections */}
-            {returnEntries.slice(0, 2).map((retObj, index) => (
+            {connectionsForDate.returns.slice(0, 2).map((connection, index) => (
               //3rd Accordion / additional return connections
               <Accordion
                 key={`return-connection-${index}`}
@@ -489,7 +433,7 @@ export default function ItineraryTourTimeLineContainer({
                           color: "#8B8B8B",
                         }}
                       >
-                        {_getReturnText(index, retObj)}
+                        {_getReturnText(index, connection)}
                       </Typography>
                       <Typography
                         sx={{
@@ -501,7 +445,7 @@ export default function ItineraryTourTimeLineContainer({
                           fontSize: "20px",
                         }}
                       >
-                        {getReturnText(retObj)}
+                        {getReturnText(connection)}
                       </Typography>
                     </Box>
                     <Box sx={{ position: "absolute", right: 20, top: 20 }}>
@@ -527,7 +471,7 @@ export default function ItineraryTourTimeLineContainer({
                       >
                         {" "}
                         {getNumberOfTransfers(
-                          retObj,
+                          connection,
                           "return_no_of_transfers",
                         )}{" "}
                         {t("details.umstiege")}
@@ -537,14 +481,14 @@ export default function ItineraryTourTimeLineContainer({
                 </AccordionSummary>
                 <AccordionDetails>
                   <Timeline position="right">
-                    {createReturnEntries(twoReturns[index], retObj)}
+                    {createReturnEntries(connection)}
                   </Timeline>
                 </AccordionDetails>
               </Accordion>
             ))}
             {/* more return connections rendered */}
             {getMore &&
-              returnEntries.slice(2).map((retObj, index) => (
+              connectionsForDate.returns.slice(2).map((connection, index) => (
                 <Accordion
                   key={`more-return-connection-${index}`}
                   sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
@@ -604,7 +548,7 @@ export default function ItineraryTourTimeLineContainer({
                             color: "#8B8B8B",
                           }}
                         >
-                          {_getReturnText(index + 2, retObj)}
+                          {_getReturnText(index + 2, connection)}
                         </Typography>
                         <Typography
                           sx={{
@@ -616,7 +560,7 @@ export default function ItineraryTourTimeLineContainer({
                             fontSize: "20px",
                           }}
                         >
-                          {getReturnText(retObj)}
+                          {getReturnText(connection)}
                         </Typography>
                       </Box>
                       <Box sx={{ position: "absolute", right: 20, top: 20 }}>
@@ -642,7 +586,7 @@ export default function ItineraryTourTimeLineContainer({
                         >
                           {" "}
                           {getNumberOfTransfers(
-                            retObj,
+                            connection,
                             "return_no_of_transfers",
                           )}{" "}
                           {t("details.umstiege")}
@@ -652,14 +596,14 @@ export default function ItineraryTourTimeLineContainer({
                   </AccordionSummary>
                   <AccordionDetails>
                     <Timeline position="right">
-                      {createReturnEntries(remainingReturns[index + 2], retObj)}
+                      {createReturnEntries(connection)}
                     </Timeline>
                   </AccordionDetails>
                 </Accordion>
               ))}
 
             {/* Button for more connections */}
-            {!getMore && returnEntries.length > 2 && (
+            {!getMore && connectionsForDate.returns.length > 2 && (
               <Accordion
                 sx={{ backgroundColor: "transparent", boxShadow: "none" }}
                 key="more-connections-button"
@@ -686,7 +630,7 @@ export default function ItineraryTourTimeLineContainer({
                       fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                     }}
                   >
-                    {returnEntries.length - 2}{" "}
+                    {connectionsForDate.returns.length - 2}{" "}
                     {t("Details.rückreise_moeglichkeiten")}
                   </Typography>
                 </Box>

@@ -2,19 +2,24 @@ import { Fragment, JSX } from "react";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import {
-  getTextFromConnectionDescriptionEntry,
-  getTimeFromConnectionDescriptionEntry,
-} from "../../utils/globals";
+import { convertNumToTime } from "../../utils/globals";
 import { useIsMobile } from "../../utils/muiUtils";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import Box from "@mui/material/Box";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import MyTimeLineDot from "./MyTimeLineDot";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
-import { Connection } from "../../models/Connections";
+import {
+  ArrivalJSON,
+  Connection,
+  ConnectionJSON,
+  ConnectionType,
+  DepartureJSON,
+  TransferJSON,
+} from "../../models/Connections";
 import { t } from "i18next";
 import { CustomIcon } from "../../icons/CustomIcon";
 
@@ -83,43 +88,6 @@ export const getNumberOfTransfers = (
   return connection[field];
 };
 
-// Transport-type arrays
-const train_key = ["train_key", "Zug", "Train", "le train", "Treno", "Vlak"];
-const metro_key = [
-  "metro_key",
-  "U Bahn",
-  "Underground",
-  "le métro",
-  "Metropolitana",
-  "Podzemna železnica",
-];
-const tram_key = [
-  "tram_key",
-  "Strassenbahn",
-  "Tram",
-  "le tramway",
-  "Tram",
-  "Tramvaj",
-];
-const bus_key = ["bus_key", "Bus", "Bus", "le bus", "Autobus", "Avtobus"];
-const car_key = ["car_key", "Taxi", "Taxi", "le taxi", "Taxi", "Taxi"];
-const transfer_key = [
-  "transfer_key",
-  "Umstiegszeit",
-  "transfer time",
-  "temps de transfert",
-  "tempo di trasferimento",
-  "čas prestopa",
-];
-const cableCar_key = [
-  "cableCar_key",
-  "Seilbahn",
-  "Cable car",
-  "le téléphérique",
-  "Funivia",
-  "Žičnica",
-];
-
 // Transport icons
 const transportIcons: Record<string, JSX.Element> = {
   train_key: (
@@ -144,24 +112,17 @@ const transportIcons: Record<string, JSX.Element> = {
     />
   ),
   car_key: (
-    <CustomIcon
-      name="car"
-      style={{
-        strokeWidth: 2,
-        stroke: "#4992FF",
-        width: "24px",
-        height: "24px",
-      }}
-    />
+    <CustomIcon name="car" style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
   ),
   cableCar_key: (
     <CustomIcon
       name="seilbahn"
       style={{
         strokeWidth: 2,
-        stroke: "#4992FF",
+        stroke: "#1976D2",
         width: "24px",
         height: "24px",
+        fill: "none",
       }}
     />
   ),
@@ -174,32 +135,54 @@ const transportIcons: Record<string, JSX.Element> = {
   ),
 };
 
-// Array of arrays for transport-type
-const transportNameArrays = [
-  train_key,
-  metro_key,
-  tram_key,
-  bus_key,
-  car_key,
-  cableCar_key,
-  transfer_key,
-];
-
-// Get transport icon from text
-function getIconFromText(text: string) {
-  if (!text) return null;
-
-  for (const transportArray of transportNameArrays) {
-    const transportType = transportArray[0];
-
-    for (const transportName of transportArray.slice(1)) {
-      if (text.indexOf(`${transportName}`) >= 0) {
-        return transportIcons[transportType];
-      }
+function getIconForConnectionDescriptionEntry(
+  entry: ConnectionJSON | TransferJSON,
+) {
+  if (entry.T === "C") {
+    switch (entry.CT) {
+      case ConnectionType.TRAIN:
+        return transportIcons["train_key"];
+      case ConnectionType.BUS:
+        return transportIcons["bus_key"];
+      case ConnectionType.TRAM:
+        return transportIcons["tram_key"];
+      case ConnectionType.SUBWAY:
+        return transportIcons["metro_key"];
+      case ConnectionType.CABLE_CAR:
+        return transportIcons["cableCar_key"];
+      case ConnectionType.TAXI:
+        return transportIcons["car_key"];
+      default:
+        return transportIcons["walk"];
     }
+  } else if (entry.T === "T") {
+    return transportIcons["transfer_key"];
   }
-  // If no match found, return a default icon
-  return transportIcons["walk"];
+}
+
+const connectionTypes: Record<ConnectionType, string> = {
+  [ConnectionType.TRAIN]: "details.zug",
+  [ConnectionType.BUS]: "details.bus",
+  [ConnectionType.TRAM]: "details.strassenbahn",
+  [ConnectionType.SUBWAY]: "details.u_bahn",
+  [ConnectionType.MONORAIL]: "details.einschienenbahn",
+  [ConnectionType.COG_TRAIN]: "details.zahnradbahn",
+  [ConnectionType.FUNICULAR]: "details.standseilbahn",
+  [ConnectionType.CABLE_CAR]: "details.seilbahn",
+  [ConnectionType.FERRY]: "details.faehre",
+  [ConnectionType.TAXI]: "details.taxi",
+  [ConnectionType.OTHER]: "details.verschiedenes",
+};
+
+function getTextForConnectionDescriptionEntry(
+  entry: ConnectionJSON | TransferJSON,
+) {
+  if (entry.T === "C") {
+    const connectionType = connectionTypes[entry.CT];
+    return `${t("details.std_mit_nach", { CD: entry.CD, connectionType: t(connectionType), CN: entry.CN })}`;
+  } else if (entry.T === "T") {
+    return `${t("details.std_umstiegszeit", { TD: entry.TD })}`;
+  }
 }
 
 function convertTimeToMinutes(timeString: string) {
@@ -213,94 +196,107 @@ function convertTimeToMinutes(timeString: string) {
   return totalMinutes;
 }
 
-export const createReturnEntries = (
-  entries: string[],
-  connection: Connection,
-) => {
-  const toReturn = [];
-  if (entries && entries.length > 0) {
-    const _entries = entries.filter((e) => e && e.length > 0);
-    let newStart = "     ";
+export function convertTimeToHHMM(timeString: string) {
+  // String in Teile zerlegen
+  const parts = timeString.split(":");
+  const hours = parseInt(parts[0]);
+  const minutes = parseInt(parts[1]);
 
-    if (connection.fromtour_track_duration) {
-      newStart = dayjs(connection.return_departure_datetime)
-        .subtract(convertTimeToMinutes(connection.fromtour_track_duration), "m")
-        .format("HH:mm");
-    }
+  // Stunden und Minuten formatieren
+  const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 
-    toReturn.push(
-      getDepartureEntry(
-        `${newStart} ${t("details.ankunft_bei_tourende")}`,
-        "departure-start",
-      ),
-    );
-
-    for (let i = 0; i < _entries.length; i++) {
-      const entry = _entries[i];
-      if (i % 2 === 0) {
-        let _text = entry.trim();
-        if (
-          _text.startsWith("|") ||
-          _text.startsWith("=") ||
-          _text.startsWith(">") ||
-          _text.startsWith("<")
-        ) {
-          _text = _text.substring(1);
-        }
-        toReturn.push(getDetailEntry(_text, `detail-${i}`));
-      } else {
-        toReturn.push(
-          getStationEntry(entry, i + 1 === _entries.length, `station-${i}`),
-        );
-      }
-    }
-  }
-  return toReturn;
+  return formattedTime;
+}
+export const formatDuration = (duration: number) => {
+  let _time = duration ? convertNumToTime(duration, true) : " ";
+  _time = _time.replace(/\s*h\s*$/, "");
+  return _time;
 };
 
-export const createEntries = (
-  entries: string[],
-  connection: Connection | null,
-) => {
-  const toReturn = [];
-  if (entries && entries.length > 0) {
-    const _entries = entries.filter((e) => e && e.length > 0);
-    toReturn.push(getDepartureEntry(_entries[0], "departure-first"));
-    for (let i = 1; i < _entries.length; i++) {
-      const entry = _entries[i];
-      if ((i - 1) % 2 === 0) {
-        let _text = entry.trim();
-        if (
-          _text.startsWith("|") ||
-          _text.startsWith("=") ||
-          _text.startsWith(">")
-        ) {
-          _text = _text.substring(1);
-        }
-        toReturn.push(getDetailEntry(_text, `detail-${i}`));
-      } else {
-        toReturn.push(
-          getStationEntry(entry, i === _entries.length, `station-${i}`),
-        );
-      }
-    }
-    let newStart = "     ";
-    if (connection?.totour_track_duration) {
-      newStart = dayjs(connection.connection_arrival_datetime)
-        .add(convertTimeToMinutes(connection["totour_track_duration"]), "m")
-        .format("HH:mm");
-    }
-    toReturn.push(
-      getArrivalEntry(
-        `${newStart} ${t("details.ankunft_bei_tourstart")}`,
-        "arrival-end",
+export const createReturnEntries = (connection: Connection) => {
+  const timelineItems = [];
+  const entries = connection.return_description_json;
+  let newStart = dayjs(connection.return_departure_datetime).format("HH:mm");
+
+  if (connection.fromtour_track_duration) {
+    newStart = dayjs(connection.return_departure_datetime)
+      .subtract(convertTimeToMinutes(connection.fromtour_track_duration), "m")
+      .format("HH:mm");
+  }
+
+  timelineItems.push(
+    getDepartureEntry(
+      { T: "D", DT: newStart, DS: t("details.ankunft_bei_tourende") },
+      "departure-start",
+    ),
+  );
+
+  if (connection.fromtour_track_duration) {
+    timelineItems.push(
+      walkToFromEntry(
+        `${t("details.std_rueckstiegsdauer_vom_touren_endpunkt", { from_tour_track_duration: convertTimeToHHMM(connection.fromtour_track_duration) })}`,
+        "from-tour-duration",
       ),
     );
   }
-  return toReturn;
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry.T === "C" || entry.T === "T") {
+      timelineItems.push(getDetailEntry(entry, `detail-${i}`));
+    } else {
+      timelineItems.push(
+        getStationEntry(entry, i + 1 === entries.length, `station-${i}`),
+      );
+    }
+  }
+
+  return timelineItems;
 };
 
-export const getDetailEntry = (entry: string, key: string) => {
+export const createEntries = (connection: Connection | null) => {
+  if (!connection) {
+    return [];
+  }
+  const timelineItems = [];
+  const entries = connection.connection_description_json;
+  if (entries.length > 0 && entries[0].T === "D") {
+    timelineItems.push(getDepartureEntry(entries[0], "departure-first"));
+  }
+  for (let i = 1; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry.T === "C" || entry.T === "T") {
+      timelineItems.push(getDetailEntry(entry, `detail-${i}`));
+    } else {
+      timelineItems.push(getStationEntry(entry, false, `station-${i}`));
+    }
+  }
+  let newStart = "     ";
+  if (connection?.totour_track_duration) {
+    timelineItems.push(
+      walkToFromEntry(
+        `${t("details.std_zustiegsdauer_zum_touren_ausgangspunkt", { totour_track_duration: convertTimeToHHMM(connection.totour_track_duration) })}`,
+        "to-tour-duration",
+      ),
+    );
+    newStart = dayjs(connection.connection_arrival_datetime)
+      .add(convertTimeToMinutes(connection["totour_track_duration"]), "m")
+      .format("HH:mm");
+  }
+  timelineItems.push(
+    getArrivalEntry(
+      { T: "A", AT: newStart, AS: t("details.ankunft_bei_tourstart") },
+      "arrival-end",
+    ),
+  );
+
+  return timelineItems;
+};
+
+export const getDetailEntry = (
+  entry: ConnectionJSON | TransferJSON,
+  key: string,
+) => {
   return (
     <TimelineItem key={key}>
       <TimelineOppositeContent
@@ -308,7 +304,7 @@ export const getDetailEntry = (entry: string, key: string) => {
         sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
         className={"timeline-opposite-container"}
       >
-        <div>{getIconFromText(entry)}</div>
+        <div>{getIconForConnectionDescriptionEntry(entry)}</div>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
         <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
@@ -325,14 +321,40 @@ export const getDetailEntry = (entry: string, key: string) => {
           color={"#8B8B8B"}
           sx={{ fontSize: "14px", lineHeight: "16px" }}
         >
-          {entry}
+          {getTextForConnectionDescriptionEntry(entry)}
         </Typography>
+        {entry.T === "C" && entry.CI && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              marginTop: "4px",
+            }}
+          >
+            <InfoOutlinedIcon sx={{ fontSize: "18px", color: "info.dark" }} />
+            <Typography
+              variant={"text"}
+              color={"info.dark"}
+              sx={{
+                fontSize: "14px",
+                lineHeight: "16px",
+              }}
+            >
+              {entry.CI}
+            </Typography>
+          </Box>
+        )}
       </TimelineContent>
     </TimelineItem>
   );
 };
 
-export const getStationEntry = (entry: string, isLast = false, key: string) => {
+export const getStationEntry = (
+  entry: DepartureJSON | ArrivalJSON,
+  isLast = false,
+  key: string,
+) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
@@ -346,7 +368,7 @@ export const getStationEntry = (entry: string, isLast = false, key: string) => {
         className={"timeline-opposite-container"}
       >
         <Box sx={{ color: "#101010", fontSize: "14px" }}>
-          {getTimeFromConnectionDescriptionEntry(entry)}
+          {entry.T === "D" ? entry.DT : entry.AT}
         </Box>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
@@ -374,13 +396,45 @@ export const getStationEntry = (entry: string, isLast = false, key: string) => {
           color: "#101010",
         }}
       >
-        {getTextFromConnectionDescriptionEntry(entry)}
+        {entry.T === "D" ? entry.DS : entry.AS}
       </TimelineContent>
     </TimelineItem>
   );
 };
 
-export const getDepartureEntry = (entry: string, key: string) => {
+export const walkToFromEntry = (text: string, key: string) => {
+  return (
+    <TimelineItem key={key}>
+      <TimelineOppositeContent
+        color="text.secondary"
+        sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
+        className={"timeline-opposite-container"}
+      >
+        <div>{transportIcons["walk"]}</div>
+      </TimelineOppositeContent>
+      <TimelineSeparator sx={{ minWidth: "12px" }}>
+        <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
+      </TimelineSeparator>
+      <TimelineContent
+        sx={{
+          borderTop: "1px solid #EAEAEA",
+          paddingTop: "16px",
+          paddingBottom: "16px",
+        }}
+      >
+        <Typography
+          variant={"text"}
+          color={"#8B8B8B"}
+          sx={{ fontSize: "14px", lineHeight: "16px" }}
+        >
+          {text}
+        </Typography>
+      </TimelineContent>
+    </TimelineItem>
+  );
+};
+
+export const getDepartureEntry = (entry: DepartureJSON, key: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
@@ -393,9 +447,7 @@ export const getDepartureEntry = (entry: string, key: string) => {
         }}
         className={"timeline-opposite-container"}
       >
-        <Box sx={{ color: "#101010", fontSize: "14px" }}>
-          {getTimeFromConnectionDescriptionEntry(entry)}
-        </Box>
+        <Box sx={{ color: "#101010", fontSize: "14px" }}>{entry.DT}</Box>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
         <MyTimeLineDot />
@@ -409,13 +461,13 @@ export const getDepartureEntry = (entry: string, key: string) => {
           color: "#101010",
         }}
       >
-        {getTextFromConnectionDescriptionEntry(entry)}
+        {entry.DS}
       </TimelineContent>
     </TimelineItem>
   );
 };
 
-export const getArrivalEntry = (entry: string, key: string) => {
+export const getArrivalEntry = (entry: ArrivalJSON, key: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
@@ -431,7 +483,7 @@ export const getArrivalEntry = (entry: string, key: string) => {
             fontSize: "14px",
           }}
         >
-          {getTimeFromConnectionDescriptionEntry(entry)}
+          {entry.AT}
         </Box>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
@@ -447,7 +499,7 @@ export const getArrivalEntry = (entry: string, key: string) => {
         }}
       >
         <Box sx={{ position: "absolute", bottom: 0, color: "#101010" }}>
-          {getTextFromConnectionDescriptionEntry(entry)}
+          {entry.AS}
         </Box>
       </TimelineContent>
     </TimelineItem>
