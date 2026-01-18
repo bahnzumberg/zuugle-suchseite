@@ -8,6 +8,7 @@ import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import Box from "@mui/material/Box";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import MyTimeLineDot from "./MyTimeLineDot";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
@@ -329,6 +330,28 @@ export const getDetailEntry = (
         >
           {getTextForConnectionDescriptionEntry(entry)}
         </Typography>
+        {entry.T === "C" && entry.CI && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              marginTop: "4px",
+            }}
+          >
+            <InfoOutlinedIcon sx={{ fontSize: "18px", color: "info.dark" }} />
+            <Typography
+              variant={"text"}
+              color={"info.dark"}
+              sx={{
+                fontSize: "14px",
+                lineHeight: "16px",
+              }}
+            >
+              {entry.CI}
+            </Typography>
+          </Box>
+        )}
       </TimelineContent>
     </TimelineItem>
   );

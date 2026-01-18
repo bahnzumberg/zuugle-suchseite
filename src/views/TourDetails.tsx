@@ -406,7 +406,7 @@ export default function DetailReworked() {
                 navigator.clipboard.writeText(shareUrl());
               }}
             >
-              <ContentPasteIcon color="info"></ContentPasteIcon>
+              <ContentPasteIcon color="action"></ContentPasteIcon>
               <span
                 style={{ color: "#101010", width: "43px", fontWeight: 600 }}
               >
