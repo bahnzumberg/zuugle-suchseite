@@ -1,5 +1,9 @@
 import * as React from "react";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import EmailIcon from "@mui/icons-material/Email";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import XIcon from "@mui/icons-material/X";
 import fileDownload from "js-file-download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,13 +17,9 @@ import { useNavigate } from "react-router";
 import { useParams, useSearchParams } from "react-router";
 import "dayjs/plugin/isBetween";
 import {
-  EmailIcon,
   EmailShareButton,
-  FacebookIcon,
   FacebookShareButton,
-  TwitterIcon,
   TwitterShareButton,
-  WhatsappIcon,
   WhatsappShareButton,
 } from "react-share";
 import DomainMenu from "../components/DomainMenu";
@@ -266,6 +266,20 @@ export default function DetailReworked() {
     }
   };
 
+  // Shared icon styling for social media buttons
+  const socialIconStyle = {
+    fontSize: 24,
+    color: "#FFFFFF",
+    marginLeft: "12px",
+    marginRight: "4px",
+  };
+
+  const copyIconStyle = {
+    fontSize: 24,
+    color: "#101010",
+    marginLeft: "4px",
+  };
+
   async function downloadGpx() {
     if (
       tour?.id &&
@@ -298,7 +312,7 @@ export default function DetailReworked() {
               name="downlaodIcon"
               style={{ width: "25px", height: "25px" }}
             />
-            <span style={{ color: "#101010", width: "43px" }}>GPX</span>
+            <span style={{ color: "#101010", width: "45px" }}>GPX</span>
             {isGpxLoading ? (
               <CircularProgress
                 sx={{ width: "20px", height: "20px", fontWeight: 600 }}
@@ -322,12 +336,10 @@ export default function DetailReworked() {
           onClick={shareButtonHandler}
         >
           <CustomIcon name="shareIcon" />
-          <span style={{ color: "#101010", width: "43px", fontWeight: 600 }}>
+          <span style={{ color: "#101010", width: "45px" }}>
             {t("details.teilen")}
           </span>
-          <span
-            style={{ color: "#8B8B8B", marginLeft: "15px", paddingLeft: "8px" }}
-          >
+          <span style={{ color: "#8B8B8B", paddingLeft: "8px" }}>
             {shortenText(t("details.teilen_description"), 0, maxLength)}
           </span>
         </Button>
@@ -338,29 +350,33 @@ export default function DetailReworked() {
               windowWidth={800}
               windowHeight={800}
               className="tour-detail-action-btns"
-              style={{ borderRadius: "12px", backgroundColor: "#00aced" }}
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "#000000",
+                border: "none",
+              }}
               url={shareUrl()}
               title={t("details.teilen_text")}
             >
-              <TwitterIcon size={40} round={true} />
-              <span
-                style={{ color: "#101010", width: "43px", fontWeight: 600 }}
-              >
-                Twitter
-              </span>
+              <XIcon sx={socialIconStyle} />
+              <span style={{ color: "#FFFFFF", fontWeight: 600 }}>X</span>
             </TwitterShareButton>
             <EmailShareButton
               windowWidth={800}
               windowHeight={800}
               className="tour-detail-action-btns"
-              style={{ borderRadius: "12px", backgroundColor: "#7f7f7f" }}
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "#EA4335",
+                border: "none",
+              }}
               url={shareUrl()}
               subject={"Zuugle Tour"}
               body={t("details.teilen_text")}
             >
-              <EmailIcon size={40} round={true} />
+              <EmailIcon sx={socialIconStyle} />
               <span
-                style={{ color: "#101010", width: "43px", fontWeight: 600 }}
+                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
               >
                 Email
               </span>
@@ -369,13 +385,17 @@ export default function DetailReworked() {
               windowWidth={800}
               windowHeight={800}
               className="tour-detail-action-btns"
-              style={{ borderRadius: "12px", backgroundColor: "#3b5998" }}
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "#1877F2",
+                border: "none",
+              }}
               url={shareUrl()}
               hashtag={"Zuugle"}
             >
-              <FacebookIcon size={40} round={true} />
+              <FacebookIcon sx={socialIconStyle} />
               <span
-                style={{ color: "#101010", width: "43px", fontWeight: 600 }}
+                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
               >
                 Facebook
               </span>
@@ -384,29 +404,33 @@ export default function DetailReworked() {
               windowWidth={800}
               windowHeight={800}
               className="tour-detail-action-btns"
-              style={{ borderRadius: "12px", backgroundColor: "#25d366" }}
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "#25D366",
+                border: "none",
+              }}
               url={shareUrl()}
               title={t("details.teilen_text")}
             >
-              <WhatsappIcon size={40} round={true} />
+              <WhatsAppIcon sx={socialIconStyle} />
               <span
-                style={{ color: "#101010", width: "43px", fontWeight: 600 }}
+                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
               >
-                Whatsapp
+                WhatsApp
               </span>
             </WhatsappShareButton>
             <Button
               className="tour-detail-action-btns"
               style={{
                 borderRadius: "12px",
-                backgroundColor: "#d8d3cd",
-                border: "none",
+                backgroundColor: "#F5F5F5",
+                border: "1.5px solid #101010",
               }}
               onClick={() => {
                 navigator.clipboard.writeText(shareUrl());
               }}
             >
-              <ContentPasteIcon color="action"></ContentPasteIcon>
+              <ContentPasteIcon sx={copyIconStyle} />
               <span
                 style={{ color: "#101010", width: "43px", fontWeight: 600 }}
               >
