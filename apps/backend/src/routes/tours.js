@@ -411,9 +411,9 @@ const listWrapper = async (req, res) => {
     const language = req.query.language; // this refers to the column in table tour: The tour description is in which language
 
     // parse body
-    const filter = req.body.filter;
-    const geolocation = req.body.geolocation;
-    const bounds = req.body.bounds;
+    const filter = req.body?.filter;
+    const geolocation = req.body?.geolocation;
+    const bounds = req.body?.bounds;
 
     // Round coordinates to 4 decimal places (~11m precision) to improve cache hit rate
     const coordinatesNorthEast = bounds
