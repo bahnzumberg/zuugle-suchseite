@@ -316,13 +316,6 @@ export const getDetailEntry = (
           paddingBottom: "16px",
         }}
       >
-        <Typography
-          variant={"text"}
-          color={"#8B8B8B"}
-          sx={{ fontSize: "14px", lineHeight: "16px" }}
-        >
-          {getTextForConnectionDescriptionEntry(entry)}
-        </Typography>
         {entry.T === "C" && entry.CI && (
           <Box
             sx={{
@@ -345,6 +338,13 @@ export const getDetailEntry = (
             </Typography>
           </Box>
         )}
+        <Typography
+          variant={"text"}
+          color={"#8B8B8B"}
+          sx={{ fontSize: "14px", lineHeight: "16px" }}
+        >
+          {getTextForConnectionDescriptionEntry(entry)}
+        </Typography>
       </TimelineContent>
     </TimelineItem>
   );
