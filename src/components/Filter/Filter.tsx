@@ -84,6 +84,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       languages: fetchedFilter?.languages ?? [],
       difficulties: fetchedFilter?.difficulties ?? [1, 2, 3],
       providers: fetchedFilter?.providers ?? [],
+      countries: fetchedFilter?.countries ?? [],
     };
   }, [fetchedFilter]);
 
@@ -139,6 +140,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   const [allRangesSelected, setAllRangesSelected] = useState(true);
+  const [allCountriesSelected, setAllCountriesSelected] = useState(true);
   const [allTypesSelected, setAllTypesSelected] = useState(true);
   const [allLanguagesSelected, setAllLanguagesSelected] = useState(true);
   const [allDifficultiesSelected, setAllDifficultiesSelected] = useState(true);
@@ -175,6 +177,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const filter_loeschen_label = t("filter.filter_loeschen");
   const minimum_label = t("filter.minimum");
   const maximum_label = t("filter.maximum");
+  const countries_label = t("filter.countries");
 
   const hm = t("details.hm_hoehenmeter");
   const km = t("details.km_kilometer");
@@ -203,6 +206,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }; // TODO: think about language 'XX'
 
   const difficultiesMap: Record<number, string> = {
+    1: t("filter.easy"),
+    2: t("filter.medium"),
+    3: t("filter.hard"),
+    0: t("filter.unknown"),
+  };
+
+  const countriesMap: Record<number, string> = {
     1: t("filter.easy"),
     2: t("filter.medium"),
     3: t("filter.hard"),
@@ -467,10 +477,44 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     });
   };
 
+  const getCountries = () => {
+    const countries = fetchedFilter?.countries ?? [];
+
+    return countries.map((country, index) => {
+      return (
+        <Grid key={index} size={6}>
+          <Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={displayAsSelected("countries", country)}
+                  onChange={(e) =>
+                    updateTempArray("countries", country, e.target.checked)
+                  }
+                />
+              }
+              label={country}
+            />
+          </Box>
+        </Grid>
+      );
+    });
+  };
+
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
     else setTempFilter({ ...tempFilter, ranges: fetchedFilter?.ranges ?? [] });
     setAllRangesSelected(!allRangesSelected);
+  };
+
+  const updateAllCountryValues = () => {
+    if (allCountriesSelected) setTempFilter({ ...tempFilter, countries: [] });
+    else
+      setTempFilter({
+        ...tempFilter,
+        countries: fetchedFilter?.countries ?? [],
+      });
+    setAllCountriesSelected(!allCountriesSelected);
   };
 
   const updateAllTypeValues = () => {
@@ -1068,6 +1112,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   {getRanges()}
+                </Grid>
+              </Box>
+              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
+                <Typography variant={"subtitle1"}>
+                  {countries_label}{" "}
+                  <Typography
+                    className={"cursor-link"}
+                    sx={{ fontSize: "14px" }}
+                    onClick={updateAllCountryValues}
+                  >
+                    {alle_an_abwaehlen_label}
+                  </Typography>
+                </Typography>
+                <Grid container sx={{ paddingTop: "16px" }}>
+                  {getCountries()}
                 </Grid>
               </Box>
               <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>

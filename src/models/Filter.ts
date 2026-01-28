@@ -31,4 +31,5 @@ export interface FilterObject {
   languages?: string[];
   difficulties?: number[];
   providers?: string[];
+  countries?: string[];
 }
