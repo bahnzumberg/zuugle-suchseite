@@ -94,7 +94,7 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
     }
 };
 
-router.get("/", (req, res) => listWrapper(req, res));
+router.post("/", (req, res) => listWrapper(req, res));
 router.get("/filter", (req, res) => filterWrapper(req, res));
 router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
 
@@ -397,7 +397,6 @@ const listWrapper = async (req, res) => {
     const showRanges = !!req.query.ranges;
     const page = req.query.page || 1;
     const map = req.query.map;
-    const bounds = req.query.bounds;
 
     const search = req.query.search;
     const currLanguage = req.query.currLanguage ? req.query.currLanguage : "de"; // this is the menue language the user selected
@@ -409,26 +408,26 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain;
     const tld = get_domain_country(domain).toUpperCase();
     const provider = req.query.provider;
-    const language = req.query.language; // this referres to the column in table tour: The tour description is in which language
-    const filter = req.query.filter;
-    const poi = req.query.poi;
+    const language = req.query.language; // this refers to the column in table tour: The tour description is in which language
 
-    const parsedBounds = bounds ? JSON.parse(bounds) : null;
+    // parse body
+    const filter = req.body?.filter;
+    const geolocation = req.body?.geolocation;
+    const bounds = req.body?.bounds;
+
     // Round coordinates to 4 decimal places (~11m precision) to improve cache hit rate
-    const coordinatesNorthEast = parsedBounds
+    const coordinatesNorthEast = bounds
         ? {
-              lat: Math.ceil(parsedBounds.north * 1000) / 1000,
-              lng: Math.ceil(parsedBounds.east * 1000) / 1000,
+              lat: Math.ceil(bounds.north * 1000) / 1000,
+              lng: Math.ceil(bounds.east * 1000) / 1000,
           }
         : null;
-    const coordinatesSouthWest = parsedBounds
+    const coordinatesSouthWest = bounds
         ? {
-              lat: Math.floor(parsedBounds.south * 1000) / 1000,
-              lng: Math.floor(parsedBounds.west * 1000) / 1000,
+              lat: Math.floor(bounds.south * 1000) / 1000,
+              lng: Math.floor(bounds.west * 1000) / 1000,
           }
         : null;
-
-    const parsedPoi = poi ? JSON.parse(poi) : null;
 
     let new_search_where_searchterm = ``;
     let new_search_order_searchterm = ``;
@@ -457,17 +456,6 @@ const listWrapper = async (req, res) => {
     let new_filter_where_providers = ``;
     let new_filter_where_poi = ``;
 
-    let filter_string = filter;
-    let filterJSON = undefined;
-    try {
-        if (filter_string) {
-            filterJSON = JSON.parse(filter_string);
-        }
-    } catch (error) {
-        filterJSON = undefined;
-        logger.info("Error parsing filter JSON: ", error);
-    }
-
     const defaultFilter = {
         singleDayTour: true,
         multipleDayTour: true,
@@ -476,13 +464,13 @@ const listWrapper = async (req, res) => {
         traverse: false,
     };
 
-    // merge with filterJSON
-    filterJSON = {
+    // merge with filter from body
+    const filterJSON = {
         ...defaultFilter,
-        ...filterJSON,
+        ...filter,
     };
 
-    if (typeof filterJSON !== "undefined" && filter_string != `{ ignore_filter: 'true' }`) {
+    if (typeof filterJSON !== "undefined") {
         if (filterJSON["singleDayTour"] && !filterJSON["multipleDayTour"]) {
             new_filter_where_singleDayTour = `AND t.number_of_days=1 `;
         }
@@ -652,9 +640,9 @@ const listWrapper = async (req, res) => {
         bindings.push(language);
     }
 
-    if (parsedPoi && parsedPoi.lat && parsedPoi.lng) {
-        const radius = parsedPoi.radius ? parsedPoi.radius : 5000;
-        const hashed_urls = await hashedUrlsFromPoi(parsedPoi.lat, parsedPoi.lng, radius);
+    if (geolocation && geolocation.lat && geolocation.lng) {
+        const radius = geolocation.radius ? geolocation.radius : 5000;
+        const hashed_urls = await hashedUrlsFromPoi(geolocation.lat, geolocation.lng, radius);
         if (hashed_urls === null) {
             new_filter_where_poi = ``;
         } else if (hashed_urls.length !== 0) {

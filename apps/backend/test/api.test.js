@@ -18,20 +18,26 @@ describe("Zuugle API UAT Tests", () => {
         expect(data.cities.length).toBeGreaterThan(0);
     });
 
-    test("GET /api/tours returns 200 and list of tours", async () => {
+    test("POST /api/tours returns 200 and list of tours", async () => {
         const url = `${baseUrl}/api/tours?domain=www.zuugle.at&city=wien`;
-        const response = await fetch(url, { headers: getHeaders() });
+        const response = await fetch(url, {
+            method: "POST",
+            headers: getHeaders(),
+        });
         expect(response.status).toBe(200);
         const data = await response.json();
         expect(data.success).toBe(true);
         expect(Array.isArray(data.tours)).toBe(true);
     });
 
-    test("GET /api/tours returns 200 without city parameter (uses stop_selector)", async () => {
+    test("POST /api/tours returns 200 without city parameter (uses stop_selector)", async () => {
         // Test the scenario when no city is set - should use stop_selector='y' logic
         const url = `${baseUrl}/api/tours?domain=www.zuugle.at`;
 
-        const response = await fetch(url, { headers: getHeaders() });
+        const response = await fetch(url, {
+            method: "POST",
+            headers: getHeaders(),
+        });
         expect(response.status).toBe(200);
         const data = await response.json();
         expect(data.success).toBe(true);
@@ -50,7 +56,7 @@ describe("Zuugle API UAT Tests", () => {
         expect(Array.isArray(data.filter.types)).toBe(true);
     });
 
-    test("GET /api/tours with ranges=true returns tours and ranges", async () => {
+    test("POST /api/tours with ranges=true returns tours and ranges", async () => {
         /**
          * This test verifies that the /tours endpoint works correctly with ranges=true.
          *
@@ -65,7 +71,10 @@ describe("Zuugle API UAT Tests", () => {
          * - Location: src/routes/tours.js, around line 824 (range_result = await knex.raw())
          */
         const url = `${baseUrl}/api/tours?domain=www.zuugle.at&city=wien&ranges=true&limit=10&currLanguage=de`;
-        const response = await fetch(url, { headers: getHeaders() });
+        const response = await fetch(url, {
+            method: "POST",
+            headers: getHeaders(),
+        });
 
         // Check HTTP status first
         expect(response.status).toBe(200);
@@ -83,7 +92,7 @@ describe("Zuugle API UAT Tests", () => {
         expect(Array.isArray(data.ranges)).toBe(true);
     });
 
-    test("GET /api/tours with all common parameters returns 200", async () => {
+    test("POST /api/tours with all common parameters returns 200", async () => {
         /**
          * This test covers the most common API call pattern from the frontend.
          *
@@ -105,7 +114,7 @@ describe("Zuugle API UAT Tests", () => {
             page: "1",
         });
         const url = `${baseUrl}/api/tours?${params.toString()}`;
-        const response = await fetch(url, { headers: getHeaders() });
+        const response = await fetch(url, { method: "POST", headers: getHeaders() });
 
         expect(response.status).toBe(200);
 
