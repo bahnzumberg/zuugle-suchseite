@@ -143,22 +143,6 @@ export const getTopLevelDomain = () => {
   return tld;
 };
 
-export const getTimeFromConnectionDescriptionEntry = (entry: string) => {
-  const _entry = entry ? entry.trim() : null;
-  if (!!_entry && _entry.length > 5) {
-    return _entry.substring(0, 5);
-  }
-  return "";
-};
-
-export const getTextFromConnectionDescriptionEntry = (entry: string) => {
-  const _entry = entry ? entry.trim() : null;
-  if (!!_entry && _entry.length > 5) {
-    return _entry.substring(5);
-  }
-  return "";
-};
-
 export const shortenText = (
   text: string,
   atChar: number,
