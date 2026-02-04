@@ -151,13 +151,22 @@ export const api = createApi({
     }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
-        const { bounds, geolocation, ...rest } = params;
-        const augmentedParams = { ...rest, poi: geolocation, domain: domain };
-        if (!geolocation && bounds) {
-          // Pass bounds directly - API handles the format
-          return `tours/?${toSearchParams({ ...augmentedParams, bounds })}`;
+        const { bounds, geolocation, filter, ...rest } = params;
+        const body: Record<string, unknown> = {};
+        if (filter) {
+          body.filter = filter;
         }
-        return `tours/?${toSearchParams(augmentedParams)}`;
+        if (geolocation) {
+          body.geolocation = geolocation;
+        } else if (bounds) {
+          body.bounds = bounds;
+        }
+        const augmentedParams = { ...rest, domain: domain };
+        return {
+          url: `tours/?${toSearchParams(augmentedParams)}`,
+          method: "POST",
+          body: body,
+        };
       },
     }),
     getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({
