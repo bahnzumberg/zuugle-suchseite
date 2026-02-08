@@ -455,6 +455,7 @@ const listWrapper = async (req, res) => {
     let new_filter_where_difficulties = ``;
     let new_filter_where_providers = ``;
     let new_filter_where_poi = ``;
+    let new_filter_where_countries = ``;
 
     const defaultFilter = {
         singleDayTour: true,
@@ -568,6 +569,14 @@ const listWrapper = async (req, res) => {
                 new_filter_where_providers = ``;
             }
         }
+
+        if (filterJSON["countries"]) {
+            new_filter_where_countries = `AND t.country IN ${JSON.stringify(filterJSON["countries"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
+
+            if (new_filter_where_countries === "AND t.country IN () ") {
+                new_filter_where_countries = ``;
+            }
+        }
     }
 
     if (typeof search === "string" && search.trim() !== "") {
@@ -620,7 +629,7 @@ const listWrapper = async (req, res) => {
         bindings.push(state);
     }
 
-    if (!!country && country.length > 0) {
+    if (!new_filter_where_countries && !!country && country.length > 0) {
         new_search_where_country = `AND country=? `;
         bindings.push(country);
     }
@@ -686,6 +695,7 @@ const listWrapper = async (req, res) => {
                                     ${new_filter_where_languages}
                                     ${new_filter_where_difficulties}
                                     ${new_filter_where_providers}
+                                    ${new_filter_where_countries}
                                     ${new_filter_where_poi}`;
 
     // Create a version with actual values for cache key generation
@@ -783,7 +793,7 @@ const listWrapper = async (req, res) => {
                         t.title, 
                         t.image_url,
                         -- t.type, 
-                        -- t.country, 
+                        t.country, 
                         -- t.state, 
                         -- t.range_slug, 
                         t.range, 
@@ -965,6 +975,7 @@ const filterWrapper = async (req, res) => {
     let text = [];
     let ranges = [];
     let providers = [];
+    let countries = [];
     let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND t.stop_selector='y' `;
     let new_search_where_searchterm = "";
@@ -1006,6 +1017,7 @@ const filterWrapper = async (req, res) => {
                     t.number_of_days,
                     t.season,
                     t.traverse,
+                    t.country,
                     min(t.ascent) AS min_ascent,
                     max(t.ascent) AS max_ascent,
                     min(t.descent) AS min_descent,
@@ -1026,13 +1038,15 @@ const filterWrapper = async (req, res) => {
                     t.provider,
                     t.number_of_days,
                     t.season,
-                    t.traverse;`;
+                    t.traverse,
+                    t.country;`;
     await knex.raw(temporary_sql, bindings);
 
     await knex.raw(`CREATE INDEX idx_type ON ${temp_table} (type);`);
     await knex.raw(`CREATE INDEX idx_lang ON ${temp_table} (text_lang);`);
     await knex.raw(`CREATE INDEX idx_range ON ${temp_table} (range, range_slug);`);
     await knex.raw(`CREATE INDEX idx_provider ON ${temp_table} (provider);`);
+    await knex.raw(`CREATE INDEX idx_country ON ${temp_table} (country);`);
 
     let kpi_sql = `SELECT 
                 CASE WHEN SUM(CASE WHEN t.number_of_days=1 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSingleDayTourPossible,
@@ -1137,10 +1151,22 @@ const filterWrapper = async (req, res) => {
         providers = provider_result.rows;
     }
 
+    let country_sql = `SELECT 
+                    t.country
+                    FROM ${temp_table} as t                       
+                    GROUP BY t.country
+                    ORDER BY t.country;`;
+
+    let country_result = await knex.raw(country_sql);
+    if (!!country_result && !!country_result.rows) {
+        countries = country_result.rows;
+    }
+
     let filterresult = {
         types: types.map((typeObj) => typeObj.type),
         ranges: ranges.map((rangesObj) => rangesObj.range),
         providers: providers.map((providerObj) => providerObj.provider),
+        countries: countries.map((countryObj) => countryObj.country),
         isSingleDayTourPossible: _isSingleDayTourPossible,
         isMultipleDayTourPossible: _isMultipleDayTourPossible,
         isSummerTourPossible: _isSummerTourPossible,
