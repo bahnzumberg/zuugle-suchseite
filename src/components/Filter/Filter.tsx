@@ -34,6 +34,8 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import DialogActions from "@mui/material/DialogActions";
 import Tooltip from "@mui/material/Tooltip";
+import CountryCheckboxList from "./CountryCheckboxList";
+import FilterSection from "./FilterSection";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -212,11 +214,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     0: t("filter.unknown"),
   };
 
-  const countriesMap: Record<number, string> = {
-    1: t("filter.easy"),
-    2: t("filter.medium"),
-    3: t("filter.hard"),
-    0: t("filter.unknown"),
+  const countriesMap: Record<string, string> = {
+    Deutschland: t("filter.country_deutschland"),
+    Österreich: t("filter.country_oesterreich"),
+    Tschechien: t("filter.country_tschechien"),
+    Ungarn: t("filter.country_ungarn"),
   };
 
   function getDurationAsHours(dayJsObject: Dayjs | null) {
@@ -477,29 +479,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     });
   };
 
-  const getCountries = () => {
-    const countries = fetchedFilter?.countries ?? [];
-
-    return countries.map((country, index) => {
-      return (
-        <Grid key={index} size={6}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("countries", country)}
-                  onChange={(e) =>
-                    updateTempArray("countries", country, e.target.checked)
-                  }
-                />
-              }
-              label={country}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
+  const translatedCountries = (fetchedFilter?.countries ?? []).map(
+    (entry: string) => ({
+      value: entry,
+      label: countriesMap[entry] ?? entry,
+    }),
+  );
 
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
@@ -1114,21 +1099,20 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   {getRanges()}
                 </Grid>
               </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {countries_label}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllCountryValues}
-                  >
-                    {alle_an_abwaehlen_label}
-                  </Typography>
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  {getCountries()}
-                </Grid>
-              </Box>
+              <FilterSection
+                title={countries_label}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllCountryValues}
+                hasOptions={!!translatedCountries.length}
+              >
+                <CountryCheckboxList
+                  onChange={({ checked, value }) =>
+                    updateTempArray("countries", value, checked)
+                  }
+                  isChecked={(value) => displayAsSelected("countries", value)}
+                  translatedCountries={translatedCountries}
+                />
+              </FilterSection>
               <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
                 <Grid container alignItems="center" spacing={1}>
                   <Typography variant={"subtitle1"}>
