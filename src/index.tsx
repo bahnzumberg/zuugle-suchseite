@@ -33,6 +33,7 @@ function getPreloadedSearchState() {
     language: params.get("lang") ?? null,
     provider: params.get("p") ?? null,
     range: params.get("range") ?? null,
+    country: params.get("country") ?? null,
     bounds: null,
     geolocation: null,
   };

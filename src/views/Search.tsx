@@ -75,6 +75,7 @@ export default function Main() {
       bounds: search.bounds || undefined,
       map: showMap || undefined,
       provider: search.provider || undefined,
+      country: search.country || undefined,
       currLanguage: search.language || undefined,
       geolocation: search.geolocation || undefined,
     };
@@ -100,6 +101,7 @@ export default function Main() {
         bounds: search.bounds || undefined,
         map: showMap || undefined,
         provider: search.provider || undefined,
+        country: search.country || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
         geolocation: search.geolocation || undefined,

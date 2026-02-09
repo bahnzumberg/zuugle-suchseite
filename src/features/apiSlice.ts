@@ -63,6 +63,7 @@ export interface ToursParams {
   map?: boolean;
   range?: string;
   type?: string;
+  country?: string;
   currLanguage?: string;
   geolocation?: LocationWithRadius;
 }
