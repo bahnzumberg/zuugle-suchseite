@@ -7,7 +7,7 @@ interface FilterSectionProps {
   toggleLabel: string;
   onToggleAll: () => void;
   children: React.ReactNode;
-  hasOptions: boolean;
+  showSection: boolean;
 }
 
 export default function FilterSection({
@@ -15,9 +15,9 @@ export default function FilterSection({
   toggleLabel,
   onToggleAll,
   children,
-  hasOptions,
+  showSection,
 }: FilterSectionProps) {
-  if (!hasOptions) {
+  if (!showSection) {
     return null;
   }
 

@@ -1103,7 +1103,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 title={countries_label}
                 toggleLabel={alle_an_abwaehlen_label}
                 onToggleAll={updateAllCountryValues}
-                hasOptions={!!translatedCountries.length}
+                showSection={!!translatedCountries.length}
               >
                 <CountryCheckboxList
                   onChange={({ checked, value }) =>
