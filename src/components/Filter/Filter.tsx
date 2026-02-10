@@ -219,6 +219,9 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     Österreich: t("filter.country_oesterreich"),
     Tschechien: t("filter.country_tschechien"),
     Ungarn: t("filter.country_ungarn"),
+    Schweiz: t("filter.country_schweiz"),
+    Italia: t("filter.country_italien"),
+    Slovenija: t("filter.country_slowenien"),
   };
 
   function getDurationAsHours(dayJsObject: Dayjs | null) {
