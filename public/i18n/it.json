@@ -71,7 +71,10 @@
     "country_deutschland": "Germania",
     "country_oesterreich": "Austria",
     "country_tschechien": "Cechia",
-    "country_ungarn": "Ungheria"
+    "country_ungarn": "Ungheria",
+    "country_schweiz": "Svizzera",
+    "country_italien": "Italia",
+    "country_slowenien": "Slovenia"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",
