@@ -1,7 +1,6 @@
 import { useEffect, useState, lazy, Suspense, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { Link } from "react-router";
 // Importiere die Karten-Komponente jetzt dynamisch
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -29,7 +28,6 @@ import {
   getTranslatedCountryName,
   usePageHeader,
 } from "../utils/seoPageHelper";
-import { CustomIcon } from "../icons/CustomIcon";
 import { hasContent } from "../utils/globals";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
@@ -39,7 +37,6 @@ export default function SearchResults() {
   const filter = useSelector((state: RootState) => state.filter);
   const search = useSelector((state: RootState) => state.search);
   const showMap = useSelector((state: RootState) => state.search.map);
-  const provider = useSelector((state: RootState) => state.search.provider);
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -244,20 +241,7 @@ export default function SearchResults() {
           position={"relative"}
         >
           <Box component={"div"} className="rowing blueDiv">
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Box sx={{ mr: "16px", cursor: "pointer" }}>
-                <Link
-                  to={"/" + (provider ? `?p=${provider}` : "")}
-                  aria-label={t("start.zurueck")}
-                >
-                  <CustomIcon
-                    name="arrowBefore"
-                    style={{ stroke: "#fff", width: "34px", height: "34px" }}
-                  />
-                </Link>
-              </Box>
-              <DomainMenu />
-            </Box>
+            <DomainMenu />
             <LanguageMenu />
           </Box>
           {!!allCities && allCities.length > 0 && (
