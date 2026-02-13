@@ -17,14 +17,14 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 export interface SearchProps {
   pageKey: string;
-  isMain: boolean;
+  isSearchResultsPage: boolean;
   setFilterOn?: (filterOn: boolean) => void;
   filterOn?: boolean;
 }
 
 export default function Search({
   pageKey,
-  isMain,
+  isSearchResultsPage: isSearchResultsPage,
   setFilterOn,
   filterOn,
 }: SearchProps) {
@@ -75,7 +75,9 @@ export default function Search({
         showCitySearch={ShowCitySearch}
         setShowCitySearch={setShowCitySearch}
       />
-      {isMain && <Filter showFilter={filterOn} setShowFilter={setFilterOn} />}
+      {isSearchResultsPage && (
+        <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
+      )}
       <Box
         className="main-search-bar"
         sx={{
@@ -219,7 +221,7 @@ export default function Search({
         </Box>
 
         <Box>
-          {/* ***** filter box in the Main page ******* */}
+          {/* ***** filter box in the Search Results page ******* */}
           {!city && pageKey === "detail" ? (
             ""
           ) : (
@@ -231,7 +233,7 @@ export default function Search({
               }}
               className="filter-icon-container"
             >
-              {isMain ? (
+              {isSearchResultsPage ? (
                 <IconButton
                   onClick={() => setFilterOn(true)}
                   aria-label="Filter"

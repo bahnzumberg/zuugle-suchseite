@@ -6,7 +6,7 @@ import { getTopLevelDomain } from "./utils/globals";
 
 // Direct imports - lazy loading is handled by App.tsx Suspense
 import Start from "./views/Start/Start";
-import Main from "./views/Search";
+import SearchResults from "./views/SearchResults";
 import Imprint from "./views/Imprint";
 import Privacy from "./views/Privacy";
 import DetailReworked from "./views/TourDetails";
@@ -68,7 +68,7 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
         return <Start />;
       case "search":
       case "city":
-        return <Main />;
+        return <SearchResults />;
       case "tour":
       case "provider":
         return <DetailReworked />;

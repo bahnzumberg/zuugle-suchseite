@@ -103,7 +103,7 @@ export default function Start() {
 
   return (
     <>
-      <SearchParamSync isMain={false} />
+      <SearchParamSync isSearchResultsPage={false} />
       <Box style={{ background: "#fff" }}>
         <Header
           totalTours={totals?.tours_country || 0}

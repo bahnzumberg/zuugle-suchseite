@@ -19,10 +19,14 @@ import { filterUpdated } from "../features/filterSlice";
 
 /**
  * Keeps query parameters in sync with the Redux store.
- * On Main page (the main page displaying the search result), more query parameters are allowed
+ * On SearchResults page, more query parameters are allowed
  * than on other pages.
  */
-export default function SearchParamSync({ isMain }: { isMain: boolean }) {
+export default function SearchParamSync({
+  isSearchResultsPage: isSearchResultsPage,
+}: {
+  isSearchResultsPage: boolean;
+}) {
   const search = useSelector((state: RootState) => state.search);
   const filter = useSelector((state: RootState) => state.filter);
   const [params, setParams] = useSearchParams();
@@ -64,14 +68,33 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     const newParams = new URLSearchParams();
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
-    updateParam(newParams, "map", isMain && search.map ? "true" : null);
-    updateParam(newParams, "search", isMain ? search.searchPhrase : null);
-    updateParam(newParams, "lang", isMain ? search.language : null);
+    updateParam(
+      newParams,
+      "country",
+      isSearchResultsPage ? search.country : null,
+    );
+    updateParam(
+      newParams,
+      "map",
+      isSearchResultsPage && search.map ? "true" : null,
+    );
+    updateParam(
+      newParams,
+      "search",
+      isSearchResultsPage ? search.searchPhrase : null,
+    );
+    updateParam(
+      newParams,
+      "lang",
+      isSearchResultsPage ? search.language : null,
+    );
     if (!search.geolocation) {
       updateParam(
         newParams,
         "bounds",
-        isMain && search.bounds ? JSON.stringify(search.bounds) : null,
+        isSearchResultsPage && search.bounds
+          ? JSON.stringify(search.bounds)
+          : null,
       );
     } else {
       updateParam(newParams, "bounds", null);
@@ -79,12 +102,16 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     updateParam(
       newParams,
       "geolocation",
-      isMain && search.geolocation ? JSON.stringify(search.geolocation) : null,
+      isSearchResultsPage && search.geolocation
+        ? JSON.stringify(search.geolocation)
+        : null,
     );
     updateParam(
       newParams,
       "filter",
-      isMain && Object.keys(filter).length > 0 ? JSON.stringify(filter) : null,
+      isSearchResultsPage && Object.keys(filter).length > 0
+        ? JSON.stringify(filter)
+        : null,
     );
     setParams(newParams, { replace: true });
   }, [search, filter]);
@@ -102,7 +129,7 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
     updateReduxFromParam("lang", languageUpdated);
-    if (isMain) {
+    if (isSearchResultsPage) {
       updateReduxFromParam("search", searchPhraseUpdated);
 
       const map = params.get("map");

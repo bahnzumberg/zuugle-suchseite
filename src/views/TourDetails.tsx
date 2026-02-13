@@ -553,7 +553,7 @@ export default function DetailReworked() {
               }}
             >
               <Box sx={{ width: "100%" }}>
-                <Search pageKey="detail" isMain={false} />
+                <Search pageKey="detail" isSearchResultsPage={false} />
               </Box>
             </Box>
           </Box>

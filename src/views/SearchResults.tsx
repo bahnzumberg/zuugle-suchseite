@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import MapBtn from "../components/Search/MapBtn";
 import { useGetCitiesQuery, useLazyGetToursQuery } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
-import { RootState } from "../";
+import { RootState } from "..";
 import SearchParamSync from "../components/SearchParamSync";
 import {
   boundsUpdated,
@@ -34,7 +34,7 @@ import { hasContent } from "../utils/globals";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
 
-export default function Main() {
+export default function SearchResults() {
   const { t } = useTranslation();
   const filter = useSelector((state: RootState) => state.filter);
   const search = useSelector((state: RootState) => state.search);
@@ -218,7 +218,7 @@ export default function Main() {
 
   return (
     <div>
-      <SearchParamSync isMain={true} />
+      <SearchParamSync isSearchResultsPage={true} />
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
@@ -288,8 +288,8 @@ export default function Main() {
             >
               <Box className={"colCenter"}>
                 <Search
-                  pageKey="main"
-                  isMain={true}
+                  pageKey="search"
+                  isSearchResultsPage={true}
                   setFilterOn={setFilterOn}
                   filterOn={filterOn}
                 />

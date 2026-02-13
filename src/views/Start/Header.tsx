@@ -93,7 +93,7 @@ export default function Header({
             }}
           >
             <Box sx={{ width: "100%" }}>
-              <Search pageKey="start" isMain={false} />
+              <Search pageKey="start" isSearchResultsPage={false} />
             </Box>
           </Box>
         </>

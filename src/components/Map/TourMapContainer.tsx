@@ -37,7 +37,7 @@ export interface TourMapContainerProps {
 }
 
 /**
- * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in Main.tsx.
+ * Displays map with markers of tours. Updates bounds which triggers an update of loaded tours in SearchResults.
  */
 export default function TourMapContainer({
   markers,
