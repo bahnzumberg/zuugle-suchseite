@@ -342,4 +342,24 @@ CREATE TABLE canonical_alternate (
       zuugle_url varchar(100) NOT NULL,
       href_lang varchar(5) DEFAULT 'de-at',
       PRIMARY KEY (id, city_slug)
+
 );
+
+
+CREATE TABLE poi2tour (
+      poi_id SERIAL,
+      tour_id SERIAL,
+      PRIMARY KEY (poi_id, tour_id)
+);
+
+CREATE TABLE pois (
+      id SERIAL,
+      lat decimal(12,9) DEFAULT NULL,
+      lon decimal(12,9) DEFAULT NULL,
+      name varchar(255) DEFAULT NULL,
+      type varchar(255) DEFAULT NULL,
+      PRIMARY KEY (id)
+);
+CREATE INDEX ON pois (lat, lon);
+CREATE INDEX name_idx ON pois (LOWER(TRIM(name)));
+CREATE INDEX type_idx ON pois (type);
