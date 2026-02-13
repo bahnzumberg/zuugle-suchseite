@@ -7,7 +7,6 @@ import {
   boundsUpdated,
   citySlugUpdated,
   cityUpdated,
-  countryUpdated,
   languageUpdated,
   mapUpdated,
   geolocationUpdated,
@@ -65,7 +64,6 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
     const newParams = new URLSearchParams();
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
-    updateParam(newParams, "country", isMain ? search.country : null);
     updateParam(newParams, "map", isMain && search.map ? "true" : null);
     updateParam(newParams, "search", isMain ? search.searchPhrase : null);
     updateParam(newParams, "lang", isMain ? search.language : null);
@@ -153,7 +151,6 @@ export default function SearchParamSync({ isMain }: { isMain: boolean }) {
       if (range) {
         dispatch(filterUpdated({ ...parsedFilter, ranges: [range] }));
       }
-      updateReduxFromParam("country", countryUpdated);
     }
   }, []);
 
