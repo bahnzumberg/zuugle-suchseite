@@ -6,578 +6,125 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 
+// All production domains
+const PROD_DOMAINS = [
+  { name: "Zuugle.at", url: "https://www.zuugle.at", key: "www.zuugle.at" },
+  { name: "Zuugle.ch", url: "https://www.zuugle.ch", key: "www.zuugle.ch" },
+  { name: "Zuugle.de", url: "https://www.zuugle.de", key: "www.zuugle.de" },
+  { name: "Zuugle.fr", url: "https://www.zuugle.fr", key: "www.zuugle.fr" },
+  { name: "Zuugle.it", url: "https://www.zuugle.it", key: "www.zuugle.it" },
+  { name: "Zuugle.li", url: "https://www.zuugle.li", key: "www.zuugle.li" },
+  { name: "Zuugle.si", url: "https://www.zuugle.si", key: "www.zuugle.si" },
+];
+
+// All UAT domains
+const UAT_DOMAINS = [
+  {
+    name: "UAT Zuugle.at",
+    url: "https://www2.zuugle.at",
+    key: "www2.zuugle.at",
+  },
+  {
+    name: "UAT Zuugle.ch",
+    url: "https://www2.zuugle.ch",
+    key: "www2.zuugle.ch",
+  },
+  {
+    name: "UAT Zuugle.de",
+    url: "https://www2.zuugle.de",
+    key: "www2.zuugle.de",
+  },
+  {
+    name: "UAT Zuugle.fr",
+    url: "https://www2.zuugle.fr",
+    key: "www2.zuugle.fr",
+  },
+  {
+    name: "UAT Zuugle.it",
+    url: "https://www2.zuugle.it",
+    key: "www2.zuugle.it",
+  },
+  {
+    name: "UAT Zuugle.si",
+    url: "https://www2.zuugle.si",
+    key: "www2.zuugle.si",
+  },
+];
+
+// Development domain
+const DEV_DOMAIN = {
+  name: "Localhost",
+  url: "http://localhost:3000/",
+  key: "http://localhost:3000/",
+};
+
+// Map to find which domain list and starting index
+const DOMAIN_CONFIG: Record<
+  string,
+  { domainList: typeof PROD_DOMAINS; domain: string }
+> = {
+  "http://localhost:3000/": {
+    domainList: [DEV_DOMAIN, ...PROD_DOMAINS],
+    domain: "http://localhost:3000/",
+  },
+  ...Object.fromEntries(
+    PROD_DOMAINS.map((d) => [
+      d.key,
+      { domainList: PROD_DOMAINS, domain: d.url },
+    ]),
+  ),
+  ...Object.fromEntries(
+    UAT_DOMAINS.map((d) => [d.key, { domainList: UAT_DOMAINS, domain: d.url }]),
+  ),
+};
+
 function DomainMenu() {
   const host = window.location.href;
 
-  let listOfDomains: { id: number; name: string; url: string }[] = [];
-  let domain = "www.zuugle.at";
+  // Find matching domain configuration and reorder with current domain first
+  const getDomainsForHost = (
+    hostUrl: string,
+  ): {
+    domain: string;
+    listOfDomains: { id: number; name: string; url: string }[];
+  } => {
+    // Check each domain in config
+    for (const [key, config] of Object.entries(DOMAIN_CONFIG)) {
+      if (hostUrl.indexOf(key) >= 0) {
+        const currentDomainIndex = config.domainList.findIndex(
+          (d) => hostUrl.indexOf(d.key) >= 0,
+        );
+        const reorderedDomains =
+          currentDomainIndex > 0
+            ? [
+                ...config.domainList.slice(currentDomainIndex),
+                ...config.domainList.slice(0, currentDomainIndex),
+              ]
+            : config.domainList;
 
-  if (process.env.NODE_ENV === "development") {
-    if (host.indexOf("http://localhost:3000/") >= 0) {
-      domain = "http://localhost:3000/";
-      listOfDomains = [
-        {
-          id: 0,
-          name: "Localhost",
-          url: "http://localhost:3000/",
-        },
-        {
-          id: 1,
-          name: "Zuugle.at",
-          url: "https://www.zuugle.at",
-        },
-        {
-          id: 2,
-          name: "Zuugle.ch",
-          url: "https://www.zuugle.ch",
-        },
-        {
-          id: 3,
-          name: "Zuugle.de",
-          url: "https://www.zuugle.de",
-        },
-        {
-          id: 4,
-          name: "Zuugle.fr",
-          url: "https://www.zuugle.fr",
-        },
-        {
-          id: 5,
-          name: "Zuugle.it",
-          url: "https://www.zuugle.it",
-        },
-        {
-          id: 6,
-          name: "Zuugle.li",
-          url: "https://www.zuugle.li",
-        },
-        {
-          id: 7,
-          name: "Zuugle.si",
-          url: "https://www.zuugle.si",
-        },
-      ];
+        return {
+          domain: config.domain,
+          listOfDomains: reorderedDomains.map((d, index) => ({
+            id: index,
+            name: d.name,
+            url: d.url,
+          })),
+        };
+      }
     }
-  }
 
-  if (host.indexOf("www.zuugle.at") >= 0) {
-    domain = "www.zuugle.at";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 1,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 2,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 3,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.de") >= 0) {
-    domain = "www.zuugle.de";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.si") >= 0) {
-    domain = "www.zuugle.si";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 6,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.it") >= 0) {
-    domain = "www.zuugle.it";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.ch") >= 0) {
-    domain = "www.zuugle.ch";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 3,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.li") >= 0) {
-    domain = "www.zuugle.li";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www.zuugle.fr") >= 0) {
-    domain = "www.zuugle.fr";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "Zuugle.fr",
-        url: "https://www.zuugle.fr",
-      },
-      {
-        id: 1,
-        name: "Zuugle.at",
-        url: "https://www.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "Zuugle.ch",
-        url: "https://www.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "Zuugle.de",
-        url: "https://www.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "Zuugle.it",
-        url: "https://www.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "Zuugle.li",
-        url: "https://www.zuugle.li",
-      },
-      {
-        id: 6,
-        name: "Zuugle.si",
-        url: "https://www.zuugle.si",
-      },
-    ];
-  }
-  if (host.indexOf("www2.zuugle.at") >= 0) {
-    domain = "www2.zuugle.at";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.de") >= 0) {
-    domain = "www2.zuugle.de";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.si") >= 0) {
-    domain = "www2.zuugle.si";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.it") >= 0) {
-    domain = "www2.zuugle.it";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.ch") >= 0) {
-    domain = "www2.zuugle.ch";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.li") >= 0) {
-    domain = "www2.zuugle.li";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.li",
-        url: "https://www2.zuugle.li",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 6,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  } else if (host.indexOf("www2.zuugle.fr") >= 0) {
-    domain = "www2.zuugle.fr";
-    listOfDomains = [
-      {
-        id: 0,
-        name: "UAT Zuugle.fr",
-        url: "https://www2.zuugle.fr",
-      },
-      {
-        id: 1,
-        name: "UAT Zuugle.at",
-        url: "https://www2.zuugle.at",
-      },
-      {
-        id: 2,
-        name: "UAT Zuugle.ch",
-        url: "https://www2.zuugle.ch",
-      },
-      {
-        id: 3,
-        name: "UAT Zuugle.de",
-        url: "https://www2.zuugle.de",
-      },
-      {
-        id: 4,
-        name: "UAT Zuugle.it",
-        url: "https://www2.zuugle.it",
-      },
-      {
-        id: 5,
-        name: "UAT Zuugle.si",
-        url: "https://www2.zuugle.si",
-      },
-    ];
-  }
+    // Default fallback
+    return {
+      domain: "www.zuugle.at",
+      listOfDomains: PROD_DOMAINS.map((d, index) => ({
+        id: index,
+        name: d.name,
+        url: d.url,
+      })),
+    };
+  };
+
+  const { domain, listOfDomains } = getDomainsForHost(host);
 
   const secondMenu = [
     { id: 0, name: "Über Zuugle", url: "https://verein.bahn-zum-berg.at/" },
