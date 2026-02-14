@@ -219,7 +219,7 @@ function DomainMenu() {
             {secondMenu.map((item) => (
               <span
                 key={item.id}
-                className="domainItem"
+                className="domainItem pointy"
                 style={{
                   paddingTop: item.id === 0 ? 0 : 12,
                   paddingBottom: 12,
