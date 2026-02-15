@@ -403,7 +403,6 @@ const listWrapper = async (req, res) => {
     const city = req.query.city;
     const range = req.query.range;
     const state = req.query.state;
-    const country = req.query.country;
     const type = req.query.type;
     const domain = req.query.domain;
     const tld = get_domain_country(domain).toUpperCase();
@@ -431,7 +430,6 @@ const listWrapper = async (req, res) => {
 
     let new_search_where_searchterm = ``;
     let new_search_order_searchterm = ``;
-    let new_search_where_country = ``;
     let new_search_where_state = ``;
     let new_search_where_range = ``;
     let new_search_where_type = ``;
@@ -629,11 +627,6 @@ const listWrapper = async (req, res) => {
         bindings.push(state);
     }
 
-    if (!new_filter_where_countries && !!country && country.length > 0) {
-        new_search_where_country = `AND country=? `;
-        bindings.push(country);
-    }
-
     if (!!type && type.length > 0) {
         new_search_where_type = `AND type=? `;
         bindings.push(type);
@@ -676,7 +669,6 @@ const listWrapper = async (req, res) => {
     const global_where_condition = `${new_search_where_searchterm}
                                     ${new_search_where_range}
                                     ${new_search_where_state}
-                                    ${new_search_where_country}
                                     ${new_search_where_type}
                                     ${new_search_where_provider}
                                     ${new_search_where_language}
