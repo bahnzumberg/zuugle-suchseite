@@ -70,13 +70,8 @@ export default function SearchParamSync({
     updateParam(newParams, "p", search.provider);
     updateParam(
       newParams,
-      "country",
-      isSearchResultsPage ? search.country : null,
-    );
-    updateParam(
-      newParams,
       "map",
-      isSearchResultsPage && search.map ? "true" : null,
+      isSearchResultsPage && search.map ? "true" : "false",
     );
     updateParam(
       newParams,
@@ -133,10 +128,10 @@ export default function SearchParamSync({
       updateReduxFromParam("search", searchPhraseUpdated);
 
       const map = params.get("map");
-      if (map) {
-        dispatch(mapUpdated(Boolean(map)));
-      } else {
+      if (map === "false") {
         dispatch(mapUpdated(false));
+      } else {
+        dispatch(mapUpdated(true));
       }
 
       // geolocation comes either as "geolocation" or as separate "lat", "lng" and "radius"
