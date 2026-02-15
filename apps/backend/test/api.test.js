@@ -237,6 +237,31 @@ describe("Zuugle API UAT Tests", () => {
         });
     });
 
+    it("POST api/tours should work when filter contains empty array", async () => {
+        const params = new URLSearchParams(TOURS_API_SEARCH_PARAMS);
+        const body = JSON.stringify({
+            filter: {
+                ...TOURS_API_FILTER_BODY,
+                countries: [],
+                providers: [],
+                languages: [],
+                difficulties: [],
+                ranges: [],
+                types: [],
+            },
+        });
+        const headers = {
+            ...getHeaders(),
+            "Content-Type": "application/json",
+        };
+        const url = `${baseUrl}/api/tours?${params.toString()}`;
+
+        const response = await fetch(url, { method: "POST", body, headers });
+        const data = await response.json();
+
+        assertValidToursResponse({ response, data });
+    });
+
     test("GET /api/tours/:id/:city returns 200 (or 404 if not found) with domain=zuugle.de", async () => {
         // Test specifically requested by user to catch regression in getWrapper
         const id = 33456;

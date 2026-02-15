@@ -533,7 +533,7 @@ const listWrapper = async (req, res) => {
         if (filterJSON["ranges"]) {
             new_filter_where_ranges = `AND t.range IN ${JSON.stringify(filterJSON["ranges"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
 
-            if (new_filter_where_ranges === "AND t.range IN () ;") {
+            if (new_filter_where_ranges === "AND t.range IN () ") {
                 new_filter_where_ranges = ``;
             }
         }
@@ -541,7 +541,7 @@ const listWrapper = async (req, res) => {
         if (filterJSON["types"]) {
             new_filter_where_types = `AND t.type IN ${JSON.stringify(filterJSON["types"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
 
-            if (new_filter_where_types === "AND t.type IN () ;") {
+            if (new_filter_where_types === "AND t.type IN () ") {
                 new_filter_where_types = ``;
             }
         }
@@ -549,7 +549,7 @@ const listWrapper = async (req, res) => {
         if (filterJSON["languages"]) {
             new_filter_where_languages = `AND t.text_lang IN ${JSON.stringify(filterJSON["languages"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
 
-            if (new_filter_where_languages === "AND t.text_lang IN () ;") {
+            if (new_filter_where_languages === "AND t.text_lang IN () ") {
                 new_filter_where_languages = ``;
             }
         }
@@ -557,7 +557,7 @@ const listWrapper = async (req, res) => {
         if (filterJSON["difficulties"]) {
             new_filter_where_difficulties = `AND t.difficulty IN ${JSON.stringify(filterJSON["difficulties"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
 
-            if (new_filter_where_difficulties === "AND t.difficulty IN () ;") {
+            if (new_filter_where_difficulties === "AND t.difficulty IN () ") {
                 new_filter_where_difficulties = ``;
             }
         }
@@ -565,7 +565,7 @@ const listWrapper = async (req, res) => {
         if (filterJSON["providers"]) {
             new_filter_where_providers = `AND t.provider IN ${JSON.stringify(filterJSON["providers"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
 
-            if (new_filter_where_providers === "AND t.provider IN () ;") {
+            if (new_filter_where_providers === "AND t.provider IN () ") {
                 new_filter_where_providers = ``;
             }
         }
