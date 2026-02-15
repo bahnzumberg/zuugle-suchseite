@@ -271,6 +271,6 @@
     "oeffi_touren_alpenraum": "z javnim prevozom dostopne ture v alpskem prostoru",
     "keine_vorschlaege": "Ni predlogov"
   },
-  "start_pages": { "zur_kartenansicht": "Pojdi na zemljevid" },
-  "main_only": { "kartenansicht_entfernen": "Prehod na prikaz seznama" }
+  "start_pages": { "zur_kartenansicht": "Pokaži zemljevid" },
+  "main_only": { "kartenansicht_entfernen": "Zapri zemljevid" }
 }

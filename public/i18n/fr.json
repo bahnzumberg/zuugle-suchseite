@@ -271,6 +271,6 @@
     "oeffi_touren_alpenraum": "Sorties sans voiture dans les Alpes",
     "keine_vorschlaege": "Aucune suggestion"
   },
-  "start_pages": { "zur_kartenansicht": "Voir la carte" },
-  "main_only": { "kartenansicht_entfernen": "Voir la liste" }
+  "start_pages": { "zur_kartenansicht": "Afficher la carte" },
+  "main_only": { "kartenansicht_entfernen": "Fermer la carte" }
 }

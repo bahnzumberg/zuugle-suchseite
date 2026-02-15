@@ -606,11 +606,6 @@ body ::-webkit-scrollbar-thumb:hover {
     padding-right: 60px;
   }
 
-  .cards-container {
-    margin-top: 60px;
-    /* margin-top: 160px; */
-  }
-
   .cards-container.seo-page {
     margin-top: 240px;
   }
@@ -637,11 +632,6 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 }
 
-@media only screen and (max-width: 899px) {
-  .cards-container {
-    margin-top: 350px;
-  }
-}
 .tour-detail-header {
   padding: 2rem 1rem;
   text-align: left;

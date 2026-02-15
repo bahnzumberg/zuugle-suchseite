@@ -270,6 +270,6 @@
     "oeffi_touren_alpenraum": "Itinerari raggiungibili con i mezzi pubblici nelle Alpi",
     "keine_vorschlaege": "Nessun suggerimento"
   },
-  "start_pages": { "zur_kartenansicht": "Vai alla mappa" },
-  "main_only": { "kartenansicht_entfernen": "Vai alla lista" }
+  "start_pages": { "zur_kartenansicht": "Mostra mappa" },
+  "main_only": { "kartenansicht_entfernen": "Chiudi mappa" }
 }

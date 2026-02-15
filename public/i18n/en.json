@@ -271,6 +271,6 @@
     "oeffi_touren_alpenraum": "Hikes reachable using public transport",
     "keine_vorschlaege": "No Suggestions"
   },
-  "start_pages": { "zur_kartenansicht": "Go to map" },
-  "main_only": { "kartenansicht_entfernen": "Go to list view" }
+  "start_pages": { "zur_kartenansicht": "Show map" },
+  "main_only": { "kartenansicht_entfernen": "Hide map" }
 }

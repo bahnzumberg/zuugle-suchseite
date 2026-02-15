@@ -271,6 +271,6 @@
     "oeffi_touren_alpenraum": "Öffi-Touren im Alpenraum",
     "keine_vorschlaege": "Keine Vorschläge"
   },
-  "start_pages": { "zur_kartenansicht": "Zur Kartenansicht" },
-  "main_only": { "kartenansicht_entfernen": "Zur Listenansicht" }
+  "start_pages": { "zur_kartenansicht": "Karte anzeigen" },
+  "main_only": { "kartenansicht_entfernen": "Karte schließen" }
 }
