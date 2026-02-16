@@ -7,8 +7,6 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import GeneralSlider from "../GeneralSlider";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -34,8 +32,8 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import DialogActions from "@mui/material/DialogActions";
 import Tooltip from "@mui/material/Tooltip";
-import CountryCheckboxList from "./CountryCheckboxList";
 import FilterSection from "./FilterSection";
+import CheckboxList from "./CheckboxList";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -148,10 +146,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const [allDifficultiesSelected, setAllDifficultiesSelected] = useState(true);
   const [allProvidersSelected, setAllProvidersSelected] = useState(true);
 
-  // Translation-related
   const { t } = useTranslation();
 
-  // set translation variables
   const tourlaenge_label = t("filter.tourlaenge");
   const tagestour_label = t("filter.tagestour");
   const mehrtagestour_label = t("filter.mehrtagestour");
@@ -329,163 +325,47 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     }
   }
 
-  const getSportTypes = () => {
-    const fetchedTypes = fetchedFilter?.types ?? [];
-    const translatedTypes = fetchedTypes.map((entry) => ({
-      value: entry,
-      label: sportTypesMap[entry] ?? "",
-    }));
-
-    return translatedTypes.map((type, index) => {
-      return (
-        <Grid key={index} size={6}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("types", type.value)}
-                  onChange={(e) =>
-                    updateTempArray("types", type.value, e.target.checked)
-                  }
-                />
-              }
-              label={type.label}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
-
-  // loads all the language checkboxes
-  const getLanguages = () => {
-    const fetchedLanguages = fetchedFilter?.languages ?? [];
-    const translatedLanguages = fetchedLanguages
-      .map((entry) => ({
-        value: entry,
-        label: languageMap[entry] ?? "",
-      }))
-      .filter((l) => !!l.value && !!l.label);
-
-    return translatedLanguages.map((language, index) => {
-      return (
-        <Grid key={index} size={6}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("languages", language.value)}
-                  onChange={(e) =>
-                    updateTempArray(
-                      "languages",
-                      language.value,
-                      e.target.checked,
-                    )
-                  }
-                />
-              }
-              label={language?.label}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
-
-  const getRanges = () => {
-    const ranges = fetchedFilter?.ranges ?? [];
-
-    return ranges.map((range, index) => {
-      return (
-        <Grid key={index} size={6}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("ranges", range)}
-                  onChange={(e) =>
-                    updateTempArray("ranges", range, e.target.checked)
-                  }
-                />
-              }
-              label={range}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
-
-  const getDifficulties = () => {
-    const difficulties = fetchedFilter?.difficulties ?? [1, 2, 3];
-    const translatedDifficulties = difficulties.map((entry) => ({
-      value: entry,
-      label: difficultiesMap[entry] ?? "",
-    }));
-
-    return translatedDifficulties.map((difficulty, index) => {
-      return (
-        <Grid key={index} size={4}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("difficulties", difficulty.value)}
-                  onChange={(e) =>
-                    updateTempArray(
-                      "difficulties",
-                      difficulty.value,
-                      e.target.checked,
-                    )
-                  }
-                />
-              }
-              label={difficulty.label}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
-
-  const getProviders = () => {
-    const providers = fetchedFilter?.providers ?? [];
-    const providersWithNames = providers.map((entry) => ({
-      value: entry,
-      label:
-        fetchedProviders?.find((p) => p.provider === entry)?.provider_name ??
-        "",
-    }));
-
-    return providersWithNames.map((provider, index) => {
-      return (
-        <Grid key={index} size={6}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayAsSelected("providers", provider.value)}
-                  onChange={(e) =>
-                    updateTempArray(
-                      "providers",
-                      provider.value,
-                      e.target.checked,
-                    )
-                  }
-                />
-              }
-              label={provider.label}
-            />
-          </Box>
-        </Grid>
-      );
-    });
-  };
-
   const translatedCountries = (fetchedFilter?.countries ?? []).map(
     (entry: string) => ({
       value: entry,
       label: countriesMap[entry] ?? entry,
+    }),
+  );
+
+  const translatedLanguages = (fetchedFilter?.languages ?? [])
+    .map((entry: string) => ({
+      value: entry,
+      label: languageMap[entry] ?? "",
+    }))
+    .filter((l) => !!l.value && !!l.label);
+
+  const translatedSportTypes = (fetchedFilter?.types ?? []).map(
+    (entry: string) => ({
+      value: entry,
+      label: sportTypesMap[entry] ?? "",
+    }),
+  );
+
+  const translatedRanges = (fetchedFilter?.ranges ?? []).map(
+    (entry: string) => ({
+      value: entry,
+      label: entry,
+    }),
+  );
+
+  const translatedDifficulties = (fetchedFilter?.difficulties ?? [1, 2, 3]).map(
+    (entry: number) => ({
+      value: entry,
+      label: difficultiesMap[entry] ?? "",
+    }),
+  );
+
+  const translatedProviders = (fetchedFilter?.providers ?? []).map(
+    (entry: string) => ({
+      value: entry,
+      label:
+        fetchedProviders?.find((p) => p.provider === entry)?.provider_name ??
+        "",
     }),
   );
 
@@ -1037,21 +917,20 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   </Grid>
                 </Grid>
               </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {sportart_label}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllTypeValues}
-                  >
-                    {alle_an_abwaehlen_label}
-                  </Typography>
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  {getSportTypes()}
-                </Grid>
-              </Box>
+              <FilterSection
+                title={sportart_label}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllTypeValues}
+                showSection={!!translatedSportTypes.length}
+              >
+                <CheckboxList
+                  list={translatedSportTypes}
+                  isChecked={(value) => displayAsSelected("types", value)}
+                  onChange={({ checked, value }) =>
+                    updateTempArray("types", value, checked)
+                  }
+                />
+              </FilterSection>
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Typography variant={"subtitle1"}>
@@ -1069,51 +948,57 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   {alle_an_abwaehlen_label}
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
-                  {getDifficulties()}
+                  <CheckboxList
+                    list={translatedDifficulties}
+                    isChecked={(value) =>
+                      displayAsSelected("difficulties", value)
+                    }
+                    onChange={({ checked, value }) =>
+                      updateTempArray("difficulties", value, checked)
+                    }
+                  />
                 </Grid>
               </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {sprachen_label}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllLanguageValues}
-                  >
-                    {alle_an_abwaehlen_label}
-                  </Typography>
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  {getLanguages()}
-                </Grid>
-              </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {regionen_label}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllRangeValues}
-                  >
-                    {alle_an_abwaehlen_label}
-                  </Typography>
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  {getRanges()}
-                </Grid>
-              </Box>
+              <FilterSection
+                title={sprachen_label}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllLanguageValues}
+                showSection={!!translatedLanguages.length}
+              >
+                <CheckboxList
+                  list={translatedLanguages}
+                  isChecked={(value) => displayAsSelected("languages", value)}
+                  onChange={({ checked, value }) =>
+                    updateTempArray("languages", value, checked)
+                  }
+                />
+              </FilterSection>
+              <FilterSection
+                title={regionen_label}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllRangeValues}
+                showSection={!!translatedRanges.length}
+              >
+                <CheckboxList
+                  list={translatedRanges}
+                  isChecked={(value) => displayAsSelected("ranges", value)}
+                  onChange={({ checked, value }) =>
+                    updateTempArray("ranges", value, checked)
+                  }
+                />
+              </FilterSection>
               <FilterSection
                 title={countries_label}
                 toggleLabel={alle_an_abwaehlen_label}
                 onToggleAll={updateAllCountryValues}
                 showSection={!!translatedCountries.length}
               >
-                <CountryCheckboxList
+                <CheckboxList
+                  list={translatedCountries}
+                  isChecked={(value) => displayAsSelected("countries", value)}
                   onChange={({ checked, value }) =>
                     updateTempArray("countries", value, checked)
                   }
-                  isChecked={(value) => displayAsSelected("countries", value)}
-                  translatedCountries={translatedCountries}
                 />
               </FilterSection>
               <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
@@ -1163,21 +1048,20 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   </Grid>
                 </Grid>
               </Box>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Typography variant={"subtitle1"}>
-                  {t("filter.provider")}{" "}
-                  <Typography
-                    className={"cursor-link"}
-                    sx={{ fontSize: "14px" }}
-                    onClick={updateAllProviderValues}
-                  >
-                    {alle_an_abwaehlen_label}
-                  </Typography>
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  {getProviders()}
-                </Grid>
-              </Box>
+              <FilterSection
+                title={t("filter.provider")}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllProviderValues}
+                showSection={!!translatedProviders.length}
+              >
+                <CheckboxList
+                  list={translatedProviders}
+                  isChecked={(value) => displayAsSelected("providers", value)}
+                  onChange={({ checked, value }) =>
+                    updateTempArray("providers", value, checked)
+                  }
+                />
+              </FilterSection>
             </Fragment>
           )}
         </Box>
