@@ -35,6 +35,7 @@ import SportTypeFilter from "./FilterOptions/SportType";
 import RangeFilter from "./FilterOptions/Range";
 import ProviderFilter from "./FilterOptions/Provider";
 import DifficultyFilter from "./FilterOptions/Difficulty";
+import { CheckboxOptionsFilterKey } from "./types";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -141,12 +142,16 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   //TODO: we can derive this state from tempFilter and default filter object
-  const [allRangesSelected, setAllRangesSelected] = useState(true);
-  const [allCountriesSelected, setAllCountriesSelected] = useState(true);
-  const [allTypesSelected, setAllTypesSelected] = useState(true);
-  const [allLanguagesSelected, setAllLanguagesSelected] = useState(true);
-  const [allDifficultiesSelected, setAllDifficultiesSelected] = useState(true);
-  const [allProvidersSelected, setAllProvidersSelected] = useState(true);
+  const [selectAllToggle, seSelectAllToggle] = useState<
+    Record<CheckboxOptionsFilterKey, boolean>
+  >({
+    ranges: true,
+    countries: true,
+    types: true,
+    languages: true,
+    difficulties: true,
+    providers: true,
+  });
 
   const { t } = useTranslation();
 
@@ -255,49 +260,26 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     }
   }
 
-  const updateAllRangeValues = () => {
-    if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
-    else setTempFilter({ ...tempFilter, ranges: fetchedFilter?.ranges ?? [] });
-    setAllRangesSelected(!allRangesSelected);
-  };
+  const onToggleAll = (
+    keyToUpdate: CheckboxOptionsFilterKey,
+    fallbackValue: Array<string | number> = [],
+  ) => {
+    //TODO: make this simple
+    let newValue = fetchedFilter?.[keyToUpdate] ?? fallbackValue;
 
-  const updateAllCountryValues = () => {
-    if (allCountriesSelected) setTempFilter({ ...tempFilter, countries: [] });
-    else
-      setTempFilter({
-        ...tempFilter,
-        countries: fetchedFilter?.countries ?? [],
-      });
-    setAllCountriesSelected(!allCountriesSelected);
-  };
+    if (selectAllToggle[keyToUpdate]) {
+      newValue = [];
+    }
 
-  const updateAllTypeValues = () => {
-    if (allTypesSelected) setTempFilter({ ...tempFilter, types: [] });
-    else setTempFilter({ ...tempFilter, types: fetchedFilter?.types });
-    setAllTypesSelected(!allTypesSelected);
-  };
+    setTempFilter({
+      ...tempFilter,
+      [keyToUpdate]: newValue,
+    });
 
-  const updateAllLanguageValues = () => {
-    if (allLanguagesSelected) setTempFilter({ ...tempFilter, languages: [] });
-    else setTempFilter({ ...tempFilter, languages: fetchedFilter?.languages });
-    setAllLanguagesSelected(!allLanguagesSelected);
-  };
-
-  const updateAllDifficultyValues = () => {
-    if (allDifficultiesSelected)
-      setTempFilter({ ...tempFilter, difficulties: [] });
-    else
-      setTempFilter({
-        ...tempFilter,
-        difficulties: fetchedFilter?.difficulties ?? [0, 1, 2, 3],
-      });
-    setAllDifficultiesSelected(!allDifficultiesSelected);
-  };
-
-  const updateAllProviderValues = () => {
-    if (allProvidersSelected) setTempFilter({ ...tempFilter, providers: [] });
-    else setTempFilter({ ...tempFilter, providers: fetchedFilter?.providers });
-    setAllProvidersSelected(!allProvidersSelected);
+    seSelectAllToggle((prev) => ({
+      ...prev,
+      [keyToUpdate]: !prev[keyToUpdate],
+    }));
   };
 
   const updateGeolocation = (
@@ -804,7 +786,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <SportTypeFilter
-                onToggleAll={updateAllTypeValues}
+                onToggleAll={() => onToggleAll("types")}
                 isChecked={(value) => displayAsSelected("types", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("types", value, checked)
@@ -812,7 +794,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 values={fetchedFilter?.types ?? []}
               />
               <DifficultyFilter
-                onToggleAll={updateAllDifficultyValues}
+                onToggleAll={() => onToggleAll("difficulties", [0, 1, 2, 3])}
                 isChecked={(value) => displayAsSelected("difficulties", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("difficulties", value, checked)
@@ -820,7 +802,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 values={fetchedFilter?.difficulties ?? [1, 2, 3]}
               />
               <LanguageFilter
-                onToggleAll={updateAllLanguageValues}
+                onToggleAll={() => onToggleAll("languages")}
                 isChecked={(value) => displayAsSelected("languages", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("languages", value, checked)
@@ -828,7 +810,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 values={fetchedFilter?.languages ?? []}
               />
               <RangeFilter
-                onToggleAll={updateAllRangeValues}
+                onToggleAll={() => onToggleAll("ranges")}
                 isChecked={(value) => displayAsSelected("ranges", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("ranges", value, checked)
@@ -836,7 +818,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 values={fetchedFilter?.ranges ?? []}
               />
               <CountryFilter
-                onToggleAll={updateAllCountryValues}
+                onToggleAll={() => onToggleAll("countries")}
                 isChecked={(value) => displayAsSelected("countries", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("countries", value, checked)
@@ -891,7 +873,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <ProviderFilter
-                onToggleAll={updateAllProviderValues}
+                onToggleAll={() => onToggleAll("providers")}
                 isChecked={(value) => displayAsSelected("providers", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("providers", value, checked)
