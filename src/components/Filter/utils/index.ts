@@ -10,7 +10,7 @@ export function getTransformedFilterOptions({
 }: GetTransformedFilterOptionsInput) {
   return list.map((entry: string) => ({
     value: entry,
-    label: translationMap[entry] ?? entry,
+    label: translationMap[entry] ?? "",
   }));
 }
 

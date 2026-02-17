@@ -3,7 +3,6 @@ import { TimeField } from "@mui/x-date-pickers/TimeField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CloseIcon from "@mui/icons-material/Close";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import GeneralSlider from "../GeneralSlider";
@@ -29,17 +28,13 @@ import Dialog from "@mui/material/Dialog";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DialogContent from "@mui/material/DialogContent";
 import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import DialogActions from "@mui/material/DialogActions";
-import Tooltip from "@mui/material/Tooltip";
-import FilterSection from "./FilterSection";
-import CheckboxList from "./CheckboxList";
-import {
-  getCountryTranslationMap,
-  getDifficultyTranslationMap,
-  getLanguageTranslationMap,
-  getSportTypeTranslationMap,
-} from "./utils/translationMaps";
+import CountryFilter from "./FilterOptions/Country";
+import LanguageFilter from "./FilterOptions/Language";
+import SportTypeFilter from "./FilterOptions/SportType";
+import RangeFilter from "./FilterOptions/Range";
+import ProviderFilter from "./FilterOptions/Provider";
+import DifficultyFilter from "./FilterOptions/Difficulty";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -145,6 +140,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     setShowFilter(false);
   }
 
+  //TODO: we can derive this state from tempFilter and default filter object
   const [allRangesSelected, setAllRangesSelected] = useState(true);
   const [allCountriesSelected, setAllCountriesSelected] = useState(true);
   const [allTypesSelected, setAllTypesSelected] = useState(true);
@@ -153,11 +149,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const [allProvidersSelected, setAllProvidersSelected] = useState(true);
 
   const { t } = useTranslation();
-
-  const sportTypesMap = getSportTypeTranslationMap(t);
-  const languageMap = getLanguageTranslationMap(t);
-  const difficultiesMap = getDifficultyTranslationMap(t);
-  const countriesMap = getCountryTranslationMap(t);
 
   function getDurationAsHours(dayJsObject: Dayjs | null) {
     if (dayJsObject) {
@@ -263,50 +254,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       });
     }
   }
-
-  const translatedCountries = (fetchedFilter?.countries ?? []).map(
-    (entry: string) => ({
-      value: entry,
-      label: countriesMap[entry] ?? entry,
-    }),
-  );
-
-  const translatedLanguages = (fetchedFilter?.languages ?? [])
-    .map((entry: string) => ({
-      value: entry,
-      label: languageMap[entry] ?? "",
-    }))
-    .filter((l) => !!l.value && !!l.label);
-
-  const translatedSportTypes = (fetchedFilter?.types ?? []).map(
-    (entry: string) => ({
-      value: entry,
-      label: sportTypesMap[entry] ?? "",
-    }),
-  );
-
-  const translatedRanges = (fetchedFilter?.ranges ?? []).map(
-    (entry: string) => ({
-      value: entry,
-      label: entry,
-    }),
-  );
-
-  const translatedDifficulties = (fetchedFilter?.difficulties ?? [1, 2, 3]).map(
-    (entry: number) => ({
-      value: entry,
-      label: difficultiesMap[entry] ?? "",
-    }),
-  );
-
-  const translatedProviders = (fetchedFilter?.providers ?? []).map(
-    (entry: string) => ({
-      value: entry,
-      label:
-        fetchedProviders?.find((p) => p.provider === entry)?.provider_name ??
-        "",
-    }),
-  );
 
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
@@ -856,90 +803,46 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   </Grid>
                 </Grid>
               </Box>
-              <FilterSection
-                title={t("main.sportart")}
-                toggleLabel={t("filter.alle_an_abwaehlen")}
+              <SportTypeFilter
                 onToggleAll={updateAllTypeValues}
-                showSection={!!translatedSportTypes.length}
-              >
-                <CheckboxList
-                  list={translatedSportTypes}
-                  isChecked={(value) => displayAsSelected("types", value)}
-                  onChange={({ checked, value }) =>
-                    updateTempArray("types", value, checked)
-                  }
-                />
-              </FilterSection>
-              <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography variant={"subtitle1"}>
-                    {t("filter.schwierigkeit")}
-                  </Typography>
-                  <Tooltip title={t("filter.schwierigkeitswert")}>
-                    <InfoOutlinedIcon fontSize="small" color="action" />
-                  </Tooltip>
-                </Stack>
-                <Typography
-                  className={"cursor-link"}
-                  sx={{ fontSize: "14px" }}
-                  onClick={updateAllDifficultyValues}
-                >
-                  {t("filter.alle_an_abwaehlen")}
-                </Typography>
-                <Grid container sx={{ paddingTop: "16px" }}>
-                  <CheckboxList
-                    list={translatedDifficulties}
-                    isChecked={(value) =>
-                      displayAsSelected("difficulties", value)
-                    }
-                    onChange={({ checked, value }) =>
-                      updateTempArray("difficulties", value, checked)
-                    }
-                  />
-                </Grid>
-              </Box>
-              <FilterSection
-                title={t("filter.sprache")}
-                toggleLabel={t("filter.alle_an_abwaehlen")}
+                isChecked={(value) => displayAsSelected("types", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("types", value, checked)
+                }
+                values={fetchedFilter?.types ?? []}
+              />
+              <DifficultyFilter
+                onToggleAll={updateAllDifficultyValues}
+                isChecked={(value) => displayAsSelected("difficulties", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("difficulties", value, checked)
+                }
+                values={fetchedFilter?.difficulties ?? [1, 2, 3]}
+              />
+              <LanguageFilter
                 onToggleAll={updateAllLanguageValues}
-                showSection={!!translatedLanguages.length}
-              >
-                <CheckboxList
-                  list={translatedLanguages}
-                  isChecked={(value) => displayAsSelected("languages", value)}
-                  onChange={({ checked, value }) =>
-                    updateTempArray("languages", value, checked)
-                  }
-                />
-              </FilterSection>
-              <FilterSection
-                title={t("filter.regionen")}
-                toggleLabel={t("filter.alle_an_abwaehlen")}
+                isChecked={(value) => displayAsSelected("languages", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("languages", value, checked)
+                }
+                values={fetchedFilter?.languages ?? []}
+              />
+              <RangeFilter
                 onToggleAll={updateAllRangeValues}
-                showSection={!!translatedRanges.length}
-              >
-                <CheckboxList
-                  list={translatedRanges}
-                  isChecked={(value) => displayAsSelected("ranges", value)}
-                  onChange={({ checked, value }) =>
-                    updateTempArray("ranges", value, checked)
-                  }
-                />
-              </FilterSection>
-              <FilterSection
-                title={t("filter.countries")}
-                toggleLabel={t("filter.alle_an_abwaehlen")}
+                isChecked={(value) => displayAsSelected("ranges", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("ranges", value, checked)
+                }
+                values={fetchedFilter?.ranges ?? []}
+              />
+              <CountryFilter
                 onToggleAll={updateAllCountryValues}
-                showSection={!!translatedCountries.length}
-              >
-                <CheckboxList
-                  list={translatedCountries}
-                  isChecked={(value) => displayAsSelected("countries", value)}
-                  onChange={({ checked, value }) =>
-                    updateTempArray("countries", value, checked)
-                  }
-                />
-              </FilterSection>
+                isChecked={(value) => displayAsSelected("countries", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("countries", value, checked)
+                }
+                values={fetchedFilter?.countries ?? []}
+              />
               <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
                 <Grid container alignItems="center" spacing={1}>
                   <Typography variant={"subtitle1"}>
@@ -987,20 +890,15 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   </Grid>
                 </Grid>
               </Box>
-              <FilterSection
-                title={t("filter.provider")}
-                toggleLabel={t("filter.alle_an_abwaehlen")}
+              <ProviderFilter
                 onToggleAll={updateAllProviderValues}
-                showSection={!!translatedProviders.length}
-              >
-                <CheckboxList
-                  list={translatedProviders}
-                  isChecked={(value) => displayAsSelected("providers", value)}
-                  onChange={({ checked, value }) =>
-                    updateTempArray("providers", value, checked)
-                  }
-                />
-              </FilterSection>
+                isChecked={(value) => displayAsSelected("providers", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("providers", value, checked)
+                }
+                values={fetchedFilter?.providers ?? []}
+                fetchedProviders={fetchedProviders ?? []}
+              />
             </Fragment>
           )}
         </Box>
