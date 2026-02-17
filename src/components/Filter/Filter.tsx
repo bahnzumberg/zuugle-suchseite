@@ -34,6 +34,12 @@ import DialogActions from "@mui/material/DialogActions";
 import Tooltip from "@mui/material/Tooltip";
 import FilterSection from "./FilterSection";
 import CheckboxList from "./CheckboxList";
+import {
+  getCountryTranslationMap,
+  getDifficultyTranslationMap,
+  getLanguageTranslationMap,
+  getSportTypeTranslationMap,
+} from "./utils/translationMaps";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -148,77 +154,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   const { t } = useTranslation();
 
-  const tourlaenge_label = t("filter.tourlaenge");
-  const tagestour_label = t("filter.tagestour");
-  const mehrtagestour_label = t("filter.mehrtagestour");
-  const jahreszeit_label = t("filter.jahreszeit");
-  const sommertour_label = t("filter.sommertour");
-  const wintertour_label = t("filter.wintertour");
-  const nur_ueberschreitungen_label = t("filter.nur_ueberschreitungen");
-  const tourstart_ende_andere_stops_label = t(
-    "filter.tourstart_ende_andere_stops",
-  );
-
-  const anstieg_label = t("filter.anstieg");
-  const abstieg_label = t("main.abstieg");
-  const hoehenmeter_label = t("filter.hoehenmeter");
-  const anfahrtszeit_label = t("main.anfahrtszeit");
-  const gehdistanz_label = t("filter.gehdistanz");
-  const sportart_label = t("main.sportart");
-  const alle_an_abwaehlen_label = t("filter.alle_an_abwaehlen");
-  const sprachen_label = t("filter.sprache");
-
-  const schwierigkeit_label = t("filter.schwierigkeit");
-  const schwierigkeitswert_label = t("filter.schwierigkeitswert");
-  const regionen_label = t("filter.regionen");
-  const filter_anwenden_label = t("filter.filter_anwenden");
-  const filter_loeschen_label = t("filter.filter_loeschen");
-  const minimum_label = t("filter.minimum");
-  const maximum_label = t("filter.maximum");
-  const countries_label = t("filter.countries");
-
-  const hm = t("details.hm_hoehenmeter");
-  const km = t("details.km_kilometer");
-  const h = t("details.h_hour");
-
-  const sportTypesMap: Record<string, string> = {
-    "Bike & Hike": t("filter.bike_hike"),
-    Hochtour: t("filter.hochtour"),
-    Klettern: t("filter.klettern"),
-    Klettersteig: t("filter.klettersteig"),
-    Langlaufen: t("filter.langlaufen"),
-    Rodeln: t("filter.rodeln"),
-    Schneeschuh: t("filter.schneeschuh"),
-    Skitour: t("filter.skitour"),
-    Wandern: t("filter.wandern"),
-    Weitwandern: t("filter.weitwandern"),
-  };
-
-  //The purpose of the language array is simply to get the right translations, just like in the sportsTypeArray
-  const languageMap: Record<string, string> = {
-    de: t("filter.deutsch"),
-    en: t("filter.englisch"),
-    fr: t("filter.franzoesisch"),
-    sl: t("filter.slowenisch"),
-    it: t("filter.italienisch"),
-  }; // TODO: think about language 'XX'
-
-  const difficultiesMap: Record<number, string> = {
-    1: t("filter.easy"),
-    2: t("filter.medium"),
-    3: t("filter.hard"),
-    0: t("filter.unknown"),
-  };
-
-  const countriesMap: Record<string, string> = {
-    Deutschland: t("filter.country_deutschland"),
-    Österreich: t("filter.country_oesterreich"),
-    Tschechien: t("filter.country_tschechien"),
-    Ungarn: t("filter.country_ungarn"),
-    Schweiz: t("filter.country_schweiz"),
-    Italia: t("filter.country_italien"),
-    Slovenija: t("filter.country_slowenien"),
-  };
+  const sportTypesMap = getSportTypeTranslationMap(t);
+  const languageMap = getLanguageTranslationMap(t);
+  const difficultiesMap = getDifficultyTranslationMap(t);
+  const countriesMap = getCountryTranslationMap(t);
 
   function getDurationAsHours(dayJsObject: Dayjs | null) {
     if (dayJsObject) {
@@ -486,7 +425,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             <Fragment>
               <Box className={"filter-box border"}>
                 <Typography variant={"subtitle1"}>
-                  {tourlaenge_label}
+                  {t("filter.tourlaenge")}
                 </Typography>
                 <Grid container>
                   <Grid
@@ -498,7 +437,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   >
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
-                        <Typography>{tagestour_label}</Typography>
+                        <Typography>{t("filter.tagestour")}</Typography>
                       </Grid>
                       <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
@@ -517,7 +456,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
-                        <Typography>{mehrtagestour_label}</Typography>
+                        <Typography>{t("filter.mehrtagestour")}</Typography>
                       </Grid>
                       <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
@@ -540,7 +479,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 style={{ paddingTop: "20px", paddingBottom: "20px" }}
               >
                 <Typography variant={"subtitle1"}>
-                  {jahreszeit_label}
+                  {t("filter.jahreszeit")}
                 </Typography>
                 <Grid container>
                   <Grid
@@ -552,7 +491,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   >
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
-                        <Typography>{sommertour_label}</Typography>
+                        <Typography>{t("filter.sommertour")}</Typography>
                       </Grid>
                       <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
@@ -571,7 +510,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   <Grid sx={{ paddingLeft: "16px" }} size={6}>
                     <Grid container spacing={0}>
                       <Grid sx={{ alignSelf: "center" }} size={6}>
-                        <Typography>{wintertour_label}</Typography>
+                        <Typography>{t("filter.wintertour")}</Typography>
                       </Grid>
                       <Grid sx={{ textAlign: "right" }} size={6}>
                         <Switch
@@ -593,13 +532,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 <Grid container sx={{ paddingTop: "16px" }}>
                   <Grid size={10}>
                     <Typography variant={"subtitle1"}>
-                      {nur_ueberschreitungen_label}
+                      {t("filter.nur_ueberschreitungen")}
                     </Typography>
                     <Typography
                       variant={"subtitle2"}
                       sx={{ fontSize: "16px", fontWeight: 400 }}
                     >
-                      {tourstart_ende_andere_stops_label}
+                      {t("filter.tourstart_ende_andere_stops")}
                     </Typography>
                   </Grid>
                   <Grid sx={{ textAlign: "right" }} size={2}>
@@ -626,7 +565,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
-                      {anstieg_label} ({hm})
+                      {t("filter.anstieg")} ({t("details.hm_hoehenmeter")})
                     </Typography>
                     <GeneralSlider
                       step={100}
@@ -652,7 +591,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={minimum_label}
+                            label={t("filter.minimum")}
                             variant="outlined"
                             value={getFilterValue("minAscent", 0)}
                             onChange={(e) => {
@@ -666,7 +605,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={maximum_label}
+                            label={t("filter.maximum")}
                             variant="outlined"
                             value={getFilterValue("maxAscent", 3000)}
                             onChange={(e) => {
@@ -689,7 +628,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                           color: "#8B8B8B",
                         }}
                       >
-                        3000+ {hoehenmeter_label}
+                        3000+ {t("filter.hoehenmeter")}
                       </div>
                     )}
                   </Grid>
@@ -698,7 +637,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
-                      {abstieg_label} ({hm})
+                      {t("main.abstieg")} ({t("details.hm_hoehenmeter")})
                     </Typography>
                     <GeneralSlider
                       step={100}
@@ -723,7 +662,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={minimum_label}
+                            label={t("filter.minimum")}
                             variant="outlined"
                             value={getFilterValue("minDescent", 0)}
                             onChange={(e) => {
@@ -737,7 +676,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={maximum_label}
+                            label={t("filter.maximum")}
                             variant="outlined"
                             value={getFilterValue("maxDescent", 3000)}
                             onChange={(e) => {
@@ -760,7 +699,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                           color: "#8B8B8B",
                         }}
                       >
-                        3000+ {hoehenmeter_label}{" "}
+                        3000+ {t("filter.hoehenmeter")}{" "}
                       </div>
                     )}
                   </Grid>
@@ -776,7 +715,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
-                      {anfahrtszeit_label} ({h})
+                      {t("main.anfahrtszeit")} ({t("details.h_hour")})
                     </Typography>
                     <GeneralSlider
                       step={0.5}
@@ -802,7 +741,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid container spacing={"10px"}>
                           <Grid size={6}>
                             <TimeField
-                              label={minimum_label}
+                              label={t("filter.minimum")}
                               variant="outlined"
                               value={dayjs()
                                 .startOf("day")
@@ -822,7 +761,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                           </Grid>
                           <Grid size={6}>
                             <TimeField
-                              label={maximum_label}
+                              label={t("filter.maximum")}
                               variant="outlined"
                               value={dayjs()
                                 .startOf("day")
@@ -849,7 +788,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                     size={{ xs: 12, sm: 6 }}
                   >
                     <Typography>
-                      {gehdistanz_label} ({km})
+                      {t("filter.gehdistanz")} ({t("details.km_kilometer")})
                     </Typography>
                     <GeneralSlider
                       step={2}
@@ -874,7 +813,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={minimum_label}
+                            label={t("filter.minimum")}
                             variant="outlined"
                             value={getFilterValue("minDistance", 0)}
                             onChange={(e) =>
@@ -888,7 +827,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                         <Grid size={6}>
                           <TextField
                             type="number"
-                            label={maximum_label}
+                            label={t("filter.maximum")}
                             variant="outlined"
                             value={getFilterValue("maxDistance", 80)}
                             onChange={(e) =>
@@ -908,7 +847,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                                 color: "#8B8B8B",
                               }}
                             >
-                              80+ {km}
+                              80+ {t("details.km_kilometer")}
                             </div>
                           )}
                         </Grid>
@@ -918,8 +857,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <FilterSection
-                title={sportart_label}
-                toggleLabel={alle_an_abwaehlen_label}
+                title={t("main.sportart")}
+                toggleLabel={t("filter.alle_an_abwaehlen")}
                 onToggleAll={updateAllTypeValues}
                 showSection={!!translatedSportTypes.length}
               >
@@ -934,9 +873,9 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
               <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Typography variant={"subtitle1"}>
-                    {schwierigkeit_label}
+                    {t("filter.schwierigkeit")}
                   </Typography>
-                  <Tooltip title={schwierigkeitswert_label}>
+                  <Tooltip title={t("filter.schwierigkeitswert")}>
                     <InfoOutlinedIcon fontSize="small" color="action" />
                   </Tooltip>
                 </Stack>
@@ -945,7 +884,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   sx={{ fontSize: "14px" }}
                   onClick={updateAllDifficultyValues}
                 >
-                  {alle_an_abwaehlen_label}
+                  {t("filter.alle_an_abwaehlen")}
                 </Typography>
                 <Grid container sx={{ paddingTop: "16px" }}>
                   <CheckboxList
@@ -960,8 +899,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 </Grid>
               </Box>
               <FilterSection
-                title={sprachen_label}
-                toggleLabel={alle_an_abwaehlen_label}
+                title={t("filter.sprache")}
+                toggleLabel={t("filter.alle_an_abwaehlen")}
                 onToggleAll={updateAllLanguageValues}
                 showSection={!!translatedLanguages.length}
               >
@@ -974,8 +913,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 />
               </FilterSection>
               <FilterSection
-                title={regionen_label}
-                toggleLabel={alle_an_abwaehlen_label}
+                title={t("filter.regionen")}
+                toggleLabel={t("filter.alle_an_abwaehlen")}
                 onToggleAll={updateAllRangeValues}
                 showSection={!!translatedRanges.length}
               >
@@ -988,8 +927,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 />
               </FilterSection>
               <FilterSection
-                title={countries_label}
-                toggleLabel={alle_an_abwaehlen_label}
+                title={t("filter.countries")}
+                toggleLabel={t("filter.alle_an_abwaehlen")}
                 onToggleAll={updateAllCountryValues}
                 showSection={!!translatedCountries.length}
               >
@@ -1050,7 +989,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
               </Box>
               <FilterSection
                 title={t("filter.provider")}
-                toggleLabel={alle_an_abwaehlen_label}
+                toggleLabel={t("filter.alle_an_abwaehlen")}
                 onToggleAll={updateAllProviderValues}
                 showSection={!!translatedProviders.length}
               >
@@ -1073,11 +1012,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
           onClick={resetFilter}
         >
           {" "}
-          {filter_loeschen_label}
+          {t("filter.filter_loeschen")}
         </Button>
         <Button variant={"contained"} onClick={submitFilter}>
           {countFilterActive() === 0 ? "" : countFilterActive()}{" "}
-          {filter_anwenden_label}
+          {t("filter.filter_anwenden")}
         </Button>
       </DialogActions>
     </Dialog>
