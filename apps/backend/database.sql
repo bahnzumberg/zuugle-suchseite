@@ -344,10 +344,6 @@ CREATE TABLE canonical_alternate (
       zuugle_url varchar(100) NOT NULL,
       href_lang varchar(5) DEFAULT 'de-at',
       PRIMARY KEY (id, city_slug)
-<<<<<<< HEAD
-
-=======
->>>>>>> 49d5a0e (/searchphrase endpoint returns list of suggestions with types)
 );
 
 
@@ -370,11 +366,11 @@ CREATE INDEX type_idx ON pois (type);
 CREATE INDEX idx_pois_name_search ON pois (name text_pattern_ops);
 
 
-###############################################################
-### Materialized View: vw_search_suggestions                ###
-###############################################################
-###                                                         ###
-### The materialized view vw_search_suggestions and all the ###
-### indexes are created and maintained by the sync.js job.  ###
-###                                                         ###
-###############################################################
+---------------------------------------------------------------
+--- Materialized View: vw_search_suggestions                ---
+---------------------------------------------------------------
+---                                                         ---
+--- The materialized view vw_search_suggestions and all the ---
+--- indexes are created and maintained by the sync.js job.  ---
+---                                                         ---
+---------------------------------------------------------------

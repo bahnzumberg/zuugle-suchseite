@@ -1294,7 +1294,15 @@ export async function populateCity2TourFlat() {
             `);
         });
 
-        logger.info("city2tour_flat rebuilt successfully");
+        // 6. Verification
+        const countResult = await knex.raw(`SELECT count(*) FROM city2tour_flat;`);
+        const rowCount = countResult.rows[0].count;
+        logger.info(`city2tour_flat rebuilt successfully. Rows: ${rowCount}`);
+
+        if (rowCount == 0) {
+            throw new Error("city2tour_flat is empty after populate!");
+        }
+
         return true;
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);
