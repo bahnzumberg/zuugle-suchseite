@@ -1260,7 +1260,7 @@ export async function populateCity2TourFlat() {
         // 3. Create Indices
         logger.info("Creating indices on city2tour_flat_new");
         await knex.raw(
-            `ALTER TABLE city2tour_flat_new ADD PRIMARY KEY (reachable_from_country, city_slug, id);`,
+            `ALTER TABLE city2tour_flat_new ADD CONSTRAINT city2tour_flat_new_pkey PRIMARY KEY (reachable_from_country, city_slug, id);`,
         );
         await knex.raw(`CREATE INDEX ON city2tour_flat_new 
             USING hnsw (ai_search_column vector_l2_ops) 
