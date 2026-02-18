@@ -19,6 +19,7 @@ export interface TotalResponse {
   success: boolean;
   total_tours: number;
   tours_city: number;
+  tours_country: number;
   total_connections: number;
   total_ranges: number;
   total_cities: number;
@@ -63,7 +64,6 @@ export interface ToursParams {
   map?: boolean;
   range?: string;
   type?: string;
-  country?: string;
   currLanguage?: string;
   geolocation?: LocationWithRadius;
 }

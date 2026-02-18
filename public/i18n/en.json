@@ -66,7 +66,15 @@
     "unknown": "Unknown",
     "provider": "Tour portal",
     "geolocation_search": "Geolocation search",
-    "geolocation_search_warning": "invalid coordinates"
+    "geolocation_search_warning": "invalid coordinates",
+    "countries": "Countries",
+    "country_deutschland": "Germany",
+    "country_oesterreich": "Austria",
+    "country_tschechien": "Czech Republic",
+    "country_ungarn": "Hungary",
+    "country_schweiz": "Switzerland",
+    "country_italien": "Italy",
+    "country_slowenien": "Slovenia"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",

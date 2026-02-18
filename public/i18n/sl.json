@@ -66,7 +66,15 @@
     "unknown": "Neznano",
     "provider": "Portal",
     "geolocation_search": "Iskanje geolokacije",
-    "geolocation_search_warning": "neveljavne koordinate"
+    "geolocation_search_warning": "neveljavne koordinate",
+    "countries": "Države",
+    "country_deutschland": "Nemčija",
+    "country_oesterreich": "Avstrija",
+    "country_tschechien": "Češka",
+    "country_ungarn": "Madžarska",
+    "country_schweiz": "Švica",
+    "country_italien": "Italija",
+    "country_slowenien": "Slovenija"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",

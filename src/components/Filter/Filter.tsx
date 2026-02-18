@@ -34,6 +34,8 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import DialogActions from "@mui/material/DialogActions";
 import Tooltip from "@mui/material/Tooltip";
+import CountryCheckboxList from "./CountryCheckboxList";
+import FilterSection from "./FilterSection";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -84,6 +86,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       languages: fetchedFilter?.languages ?? [],
       difficulties: fetchedFilter?.difficulties ?? [1, 2, 3],
       providers: fetchedFilter?.providers ?? [],
+      countries: fetchedFilter?.countries ?? [],
     };
   }, [fetchedFilter]);
 
@@ -139,6 +142,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   const [allRangesSelected, setAllRangesSelected] = useState(true);
+  const [allCountriesSelected, setAllCountriesSelected] = useState(true);
   const [allTypesSelected, setAllTypesSelected] = useState(true);
   const [allLanguagesSelected, setAllLanguagesSelected] = useState(true);
   const [allDifficultiesSelected, setAllDifficultiesSelected] = useState(true);
@@ -175,6 +179,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const filter_loeschen_label = t("filter.filter_loeschen");
   const minimum_label = t("filter.minimum");
   const maximum_label = t("filter.maximum");
+  const countries_label = t("filter.countries");
 
   const hm = t("details.hm_hoehenmeter");
   const km = t("details.km_kilometer");
@@ -207,6 +212,16 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     2: t("filter.medium"),
     3: t("filter.hard"),
     0: t("filter.unknown"),
+  };
+
+  const countriesMap: Record<string, string> = {
+    Deutschland: t("filter.country_deutschland"),
+    Österreich: t("filter.country_oesterreich"),
+    Tschechien: t("filter.country_tschechien"),
+    Ungarn: t("filter.country_ungarn"),
+    Schweiz: t("filter.country_schweiz"),
+    Italia: t("filter.country_italien"),
+    Slovenija: t("filter.country_slowenien"),
   };
 
   function getDurationAsHours(dayJsObject: Dayjs | null) {
@@ -467,10 +482,27 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     });
   };
 
+  const translatedCountries = (fetchedFilter?.countries ?? []).map(
+    (entry: string) => ({
+      value: entry,
+      label: countriesMap[entry] ?? entry,
+    }),
+  );
+
   const updateAllRangeValues = () => {
     if (allRangesSelected) setTempFilter({ ...tempFilter, ranges: [] });
     else setTempFilter({ ...tempFilter, ranges: fetchedFilter?.ranges ?? [] });
     setAllRangesSelected(!allRangesSelected);
+  };
+
+  const updateAllCountryValues = () => {
+    if (allCountriesSelected) setTempFilter({ ...tempFilter, countries: [] });
+    else
+      setTempFilter({
+        ...tempFilter,
+        countries: fetchedFilter?.countries ?? [],
+      });
+    setAllCountriesSelected(!allCountriesSelected);
   };
 
   const updateAllTypeValues = () => {
@@ -1070,6 +1102,20 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   {getRanges()}
                 </Grid>
               </Box>
+              <FilterSection
+                title={countries_label}
+                toggleLabel={alle_an_abwaehlen_label}
+                onToggleAll={updateAllCountryValues}
+                showSection={!!translatedCountries.length}
+              >
+                <CountryCheckboxList
+                  onChange={({ checked, value }) =>
+                    updateTempArray("countries", value, checked)
+                  }
+                  isChecked={(value) => displayAsSelected("countries", value)}
+                  translatedCountries={translatedCountries}
+                />
+              </FilterSection>
               <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
                 <Grid container alignItems="center" spacing={1}>
                   <Typography variant={"subtitle1"}>
