@@ -1302,6 +1302,56 @@ export async function populateCity2TourFlat() {
     }
 }
 
+export async function refreshSearchSuggestions() {
+    try {
+        const checkView = await knex.raw(`
+            SELECT EXISTS (
+                SELECT FROM pg_matviews
+                WHERE matviewname = 'vw_search_suggestions'
+            );
+        `);
+
+        if (checkView.rows && checkView.rows[0].exists) {
+            // Refresh the materialized view vw_search_suggestions
+            // Must be called after city2tour_flat is populated
+            await knex.raw(`REFRESH MATERIALIZED VIEW CONCURRENTLY vw_search_suggestions;`);
+        } else {
+            logger.info("Creating materialized view vw_search_suggestions");
+            await knex.raw(`
+                CREATE MATERIALIZED VIEW vw_search_suggestions AS
+                SELECT 
+                    reachable_from_country,
+                    city_slug,
+                    term,
+                    COUNT(id) AS number_of_tours
+                FROM (
+                    SELECT 
+                        reachable_from_country,
+                        city_slug, 
+                        id, 
+                        unnest(tsvector_to_array(search_column)) AS term 
+                    FROM city2tour_flat
+                ) sub
+                WHERE length(term) >= 3
+                AND term ~* '^[[:alpha:]]'
+                GROUP BY reachable_from_country, city_slug, term
+                HAVING COUNT(id) > 1;
+            `);
+            await knex.raw(
+                `CREATE UNIQUE INDEX idx_suggestions_unique ON vw_search_suggestions (city_slug, term);`,
+            );
+            await knex.raw(
+                `CREATE INDEX idx_suggestions_search ON vw_search_suggestions (reachable_from_country, city_slug, term text_pattern_ops);`,
+            );
+            await knex.raw(`CREATE INDEX ON vw_search_suggestions (reachable_from_country);`);
+        }
+    } catch (err) {
+        logger.error("Error refreshing vw_search_suggestions:", err);
+        // throw err;
+    }
+    return true;
+}
+
 export async function generateSitemaps() {
     try {
         // console.log("Starting sitemap generation...");

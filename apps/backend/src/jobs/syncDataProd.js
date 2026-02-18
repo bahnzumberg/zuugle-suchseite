@@ -6,6 +6,7 @@ import {
     syncCities,
     syncTours,
     populateCity2TourFlat,
+    refreshSearchSuggestions,
     generateSitemaps,
 } from "./sync";
 import moment from "moment";
@@ -33,46 +34,55 @@ syncTours().then(() => {
                         moment().format("YYYY.MM.DD HH:mm:ss"),
                         " DONE POPULATE city2tour_flat",
                     );
-                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START GENERATE SITEMAPS");
-                    generateSitemaps().then(() => {
+                    refreshSearchSuggestions().then(() => {
                         console.log(
                             moment().format("YYYY.MM.DD HH:mm:ss"),
-                            " DONE GENERATE SITEMAPS",
+                            " DONE REFRESH SEARCH SUGGESTIONS",
                         );
                         console.log(
                             moment().format("YYYY.MM.DD HH:mm:ss"),
-                            " START FETCH PROVIDER",
+                            " START GENERATE SITEMAPS",
                         );
-                        getProvider().then(async () => {
+                        generateSitemaps().then(() => {
                             console.log(
                                 moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " FETCHED PROVIDER",
+                                " DONE GENERATE SITEMAPS",
                             );
-
-                            // Log cache statistics before flushing
-                            const stats = await cacheService.getStats();
-                            if (stats) {
-                                const total = stats.hits + stats.misses;
-                                const hitRate =
-                                    total > 0 ? ((stats.hits / total) * 100).toFixed(1) : 0;
-                                console.log(
-                                    moment().format("YYYY.MM.DD HH:mm:ss"),
-                                    ` CACHE STATS (previous day): hits=${stats.hits}, misses=${stats.misses}, hit_rate=${hitRate}%`,
-                                );
-                            } else {
-                                console.log(
-                                    moment().format("YYYY.MM.DD HH:mm:ss"),
-                                    " CACHE STATS: unavailable",
-                                );
-                            }
-
                             console.log(
                                 moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " FLUSHING CACHE...",
+                                " START FETCH PROVIDER",
                             );
-                            await cacheService.flush();
-                            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " CACHE FLUSHED.");
-                            process.exit();
+                            getProvider().then(async () => {
+                                console.log(
+                                    moment().format("YYYY.MM.DD HH:mm:ss"),
+                                    " FETCHED PROVIDER",
+                                );
+
+                                // Log cache statistics before flushing
+                                const stats = await cacheService.getStats();
+                                if (stats) {
+                                    const total = stats.hits + stats.misses;
+                                    const hitRate =
+                                        total > 0 ? ((stats.hits / total) * 100).toFixed(1) : 0;
+                                    console.log(
+                                        moment().format("YYYY.MM.DD HH:mm:ss"),
+                                        ` CACHE STATS (previous day): hits=${stats.hits}, misses=${stats.misses}, hit_rate=${hitRate}%`,
+                                    );
+                                } else {
+                                    console.log(
+                                        moment().format("YYYY.MM.DD HH:mm:ss"),
+                                        " CACHE STATS: unavailable",
+                                    );
+                                }
+
+                                await cacheService.flush();
+                                console.log(
+                                    moment().format("YYYY.MM.DD HH:mm:ss"),
+                                    " CACHE FLUSHED",
+                                );
+
+                                process.exit();
+                            });
                         });
                     });
                 });
