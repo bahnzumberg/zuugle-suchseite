@@ -7,16 +7,16 @@ import Grid from "@mui/material/Grid";
 import Switch from "@mui/material/Switch";
 import GeneralSlider from "../GeneralSlider";
 import Button from "@mui/material/Button";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { FilterObject, Provider } from "../../models/Filter";
 import { useLazyGetFilterQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
-import { areSetsEqual } from "../../utils/globals";
+import { areSetsEqual, getDurationAsHours } from "../../utils/globals";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -36,6 +36,8 @@ import RangeFilter from "./FilterOptions/Range";
 import ProviderFilter from "./FilterOptions/Provider";
 import DifficultyFilter from "./FilterOptions/Difficulty";
 import { CheckboxOptionsFilterKey } from "./types";
+import { getDefaultFilterValues } from "./constants";
+import { countFilterActive, getActiveFilterFields } from "./utils";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -66,29 +68,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const { filter: fetchedFilter, providers: fetchedProviders } =
     filterData ?? {};
 
-  const defaultFilterValues = useMemo<FilterObject>(() => {
-    return {
-      singleDayTour: true,
-      multipleDayTour: true,
-      summerSeason: true,
-      winterSeason: true,
-      traverse: false,
-      minAscent: fetchedFilter?.minAscent ?? 0,
-      maxAscent: fetchedFilter?.maxAscent ?? 3000,
-      minDescent: fetchedFilter?.minDescent ?? 0,
-      maxDescent: fetchedFilter?.maxDescent ?? 3000,
-      minTransportDuration: fetchedFilter?.minTransportDuration ?? 0,
-      maxTransportDuration: fetchedFilter?.maxTransportDuration ?? 50,
-      minDistance: fetchedFilter?.minDistance ?? 0,
-      maxDistance: fetchedFilter?.maxDistance ?? 80,
-      ranges: fetchedFilter?.ranges ?? [],
-      types: fetchedFilter?.types ?? [],
-      languages: fetchedFilter?.languages ?? [],
-      difficulties: fetchedFilter?.difficulties ?? [1, 2, 3],
-      providers: fetchedFilter?.providers ?? [],
-      countries: fetchedFilter?.countries ?? [],
-    };
-  }, [fetchedFilter]);
+  const defaultFilterValues = getDefaultFilterValues(fetchedFilter);
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
@@ -116,7 +96,9 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }, [geolocation]);
 
   function submitFilter() {
-    dispatch(filterUpdated(getActiveFilterFields()));
+    dispatch(
+      filterUpdated(getActiveFilterFields({ defaultFilterValues, tempFilter })),
+    );
     const lat = parseFloat(tempGeolocation.lat as string);
     const lng = parseFloat(tempGeolocation.lng as string);
     const radius = parseFloat(tempGeolocation.radius as string);
@@ -142,7 +124,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   //TODO: we can derive this state from tempFilter and default filter object
-  const [selectAllToggle, seSelectAllToggle] = useState<
+  const [selectAllToggle, setSelectAllToggle] = useState<
     Record<CheckboxOptionsFilterKey, boolean>
   >({
     ranges: true,
@@ -154,12 +136,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   });
 
   const { t } = useTranslation();
-
-  function getDurationAsHours(dayJsObject: Dayjs | null) {
-    if (dayJsObject) {
-      return dayJsObject.hour() + dayJsObject.minute() / 60;
-    }
-  }
 
   /**
    * Generic function to obtain either value of current tempFilter,
@@ -174,46 +150,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       tempFilter[propertyName] ?? fetchedFilter?.[propertyName] ?? defaultValue;
     return (value ?? defaultValue) as NonNullable<(typeof tempFilter)[K]>;
   }
-
-  /**
-   *
-   * Assemble filter object with only values that differ from default.
-   */
-  const getActiveFilterFields = () => {
-    return Object.entries(defaultFilterValues).reduce(
-      (activeFilters, [key, defVal]) => {
-        const curVal = tempFilter[key as keyof FilterObject];
-
-        if (Array.isArray(defVal) && Array.isArray(curVal)) {
-          // @ts-ignore
-          const equalSets = areSetsEqual(new Set(defVal), new Set(curVal));
-          if (!equalSets) {
-            // @ts-ignore
-            activeFilters[key] = curVal;
-          }
-          return activeFilters;
-        }
-
-        if (defVal !== curVal) {
-          // @ts-ignore
-          activeFilters[key] = curVal;
-        }
-        return activeFilters;
-      },
-      {} as FilterObject,
-    );
-  };
-
-  /**
-   * Count the number of fields in tempFilter which are different from default values.
-   */
-  const countFilterActive = () => {
-    const isGeolocationSearchActive = geolocation?.lat && geolocation?.lng;
-    return (
-      Object.values(getActiveFilterFields()).length +
-      (isGeolocationSearchActive ? 1 : 0)
-    );
-  };
 
   function displayAsSelected<K extends keyof FilterObject>(
     arrayKey: K,
@@ -276,7 +212,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       [keyToUpdate]: newValue,
     });
 
-    seSelectAllToggle((prev) => ({
+    setSelectAllToggle((prev) => ({
       ...prev,
       [keyToUpdate]: !prev[keyToUpdate],
     }));
@@ -895,7 +831,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
           {t("filter.filter_loeschen")}
         </Button>
         <Button variant={"contained"} onClick={submitFilter}>
-          {countFilterActive() === 0 ? "" : countFilterActive()}{" "}
+          {/* TODO: move this component and fix call to countFilter */}
+          {countFilterActive({
+            geolocation,
+            defaultFilterValues,
+            tempFilter,
+          }) || ""}{" "}
           {t("filter.filter_anwenden")}
         </Button>
       </DialogActions>
