@@ -294,7 +294,7 @@ CREATE TABLE city2tour_flat (
     PRIMARY KEY (reachable_from_country, city_slug, id)
 );
 
--- These triggers are set while daily load in sync.js. 
+-- These indices are created during the daily load in sync.js. 
 -- Any changes here, have to be reflected there, too!
 CREATE INDEX ON city2tour_flat 
 USING hnsw (ai_search_column vector_l2_ops) 
