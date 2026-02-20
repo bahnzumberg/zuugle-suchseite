@@ -373,7 +373,7 @@ const prepareDirectories = () => {
 };
 
 export async function truncateAll() {
-    // The runcateAll function is only called, when docker setup is involved.
+    // The truncateAll function is only called, when docker setup is involved.
     // On production the database is updated by an ETL job.
     // This function needs to be updated whenever a new table is added to the database.
     const tables = [
