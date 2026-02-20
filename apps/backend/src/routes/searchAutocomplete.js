@@ -43,7 +43,7 @@ const autocompleteWrapper = async (req, res) => {
                 type,
                 term
                 FROM (
-                    SELECT 
+                    SELECT
                         p.type,
                         p.name AS term,
                         2 as priority
@@ -51,29 +51,33 @@ const autocompleteWrapper = async (req, res) => {
                     JOIN poi2tour pt ON p.id = pt.poi_id
                     JOIN city2tour_flat c2f ON pt.tour_id = c2f.id
                     WHERE c2f.reachable_from_country = :tld
-                    __city_filter__
+                    __city_filter_1__
                     AND p.name ILIKE :searchTerm
                 UNION
-                    SELECT 
+                    SELECT
                         'term' AS type,
                         term,
                         1 as priority
                     FROM vw_search_suggestions
                     WHERE reachable_from_country = :tld
-                    __city_filter__
+                    __city_filter_2__
                     AND term ILIKE :searchTerm
-                    ) 
+                    )
                 ORDER BY priority DESC, term ASC
                 LIMIT 5;`;
 
     // City can be null, so we insert the WHERE condition only if city is not null
-    let city_filter = " AND c2f.city_slug = :city ";
+    let city_filter_poi = " AND c2f.city_slug = :city ";
+    let city_filter_suggestions = " AND city_slug = :city ";
     if (city == "null" || !city || city.length == 0) {
-        city_filter = "";
+        city_filter_poi = "";
+        city_filter_suggestions = "";
     }
 
-    let sql_final = sql.replace("__city_filter__", city_filter);
-    const queryResult = await knex.raw(sql_final, [tld, city, searchTerm]);
+    let sql_final = sql
+        .replace("__city_filter_1__", city_filter_poi)
+        .replace("__city_filter_2__", city_filter_suggestions);
+    const queryResult = await knex.raw(sql_final, { tld, city, searchTerm });
     const rows = queryResult.rows;
 
     const items = rows.map((row) => {
