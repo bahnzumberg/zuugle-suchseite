@@ -165,7 +165,7 @@ export default function SearchResults() {
       sx={{
         width: "100%",
         position: "relative",
-        marginTop: showMap ? "0px" : "110px",
+        marginTop: showMap ? "0px" : "80px",
         paddingTop: showMap ? "10px" : "30px",
         paddingBottom: showMap ? "10px" : "5px",
       }}
@@ -258,16 +258,7 @@ export default function SearchResults() {
             </Typography>
           </Box>
         )}
-        <Box
-          className="newHeader"
-          sx={{
-            height: {
-              xs: "110px",
-              md: "110px",
-            },
-          }}
-          position={"relative"}
-        >
+        <Box className="newHeader" height={"80px"} position={"relative"}>
           <Box component={"div"} className="rowing blueDiv">
             <DomainMenu />
             <LanguageMenu />
