@@ -1,16 +1,18 @@
 import { useTranslation } from "react-i18next";
 import FilterSection from "../FilterSection";
-import { getLanguageTranslationMap } from "../utils/translationMaps";
-import { getTransformedFilterOptions } from "../utils";
+import {
+  getLanguageTranslationMap,
+  getTransformedFilterOptions,
+} from "../utils";
 import CheckboxList from "../CheckboxList";
-import { FilterOptionProps } from "../types";
+import { FilterCheckBoxOptionProps } from "../types";
 
 export default function LanguageFilter({
   onToggleAll,
   isChecked,
   onChange,
   values,
-}: FilterOptionProps) {
+}: FilterCheckBoxOptionProps) {
   const { t } = useTranslation();
   const translationMap = getLanguageTranslationMap(t);
   const options = getTransformedFilterOptions({

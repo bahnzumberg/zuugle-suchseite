@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { getDifficultyTranslationMap } from "../utils/translationMaps";
+import { getDifficultyTranslationMap } from "../utils";
 import CheckboxList from "../CheckboxList";
 
 interface DifficultyFilterProps {

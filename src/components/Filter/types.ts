@@ -1,6 +1,6 @@
 import { FilterObject } from "../../models/Filter";
 
-export interface FilterOptionProps {
+export interface FilterCheckBoxOptionProps {
   onToggleAll: () => void;
   isChecked: (value: string) => boolean;
   onChange: ({ value, checked }: { value: string; checked: boolean }) => void;

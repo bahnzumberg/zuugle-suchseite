@@ -1,16 +1,18 @@
 import { useTranslation } from "react-i18next";
 import FilterSection from "../FilterSection";
-import { getSportTypeTranslationMap } from "../utils/translationMaps";
-import { getTransformedFilterOptions } from "../utils";
+import {
+  getSportTypeTranslationMap,
+  getTransformedFilterOptions,
+} from "../utils";
 import CheckboxList from "../CheckboxList";
-import { FilterOptionProps } from "../types";
+import { FilterCheckBoxOptionProps } from "../types";
 
 export default function SportTypeFilter({
   onToggleAll,
   isChecked,
   onChange,
   values,
-}: FilterOptionProps) {
+}: FilterCheckBoxOptionProps) {
   const { t } = useTranslation();
   const translationMap = getSportTypeTranslationMap(t);
   const options = getTransformedFilterOptions({ list: values, translationMap });

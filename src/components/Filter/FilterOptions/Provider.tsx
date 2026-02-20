@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import FilterSection from "../FilterSection";
 import CheckboxList from "../CheckboxList";
-import { FilterOptionProps } from "../types";
+import { FilterCheckBoxOptionProps } from "../types";
 import { Provider } from "../../../models/Filter";
 
-interface ProviderFilterProps extends FilterOptionProps {
+interface ProviderFilterProps extends FilterCheckBoxOptionProps {
   fetchedProviders: Provider[];
 }
 

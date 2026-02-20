@@ -30,8 +30,11 @@ import LoadView from "./FilterOptions/LoadView";
 import FilterFooter from "./FilterFooter";
 import CloseButton from "./CloseButton";
 import { CheckboxOptionsFilterKey } from "./types";
-import { getDefaultFilterValues } from "./constants";
-import { countFilterActive, getActiveFilterFields } from "./utils";
+import {
+  countFilterActive,
+  getActiveFilterFields,
+  getDefaultFilterValues,
+} from "./utils";
 
 export interface FilterProps {
   showFilter: boolean;

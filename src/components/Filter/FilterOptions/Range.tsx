@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
 import FilterSection from "../FilterSection";
 import CheckboxList from "../CheckboxList";
-import { FilterOptionProps } from "../types";
+import { FilterCheckBoxOptionProps } from "../types";
 
 export default function RangeFilter({
   onToggleAll,
   isChecked,
   onChange,
   values,
-}: FilterOptionProps) {
+}: FilterCheckBoxOptionProps) {
   const { t } = useTranslation();
   const options = values.map((entry) => ({
     value: entry,
