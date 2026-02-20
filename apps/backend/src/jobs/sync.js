@@ -373,6 +373,9 @@ const prepareDirectories = () => {
 };
 
 export async function truncateAll() {
+    // The truncateAll function is only called, when docker setup is involved.
+    // On production the database is updated by an ETL job.
+    // This function needs to be updated whenever a new table is added to the database.
     const tables = [
         "city",
         "fahrplan",
@@ -386,6 +389,8 @@ export async function truncateAll() {
         "tracks",
         "canonical_alternate",
         "city2tour_flat",
+        "pois",
+        "poi2tour",
     ];
     for (const tbl of tables) {
         try {
@@ -1260,7 +1265,7 @@ export async function populateCity2TourFlat() {
         // 3. Create Indices
         logger.info("Creating indices on city2tour_flat_new");
         await knex.raw(
-            `ALTER TABLE city2tour_flat_new ADD PRIMARY KEY (reachable_from_country, city_slug, id);`,
+            `ALTER TABLE city2tour_flat_new ADD CONSTRAINT city2tour_flat_new_pkey PRIMARY KEY (reachable_from_country, city_slug, id);`,
         );
         await knex.raw(`CREATE INDEX ON city2tour_flat_new 
             USING hnsw (ai_search_column vector_l2_ops) 
@@ -1280,6 +1285,9 @@ export async function populateCity2TourFlat() {
             // Drop trigger before dropping table to prevent it from breaking
             await trx.raw(`DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;`);
 
+            // Drop materialized view that depends on city2tour_flat
+            await trx.raw(`DROP MATERIALIZED VIEW IF EXISTS vw_search_suggestions;`);
+
             await trx.raw(`DROP TABLE city2tour_flat;`);
             await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
             await trx.raw(`ALTER INDEX city2tour_flat_new_pkey RENAME TO city2tour_flat_pkey;`);
@@ -1294,12 +1302,70 @@ export async function populateCity2TourFlat() {
             `);
         });
 
-        logger.info("city2tour_flat rebuilt successfully");
+        // 6. Verification
+        const countResult = await knex.raw(`SELECT count(*) FROM city2tour_flat;`);
+        const rowCount = countResult.rows[0].count;
+        logger.info(`city2tour_flat rebuilt successfully. Rows: ${rowCount}`);
+
+        if (rowCount == 0) {
+            throw new Error("city2tour_flat is empty after populate!");
+        }
+
         return true;
     } catch (err) {
         logger.error("Error populating city2tour_flat:", err);
         throw err;
     }
+}
+
+export async function refreshSearchSuggestions() {
+    try {
+        const checkView = await knex.raw(`
+            SELECT EXISTS (
+                SELECT FROM pg_matviews
+                WHERE matviewname = 'vw_search_suggestions'
+            );
+        `);
+
+        if (checkView.rows && checkView.rows[0].exists) {
+            // Refresh the materialized view vw_search_suggestions
+            // Must be called after city2tour_flat is populated
+            await knex.raw(`REFRESH MATERIALIZED VIEW CONCURRENTLY vw_search_suggestions;`);
+        } else {
+            logger.info("Creating materialized view vw_search_suggestions");
+            await knex.raw(`
+                CREATE MATERIALIZED VIEW vw_search_suggestions AS
+                SELECT 
+                    reachable_from_country,
+                    city_slug,
+                    term,
+                    COUNT(id) AS number_of_tours
+                FROM (
+                    SELECT 
+                        reachable_from_country,
+                        city_slug, 
+                        id, 
+                        unnest(tsvector_to_array(search_column)) AS term 
+                    FROM city2tour_flat
+                ) sub
+                WHERE length(term) >= 3
+                AND term ~* '^[[:alpha:]]'
+                GROUP BY reachable_from_country, city_slug, term
+                HAVING COUNT(id) > 1;
+            `);
+            await knex.raw(
+                `CREATE UNIQUE INDEX idx_suggestions_unique ON vw_search_suggestions (city_slug, term);`,
+            );
+            await knex.raw(
+                `CREATE INDEX idx_suggestions_search ON vw_search_suggestions (reachable_from_country, city_slug, term text_pattern_ops);`,
+            );
+            await knex.raw(`CREATE INDEX ON vw_search_suggestions (reachable_from_country);`);
+        }
+    } catch (err) {
+        logger.error("Error refreshing vw_search_suggestions:", err);
+        // throw err;
+    }
+    return true;
 }
 
 export async function generateSitemaps() {

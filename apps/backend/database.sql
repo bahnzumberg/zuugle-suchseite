@@ -294,7 +294,8 @@ CREATE TABLE city2tour_flat (
     PRIMARY KEY (reachable_from_country, city_slug, id)
 );
 
--- CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+-- These indices are created during the daily load in sync.js. 
+-- Any changes here, have to be reflected there, too!
 CREATE INDEX ON city2tour_flat 
 USING hnsw (ai_search_column vector_l2_ops) 
 WITH (m = 24, ef_construction = 128);
@@ -304,6 +305,7 @@ CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
 CREATE INDEX ON city2tour_flat (id);
+
 
 CREATE OR REPLACE FUNCTION sync_tour_image_to_flat()
 RETURNS TRIGGER AS $$
@@ -342,7 +344,6 @@ CREATE TABLE canonical_alternate (
       zuugle_url varchar(100) NOT NULL,
       href_lang varchar(5) DEFAULT 'de-at',
       PRIMARY KEY (id, city_slug)
-
 );
 
 
@@ -361,5 +362,15 @@ CREATE TABLE pois (
       PRIMARY KEY (id)
 );
 CREATE INDEX ON pois (lat, lon);
-CREATE INDEX name_idx ON pois (LOWER(TRIM(name)));
 CREATE INDEX type_idx ON pois (type);
+CREATE INDEX idx_pois_name_search ON pois (name text_pattern_ops);
+
+
+---------------------------------------------------------------
+--- Materialized View: vw_search_suggestions                ---
+---------------------------------------------------------------
+---                                                         ---
+--- The materialized view vw_search_suggestions and all the ---
+--- indexes are created and maintained by the sync.js job.  ---
+---                                                         ---
+---------------------------------------------------------------

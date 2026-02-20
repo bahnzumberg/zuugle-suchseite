@@ -5,6 +5,7 @@ import cities from "./routes/cities";
 import authenticate from "./middlewares/authenticate";
 import { getZuugleCors, hostMiddleware } from "./utils/zuugleCors";
 import searchPhrases from "./routes/searchPhrases";
+import searchAutocomplete from "./routes/searchAutocomplete";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
 
@@ -45,7 +46,9 @@ app.use("/public", cors(corsOptions), express.static("public"));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
+// TODO: searchPhrases is the old endpoint for autocompletion. Can be removed once new POI system is functional.
 app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, searchPhrases);
+app.use("/api/searchphrase", cors(corsOptions), hostMiddleware, authenticate, searchAutocomplete);
 swaggerDocs(app);
 
 app.listen(port, () => logger.info("Running on localhost:" + port));

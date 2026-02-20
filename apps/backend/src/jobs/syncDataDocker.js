@@ -5,6 +5,7 @@ import {
     restoreDump,
     copyDump,
     populateCity2TourFlat,
+    refreshSearchSuggestions,
     generateSitemaps,
 } from "./sync.js";
 import cacheService from "../services/cache.js";
@@ -21,12 +22,15 @@ copyDump("zuugle_postgresql.dump", "/tmp/zuugle_postgresql.dump")
                 writeKPIs().then(() => {
                     logger.info("Populate city2tour_flat");
                     populateCity2TourFlat().then(() => {
-                        logger.info("Generate Sitemaps");
-                        generateSitemaps().then(async () => {
-                            logger.info("Flushing cache...");
-                            await cacheService.flush();
-                            logger.info("Cache flushed. Database ready!");
-                            process.exit();
+                        logger.info("Refresh search suggestions");
+                        refreshSearchSuggestions().then(() => {
+                            logger.info("Generate Sitemaps");
+                            generateSitemaps().then(async () => {
+                                logger.info("Flushing cache...");
+                                await cacheService.flush();
+                                logger.info("Cache flushed. Database ready!");
+                                process.exit();
+                            });
                         });
                     });
                 });
