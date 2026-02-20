@@ -1285,6 +1285,9 @@ export async function populateCity2TourFlat() {
             // Drop trigger before dropping table to prevent it from breaking
             await trx.raw(`DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;`);
 
+            // Drop materialized view that depends on city2tour_flat
+            await trx.raw(`DROP MATERIALIZED VIEW IF EXISTS vw_search_suggestions;`);
+
             await trx.raw(`DROP TABLE city2tour_flat;`);
             await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
             await trx.raw(`ALTER INDEX city2tour_flat_new_pkey RENAME TO city2tour_flat_pkey;`);
