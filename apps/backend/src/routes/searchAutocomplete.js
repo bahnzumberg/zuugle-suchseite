@@ -2,7 +2,7 @@ import express from "express";
 let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
-router.get("/searchphrase", (req, res) => autocompleteWrapper(req, res));
+router.get("/", (req, res) => autocompleteWrapper(req, res));
 
 const autocompleteWrapper = async (req, res) => {
     let search = req.query.search;
