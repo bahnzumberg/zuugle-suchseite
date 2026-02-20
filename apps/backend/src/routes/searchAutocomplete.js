@@ -29,7 +29,7 @@ const autocompleteWrapper = async (req, res) => {
     }
 
     const city = req.query.city;
-    const tld = req.query.tld.toUpperCase() ?? "AT";
+    const tld = req.query.tld?.toUpperCase() ?? "AT";
 
     // If we found the combination of city, tld and search term in the cache, return it
     const cacheKey = `autocomplete:searchterm:${city || "all"}:${tld}:${search}`;
