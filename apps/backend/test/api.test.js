@@ -308,4 +308,68 @@ describe("Zuugle API UAT Tests", () => {
             expect(Array.isArray(data.result)).toBe(true);
         }
     });
+
+    describe("GET /api/searchphrase", () => {
+        test("returns 200 with valid search term", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=Alpen&tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(data.items).toBeDefined();
+            expect(Array.isArray(data.items)).toBe(true);
+        });
+
+        test("returns 200 with city filter applied", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=Alpen&tld=AT&city=wien`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(Array.isArray(data.items)).toBe(true);
+        });
+
+        test("returns 200 with error message when search is empty string (not 400)", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=&tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(data.error).toBe("no search term");
+        });
+
+        test("returns 400 when search parameter is missing", async () => {
+            const url = `${baseUrl}/api/searchphrase?tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(400);
+            const data = await response.json();
+            expect(data.success).toBe(false);
+            expect(data.error).toBeDefined();
+        });
+
+        test("does not error when tld parameter is omitted (defaults to AT)", async () => {
+            const urlWithTld = `${baseUrl}/api/searchphrase?search=Berg&tld=AT`;
+            const urlWithoutTld = `${baseUrl}/api/searchphrase?search=Berg`;
+
+            const [responseWith, responseWithout] = await Promise.all([
+                fetch(urlWithTld, { headers: getHeaders() }),
+                fetch(urlWithoutTld, { headers: getHeaders() }),
+            ]);
+
+            expect(responseWith.status).toBe(200);
+            expect(responseWithout.status).toBe(200);
+
+            const dataWith = await responseWith.json();
+            const dataWithout = await responseWithout.json();
+
+            expect(dataWith.success).toBe(true);
+            expect(dataWithout.success).toBe(true);
+            // Both should return the same items since the default tld is AT
+            expect(dataWithout.items).toEqual(dataWith.items);
+        });
+    });
 });
