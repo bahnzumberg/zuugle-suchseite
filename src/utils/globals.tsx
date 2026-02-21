@@ -1,5 +1,6 @@
 import { Tour } from "../models/Tour";
 import { i18n } from "i18next";
+import { Dayjs } from "dayjs";
 
 /**
  * Rewrites the domain in a bahn-zum-berg URL to match the current Zuugle TLD.
@@ -201,4 +202,10 @@ export const areSetsEqual = (set1: Set<any>, set2: Set<any>): boolean =>
 
 export function hasContent(obj: unknown): boolean {
   return obj != null && Object.keys(obj).length > 0;
+}
+
+export function getDurationAsHours(dayJsObject: Dayjs | null) {
+  if (dayJsObject) {
+    return dayJsObject.hour() + dayJsObject.minute() / 60;
+  }
 }

@@ -3,40 +3,42 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 
-interface TranslatedCountries {
-  value: string;
+interface CheckboxItem<T> {
+  value: T;
   label: string;
 }
 
-interface CountryCheckboxListProps {
-  translatedCountries: TranslatedCountries[];
-  isChecked: (value: string) => boolean;
-  onChange: ({ value, checked }: { value: string; checked: boolean }) => void;
+interface CheckboxListProps<T extends string | number> {
+  list: CheckboxItem<T>[];
+  isChecked: (value: T) => boolean;
+  onChange: (params: { value: T; checked: boolean }) => void;
+  gridSize?: number;
 }
 
-export default function CountryCheckboxList({
-  translatedCountries,
+export default function CheckboxList<T extends string | number>({
+  list,
   isChecked,
   onChange,
-}: CountryCheckboxListProps) {
+  gridSize = 6,
+}: CheckboxListProps<T>) {
   return (
     <>
-      {translatedCountries.map((country, index) => (
-        <Grid key={index} size={6}>
+      {list.map(({ value, label }) => (
+        <Grid key={value} size={gridSize}>
           <Box>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={isChecked(country.value)}
+                  checked={isChecked(value)}
                   onChange={(e) =>
                     onChange({
                       checked: e.target.checked,
-                      value: country.value,
+                      value: value,
                     })
                   }
                 />
               }
-              label={country.label}
+              label={label}
             />
           </Box>
         </Grid>
