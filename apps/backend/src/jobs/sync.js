@@ -1285,9 +1285,6 @@ export async function populateCity2TourFlat() {
             // Drop trigger before dropping table to prevent it from breaking
             await trx.raw(`DROP TRIGGER IF EXISTS trg_update_tour_image ON tour;`);
 
-            // Drop materialized view that depends on city2tour_flat
-            await trx.raw(`DROP MATERIALIZED VIEW IF EXISTS vw_search_suggestions;`);
-
             await trx.raw(`DROP TABLE city2tour_flat;`);
             await trx.raw(`ALTER TABLE city2tour_flat_new RENAME TO city2tour_flat;`);
             await trx.raw(`ALTER INDEX city2tour_flat_new_pkey RENAME TO city2tour_flat_pkey;`);
@@ -1320,49 +1317,34 @@ export async function populateCity2TourFlat() {
 
 export async function refreshSearchSuggestions() {
     try {
-        const checkView = await knex.raw(`
-            SELECT EXISTS (
-                SELECT FROM pg_matviews
-                WHERE matviewname = 'vw_search_suggestions'
-            );
-        `);
+        // logger.info("Refreshing search_suggestions table");
 
-        if (checkView.rows && checkView.rows[0].exists) {
-            // Refresh the materialized view vw_search_suggestions
-            // Must be called after city2tour_flat is populated
-            await knex.raw(`REFRESH MATERIALIZED VIEW CONCURRENTLY vw_search_suggestions;`);
-        } else {
-            logger.info("Creating materialized view vw_search_suggestions");
-            await knex.raw(`
-                CREATE MATERIALIZED VIEW vw_search_suggestions AS
+        // 1. Truncate existing data
+        await knex.raw(`TRUNCATE search_suggestions;`);
+
+        // 2. Re-populate from city2tour_flat
+        await knex.raw(`
+            INSERT INTO search_suggestions (reachable_from_country, city_slug, term, number_of_tours)
+            SELECT 
+                reachable_from_country,
+                city_slug,
+                term,
+                COUNT(id) AS number_of_tours
+            FROM (
                 SELECT 
                     reachable_from_country,
-                    city_slug,
-                    term,
-                    COUNT(id) AS number_of_tours
-                FROM (
-                    SELECT 
-                        reachable_from_country,
-                        city_slug, 
-                        id, 
-                        unnest(tsvector_to_array(search_column)) AS term 
-                    FROM city2tour_flat
-                ) sub
-                WHERE length(term) >= 3
-                AND term ~* '^[[:alpha:]]'
-                GROUP BY reachable_from_country, city_slug, term
-                HAVING COUNT(id) > 1;
-            `);
-            await knex.raw(
-                `CREATE UNIQUE INDEX idx_suggestions_unique ON vw_search_suggestions (city_slug, term);`,
-            );
-            await knex.raw(
-                `CREATE INDEX idx_suggestions_search ON vw_search_suggestions (reachable_from_country, city_slug, term text_pattern_ops);`,
-            );
-            await knex.raw(`CREATE INDEX ON vw_search_suggestions (reachable_from_country);`);
-        }
+                    city_slug, 
+                    id, 
+                    unnest(tsvector_to_array(search_column)) AS term 
+                FROM city2tour_flat
+            ) sub
+            WHERE length(term) >= 3
+            AND term ~* '^[[:alpha:]]'
+            GROUP BY reachable_from_country, city_slug, term
+            HAVING COUNT(id) > 1;
+        `);
     } catch (err) {
-        logger.error("Error refreshing vw_search_suggestions:", err);
+        logger.error("Error refreshing search_suggestions:", err);
         // throw err;
     }
     return true;

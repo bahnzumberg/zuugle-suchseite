@@ -366,11 +366,13 @@ CREATE INDEX type_idx ON pois (type);
 CREATE INDEX idx_pois_name_search ON pois (name text_pattern_ops);
 
 
----------------------------------------------------------------
---- Materialized View: vw_search_suggestions                ---
----------------------------------------------------------------
----                                                         ---
---- The materialized view vw_search_suggestions and all the ---
---- indexes are created and maintained by the sync.js job.  ---
----                                                         ---
----------------------------------------------------------------
+CREATE TABLE search_suggestions (
+    reachable_from_country char(2) NOT NULL,
+    city_slug varchar(64) NOT NULL,
+    term text NOT NULL,
+    number_of_tours integer,
+    PRIMARY KEY (reachable_from_country, city_slug, term)
+);
+CREATE INDEX idx_suggestions_search
+ON search_suggestions (reachable_from_country, city_slug, term text_pattern_ops)
+INCLUDE (number_of_tours);

@@ -46,37 +46,35 @@ const autocompleteWrapper = async (req, res) => {
                     SELECT
                         p.type,
                         p.name AS term,
-                        2 as priority
+                        CASE WHEN p.type='peak' THEN 1 ELSE 2 END as priority
+                        1 as number_of_tours
                     FROM pois p
                     JOIN poi2tour pt ON p.id = pt.poi_id
-                    JOIN city2tour_flat c2f ON pt.tour_id = c2f.id
-                    WHERE c2f.reachable_from_country = :tld
-                    __city_filter_1__
+                    JOIN city2tour c ON pt.tour_id = c.tour_id
+                    WHERE c.reachable_from_country = :tld
+                    __city_filter__
                     AND p.name ILIKE :searchTerm
                 UNION
                     SELECT
                         'term' AS type,
-                        term,
-                        1 as priority
-                    FROM vw_search_suggestions
-                    WHERE reachable_from_country = :tld
-                    __city_filter_2__
+                        c.term,
+                        2 as priority,
+                        c.number_of_tours
+                    FROM search_suggestions as c
+                    WHERE c.reachable_from_country = :tld
+                    __city_filter__
                     AND term ILIKE :searchTerm
                     )
-                ORDER BY priority DESC, term ASC
+                ORDER BY priority ASC, number_of_tours DESC, term ASC
                 LIMIT 5;`;
 
     // City can be null, so we insert the WHERE condition only if city is not null
-    let city_filter_poi = " AND c2f.city_slug = :city ";
-    let city_filter_suggestions = " AND city_slug = :city ";
+    let city_filter = " AND c.city_slug = :city ";
     if (city == "null" || !city || city.length == 0) {
-        city_filter_poi = "";
-        city_filter_suggestions = "";
+        city_filter = "";
     }
 
-    let sql_final = sql
-        .replace("__city_filter_1__", city_filter_poi)
-        .replace("__city_filter_2__", city_filter_suggestions);
+    let sql_final = sql.replaceAll("__city_filter__", city_filter);
     const queryResult = await knex.raw(sql_final, { tld, city, searchTerm });
     const rows = queryResult.rows;
 
