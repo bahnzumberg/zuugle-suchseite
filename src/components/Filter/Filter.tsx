@@ -197,22 +197,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     keyToUpdate: CheckboxOptionsFilterKey,
     fallbackValue: Array<string | number> = [],
   ) => {
-    //TODO: make this simple
-    let newValue = fetchedFilter?.[keyToUpdate] ?? fallbackValue;
+    setSelectAllToggle((prevToggle) => {
+      const isSelected = prevToggle[keyToUpdate];
 
-    if (selectAllToggle[keyToUpdate]) {
-      newValue = [];
-    }
+      setTempFilter((prevFilter) => ({
+        ...prevFilter,
+        [keyToUpdate]: isSelected
+          ? []
+          : (fetchedFilter?.[keyToUpdate] ?? fallbackValue),
+      }));
 
-    setTempFilter({
-      ...tempFilter,
-      [keyToUpdate]: newValue,
+      return {
+        ...prevToggle,
+        [keyToUpdate]: !isSelected,
+      };
     });
-
-    setSelectAllToggle((prev) => ({
-      ...prev,
-      [keyToUpdate]: !prev[keyToUpdate],
-    }));
   };
 
   const updateGeolocation = (
