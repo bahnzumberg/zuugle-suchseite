@@ -121,7 +121,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }
 
   //TODO: we can derive this state from tempFilter and default filter object
-  const [selectAllToggle, setSelectAllToggle] = useState<
+  const [, setSelectAllToggle] = useState<
     Record<CheckboxOptionsFilterKey, boolean>
   >({
     ranges: true,
