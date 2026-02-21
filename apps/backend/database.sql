@@ -3,6 +3,7 @@ SET SEARCH_PATH TO public;
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS cube;
 CREATE EXTENSION IF NOT EXISTS earthdistance;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS fahrplan;
@@ -367,12 +368,17 @@ CREATE INDEX idx_pois_name_search ON pois (name text_pattern_ops);
 
 
 CREATE TABLE search_suggestions (
+    type varchar(10) NOT NULL,
+    term text NOT NULL,
     reachable_from_country char(2) NOT NULL,
     city_slug varchar(64) NOT NULL,
-    term text NOT NULL,
+    priority int NOT NULL,
     number_of_tours integer,
     PRIMARY KEY (reachable_from_country, city_slug, term)
 );
-CREATE INDEX idx_suggestions_search
-ON search_suggestions (reachable_from_country, city_slug, term text_pattern_ops)
-INCLUDE (number_of_tours);
+CREATE INDEX idx_suggestions_exact 
+ON search_suggestions (reachable_from_country, city_slug) 
+INCLUDE (priority, number_of_tours);
+
+CREATE INDEX idx_suggestions_term_trgm 
+ON search_suggestions USING gin (term gin_trgm_ops);

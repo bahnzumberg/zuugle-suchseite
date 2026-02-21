@@ -21,6 +21,13 @@ const autocompleteWrapper = async (req, res) => {
         return res.status(200).json({ success: true, error: "no search term" });
     }
 
+    if (search.length < 3) {
+        return res.status(400).json({
+            success: false,
+            error: "Bad Request - search term is too short (min 3 characters)",
+        });
+    }
+
     if (search.length > 128) {
         return res.status(400).json({
             success: false,
@@ -39,37 +46,44 @@ const autocompleteWrapper = async (req, res) => {
     }
 
     // No cached result, so we need to query the database
-    let sql = `SELECT
-                type,
-                term
-                FROM (
+    let sql = `WITH RankedSuggestions AS (
                     SELECT
-                        p.type,
-                        p.name AS term,
-                        CASE WHEN p.type='peak' THEN 1 ELSE 2 END as priority
-                        1 as number_of_tours
-                    FROM pois p
-                    JOIN poi2tour pt ON p.id = pt.poi_id
-                    JOIN city2tour c ON pt.tour_id = c.tour_id
-                    WHERE c.reachable_from_country = :tld
-                    __city_filter__
-                    AND p.name ILIKE :searchTerm
-                UNION
-                    SELECT
-                        'term' AS type,
-                        c.term,
-                        2 as priority,
-                        c.number_of_tours
-                    FROM search_suggestions as c
-                    WHERE c.reachable_from_country = :tld
+                        type,
+                        term,
+                        priority,
+                        number_of_tours,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY 
+                                CASE 
+                                    WHEN type = 'peak' THEN 'peak_group'
+                                    WHEN type = 'range' THEN 'range_group'
+                                    ELSE 'other_group'
+                                END
+                            ORDER BY priority ASC, number_of_tours DESC, term ASC
+                        ) as category_rank
+                    FROM search_suggestions
+                    WHERE reachable_from_country = :tld
                     __city_filter__
                     AND term ILIKE :searchTerm
-                    )
+                ),
+                FilteredQuotas AS (
+                    SELECT * FROM RankedSuggestions
+                    WHERE 
+                        (category_rank <= 3 AND type = 'peak') 
+                        OR 
+                        (category_rank <= 2 AND type = 'range')
+                        OR 
+                        (type NOT IN ('peak', 'range'))
+                )
+                SELECT 
+                    type, 
+                    term
+                FROM FilteredQuotas
                 ORDER BY priority ASC, number_of_tours DESC, term ASC
-                LIMIT 5;`;
+                LIMIT 6;`;
 
     // City can be null, so we insert the WHERE condition only if city is not null
-    let city_filter = " AND c.city_slug = :city ";
+    let city_filter = " AND city_slug = :city ";
     if (city == "null" || !city || city.length == 0) {
         city_filter = "";
     }

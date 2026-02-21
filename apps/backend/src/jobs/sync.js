@@ -1330,24 +1330,60 @@ export async function refreshSearchSuggestions() {
 
         // 2. Re-populate from city2tour_flat
         await knex.raw(`
-            INSERT INTO search_suggestions (reachable_from_country, city_slug, term, number_of_tours)
-            SELECT 
-                reachable_from_country,
-                city_slug,
-                term,
-                COUNT(id) AS number_of_tours
-            FROM (
-                SELECT 
-                    reachable_from_country,
-                    city_slug, 
-                    id, 
-                    unnest(tsvector_to_array(search_column)) AS term 
-                FROM city2tour_flat
-            ) sub
-            WHERE length(term) >= 3
-            AND term ~* '^[[:alpha:]]'
-            GROUP BY reachable_from_country, city_slug, term
-            HAVING COUNT(id) > 1;
+            INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
+            -- POIs
+            SELECT
+                p.type,
+                p.name AS term,
+                c.reachable_from_country,
+                c.city_slug,
+                CASE WHEN p.type = 'peak' THEN 1 ELSE 3 END AS priority,
+                COUNT(p.id) AS number_of_tours
+            FROM pois p
+            JOIN poi2tour pt ON p.id = pt.poi_id
+            JOIN city2tour c ON pt.tour_id = c.tour_id
+            GROUP BY 
+                p.type, 
+                p.name, 
+                c.reachable_from_country, 
+                c.city_slug
+
+            UNION ALL
+
+            -- Ranges
+            SELECT
+                'range' AS type,
+                c.range AS term,
+                c.reachable_from_country,
+                c.city_slug,
+                2 AS priority,
+                COUNT(c.id) AS number_of_tours
+            FROM city2tour_flat c
+            WHERE c.range IS NOT NULL
+            GROUP BY 
+                c.range, 
+                c.reachable_from_country, 
+                c.city_slug
+
+            UNION ALL
+
+            -- Terms
+            SELECT
+                'term' AS type,
+                t.term,
+                c.reachable_from_country,
+                c.city_slug,
+                3 AS priority,
+                COUNT(c.id) AS number_of_tours
+            FROM city2tour_flat c,
+                unnest(tsvector_to_array(c.search_column)) AS t(term)
+            WHERE length(t.term) >= 3
+                AND t.term ~* '^[[:alpha:]]'
+            GROUP BY 
+                c.reachable_from_country, 
+                c.city_slug, 
+                t.term
+            HAVING COUNT(c.id) > 1;
         `);
     } catch (err) {
         logger.error("Error refreshing search_suggestions:", err);
