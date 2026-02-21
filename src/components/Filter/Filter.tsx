@@ -26,7 +26,7 @@ import TraverseFilter from "./FilterOptions/Traverse";
 import AscentFilter from "./FilterOptions/Ascent";
 import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
-import LoadView from "./FilterOptions/LoadView";
+import LoadingView from "./LoadingView";
 import FilterFooter from "./FilterFooter";
 import CloseButton from "./CloseButton";
 import { CheckboxOptionsFilterKey } from "./types";
@@ -262,7 +262,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       <DialogContent dividers>
         <Box style={{ maxHeight: "600px" }}>
           {isFilterFetching ? (
-            <LoadView />
+            <LoadingView />
           ) : (
             <Fragment>
               <TourLengthFilter
@@ -301,7 +301,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 values={fetchedFilter?.types ?? []}
               />
               <DifficultyFilter
-                onToggleAll={() => onToggleAll("difficulties", [0, 1, 2, 3])}
+                onToggleAll={() => onToggleAll("difficulties", [1, 2, 3])}
                 isChecked={(value) => displayAsSelected("difficulties", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("difficulties", value, checked)

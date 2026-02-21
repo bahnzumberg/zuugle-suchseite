@@ -12,17 +12,19 @@ interface CheckboxListProps<T extends string | number> {
   list: CheckboxItem<T>[];
   isChecked: (value: T) => boolean;
   onChange: (params: { value: T; checked: boolean }) => void;
+  gridSize?: number;
 }
 
 export default function CheckboxList<T extends string | number>({
   list,
   isChecked,
   onChange,
+  gridSize = 6,
 }: CheckboxListProps<T>) {
   return (
     <>
       {list.map(({ value, label }) => (
-        <Grid key={value} size={6}>
+        <Grid key={value} size={gridSize}>
           <Box>
             <FormControlLabel
               control={
