@@ -1328,7 +1328,6 @@ export async function refreshSearchSuggestions() {
         // 1. Truncate existing data
         await knex.raw(`TRUNCATE search_suggestions;`);
 
-        // 2. Re-populate from city2tour_flat
         await knex.raw(`
             INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
             -- POIs

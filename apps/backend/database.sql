@@ -374,7 +374,7 @@ CREATE TABLE search_suggestions (
     city_slug varchar(64) NOT NULL,
     priority int NOT NULL,
     number_of_tours integer,
-    PRIMARY KEY (reachable_from_country, city_slug, term)
+    PRIMARY KEY (reachable_from_country, city_slug, type, term)
 );
 CREATE INDEX idx_suggestions_exact 
 ON search_suggestions (reachable_from_country, city_slug) 
