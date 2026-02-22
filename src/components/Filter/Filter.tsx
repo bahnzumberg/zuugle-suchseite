@@ -28,13 +28,14 @@ import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
 import LoadingView from "./LoadingView";
 import FilterFooter from "./FilterFooter";
-import CloseButton from "./CloseButton";
 import { CheckboxOptionsFilterKey } from "./types";
 import {
   countFilterActive,
   getActiveFilterFields,
   getDefaultFilterValues,
 } from "./utils";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -257,7 +258,18 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
           {t("filter.filter")}
         </Typography>
       </DialogTitle>
-      <CloseButton onClose={() => setShowFilter(false)} />
+      <IconButton
+        aria-label="close"
+        onClick={() => setShowFilter(false)}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent dividers>
         <Box style={{ maxHeight: "600px" }}>
           {isFilterFetching ? (
