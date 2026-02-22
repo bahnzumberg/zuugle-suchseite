@@ -2,6 +2,7 @@ import express from "express";
 let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
+import logger from "../utils/logger";
 router.get("/", (req, res) => autocompleteWrapper(req, res));
 
 const autocompleteWrapper = async (req, res) => {
@@ -89,8 +90,14 @@ const autocompleteWrapper = async (req, res) => {
     }
 
     let sql_final = sql.replaceAll("__city_filter__", city_filter);
-    const queryResult = await knex.raw(sql_final, { tld, city, searchTerm });
-    const rows = queryResult.rows;
+    let rows = [];
+    try {
+        const queryResult = await knex.raw(sql_final, { tld, city, searchTerm });
+        rows = queryResult.rows;
+    } catch (err) {
+        logger.error("Error querying search_suggestions:", err);
+        return res.status(200).json({ success: true, items: [] });
+    }
 
     const items = rows.map((row) => {
         return {
