@@ -23,10 +23,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 
-export interface CustomSelectProps {
-  setShowSearchModal: (showSearchModal: boolean) => void;
-}
-export default function CustomSelect() {
+export default function AutocompleteSearch() {
   const { t } = useTranslation();
   const [triggerGetSuggestions, { data: suggestions, isFetching: isLoading }] =
     useLazyGetSearchPhrasesQuery();
@@ -67,7 +64,6 @@ export default function CustomSelect() {
       }
       navigate(`/search?${searchParams.toString()}`);
     }
-    // setShowSearchModal(false);
   };
 
   useEffect(() => {
