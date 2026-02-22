@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 import {
@@ -9,28 +9,27 @@ import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
-import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
+import {
+  CityObject,
+  cityUpdated,
+  searchPhraseUpdated,
+} from "../../features/searchSlice";
 import { useNavigate } from "react-router";
-import Close from "@mui/icons-material/Close";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import List from "@mui/material/List";
-import ArrowForward from "@mui/icons-material/ArrowForward";
 import LocationOnOutlined from "@mui/icons-material/LocationOnOutlined";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;
 }
-export default function CustomSelect({
-  setShowSearchModal,
-}: CustomSelectProps) {
+export default function CustomSelect() {
   const { t } = useTranslation();
-  const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
+  const [triggerGetSuggestions, { data: suggestions, isFetching: isLoading }] =
+    useLazyGetSearchPhrasesQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
@@ -43,12 +42,12 @@ export default function CustomSelect({
   const isSearchPage = window.location.pathname === "/search";
   const navigate = useNavigate();
 
-  const handleSelect = (phrase: string) => {
+  const handleSelect = (phrase: string | null) => {
     //if search phrase corresponds to a city, set the city
-    const matchedCity = allCities.find(
+    const matchedCity: CityObject | undefined = allCities.find(
       (city) =>
-        city.label.toLowerCase() === phrase.toLowerCase() ||
-        city.value.toLowerCase() === phrase.toLowerCase(),
+        city.label.toLowerCase() === phrase?.toLowerCase() ||
+        city.value.toLowerCase() === phrase?.toLowerCase(),
     );
     if (isSearchPage) {
       if (matchedCity) {
@@ -60,7 +59,7 @@ export default function CustomSelect({
       const searchParams = new URLSearchParams();
       if (matchedCity) {
         searchParams.set("city", matchedCity.value);
-      } else {
+      } else if (phrase) {
         searchParams.set("search", phrase);
       }
       if (provider) {
@@ -68,7 +67,7 @@ export default function CustomSelect({
       }
       navigate(`/search?${searchParams.toString()}`);
     }
-    setShowSearchModal(false);
+    // setShowSearchModal(false);
   };
 
   useEffect(() => {
@@ -84,98 +83,82 @@ export default function CustomSelect({
   }, [searchString]);
 
   return (
-    <>
-      <Grid container alignItems="center" width={"100%"}>
-        {/* Input Field Area */}
-        <Grid
-          container
-          alignItems="center"
-          sx={{
-            flexGrow: 1,
-            borderRadius: "17px",
-            border: "1px solid #ccc",
-            p: "10px",
-          }}
-        >
-          {/* Search Icon */}
-          <SearchIcon sx={{ px: 1 }} />
-
-          {/* Input Field */}
-          <InputBase
-            sx={{ flexGrow: 1 }}
-            value={searchString}
-            autoFocus
-            onChange={(event) => setSearchString(event.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") {
-                handleSelect(searchString);
-                ev.preventDefault();
-              }
-            }}
-          />
-
-          {/* Clear Button */}
-          <IconButton
-            onClick={() => setSearchString("")}
-            aria-label={t("search.abbrechen")}
-          >
-            <Close sx={{ fontSize: 16, color: "#8b8b8b" }} />
-          </IconButton>
-        </Grid>
-
-        {/* Arrow Button */}
-        <Grid sx={{ pl: 1 }}>
-          <IconButton
-            sx={{
-              borderRadius: "50%",
-              border: "1px solid #d9d9d9",
-              height: "40px",
-              width: "40px",
-            }}
-            onClick={(ev) => {
-              handleSelect(searchString);
-              ev.preventDefault();
-            }}
-            title={t("search.search")}
-            aria-label={t("search.search")}
-          >
-            <ArrowForward sx={{ fontSize: 24, color: "#4992ff" }} />
-          </IconButton>
-        </Grid>
-      </Grid>
-      <List>
-        {(suggestions?.data?.items ?? []).map((option, index) => {
-          return (
-            <ListItem disablePadding key={index}>
-              <ListItemButton
-                onClick={(ev) => {
-                  handleSelect(option?.suggestion);
-                  ev.preventDefault();
+    <Autocomplete
+      freeSolo
+      clearOnBlur
+      selectOnFocus
+      filterOptions={(x) => x} // Disable built-in filtering, we handle filtering on the server
+      getOptionLabel={(option) => {
+        if (typeof option === "string") return option;
+        return option.suggestion;
+      }}
+      options={suggestions?.items ?? []}
+      value={currentSearchPhrase}
+      inputValue={searchString}
+      onInputChange={(event, newInputValue) => {
+        setSearchString(newInputValue);
+      }}
+      onChange={(event, newValue) => {
+        if (!newValue) {
+          handleSelect("");
+          return;
+        }
+        const phrase =
+          typeof newValue === "string"
+            ? newValue
+            : (newValue?.suggestion ?? "");
+        handleSelect(phrase);
+      }}
+      renderOption={(props, option) => {
+        return (
+          <ListItem>
+            <ListItemIcon>
+              <div
+                style={{
+                  borderRadius: "10px",
+                  backgroundColor: "#d9d9d9",
+                  height: "40px",
+                  width: "40px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <ListItemIcon>
-                  <div
-                    style={{
-                      borderRadius: "10px",
-                      backgroundColor: "#d9d9d9",
-                      height: "40px",
-                      width: "40px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <LocationOnOutlined
-                      style={{ fontSize: "24px", color: "#8b8b8b" }}
-                    />
-                  </div>
-                </ListItemIcon>
-                <ListItemText primary={option?.suggestion} />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
-    </>
+                <LocationOnOutlined
+                  style={{ fontSize: "24px", color: "#8b8b8b" }}
+                />
+              </div>
+            </ListItemIcon>
+            <ListItemText primary={option?.suggestion} />
+          </ListItem>
+        );
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          placeholder={t("start.suche")}
+          onKeyDown={(ev) => {
+            if (ev.key === "Enter" && searchString) {
+              handleSelect(searchString);
+              ev.preventDefault();
+            }
+          }}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: <SearchIcon sx={{ px: 1, color: "#666" }} />,
+              endAdornment: (
+                <Fragment>
+                  {isLoading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            },
+          }}
+        />
+      )}
+    />
   );
 }
