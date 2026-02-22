@@ -1328,9 +1328,9 @@ export async function refreshSearchSuggestions() {
         // 1. Truncate existing data
         await knex.raw(`TRUNCATE search_suggestions;`);
 
+        // Insert POIs
         await knex.raw(`
             INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
-            -- POIs
             SELECT
                 p.type,
                 p.name AS term,
@@ -1345,11 +1345,12 @@ export async function refreshSearchSuggestions() {
                 p.type, 
                 p.name, 
                 c.reachable_from_country, 
-                c.city_slug
+                c.city_slug;
+        `);
 
-            UNION ALL
-
-            -- Ranges
+        // Insert Ranges
+        await knex.raw(`
+            INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
             SELECT
                 'range' AS type,
                 c.range AS term,
@@ -1362,27 +1363,77 @@ export async function refreshSearchSuggestions() {
             GROUP BY 
                 c.range, 
                 c.reachable_from_country, 
-                c.city_slug
+                c.city_slug;
+        `);
 
-            UNION ALL
-
-            -- Terms
+        // Insert Terms
+        await knex.raw(`
+            INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
+            WITH extracted_words AS (
+                SELECT
+                    c.city_slug,
+                    c.reachable_from_country,
+                    clean_term.original_word,
+                    (ts_lexize(
+                        (CASE t.text_lang
+                            WHEN 'de' THEN 'german_stem'
+                            WHEN 'en' THEN 'english_stem'
+                            WHEN 'it' THEN 'italian_stem'
+                            WHEN 'fr' THEN 'french_stem'
+                            ELSE 'simple' 
+                        END)::regdictionary, 
+                        lower(clean_term.original_word)
+                    ))[1] AS stem
+                FROM city2tour_flat c
+                JOIN tour t ON c.id = t.id
+                CROSS JOIN LATERAL regexp_split_to_table(t.full_text, '[^[:alpha:]]+') AS raw(word)
+                CROSS JOIN LATERAL (
+                    SELECT raw.word AS original_word
+                    WHERE length(raw.word) >= 4
+                ) AS clean_term
+            ),
+            valid_stems AS (
+                SELECT 
+                    city_slug, 
+                    reachable_from_country, 
+                    original_word, 
+                    stem
+                FROM extracted_words
+                WHERE stem IS NOT NULL 
+            ),
+            word_counts AS (
+                SELECT
+                    city_slug,
+                    reachable_from_country,
+                    stem,
+                    original_word,
+                    COUNT(original_word) AS number_of_tours
+                FROM valid_stems
+                GROUP BY city_slug, reachable_from_country, stem, original_word
+                HAVING COUNT(original_word) >= 2 
+            ),
+            ranked_words AS (
+                SELECT
+                    city_slug,
+                    reachable_from_country,
+                    stem,
+                    original_word,
+                    number_of_tours,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY city_slug, reachable_from_country, stem 
+                        ORDER BY number_of_tours DESC, original_word ASC
+                    ) as rank
+                FROM word_counts
+            )
             SELECT
                 'term' AS type,
-                t.term,
-                c.reachable_from_country,
-                c.city_slug,
+                original_word AS term,
+                reachable_from_country,
+                city_slug,
                 3 AS priority,
-                COUNT(c.id) AS number_of_tours
-            FROM city2tour_flat c,
-                unnest(tsvector_to_array(c.search_column)) AS t(term)
-            WHERE length(t.term) >= 3
-                AND t.term ~* '^[[:alpha:]]'
-            GROUP BY 
-                c.reachable_from_country, 
-                c.city_slug, 
-                t.term
-            HAVING COUNT(c.id) > 1;
+                number_of_tours
+            FROM ranked_words
+            WHERE rank = 1;
         `);
     } catch (err) {
         logger.error("Error refreshing search_suggestions:", err);
