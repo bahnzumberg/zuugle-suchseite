@@ -27,7 +27,6 @@ import AscentFilter from "./FilterOptions/Ascent";
 import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
 import LoadingView from "./LoadingView";
-import FilterFooter from "./FilterFooter";
 import { CheckboxOptionsFilterKey } from "./types";
 import {
   countFilterActive,
@@ -36,6 +35,8 @@ import {
 } from "./utils";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
 
 export interface FilterProps {
   showFilter: boolean;
@@ -361,15 +362,24 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
           )}
         </Box>
       </DialogContent>
-      <FilterFooter
-        resetFilter={resetFilter}
-        submitFilter={submitFilter}
-        activeFilterCount={countFilterActive({
-          geolocation,
-          defaultFilterValues,
-          tempFilter,
-        })}
-      />
+      <DialogActions sx={{ py: 2 }}>
+        <Button
+          variant={"text"}
+          sx={{ marginRight: 1, color: "#8B8B8B" }}
+          onClick={resetFilter}
+        >
+          {" "}
+          {t("filter.filter_loeschen")}
+        </Button>
+        <Button variant={"contained"} onClick={submitFilter}>
+          {countFilterActive({
+            geolocation,
+            defaultFilterValues,
+            tempFilter,
+          }) || ""}{" "}
+          {t("filter.filter_anwenden")}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }
