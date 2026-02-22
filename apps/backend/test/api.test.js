@@ -311,7 +311,7 @@ describe("Zuugle API UAT Tests", () => {
 
     describe("GET /api/searchphrase", () => {
         test("returns 200 with valid search term", async () => {
-            const url = `${baseUrl}/api/searchphrase?search=Alpen&tld=AT`;
+            const url = `${baseUrl}/api/searchphrase?search=wilds&tld=AT`;
             const response = await fetch(url, { headers: getHeaders() });
 
             expect(response.status).toBe(200);
@@ -319,16 +319,18 @@ describe("Zuugle API UAT Tests", () => {
             expect(data.success).toBe(true);
             expect(data.items).toBeDefined();
             expect(Array.isArray(data.items)).toBe(true);
+            expect(data.items.length).toBeGreaterThan(0);
         });
 
         test("returns 200 with city filter applied", async () => {
-            const url = `${baseUrl}/api/searchphrase?search=Alpen&tld=AT&city=wien`;
+            const url = `${baseUrl}/api/searchphrase?search=wilds&tld=AT&city=wien`;
             const response = await fetch(url, { headers: getHeaders() });
 
             expect(response.status).toBe(200);
             const data = await response.json();
             expect(data.success).toBe(true);
             expect(Array.isArray(data.items)).toBe(true);
+            expect(data.items.length).toBeGreaterThan(0);
         });
 
         test("returns 200 with error message when search is empty string (not 400)", async () => {
