@@ -3,11 +3,8 @@ import Grid from "@mui/material/Grid";
 import { useSelector } from "react-redux";
 import { Fragment, useState } from "react";
 import { hasContent } from "../../utils/globals";
-import { Link } from "react-router";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
-import IconButton from "@mui/material/IconButton";
-import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import AutosuggestSearch from "./AutosuggestSearch";
 import Filter from "../Filter/Filter";
 import { theme } from "../../theme";
@@ -15,7 +12,7 @@ import { MobileModal } from "./MobileModal";
 import { RootState } from "../..";
 import { CustomIcon } from "../../icons/CustomIcon";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Button from "@mui/material/Button";
+import SearchActionButton from "./SearchActionButton";
 
 export interface SearchProps {
   pageKey: string;
@@ -225,74 +222,15 @@ export default function Search({
             </Grid>
           </Box>
         </Box>
-
-        <Box>
-          {/* ***** filter box in the Search Results page ******* */}
-          {!city && pageKey === "detail" ? (
-            ""
-          ) : isSearchResultsPage ? (
-            <Button
-              onClick={() => setFilterOn(true)}
-              aria-label={t("filter.filter")}
-              startIcon={<FilterAltOutlinedIcon />}
-              sx={{
-                backgroundColor: activeFilter ? "#FF8A75" : "#4992FF",
-                color: "white",
-                height: 40,
-                paddingX: 2,
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "14px",
-                transition: "all 0.2s ease-in-out",
-                boxShadow: "0 2px 8px rgba(73, 146, 255, 0.3)",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  backgroundColor: activeFilter ? "#FF6F5A" : "#387EE0",
-                  boxShadow: "0 4px 12px rgba(73, 146, 255, 0.4)",
-                },
-              }}
-            >
-              {t("filter.filter")}
-            </Button>
-          ) : (
-            <Box
-              sx={{
-                marginLeft: "10px",
-                backgroundColor: activeFilter ? "#FF8A75" : undefined,
-                borderColor: activeFilter ? "#FF8A75" : undefined,
-              }}
-              className="filter-icon-container"
-            >
-              <Link
-                to={{
-                  pathname: "/search",
-                  search:
-                    "?" +
-                    (searchPhrase ? `&search=${searchPhrase}` : "") +
-                    (provider ? `&p=${provider}` : ""),
-                }}
-              >
-                <IconButton
-                  aria-label="Go"
-                  sx={{
-                    "&:hover": {
-                      background: "#7aa8ff",
-                      fill: "#7aa8ff",
-                    },
-                  }}
-                >
-                  <CustomIcon
-                    name="goIcon"
-                    style={{
-                      transform: "scale(1.55)",
-                      strokeWidth: 0,
-                    }}
-                  />
-                </IconButton>
-              </Link>
-            </Box>
-          )}
-        </Box>
+        <SearchActionButton
+          isSearchResultsPage={isSearchResultsPage}
+          pageKey={pageKey}
+          city={city}
+          searchPhrase={searchPhrase}
+          provider={provider}
+          activeFilter={activeFilter}
+          setFilterOn={setFilterOn}
+        />
       </Box>
     </Fragment>
   );
