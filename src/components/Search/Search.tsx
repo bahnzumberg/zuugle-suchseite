@@ -47,10 +47,6 @@ export default function Search({
   const activeFilter = useSelector(
     (state: RootState) => hasContent(state.filter) || state.search.geolocation,
   );
-  const activeFilterCount = useSelector((state: RootState) => {
-    const filterCount = Object.keys(state.filter).length;
-    return filterCount + (state.search.geolocation ? 1 : 0);
-  });
 
   const handleOpenModal = (type: "search" | "city") => {
     if (isMobile) {
