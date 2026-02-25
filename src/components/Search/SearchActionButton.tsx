@@ -12,7 +12,7 @@ interface SearchActionButtonProps {
   city: { label: string } | null | undefined;
   searchPhrase: string | null | undefined;
   provider: string | null | undefined;
-  activeFilter: unknown;
+  activeFilter: boolean;
   setFilterOn: (filterOn: boolean) => void;
 }
 
@@ -28,7 +28,7 @@ export default function SearchActionButton({
   const { t } = useTranslation();
 
   if (!city && pageKey === "detail") {
-    return "";
+    return null;
   }
 
   if (isSearchResultsPage) {
