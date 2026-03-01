@@ -1226,7 +1226,13 @@ export async function populateCity2TourFlat() {
             t.provider, 
             p.provider_name,
             t.hashed_url, 
-            t.url, 
+            CASE 
+              WHEN t.provider='bahnzumberg' AND c2t.reachable_from_country='CH' THEN CONCAT('https://www.bahn-zum-berg.ch', SUBSTRING(t.url FROM 29))
+              WHEN t.provider='bahnzumberg' AND c2t.reachable_from_country='IT' THEN CONCAT('https://www.bahn-zum-berg.it', SUBSTRING(t.url FROM 29))
+              WHEN t.provider='bahnzumberg' AND c2t.reachable_from_country='DE' THEN CONCAT('https://www.bahn-zum-berg.de', SUBSTRING(t.url FROM 29))
+              WHEN t.provider='bahnzumberg' THEN CONCAT('https://www.bahn-zum-berg.at', SUBSTRING(t.url FROM 29))
+              ELSE t.url
+            END as url, 
             t.title, 
             t.image_url,
             t.type, 
