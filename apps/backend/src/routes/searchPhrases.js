@@ -29,7 +29,7 @@ const listWrapper = async (req, res) => {
 
     const city = req.query.city;
     const language = req.query.language;
-    const tld = req.query.tld.toUpperCase();
+    const tld = (req.query.tld || "AT").toUpperCase();
 
     const item = await createQuery("phrase", "search_phrase", city, search, language, tld);
 
