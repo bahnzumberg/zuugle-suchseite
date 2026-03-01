@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
+import debounce from "lodash.debounce";
 import {
   useGetCitiesQuery,
-  useLazyGetSearchPhrasesQuery,
+  useLazyGetSearchSuggestionsQuery,
 } from "../../features/apiSlice";
+import type { SuggestionType } from "../../features/apiSlice";
 import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
@@ -21,16 +23,28 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
 import ArrowForward from "@mui/icons-material/ArrowForward";
-import LocationOnOutlined from "@mui/icons-material/LocationOnOutlined";
+import CabinOutlined from "@mui/icons-material/CabinOutlined";
+import FilterHdrOutlined from "@mui/icons-material/FilterHdrOutlined";
+import LandscapeOutlined from "@mui/icons-material/LandscapeOutlined";
+import SearchOutlined from "@mui/icons-material/SearchOutlined";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;
 }
+
+const suggestionIconMap: Record<SuggestionType, React.ElementType> = {
+  hut: CabinOutlined,
+  peak: FilterHdrOutlined,
+  range: LandscapeOutlined,
+  term: SearchOutlined,
+};
+
 export default function CustomSelect({
   setShowSearchModal,
 }: CustomSelectProps) {
   const { t } = useTranslation();
-  const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
+  const [triggerGetSuggestions, suggestionsResult] =
+    useLazyGetSearchSuggestionsQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
@@ -50,11 +64,14 @@ export default function CustomSelect({
         city.label.toLowerCase() === phrase.toLowerCase() ||
         city.value.toLowerCase() === phrase.toLowerCase(),
     );
+
     if (isSearchPage) {
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        dispatch(searchPhraseUpdated(phrase));
+        if (phrase.length > 3) {
+          dispatch(searchPhraseUpdated(phrase));
+        }
       }
     } else {
       const searchParams = new URLSearchParams();
@@ -71,17 +88,31 @@ export default function CustomSelect({
     setShowSearchModal(false);
   };
 
-  useEffect(() => {
+  const debouncedTrigger = useMemo(
+    () => debounce(triggerGetSuggestions, 300),
+    [triggerGetSuggestions],
+  );
+
+  const handleSearchStringChange = (input: string) => {
+    setSearchString(input);
+
+    if (input.length < 3) return;
+
     const tld = getTLD();
     const _city = city?.value ?? "";
+    debouncedTrigger(
+      {
+        search: input,
+        city: _city,
+        language: language || "de",
+        tld: tld,
+      },
+      true,
+    );
+  };
 
-    triggerGetSuggestions({
-      search: searchString,
-      city: _city,
-      language: language || "de",
-      tld: tld,
-    });
-  }, [searchString]);
+  const suggestions =
+    searchString.length >= 3 ? (suggestionsResult.data?.items ?? []) : [];
 
   return (
     <>
@@ -105,7 +136,7 @@ export default function CustomSelect({
             sx={{ flexGrow: 1 }}
             value={searchString}
             autoFocus
-            onChange={(event) => setSearchString(event.target.value)}
+            onChange={(event) => handleSearchStringChange(event.target.value)}
             onKeyDown={(ev) => {
               if (ev.key === "Enter") {
                 handleSelect(searchString);
@@ -144,12 +175,13 @@ export default function CustomSelect({
         </Grid>
       </Grid>
       <List>
-        {(suggestions?.data?.items ?? []).map((option, index) => {
+        {suggestions.map((option, index) => {
+          const Icon = suggestionIconMap[option.type] ?? SearchOutlined;
           return (
             <ListItem disablePadding key={index}>
               <ListItemButton
                 onClick={(ev) => {
-                  handleSelect(option?.suggestion);
+                  handleSelect(option?.text);
                   ev.preventDefault();
                 }}
               >
@@ -165,12 +197,10 @@ export default function CustomSelect({
                       alignItems: "center",
                     }}
                   >
-                    <LocationOnOutlined
-                      style={{ fontSize: "24px", color: "#8b8b8b" }}
-                    />
+                    <Icon style={{ fontSize: "24px", color: "#8b8b8b" }} />
                   </div>
                 </ListItemIcon>
-                <ListItemText primary={option?.suggestion} />
+                <ListItemText primary={option?.text} />
               </ListItemButton>
             </ListItem>
           );
