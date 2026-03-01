@@ -25,6 +25,7 @@
         "import-data-prod": "node build/jobs/syncDataProd.js",
         "import-files": "node build/jobs/syncFiles.js",
         "import-files-prod": "node build/jobs/syncFiles.js",
+        "refresh-search-suggestions": "node build/jobs/refreshSearchSuggestions.js",
         "generate-testdata": "node build/jobs/generateTestdata.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",

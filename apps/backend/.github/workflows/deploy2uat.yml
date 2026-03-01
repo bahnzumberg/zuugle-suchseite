@@ -57,6 +57,8 @@ jobs:
                       ./restore_databases.sh --structure
                       pm2 restart all
                       # /usr/local/zuugle/import-data-files.sh
+                      sleep 10
+                      npm run refresh-search-suggestions
 
     test-api:
         needs: build
