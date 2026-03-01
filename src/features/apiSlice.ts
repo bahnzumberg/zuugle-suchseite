@@ -75,6 +75,23 @@ export interface SearchParams {
   tld: string;
 }
 
+export type SuggestionType = "hut" | "peak" | "range" | "term";
+
+export interface TypedSuggestion {
+  text: string;
+  type: SuggestionType;
+}
+
+interface RawSuggestionsResponse {
+  success: boolean;
+  items: Record<string, string>[];
+}
+
+export interface TypedSuggestionsResponse {
+  success: boolean;
+  items: TypedSuggestion[];
+}
+
 export interface Suggestion {
   suggestion: string;
 }
@@ -178,6 +195,26 @@ export const api = createApi({
         return `searchPhrases?${searchParams}`;
       },
     }),
+    getSearchSuggestions: build.query<TypedSuggestionsResponse, SearchParams>({
+      query: (params) => {
+        const searchParams = new URLSearchParams(
+          Object.entries(params).map(([key, value]) => [key, String(value)]),
+        );
+        return `searchphrase?${searchParams}`;
+      },
+      transformResponse: (
+        response: RawSuggestionsResponse,
+      ): TypedSuggestionsResponse => {
+        const validTypes: SuggestionType[] = ["hut", "peak", "range", "term"];
+        const items = (response.items ?? []).map((item) => {
+          const type = (Object.keys(item).find((k) =>
+            validTypes.includes(k as SuggestionType),
+          ) ?? "term") as SuggestionType;
+          return { text: item[type] ?? "", type };
+        });
+        return { success: response.success, items };
+      },
+    }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
         return `tours/filter?${toSearchParams(params)}&domain=${domain}`;
@@ -251,6 +288,8 @@ export const {
   useLazyGetToursQuery,
   useGetSearchPhrasesQuery,
   useLazyGetSearchPhrasesQuery,
+  useGetSearchSuggestionsQuery,
+  useLazyGetSearchSuggestionsQuery,
   useGetFilterQuery,
   useLazyGetFilterQuery,
   useGetTourQuery,
