@@ -62,10 +62,18 @@ const autocompleteWrapper = async (req, res) => {
                                 END
                             ORDER BY priority ASC, number_of_tours DESC, term ASC
                         ) as category_rank
-                    FROM search_suggestions
-                    WHERE reachable_from_country = :tld
-                    __city_filter__
-                    AND term ILIKE :searchTerm
+                    FROM (
+                      SELECT 
+                          type,
+                          term,
+                          priority,
+                          max(number_of_tours) as number_of_tours
+                      FROM search_suggestions
+                      WHERE reachable_from_country = :tld
+                      __city_filter__
+                      AND term ILIKE :searchTerm
+                      GROUP BY type, term, priority
+                      ) as a
                 ),
                 FilteredQuotas AS (
                     SELECT * FROM RankedSuggestions
