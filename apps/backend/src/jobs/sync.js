@@ -1462,7 +1462,9 @@ export async function refreshSearchSuggestions() {
                 3 AS priority,
                 number_of_tours
             FROM ranked_words
-            WHERE rank = 1;
+            WHERE rank = 1
+            ON CONFLICT (reachable_from_country, city_slug, type, term)
+            DO UPDATE SET number_of_tours = GREATEST(search_suggestions.number_of_tours, EXCLUDED.number_of_tours);
         `);
     } catch (err) {
         logger.error("Error refreshing search_suggestions:", err);
