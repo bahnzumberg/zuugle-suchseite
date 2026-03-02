@@ -1337,6 +1337,13 @@ export async function refreshSearchSuggestions() {
                 PRIMARY KEY (reachable_from_country, city_slug, type, term)
             );
         `);
+        // Self-healing: add columns that may be missing in older table versions
+        await knex.raw(
+            `ALTER TABLE search_suggestions ADD COLUMN IF NOT EXISTS priority int NOT NULL DEFAULT 3;`,
+        );
+        await knex.raw(
+            `ALTER TABLE search_suggestions ADD COLUMN IF NOT EXISTS number_of_tours integer;`,
+        );
         await knex.raw(`
             CREATE INDEX IF NOT EXISTS idx_suggestions_exact
             ON search_suggestions (reachable_from_country, city_slug)
