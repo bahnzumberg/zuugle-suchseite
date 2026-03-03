@@ -48,8 +48,8 @@ function App() {
         <Route
           path="/"
           element={
-            <Suspense fallback={<SimpleLoader />}>
-              <ThemedApp routeKey="search" />
+            <Suspense fallback={<StartSkeleton />}>
+              <ThemedApp routeKey="start" />
             </Suspense>
           }
         />
