@@ -323,7 +323,7 @@ describe("Zuugle API UAT Tests", () => {
         });
 
         test("returns 200 with city filter applied", async () => {
-            const url = `${baseUrl}/api/searchphrase?search=wilds&tld=AT&city=wien`;
+            const url = `${baseUrl}/api/searchphrase?search=schn&tld=AT&city=wien`;
             const response = await fetch(url, { headers: getHeaders() });
 
             expect(response.status).toBe(200);
