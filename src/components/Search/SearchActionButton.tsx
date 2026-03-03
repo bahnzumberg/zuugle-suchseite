@@ -46,11 +46,10 @@ export default function SearchActionButton({
           fontWeight: 600,
           fontSize: "14px",
           transition: "all 0.2s ease-in-out",
-          boxShadow: "0 2px 8px rgba(73, 146, 255, 0.3)",
+          boxShadow: "0 1px 4px rgba(73, 146, 255, 0.3)",
           "&:hover": {
-            transform: "scale(1.05)",
-            backgroundColor: activeFilter ? "#EE6244" : "#387EE0",
-            boxShadow: "0 4px 12px rgba(73, 146, 255, 0.4)",
+            backgroundColor: activeFilter ? "#FF7663" : "#4992FF",
+            boxShadow: "0 2px 8px rgba(73, 146, 255, 0.4)",
           },
         }}
       >
