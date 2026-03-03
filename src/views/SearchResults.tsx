@@ -10,13 +10,16 @@ import debounce from "lodash.debounce";
 import DomainMenu from "../components/DomainMenu";
 import LanguageMenu from "../components/LanguageMenu";
 import { useTranslation } from "react-i18next";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-import IconButton from "@mui/material/IconButton";
+import MapBtn from "../components/Search/MapBtn";
 import { useGetCitiesQuery, useLazyGetToursQuery } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
 import { RootState } from "..";
 import SearchParamSync from "../components/SearchParamSync";
-import { cityUpdated, mapUpdated } from "../features/searchSlice";
+import {
+  boundsUpdated,
+  cityUpdated,
+  mapUpdated,
+} from "../features/searchSlice";
 import { useAppDispatch } from "../hooks";
 import TourCardContainer from "../components/TourCardContainer";
 import Search from "../components/Search/Search";
@@ -30,9 +33,6 @@ import { CustomIcon } from "../icons/CustomIcon";
 import { hasContent } from "../utils/globals";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
-import Button from "@mui/material/Button";
-import { HideMapIcon } from "../icons/HideMapIcon";
-import { useIsMobile } from "../utils/muiUtils";
 
 export default function SearchResults() {
   const { t } = useTranslation();
@@ -40,7 +40,6 @@ export default function SearchResults() {
   const search = useSelector((state: RootState) => state.search);
   const showMap = useSelector((state: RootState) => state.search.map);
   const provider = useSelector((state: RootState) => state.search.provider);
-  const isMobile = useIsMobile();
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -151,6 +150,10 @@ export default function SearchResults() {
     <Box
       className="cards-container"
       sx={{
+        marginTop: {
+          xs: marginTopCards,
+          md: marginTopCards,
+        },
         padding: "25px",
       }}
     >
@@ -162,22 +165,21 @@ export default function SearchResults() {
     </Box>
   );
 
+  const marginTopCards = showMap ? "20px" : "140px";
+
   const totalToursHeader = () => (
-    <Box
-      className={"header-line-main"}
-      sx={{
-        width: "100%",
-        position: "relative",
-        marginTop: showMap ? "0px" : "80px",
-        paddingTop: showMap ? "10px" : "30px",
-        paddingBottom: showMap ? "10px" : "5px",
-      }}
-    >
+    <Box className={"header-line-main"} sx={{ width: "100%" }}>
       <Box
         sx={{
+          paddingTop: showMap ? "3.3%" : "10.2%",
+          paddingBottom: "5.5px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          "@media (min-width: 900px)": {
+            paddingTop: showMap ? "1.42%" : "2.36%",
+            // paddingTop: largeScreenPaddingTop,
+          },
         }}
       >
         {loadedTours?.total != undefined && (
@@ -211,36 +213,6 @@ export default function SearchResults() {
           </>
         )}
       </Box>
-      {loadedTours?.total != undefined && (
-        <Box
-          sx={{
-            position: "absolute",
-            right: { xs: "8px", md: "24px" },
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
-        >
-          {isMobile ? (
-            <IconButton
-              onClick={() => dispatch(mapUpdated(!showMap))}
-              color="success"
-            >
-              {showMap ? <HideMapIcon /> : <MapOutlinedIcon />}
-            </IconButton>
-          ) : (
-            <Button
-              variant="outlined"
-              onClick={() => dispatch(mapUpdated(!showMap))}
-              color="success"
-              startIcon={showMap ? <HideMapIcon /> : <MapOutlinedIcon />}
-            >
-              {showMap
-                ? t("main_only.kartenansicht_entfernen")
-                : t("start_pages.zur_kartenansicht")}
-            </Button>
-          )}
-        </Box>
-      )}
     </Box>
   );
 
@@ -305,7 +277,7 @@ export default function SearchResults() {
                 },
               }}
             >
-              <Box className={"colCenter"} sx={{ zIndex: 1 }}>
+              <Box className={"colCenter"}>
                 <Search
                   pageKey="search"
                   isSearchResultsPage={true}
@@ -316,6 +288,7 @@ export default function SearchResults() {
             </Box>
           )}
         </Box>
+        {!showMap && totalToursHeader()}
       </Box>
 
       {showMap && (
@@ -334,6 +307,14 @@ export default function SearchResults() {
       )}
       {totalToursHeader()}
       {!!tours && tours.length > 0 && renderCardContainer()}
+      <MapBtn
+        handleClick={() => {
+          if (showMap) {
+            dispatch(boundsUpdated(null));
+          }
+          dispatch(mapUpdated(!showMap));
+        }}
+      />
     </div>
   );
 }
