@@ -499,8 +499,24 @@ export default function DetailReworked() {
         <LoadingSpinner />
       ) : (
         <>
-          <Box className="newHeader" sx={{ position: "relative" }}>
-            <Box component={"div"} className="rowing blueDiv">
+          <Box
+            className="newHeader"
+            height="100px"
+            sx={{ position: "relative" }}
+          >
+            <Box
+              component={"div"}
+              className="rowing blueDiv"
+              sx={{
+                minHeight: "100px",
+                boxSizing: "border-box",
+                py: 0,
+                px: {
+                  xs: "15px",
+                  sm: "30px",
+                },
+              }}
+            >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box
                   sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}

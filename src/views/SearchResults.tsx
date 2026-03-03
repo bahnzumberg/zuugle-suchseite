@@ -171,15 +171,11 @@ export default function SearchResults() {
     <Box className={"header-line-main"} sx={{ width: "100%" }}>
       <Box
         sx={{
-          paddingTop: showMap ? "3.3%" : "10.2%",
+          paddingTop: showMap ? "10px" : "35px",
           paddingBottom: "5.5px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          "@media (min-width: 900px)": {
-            paddingTop: showMap ? "1.42%" : "2.36%",
-            // paddingTop: largeScreenPaddingTop,
-          },
         }}
       >
         {loadedTours?.total != undefined && (
@@ -233,8 +229,20 @@ export default function SearchResults() {
             </Typography>
           </Box>
         )}
-        <Box className="newHeader" height={"80px"} position={"relative"}>
-          <Box component={"div"} className="rowing blueDiv">
+        <Box className="newHeader" height={"100px"} position={"relative"}>
+          <Box
+            component={"div"}
+            className="rowing blueDiv"
+            sx={{
+              height: "100%",
+              boxSizing: "border-box",
+              py: 0,
+              px: {
+                xs: "15px",
+                sm: "30px",
+              },
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "16px", cursor: "pointer" }}>
                 <Link
