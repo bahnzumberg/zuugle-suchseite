@@ -5,6 +5,9 @@ import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { CustomIcon } from "../../icons/CustomIcon";
+import { RootState } from "../..";
+import { hasContent } from "../../utils/globals";
+import { useSelector } from "react-redux";
 
 interface SearchActionButtonProps {
   isSearchResultsPage: boolean;
@@ -12,7 +15,6 @@ interface SearchActionButtonProps {
   city: { label: string } | null | undefined;
   searchPhrase: string | null | undefined;
   provider: string | null | undefined;
-  activeFilter: boolean;
   setFilterOn: (filterOn: boolean) => void;
 }
 
@@ -22,10 +24,13 @@ export default function SearchActionButton({
   city,
   searchPhrase,
   provider,
-  activeFilter,
   setFilterOn,
 }: SearchActionButtonProps) {
   const { t } = useTranslation();
+
+  const activeFilter = useSelector(
+    (state: RootState) => hasContent(state.filter) || state.search.geolocation,
+  );
 
   if (!city && pageKey === "detail") {
     return null;

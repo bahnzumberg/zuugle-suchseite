@@ -70,11 +70,6 @@ export default function SearchParamSync({
     updateParam(newParams, "p", search.provider);
     updateParam(
       newParams,
-      "country",
-      isSearchResultsPage ? search.country : null,
-    );
-    updateParam(
-      newParams,
       "map",
       isSearchResultsPage && search.map ? "true" : null,
     );

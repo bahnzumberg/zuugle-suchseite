@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useSelector } from "react-redux";
 import { Fragment, useState } from "react";
-import { hasContent } from "../../utils/globals";
 import FullScreenCityInput from "./FullScreenCityInput";
 import { useTranslation } from "react-i18next";
 import AutosuggestSearch from "./AutosuggestSearch";
@@ -43,10 +42,6 @@ export default function Search({
   if (filterOn === undefined || setFilterOn === undefined) {
     [filterOn, setFilterOn] = useState(false);
   }
-
-  const activeFilter = useSelector(
-    (state: RootState) => hasContent(state.filter) || state.search.geolocation,
-  );
 
   const handleOpenModal = (type: "search" | "city") => {
     if (isMobile) {
@@ -224,7 +219,6 @@ export default function Search({
           city={city}
           searchPhrase={searchPhrase}
           provider={provider}
-          activeFilter={activeFilter}
           setFilterOn={setFilterOn}
         />
       </Box>
