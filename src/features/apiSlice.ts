@@ -187,10 +187,7 @@ export const api = createApi({
         };
       },
     }),
-    getSearchPhrases: build.query<
-      AutocompleteSearchSuggestionsResponse,
-      SearchParams
-    >({
+    getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({
       query: (params) => {
         const searchParams = new URLSearchParams(
           Object.entries(params).map(([key, value]) => [key, String(value)]),

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
@@ -40,12 +40,16 @@ export default function CustomSelect({
   const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
   const suggestions =
-    searchString.length >= 3 ? (suggestionsResult.data?.items ?? []) : [];
+    searchString.length < 3 ? [] : (suggestionsResult.data?.items ?? []);
   const navigate = useNavigate();
   const debouncedTrigger = useMemo(
     () => debounce(triggerGetSuggestions, 300),
     [triggerGetSuggestions],
   );
+
+  useEffect(() => {
+    () => debouncedTrigger.cancel();
+  });
 
   const handleSelect = (phrase: string) => {
     //if search phrase corresponds to a city, set the city
@@ -59,7 +63,7 @@ export default function CustomSelect({
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        if (phrase.length > 3) {
+        if (phrase.length >= 3) {
           dispatch(searchPhraseUpdated(phrase));
         }
       }
@@ -80,6 +84,7 @@ export default function CustomSelect({
 
   const handleSearchStringChange = (input: string) => {
     setSearchString(input);
+    suggestionsResult.reset();
 
     if (input.length < 3) return;
 

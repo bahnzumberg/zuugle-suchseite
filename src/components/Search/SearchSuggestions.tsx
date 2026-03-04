@@ -3,20 +3,20 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Skeleton from "@mui/material/Skeleton";
 import CabinOutlined from "@mui/icons-material/CabinOutlined";
 import PeakIcon from "./icons/PeakIcon";
 import LandscapeOutlined from "@mui/icons-material/LandscapeOutlined";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
-import { AutocompleteSuggestionType } from "../../features/apiSlice";
-
-export interface Suggestion {
-  text: string;
-  type: AutocompleteSuggestionType;
-}
+import {
+  AutocompleteSearchSuggestion,
+  AutocompleteSuggestionType,
+} from "../../features/apiSlice";
 
 export interface SearchSuggestionsProps {
-  suggestions: Suggestion[];
+  suggestions: AutocompleteSearchSuggestion[];
   onSelect: (text: string) => void;
+  loading?: boolean;
 }
 
 const suggestionIconMap = {
@@ -32,13 +32,13 @@ export default function SearchSuggestions({
 }: SearchSuggestionsProps) {
   return (
     <List>
-      {suggestions.map((option, index) => {
-        const Icon = suggestionIconMap[option.type] ?? null;
+      {suggestions.map(({ text, type }) => {
+        const Icon = suggestionIconMap[type] ?? null;
         return (
-          <ListItem disablePadding key={index}>
+          <ListItem disablePadding key={`${type}${text}`}>
             <ListItemButton
               onClick={(ev) => {
-                onSelect(option?.text);
+                onSelect(text);
                 ev.preventDefault();
               }}
             >
@@ -59,7 +59,7 @@ export default function SearchSuggestions({
                   ) : null}
                 </div>
               </ListItemIcon>
-              <ListItemText primary={option?.text} />
+              <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
         );
