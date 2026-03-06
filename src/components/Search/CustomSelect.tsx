@@ -48,7 +48,7 @@ export default function CustomSelect({
   );
 
   useEffect(() => {
-    () => debouncedTrigger.cancel();
+    return () => debouncedTrigger.cancel();
   });
 
   const handleSelect = (phrase: string) => {
