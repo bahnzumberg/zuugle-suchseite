@@ -75,6 +75,23 @@ export interface SearchParams {
   tld: string;
 }
 
+export type AutocompleteSuggestionType = "hut" | "peak" | "range" | "term";
+
+export interface AutocompleteSearchSuggestion {
+  text: string;
+  type: AutocompleteSuggestionType;
+}
+
+interface RawAutocompleteSuggestionsResponse {
+  success: boolean;
+  items: Record<string, string>[];
+}
+
+export interface AutocompleteSearchSuggestionsResponse {
+  success: boolean;
+  items: AutocompleteSearchSuggestion[];
+}
+
 export interface Suggestion {
   suggestion: string;
 }
@@ -178,6 +195,34 @@ export const api = createApi({
         return `searchPhrases?${searchParams}`;
       },
     }),
+    getSearchSuggestions: build.query<
+      AutocompleteSearchSuggestionsResponse,
+      SearchParams
+    >({
+      query: (params) => {
+        const searchParams = new URLSearchParams(
+          Object.entries(params).map(([key, value]) => [key, String(value)]),
+        );
+        return `searchphrase?${searchParams}`;
+      },
+      transformResponse: (
+        response: RawAutocompleteSuggestionsResponse,
+      ): AutocompleteSearchSuggestionsResponse => {
+        const validTypes: AutocompleteSuggestionType[] = [
+          "hut",
+          "peak",
+          "range",
+          "term",
+        ];
+        const items = (response.items ?? []).map((item) => {
+          const type = (Object.keys(item).find((k) =>
+            validTypes.includes(k as AutocompleteSuggestionType),
+          ) ?? "term") as AutocompleteSuggestionType;
+          return { text: item[type] ?? "", type };
+        });
+        return { success: response.success, items };
+      },
+    }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
         return `tours/filter?${toSearchParams(params)}&domain=${domain}`;
@@ -251,6 +296,8 @@ export const {
   useLazyGetToursQuery,
   useGetSearchPhrasesQuery,
   useLazyGetSearchPhrasesQuery,
+  useGetSearchSuggestionsQuery,
+  useLazyGetSearchSuggestionsQuery,
   useGetFilterQuery,
   useLazyGetFilterQuery,
   useGetTourQuery,

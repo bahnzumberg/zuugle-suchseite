@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
+import debounce from "lodash.debounce";
 import {
   useGetCitiesQuery,
-  useLazyGetSearchPhrasesQuery,
+  useLazyGetSearchSuggestionsQuery,
 } from "../../features/apiSlice";
 import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
@@ -15,22 +16,19 @@ import Close from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import List from "@mui/material/List";
 import ArrowForward from "@mui/icons-material/ArrowForward";
-import LocationOnOutlined from "@mui/icons-material/LocationOnOutlined";
+import SearchSuggestions from "./SearchSuggestions";
 
 export interface CustomSelectProps {
   setShowSearchModal: (showSearchModal: boolean) => void;
 }
+
 export default function CustomSelect({
   setShowSearchModal,
 }: CustomSelectProps) {
   const { t } = useTranslation();
-  const [triggerGetSuggestions, suggestions] = useLazyGetSearchPhrasesQuery();
+  const [triggerGetSuggestions, suggestionsResult] =
+    useLazyGetSearchSuggestionsQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
@@ -41,7 +39,17 @@ export default function CustomSelect({
   const [searchString, setSearchString] = useState(currentSearchPhrase || "");
   const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
+  const suggestions =
+    searchString.length < 3 ? [] : (suggestionsResult.data?.items ?? []);
   const navigate = useNavigate();
+  const debouncedTrigger = useMemo(
+    () => debounce(triggerGetSuggestions, 300),
+    [triggerGetSuggestions],
+  );
+
+  useEffect(() => {
+    return () => debouncedTrigger.cancel();
+  });
 
   const handleSelect = (phrase: string) => {
     //if search phrase corresponds to a city, set the city
@@ -50,11 +58,14 @@ export default function CustomSelect({
         city.label.toLowerCase() === phrase.toLowerCase() ||
         city.value.toLowerCase() === phrase.toLowerCase(),
     );
+
     if (isSearchPage) {
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        dispatch(searchPhraseUpdated(phrase));
+        if (phrase.length >= 3) {
+          dispatch(searchPhraseUpdated(phrase));
+        }
       }
     } else {
       const searchParams = new URLSearchParams();
@@ -71,17 +82,24 @@ export default function CustomSelect({
     setShowSearchModal(false);
   };
 
-  useEffect(() => {
+  const handleSearchStringChange = (input: string) => {
+    setSearchString(input);
+    suggestionsResult.reset();
+
+    if (input.length < 3) return;
+
     const tld = getTLD();
     const _city = city?.value ?? "";
-
-    triggerGetSuggestions({
-      search: searchString,
-      city: _city,
-      language: language || "de",
-      tld: tld,
-    });
-  }, [searchString]);
+    debouncedTrigger(
+      {
+        search: input,
+        city: _city,
+        language: language || "de",
+        tld: tld,
+      },
+      true,
+    );
+  };
 
   return (
     <>
@@ -105,7 +123,7 @@ export default function CustomSelect({
             sx={{ flexGrow: 1 }}
             value={searchString}
             autoFocus
-            onChange={(event) => setSearchString(event.target.value)}
+            onChange={(event) => handleSearchStringChange(event.target.value)}
             onKeyDown={(ev) => {
               if (ev.key === "Enter") {
                 handleSelect(searchString);
@@ -143,39 +161,7 @@ export default function CustomSelect({
           </IconButton>
         </Grid>
       </Grid>
-      <List>
-        {(suggestions?.data?.items ?? []).map((option, index) => {
-          return (
-            <ListItem disablePadding key={index}>
-              <ListItemButton
-                onClick={(ev) => {
-                  handleSelect(option?.suggestion);
-                  ev.preventDefault();
-                }}
-              >
-                <ListItemIcon>
-                  <div
-                    style={{
-                      borderRadius: "10px",
-                      backgroundColor: "#d9d9d9",
-                      height: "40px",
-                      width: "40px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <LocationOnOutlined
-                      style={{ fontSize: "24px", color: "#8b8b8b" }}
-                    />
-                  </div>
-                </ListItemIcon>
-                <ListItemText primary={option?.suggestion} />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
+      <SearchSuggestions suggestions={suggestions} onSelect={handleSelect} />
     </>
   );
 }
