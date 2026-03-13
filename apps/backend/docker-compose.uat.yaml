@@ -10,8 +10,8 @@ services:
         ports:
             - "127.0.0.1:5434:5432"
         environment:
-            POSTGRES_DB: zuugle_suchseite_db
-            POSTGRES_USER: zuugle_suche
+            POSTGRES_DB: zuugle_suchseite_uat
+            POSTGRES_USER: postgres
             POSTGRES_PASSWORD: docker
         volumes:
             - ./database.sql:/docker-entrypoint-initdb.d/init.sql
