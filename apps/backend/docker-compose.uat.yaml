@@ -4,7 +4,7 @@ version: "3.8"
 # Usage: docker compose -f docker-compose.uat.yaml up -d
 services:
     postgres-uat:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg18
         container_name: zuugle-postgres-uat
         restart: always
         ports:
@@ -17,7 +17,7 @@ services:
             - ./database.sql:/docker-entrypoint-initdb.d/init.sql
 
     postgres-dev:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg18
         container_name: zuugle-postgres-dev
         restart: always
         ports:
