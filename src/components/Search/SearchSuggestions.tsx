@@ -3,15 +3,11 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Skeleton from "@mui/material/Skeleton";
 import CabinOutlined from "@mui/icons-material/CabinOutlined";
 import PeakIcon from "./icons/PeakIcon";
 import LandscapeOutlined from "@mui/icons-material/LandscapeOutlined";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
-import {
-  AutocompleteSearchSuggestion,
-  AutocompleteSuggestionType,
-} from "../../features/apiSlice";
+import { AutocompleteSearchSuggestion } from "../../features/apiSlice";
 
 export interface SearchSuggestionsProps {
   suggestions: AutocompleteSearchSuggestion[];
