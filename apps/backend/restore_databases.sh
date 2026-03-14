@@ -65,6 +65,17 @@ if [ -z "$DB_USER" ]; then
     exit 1
 fi
 
+# Ensure Valkey cache container is running (shared across UAT/DEV)
+if docker ps --format '{{.Names}}' | grep -q '^zuugle-valkey$'; then
+    echo "Valkey container already running."
+elif docker ps -a --format '{{.Names}}' | grep -q '^zuugle-valkey$'; then
+    echo "Starting existing Valkey container..."
+    docker start zuugle-valkey
+else
+    echo "Creating Valkey container..."
+    docker run -d --name zuugle-valkey --restart always -p 127.0.0.1:6379:6379 valkey/valkey:8-alpine
+fi
+
 # Rebuild database structure if --structure flag is set
 if [ "$REBUILD_STRUCTURE" = true ]; then
     echo "Rebuilding database structure from database.sql..."
