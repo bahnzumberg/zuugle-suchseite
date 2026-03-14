@@ -1397,12 +1397,14 @@ export async function refreshSearchSuggestions() {
 
         // Insert Terms
         await knex.raw(`
-            INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
+           INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
             WITH extracted_words AS (
+                -- 1. Extract and stem words
                 SELECT
                     c.city_slug,
                     c.reachable_from_country,
                     clean_term.original_word,
+                    t.text_lang,
                     (ts_lexize(
                         (CASE t.text_lang
                             WHEN 'de' THEN 'german_stem'
@@ -1422,26 +1424,56 @@ export async function refreshSearchSuggestions() {
                 ) AS clean_term
             ),
             valid_stems AS (
+                -- 2. IMPORTANT: Discard all stop words (where ts_lexize returns NULL)
                 SELECT 
                     city_slug, 
                     reachable_from_country, 
                     original_word, 
+                    text_lang,
                     stem
                 FROM extracted_words
                 WHERE stem IS NOT NULL 
             ),
+            lang_counts AS (
+                -- 3. REPLACES THE DELETE: Count occurrences per word, language, and stem
+                SELECT 
+                    city_slug,
+                    reachable_from_country,
+                    original_word,
+                    text_lang,
+                    stem,
+                    COUNT(*) as occurrences
+                FROM valid_stems
+                GROUP BY city_slug, reachable_from_country, original_word, text_lang, stem
+            ),
+            best_lang_stems AS (
+                -- 4. REPLACES THE DELETE: Keep only the stem of the most frequent language per original word
+                SELECT
+                    city_slug,
+                    reachable_from_country,
+                    original_word,
+                    stem,
+                    occurrences as number_of_tours,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY city_slug, reachable_from_country, original_word 
+                        ORDER BY occurrences DESC
+                    ) as rnk
+                FROM lang_counts
+            ),
             word_counts AS (
+                -- 5. Take only the "winner" stems and check minimum count (>= 2)
                 SELECT
                     city_slug,
                     reachable_from_country,
                     stem,
                     original_word,
-                    COUNT(original_word) AS number_of_tours
-                FROM valid_stems
-                GROUP BY city_slug, reachable_from_country, stem, original_word
-                HAVING COUNT(original_word) >= 2 
+                    number_of_tours
+                FROM best_lang_stems
+                WHERE rnk = 1 
+                AND number_of_tours >= 2
             ),
             ranked_words AS (
+                -- 6. Find the strongest representative (original_word) for a stem
                 SELECT
                     city_slug,
                     reachable_from_country,
@@ -1454,6 +1486,7 @@ export async function refreshSearchSuggestions() {
                     ) as rank
                 FROM word_counts
             )
+            -- 7. The final insert with conflict resolution (upsert)
             SELECT
                 'term' AS type,
                 original_word AS term,
