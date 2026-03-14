@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Fragment } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
@@ -12,23 +12,21 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
 import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
 import { useNavigate } from "react-router";
-import Close from "@mui/icons-material/Close";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import ArrowForward from "@mui/icons-material/ArrowForward";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import CircularProgress from "@mui/material/CircularProgress";
 import SearchSuggestions from "./SearchSuggestions";
 
-export interface CustomSelectProps {
-  setShowSearchModal: (showSearchModal: boolean) => void;
-}
-
-export default function CustomSelect({
-  setShowSearchModal,
-}: CustomSelectProps) {
+export default function CustomSelect() {
   const { t } = useTranslation();
-  const [triggerGetSuggestions, suggestionsResult] =
-    useLazyGetSearchSuggestionsQuery();
+  const [
+    triggerGetSuggestions,
+    {
+      data: suggestionsResults,
+      isFetching: suggestionsFetching,
+      reset: resetSuggestions,
+    },
+  ] = useLazyGetSearchSuggestionsQuery();
   const dispatch = useAppDispatch();
   const currentSearchPhrase = useSelector(
     (state: RootState) => state.search.searchPhrase,
@@ -40,7 +38,7 @@ export default function CustomSelect({
   const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
   const suggestions =
-    searchString.length < 3 ? [] : (suggestionsResult.data?.items ?? []);
+    searchString.length < 3 ? [] : (suggestionsResults?.items ?? []);
   const navigate = useNavigate();
   const debouncedTrigger = useMemo(() => {
     return debounce(triggerGetSuggestions, 300);
@@ -50,19 +48,19 @@ export default function CustomSelect({
     return () => debouncedTrigger.cancel();
   }, [debouncedTrigger]);
 
-  const handleSelect = (phrase: string) => {
+  const handleSelect = (phrase: string | null) => {
     //if search phrase corresponds to a city, set the city
     const matchedCity = allCities.find(
       (city) =>
-        city.label.toLowerCase() === phrase.toLowerCase() ||
-        city.value.toLowerCase() === phrase.toLowerCase(),
+        city.label.toLowerCase() === phrase?.toLowerCase() ||
+        city.value.toLowerCase() === phrase?.toLowerCase(),
     );
 
     if (isSearchPage) {
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        if (phrase.length >= 3) {
+        if (phrase && phrase.length >= 3) {
           dispatch(searchPhraseUpdated(phrase));
         }
       }
@@ -70,7 +68,7 @@ export default function CustomSelect({
       const searchParams = new URLSearchParams();
       if (matchedCity) {
         searchParams.set("city", matchedCity.value);
-      } else {
+      } else if (phrase) {
         searchParams.set("search", phrase);
       }
       if (provider) {
@@ -78,17 +76,15 @@ export default function CustomSelect({
       }
       navigate(`/search?${searchParams.toString()}`);
     }
-    setShowSearchModal(false);
   };
 
   const handleSearchStringChange = (input: string) => {
     setSearchString(input);
-    suggestionsResult.reset();
-
+    resetSuggestions();
     if (input.length < 3) return;
-
     const tld = getTLD();
     const _city = city?.value ?? "";
+
     debouncedTrigger(
       {
         search: input,
@@ -101,66 +97,59 @@ export default function CustomSelect({
   };
 
   return (
-    <>
-      <Grid container alignItems="center" width={"100%"}>
-        {/* Input Field Area */}
-        <Grid
-          container
-          alignItems="center"
-          sx={{
-            flexGrow: 1,
-            borderRadius: "17px",
-            border: "1px solid #ccc",
-            p: "10px",
-          }}
-        >
-          {/* Search Icon */}
-          <SearchIcon sx={{ px: 1 }} />
-
-          {/* Input Field */}
-          <InputBase
-            sx={{ flexGrow: 1 }}
-            value={searchString}
-            autoFocus
-            onChange={(event) => handleSearchStringChange(event.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") {
-                handleSelect(searchString);
-                ev.preventDefault();
-              }
-            }}
-          />
-
-          {/* Clear Button */}
-          <IconButton
-            onClick={() => setSearchString("")}
-            aria-label={t("search.abbrechen")}
-          >
-            <Close sx={{ fontSize: 16, color: "#8b8b8b" }} />
-          </IconButton>
-        </Grid>
-
-        {/* Arrow Button */}
-        <Grid sx={{ pl: 1 }}>
-          <IconButton
-            sx={{
-              borderRadius: "50%",
-              border: "1px solid #d9d9d9",
-              height: "40px",
-              width: "40px",
-            }}
-            onClick={(ev) => {
+    <Autocomplete
+      freeSolo
+      clearOnBlur
+      selectOnFocus
+      filterOptions={(x) => x} // Disable built-in filtering, we handle filtering on the server
+      getOptionLabel={(option) => {
+        if (typeof option === "string") return option;
+        return option.text;
+      }}
+      options={suggestions}
+      value={currentSearchPhrase}
+      inputValue={searchString}
+      onInputChange={(event, newInputValue) => {
+        handleSearchStringChange(newInputValue);
+      }}
+      onChange={(event, newValue) => {
+        if (!newValue) {
+          handleSelect("");
+          return;
+        }
+        const phrase =
+          typeof newValue === "string" ? newValue : (newValue?.text ?? "");
+        handleSelect(phrase);
+      }}
+      renderOption={(props, option) => (
+        <SearchSuggestions option={option} props={props} />
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          placeholder={t("start.suche")}
+          onKeyDown={(ev) => {
+            if (ev.key === "Enter" && searchString) {
               handleSelect(searchString);
               ev.preventDefault();
-            }}
-            title={t("search.search")}
-            aria-label={t("search.search")}
-          >
-            <ArrowForward sx={{ fontSize: 24, color: "#4992ff" }} />
-          </IconButton>
-        </Grid>
-      </Grid>
-      <SearchSuggestions suggestions={suggestions} onSelect={handleSelect} />
-    </>
+            }
+          }}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: <SearchIcon sx={{ px: 1, color: "#666" }} />,
+              endAdornment: (
+                <Fragment>
+                  {suggestionsFetching ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            },
+          }}
+        />
+      )}
+    />
   );
 }

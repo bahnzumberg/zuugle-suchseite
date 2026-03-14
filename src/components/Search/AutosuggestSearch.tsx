@@ -65,7 +65,7 @@ const AutosuggestSearch = ({
         <CloseIcon />
       </IconButton>
       <DialogContent>
-        <CustomSelect setShowSearchModal={setShowSearchModal} />
+        <CustomSelect />
       </DialogContent>
     </Dialog>
   );
