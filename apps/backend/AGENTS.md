@@ -25,7 +25,7 @@ Dieses Projekt folgt einem strikten **UAT-First** Workflow.
 ## 🛠 Tech Stack
 
 - **Runtime:** Node.js v20.5.0 (verwende `nvm`).
-- **Datenbank:** PostgreSQL 16 (Lokal via Docker auf Port 5433, Server auf Standard).
+- **Datenbank:** PostgreSQL 18 (Lokal via Docker auf Port 5433, Server auf Standard).
 - **ORM/Query Builder:** Knex.js.
 - **Framework:** Node.js Backend (siehe `package.json` für spezifische Routing-Libs).
 - **Logging:** Custom Logger schreibt lokal in `logs/api.logs`.

@@ -37,7 +37,7 @@ Configure `src/knexfile.js` to connect to the Docker containers.
 ```javascript
 production: {
     client: 'pg',
-    version: '16',
+    version: '18',
     containerName: 'zuugle-postgres-uat',
     connection: {
         host: 'localhost',
@@ -55,7 +55,7 @@ production: {
 ```javascript
 development: {
     client: 'pg',
-    version: '16',
+    version: '18',
     containerName: 'zuugle-postgres-dev',
     connection: {
         host: 'localhost',
@@ -111,6 +111,15 @@ docker compose -f docker-compose.uat.yaml down -v
 # View logs
 docker compose -f docker-compose.uat.yaml logs -f
 ```
+
+### Rebuild containers (Version Upgrade or Clean Rebuild)
+
+On the UAT server, you can rebuild any of the two DB containers:
+
+1. Set environment: `export NODE_ENV=production` (for UAT) or `export NODE_ENV=development` (for DEV)
+2. Build the script: `npm run build`
+3. Run rebuild: `npm run rebuild-docker`
+4. Restore data: `./restore_databases.sh`
 
 ## Configuration Summary
 
