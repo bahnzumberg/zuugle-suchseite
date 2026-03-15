@@ -1,4 +1,4 @@
-import CustomSelect from "./CustomSelect";
+import AutocompleteSearch from "./AutocompleteSearch";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -65,7 +65,7 @@ const AutosuggestSearch = ({
         <CloseIcon />
       </IconButton>
       <DialogContent>
-        <CustomSelect />
+        <AutocompleteSearch />
       </DialogContent>
     </Dialog>
   );

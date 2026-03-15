@@ -17,7 +17,7 @@ import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchSuggestions from "./SearchSuggestions";
 
-export default function CustomSelect() {
+export default function AutocompleteSearch() {
   const { t } = useTranslation();
   const [
     triggerGetSuggestions,
@@ -128,6 +128,7 @@ export default function CustomSelect() {
         <TextField
           {...params}
           placeholder={t("start.suche")}
+          variant="standard"
           onKeyDown={(ev) => {
             if (ev.key === "Enter" && searchString) {
               handleSelect(searchString);
@@ -137,6 +138,7 @@ export default function CustomSelect() {
           slotProps={{
             input: {
               ...params.InputProps,
+              disableUnderline: true,
               startAdornment: <SearchIcon sx={{ px: 1, color: "#666" }} />,
               endAdornment: (
                 <Fragment>

@@ -33,6 +33,7 @@ import { CustomIcon } from "../icons/CustomIcon";
 import { hasContent } from "../utils/globals";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
+import Filter from "../components/Filter/Filter";
 
 export default function SearchResults() {
   const { t } = useTranslation();
@@ -215,6 +216,7 @@ export default function SearchResults() {
   return (
     <div>
       <SearchParamSync isSearchResultsPage={true} />
+      <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
       <Box sx={{ width: "100%" }} className={"search-result-header-container"}>
         {!!directLink && (
           <Box className={"seo-bar"}>
@@ -275,24 +277,16 @@ export default function SearchResults() {
                 border: "2px solid #ddd",
                 boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
                 boxSizing: "border-box",
-                width: {
-                  md: "600px",
-                  lg: "600px",
-                },
-                maxWidth: {
-                  xs: "325px",
-                  md: "600px",
-                },
+                width: "600px",
+                display: "flex",
+                // TODO: make it work on small screens
               }}
             >
-              <Box className={"colCenter"}>
-                <Search
-                  pageKey="search"
-                  isSearchResultsPage={true}
-                  setFilterOn={setFilterOn}
-                  filterOn={filterOn}
-                />
-              </Box>
+              <Search
+                pageKey="search"
+                isSearchResultsPage={true}
+                setFilterOn={setFilterOn}
+              />
             </Box>
           )}
         </Box>
