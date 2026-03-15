@@ -32,41 +32,6 @@ You should see `zuugle-postgres-uat`, `zuugle-postgres-dev`, and `zuugle-valkey`
 
 Configure `src/knexfile.js` to connect to the Docker containers.
 
-**UAT (production profile)** - Port 5434:
-
-```javascript
-production: {
-    client: 'pg',
-    version: '18',
-    containerName: 'zuugle-postgres-uat',
-    connection: {
-        host: 'localhost',
-        port: 5434,
-        user: 'zuugle_suche',
-        password: 'docker',
-        database: 'zuugle_suchseite_db'
-    },
-    pool: { min: 2, max: 10 }
-}
-```
-
-**DEV (development profile)** - Port 5433:
-
-```javascript
-development: {
-    client: 'pg',
-    version: '18',
-    containerName: 'zuugle-postgres-dev',
-    connection: {
-        host: 'localhost',
-        port: 5433,
-        user: 'postgres',
-        password: 'docker',
-        database: 'zuugle_suchseite_dev'
-    },
-    pool: { min: 2, max: 10 }
-}
-```
 
 ### 4. Initial database restore
 
