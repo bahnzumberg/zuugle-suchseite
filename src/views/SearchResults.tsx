@@ -262,32 +262,11 @@ export default function SearchResults() {
             <LanguageMenu />
           </Box>
           {!!allCities && allCities.length > 0 && (
-            <Box
-              alignItems={"center"}
-              justifyContent={"center"}
-              display="inline-block"
-              sx={{
-                position: "absolute",
-                bottom: "0",
-                left: "50%",
-                transform: "translate(-50%,50%)",
-                backgroundColor: "#FFF",
-                borderRadius: "15px",
-                padding: "12px 24px",
-                border: "2px solid #ddd",
-                boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-                boxSizing: "border-box",
-                width: "600px",
-                display: "flex",
-                // TODO: make it work on small screens
-              }}
-            >
-              <Search
-                pageKey="search"
-                isSearchResultsPage={true}
-                setFilterOn={setFilterOn}
-              />
-            </Box>
+            <Search
+              pageKey="search"
+              isSearchResultsPage={true}
+              setFilterOn={setFilterOn}
+            />
           )}
         </Box>
         {!showMap && totalToursHeader()}

@@ -12,18 +12,12 @@ import { useSelector } from "react-redux";
 interface SearchActionButtonProps {
   isSearchResultsPage: boolean;
   pageKey: string;
-  city: { label: string } | null | undefined;
-  searchPhrase: string | null | undefined;
-  provider: string | null | undefined;
-  setFilterOn: (filterOn: boolean) => void;
+  setFilterOn?: (filterOn: boolean) => void;
 }
 
 export default function SearchActionButton({
   isSearchResultsPage,
   pageKey,
-  city,
-  searchPhrase,
-  provider,
   setFilterOn,
 }: SearchActionButtonProps) {
   const { t } = useTranslation();
@@ -32,11 +26,17 @@ export default function SearchActionButton({
     (state: RootState) => hasContent(state.filter) || state.search.geolocation,
   );
 
+  const provider = useSelector((state: RootState) => state.search.provider);
+  const city = useSelector((state: RootState) => state.search.city);
+  const searchPhrase = useSelector(
+    (state: RootState) => state.search.searchPhrase,
+  );
+
   if (!city && pageKey === "detail") {
     return null;
   }
 
-  if (isSearchResultsPage) {
+  if (isSearchResultsPage && setFilterOn) {
     return (
       <Button
         onClick={() => setFilterOn(true)}

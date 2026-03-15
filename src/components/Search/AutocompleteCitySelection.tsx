@@ -13,7 +13,11 @@ import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import { CustomIcon } from "../../icons/CustomIcon";
 
-export default function AutocompleteCitySelection() {
+export default function AutocompleteCitySelection({
+  inputVariant,
+}: {
+  inputVariant?: "standard" | "outlined" | "filled";
+}) {
   const { t } = useTranslation();
 
   const dispatch = useAppDispatch();
@@ -22,14 +26,20 @@ export default function AutocompleteCitySelection() {
 
   return (
     <Autocomplete
+      sx={{ "& .MuiAutocomplete-clearIndicator": { display: "none" } }}
+      slotProps={{
+        paper: { sx: { borderRadius: 3 } },
+        listbox: { sx: { borderRadius: 3 } },
+      }}
+      autoHighlight
+      blurOnSelect
       clearOnBlur
       selectOnFocus
-      disableClearable
       getOptionLabel={(option) =>
         t("search.ab_heimatbahnhof") + " " + option.label
       }
       options={allCities}
-      value={city == null ? undefined : city}
+      value={city ?? null}
       onChange={(event, newValue) => {
         dispatch(cityUpdated(newValue));
       }}
@@ -56,7 +66,7 @@ export default function AutocompleteCitySelection() {
                     strokeWidth: "1px",
                     fill: "#000",
                     stroke: "none",
-                    marginRight: "8px", // optional spacing between SVG and text
+                    marginRight: "8px",
                   }}
                 />
               </div>
@@ -69,7 +79,7 @@ export default function AutocompleteCitySelection() {
         <TextField
           {...params}
           placeholder={t("start.heimatbahnhof")}
-          variant={"standard"}
+          variant={inputVariant}
           slotProps={{
             input: {
               ...params.InputProps,
@@ -81,7 +91,8 @@ export default function AutocompleteCitySelection() {
                     strokeWidth: "1px",
                     fill: "#000",
                     stroke: "none",
-                    marginRight: "8px", // optional spacing between SVG and text
+                    paddingLeft: "8px",
+                    paddingRight: "8px",
                   }}
                 />
               ),

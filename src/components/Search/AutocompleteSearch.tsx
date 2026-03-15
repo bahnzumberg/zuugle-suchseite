@@ -17,7 +17,11 @@ import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchSuggestions from "./SearchSuggestions";
 
-export default function AutocompleteSearch() {
+export default function AutocompleteSearch({
+  inputVariant,
+}: {
+  inputVariant?: "standard" | "outlined" | "filled";
+}) {
   const { t } = useTranslation();
   const [
     triggerGetSuggestions,
@@ -60,9 +64,7 @@ export default function AutocompleteSearch() {
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        if (phrase && phrase.length >= 3) {
-          dispatch(searchPhraseUpdated(phrase));
-        }
+        dispatch(searchPhraseUpdated(phrase));
       }
     } else {
       const searchParams = new URLSearchParams();
@@ -98,7 +100,12 @@ export default function AutocompleteSearch() {
 
   return (
     <Autocomplete
+      slotProps={{
+        paper: { sx: { borderRadius: 3 } },
+        listbox: { sx: { borderRadius: 3 } },
+      }}
       freeSolo
+      blurOnSelect
       clearOnBlur
       selectOnFocus
       filterOptions={(x) => x} // Disable built-in filtering, we handle filtering on the server
@@ -128,7 +135,7 @@ export default function AutocompleteSearch() {
         <TextField
           {...params}
           placeholder={t("start.suche")}
-          variant="standard"
+          variant={inputVariant}
           onKeyDown={(ev) => {
             if (ev.key === "Enter" && searchString) {
               handleSelect(searchString);

@@ -76,26 +76,7 @@ export default function Header({
               )}
             </Typography>
           </Box>
-          <Box
-            sx={{
-              bgcolor: "#FFF",
-              position: "absolute",
-              bottom: 0,
-              transform: "translate(-50%, 50%)",
-              display: "inline-flex",
-              borderRadius: "20px",
-              p: "12px 15px",
-              border: "2px solid #ddd",
-              width: "100%",
-              maxWidth: { xs: "325px", md: "600px" },
-              boxSizing: "border-box",
-              boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <Search pageKey="start" isSearchResultsPage={false} />
-            </Box>
-          </Box>
+          <Search pageKey="start" isSearchResultsPage={false} />
         </>
       )}
     </BackgroundImageLoader>

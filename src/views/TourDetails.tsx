@@ -547,31 +547,7 @@ export default function DetailReworked() {
                 </Box>
               </Box>
             </Box>
-            {/* search bar ###### section */}
-            <Box
-              sx={{
-                backgroundColor: "#FFF",
-                position: "absolute",
-                bottom: "0",
-                transform: "translate(-50%, 50%)",
-                display: "inline-flex",
-                borderRadius: "20px",
-                padding: "12px 15px",
-                border: "2px solid #ddd",
-                width: "100%",
-                maxWidth: {
-                  xs: "325px",
-                  md: "600px",
-                },
-                boxSizing: "border-box",
-                boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-                zIndex: "1300",
-              }}
-            >
-              <Box sx={{ width: "100%" }}>
-                <Search pageKey="detail" isSearchResultsPage={false} />
-              </Box>
-            </Box>
+            <Search pageKey="detail" isSearchResultsPage={false} />
           </Box>
           <Box>
             <Box className="tour-detail-header">
