@@ -32,6 +32,11 @@ jobs:
               run: npm install
             - name: Run build task
               run: npm run build
+            - name: Unlock network access to server
+              run: |
+                  curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "${{ secrets.DEPLOY_ACCESS }}"
+                  echo "Waiting 59 seconds for access rule to activate..."
+                  sleep 59
             - name: executing remote ssh command to backup app
               uses: appleboy/ssh-action@v1.0.0
               with:
