@@ -79,6 +79,11 @@ export default function AutocompleteCitySelection({
         <TextField
           {...params}
           placeholder={t("start.heimatbahnhof")}
+          sx={{
+            "& .MuiInputBase-input": {
+              color: "#6d6b6b", // Text color
+            },
+          }}
           variant={inputVariant}
           slotProps={{
             input: {
@@ -89,7 +94,7 @@ export default function AutocompleteCitySelection({
                   name="transportTrain"
                   style={{
                     strokeWidth: "1px",
-                    fill: "#000",
+                    fill: "#5c5959",
                     stroke: "none",
                     paddingLeft: "8px",
                     paddingRight: "8px",

@@ -37,9 +37,7 @@ export default function Search({
       }}
     >
       <Box sx={{ flexGrow: 1, width: "100%" }}>
-        <AutocompleteCitySelection
-          inputVariant={isXs ? "outlined" : "standard"}
-        />
+        <AutocompleteSearch inputVariant={isXs ? "outlined" : "standard"} />
       </Box>{" "}
       <Divider
         orientation="vertical"
@@ -56,7 +54,9 @@ export default function Search({
         }}
       />
       <Box sx={{ flexGrow: 1, width: "100%" }}>
-        <AutocompleteSearch inputVariant={isXs ? "outlined" : "standard"} />
+        <AutocompleteCitySelection
+          inputVariant={isXs ? "outlined" : "standard"}
+        />
       </Box>
       <Box sx={{ alignSelf: { xs: "center", sm: "auto" } }}>
         <SearchActionButton

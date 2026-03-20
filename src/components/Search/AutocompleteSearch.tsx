@@ -136,6 +136,13 @@ export default function AutocompleteSearch({
           {...params}
           placeholder={t("start.suche")}
           variant={inputVariant}
+          sx={{
+            "& .MuiInputBase-input::placeholder": {
+              fontWeight: "bold", // Makes placeholder text bold
+              fontSize: "16px", // Optional: adjust font size
+              opacity: "1",
+            },
+          }}
           onKeyDown={(ev) => {
             if (ev.key === "Enter" && searchString) {
               handleSelect(searchString);
