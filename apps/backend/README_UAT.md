@@ -32,7 +32,6 @@ You should see `zuugle-postgres-uat`, `zuugle-postgres-dev`, and `zuugle-valkey`
 
 Configure `src/knexfile.js` to connect to the Docker containers.
 
-
 ### 4. Initial database restore
 
 Run the restore script manually to populate data:
