@@ -318,6 +318,9 @@ body ::-webkit-scrollbar-thumb:hover {
 .header-line-main {
   background-color: #f7f7f7;
   z-index: 0;
+  box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+  -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
 }
 
 .header-container {
@@ -592,8 +595,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (min-width: 910px) {
   .search-result-header-container {
-    position: fixed;
-    top: 0;
+    background-color: #4992ff;
     z-index: 100;
     box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
     -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
@@ -606,40 +608,28 @@ body ::-webkit-scrollbar-thumb:hover {
     padding-right: 60px;
   }
 
-  .cards-container {
-    margin-top: 60px;
-    /* margin-top: 160px; */
-  }
-
   .cards-container.seo-page {
     margin-top: 240px;
   }
 
   .map-container {
-    margin-top: 80px;
+    margin-top: -38px;
   }
 }
 
 @media only screen and (max-width: 909px) {
   .search-result-header-container {
-    position: fixed;
-    top: 0;
+    background-color: #4992ff;
     z-index: 200;
     box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
     -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
     -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
   }
   .map-container {
-    z-index: 100;
-    margin-top: 80px;
+    margin-top: -162px;
   }
 }
 
-@media only screen and (max-width: 899px) {
-  .cards-container {
-    margin-top: 350px;
-  }
-}
 .tour-detail-header {
   padding: 2rem 1rem;
   text-align: left;
@@ -1203,13 +1193,6 @@ ul.about-bullets {
   justify-content: space-between;
 }
 
-.rowingStart {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: left;
-}
-
 .languageIcon {
   width: 49px;
   height: 49px;
@@ -1352,13 +1335,6 @@ ul.about-bullets {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  display: flex;
-}
-
-.rowingLeft {
-  flex-direction: row;
-  align-items: center;
-  justify-content: left;
   display: flex;
 }
 
@@ -1614,10 +1590,6 @@ top:250px; */
   height: 40px;
   border-radius: 50%;
   cursor: pointer;
-}
-
-.newHeader {
-  background-color: #4992ff;
 }
 
 .blueDiv {

@@ -21,10 +21,7 @@ export default function Search({
   return (
     <Box
       sx={{
-        position: "absolute",
-        bottom: "0",
-        left: "50%",
-        transform: "translate(-50%,50%)",
+        zIndex: 20,
         backgroundColor: "#FFF",
         borderRadius: "15px",
         padding: { xs: "10px 12px", sm: "12px 24px" },
