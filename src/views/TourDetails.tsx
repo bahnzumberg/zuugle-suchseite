@@ -500,17 +500,20 @@ export default function DetailReworked() {
       ) : (
         <>
           <Box
-            className="newHeader"
-            height="100px"
-            sx={{ position: "relative" }}
+            className="search-result-header-container"
+            sx={{
+              pb: "30px",
+              zIndex: 10,
+              position: "relative",
+            }}
           >
             <Box
               component={"div"}
-              className="rowing blueDiv"
+              className="rowing"
               sx={{
-                minHeight: "100px",
+                height: "100%",
                 boxSizing: "border-box",
-                py: 0,
+                py: "15px",
                 px: {
                   xs: "15px",
                   sm: "30px",
@@ -519,7 +522,7 @@ export default function DetailReworked() {
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box
-                  sx={{ mr: "16px", cursor: "pointer", zIndex: "1301" }}
+                  sx={{ mr: "16px", cursor: "pointer" }}
                   onClick={handleCloseTab}
                 >
                   <CustomIcon
@@ -547,6 +550,15 @@ export default function DetailReworked() {
                 </Box>
               </Box>
             </Box>
+          </Box>
+          <Box
+            sx={{
+              mt: "-30px",
+              display: "flex",
+              justifyContent: "center",
+              position: "relative",
+            }}
+          >
             <Search pageKey="detail" isSearchResultsPage={false} />
           </Box>
           <Box>

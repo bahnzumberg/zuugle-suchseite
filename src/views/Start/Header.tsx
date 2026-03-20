@@ -28,57 +28,68 @@ export default function Header({
   const tld = getTLD();
 
   return (
-    <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
-      {totalTours === 0 ? (
-        <Box className="header-text">
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <img
-              src="https://cdn.zuugle.at/img/zuugle_weiss.svg"
-              height="16px"
-              width="29px"
-              alt="Zuugle"
-              loading="lazy"
-            />
-            <Typography sx={{ fontSize: "16px", color: "#FFF", ml: 1 }}>
-              {getDomainText()}
-            </Typography>
-          </Box>
-          {isLoading ? (
-            <Box
-              sx={{ display: "flex", justifyContent: "center" }}
-              marginTop={"80px"}
-            >
-              <CircularProgress size={60} sx={{ color: "#FFF" }} />
-            </Box>
-          ) : (
-            <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
-          )}
-        </Box>
-      ) : (
-        <>
-          <Box className="rowing blueDiv">
-            <Suspense fallback={null}>
-              <DomainMenu />
-              <LanguageMenu />
-            </Suspense>
-          </Box>
-
+    <>
+      <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
+        {totalTours === 0 ? (
           <Box className="header-text">
-            <Typography variant="h1" sx={{ height: "162px" }}>
-              {!city
-                ? totalTours.toLocaleString()
-                : totalToursFromCity.toLocaleString()}{" "}
-              {t(
-                !city
-                  ? "start.tourenanzahl_untertitel"
-                  : "start.tourenanzahl_untertitel_city",
-                { capCity: city?.label },
-              )}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <img
+                src="https://cdn.zuugle.at/img/zuugle_weiss.svg"
+                height="16px"
+                width="29px"
+                alt="Zuugle"
+                loading="lazy"
+              />
+              <Typography sx={{ fontSize: "16px", color: "#FFF", ml: 1 }}>
+                {getDomainText()}
+              </Typography>
+            </Box>
+            {isLoading ? (
+              <Box
+                sx={{ display: "flex", justifyContent: "center" }}
+                marginTop={"80px"}
+              >
+                <CircularProgress size={60} sx={{ color: "#FFF" }} />
+              </Box>
+            ) : (
+              <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
+            )}
           </Box>
-          <Search pageKey="start" isSearchResultsPage={false} />
-        </>
-      )}
-    </BackgroundImageLoader>
+        ) : (
+          <>
+            <Box className="rowing blueDiv">
+              <Suspense fallback={null}>
+                <DomainMenu />
+                <LanguageMenu />
+              </Suspense>
+            </Box>
+
+            <Box className="header-text">
+              <Typography variant="h1" sx={{ height: "162px" }}>
+                {!city
+                  ? totalTours.toLocaleString()
+                  : totalToursFromCity.toLocaleString()}{" "}
+                {t(
+                  !city
+                    ? "start.tourenanzahl_untertitel"
+                    : "start.tourenanzahl_untertitel_city",
+                  { capCity: city?.label },
+                )}
+              </Typography>
+            </Box>
+          </>
+        )}
+      </BackgroundImageLoader>
+      <Box
+        sx={{
+          mt: "-30px",
+          display: "flex",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <Search pageKey="start" isSearchResultsPage={false} />
+      </Box>
+    </>
   );
 }
