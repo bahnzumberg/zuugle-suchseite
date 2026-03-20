@@ -108,6 +108,14 @@ View logs:
 
     docker compose logs -f
 
+### Rebuild containers (Version Upgrade or Clean Rebuild)
+
+To upgrade the PostgreSQL version or completely rebuild the database structure:
+
+1. Build the script: `npm run build`
+2. Run rebuild: `npm run rebuild-docker`
+3. Import data: `npm run import-data-docker`
+
 ## Follow frontend Readme
 
 Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite

@@ -22,6 +22,7 @@
         "import-data-full": "node build/jobs/syncDataProd.js",
         "import-data-docker": "node build/jobs/syncDataDocker.js",
         "reset-database": "node build/jobs/resetDatabase.js",
+        "rebuild-docker": "node build/jobs/rebuildDocker.js",
         "import-data-docker-download": "node build/jobs/syncDataDockerDownload.js",
         "import-data-prod": "node build/jobs/syncDataProd.js",
         "import-files": "node build/jobs/syncFiles.js",

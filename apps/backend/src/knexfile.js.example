@@ -3,7 +3,7 @@
 module.exports = {
   production: {
     client: 'pg',
-    version: '13',
+    version: '18',
     connection: {
       host : '',
       port : 5432,
@@ -18,7 +18,8 @@ module.exports = {
   },
   development: {
     client: 'pg',
-    version: '13',
+    version: '18',
+    containerName: 'zuugle-container',
     connection: {
       host : 'localhost',
       port : 5433,
