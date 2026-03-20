@@ -118,18 +118,11 @@ export default function Start() {
             <>
               <Box style={{ background: "#fff" }}>
                 <Paper elevation={0} className={"header-line"}>
-                  <Box
-                    sx={{
-                      paddingTop: "55px",
-                      paddingBottom: "20px",
-                    }}
-                  >
-                    <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                      {t("start.zuugle_sucht_fuer_dich_1")}{" "}
-                      {totals?.total_provider}{" "}
-                      {t("start.zuugle_sucht_fuer_dich_2")}
-                    </Typography>
-                  </Box>
+                  <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                    {t("start.zuugle_sucht_fuer_dich_1")}{" "}
+                    {totals?.total_provider}{" "}
+                    {t("start.zuugle_sucht_fuer_dich_2")}
+                  </Typography>
                 </Paper>
                 <Box className={"start-body-container"}>
                   <Box
