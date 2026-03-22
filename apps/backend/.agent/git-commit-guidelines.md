@@ -1,17 +1,15 @@
 # Git Commit Guidelines
 
+## Check formatting and linting
+
+```bash
+npm run format
+npm run lint
+```
+
 ## Always commit ALL modified files
 
 When the user requests a commit, use `git commit -am "message"` to include **all** modified files, not just specific ones.
-
-**Wrong**:
-
-```bash
-git add src/jobs/sync.js src/jobs/syncDataDocker.js
-git commit -m "message"
-```
-
-**Correct**:
 
 ```bash
 git commit -am "message"
