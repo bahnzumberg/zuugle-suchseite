@@ -19,7 +19,7 @@ DUMP_DIR="/usr/local/zuugle/uat-dump"
 
 # Check if running on server (central dump directory exists) or local dev
 if [ ! -d "$DUMP_DIR" ]; then
-    echo "You are developing on your local machine? Please run 'npm run import-data-docker'"
+    echo "You are developing on your local machine? Please run 'npm run import-data-docker-download'"
     exit 0
 fi
 
@@ -89,28 +89,11 @@ if [ "$REBUILD_STRUCTURE" = true ]; then
     fi
 fi
 
-# Use date-based filename to avoid redundant downloads
-TODAY=$(date +%Y-%m-%d)
-DUMP_FILE="$DUMP_DIR/zuugle_postgresql_${TODAY}.dump"
-
-if [ -f "$DUMP_FILE" ]; then
-    echo "Dump for today ($TODAY) already exists, skipping download."
-else
-    echo "Downloading dump for $TODAY..."
-    wget -q https://uat-dump.zuugle.at/zuugle_postgresql.dump -O "$DUMP_FILE"
-    
-    # Clean up old dump files (keep only today's)
-    find "$DUMP_DIR" -maxdepth 1 -name "zuugle_postgresql_*.dump" ! -name "$(basename $DUMP_FILE)" -delete 2>/dev/null || true
-fi
-
-# Copy dump file to current directory for syncDataDocker.js compatibility
-cp "$DUMP_FILE" zuugle_postgresql.dump
-
 # Locate the sync script
-if [ -f "jobs/syncDataDocker.js" ]; then
-    SCRIPT_PATH="jobs/syncDataDocker.js"
+if [ -f "jobs/syncDataDockerDownload.js" ]; then
+    SCRIPT_PATH="jobs/syncDataDockerDownload.js"
 else
-    echo "Error: Cannot find jobs/syncDataDocker.js"
+    echo "Error: Cannot find jobs/syncDataDockerDownload.js"
     exit 1
 fi
 

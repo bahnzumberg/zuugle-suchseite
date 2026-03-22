@@ -57,7 +57,7 @@ docker build -t zuugle-postgres-db ./
 docker run -d --name zuugle-container -p 5433:5432 zuugle-postgres-db
 
 # Daten importieren (Dump von uat-dump.zuugle.at)
-npm run import-data-docker
+npm run import-data-docker-download
 ```
 
 ### 3. Server starten (Lokal)

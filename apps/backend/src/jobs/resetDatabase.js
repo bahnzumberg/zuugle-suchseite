@@ -130,7 +130,7 @@ async function main() {
 
     console.log("==============================================");
     console.log("  Database reset complete!");
-    console.log("  Run 'npm run import-data-docker' to populate");
+    console.log("  Run 'npm run import-data-docker-download' to populate");
     console.log("  the database with fresh data.");
     console.log("==============================================\n");
 

@@ -165,7 +165,7 @@ async function main() {
     console.log("");
     console.log("  ⚠️  This will DESTROY the container and all its data.");
     console.log("     The database will be recreated empty from database.sql.");
-    console.log("     You will need to run 'npm run import-data-docker' afterwards.");
+    console.log("     You will need to run 'npm run import-data-docker-download' afterwards.");
     console.log("");
 
     const confirm = await ask("Continue? (Y/N): ");
@@ -213,7 +213,7 @@ async function main() {
     console.log("  ✅ Container rebuilt successfully!");
     console.log("");
     console.log("  Next step: populate the database with data:");
-    console.log("    npm run import-data-docker");
+    console.log("    npm run import-data-docker-download");
     console.log("==============================================");
     console.log("");
 
