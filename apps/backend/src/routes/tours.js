@@ -998,7 +998,6 @@ const filterWrapper = async (req, res) => {
     let text = [];
     let ranges = [];
     let providers = [];
-    let pois = [];
     let countries = [];
     let tld = get_domain_country(domain).toUpperCase();
     let where_city = ` AND t.stop_selector='y' `;
@@ -1218,7 +1217,6 @@ const filterWrapper = async (req, res) => {
         success: true,
         filter: filterresult,
         providers: providers,
-        pois: pois,
     };
     cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
