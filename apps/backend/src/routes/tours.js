@@ -599,30 +599,31 @@ const listWrapper = async (req, res) => {
                 postgresql_language_code = "english";
             }
 
-            // If there is more than one search term, the AI is superior,
-            // if there is only a single word, the standard websearch of PostgreSQL ist better.
-            let is_one_search_term = search.trim().split(/\s+/).length === 1;
-            if (!is_one_search_term) {
-                const embedding = await getCachedEmbedding(`query: ${search}`);
-                if (embedding) {
-                    new_search_where_searchterm = `AND ai_search_column <-> ? < 0.6 `;
-                    bindings.push(embedding);
-                    new_search_order_searchterm = `ai_search_column <-> ? ASC, `;
-                    order_bindings.push(embedding);
-                    // logger.info("AI search")
-                } else {
-                    // embedding not found, fallback to websearch - even though the search term consists of more than one word
-                    is_one_search_term = true;
-                }
-            }
+            // Always try AI embedding first, regardless of word count
+            const embedding = await getCachedEmbedding(`query: ${search}`);
+            if (embedding) {
+                // Combined: AI similarity OR websearch match
+                new_search_where_searchterm = `AND (
+                    (ai_search_column IS NOT NULL AND ai_search_column <-> ? < 0.65)
+                    OR
+                    t.search_column @@ websearch_to_tsquery(?, ?)
+                ) `;
+                bindings.push(embedding, postgresql_language_code, search);
 
-            if (is_one_search_term) {
-                // search consists of a single word and fallback for AI search
+                // Ranking: best of both scores
+                new_search_order_searchterm = `GREATEST(
+                    CASE WHEN ai_search_column IS NOT NULL
+                         THEN 1 - (ai_search_column <-> ?)
+                         ELSE 0 END,
+                    COALESCE(ts_rank(t.search_column, websearch_to_tsquery(?, ?)), 0)
+                ) DESC, `;
+                order_bindings.push(embedding, postgresql_language_code, search);
+            } else {
+                // No embedding available → websearch only (unchanged fallback)
                 new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery(?, ?) `;
                 bindings.push(postgresql_language_code, search);
                 new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
                 order_bindings.push(postgresql_language_code, search);
-                // logger.info("Websearch")
             }
         }
     } else if (searchType === "hut") {
