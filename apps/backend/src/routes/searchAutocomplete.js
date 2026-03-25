@@ -109,7 +109,8 @@ const autocompleteWrapper = async (req, res) => {
 
     const items = rows.map((row) => {
         return {
-            [row.type]: row.term,
+            type: row.type,
+            term: row.term,
         };
     });
 
