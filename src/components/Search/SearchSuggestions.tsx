@@ -7,6 +7,7 @@ import LandscapeOutlined from "@mui/icons-material/LandscapeOutlined";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import { SearchWithType } from "../../features/apiSlice";
 import { HTMLAttributes } from "react";
+import { ReactComponent as TransportTrain } from "../../icons/svg/ic_transport_train.svg";
 
 export interface SearchSuggestionsProps {
   option: SearchWithType;
@@ -20,6 +21,7 @@ const suggestionIconMap = {
   peak: PeakIcon,
   range: LandscapeOutlined,
   term: SearchOutlined,
+  city: TransportTrain,
 };
 
 export default function SearchSuggestions({

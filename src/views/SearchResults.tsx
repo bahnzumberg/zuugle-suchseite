@@ -72,7 +72,8 @@ export default function SearchResults() {
     const params = {
       city: search.citySlug || "",
       filter: filter,
-      search: search.searchPhrase || "",
+      search: search.searchWithType?.term || null,
+      search_type: search.searchWithType?.type || null,
       bounds: search.bounds || undefined,
       map: showMap || undefined,
       provider: search.provider || undefined,
@@ -97,7 +98,8 @@ export default function SearchResults() {
       const moreTours = triggerMoreTours({
         city: search.citySlug || "",
         filter: filter,
-        search: search.searchPhrase || "",
+        search: search.searchWithType?.term || "",
+        search_type: search.searchWithType?.type || "",
         bounds: search.bounds || undefined,
         map: showMap || undefined,
         provider: search.provider || undefined,

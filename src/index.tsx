@@ -9,7 +9,7 @@ import { I18nextProvider } from "react-i18next";
 import { getTLD, isMobileDevice } from "./utils/globals";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
-import { api } from "./features/apiSlice";
+import { api, isValidSearchType } from "./features/apiSlice";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 
@@ -25,8 +25,16 @@ if (persistedCity) {
 
 function getPreloadedSearchState() {
   const params = new URLSearchParams(window.location.search);
+  const searchPhrase = params.get("search") ?? "";
+  const rawSearchType = params.get("search_type");
+
   return {
-    searchPhrase: params.get("search") ?? null,
+    searchWithType: searchPhrase
+      ? {
+          term: searchPhrase,
+          type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
+        }
+      : null,
     city: cityObject,
     citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",

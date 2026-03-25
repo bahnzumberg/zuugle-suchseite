@@ -59,6 +59,7 @@ export interface ToursParams {
   provider?: string;
   filter?: FilterObject;
   search?: string;
+  search_type?: string;
   page?: number;
   bounds?: BoundsObject;
   map?: boolean;
@@ -75,7 +76,13 @@ export interface SearchParams {
   tld: string;
 }
 
-export type SearchType = "hut" | "peak" | "range" | "term";
+export type SearchType = "hut" | "peak" | "range" | "term" | "city";
+
+export function isValidSearchType(type: string | null): type is SearchType {
+  return (
+    type === "city" || type === "hut" || type === "peak" || type === "range"
+  );
+}
 
 export interface SearchWithType {
   term: string;
@@ -97,6 +104,7 @@ export interface SuggestionsResponse {
 
 export interface FilterParams {
   search?: string;
+  search_type?: string;
   city?: string;
 }
 

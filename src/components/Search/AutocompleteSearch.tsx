@@ -11,7 +11,7 @@ import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks";
-import { cityUpdated, searchPhraseUpdated } from "../../features/searchSlice";
+import { cityUpdated, searchWithTypeUpdated } from "../../features/searchSlice";
 import { useNavigate } from "react-router";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -33,17 +33,19 @@ export default function AutocompleteSearch({
     },
   ] = useLazyGetSearchSuggestionsQuery();
   const dispatch = useAppDispatch();
-  const currentSearchPhrase = useSelector(
-    (state: RootState) => state.search.searchPhrase,
+  const currentSearch = useSelector(
+    (state: RootState) => state.search.searchWithType,
   );
   const city = useSelector((state: RootState) => state.search.city);
   const language = useSelector((state: RootState) => state.search.language);
   const provider = useSelector((state: RootState) => state.search.provider);
-  const [searchString, setSearchString] = useState(currentSearchPhrase || "");
+  const [searchWithType, setSearchWithType] = useState<SearchWithType>(
+    currentSearch ?? { term: "", type: "term" },
+  );
   const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
   const suggestions =
-    searchString.length < 3 ? [] : (suggestionsResults?.items ?? []);
+    searchWithType?.term.length < 3 ? [] : (suggestionsResults?.items ?? []);
   const navigate = useNavigate();
   const debouncedTrigger = useMemo(() => {
     return debounce(triggerGetSuggestions, 300);
@@ -54,35 +56,38 @@ export default function AutocompleteSearch({
   }, [debouncedTrigger]);
 
   const handleSelect = (search: SearchWithType) => {
-    //if search phrase corresponds to a city, set the city
-    const matchedCity = allCities.find(
-      (city) =>
-        city.label.toLowerCase() === search.term?.toLowerCase() ||
-        city.value.toLowerCase() === search.term?.toLowerCase(),
-    );
-
-    if (isSearchPage) {
+    if (search.type === "city") {
+      const matchedCity = allCities.find(
+        (city) =>
+          city.label.toLowerCase() === search.term?.toLowerCase() ||
+          city.value.toLowerCase() === search.term?.toLowerCase(),
+      );
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
-      } else {
-        dispatch(searchPhraseUpdated(search.term));
       }
+    } else if (search.type === "range") {
+      // TODO set filter
     } else {
+      dispatch(searchWithTypeUpdated(search));
+    }
+
+    if (!isSearchPage) {
       const searchParams = new URLSearchParams();
-      if (matchedCity) {
-        searchParams.set("city", matchedCity.value);
-      } else if (search.term) {
-        searchParams.set("search", search.term);
-      }
       if (provider) {
         searchParams.set("provider", provider);
       }
+      if (search.type === "range") {
+        searchParams.set("range", search.term);
+      } else if (search.type !== "term") {
+        searchParams.set("search_type", search.type);
+      }
+      searchParams.set("search", search.term);
       navigate(`/search?${searchParams.toString()}`);
     }
   };
 
   const handleSearchStringChange = (input: string) => {
-    setSearchString(input);
+    setSearchWithType({ term: input, type: "term" });
     resetSuggestions();
     if (input.length < 3) return;
     const tld = getTLD();
@@ -115,8 +120,8 @@ export default function AutocompleteSearch({
         return option.term;
       }}
       options={suggestions}
-      value={currentSearchPhrase}
-      inputValue={searchString}
+      value={currentSearch}
+      inputValue={searchWithType.term}
       onInputChange={(event, newInputValue) => {
         handleSearchStringChange(newInputValue);
       }}
@@ -125,9 +130,11 @@ export default function AutocompleteSearch({
           handleSelect({ term: "", type: "term" });
           return;
         }
-        const phrase =
-          typeof newValue === "string" ? newValue : (newValue?.term ?? "");
-        handleSelect({ term: phrase, type: "term" });
+        if (typeof newValue === "string") {
+          handleSelect({ term: newValue, type: "term" });
+          return;
+        }
+        handleSelect(newValue);
       }}
       renderOption={(props, option) => (
         <SearchSuggestions option={option} props={props} />
@@ -145,8 +152,8 @@ export default function AutocompleteSearch({
             },
           }}
           onKeyDown={(ev) => {
-            if (ev.key === "Enter" && searchString) {
-              handleSelect({ term: searchString, type: "term" });
+            if (ev.key === "Enter" && searchWithType) {
+              handleSelect(searchWithType);
               ev.preventDefault();
             }
           }}

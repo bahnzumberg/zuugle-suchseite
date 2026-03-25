@@ -28,8 +28,8 @@ export default function SearchActionButton({
 
   const provider = useSelector((state: RootState) => state.search.provider);
   const city = useSelector((state: RootState) => state.search.city);
-  const searchPhrase = useSelector(
-    (state: RootState) => state.search.searchPhrase,
+  const searchWithType = useSelector(
+    (state: RootState) => state.search.searchWithType,
   );
 
   if (!city && pageKey === "detail") {
@@ -77,7 +77,10 @@ export default function SearchActionButton({
           pathname: "/search",
           search:
             "?" +
-            (searchPhrase ? `&search=${searchPhrase}` : "") +
+            (searchWithType?.term ? `&search=${searchWithType.term}` : "") +
+            (searchWithType?.type !== "term"
+              ? `&search_type=${searchWithType?.type}`
+              : "") +
             (provider ? `&p=${provider}` : ""),
         }}
       >

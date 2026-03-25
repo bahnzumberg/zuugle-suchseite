@@ -46,7 +46,7 @@ export interface FilterProps {
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const dispatch = useAppDispatch();
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
-  const search = useSelector((state: RootState) => state.search.searchPhrase);
+  const search = useSelector((state: RootState) => state.search.searchWithType);
   const geolocation = useSelector(
     (state: RootState) => state.search.geolocation,
   );
@@ -77,7 +77,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     if (showFilter) {
       triggerFetchFilter({
         city: citySlug || "",
-        search: search || "",
+        search: search?.term || "",
+        search_type: search?.type !== "term" ? search?.type : "",
       });
     }
   }, [showFilter]);

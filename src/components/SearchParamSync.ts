@@ -11,9 +11,13 @@ import {
   mapUpdated,
   geolocationUpdated,
   providerUpdated,
-  searchPhraseUpdated,
+  searchWithTypeUpdated,
 } from "../features/searchSlice";
-import { useGetCitiesQuery } from "../features/apiSlice";
+import {
+  isValidSearchType,
+  SearchWithType,
+  useGetCitiesQuery,
+} from "../features/apiSlice";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { filterUpdated } from "../features/filterSlice";
 
@@ -55,7 +59,7 @@ export default function SearchParamSync({
   function updateParam(
     newParams: URLSearchParams,
     paramName: string,
-    value: string | null,
+    value: string | null | undefined,
   ) {
     if (value) {
       newParams.set(paramName, value);
@@ -76,7 +80,12 @@ export default function SearchParamSync({
     updateParam(
       newParams,
       "search",
-      isSearchResultsPage ? search.searchPhrase : null,
+      isSearchResultsPage ? search.searchWithType?.term : null,
+    );
+    updateParam(
+      newParams,
+      "search_type",
+      isSearchResultsPage ? search.searchWithType?.type : null,
     );
     updateParam(
       newParams,
@@ -125,7 +134,15 @@ export default function SearchParamSync({
     updateReduxFromParam("p", providerUpdated);
     updateReduxFromParam("lang", languageUpdated);
     if (isSearchResultsPage) {
-      updateReduxFromParam("search", searchPhraseUpdated);
+      const searchPhrase = params.get("search");
+      const rawSearchType = params.get("search_type");
+      const searchWithType: SearchWithType | null = searchPhrase
+        ? {
+            term: searchPhrase,
+            type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
+          }
+        : null;
+      dispatch(searchWithTypeUpdated(searchWithType));
 
       const map = params.get("map");
       if (map) {

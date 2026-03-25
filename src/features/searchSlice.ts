@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SearchWithType } from "./apiSlice";
 
 export interface CityObject {
   label: string;
@@ -21,7 +22,7 @@ export interface LocationWithRadius {
 export interface SearchState {
   city: CityObject | null;
   citySlug: string | null;
-  searchPhrase: string | null;
+  searchWithType: SearchWithType | null;
   language: string | null;
   map: boolean;
   bounds: BoundsObject | null;
@@ -32,7 +33,7 @@ export interface SearchState {
 const initialState: SearchState = {
   city: null,
   citySlug: null,
-  searchPhrase: null,
+  searchWithType: null,
   language: null,
   map: false,
   bounds: null,
@@ -50,8 +51,11 @@ const searchSlice = createSlice({
     citySlugUpdated: (state, action: PayloadAction<string | null>) => {
       state.citySlug = action.payload;
     },
-    searchPhraseUpdated: (state, action: PayloadAction<string | null>) => {
-      state.searchPhrase = action.payload;
+    searchWithTypeUpdated: (
+      state,
+      action: PayloadAction<SearchWithType | null>,
+    ) => {
+      state.searchWithType = action.payload;
     },
     languageUpdated: (state, action: PayloadAction<string | null>) => {
       state.language = action.payload;
@@ -77,7 +81,7 @@ const searchSlice = createSlice({
 export const {
   cityUpdated,
   citySlugUpdated,
-  searchPhraseUpdated,
+  searchWithTypeUpdated,
   languageUpdated,
   boundsUpdated,
   mapUpdated,
