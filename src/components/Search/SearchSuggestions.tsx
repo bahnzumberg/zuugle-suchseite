@@ -5,11 +5,11 @@ import CabinOutlined from "@mui/icons-material/CabinOutlined";
 import PeakIcon from "./icons/PeakIcon";
 import LandscapeOutlined from "@mui/icons-material/LandscapeOutlined";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
-import { AutocompleteSearchSuggestion } from "../../features/apiSlice";
+import { SearchWithType } from "../../features/apiSlice";
 import { HTMLAttributes } from "react";
 
 export interface SearchSuggestionsProps {
-  option: AutocompleteSearchSuggestion;
+  option: SearchWithType;
   props: HTMLAttributes<HTMLLIElement> & {
     key: React.Key;
   };
@@ -46,7 +46,7 @@ export default function SearchSuggestions({
           ) : null}
         </div>
       </ListItemIcon>
-      <ListItemText primary={option?.text} />
+      <ListItemText primary={option?.term} />
     </ListItem>
   );
 }

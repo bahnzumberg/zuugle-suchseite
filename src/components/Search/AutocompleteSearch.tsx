@@ -3,6 +3,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
 import {
+  SearchWithType,
   useGetCitiesQuery,
   useLazyGetSearchSuggestionsQuery,
 } from "../../features/apiSlice";
@@ -52,26 +53,26 @@ export default function AutocompleteSearch({
     return () => debouncedTrigger.cancel();
   }, [debouncedTrigger]);
 
-  const handleSelect = (phrase: string | null) => {
+  const handleSelect = (search: SearchWithType) => {
     //if search phrase corresponds to a city, set the city
     const matchedCity = allCities.find(
       (city) =>
-        city.label.toLowerCase() === phrase?.toLowerCase() ||
-        city.value.toLowerCase() === phrase?.toLowerCase(),
+        city.label.toLowerCase() === search.term?.toLowerCase() ||
+        city.value.toLowerCase() === search.term?.toLowerCase(),
     );
 
     if (isSearchPage) {
       if (matchedCity) {
         dispatch(cityUpdated(matchedCity));
       } else {
-        dispatch(searchPhraseUpdated(phrase));
+        dispatch(searchPhraseUpdated(search.term));
       }
     } else {
       const searchParams = new URLSearchParams();
       if (matchedCity) {
         searchParams.set("city", matchedCity.value);
-      } else if (phrase) {
-        searchParams.set("search", phrase);
+      } else if (search.term) {
+        searchParams.set("search", search.term);
       }
       if (provider) {
         searchParams.set("provider", provider);
@@ -111,7 +112,7 @@ export default function AutocompleteSearch({
       filterOptions={(x) => x} // Disable built-in filtering, we handle filtering on the server
       getOptionLabel={(option) => {
         if (typeof option === "string") return option;
-        return option.text;
+        return option.term;
       }}
       options={suggestions}
       value={currentSearchPhrase}
@@ -121,12 +122,12 @@ export default function AutocompleteSearch({
       }}
       onChange={(event, newValue) => {
         if (!newValue) {
-          handleSelect("");
+          handleSelect({ term: "", type: "term" });
           return;
         }
         const phrase =
-          typeof newValue === "string" ? newValue : (newValue?.text ?? "");
-        handleSelect(phrase);
+          typeof newValue === "string" ? newValue : (newValue?.term ?? "");
+        handleSelect({ term: phrase, type: "term" });
       }}
       renderOption={(props, option) => (
         <SearchSuggestions option={option} props={props} />
@@ -145,7 +146,7 @@ export default function AutocompleteSearch({
           }}
           onKeyDown={(ev) => {
             if (ev.key === "Enter" && searchString) {
-              handleSelect(searchString);
+              handleSelect({ term: searchString, type: "term" });
               ev.preventDefault();
             }
           }}

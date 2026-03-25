@@ -75,21 +75,16 @@ export interface SearchParams {
   tld: string;
 }
 
-export type AutocompleteSuggestionType = "hut" | "peak" | "range" | "term";
+export type SearchType = "hut" | "peak" | "range" | "term";
 
-export interface AutocompleteSearchSuggestion {
-  text: string;
-  type: AutocompleteSuggestionType;
+export interface SearchWithType {
+  term: string;
+  type: SearchType;
 }
 
-interface RawAutocompleteSuggestionsResponse {
+interface AutocompleteSuggestionsResponse {
   success: boolean;
-  items: Record<string, string>[];
-}
-
-export interface AutocompleteSearchSuggestionsResponse {
-  success: boolean;
-  items: AutocompleteSearchSuggestion[];
+  items: SearchWithType[];
 }
 
 export interface Suggestion {
@@ -196,7 +191,7 @@ export const api = createApi({
       },
     }),
     getSearchSuggestions: build.query<
-      AutocompleteSearchSuggestionsResponse,
+      AutocompleteSuggestionsResponse,
       SearchParams
     >({
       query: (params) => {
@@ -204,23 +199,6 @@ export const api = createApi({
           Object.entries(params).map(([key, value]) => [key, String(value)]),
         );
         return `searchphrase?${searchParams}`;
-      },
-      transformResponse: (
-        response: RawAutocompleteSuggestionsResponse,
-      ): AutocompleteSearchSuggestionsResponse => {
-        const validTypes: AutocompleteSuggestionType[] = [
-          "hut",
-          "peak",
-          "range",
-          "term",
-        ];
-        const items = (response.items ?? []).map((item) => {
-          const type = (Object.keys(item).find((k) =>
-            validTypes.includes(k as AutocompleteSuggestionType),
-          ) ?? "term") as AutocompleteSuggestionType;
-          return { text: item[type] ?? "", type };
-        });
-        return { success: response.success, items };
       },
     }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
