@@ -770,6 +770,8 @@ const listWrapper = async (req, res) => {
     const cacheKeyIds = generateKey("tours:ids", {
         tld,
         city,
+        searchType,
+        poi: bindValues(inner_join_pois, poi_bindings),
         condition: global_where_condition_bound,
     });
     const cachedIds = await cacheService.get(cacheKeyIds);
