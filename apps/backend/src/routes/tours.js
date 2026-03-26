@@ -466,6 +466,7 @@ const listWrapper = async (req, res) => {
     let new_filter_where_poi = ``;
     let new_filter_where_countries = ``;
     let inner_join_pois = ``;
+    let poi_bindings = [];
     let pois = [];
 
     const defaultFilter = {
@@ -650,7 +651,7 @@ const listWrapper = async (req, res) => {
                                             WHERE pois.type='hut'
                                             AND pois.name=?) as pois 
                                 ON t.id=pois.tour_id `;
-            bindings.push(search);
+            poi_bindings.push(search);
 
             const poiResult = await knex.raw(
                 `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND pois.name=?`,
@@ -668,7 +669,7 @@ const listWrapper = async (req, res) => {
                                             WHERE pois.type='peak'
                                             AND pois.name=?) as pois 
                                 ON t.id=pois.tour_id `;
-            bindings.push(search);
+            poi_bindings.push(search);
 
             const poiResult = await knex.raw(
                 `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND pois.name=?`,
@@ -781,7 +782,7 @@ const listWrapper = async (req, res) => {
         const tour_ids_sql = `SELECT 
                             t.id
                             FROM city2tour_flat as t
-                            ${inner_join_pois}
+                            ${bindValues(inner_join_pois, poi_bindings)}
                             WHERE t.reachable_from_country='${tld}'
                             ${where_city_bound}
                             ${global_where_condition_bound}
@@ -800,7 +801,7 @@ const listWrapper = async (req, res) => {
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
         cacheService.set(cacheKeyIds, cachedTourIds);
-        // logger.info("Cache miss: Tour IDs were queried from database");
+        logger.info(tour_ids_sql);
     }
 
     // ****************************************************************
