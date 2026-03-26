@@ -143,8 +143,8 @@ const getCachedEmbedding = async (text) => {
         const result = await knex.raw("SELECT get_embedding(?) as embedding", [textLower]);
         if (result && result.rows && result.rows.length > 0) {
             const embedding = result.rows[0].embedding;
-            // Cache for 30 days (effectively static)
-            cacheService.set(cacheKey, embedding, 30 * 24 * 60 * 60);
+            // Cache for 1 day
+            cacheService.set(cacheKey, embedding, 1 * 24 * 60 * 60);
             return embedding;
         }
     } catch (e) {
@@ -614,7 +614,7 @@ const listWrapper = async (req, res) => {
                     OR
                     t.search_column @@ websearch_to_tsquery(?, ?)
                     OR
-                    LOWER(t.title) % LOWER(?)
+                    LOWER(t.title) %> LOWER(?)
                 ) `;
                 bindings.push(embedding, postgresql_language_code, search, search);
 
@@ -624,7 +624,7 @@ const listWrapper = async (req, res) => {
                          THEN 1 - (ai_search_column <-> ?)
                          ELSE 0 END,
                     COALESCE(ts_rank(t.search_column, websearch_to_tsquery(?, ?)), 0),
-                    COALESCE(similarity(LOWER(t.title), LOWER(?)), 0)
+                    COALESCE(word_similarity(LOWER(?), LOWER(t.title)), 0)
                 ) DESC, `;
                 order_bindings.push(embedding, postgresql_language_code, search, search);
             } else {
@@ -632,12 +632,12 @@ const listWrapper = async (req, res) => {
                 new_search_where_searchterm = `AND (
                     t.search_column @@ websearch_to_tsquery(?, ?)
                     OR
-                    LOWER(t.title) % LOWER(?)
+                    LOWER(t.title) %> LOWER(?)
                 ) `;
                 bindings.push(postgresql_language_code, search, search);
                 new_search_order_searchterm = `GREATEST(
                     COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0),
-                    COALESCE(similarity(LOWER(t.title), LOWER(?)), 0)
+                    COALESCE(word_similarity(LOWER(?), LOWER(t.title)), 0)
                 ) DESC, `;
                 order_bindings.push(postgresql_language_code, search, search);
             }
