@@ -148,7 +148,13 @@ const getCachedEmbedding = async (text) => {
             return embedding;
         }
     } catch (e) {
-        logger.error("Error getting embedding:", e);
+        // If the function doesn't exist, we just log a debug message instead of an error
+        // to avoid noise in local/dev environments.
+        if (e.message && e.message.includes("function get_embedding")) {
+            logger.debug("get_embedding function not found in database, skipping AI search.");
+        } else {
+            logger.error("Error getting embedding:", e);
+        }
     }
     return null;
 };
@@ -602,28 +608,38 @@ const listWrapper = async (req, res) => {
             // Always try AI embedding first, regardless of word count
             const embedding = await getCachedEmbedding(`query: ${search}`);
             if (embedding) {
-                // Combined: AI similarity OR websearch match
+                // Combined: AI similarity OR websearch match OR trigram similarity on title
                 new_search_where_searchterm = `AND (
                     (ai_search_column IS NOT NULL AND ai_search_column <-> ? < 0.65)
                     OR
                     t.search_column @@ websearch_to_tsquery(?, ?)
+                    OR
+                    LOWER(t.title) % LOWER(?)
                 ) `;
-                bindings.push(embedding, postgresql_language_code, search);
+                bindings.push(embedding, postgresql_language_code, search, search);
 
-                // Ranking: best of both scores
+                // Ranking: best of all three scores
                 new_search_order_searchterm = `GREATEST(
                     CASE WHEN ai_search_column IS NOT NULL
                          THEN 1 - (ai_search_column <-> ?)
                          ELSE 0 END,
-                    COALESCE(ts_rank(t.search_column, websearch_to_tsquery(?, ?)), 0)
+                    COALESCE(ts_rank(t.search_column, websearch_to_tsquery(?, ?)), 0),
+                    COALESCE(similarity(LOWER(t.title), LOWER(?)), 0)
                 ) DESC, `;
-                order_bindings.push(embedding, postgresql_language_code, search);
+                order_bindings.push(embedding, postgresql_language_code, search, search);
             } else {
-                // No embedding available → websearch only (unchanged fallback)
-                new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery(?, ?) `;
-                bindings.push(postgresql_language_code, search);
-                new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
-                order_bindings.push(postgresql_language_code, search);
+                // No embedding available → websearch + trigram fallback
+                new_search_where_searchterm = `AND (
+                    t.search_column @@ websearch_to_tsquery(?, ?)
+                    OR
+                    LOWER(t.title) % LOWER(?)
+                ) `;
+                bindings.push(postgresql_language_code, search, search);
+                new_search_order_searchterm = `GREATEST(
+                    COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0),
+                    COALESCE(similarity(LOWER(t.title), LOWER(?)), 0)
+                ) DESC, `;
+                order_bindings.push(postgresql_language_code, search, search);
             }
         }
     } else if (searchType === "hut") {
