@@ -415,7 +415,7 @@ const listWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // this refers to the column in table tour: The tour description is in which language
 
-    let searchType = req.query["search-type"];
+    let searchType = req.query["search_type"];
     if (searchType !== "hut" && searchType !== "peak") {
         searchType = "term";
     }
@@ -803,7 +803,7 @@ const listWrapper = async (req, res) => {
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
         cacheService.set(cacheKeyIds, cachedTourIds);
-        logger.info(tour_ids_sql);
+        // logger.info(tour_ids_sql);
     }
 
     // ****************************************************************
