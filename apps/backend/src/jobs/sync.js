@@ -378,6 +378,7 @@ export async function truncateAll() {
     // This function needs to be updated whenever a new table is added to the database.
     const tables = [
         "city",
+        "city_static",
         "fahrplan",
         "kpi",
         "provider",
@@ -495,6 +496,12 @@ export async function restoreDump() {
                         `Docker container "${container}" is not running. Start it with: docker start ${container}`,
                     ),
                 );
+            } else if (errorMessage.includes("duplicate key value violates unique constraint")) {
+                logger.error(`\n❌ ERROR: ${errorMessage}`);
+                logger.error(
+                    `   💡 Maybe the new table is still missing in function truncateAll()?\n`,
+                );
+                reject(new Error(errorMessage));
             } else {
                 reject(new Error(errorMessage));
             }
@@ -574,65 +581,6 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
             logger.error("Max retries reached. Giving up.");
             return false; // Failure
         }
-    }
-}
-
-export async function generateTestdata() {
-    try {
-        await knex.raw(`DELETE FROM logsearchphrase WHERE phrase LIKE 'TEST%';`);
-
-        /* Testdata into logsearchphrase */
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Troppberg', 4,'wien', 'it', 'IT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Schneeberg', 0,'linz', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Tragöß', 3,'muenchen', 'de', 'DE');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST langbathsee', 5,'wien', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST langbathseen', 6,'salzburg', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST lainz', 1,'bozen', 'it', 'IT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST linz', 2,'ljubljana', 'sl', 'SI');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST klettersteig', 34,'wien', 'fr', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hase', 0,'wien', 'it', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Dachstein', 3,'linz', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Edelweisshütte', 5,'muenchen', 'de', 'DE');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST hihi', 3,'wien', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 2,'salzburg', 'de', 'AT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Skitour', 4,'bozen', 'it', 'IT');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Hütte', 5,'ljubljana', 'sl', 'SI');`,
-        );
-        await knex.raw(
-            `INSERT INTO logsearchphrase (phrase, num_results, city_slug, menu_lang, country_code) VALUES ('TEST Klettern', 1,'wien', 'fr', 'AT');`,
-        );
-    } catch (err) {
-        logger.info("error: ", err);
-        return false;
     }
 }
 
@@ -941,36 +889,14 @@ export async function syncTours() {
     ); // This is the needed size for the tour detail page
 }
 
-export async function syncCities(retryCount = 0, maxRetries = 3) {
+export async function syncCities() {
     try {
-        const query = knexTourenDb("vw_cities_to_search").select(
-            "city_slug",
-            "city_name",
-            "city_country",
+        await knex.raw(`TRUNCATE TABLE city;`);
+        await knex.raw(
+            `INSERT INTO city (city_slug, city_name, city_country, lat, lon) SELECT city_slug, city_name, city_country, lat, lon FROM city_static;`,
         );
-        const result = await query;
-        if (!!result && result.length > 0) {
-            for (let i = 0; i < result.length; i++) {
-                await knex.raw(
-                    `insert into city values ('${result[i].city_slug}', '${result[i].city_name}', '${result[i].city_country}') ON CONFLICT (city_slug) DO NOTHING`,
-                );
-            }
-        }
-        return true; // Success
     } catch (err) {
         logger.error("Error in syncCities:", err);
-
-        if (retryCount < maxRetries) {
-            const waitTime = 25000 * (retryCount + 1); // Linear backoff: 25s, 50s, 75s
-            logger.info(
-                `Retrying syncCities (attempt ${retryCount + 1} of ${maxRetries}) in ${waitTime / 1000} seconds...`,
-            );
-            await new Promise((resolve) => setTimeout(resolve, waitTime));
-            return syncCities(retryCount + 1, maxRetries);
-        } else {
-            logger.error("Max retries reached for syncCities. Giving up.");
-            return false; // Failure
-        }
     }
 }
 
@@ -1498,6 +1424,17 @@ export async function refreshSearchSuggestions() {
             WHERE rank = 1
             ON CONFLICT (reachable_from_country, city_slug, type, term)
             DO UPDATE SET number_of_tours = GREATEST(search_suggestions.number_of_tours, EXCLUDED.number_of_tours);
+        `);
+
+        // delete all terms that are also a range or a poi name
+        await knex.raw(`
+            DELETE FROM search_suggestions
+            WHERE type = 'term'
+            AND term IN (
+                SELECT range FROM tour
+                UNION
+                SELECT name FROM pois
+            );
         `);
     } catch (err) {
         logger.error("Error refreshing search_suggestions:", err);
