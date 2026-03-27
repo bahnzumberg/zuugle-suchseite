@@ -1291,7 +1291,7 @@ export async function refreshSearchSuggestions() {
                 p.name AS term,
                 c.reachable_from_country,
                 c.city_slug,
-                CASE WHEN p.type = 'peak' THEN 1 ELSE 3 END AS priority,
+                CASE WHEN p.type IN ('peak', 'hut') THEN 1 ELSE 3 END AS priority,
                 COUNT(p.id) AS number_of_tours
             FROM pois p
             JOIN poi2tour pt ON p.id = pt.poi_id
