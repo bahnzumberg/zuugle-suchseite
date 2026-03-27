@@ -184,6 +184,30 @@ describe("Zuugle API UAT Tests", () => {
         expect(typeof data.total).toBe("number");
     });
 
+    test("POST /api/tours with search and search_type", async () => {
+        const params = new URLSearchParams({
+            domain: "www.zuugle.at",
+            city: "innsbruck",
+            limit: "10",
+            currLanguage: "de",
+            page: "1",
+            search: "Wildspitze",
+            search_type: "peak",
+        });
+        const url = `${baseUrl}/api/tours?${params.toString()}`;
+        const response = await fetch(url, { method: "POST", headers: getHeaders() });
+
+        expect(response.status).toBe(200);
+
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(Array.isArray(data.tours)).toBe(true);
+        expect(data.tours.length).toBeGreaterThan(0);
+        expect(typeof data.total).toBe("number");
+        expect(data.total).toBeGreaterThan(0);
+        expect(data.total).toBeLessThan(20);
+    });
+
     describe("POST api/tours with filter body", () => {
         test("should filter tours by countries", async () => {
             const params = new URLSearchParams(TOURS_API_SEARCH_PARAMS);
