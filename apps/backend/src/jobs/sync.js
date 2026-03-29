@@ -1251,37 +1251,21 @@ export async function refreshSearchSuggestions() {
     try {
         // logger.info("Refreshing search_suggestions table");
 
-        // 1. Ensure table exists (self-healing for fresh environments)
-        await knex.raw(`
-            CREATE TABLE IF NOT EXISTS search_suggestions (
-                type varchar(10) NOT NULL,
-                term text NOT NULL,
-                reachable_from_country char(2) NOT NULL,
-                city_slug varchar(64) NOT NULL,
-                priority int NOT NULL,
-                number_of_tours integer,
-                PRIMARY KEY (reachable_from_country, city_slug, type, term)
-            );
-        `);
-        // Self-healing: add columns that may be missing in older table versions
-        await knex.raw(
-            `ALTER TABLE search_suggestions ADD COLUMN IF NOT EXISTS priority int NOT NULL DEFAULT 3;`,
-        );
-        await knex.raw(
-            `ALTER TABLE search_suggestions ADD COLUMN IF NOT EXISTS number_of_tours integer;`,
-        );
-        await knex.raw(`
-            CREATE INDEX IF NOT EXISTS idx_suggestions_exact
-            ON search_suggestions (reachable_from_country, city_slug)
-            INCLUDE (priority, number_of_tours);
-        `);
-        await knex.raw(`
-            CREATE INDEX IF NOT EXISTS idx_suggestions_term_trgm
-            ON search_suggestions USING gin (term gin_trgm_ops);
-        `);
-
-        // 2. Truncate existing data
+        // Truncate existing data
         await knex.raw(`TRUNCATE search_suggestions;`);
+
+        // Insert Cities
+        await knex.raw(`
+            INSERT INTO search_suggestions (type, term, reachable_from_country, city_slug, priority, number_of_tours)
+            SELECT
+                'city' as type,
+                c.city_name AS term,
+                c.city_country as reachable_from_country,
+                c.city_slug,
+                0 AS priority,
+                9999 AS number_of_tours
+            FROM city c
+        `);
 
         // Insert POIs
         await knex.raw(`

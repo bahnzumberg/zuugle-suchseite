@@ -18,6 +18,9 @@ const autocompleteWrapper = async (req, res) => {
         });
     }
 
+    const city = req.query.city;
+    const tld = req.query.tld?.toUpperCase() ?? "AT";
+
     if (!search || search.length == 0) {
         return res.status(200).json({ success: true, error: "no search term" });
     }
@@ -35,9 +38,6 @@ const autocompleteWrapper = async (req, res) => {
             error: "Bad Request - search term is too long (max. 128 characters)",
         });
     }
-
-    const city = req.query.city;
-    const tld = req.query.tld?.toUpperCase() ?? "AT";
 
     // If we found the combination of city, tld and search term in the cache, return it
     const cacheKey = `autocomplete:searchterm:${city || "all"}:${tld}:${search}`;
@@ -92,7 +92,8 @@ const autocompleteWrapper = async (req, res) => {
                 LIMIT 6;`;
 
     // City can be null, so we insert the WHERE condition only if city is not null
-    let city_filter = " AND city_slug = :city ";
+    // If the city is already set, we do not want to Show the Cities (priority = 0) in the results. If no City is set, we want to show the cities.
+    let city_filter = " AND city_slug = :city AND priority > 0 ";
     if (city == "null" || !city || city.length == 0) {
         city_filter = "";
     }
