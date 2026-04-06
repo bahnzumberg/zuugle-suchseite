@@ -95,7 +95,8 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
 };
 
 router.post("/", (req, res) => listWrapper(req, res));
-router.get("/filter", (req, res) => filterWrapper(req, res));
+router.get("/filter", (req, res) => filterWrapper(req, res)); // @deprecated — use POST /filter instead (see filterWrapperV2)
+router.post("/filter", (req, res) => filterWrapperV2(req, res));
 router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
 
 router.get("/total", (req, res) => totalWrapper(req, res));
@@ -394,18 +395,16 @@ const getWrapper = async (req, res) => {
 };
 
 /**
- * Main search endpoint. Lists tours based on various filters such as search term, city, range,
- * range_slug, statistics (KPIs), and more. Supports pagination and caching.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
+ * Parses request parameters, builds WHERE conditions, and returns matching tour IDs
+ * (from Valkey cache or database). This function is shared between listWrapper and
+ * filterWrapperV2 to avoid duplicating the complex filter/search logic.
+ *
+ * @param {object} req - Express request object (query params + body).
+ * @returns {Promise<{tourIds: number[], tld: string, city: string, where_city_bound: string, language: string, pois: Array}>}
  */
-const listWrapper = async (req, res) => {
-    const showRanges = !!req.query.ranges;
-    const page = req.query.page || 1;
-    const map = req.query.map;
-
+const getMatchingTourIds = async (req) => {
     const search = req.query.search;
-    const currLanguage = req.query.currLanguage ? req.query.currLanguage : "de"; // this is the menue language the user selected
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : "de";
     const city = req.query.city;
     const range = req.query.range;
     const state = req.query.state;
@@ -413,7 +412,7 @@ const listWrapper = async (req, res) => {
     const domain = req.query.domain;
     const tld = get_domain_country(domain).toUpperCase();
     const provider = req.query.provider;
-    const language = req.query.language; // this refers to the column in table tour: The tour description is in which language
+    const language = req.query.language;
 
     let searchType = req.query["search_type"];
     if (searchType !== "hut" && searchType !== "peak") {
@@ -766,7 +765,7 @@ const listWrapper = async (req, res) => {
             : `AND t.stop_selector='y'`;
 
     // Generate List of IDs, which is hopefully already in Valkey, so it should be really fast
-    let cachedTourIds = [];
+    let tourIds = [];
     const cacheKeyIds = generateKey("tours:ids", {
         tld,
         city,
@@ -776,9 +775,7 @@ const listWrapper = async (req, res) => {
     });
     const cachedIds = await cacheService.get(cacheKeyIds);
     if (cachedIds) {
-        cachedTourIds = cachedIds;
-        // logger.info("Cache hit: Tour IDs were not queried from database. key=" + cacheKeyIds);
-        // logger.info("global_where_condition_bound=" + JSON.stringify(global_where_condition_bound));
+        tourIds = cachedIds;
     } else {
         // Safe to interpolate tld directly: it comes from get_domain_country() which returns only controlled values (AT/CH/DE/IT/FR/SL), not user input
         const tour_ids_sql = `SELECT 
@@ -801,10 +798,35 @@ const listWrapper = async (req, res) => {
                             FLOOR(t.duration) ASC,
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
         const tour_ids = await knex.raw(tour_ids_sql);
-        cachedTourIds = tour_ids.rows.map((row) => row.id);
-        cacheService.set(cacheKeyIds, cachedTourIds);
-        // logger.info(tour_ids_sql);
+        tourIds = tour_ids.rows.map((row) => row.id);
+        cacheService.set(cacheKeyIds, tourIds);
     }
+
+    return { tourIds, tld, city, where_city_bound, language, pois };
+}; // end of getMatchingTourIds
+
+/**
+ * Main search endpoint. Lists tours based on various filters such as search term, city, range,
+ * range_slug, statistics (KPIs), and more. Supports pagination and caching.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
+const listWrapper = async (req, res) => {
+    const showRanges = !!req.query.ranges;
+    const page = req.query.page || 1;
+    const map = req.query.map;
+    const search = req.query.search;
+    const currLanguage = req.query.currLanguage ? req.query.currLanguage : "de";
+    const domain = req.query.domain;
+
+    // Get matching tour IDs (shared with filterWrapperV2, cached in Valkey)
+    const {
+        tourIds: cachedTourIds,
+        tld,
+        city,
+        where_city_bound,
+        pois,
+    } = await getMatchingTourIds(req);
 
     // ****************************************************************
     // GET THE COUNT
@@ -1241,6 +1263,194 @@ const filterWrapper = async (req, res) => {
     cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 }; // end of filterWrapper
+
+/**
+ * POST /filter — Returns narrowed-down filter options based on active filters.
+ * Reuses the same tour ID list as listWrapper (shared Valkey cache) to avoid
+ * duplicating the complex search/filter logic.
+ *
+ * @param {object} req - Express request object (query params + body with filter object).
+ * @param {object} res - Express response object.
+ */
+const filterWrapperV2 = async (req, res) => {
+    // 1. Get matching tour IDs (shared with listWrapper, cached in Valkey)
+    const { tourIds } = await getMatchingTourIds(req);
+
+    if (tourIds.length === 0) {
+        const emptyFilter = {
+            types: [],
+            ranges: [],
+            providers: [],
+            countries: [],
+            isSingleDayTourPossible: false,
+            isMultipleDayTourPossible: false,
+            isSummerTourPossible: false,
+            isWinterTourPossible: false,
+            maxAscent: 0,
+            minAscent: 0,
+            maxDescent: 0,
+            minDescent: 0,
+            maxDistance: 0,
+            minDistance: 0,
+            isTraversePossible: false,
+            minTransportDuration: 0,
+            maxTransportDuration: 0,
+            languages: [],
+        };
+        return res.status(200).json({ success: true, filter: emptyFilter, providers: [] });
+    }
+
+    // 2. Cache check for filter result (keyed by the sorted tour ID list)
+    const cacheKey = generateKey("tours:filterv2", { tourIds });
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
+    // 3. Query filter options from matched tour IDs
+    //    Using ANY(ARRAY[...]) for better performance with large ID lists
+    const idArray = `ARRAY[${tourIds.join(", ")}]`;
+
+    let kpis = [];
+    let types = [];
+    let text = [];
+    let ranges = [];
+    let providers = [];
+    let countries = [];
+
+    const kpi_sql = `SELECT 
+                CASE WHEN SUM(CASE WHEN t.number_of_days=1 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSingleDayTourPossible,
+                CASE WHEN SUM(CASE WHEN t.number_of_days=2 THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isMultipleDayTourPossible,
+                CASE WHEN SUM(CASE WHEN t.season='s' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isSummerTourPossible,
+                CASE WHEN SUM(CASE WHEN t.season='w' OR t.season='n' THEN 1 ELSE 0 END) > 0 THEN TRUE ELSE FALSE END AS isWinterTourPossible,
+                CASE WHEN MAX(t.ascent) > 3000 THEN 3000 ELSE MAX(t.ascent) END AS maxAscent,
+                MIN(t.ascent) AS minAscent,
+                CASE WHEN MAX(t.descent) > 3000 THEN 3000 ELSE MAX(t.descent) END AS maxDescent,
+                MIN(t.descent) AS minDescent,
+                CASE WHEN MAX(t.distance) > 80 THEN 80.0 ELSE MAX(t.distance) END AS maxDistance,
+                MIN(t.distance) AS minDistance,
+                CASE WHEN SUM(t.traverse) > 0 THEN TRUE ELSE FALSE END AS isTraversePossible,
+                MIN(t.min_connection_duration/60) AS minTransportDuration,
+                MAX(t.max_connection_duration/60) AS maxTransportDuration
+                FROM city2tour_flat t
+                WHERE t.id = ANY(${idArray});`;
+
+    let kpi_result = await knex.raw(kpi_sql);
+    if (!!kpi_result && !!kpi_result.rows) {
+        kpis = kpi_result.rows;
+    }
+
+    let _isSingleDayTourPossible;
+    let _isMultipleDayTourPossible;
+    let _isSummerTourPossible;
+    let _isWinterTourPossible;
+    let _maxAscent;
+    let _minAscent;
+    let _maxDescent;
+    let _minDescent;
+    let _maxDistance;
+    let _minDistance;
+    let _isTraversePossible;
+    let _minTransportDuration;
+    let _maxTransportDuration;
+
+    for (const element of kpis) {
+        _isSingleDayTourPossible = element.issingledaytourpossible;
+        _isMultipleDayTourPossible = element.ismultipledaytourpossible;
+        _isSummerTourPossible = element.issummertourpossible;
+        _isWinterTourPossible = element.iswintertourpossible;
+        _maxAscent = element.maxascent;
+        _minAscent = element.minascent;
+        _maxDescent = element.maxdescent;
+        _minDescent = element.mindescent;
+        _maxDistance = parseFloat(element.maxdistance);
+        _minDistance = parseFloat(element.mindistance);
+        _isTraversePossible = element.istraversepossible;
+        _minTransportDuration = parseFloat(element.mintransportduration);
+        _maxTransportDuration = parseFloat(element.maxtransportduration);
+    }
+
+    const types_sql = `SELECT DISTINCT t.type
+                    FROM city2tour_flat AS t
+                    WHERE t.id = ANY(${idArray})
+                    ORDER BY t.type;`;
+
+    let types_result = await knex.raw(types_sql);
+    if (!!types_result && !!types_result.rows) {
+        types = types_result.rows;
+    }
+
+    const text_sql = `SELECT DISTINCT t.text_lang
+                    FROM city2tour_flat AS t
+                    WHERE t.id = ANY(${idArray})
+                    ORDER BY t.text_lang;`;
+
+    let text_result = await knex.raw(text_sql);
+    if (!!text_result && !!text_result.rows) {
+        text = text_result.rows;
+    }
+
+    const range_sql = `SELECT DISTINCT t.range
+                    FROM city2tour_flat AS t
+                    WHERE t.id = ANY(${idArray})
+                    AND t.range_slug IS NOT NULL
+                    ORDER BY t.range;`;
+
+    let range_result = await knex.raw(range_sql);
+    if (!!range_result && !!range_result.rows) {
+        ranges = range_result.rows;
+    }
+
+    const provider_sql = `SELECT DISTINCT t.provider, p.provider_name
+                    FROM city2tour_flat AS t
+                    INNER JOIN provider AS p ON t.provider=p.provider
+                    WHERE t.id = ANY(${idArray})
+                    ORDER BY t.provider;`;
+
+    let provider_result = await knex.raw(provider_sql);
+    if (!!provider_result && !!provider_result.rows) {
+        providers = provider_result.rows;
+    }
+
+    const country_sql = `SELECT DISTINCT t.country
+                    FROM city2tour_flat AS t
+                    WHERE t.id = ANY(${idArray})
+                    ORDER BY t.country;`;
+
+    let country_result = await knex.raw(country_sql);
+    if (!!country_result && !!country_result.rows) {
+        countries = country_result.rows;
+    }
+
+    const filterresult = {
+        types: types.map((typeObj) => typeObj.type),
+        ranges: ranges.map((rangesObj) => rangesObj.range),
+        providers: providers.map((providerObj) => providerObj.provider),
+        countries: countries.map((countryObj) => countryObj.country),
+        isSingleDayTourPossible: _isSingleDayTourPossible,
+        isMultipleDayTourPossible: _isMultipleDayTourPossible,
+        isSummerTourPossible: _isSummerTourPossible,
+        isWinterTourPossible: _isWinterTourPossible,
+        maxAscent: _maxAscent,
+        minAscent: _minAscent,
+        maxDescent: _maxDescent,
+        minDescent: _minDescent,
+        maxDistance: _maxDistance,
+        minDistance: _minDistance,
+        isTraversePossible: _isTraversePossible,
+        minTransportDuration: _minTransportDuration,
+        maxTransportDuration: _maxTransportDuration,
+        languages: text.map((textObj) => textObj.text_lang),
+    };
+
+    const responseData = {
+        success: true,
+        filter: filterresult,
+        providers: providers,
+    };
+    cacheService.set(cacheKey, responseData);
+    res.status(200).json(responseData);
+}; // end of filterWrapperV2
 
 /**
  * Retrieves detailed public transport connection schedules (outbound and return) for a specific tour and city.
