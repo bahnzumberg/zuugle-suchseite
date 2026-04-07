@@ -56,3 +56,16 @@
   margin-right: 5px;
   max-width: 200px;
 }
+
+/* Fullscreen map container */
+.map-fullscreen-container:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: none !important;
+  background: #f7f7f7;
+}
+
+/* Clickable GPX track polylines */
+.track-clickable {
+  cursor: pointer;
+}

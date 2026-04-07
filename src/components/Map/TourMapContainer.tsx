@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,6 +13,7 @@ import {
   ZoomControl,
   Marker as LeafletMarker,
   Tooltip,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -81,6 +89,78 @@ function createPoiIcon(type: PoiResult["type"]): L.DivIcon {
   });
 }
 
+/**
+ * Invalidates the map size when the trigger value changes (e.g. fullscreen toggle).
+ */
+function MapSizeInvalidator({ trigger }: { trigger: number }) {
+  const map = useMap();
+  useEffect(() => {
+    if (trigger > 0) {
+      setTimeout(() => map.invalidateSize(), 150);
+    }
+  }, [trigger, map]);
+  return null;
+}
+
+/**
+ * Leaflet Control: Fullscreen toggle button rendered inside the map.
+ */
+function FullscreenControl({
+  isFullscreen,
+  onToggle,
+}: {
+  isFullscreen: boolean;
+  onToggle: () => void;
+}) {
+  const map = useMap();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Prevent map interactions from propagating through the button
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+  }, [map]);
+
+  return (
+    // leaflet-top leaflet-left positions the div in the top-left corner.
+    // marginTop of 38px compensates for the -38px margin-top on .map-container
+    // which causes the top of the map to be visually hidden behind the white bar.
+    <div
+      className="leaflet-top leaflet-left"
+      style={{ pointerEvents: "auto", marginTop: "38px" }}
+    >
+      <div ref={containerRef} className="leaflet-control leaflet-bar">
+        <button
+          onClick={onToggle}
+          title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
+          style={{
+            width: "30px",
+            height: "30px",
+            backgroundColor: "#fff",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#333">
+            {isFullscreen ? (
+              <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+            ) : (
+              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+            )}
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export interface TourMapContainerProps {
   markers: Marker[];
   pois: PoiResult[];
@@ -122,6 +202,35 @@ export default function TourMapContainer({
 
   const [searchParams] = useSearchParams();
   const provider = searchParams.get("p");
+
+  // --- Multi-track state ---
+  const [allGpxTracks, setAllGpxTracks] = useState<
+    Record<
+      number,
+      {
+        gpx: L.LatLngExpression[];
+        totour: L.LatLngExpression[];
+        fromtour: L.LatLngExpression[];
+      }
+    >
+  >({});
+  const loadingRef = useRef<Set<number>>(new Set());
+  const loadedTrackIdsRef = useRef<Set<number>>(new Set());
+
+  // --- Fullscreen state ---
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenTrigger, setFullscreenTrigger] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const shouldShowTracks = markers.length < 30 && markers.length > 0;
+  const markerIds = useMemo(
+    () =>
+      markers
+        .map((m) => m.id)
+        .sort((a, b) => a - b)
+        .join(","),
+    [markers],
+  );
 
   useEffect(() => {
     if (!isLoading) {
@@ -171,6 +280,86 @@ export default function TourMapContainer({
   useEffect(() => {
     if (tourDetails) setSelectedTour(tourDetails);
   }, [tourDetails]);
+
+  // --- Load GPX tracks for all visible markers when zoomed in ---
+  useEffect(() => {
+    if (!shouldShowTracks) return;
+
+    let cancelled = false;
+
+    const markersToLoad = markers.filter(
+      (m) =>
+        !loadedTrackIdsRef.current.has(m.id) && !loadingRef.current.has(m.id),
+    );
+
+    if (markersToLoad.length === 0) return;
+
+    const loadAll = async () => {
+      for (const marker of markersToLoad) {
+        if (cancelled) return;
+
+        loadingRef.current.add(marker.id);
+        try {
+          const tour = await triggerTourDetails({
+            id: String(marker.id),
+            city: city?.value ?? "no-city",
+          }).unwrap();
+
+          if (cancelled) return;
+
+          const [gpx, totour, fromtour] = await Promise.all([
+            tour.gpx_file
+              ? triggerGPX(tour.gpx_file).unwrap()
+              : Promise.resolve([] as [number, number][]),
+            tour.totour_gpx_file
+              ? triggerGPX(tour.totour_gpx_file).unwrap()
+              : Promise.resolve([] as [number, number][]),
+            tour.fromtour_gpx_file
+              ? triggerGPX(tour.fromtour_gpx_file).unwrap()
+              : Promise.resolve([] as [number, number][]),
+          ]);
+
+          if (cancelled) return;
+
+          loadedTrackIdsRef.current.add(marker.id);
+          setAllGpxTracks((prev) => ({
+            ...prev,
+            [marker.id]: { gpx, totour, fromtour },
+          }));
+        } catch (err) {
+          console.error(`Error loading tracks for marker ${marker.id}:`, err);
+        } finally {
+          loadingRef.current.delete(marker.id);
+        }
+      }
+    };
+
+    loadAll();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldShowTracks, markerIds, city]);
+
+  // --- Fullscreen handling ---
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      containerRef.current.requestFullscreen();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      const isFull = !!document.fullscreenElement;
+      setIsFullscreen(isFull);
+      setFullscreenTrigger((prev) => prev + 1);
+    };
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
 
   const createClusterCustomIcon = useCallback((cluster: L.MarkerCluster) => {
     const clusterChildCount = cluster.getChildCount();
@@ -247,9 +436,11 @@ export default function TourMapContainer({
 
   return (
     <Box
+      ref={containerRef}
+      className="map-fullscreen-container"
       style={{
-        height: "600px",
-        maxHeight: "60vh",
+        height: isFullscreen ? "100vh" : "600px",
+        maxHeight: isFullscreen ? "none" : "60vh",
         width: "100%",
         position: "relative",
         overflow: "hidden",
@@ -296,6 +487,61 @@ export default function TourMapContainer({
           activeMarker={activeMarker}
           setActiveMarker={setActiveMarker}
         />
+
+        {/* Multi-track polylines (all visible tracks when < 30 markers) */}
+        {shouldShowTracks &&
+          markers.map((marker) => {
+            const tracks = allGpxTracks[marker.id];
+            if (!tracks) return null;
+            const handleTrackClick = () => handleMarkerClick(marker);
+            const isActive = activeMarker?.id === marker.id;
+            return (
+              <Fragment key={`multi-${marker.id}`}>
+                {tracks.gpx.length > 0 && (
+                  <Polyline
+                    className="track-clickable"
+                    pathOptions={{
+                      weight: isActive ? 6 : 4,
+                      color: "#FF7663",
+                      opacity: isActive ? 1 : 0.7,
+                    }}
+                    positions={tracks.gpx}
+                    eventHandlers={{ click: handleTrackClick }}
+                  />
+                )}
+                {tracks.totour.length > 0 && (
+                  <Polyline
+                    className="track-clickable"
+                    pathOptions={{
+                      weight: isActive ? 6 : 4,
+                      color: "#FF7663",
+                      opacity: isActive ? 1 : 0.7,
+                      dashArray: "5,10",
+                      dashOffset: "1",
+                      lineCap: "square",
+                    }}
+                    positions={tracks.totour}
+                    eventHandlers={{ click: handleTrackClick }}
+                  />
+                )}
+                {tracks.fromtour.length > 0 && (
+                  <Polyline
+                    className="track-clickable"
+                    pathOptions={{
+                      weight: isActive ? 6 : 4,
+                      color: "#FF7663",
+                      opacity: isActive ? 1 : 0.7,
+                      dashArray: "5,10",
+                      dashOffset: "0",
+                      lineCap: "square",
+                    }}
+                    positions={tracks.fromtour}
+                    eventHandlers={{ click: handleTrackClick }}
+                  />
+                )}
+              </Fragment>
+            );
+          })}
 
         {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
@@ -377,6 +623,11 @@ export default function TourMapContainer({
           />
         )}
         <ZoomControl position="bottomright" />
+        <MapSizeInvalidator trigger={fullscreenTrigger} />
+        <FullscreenControl
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
       </MapContainer>
     </Box>
   );
