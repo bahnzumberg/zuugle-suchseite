@@ -32,6 +32,11 @@ jobs:
               run: npm install
             - name: Run build task
               run: npm run build
+            - name: Unlock network access to server
+              run: |
+                  curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "${{ secrets.DEPLOY_ACCESS }}"
+                  echo "Waiting 59 seconds for access rule to activate..."
+                  sleep 59
             - name: Deploy to Server
               uses: easingthemes/ssh-deploy@main
               with:
@@ -54,9 +59,12 @@ jobs:
                       export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
                       cd ${{ secrets.UAT_REMOTE_TARGET }}
                       npm install --omit=dev
+                      docker compose -f docker-compose.uat.yaml up -d
                       ./restore_databases.sh --structure
                       pm2 restart all
                       # /usr/local/zuugle/import-data-files.sh
+                      sleep 10
+                      npm run refresh-search-suggestions
 
     test-api:
         needs: build

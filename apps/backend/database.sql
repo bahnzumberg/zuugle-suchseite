@@ -3,8 +3,10 @@ SET SEARCH_PATH TO public;
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS cube;
 CREATE EXTENSION IF NOT EXISTS earthdistance;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS city_static;
 DROP TABLE IF EXISTS fahrplan;
 DROP TABLE IF EXISTS kpi;
 DROP TABLE IF EXISTS provider;
@@ -106,10 +108,118 @@ CREATE TABLE city (
       city_slug varchar(64) NOT NULL,
       city_name varchar(128) NOT NULL,
       city_country varchar(128) NOT NULL,
+      lat decimal(9,6) DEFAULT NULL,
+      lon decimal(9,6) DEFAULT NULL,
       PRIMARY KEY (city_slug)
 );
 
-CREATE INDEX ON city (city_slug);
+
+CREATE TABLE city_static (
+      city_slug varchar(64) NOT NULL,
+      city_name varchar(128) NOT NULL,
+      city_country varchar(128) NOT NULL,
+      lat decimal(9,6) DEFAULT NULL,
+      lon decimal(9,6) DEFAULT NULL,
+      PRIMARY KEY (city_slug)
+);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('aix-en-provence', 'Aix-en-Provence', 'FR', 43.523338, 5.439433);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('alessandria', 'Alessandria', 'IT', 44.908791, 8.607259);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('amstetten', 'Amstetten', 'AT', 48.121542, 14.878536);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('annecy', 'Annecy', 'FR', 45.902047, 6.121826);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('attnang-puchheim', 'Attnang Puchheim', 'AT', 48.012400, 13.720984);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('avignon', 'Avignon', 'FR', 43.941923, 4.805269);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bad-endorf', 'Bad Endorf', 'DE', 47.905068, 12.301556);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bad-ischl', 'Bad Ischl', 'AT', 47.711601, 13.626967);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bad-reichenhall', 'Bad Reichenhall', 'DE', 47.730934, 12.882452);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('baden', 'Baden', 'AT', 48.004058, 16.242735);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('basel', 'Basel', 'CH', 47.547413, 7.589560);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bergamo', 'Bergamo', 'IT', 45.690536, 9.675014);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bern', 'Bern', 'CH', 46.948271, 7.439722);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('besancon', 'Besançon', 'FR', 47.243141, 6.022137);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('biella', 'Biella', 'IT', 45.560616, 8.056082);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bozen', 'Bozen', 'IT', 46.491321, 11.350359);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bratislava', 'Bratislava', 'SK', 48.150020, 17.110515);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bregenz', 'Bregenz', 'AT', 47.502856, 9.742391);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('brescia', 'Brescia', 'IT', 45.539304, 10.221535);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bressanone-brixen', 'Bressanone/Brixen', 'IT', 46.709970, 11.652150);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bruck-an-der-leitha', 'Bruck an der Leitha', 'AT', 48.016934, 16.779770);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('bruck-an-der-mur', 'Bruck an der Mur', 'AT', 47.411604, 15.270977);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('budapest', 'Budapest', 'HU', 47.500431, 19.040235);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('chambery', 'Chambéry', 'FR', 45.571408, 5.923485);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('chur', 'Chur', 'CH', 46.852504, 9.531236);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('colmar', 'Colmar', 'FR', 48.077752, 7.353597);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('como', 'Como', 'IT', 45.808016, 9.085181);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('dornbirn', 'Dornbirn', 'AT', 47.413204, 9.743153);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('feldkirch', 'Feldkirch', 'AT', 47.235948, 9.593710);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('fortezza-franzensfeste', 'Fortezza/Franzensfeste', 'IT', 46.786967, 11.611108);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('freiburg-im-breisgau', 'Freiburg im Breisgau', 'DE', 47.996090, 7.842104);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('freilassing', 'Freilassing', 'DE', 47.839812, 12.977093);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('friesach', 'Friesach', 'AT', 46.949756, 14.410185);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('garmisch-partenkirchen', 'Garmisch-Partenkirchen', 'DE', 47.491383, 11.100918);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('geneve', 'Genève', 'CH', 46.210452, 6.143093);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('graz', 'Graz', 'AT', 47.072218, 15.417387);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('grenoble', 'Grenoble', 'FR', 45.191549, 5.713809);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('günzburg', 'Günzburg', 'DE', 48.455246, 10.282906);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('hall-in-tirol', 'Hall in Tirol', 'AT', 47.283186, 11.512638);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('hallein', 'Hallein', 'AT', 47.683319, 13.091176);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('imst-pitztal', 'Imst-Pitztal', 'AT', 47.222384, 10.749008);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('innsbruck', 'Innsbruck', 'AT', 47.263842, 11.401170);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('jenbach', 'Jenbach', 'AT', 47.391605, 11.776607);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('judenburg', 'Judenburg', 'AT', 47.168502, 14.659344);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('kitzbühel', 'Kitzbühel', 'AT', 47.448554, 12.392949);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('klagenfurt', 'Klagenfurt', 'AT', 46.621535, 14.301323);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('knittelfeld', 'Knittelfeld', 'AT', 47.211467, 14.826703);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('kufstein', 'Kufstein', 'AT', 47.583196, 12.172832);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('landeck-zams', 'Landeck-Zams', 'AT', 47.142071, 10.573138);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('lausanne', 'Lausanne', 'CH', 46.518178, 6.629676);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('leoben', 'Leoben', 'AT', 47.381534, 15.093116);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('lienz', 'Lienz', 'AT', 46.828289, 14.511520);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('lugano', 'Lugano', 'CH', 46.005502, 8.946996);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('luzern', 'Luzern', 'CH', 47.050176, 8.310180);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('lyon', 'Lyon', 'FR', 45.760596, 4.859409);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('maribor', 'Maribor', 'SI', 46.562148, 15.657977);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('marseille', 'Marseille', 'FR', 43.302666, 5.380407);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('meran', 'Meran', 'IT', 46.673297, 11.149258);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('milano', 'Milano', 'IT', 45.487137, 9.204821);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('monza', 'Monza', 'IT', 45.578121, 9.272818);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('muenchen', 'München', 'DE', 48.140291, 11.559602);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('muerzzuschlag', 'Mürzzuschlag', 'AT', 47.607679, 15.677084);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('mulhouse', 'Mulhouse', 'FR', 47.742691, 7.343160);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('nice', 'Nice', 'FR', 43.704556, 7.261904);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('novara', 'Novara', 'IT', 45.451272, 8.624503);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('passau', 'Passau', 'DE', 48.573981, 13.447545);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('pavia', 'Pavia', 'IT', 45.187053, 9.155551);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('pörtschach-am-wörthersee', 'Pörtschach am Wörthersee', 'AT', 46.635832, 14.143891);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('prien-am-chiemsee', 'Prien am Chiemsee', 'DE', 47.855013, 12.348422);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('revelstoke', 'Revelstoke', 'CA', 51.002824, -118.194784);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('rosenheim', 'Rosenheim', 'DE', 47.850239, 12.126425);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('rovereto', 'Rovereto', 'IT', 45.889311, 11.034527);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('salzburg', 'Salzburg', 'AT', 47.810576, 13.045236);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('schladming', 'Schladming', 'AT', 47.391656, 13.685324);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('selzthal', 'Selzthal', 'AT', 47.551130, 14.316823);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('spittal-millstättersee', 'Spittal-Millstättersee', 'AT', 46.793086, 13.492576);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-anton-am-arlberg', 'St. Anton am Arlberg', 'AT', 47.130932, 10.270438);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-johann-im-pongau', 'St. Johann im Pongau', 'AT', 47.348275, 13.205260);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-johann-in-tirol', 'St. Johann in Tirol', 'AT', 47.521558, 12.428525);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-moritz', 'St. Moritz', 'CH', 46.498425, 9.839077);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-pölten', 'St. Pölten', 'AT', 48.204550, 15.626723);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('st-veit-an-der-glan', 'St. Veit an der Glan', 'AT', 46.764956, 14.358249);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('straßburg', 'Straßburg', 'FR', 48.584105, 7.749008);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('toulon', 'Toulon', 'FR', 43.123514, 5.928424);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('trento', 'Trento', 'IT', 46.066423, 11.121056);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('treviso', 'Treviso', 'IT', 45.666429, 12.242750);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('torino', 'Torino', 'IT', 45.070312, 7.686856);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('ulm', 'Ulm', 'DE', 48.400833, 9.987222);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('valence', 'Valence', 'FR', 44.933333, 4.891667);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('venezia', 'Venezia', 'IT', 45.440847, 12.315515);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('verona', 'Verona', 'IT', 45.438384, 10.991622);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('vicenza', 'Vicenza', 'IT', 45.547844, 11.549244);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('villach', 'Villach', 'AT', 46.611111, 13.844444);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('vöcklabruck', 'Vöcklabruck', 'AT', 48.012400, 13.655800);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('wörgl', 'Wörgl', 'AT', 47.483333, 12.066667);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('zell-am-see', 'Zell am See', 'AT', 47.323333, 12.796667);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('zermatt', 'Zermatt', 'CH', 46.020713, 7.749117);
+INSERT INTO city_static (city_slug, city_name, city_country, lat, lon) VALUES ('zürich', 'Zürich', 'CH', 47.376887, 8.541694);
 
 
 
@@ -294,7 +404,8 @@ CREATE TABLE city2tour_flat (
     PRIMARY KEY (reachable_from_country, city_slug, id)
 );
 
--- CREATE INDEX ON city2tour_flat USING hnsw (ai_search_column vector_l2_ops);
+-- These indices are created during the daily load in sync.js. 
+-- Any changes here, have to be reflected there, too!
 CREATE INDEX ON city2tour_flat 
 USING hnsw (ai_search_column vector_l2_ops) 
 WITH (m = 24, ef_construction = 128);
@@ -304,6 +415,8 @@ CREATE INDEX ON city2tour_flat USING GIN (search_column);
 CREATE INDEX ON city2tour_flat (stop_selector);
 CREATE INDEX ON city2tour_flat (text_lang);
 CREATE INDEX ON city2tour_flat (id);
+CREATE INDEX tour_title_trgm_idx ON city2tour_flat USING GIN (LOWER(title) gin_trgm_ops);
+
 
 CREATE OR REPLACE FUNCTION sync_tour_image_to_flat()
 RETURNS TRIGGER AS $$
@@ -342,7 +455,6 @@ CREATE TABLE canonical_alternate (
       zuugle_url varchar(100) NOT NULL,
       href_lang varchar(5) DEFAULT 'de-at',
       PRIMARY KEY (id, city_slug)
-
 );
 
 
@@ -361,5 +473,22 @@ CREATE TABLE pois (
       PRIMARY KEY (id)
 );
 CREATE INDEX ON pois (lat, lon);
-CREATE INDEX name_idx ON pois (LOWER(TRIM(name)));
 CREATE INDEX type_idx ON pois (type);
+CREATE INDEX idx_pois_name_search ON pois (name text_pattern_ops);
+
+
+CREATE TABLE search_suggestions (
+    type varchar(10) NOT NULL,
+    term text NOT NULL,
+    reachable_from_country char(2) NOT NULL,
+    city_slug varchar(64) NOT NULL,
+    priority int NOT NULL,
+    number_of_tours integer,
+    PRIMARY KEY (reachable_from_country, city_slug, type, term)
+);
+CREATE INDEX idx_suggestions_exact 
+ON search_suggestions (reachable_from_country, city_slug) 
+INCLUDE (priority, number_of_tours);
+
+CREATE INDEX idx_suggestions_term_trgm 
+ON search_suggestions USING gin (term gin_trgm_ops);

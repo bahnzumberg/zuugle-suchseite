@@ -2,9 +2,11 @@
 import { createWriteStream } from "fs";
 import { get } from "https";
 import { spawn } from "child_process";
+import path from "path";
 
 const DUMP_URL = "https://uat-dump.zuugle.at/zuugle_postgresql.dump";
 const DUMP_FILE = "zuugle_postgresql.dump";
+const syncDataDockerPath = path.resolve(path.dirname(process.argv[1]), "syncDataDocker.js");
 
 console.log(`Downloading ${DUMP_URL}...`);
 
@@ -39,7 +41,7 @@ get(DUMP_URL, (response) => {
 
 function runImport() {
     console.log("Starting database import...");
-    const child = spawn("node", ["build/jobs/syncDataDocker.js"], {
+    const child = spawn(process.execPath, [syncDataDockerPath], {
         stdio: "inherit",
         cwd: process.cwd(),
     });

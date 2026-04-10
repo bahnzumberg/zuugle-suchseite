@@ -184,6 +184,30 @@ describe("Zuugle API UAT Tests", () => {
         expect(typeof data.total).toBe("number");
     });
 
+    test("POST /api/tours with search and search_type", async () => {
+        const params = new URLSearchParams({
+            domain: "www.zuugle.at",
+            city: "innsbruck",
+            limit: "10",
+            currLanguage: "de",
+            page: "1",
+            search: "Wildspitze",
+            search_type: "peak",
+        });
+        const url = `${baseUrl}/api/tours?${params.toString()}`;
+        const response = await fetch(url, { method: "POST", headers: getHeaders() });
+
+        expect(response.status).toBe(200);
+
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(Array.isArray(data.tours)).toBe(true);
+        expect(data.tours.length).toBeGreaterThan(0);
+        expect(typeof data.total).toBe("number");
+        expect(data.total).toBeGreaterThan(0);
+        expect(data.total).toBeLessThan(20);
+    });
+
     describe("POST api/tours with filter body", () => {
         test("should filter tours by countries", async () => {
             const params = new URLSearchParams(TOURS_API_SEARCH_PARAMS);
@@ -307,5 +331,71 @@ describe("Zuugle API UAT Tests", () => {
             expect(data.result).toBeDefined();
             expect(Array.isArray(data.result)).toBe(true);
         }
+    });
+
+    describe("GET /api/searchphrase", () => {
+        test("returns 200 with valid search term", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=wilds&tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(data.items).toBeDefined();
+            expect(Array.isArray(data.items)).toBe(true);
+            expect(data.items.length).toBeGreaterThan(0);
+        });
+
+        test("returns 200 with city filter applied", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=schn&tld=AT&city=wien`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(Array.isArray(data.items)).toBe(true);
+            expect(data.items.length).toBeGreaterThan(0);
+        });
+
+        test("returns 200 with error message when search is empty string (not 400)", async () => {
+            const url = `${baseUrl}/api/searchphrase?search=&tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.success).toBe(true);
+            expect(data.error).toBe("no search term");
+        });
+
+        test("returns 400 when search parameter is missing", async () => {
+            const url = `${baseUrl}/api/searchphrase?tld=AT`;
+            const response = await fetch(url, { headers: getHeaders() });
+
+            expect(response.status).toBe(400);
+            const data = await response.json();
+            expect(data.success).toBe(false);
+            expect(data.error).toBeDefined();
+        });
+
+        test("does not error when tld parameter is omitted (defaults to AT)", async () => {
+            const urlWithTld = `${baseUrl}/api/searchphrase?search=Berg&tld=AT`;
+            const urlWithoutTld = `${baseUrl}/api/searchphrase?search=Berg`;
+
+            const [responseWith, responseWithout] = await Promise.all([
+                fetch(urlWithTld, { headers: getHeaders() }),
+                fetch(urlWithoutTld, { headers: getHeaders() }),
+            ]);
+
+            expect(responseWith.status).toBe(200);
+            expect(responseWithout.status).toBe(200);
+
+            const dataWith = await responseWith.json();
+            const dataWithout = await responseWithout.json();
+
+            expect(dataWith.success).toBe(true);
+            expect(dataWithout.success).toBe(true);
+            // Both should return the same items since the default tld is AT
+            expect(dataWithout.items).toEqual(dataWith.items);
+        });
     });
 });

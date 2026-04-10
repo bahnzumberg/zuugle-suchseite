@@ -15,6 +15,9 @@ export default defineConfig([
         plugins: { js },
         extends: ["js/recommended"],
         languageOptions: { globals: globals.node },
+        rules: {
+            "no-useless-assignment": "off",
+        },
     },
     tseslint.configs.recommended,
     {

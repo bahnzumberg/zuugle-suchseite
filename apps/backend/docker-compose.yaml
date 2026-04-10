@@ -1,9 +1,7 @@
-version: "3.8"
-
 # Local development setup: Single PostgreSQL + Valkey cache
 services:
     postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg18
         container_name: zuugle-container
         restart: always
         ports:

@@ -58,25 +58,11 @@ First, build the project:
 npm run build
 ```
 
-Then choose one of these options:
-
-**Option 1: Automatic download (recommended)**
-
-Downloads the dump file and imports it in one step:
+Download the dump file and import it using this script:
 
 ```bash
 npm run import-data-docker-download
 ```
-
-**Option 2: Manual download**
-
-1. Download the dump file: https://uat-dump.zuugle.at/zuugle_postgresql.dump
-2. Save it to the project root as `zuugle_postgresql.dump`
-3. Run the import:
-
-    ```bash
-    npm run import-data-docker
-    ```
 
 ### Create GPX files and images
 
@@ -107,6 +93,14 @@ Start containers again:
 View logs:
 
     docker compose logs -f
+
+### Rebuild containers (Version Upgrade or Clean Rebuild)
+
+To upgrade the PostgreSQL version or completely rebuild the database structure:
+
+1. Build the script: `npm run build`
+2. Run rebuild: `npm run rebuild-docker`
+3. Import data: `npm run import-data-docker-download`
 
 ## Follow frontend Readme
 

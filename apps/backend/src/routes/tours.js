@@ -143,12 +143,18 @@ const getCachedEmbedding = async (text) => {
         const result = await knex.raw("SELECT get_embedding(?) as embedding", [textLower]);
         if (result && result.rows && result.rows.length > 0) {
             const embedding = result.rows[0].embedding;
-            // Cache for 30 days (effectively static)
-            cacheService.set(cacheKey, embedding, 30 * 24 * 60 * 60);
+            // Cache for 1 day
+            cacheService.set(cacheKey, embedding, 1 * 24 * 60 * 60);
             return embedding;
         }
     } catch (e) {
-        logger.error("Error getting embedding:", e);
+        // If the function doesn't exist, we just log a debug message instead of an error
+        // to avoid noise in local/dev environments.
+        if (e.message && e.message.includes("function get_embedding")) {
+            logger.debug("get_embedding function not found in database, skipping AI search.");
+        } else {
+            logger.error("Error getting embedding:", e);
+        }
     }
     return null;
 };
@@ -409,6 +415,11 @@ const listWrapper = async (req, res) => {
     const provider = req.query.provider;
     const language = req.query.language; // this refers to the column in table tour: The tour description is in which language
 
+    let searchType = req.query["search_type"];
+    if (searchType !== "hut" && searchType !== "peak") {
+        searchType = "term";
+    }
+
     // parse body
     const filter = req.body?.filter;
     const geolocation = req.body?.geolocation;
@@ -454,6 +465,9 @@ const listWrapper = async (req, res) => {
     let new_filter_where_providers = ``;
     let new_filter_where_poi = ``;
     let new_filter_where_countries = ``;
+    let inner_join_pois = ``;
+    let poi_bindings = [];
+    let pois = [];
 
     const defaultFilter = {
         singleDayTour: true,
@@ -577,43 +591,93 @@ const listWrapper = async (req, res) => {
         }
     }
 
-    if (typeof search === "string" && search.trim() !== "") {
-        let postgresql_language_code = "german";
+    if (searchType === "term") {
+        // search for tours by term
+        if (typeof search === "string" && search.trim() !== "") {
+            let postgresql_language_code = "german";
 
-        if (currLanguage == "sl") {
-            postgresql_language_code = "simple";
-        } else if (currLanguage == "fr") {
-            postgresql_language_code = "french";
-        } else if (currLanguage == "it") {
-            postgresql_language_code = "italian";
-        } else if (currLanguage == "en") {
-            postgresql_language_code = "english";
-        }
+            if (currLanguage == "sl") {
+                postgresql_language_code = "simple";
+            } else if (currLanguage == "fr") {
+                postgresql_language_code = "french";
+            } else if (currLanguage == "it") {
+                postgresql_language_code = "italian";
+            } else if (currLanguage == "en") {
+                postgresql_language_code = "english";
+            }
 
-        // If there is more than one search term, the AI is superior,
-        // if there is only a single word, the standard websearch of PostgreSQL ist better.
-        let is_one_search_term = search.trim().split(/\s+/).length === 1;
-        if (!is_one_search_term) {
+            // Always try AI embedding first, regardless of word count
             const embedding = await getCachedEmbedding(`query: ${search}`);
             if (embedding) {
-                new_search_where_searchterm = `AND ai_search_column <-> ? < 0.6 `;
-                bindings.push(embedding);
-                new_search_order_searchterm = `ai_search_column <-> ? ASC, `;
-                order_bindings.push(embedding);
-                // logger.info("AI search")
+                // Combined: AI similarity OR websearch match OR trigram similarity on title
+                new_search_where_searchterm = `AND (
+                    (ai_search_column IS NOT NULL AND ai_search_column <-> ? < 0.65)
+                    OR
+                    t.search_column @@ websearch_to_tsquery(?, ?)
+                    OR
+                    LOWER(t.title) %> LOWER(?)
+                ) `;
+                bindings.push(embedding, postgresql_language_code, search, search);
+
+                // Ranking: best of all three scores
+                new_search_order_searchterm = `GREATEST(
+                    CASE WHEN ai_search_column IS NOT NULL
+                         THEN 1 - (ai_search_column <-> ?)
+                         ELSE 0 END,
+                    COALESCE(ts_rank(t.search_column, websearch_to_tsquery(?, ?)), 0),
+                    COALESCE(word_similarity(LOWER(?), LOWER(t.title)), 0)
+                ) DESC, `;
+                order_bindings.push(embedding, postgresql_language_code, search, search);
             } else {
-                // embedding not found, fallback to websearch - even though the search term consists of more than one word
-                is_one_search_term = true;
+                // No embedding available → websearch + trigram fallback
+                new_search_where_searchterm = `AND (
+                    t.search_column @@ websearch_to_tsquery(?, ?)
+                    OR
+                    LOWER(t.title) %> LOWER(?)
+                ) `;
+                bindings.push(postgresql_language_code, search, search);
+                new_search_order_searchterm = `GREATEST(
+                    COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0),
+                    COALESCE(word_similarity(LOWER(?), LOWER(t.title)), 0)
+                ) DESC, `;
+                order_bindings.push(postgresql_language_code, search, search);
             }
         }
+    } else if (searchType === "hut") {
+        // search for tours by poi
+        if (typeof search === "string" && search.trim() !== "") {
+            inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
+                                            INNER JOIN pois ON pois.id=p2t.poi_id 
+                                            WHERE pois.type='hut'
+                                            AND pois.name=?) as pois 
+                                ON t.id=pois.tour_id `;
+            poi_bindings.push(search);
 
-        if (is_one_search_term) {
-            // search consists of a single word and fallback for AI search
-            new_search_where_searchterm = `AND t.search_column @@ websearch_to_tsquery(?, ?) `;
-            bindings.push(postgresql_language_code, search);
-            new_search_order_searchterm = `COALESCE(ts_rank(COALESCE(t.search_column, ''), COALESCE(websearch_to_tsquery(?, ?), '')), 0) DESC, `;
-            order_bindings.push(postgresql_language_code, search);
-            // logger.info("Websearch")
+            const poiResult = await knex.raw(
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND pois.name=?`,
+                [search],
+            );
+            if (poiResult && poiResult.rows) {
+                pois = poiResult.rows;
+            }
+        }
+    } else if (searchType === "peak") {
+        // search for tours by poi
+        if (typeof search === "string" && search.trim() !== "") {
+            inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
+                                            INNER JOIN pois ON pois.id=p2t.poi_id 
+                                            WHERE pois.type='peak'
+                                            AND pois.name=?) as pois 
+                                ON t.id=pois.tour_id `;
+            poi_bindings.push(search);
+
+            const poiResult = await knex.raw(
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND pois.name=?`,
+                [search],
+            );
+            if (poiResult && poiResult.rows) {
+                pois = poiResult.rows;
+            }
         }
     }
 
@@ -706,6 +770,8 @@ const listWrapper = async (req, res) => {
     const cacheKeyIds = generateKey("tours:ids", {
         tld,
         city,
+        searchType,
+        poi: bindValues(inner_join_pois, poi_bindings),
         condition: global_where_condition_bound,
     });
     const cachedIds = await cacheService.get(cacheKeyIds);
@@ -718,6 +784,7 @@ const listWrapper = async (req, res) => {
         const tour_ids_sql = `SELECT 
                             t.id
                             FROM city2tour_flat as t
+                            ${bindValues(inner_join_pois, poi_bindings)}
                             WHERE t.reachable_from_country='${tld}'
                             ${where_city_bound}
                             ${global_where_condition_bound}
@@ -736,7 +803,7 @@ const listWrapper = async (req, res) => {
         const tour_ids = await knex.raw(tour_ids_sql);
         cachedTourIds = tour_ids.rows.map((row) => row.id);
         cacheService.set(cacheKeyIds, cachedTourIds);
-        // logger.info("Cache miss: Tour IDs were queried from database");
+        // logger.info(tour_ids_sql);
     }
 
     // ****************************************************************
@@ -780,32 +847,15 @@ const listWrapper = async (req, res) => {
                         t.id, 
                         t.provider, 
                         t.provider_name,
-                        -- t.hashed_url, 
                         t.url, 
                         t.title, 
                         t.image_url,
-                        -- t.type, 
                         t.country, 
-                        -- t.state, 
-                        -- t.range_slug, 
                         t.range, 
-                        -- t.text_lang, 
-                        -- t.difficulty_orig,
-                        -- t.season,
-                        -- t.max_ele,
-                        -- t.connection_arrival_stop_lon,
-                        -- t.connection_arrival_stop_lat,
                         t.min_connection_duration,
                         t.min_connection_no_of_transfers, 
                         ROUND(t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                         t.ascent, 
-                        -- t.descent, 
-                        -- t.difficulty, 
-                        -- t.duration, 
-                        -- t.distance, 
-                        -- t.traverse, 
-                        -- t.quality_rating,
-                        -- t.month_order,
                         t.number_of_days
                         FROM city2tour_flat AS t 
                         WHERE t.reachable_from_country='${tld}'
@@ -938,6 +988,7 @@ const listWrapper = async (req, res) => {
         page: page,
         ranges: ranges,
         markers: markers_array,
+        pois: pois,
     };
     res.status(200).json(responseData);
 }; // end of listWrapper
