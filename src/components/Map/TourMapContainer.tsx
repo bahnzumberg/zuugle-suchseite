@@ -504,6 +504,12 @@ export default function TourMapContainer({
                       weight: isActive ? 6 : 4,
                       color: "#FF7663",
                       opacity: isActive ? 1 : 0.7,
+                      ...(isActive
+                        ? {}
+                        : {
+                            dashArray: "8,6",
+                            lineCap: "square",
+                          }),
                     }}
                     positions={tracks.gpx}
                     eventHandlers={{ click: handleTrackClick }}
