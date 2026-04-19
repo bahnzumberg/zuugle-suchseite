@@ -109,15 +109,25 @@ export default function ItineraryTourTimeLineContainer({
           }}
         >
           {!city ? (
-            <>
-              <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                {t("details.bitte_stadt_waehlen")}
-              </Typography>
-            </>
+            <Typography
+              sx={{
+                fontSize: "14px",
+                color: "#101010",
+                lineHeight: "20px",
+              }}
+            >
+              {t("details.bitte_stadt_waehlen")}
+            </Typography>
           ) : (
-            <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-              {" "}
-              {t("details.keine_verbindungen")}{" "}
+            <Typography
+              sx={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#101010",
+                lineHeight: "20px",
+              }}
+            >
+              {t("details.keine_verbindungen")}
             </Typography>
           )}
         </Box>

@@ -265,7 +265,9 @@
     "h_hour": "h",
     "anreisedauer": "Anreise",
     "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können.",
-    "weitere_staedte_anzeigen": "Weitere Städte anzeigen"
+    "weitere_staedte_anzeigen": "Weitere Städte anzeigen",
+    "staedte_mit_verbindung": "Städte mit Öffi-Verbindung zu dieser Tour",
+    "staedte_ohne_verbindung": "Städte ohne Verbindung"
   },
   "search": {
     "go": "Los!",

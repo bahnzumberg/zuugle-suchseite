@@ -265,7 +265,9 @@
     "h_hour": "h",
     "anreisedauer": "Čas potovanja",
     "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red.",
-    "weitere_staedte_anzeigen": "Prikaži več mest"
+    "weitere_staedte_anzeigen": "Prikaži več mest",
+    "staedte_mit_verbindung": "Mesta z javnim prevozom do te ture",
+    "staedte_ohne_verbindung": "Mesta brez povezave"
   },
   "search": {
     "go": "Naprej!",

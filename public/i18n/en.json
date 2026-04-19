@@ -265,7 +265,9 @@
     "h_hour": "h",
     "anreisedauer": "Travel time",
     "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables.",
-    "weitere_staedte_anzeigen": "Show more cities"
+    "weitere_staedte_anzeigen": "Show more cities",
+    "staedte_mit_verbindung": "Cities with public transport connections to this tour",
+    "staedte_ohne_verbindung": "Cities without a connection"
   },
   "search": {
     "go": "Go!",

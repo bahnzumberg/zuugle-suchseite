@@ -1,64 +1,34 @@
 import { useState } from "react";
-import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import Link from "@mui/material/Link";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { Cities2TourCity } from "../../features/apiSlice";
 import { CityObject } from "../../features/searchSlice";
 
-const CityIcon = () => (
-  <svg
-    width="22"
-    height="16"
-    viewBox="0 0 22 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M0.879883 1.29848C0.879883 0.872922 1.23279 0.52002 1.65834 0.52002H9.96193C13.5117 0.52002 16.2934 1.36076 18.2032 2.80351C20.1338 4.26701 21.1199 6.31177 21.1199 8.56412C21.1199 9.32183 20.8189 10.0484 20.2791 10.5777C19.7394 11.1175 19.0128 11.4185 18.2655 11.4185H1.65834C1.23279 11.4185 0.879883 11.0656 0.879883 10.64C0.879883 10.4428 0.952539 10.256 1.07709 10.121C0.952539 9.98611 0.879883 9.79928 0.879883 9.60207V1.29848ZM6.06963 2.07694H2.43681V5.70976H6.06963V2.07694ZM7.62655 5.70976V2.07694H9.96193C10.4083 2.07694 10.8442 2.08732 11.2594 2.11846V5.70976H7.62655ZM12.8163 5.70976V2.29491C14.7157 2.6063 16.1896 3.22907 17.2587 4.04905C17.9022 4.53688 18.4108 5.09737 18.7845 5.70976H12.8163ZM19.4176 7.26669C19.5111 7.68187 19.563 8.1178 19.563 8.56412C19.563 8.90664 19.428 9.23879 19.1789 9.47752C18.9402 9.71625 18.608 9.86156 18.2655 9.86156H2.39529C2.42643 9.77852 2.43681 9.69549 2.43681 9.60207V7.26669H19.4176Z"
-      fill="#101010"
-    />
-    <path
-      d="M1.65834 14.0134C1.23279 14.0134 0.879883 14.3663 0.879883 14.7918C0.879883 15.2174 1.23279 15.5703 1.65834 15.5703H20.3414C20.767 15.5703 21.1199 15.2174 21.1199 14.7918C21.1199 14.3663 20.767 14.0134 20.3414 14.0134H1.65834Z"
-      fill="#101010"
-    />
-  </svg>
-);
-
-const cityItemSx = {
-  borderRadius: "12px",
-  padding: "5px",
-  mb: "5px",
-  cursor: "pointer",
-  "&:hover": {
-    backgroundColor: "#EBEBEB",
-  },
-};
-
-interface CityListItemProps {
+interface CityChipProps {
   slug: string;
   name: string;
   tourId: string;
 }
 
-function CityListItem({ slug, name, tourId }: CityListItemProps) {
+function CityChip({ slug, name, tourId }: CityChipProps) {
   return (
-    <Link href={`/tour/${tourId}/${slug}`}>
-      <ListItem sx={cityItemSx}>
-        <ListItemAvatar>
-          <Avatar sx={{ borderRadius: "11px", background: "#DDD" }}>
-            <CityIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary={name} />
-      </ListItem>
-    </Link>
+    <Chip
+      label={name}
+      component="a"
+      href={`/tour/${tourId}/${slug}`}
+      clickable
+      sx={{
+        bgcolor: "#F5F5F5",
+        fontSize: "13px",
+        fontWeight: 500,
+        "&:hover": {
+          bgcolor: "#E0E0E0",
+        },
+      }}
+    />
   );
 }
 
@@ -90,15 +60,25 @@ export default function CityList({
         bgcolor: "#FFFFFF",
         borderRadius: "16px",
         padding: "20px",
-        position: "relative",
-        textAlign: "center",
         marginTop: "20px",
       }}
     >
-      <List>
+      {hasTourCities && (
+        <Typography
+          sx={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#101010",
+            mb: "8px",
+          }}
+        >
+          {t("details.staedte_mit_verbindung")}
+        </Typography>
+      )}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
         {hasTourCities
           ? reachableCities.map((c) => (
-              <CityListItem
+              <CityChip
                 key={c.city_slug}
                 slug={c.city_slug}
                 name={c.city_name}
@@ -106,42 +86,69 @@ export default function CityList({
               />
             ))
           : allCities.map((c) => (
-              <CityListItem
+              <CityChip
                 key={c.value}
                 slug={c.value}
                 name={c.label}
                 tourId={tourId}
               />
             ))}
-        {hasTourCities && unreachableCities.length > 0 && (
-          <>
-            {!showMoreCities ? (
-              <Link
-                component="button"
-                onClick={() => setShowMoreCities(true)}
+      </Box>
+      {hasTourCities && unreachableCities.length > 0 && (
+        <>
+          {!showMoreCities ? (
+            <Link
+              component="button"
+              onClick={() => setShowMoreCities(true)}
+              sx={{
+                mt: "16px",
+                display: "block",
+                cursor: "pointer",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: "#8B8B8B",
+              }}
+            >
+              {t("details.weitere_staedte_anzeigen")}
+            </Link>
+          ) : (
+            <Box
+              sx={{
+                mt: "16px",
+                pt: "12px",
+                borderTop: "1px solid #EBEBEB",
+              }}
+            >
+              <Typography
                 sx={{
-                  mt: "12px",
-                  mb: "8px",
-                  cursor: "pointer",
-                  fontSize: "14px",
+                  fontSize: "13px",
                   fontWeight: 600,
+                  color: "#8B8B8B",
+                  mb: "8px",
                 }}
               >
-                {t("details.weitere_staedte_anzeigen")}
-              </Link>
-            ) : (
-              unreachableCities.map((c) => (
-                <CityListItem
-                  key={c.city_slug}
-                  slug={c.city_slug}
-                  name={c.city_name}
-                  tourId={tourId}
-                />
-              ))
-            )}
-          </>
-        )}
-      </List>
+                {t("details.staedte_ohne_verbindung")}
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                }}
+              >
+                {unreachableCities.map((c) => (
+                  <CityChip
+                    key={c.city_slug}
+                    slug={c.city_slug}
+                    name={c.city_name}
+                    tourId={tourId}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+        </>
+      )}
     </Box>
   );
 }

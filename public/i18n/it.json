@@ -264,7 +264,9 @@
     "h_hour": "h",
     "anreisedauer": "Durata del viaggio",
     "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari.",
-    "weitere_staedte_anzeigen": "Mostra più città"
+    "weitere_staedte_anzeigen": "Mostra più città",
+    "staedte_mit_verbindung": "Città con collegamenti di trasporto pubblico per questa escursione",
+    "staedte_ohne_verbindung": "Città senza collegamento"
   },
   "search": {
     "go": "Vai!",

@@ -265,7 +265,9 @@
     "h_hour": "h",
     "anreisedauer": "Durée de trajet",
     "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires.",
-    "weitere_staedte_anzeigen": "Afficher plus de villes"
+    "weitere_staedte_anzeigen": "Afficher plus de villes",
+    "staedte_mit_verbindung": "Villes avec des connexions en transports publics vers cette randonnée",
+    "staedte_ohne_verbindung": "Villes sans connexion"
   },
   "search": {
     "go": "Allez!",
