@@ -264,7 +264,8 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Anreise",
-    "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können."
+    "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können.",
+    "weitere_staedte_anzeigen": "Weitere Städte anzeigen"
   },
   "search": {
     "go": "Los!",

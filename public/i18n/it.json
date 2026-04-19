@@ -263,7 +263,8 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Durata del viaggio",
-    "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari."
+    "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari.",
+    "weitere_staedte_anzeigen": "Mostra più città"
   },
   "search": {
     "go": "Vai!",

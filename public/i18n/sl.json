@@ -264,7 +264,8 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Čas potovanja",
-    "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red."
+    "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red.",
+    "weitere_staedte_anzeigen": "Prikaži več mest"
   },
   "search": {
     "go": "Naprej!",
