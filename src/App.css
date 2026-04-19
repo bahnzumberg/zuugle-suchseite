@@ -363,10 +363,6 @@ body ::-webkit-scrollbar-thumb:hover {
   }
 }
 
-.map-container {
-  margin-top: -38px;
-}
-
 .tour-detail-header {
   padding: 2rem 1rem;
   text-align: left;
