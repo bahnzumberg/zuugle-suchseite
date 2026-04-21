@@ -657,8 +657,7 @@ export default function DetailReworked() {
                   dateIndex={dateIndex}
                   updateConnIndex={updateConnIndex}
                   tour={tour}
-                  city={city?.value}
-                  idOne={idOne}
+                  tourId={idOne}
                 />
               </Box>
               {tour?.valid_tour === 1 && (

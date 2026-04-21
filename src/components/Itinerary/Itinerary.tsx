@@ -1,28 +1,42 @@
 import ItineraryCalendar from "./ItineraryCalendar";
 import ItineraryTourTimeLineContainer from "../TimeLine/ItineraryTourTimeLineContainer";
-import { useTranslation } from "react-i18next";
 import { Tour } from "../../models/Tour";
 import { ConnectionResult } from "../../models/Connections";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import {
+  useGetCities2TourQuery,
+  useGetCitiesQuery,
+} from "../../features/apiSlice";
+import { t } from "i18next";
+import CityList from "../TimeLine/CityList";
+import { useSelector } from "react-redux";
+import { RootState } from "../..";
 
 export interface ItineraryProps {
   connectionData: ConnectionResult[] | undefined;
   dateIndex: number;
   updateConnIndex: (index: number) => void;
-  tour: Tour | undefined;
-  city: string | undefined;
-  idOne: string | undefined;
+  tour?: Tour;
+  tourId?: string;
 }
 const Itinerary = ({
   connectionData,
   dateIndex,
   updateConnIndex,
   tour,
-  city,
-  idOne,
+  tourId,
 }: ItineraryProps) => {
-  const { t } = useTranslation();
+  const { data: cities = [] } = useGetCitiesQuery();
+  const { data: cities2tour } = useGetCities2TourQuery(tourId ?? "", {
+    skip: !tourId,
+  });
+  const city = useSelector((state: RootState) => state.search.city);
+
+  const isTourReachable = cities2tour?.some(
+    (c) => c.city_slug === city?.value && c.reachable === 1,
+  );
 
   return (
     <div className="tour-detail-itinerary-container">
@@ -30,30 +44,57 @@ const Itinerary = ({
         <p className="tour-detail-itinerary-header">
           {t("Details.oeffi_fahrplan")}
         </p>
-        {tour && (tour.valid_tour === 1 || !city) ? (
+
+        {city && isTourReachable ? (
+          <ItineraryCalendar
+            connectionData={connectionData}
+            dateIndex={dateIndex}
+            updateConnIndex={updateConnIndex}
+          />
+        ) : (
+          <Box
+            sx={{
+              bgcolor: "#FFFFFF",
+              borderRadius: "16px",
+              padding: "20px",
+              position: "relative",
+              textAlign: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: "14px",
+                color: "#101010",
+                lineHeight: "20px",
+              }}
+            >
+              {!city
+                ? t("details.bitte_stadt_waehlen")
+                : city && !isTourReachable
+                  ? t("details.keine_verbindungen_stadt_7_tage", {
+                      city: city.label,
+                    })
+                  : t("search.keine_ergebnisse")}
+            </Typography>
+          </Box>
+        )}
+        {tour && tourId && (
           <>
-            <ItineraryCalendar
-              connectionData={connectionData}
-              dateIndex={dateIndex}
-              updateConnIndex={updateConnIndex}
-            />
             <Divider sx={{ my: "24px" }} />
-            {(connectionData || !city) && (
+            {city && isTourReachable ? (
               <ItineraryTourTimeLineContainer
                 connections={connectionData}
                 dateIndex={dateIndex}
-                loading={false}
-                duration={tour.duration}
                 tour={tour}
-                city={city}
-                idOne={idOne}
+              />
+            ) : (
+              <CityList
+                tourId={tourId}
+                cities2tour={cities2tour}
+                allCities={cities}
               />
             )}
           </>
-        ) : (
-          <Typography variant={"infoKey"}>
-            {t("Details.oeffi_fahrplan_inactive_tour")}
-          </Typography>
         )}
       </div>
     </div>

@@ -13,10 +13,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { simpleConvertNumToTime } from "../../utils/globals";
 import { useIsMobile } from "../../utils/muiUtils";
-import {
-  useGetCitiesQuery,
-  useGetCities2TourQuery,
-} from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { Connection, ConnectionResult } from "../../models/Connections";
 import { CustomIcon } from "../../icons/CustomIcon";
@@ -25,49 +21,34 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Accordion from "@mui/material/Accordion";
 import Divider from "@mui/material/Divider";
-import CityList from "./CityList";
 
 export interface ItineraryTourTimeLineContainerProps {
   connections: ConnectionResult[] | undefined;
-  loading: boolean;
-  duration: string;
   tour: Tour;
-  city: string | undefined;
   dateIndex: number;
-  idOne: string | undefined;
 }
 
 export default function ItineraryTourTimeLineContainer({
   connections,
-  loading,
-  duration,
   tour,
-  city,
   dateIndex,
-  idOne,
 }: ItineraryTourTimeLineContainerProps) {
   const { t } = useTranslation();
-  const { data: cities = [] } = useGetCitiesQuery();
-  const { data: cities2tour } = useGetCities2TourQuery(idOne ?? "", {
-    skip: !idOne || !!city,
-  });
   const isMobile = useIsMobile();
 
-  const connectionsForDate =
-    !city || !connections ? undefined : connections[dateIndex];
-  const emptyConnArray =
+  const connectionsForDate = !connections ? undefined : connections[dateIndex];
+  const noConnectionsForDate =
     !connectionsForDate || connectionsForDate.connections.length === 0;
-
   const [getMore, setGetMore] = useState(false);
 
   const formattedDuration =
-    !!duration && typeof duration === "string"
-      ? formatDuration(Number(duration))
+    !!tour?.duration && typeof tour.duration === "string"
+      ? formatDuration(Number(tour.duration))
       : "n/a";
 
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
-    if (!emptyConnArray) {
+    if (!noConnectionsForDate) {
       return connectionsForDate.connections[0];
     } else return null;
   };
@@ -96,7 +77,7 @@ export default function ItineraryTourTimeLineContainer({
     setGetMore(true);
   };
 
-  if (emptyConnArray) {
+  if (noConnectionsForDate) {
     return (
       <>
         <Box
@@ -108,36 +89,17 @@ export default function ItineraryTourTimeLineContainer({
             textAlign: "center",
           }}
         >
-          {!city ? (
-            <Typography
-              sx={{
-                fontSize: "14px",
-                color: "#101010",
-                lineHeight: "20px",
-              }}
-            >
-              {t("details.bitte_stadt_waehlen")}
-            </Typography>
-          ) : (
-            <Typography
-              sx={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#101010",
-                lineHeight: "20px",
-              }}
-            >
-              {t("details.keine_verbindungen")}
-            </Typography>
-          )}
+          <Typography
+            sx={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#101010",
+              lineHeight: "20px",
+            }}
+          >
+            {t("details.keine_verbindungen")}
+          </Typography>
         </Box>
-        {!city && idOne && (
-          <CityList
-            tourId={idOne}
-            cities2tour={cities2tour}
-            allCities={cities}
-          />
-        )}
       </>
     );
   } else {
@@ -149,7 +111,7 @@ export default function ItineraryTourTimeLineContainer({
           textAlign: "center",
         }}
       >
-        {!loading && getSingleConnection() && (
+        {getSingleConnection() && (
           <Fragment>
             {/* ... first accordion ... */}
             <Accordion

@@ -225,6 +225,7 @@
     "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
     "start_ausgangort": "Začetek pri izhodišču.",
     "keine_verbindungen": "Za ta dan ni najdena nobena povezava.",
+    "keine_verbindungen_stadt_7_tage": "Ta tura v naslednjih 7 dneh ni dosegljiva z vlakom in avtobusom iz kraja {{city}}.",
     "liveabfrage_anreise": "Opravi poizvedbo v živo za ta prihod.",
     "teilen_text": "Poglej, kakšno turo sem našel na Zuuglu:",
     "warnung_andere_station": "To je bilo vzeto s postaje osebe, ki je ustvarila LInk.",

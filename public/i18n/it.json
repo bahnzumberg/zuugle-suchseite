@@ -224,6 +224,7 @@
     "track_gps_geraet": "Scarica traccia GPS",
     "start_ausgangort": "Inizio dalla località di partenza",
     "keine_verbindungen": "Nessun collegamento trovato per questa data",
+    "keine_verbindungen_stadt_7_tage": "Questo tour non è raggiungibile in treno e autobus da {{city}} nei prossimi 7 giorni.",
     "liveabfrage_anreise": "Verifica il viaggio di andata con il pulsante live query",
     "teilen_text": "Guardate che giro ho trovato su Zuugle:",
     "warnung_andere_station": "È stato preso dalla stazione della persona che ha creato il sito.",
