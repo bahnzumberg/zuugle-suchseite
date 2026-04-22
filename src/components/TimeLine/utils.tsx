@@ -3,7 +3,6 @@ import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { convertNumToTime } from "../../utils/globals";
-import { useIsMobile } from "../../utils/muiUtils";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import Box from "@mui/material/Box";
@@ -25,46 +24,21 @@ import { CustomIcon } from "../../icons/CustomIcon";
 
 dayjs.extend(duration);
 
-export const DepartureText = ({
-  connection,
-}: {
-  connection: Connection | null;
-}) => {
-  const isMobile = useIsMobile();
-
+export const getDepartureText = (connection: Connection | null) => {
   if (!connection) {
-    return <Fragment></Fragment>;
+    return "";
   }
-
   const depTime = connection.connection_departure_datetime.slice(11, 16);
-
   const departureText =
     connection.connection_duration_minutes === 0
       ? dayjs(connection.connection_departure_datetime).format("DD.MM HH:mm")
       : `${depTime} - ${dayjs(connection.connection_arrival_datetime).format(
           "HH:mm",
         )}`;
-
-  return (
-    <Typography
-      sx={{
-        color: "#000000",
-        fontWeight: 500,
-        paddingTop: "3px",
-        width: "300px",
-        lineHeight: !isMobile ? "18px" : "16px",
-        fontSize: "20px",
-      }}
-    >
-      {departureText}
-    </Typography>
-  );
+  return departureText;
 };
 
 export const getReturnText = (connection: Connection) => {
-  if (!connection) {
-    return <Fragment></Fragment>;
-  }
   const retDepTime = connection.return_departure_datetime.slice(11, 16);
   const returnText =
     connection.return_duration_minutes === 0
@@ -85,7 +59,7 @@ export const getNumberOfTransfers = (
   if (!connection) {
     return "";
   }
-  return connection[field];
+  return connection[field].toString();
 };
 
 // Transport icons
