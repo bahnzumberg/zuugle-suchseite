@@ -57,6 +57,7 @@ jobs:
                   command_timeout: 60m
                   script: |
                       export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
+                      export NODE_ENV=production
                       cd ${{ secrets.UAT_REMOTE_TARGET }}
                       npm install --omit=dev
                       docker compose -f docker-compose.uat.yaml up -d
