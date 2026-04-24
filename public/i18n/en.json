@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Zuugle is currently in maintenance mode. Please check back later.",
     "tourenanzahl_untertitel": "Hikes in the Alps - reachable via public transport",
-    "heimatbahnhof": "Please select a city...",
+    "heimatbahnhof": "Where are you coming from?",
     "suche": "Search",
     "placeholder_suche": "Mountain peak, region, ...",
     "ergebnisse_anzeigen": "Show results",
