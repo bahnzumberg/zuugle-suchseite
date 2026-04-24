@@ -83,7 +83,6 @@ export default function SearchButton({
     return (
       <Tooltip
         title={t("search.stadt_waehlen_tooltip")}
-        arrow
         enterTouchDelay={0}
         leaveTouchDelay={4000}
       >

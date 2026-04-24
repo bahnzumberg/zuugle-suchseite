@@ -130,6 +130,7 @@ export default function Search({ setFilterOn }: SearchProps) {
           handleSearch={handleSearch}
           searchWithType={draftSearch}
           setSearchWithType={setDraftSearch}
+          disabled={!isSearchPage && !city}
         />
       </Box>
       <Box

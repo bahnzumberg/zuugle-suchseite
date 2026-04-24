@@ -10,8 +10,10 @@ import { getTLD } from "../../utils/globals";
 import { RootState } from "../..";
 import { useSelector } from "react-redux";
 import Autocomplete from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
+import Tooltip from "@mui/material/Tooltip";
 import SearchSuggestions, { suggestionIconMap } from "./SearchSuggestions";
 
 interface AutocompleteSearchProps {
@@ -19,6 +21,7 @@ interface AutocompleteSearchProps {
   handleSearch: (search: SearchWithType | null) => void;
   searchWithType: SearchWithType;
   setSearchWithType: (searchWithType: SearchWithType) => void;
+  disabled?: boolean;
 }
 
 export default function AutocompleteSearch({
@@ -26,6 +29,7 @@ export default function AutocompleteSearch({
   handleSearch,
   searchWithType,
   setSearchWithType,
+  disabled,
 }: AutocompleteSearchProps) {
   const { t } = useTranslation();
   const [
@@ -75,8 +79,18 @@ export default function AutocompleteSearch({
     );
   };
 
-  return (
+  const autocomplete = (
     <Autocomplete
+      disabled={disabled}
+      sx={
+        disabled
+          ? {
+              "& .MuiInputBase-root, & .MuiInputBase-input": {
+                cursor: "not-allowed",
+              },
+            }
+          : undefined
+      }
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
         listbox: { sx: { borderRadius: 3 } },
@@ -135,4 +149,23 @@ export default function AutocompleteSearch({
       )}
     />
   );
+
+  if (disabled) {
+    return (
+      <Tooltip
+        title={t("search.stadt_waehlen_tooltip")}
+        enterTouchDelay={0}
+        leaveTouchDelay={4000}
+      >
+        <Box
+          component="span"
+          sx={{ cursor: "not-allowed", display: "block", width: "100%" }}
+        >
+          {autocomplete}
+        </Box>
+      </Tooltip>
+    );
+  }
+
+  return autocomplete;
 }
