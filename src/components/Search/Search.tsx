@@ -142,7 +142,10 @@ export default function Search({ setFilterOn }: SearchProps) {
           flexShrink: 0,
         }}
       >
-        <SearchButton handleSearch={() => handleSearch(draftSearch)} />
+        <SearchButton
+          handleSearch={() => handleSearch(draftSearch)}
+          disabled={!isSearchPage && !city}
+        />
         {setFilterOn && <FilterButton setFilterOn={setFilterOn} />}
       </Box>
     </Box>

@@ -14,9 +14,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { CustomIcon } from "../../icons/CustomIcon";
 
 export default function AutocompleteCitySelection({
-  inputVariant,
+  highlighted,
 }: {
-  inputVariant?: "standard" | "outlined" | "filled";
+  highlighted?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -30,6 +30,16 @@ export default function AutocompleteCitySelection({
         "& .MuiAutocomplete-clearIndicator": { display: "none" },
         "& .MuiAutocomplete-inputRoot": { paddingRight: "27px !important" },
         "& .MuiAutocomplete-endAdornment": { right: "9px" },
+        ...(highlighted && {
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "primary.main",
+            borderWidth: "1.5px",
+          },
+          "& .MuiOutlinedInput-root:not(.Mui-focused):hover .MuiOutlinedInput-notchedOutline":
+            {
+              borderColor: "primary.dark",
+            },
+        }),
       }}
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
@@ -86,10 +96,10 @@ export default function AutocompleteCitySelection({
           placeholder={t("start.heimatbahnhof")}
           sx={{
             "& .MuiInputBase-input": {
-              color: "#6d6b6b", // Text color
+              color: "#6d6b6b",
             },
           }}
-          variant={inputVariant}
+          variant="outlined"
           slotProps={{
             input: {
               ...params.InputProps,

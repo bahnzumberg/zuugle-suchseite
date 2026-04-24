@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Zuugle est actuellement en maintenance. Merci de revenir ultérieurement.",
     "tourenanzahl_untertitel": "Sorties en montagne accessibles en train et en bus dans les Alpes",
-    "heimatbahnhof": "Gare de départ",
+    "heimatbahnhof": "Sélectionner une ville...",
     "suche": "Recherche",
     "placeholder_suche": "Sommet, région, ...",
     "ergebnisse_anzeigen": "Afficher les résultats",
@@ -277,7 +277,8 @@
     "dein_heimatbahnhof": "Votre gare de départ",
     "ab_heimatbahnhof": "de",
     "keine_ergebnisse": "Aucun résultat trouvé",
-    "waehle_dein_heimatbahnhof": "Cliquez pour sélectionner votre gare",
+    "waehle_dein_heimatbahnhof": "Choisissez une ville proche de chez vous.",
+    "stadt_waehlen_tooltip": "Veuillez d'abord sélectionner une ville proche de chez vous pour que nous puissions vous proposer des randonnées adaptées.",
     "um_reise_berechnen_zu_koenen": "Pour pouvoir calculer le trajet",
     "oeffi_touren_alpenraum": "Sorties sans voiture dans les Alpes",
     "keine_vorschlaege": "Aucune suggestion"

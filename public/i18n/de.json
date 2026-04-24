@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Zuugle befindet sich gerade im Wartungsmodus. Bitte schau später wieder vorbei.",
     "tourenanzahl_untertitel": "Bergtouren im Alpenraum - erreichbar mit Bahn & Bus",
-    "heimatbahnhof": "ab Verkehrsknoten",
+    "heimatbahnhof": "Bitte Stadt wählen...",
     "suche": "Suche",
     "placeholder_suche": "Berggipfel, Region, ...",
     "ergebnisse_anzeigen": "Ergebnisse anzeigen",
@@ -277,7 +277,8 @@
     "dein_heimatbahnhof": "Dein Verkehrsknoten",
     "ab_heimatbahnhof": "von",
     "keine_ergebnisse": "Keine Ergebnisse gefunden",
-    "waehle_dein_heimatbahnhof": "Bitte wähle deinen Verkehrsknoten",
+    "waehle_dein_heimatbahnhof": "Wähle eine Stadt nahe deinem Wohnort aus.",
+    "stadt_waehlen_tooltip": "Bitte wähle zuerst eine Stadt nahe deinem Wohnort aus, damit wir dir passende Touren anzeigen können.",
     "um_reise_berechnen_zu_koenen": "Um die Reise berechnen zu können",
     "oeffi_touren_alpenraum": "Öffi-Touren im Alpenraum",
     "keine_vorschlaege": "Keine Vorschläge",

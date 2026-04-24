@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Al momento il sito di Zuugle è in manutenzione. Ti preghiamo di provare più tardi.",
     "tourenanzahl_untertitel": "Itinerari nelle Alpi - raggiungibili in treno e autobus",
-    "heimatbahnhof": "Stazione di partenza",
+    "heimatbahnhof": "Seleziona una città...",
     "suche": "Cerca",
     "placeholder_suche": "Cima, regione, ...",
     "ergebnisse_anzeigen": "Mostra risultati",
@@ -276,7 +276,8 @@
     "dein_heimatbahnhof": "La tua stazione ferroviaria",
     "ab_heimatbahnhof": "da",
     "keine_ergebnisse": "Nessun risultato trovato",
-    "waehle_dein_heimatbahnhof": "Fare clic per selezionare la stazione ferroviaria",
+    "waehle_dein_heimatbahnhof": "Seleziona una città vicino a casa tua.",
+    "stadt_waehlen_tooltip": "Seleziona prima una città vicino a casa tua, così potremo mostrarti le escursioni più adatte.",
     "um_reise_berechnen_zu_koenen": "Per poter calcolare il viaggio",
     "oeffi_touren_alpenraum": "Itinerari raggiungibili con i mezzi pubblici nelle Alpi",
     "keine_vorschlaege": "Nessun suggerimento"

@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Zuugle is currently in maintenance mode. Please check back later.",
     "tourenanzahl_untertitel": "Hikes in the Alps - reachable via public transport",
-    "heimatbahnhof": "your main station",
+    "heimatbahnhof": "Please select a city...",
     "suche": "Search",
     "placeholder_suche": "Mountain peak, region, ...",
     "ergebnisse_anzeigen": "Show results",
@@ -277,7 +277,8 @@
     "dein_heimatbahnhof": "Your main railway station",
     "ab_heimatbahnhof": "from",
     "keine_ergebnisse": "No results found",
-    "waehle_dein_heimatbahnhof": "Click to select your railway station",
+    "waehle_dein_heimatbahnhof": "Select a city near your home.",
+    "stadt_waehlen_tooltip": "Please select a city near your home first so we can show you matching tours.",
     "um_reise_berechnen_zu_koenen": "To be able to calculate the journey",
     "oeffi_touren_alpenraum": "Hikes reachable using public transport",
     "keine_vorschlaege": "No Suggestions"

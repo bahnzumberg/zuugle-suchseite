@@ -167,7 +167,7 @@
   "start": {
     "wartungsmodus": "Na iskalniku Zuugle se pravkar opravljajo vzdrževalna dela. Poskusi ponovno malo kasneje.",
     "tourenanzahl_untertitel": "gorskih tur – dostopnih z vlakom in avtobusom",
-    "heimatbahnhof": "Železniška postaja",
+    "heimatbahnhof": "Izberite mesto...",
     "suche": "Iskanje",
     "placeholder_suche": "Gorski vrh, regija, ...",
     "ergebnisse_anzeigen": "Prikaži rezultate",
@@ -277,7 +277,8 @@
     "dein_heimatbahnhof": "Tvoja izhodiščna železniška postaja.",
     "ab_heimatbahnhof": "od",
     "keine_ergebnisse": "Ni najdenih rezultatov",
-    "waehle_dein_heimatbahnhof": "Kliknite za izbiro železniške postaje",
+    "waehle_dein_heimatbahnhof": "Izberite mesto blizu vašega doma.",
+    "stadt_waehlen_tooltip": "Najprej izberite mesto blizu svojega doma, da vam lahko pokažemo ustrezne ture.",
     "um_reise_berechnen_zu_koenen": "Če želite izračunati potovanje",
     "oeffi_touren_alpenraum": "z javnim prevozom dostopne ture v alpskem prostoru",
     "keine_vorschlaege": "Ni predlogov"
