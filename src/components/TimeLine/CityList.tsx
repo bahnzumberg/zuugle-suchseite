@@ -11,14 +11,15 @@ interface CityChipProps {
   slug: string;
   name: string;
   tourId: string;
+  reachable: boolean;
 }
 
-function CityChip({ slug, name, tourId }: CityChipProps) {
+function CityChip({ slug, name, tourId, reachable }: CityChipProps) {
   return (
     <Chip
       label={name}
       component="a"
-      href={`/tour/${tourId}/${slug}`}
+      href={reachable ? `/tour/${tourId}/${slug}` : `/search?city=${slug}`}
       clickable
       sx={{
         bgcolor: "#F5F5F5",
@@ -83,6 +84,7 @@ export default function CityList({
                 slug={c.city_slug}
                 name={c.city_name}
                 tourId={tourId}
+                reachable
               />
             ))
           : allCities.map((c) => (
@@ -91,6 +93,7 @@ export default function CityList({
                 slug={c.value}
                 name={c.label}
                 tourId={tourId}
+                reachable={false}
               />
             ))}
       </Box>
@@ -142,6 +145,7 @@ export default function CityList({
                     slug={c.city_slug}
                     name={c.city_name}
                     tourId={tourId}
+                    reachable={false}
                   />
                 ))}
               </Box>
