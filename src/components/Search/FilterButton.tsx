@@ -24,8 +24,8 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
   const isXsScreen = useMediaQuery(muiTheme.breakpoints.only("xs"));
 
   const buttonColor = activeFilter
-    ? theme.palette.info.main
-    : theme.palette.primary.main;
+    ? theme.palette.primary.main
+    : theme.palette.secondary.main;
 
   if (isXsScreen) {
     return (

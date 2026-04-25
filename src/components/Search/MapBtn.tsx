@@ -47,6 +47,10 @@ const MapBtn = () => {
         borderRadius: "50px 50px",
         margin: "2 auto",
         bottom: "8px",
+        backgroundColor: "#712579",
+        "&:hover": {
+          backgroundColor: "#254980",
+        },
       }}
     >
       {mapBtnText}

@@ -21,25 +21,25 @@ export default function SearchButton({ handleSearch }: SearchButtonProps) {
         onClick={handleSearch}
         aria-label={t("search.search")}
         sx={(theme) => ({
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: "#712579",
           color: theme.palette.common.white,
           height: 40,
           width: 40,
           transition: "all 0.2s ease-in-out",
-          boxShadow: `0 1px 4px ${alpha(theme.palette.primary.main, 0.2)}`,
+          boxShadow: `0 1px 4px ${alpha(theme.palette.secondary.main, 0.2)}`,
           "&:focus, &:focus-visible, &.Mui-focusVisible": {
-            backgroundColor: theme.palette.primary.main,
-            boxShadow: `0 1px 4px ${alpha(theme.palette.primary.main, 0.2)}`,
+            backgroundColor: "#712579",
+            boxShadow: `0 1px 4px ${alpha(theme.palette.secondary.main, 0.2)}`,
           },
           "@media (hover: hover) and (pointer: fine)": {
             "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.26)}`,
+              backgroundColor: "#254980",
+              boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.main, 0.26)}`,
             },
           },
           "&:active": {
-            backgroundColor: theme.palette.primary.dark,
-            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.26)}`,
+            backgroundColor: "#254980",
+            boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.main, 0.26)}`,
           },
         })}
       >
@@ -54,22 +54,22 @@ export default function SearchButton({ handleSearch }: SearchButtonProps) {
         color="primary"
         startIcon={<SearchIcon />}
         sx={(buttonTheme) => ({
-          backgroundColor: buttonTheme.palette.primary.main,
+          backgroundColor: "#712579",
           color: buttonTheme.palette.common.white,
           minWidth: 100,
           height: 40,
           fontWeight: 700,
           transition: "all 0.2s ease-in-out",
-          boxShadow: `0 2px 8px ${alpha(buttonTheme.palette.primary.main, 0.2)}`,
+          boxShadow: `0 2px 8px ${alpha(buttonTheme.palette.secondary.main, 0.2)}`,
           "@media (hover: hover) and (pointer: fine)": {
             "&:hover": {
-              backgroundColor: buttonTheme.palette.primary.dark,
-              boxShadow: `0 4px 12px ${alpha(buttonTheme.palette.primary.main, 0.26)}`,
+              backgroundColor: "#254980",
+              boxShadow: `0 4px 12px ${alpha(buttonTheme.palette.secondary.main, 0.26)}`,
             },
           },
           "&:active": {
-            backgroundColor: buttonTheme.palette.primary.dark,
-            boxShadow: `0 4px 12px ${alpha(buttonTheme.palette.primary.main, 0.26)}`,
+            backgroundColor: "#254980",
+            boxShadow: `0 4px 12px ${alpha(buttonTheme.palette.secondary.main, 0.26)}`,
           },
         })}
       >

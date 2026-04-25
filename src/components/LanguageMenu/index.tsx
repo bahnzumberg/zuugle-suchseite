@@ -113,7 +113,7 @@ function LanguageMenu() {
                     width: 140,
                     marginBottom: 5,
                     color:
-                      i18LangFormatted === item.key ? "#4992FF" : undefined,
+                      i18LangFormatted === item.key ? "#254980" : undefined,
                   }}
                 >
                   {item.nativeName}

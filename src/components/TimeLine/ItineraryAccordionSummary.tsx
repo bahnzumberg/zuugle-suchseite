@@ -37,7 +37,7 @@ export default function ItineraryAccordionSummary({
             width: 40,
             height: 40,
             flexShrink: 0,
-            backgroundColor: "#4992FF",
+            backgroundColor: "#254980",
             borderRadius: "12px",
             display: "flex",
             justifyContent: "center",
@@ -94,7 +94,7 @@ export default function ItineraryAccordionSummary({
         >
           <Typography
             sx={{
-              color: "#4992FF",
+              color: "#254980",
               fontSize: { xs: "13px", sm: "16px" },
               fontWeight: 600,
               lineHeight: "16px",
@@ -107,8 +107,8 @@ export default function ItineraryAccordionSummary({
             name="shuffle"
             style={{
               strokeWidth: 0.3,
-              stroke: "#4992FF",
-              fill: "#4992FF",
+              stroke: "#254980",
+              fill: "#254980",
               width: "20px",
               height: "20px",
               display: "block",

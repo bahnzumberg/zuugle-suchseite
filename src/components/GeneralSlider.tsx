@@ -14,12 +14,12 @@ const EntitySlider = styled(Slider)(() => ({
   },
   "& .MuiSlider-track": {
     height: "5px",
-    background: "#4992FF",
+    background: "#254980",
     opacity: 1,
     border: "none",
   },
   "& .MuiSlider-rail": {
-    background: "#4992FF",
+    background: "#254980",
     height: "5px",
     opacity: 1,
     border: "none",

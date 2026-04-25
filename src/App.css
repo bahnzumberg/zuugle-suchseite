@@ -2,6 +2,28 @@
 @import "leaflet.markercluster/dist/MarkerCluster.css";
 @import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
+/* ==============================================
+   Bahn zum Berg – Corporate Design Farben
+   ============================================== */
+:root {
+  --bzb-bahnblau: #254980;
+  --bzb-akelei: #712579;
+  --bzb-veilchenlila: #bcb8dc;
+  --bzb-wolkenblau: #aab5d7;
+  --bzb-lindgruen: #ccd8a1;
+}
+
+/* Juniper Bay – CD-Handschrift für Zitate und Hervorhebungen */
+@font-face {
+  font-family: "Juniper Bay";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff2") format("woff2"),
+    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff") format("woff");
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -75,6 +97,14 @@ body ::-webkit-scrollbar-thumb:hover {
   width: clamp(320px, 30vw, 400px);
   max-width: 100%;
   box-sizing: border-box;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tour-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 @media (max-width: 1199px) {
@@ -213,7 +243,7 @@ body ::-webkit-scrollbar-thumb:hover {
   /* border-bottom: 1px solid #ececec; */
   padding-bottom: 20px;
   padding-top: 20px;
-  background-color: #4992ff;
+  background-color: var(--bzb-bahnblau);
 }
 
 @media only screen and (max-width: 600px) {
@@ -342,7 +372,7 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .search-result-header-container {
-  background-color: #4992ff;
+  background-color: var(--bzb-bahnblau);
   position: relative;
   padding-bottom: 50px;
   z-index: 10;
@@ -405,7 +435,7 @@ body ::-webkit-scrollbar-thumb:hover {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  background: #4992ff;
+  background: var(--bzb-akelei);
   border: 1px solid #dddddd;
   border-radius: 18px;
   max-width: 400px;
@@ -533,7 +563,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-size: 14px;
   line-height: 18px;
   text-align: center;
-  color: #4992ff;
+  color: var(--bzb-bahnblau);
   padding: 14px 0 0 0;
   width: 100%;
   height: 30px;
@@ -611,7 +641,7 @@ body ::-webkit-scrollbar-thumb:hover {
   position: absolute;
   top: 2px;
   left: 2px;
-  background: #4992ff;
+  background: var(--bzb-bahnblau);
   border-radius: 50%;
   height: 41px;
   width: 41px;
@@ -643,7 +673,9 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .tour-detail-action-btns-container .tour-detail-action-btns {
   border-radius: 12px;
-  border: 1.5px solid #101010;
+  border: none;
+  background-color: var(--bzb-akelei);
+  color: #ffffff;
   max-width: 325px;
   width: 325px;
   height: 56px;
@@ -653,6 +685,11 @@ body ::-webkit-scrollbar-thumb:hover {
   justify-content: flex-start;
   align-items: center;
   margin: 0.5rem 0;
+  transition: background-color 0.2s ease;
+}
+
+.tour-detail-action-btns-container .tour-detail-action-btns:hover {
+  background-color: var(--bzb-bahnblau);
 }
 
 @media only screen and (max-width: 1024px) {
@@ -848,8 +885,8 @@ ul.about-bullets {
 }
 
 .custom-marker-cluster {
-  background: #4992ff;
-  border: 10px solid #4992ff;
+  background: var(--bzb-akelei);
+  border: 10px solid var(--bzb-akelei);
   border-radius: 50%;
   color: #fff;
   height: 33px;
@@ -878,7 +915,8 @@ ul.about-bullets {
 
 .seo-city-link {
   line-height: 24px;
-  color: #4992ff;
+  color: var(--bzb-akelei);
+  transition: color 0.2s ease;
 }
 
 .alignStart {
@@ -993,10 +1031,11 @@ ul.about-bullets {
   line-height: 34px;
   color: #8b8b8b;
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .languageItem:hover {
-  color: #4992ff;
+  color: var(--bzb-akelei);
 }
 
 .languageOptions {
@@ -1047,7 +1086,7 @@ colLeft .domainItem {
 }
 
 .domainItem:hover {
-  color: #4992ff;
+  color: var(--bzb-akelei);
 }
 
 .colCenteral {

@@ -305,16 +305,21 @@ export default function DetailReworked() {
           >
             <CustomIcon
               name="downlaodIcon"
-              style={{ width: "25px", height: "25px" }}
+              style={{
+                width: "25px",
+                height: "25px",
+                stroke: "#FFFFFF",
+                fill: "none",
+              }}
             />
-            <span style={{ color: "#101010", width: "45px" }}>GPX</span>
+            <span style={{ color: "#FFFFFF", width: "45px" }}>GPX</span>
             {isGpxLoading ? (
               <CircularProgress
                 sx={{ width: "20px", height: "20px", fontWeight: 600 }}
                 size={"small"}
               />
             ) : (
-              <span style={{ color: "#8B8B8B", paddingLeft: "8px" }}>
+              <span style={{ color: "#FFFFFF", paddingLeft: "8px" }}>
                 {t("details.track_gps_geraet")}
               </span>
             )}
@@ -330,11 +335,19 @@ export default function DetailReworked() {
           disabled={false}
           onClick={shareButtonHandler}
         >
-          <CustomIcon name="shareIcon" />
-          <span style={{ color: "#101010", width: "45px" }}>
+          <CustomIcon
+            name="shareIcon"
+            style={{
+              width: "25px",
+              height: "25px",
+              stroke: "#FFFFFF",
+              fill: "none",
+            }}
+          />
+          <span style={{ color: "#FFFFFF", width: "45px" }}>
             {t("details.teilen")}
           </span>
-          <span style={{ color: "#8B8B8B", paddingLeft: "8px" }}>
+          <span style={{ color: "#FFFFFF", paddingLeft: "8px" }}>
             {shortenText(t("details.teilen_description"), 0, maxLength)}
           </span>
         </Button>
@@ -570,9 +583,10 @@ export default function DetailReworked() {
                     position: "absolute",
                     top: 10,
                     left: 10,
-                    bgcolor: "#000",
-                    color: "#C5C5C5",
-                    fontSize: 12,
+                    bgcolor: "rgba(37, 73, 128, 0.85)",
+                    color: "#FFFFFF",
+                    fontSize: 14,
+                    fontFamily: '"Juniper Bay", cursive',
                     zIndex: 5,
                   }}
                   label={`${tour?.range}`}

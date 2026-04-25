@@ -67,26 +67,26 @@ const transportIcons: Record<string, JSX.Element> = {
   train_key: (
     <CustomIcon
       name="transportTrain"
-      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980" }}
     />
   ),
   metro_key: (
     <CustomIcon
       name="transportTrain"
-      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980" }}
     />
   ),
   tram_key: (
-    <CustomIcon name="tram" style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
+    <CustomIcon name="tram" style={{ strokeWidth: 0.8, stroke: "#254980" }} />
   ),
   bus_key: (
     <CustomIcon
       name="transportBus"
-      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980" }}
     />
   ),
   car_key: (
-    <CustomIcon name="car" style={{ strokeWidth: 0.8, stroke: "#4992FF" }} />
+    <CustomIcon name="car" style={{ strokeWidth: 0.8, stroke: "#254980" }} />
   ),
   cableCar_key: (
     <CustomIcon
@@ -104,7 +104,7 @@ const transportIcons: Record<string, JSX.Element> = {
   walk: (
     <CustomIcon
       name="transportWalk"
-      style={{ strokeWidth: 0.8, stroke: "#4992FF" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980" }}
     />
   ),
 };
@@ -281,7 +281,7 @@ export const getDetailEntry = (
         <div>{getIconForConnectionDescriptionEntry(entry)}</div>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
-        <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
+        <TimelineConnector sx={{ backgroundColor: "#254980", width: "3px" }} />
       </TimelineSeparator>
       <TimelineContent
         sx={{
@@ -349,7 +349,7 @@ export const getStationEntry = (
         {isLast ? (
           <Fragment>
             <TimelineConnector
-              sx={{ backgroundColor: "#4992FF", width: "3px" }}
+              sx={{ backgroundColor: "#254980", width: "3px" }}
             />
             <MyTimeLineDot />
           </Fragment>
@@ -357,7 +357,7 @@ export const getStationEntry = (
           <Fragment>
             <MyTimeLineDot />
             <TimelineConnector
-              sx={{ backgroundColor: "#4992FF", width: "3px" }}
+              sx={{ backgroundColor: "#254980", width: "3px" }}
             />
           </Fragment>
         )}
@@ -387,7 +387,7 @@ export const walkToFromEntry = (text: string, key: string) => {
         <div>{transportIcons["walk"]}</div>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
-        <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
+        <TimelineConnector sx={{ backgroundColor: "#254980", width: "3px" }} />
       </TimelineSeparator>
       <TimelineContent
         sx={{
@@ -425,7 +425,7 @@ export const getDepartureEntry = (entry: DepartureJSON, key: string) => {
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
         <MyTimeLineDot />
-        <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
+        <TimelineConnector sx={{ backgroundColor: "#254980", width: "3px" }} />
       </TimelineSeparator>
       <TimelineContent
         sx={{
@@ -461,7 +461,7 @@ export const getArrivalEntry = (entry: ArrivalJSON, key: string) => {
         </Box>
       </TimelineOppositeContent>
       <TimelineSeparator sx={{ minWidth: "12px" }}>
-        <TimelineConnector sx={{ backgroundColor: "#4992FF", width: "3px" }} />
+        <TimelineConnector sx={{ backgroundColor: "#254980", width: "3px" }} />
         <MyTimeLineDot />
       </TimelineSeparator>
       <TimelineContent

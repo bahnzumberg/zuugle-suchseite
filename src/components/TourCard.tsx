@@ -76,9 +76,10 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               position: "absolute",
               top: 10,
               left: 10,
-              bgcolor: "#000",
-              color: "#C5C5C5",
-              fontSize: 12,
+              bgcolor: "rgba(37, 73, 128, 0.85)",
+              color: "#FFFFFF",
+              fontSize: 14,
+              fontFamily: '"Juniper Bay", cursive',
             }}
             label={`${tour?.range}`}
           />

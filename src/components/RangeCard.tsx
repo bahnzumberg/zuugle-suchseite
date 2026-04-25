@@ -18,6 +18,11 @@ export default function RangeCard({ range }: RangeCardProps) {
         backgroundSize: "cover",
         position: "relative",
         borderRadius: "24px",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+        },
       }}
       className={"cursor-link"}
     >
@@ -35,7 +40,7 @@ export default function RangeCard({ range }: RangeCardProps) {
         >
           <SouthEastIcon
             style={{
-              background: "#000",
+              background: "rgba(37, 73, 128, 0.85)",
               borderRadius: "15px",
               padding: "10px",
             }}
@@ -51,7 +56,12 @@ export default function RangeCard({ range }: RangeCardProps) {
         }}
       >
         <Typography
-          sx={{ textAlign: "left", fontWeight: "bold" }}
+          sx={{
+            textAlign: "left",
+            fontWeight: "bold",
+            fontFamily: '"Juniper Bay", cursive',
+            fontSize: "18px",
+          }}
           color={"#FFFFFF"}
         >
           {range.range}
