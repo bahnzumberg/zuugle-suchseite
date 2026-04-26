@@ -224,6 +224,7 @@
     "track_gps_geraet": "Scarica traccia GPS",
     "start_ausgangort": "Inizio dalla località di partenza",
     "keine_verbindungen": "Nessun collegamento trovato per questa data",
+    "keine_verbindungen_stadt_7_tage": "Questo tour non è raggiungibile in treno e autobus da {{city}} nei prossimi 7 giorni.",
     "liveabfrage_anreise": "Verifica il viaggio di andata con il pulsante live query",
     "teilen_text": "Guardate che giro ho trovato su Zuugle:",
     "warnung_andere_station": "È stato preso dalla stazione della persona che ha creato il sito.",
@@ -263,7 +264,10 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Durata del viaggio",
-    "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari."
+    "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari.",
+    "weitere_staedte_anzeigen": "Mostra più città",
+    "staedte_mit_verbindung": "Città con collegamenti di trasporto pubblico per questa escursione",
+    "staedte_ohne_verbindung": "Città senza collegamento"
   },
   "search": {
     "go": "Vai!",

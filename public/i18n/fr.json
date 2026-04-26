@@ -225,6 +225,7 @@
     "track_gps_geraet": "Télécharger la trace GPX",
     "start_ausgangort": "Début au lieu de départ de la randonnée",
     "keine_verbindungen": "Aucune desserte n'a été trouvée pour cette date.",
+    "keine_verbindungen_stadt_7_tage": "Cette randonnée n'est pas accessible en train et en bus depuis {{city}} dans les 7 prochains jours.",
     "liveabfrage_anreise": "Vérifier le résultat de la recherche pour ce voyage aller",
     "teilen_text": "Regarde quel tour j'ai trouvé sur Zuugle :",
     "warnung_andere_station": "C'est la gare de la personne qui a créé le lien qui a été prise.",
@@ -264,7 +265,10 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Durée de trajet",
-    "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires."
+    "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires.",
+    "weitere_staedte_anzeigen": "Afficher plus de villes",
+    "staedte_mit_verbindung": "Villes avec des connexions en transports publics vers cette randonnée",
+    "staedte_ohne_verbindung": "Villes sans connexion"
   },
   "search": {
     "go": "Allez!",

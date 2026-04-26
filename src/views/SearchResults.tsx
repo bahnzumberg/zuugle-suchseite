@@ -217,7 +217,7 @@ export default function SearchResults() {
         <TotalToursHeader loadedTours={loadedTours} />
       </Box>
       {showMap && (
-        <Box className={"map-container"}>
+        <Box>
           <Suspense
             fallback={
               <Skeleton variant="rectangular" width="100%" height="100%" />

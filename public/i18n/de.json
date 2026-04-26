@@ -225,6 +225,7 @@
     "track_gps_geraet": "Track für GPS-Gerät herunterladen",
     "start_ausgangort": "Start beim Ausgangsort",
     "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
+    "keine_verbindungen_stadt_7_tage": "Diese Tour ist von {{city}} in den nächsten 7 Tagen nicht mit Bahn und Bus erreichbar.",
     "liveabfrage_anreise": "Liveabfrage für diese Anreise prüfen",
     "teilen_text": "Schau welche Tour ich auf Zuugle gefunden habe:",
     "warnung_andere_station": "Es wurde der Bahnhof der Person, die den Link erstellt hat genommen.",
@@ -264,7 +265,10 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Anreise",
-    "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können."
+    "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können.",
+    "weitere_staedte_anzeigen": "Weitere Städte anzeigen",
+    "staedte_mit_verbindung": "Städte mit Öffi-Verbindung zu dieser Tour",
+    "staedte_ohne_verbindung": "Städte ohne Verbindung"
   },
   "search": {
     "go": "Los!",

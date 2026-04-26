@@ -15,6 +15,17 @@ export interface CityResponse {
   cities: CityObject[];
 }
 
+export interface Cities2TourCity {
+  city_slug: string;
+  city_name: string;
+  reachable: number;
+}
+
+export interface Cities2TourResponse {
+  success: boolean;
+  cities: Cities2TourCity[];
+}
+
 export interface TotalResponse {
   success: boolean;
   total_tours: number;
@@ -264,6 +275,14 @@ export const api = createApi({
         return response.result;
       },
     }),
+    getCities2Tour: build.query<Cities2TourCity[], string>({
+      query: (id) => {
+        return `cities2tour?domain=${domain}&id=${id}`;
+      },
+      transformResponse: (response: Cities2TourResponse) => {
+        return response.cities;
+      },
+    }),
   }),
 });
 
@@ -303,4 +322,5 @@ export const {
   useGetConnectionsExtendedQuery,
   useLazyGetConnectionsExtendedQuery,
   useLazyGetCombinedGPXQuery,
+  useGetCities2TourQuery,
 } = api;

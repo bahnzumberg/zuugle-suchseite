@@ -225,6 +225,7 @@
     "track_gps_geraet": "Download track for GPS-device",
     "start_ausgangort": "Start from the starting location",
     "keine_verbindungen": "No connections found for this day",
+    "keine_verbindungen_stadt_7_tage": "This tour is not reachable from {{city}} by train and bus in the next 7 days.",
     "liveabfrage_anreise": "Check this outward journey with the live query button",
     "teilen_text": "Look what tour I found on Zuugle:",
     "warnung_andere_station": "It was taken from the station of the person who created the LInk.",
@@ -264,7 +265,10 @@
     "m_meter": "m",
     "h_hour": "h",
     "anreisedauer": "Travel time",
-    "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables."
+    "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables.",
+    "weitere_staedte_anzeigen": "Show more cities",
+    "staedte_mit_verbindung": "Cities with public transport connections to this tour",
+    "staedte_ohne_verbindung": "Cities without a connection"
   },
   "search": {
     "go": "Go!",

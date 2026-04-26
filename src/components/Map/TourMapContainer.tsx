@@ -126,12 +126,7 @@ function FullscreenControl({
 
   return (
     // leaflet-top leaflet-left positions the div in the top-left corner.
-    // marginTop of 38px compensates for the -38px margin-top on .map-container
-    // which causes the top of the map to be visually hidden behind the white bar.
-    <div
-      className="leaflet-top leaflet-left"
-      style={{ pointerEvents: "auto", marginTop: "38px" }}
-    >
+    <div className="leaflet-top leaflet-left" style={{ pointerEvents: "auto" }}>
       <div ref={containerRef} className="leaflet-control leaflet-bar">
         <button
           onClick={onToggle}
@@ -504,6 +499,12 @@ export default function TourMapContainer({
                       weight: isActive ? 6 : 4,
                       color: "#FF7663",
                       opacity: isActive ? 1 : 0.7,
+                      ...(isActive
+                        ? {}
+                        : {
+                            dashArray: "8,6",
+                            lineCap: "square",
+                          }),
                     }}
                     positions={tracks.gpx}
                     eventHandlers={{ click: handleTrackClick }}

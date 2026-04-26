@@ -1,72 +1,50 @@
 import Timeline from "@mui/lab/Timeline";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
 import { Fragment, useState } from "react";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
-  DepartureText,
   getReturnText,
   getNumberOfTransfers,
   formatDuration,
   createEntries,
   createReturnEntries,
+  getDepartureText,
 } from "./utils";
 import { useTranslation } from "react-i18next";
 import { simpleConvertNumToTime } from "../../utils/globals";
-import { useIsMobile } from "../../utils/muiUtils";
-import { useGetCitiesQuery } from "../../features/apiSlice";
 import { Tour } from "../../models/Tour";
 import { Connection, ConnectionResult } from "../../models/Connections";
 import { CustomIcon } from "../../icons/CustomIcon";
 import Typography from "@mui/material/Typography";
-import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Accordion from "@mui/material/Accordion";
 import Divider from "@mui/material/Divider";
-import Link from "@mui/material/Link";
+import ItineraryAccordionSummary from "./ItineraryAccordionSummary";
 
 export interface ItineraryTourTimeLineContainerProps {
   connections: ConnectionResult[] | undefined;
-  loading: boolean;
-  duration: string;
   tour: Tour;
-  city: string | undefined;
   dateIndex: number;
-  idOne: string | undefined;
 }
 
 export default function ItineraryTourTimeLineContainer({
   connections,
-  loading,
-  duration,
   tour,
-  city,
   dateIndex,
-  idOne,
 }: ItineraryTourTimeLineContainerProps) {
   const { t } = useTranslation();
-  const { data: cities = [] } = useGetCitiesQuery();
-  const isMobile = useIsMobile();
-
-  const connectionsForDate =
-    !city || !connections ? undefined : connections[dateIndex];
-  const emptyConnArray =
+  const connectionsForDate = !connections ? undefined : connections[dateIndex];
+  const noConnectionsForDate =
     !connectionsForDate || connectionsForDate.connections.length === 0;
-
   const [getMore, setGetMore] = useState(false);
 
   const formattedDuration =
-    !!duration && typeof duration === "string"
-      ? formatDuration(Number(duration))
+    !!tour?.duration && typeof tour.duration === "string"
+      ? formatDuration(Number(tour.duration))
       : "n/a";
 
   //checks if there is a connections (object) and returns one extracted connection (object)
   const getSingleConnection = () => {
-    if (!emptyConnArray) {
+    if (!noConnectionsForDate) {
       return connectionsForDate.connections[0];
     } else return null;
   };
@@ -74,7 +52,7 @@ export default function ItineraryTourTimeLineContainer({
   const _getDepartureText = () => {
     const connection = getSingleConnection();
     if (!connection) {
-      return <Fragment></Fragment>;
+      return "";
     }
     if (connection.connection_duration_minutes === 0) {
       return t("details.start_ausgangort");
@@ -83,11 +61,11 @@ export default function ItineraryTourTimeLineContainer({
     }
   };
 
-  const _getReturnText = (index: number, retObj: Connection) => {
-    if (retObj.return_duration_minutes) {
-      return `${t("Details.rückreise")} ${index + 1}  (${simpleConvertNumToTime(retObj.return_duration_minutes / 60)})`;
-    } else if (!retObj) {
-      return <Fragment></Fragment>;
+  const _getReturnText = (index: number, connection: Connection) => {
+    if (connection.return_duration_minutes) {
+      return `${t("Details.rückreise")} ${index + 1}  (${simpleConvertNumToTime(connection.return_duration_minutes / 60)})`;
+    } else {
+      return "";
     }
   };
 
@@ -95,7 +73,7 @@ export default function ItineraryTourTimeLineContainer({
     setGetMore(true);
   };
 
-  if (emptyConnArray) {
+  if (noConnectionsForDate) {
     return (
       <>
         <Box
@@ -107,81 +85,17 @@ export default function ItineraryTourTimeLineContainer({
             textAlign: "center",
           }}
         >
-          {!city ? (
-            <>
-              <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-                {t("details.bitte_stadt_waehlen")}
-              </Typography>
-            </>
-          ) : (
-            <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
-              {" "}
-              {t("details.keine_verbindungen")}{" "}
-            </Typography>
-          )}
-        </Box>
-        {!city && (
-          <Box
+          <Typography
             sx={{
-              bgcolor: "#FFFFFF",
-              borderRadius: "16px",
-              padding: "20px",
-              position: "relative",
-              textAlign: "center",
-              marginTop: "20px",
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#101010",
+              lineHeight: "20px",
             }}
           >
-            <List>
-              {!!cities &&
-                cities.map((_city) => {
-                  return (
-                    <Link
-                      href={`/tour/${idOne}/${_city.value}`}
-                      key={_city.value}
-                    >
-                      <ListItem
-                        sx={{
-                          borderRadius: "12px",
-                          padding: "5px",
-                          mb: "5px",
-                          cursor: "pointer",
-                          "&:hover": {
-                            backgroundColor: "#EBEBEB",
-                          },
-                        }}
-                      >
-                        <ListItemAvatar>
-                          <Avatar
-                            sx={{ borderRadius: "11px", background: "#DDD" }}
-                          >
-                            <svg
-                              width="22"
-                              height="16"
-                              viewBox="0 0 22 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M0.879883 1.29848C0.879883 0.872922 1.23279 0.52002 1.65834 0.52002H9.96193C13.5117 0.52002 16.2934 1.36076 18.2032 2.80351C20.1338 4.26701 21.1199 6.31177 21.1199 8.56412C21.1199 9.32183 20.8189 10.0484 20.2791 10.5777C19.7394 11.1175 19.0128 11.4185 18.2655 11.4185H1.65834C1.23279 11.4185 0.879883 11.0656 0.879883 10.64C0.879883 10.4428 0.952539 10.256 1.07709 10.121C0.952539 9.98611 0.879883 9.79928 0.879883 9.60207V1.29848ZM6.06963 2.07694H2.43681V5.70976H6.06963V2.07694ZM7.62655 5.70976V2.07694H9.96193C10.4083 2.07694 10.8442 2.08732 11.2594 2.11846V5.70976H7.62655ZM12.8163 5.70976V2.29491C14.7157 2.6063 16.1896 3.22907 17.2587 4.04905C17.9022 4.53688 18.4108 5.09737 18.7845 5.70976H12.8163ZM19.4176 7.26669C19.5111 7.68187 19.563 8.1178 19.563 8.56412C19.563 8.90664 19.428 9.23879 19.1789 9.47752C18.9402 9.71625 18.608 9.86156 18.2655 9.86156H2.39529C2.42643 9.77852 2.43681 9.69549 2.43681 9.60207V7.26669H19.4176Z"
-                                fill="#101010"
-                              />
-                              <path
-                                d="M1.65834 14.0134C1.23279 14.0134 0.879883 14.3663 0.879883 14.7918C0.879883 15.2174 1.23279 15.5703 1.65834 15.5703H20.3414C20.767 15.5703 21.1199 15.2174 21.1199 14.7918C21.1199 14.3663 20.767 14.0134 20.3414 14.0134H1.65834Z"
-                                fill="#101010"
-                              />
-                            </svg>
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText primary={_city.label} />
-                      </ListItem>
-                    </Link>
-                  );
-                })}
-            </List>
-          </Box>
-        )}
+            {t("details.keine_verbindungen")}
+          </Typography>
+        </Box>
       </>
     );
   } else {
@@ -193,98 +107,19 @@ export default function ItineraryTourTimeLineContainer({
           textAlign: "center",
         }}
       >
-        {!loading && getSingleConnection() && (
+        {getSingleConnection() && (
           <Fragment>
             {/* ... first accordion ... */}
             <Accordion
               sx={{ borderRadius: "18px !important" }}
               key="departure-accordion"
             >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box
-                  sx={{
-                    paddingTop: "20px",
-                    paddingBottom: "20px",
-                    paddingLeft: "5px",
-                    paddingRight: "5px",
-                    marginLeft: "-20px",
-                    marginRight: "-20px",
-                    display: "flex",
-                    flexDirection: "row",
-                    position: "relative",
-                    width: !isMobile ? "100%" : "calc(100% - 10px)",
-                    boxSizing: "border-box",
-                    margin: !isMobile ? "0 auto" : "0 40px", // Center horizontally if mobile
-                    maxWidth: isMobile ? "260px" : null,
-                  }}
-                >
-                  <Box
-                    style={{
-                      width: !isMobile ? "40px" : "30",
-                      height: !isMobile ? "40px" : "30",
-                      backgroundColor: "#4992FF",
-                      borderRadius: !isMobile ? "12px" : "8px",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        alignItems: "center",
-                      }}
-                    >
-                      <CustomIcon
-                        name="anreise"
-                        style={{
-                          strokeWidth: 0.1,
-                          stroke: "#FFFFFF",
-                          fill: "#FFFFFF",
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                  <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                    <Typography
-                      sx={{
-                        lineHeight: !isMobile ? "18px" : "14px",
-                        fontWeight: 500,
-                        fontSize: "14px",
-                        color: "#8B8B8B",
-                      }}
-                    >
-                      {_getDepartureText()}
-                    </Typography>
-                    <DepartureText connection={getSingleConnection()} />
-                  </Box>
-                  <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                    <CustomIcon
-                      name="shuffle"
-                      style={{
-                        strokeWidth: 0.3,
-                        stroke: "#4992FF",
-                        fill: "#4992FF",
-                        width: !isMobile ? "18px" : "16px",
-                        height: !isMobile ? "18px" : "16px",
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ position: "absolute", right: 41, top: 20 }}>
-                    <Box
-                      sx={{
-                        color: "#4992FF",
-                        fontSize: !isMobile ? "16px" : "14px",
-                        fontWeight: 600,
-                        lineHeight: !isMobile ? "16px" : "14px",
-                      }}
-                    >
-                      {getNumberOfTransfers(getSingleConnection())}{" "}
-                      {t("details.umstiege")}
-                    </Box>
-                  </Box>
-                </Box>
-              </AccordionSummary>
+              <ItineraryAccordionSummary
+                iconName="anreise"
+                text1={_getDepartureText()}
+                text2={getDepartureText(getSingleConnection())}
+                numberOfTransfers={getNumberOfTransfers(getSingleConnection())}
+              />
               <AccordionDetails>
                 <Timeline position="right">
                   {createEntries(getSingleConnection())}
@@ -293,8 +128,8 @@ export default function ItineraryTourTimeLineContainer({
             </Accordion>
             <Divider sx={{ mt: "24px" }} />
 
-            {/* 2nd Accordion / return connections */}
-            <Accordion //border-radius needed here ?
+            {/* 2nd Accordion - the tour itself*/}
+            <Accordion
               sx={{
                 backgroundColor: "transparent",
                 boxShadow: "none",
@@ -304,64 +139,42 @@ export default function ItineraryTourTimeLineContainer({
               <AccordionDetails>
                 <Box
                   sx={{
-                    padding: "20px",
-                    marginLeft: "-20px",
-                    marginRight: "-20px",
                     display: "flex",
                     flexDirection: "row",
-                    position: "relative",
-                    width: !isMobile ? "100%" : "calc(100% - 10px)",
-                    boxSizing: "border-box",
-                    margin: "0 auto",
+                    alignItems: "center",
+                    gap: "10px",
+                    py: "10px",
                   }}
                 >
                   <Box
-                    style={{
-                      width: !isMobile ? "40px" : "30",
-                      height: !isMobile ? "40px" : "30",
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      flexShrink: 0,
                       backgroundColor: "#FF7663",
-                      borderRadius: !isMobile ? "12px" : "8px",
+                      borderRadius: "12px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        alignItems: "center",
+                    <CustomIcon
+                      name="überschreitung"
+                      style={{
+                        strokeWidth: 0.1,
+                        stroke: "#FFFFFF",
+                        fill: "#FFFFFF",
                       }}
-                    >
-                      <CustomIcon
-                        name="überschreitung"
-                        style={{
-                          strokeWidth: 0.1,
-                          stroke: "#FFFFFF",
-                          fill: "#FFFFFF",
-                        }}
-                      />
-                    </Box>
+                    />
                   </Box>
-                  <Box sx={{ paddingLeft: "20px", textAlign: "left" }}>
-                    {" "}
-                    {/* TODO : padding value is appropriate? */}
-                    <Typography
-                      sx={{
-                        lineHeight: !isMobile ? "16px" : "14px",
-                        fontWeight: !isMobile ? 600 : 500,
-                      }}
-                    >
+                  <Box sx={{ textAlign: "left" }}>
+                    <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                       {t("details.circa")}{" "}
                       {tour?.number_of_days > 1
                         ? tour?.number_of_days + " " + t("details.tage")
                         : `${formattedDuration} ${t("details.stunden_tour")}`}
                     </Typography>
-                    <Typography
-                      sx={{
-                        lineHeight: !isMobile ? "16px" : "14px",
-                        fontWeight: !isMobile ? 600 : 500,
-                      }}
-                    >
+                    <Typography sx={{ lineHeight: "16px", fontWeight: 600 }}>
                       {t("details.lt_tourbeschreibung")}
                     </Typography>
                   </Box>
@@ -377,108 +190,15 @@ export default function ItineraryTourTimeLineContainer({
                 key={`return-connection-${index}`}
                 sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
               >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box
-                    sx={{
-                      paddingTop: "20px",
-                      paddingBottom: "20px",
-                      paddingLeft: "5px",
-                      paddingRight: "5px",
-                      marginLeft: "-20px",
-                      marginRight: "-20px",
-                      display: "flex",
-                      flexDirection: "row",
-                      position: "relative",
-                      width: !isMobile ? "100%" : "calc(100% - 10px)",
-                      boxSizing: "border-box",
-                      margin: !isMobile ? "0 auto" : "0 40px", // Center horizontally if mobile
-                      maxWidth: isMobile ? "260px" : null,
-                    }}
-                  >
-                    <Box
-                      style={{
-                        width: !isMobile ? "40px" : "30",
-                        height: !isMobile ? "40px" : "30",
-                        backgroundColor: "#4992FF",
-                        borderRadius: !isMobile ? "12px" : "8px",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          width: "100%",
-                          height: "100%",
-                          alignItems: "center",
-                        }}
-                      >
-                        <CustomIcon
-                          name="rückreise"
-                          style={{
-                            strokeWidth: 0.1,
-                            stroke: "#FFFFFF",
-                            fill: "#FFFFFF",
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                    <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                      {" "}
-                      {/* TODO padding value is appropriate? */}
-                      <Typography
-                        sx={{
-                          lineHeight: !isMobile ? "18px" : "14px",
-                          fontWeight: 500,
-                          fontSize: "14px",
-                          color: "#8B8B8B",
-                        }}
-                      >
-                        {_getReturnText(index, connection)}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: "#000000",
-                          fontWeight: 500,
-                          paddingTop: "3px",
-                          width: "300px",
-                          lineHeight: !isMobile ? "18px" : "16px",
-                          fontSize: "20px",
-                        }}
-                      >
-                        {getReturnText(connection)}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                      <CustomIcon
-                        name="shuffle"
-                        style={{
-                          strokeWidth: 0.3,
-                          stroke: "#4992FF",
-                          fill: "#4992FF",
-                          width: !isMobile ? "18px" : "16px",
-                          height: !isMobile ? "18px" : "16px",
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ position: "absolute", right: 41, top: 20 }}>
-                      <Box
-                        sx={{
-                          color: "#4992FF",
-                          fontSize: !isMobile ? "16px" : "14px",
-                          fontWeight: !isMobile ? 600 : 500,
-                          lineHeight: !isMobile ? "16px" : "14px",
-                        }}
-                      >
-                        {" "}
-                        {getNumberOfTransfers(
-                          connection,
-                          "return_no_of_transfers",
-                        )}{" "}
-                        {t("details.umstiege")}
-                      </Box>
-                    </Box>
-                  </Box>
-                </AccordionSummary>
+                <ItineraryAccordionSummary
+                  iconName="rückreise"
+                  text1={_getReturnText(index, connection)}
+                  text2={getReturnText(connection)}
+                  numberOfTransfers={getNumberOfTransfers(
+                    connection,
+                    "return_no_of_transfers",
+                  )}
+                />
                 <AccordionDetails>
                   <Timeline position="right">
                     {createReturnEntries(connection)}
@@ -494,106 +214,15 @@ export default function ItineraryTourTimeLineContainer({
                   sx={{ borderRadius: "18px !important", mb: "24px" }} // TODO :check the 24px mb for mobile
                 >
                   {/* ... AccordionSummary and AccordionDetails ... */}
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Box
-                      sx={{
-                        paddingTop: "20px",
-                        paddingBottom: "20px",
-                        paddingLeft: "5px",
-                        paddingRight: "5px",
-                        marginLeft: "-20px",
-                        marginRight: "-20px",
-                        display: "flex",
-                        flexDirection: "row",
-                        position: "relative",
-                        width: !isMobile ? "100%" : "calc(100% - 10px)",
-                        boxSizing: "border-box",
-                        margin: !isMobile ? "0 auto" : "0 40px", // Center horizontally if mobile
-                        maxWidth: isMobile ? "260px" : null,
-                      }}
-                    >
-                      <Box
-                        style={{
-                          width: !isMobile ? "40px" : "30",
-                          height: !isMobile ? "40px" : "30",
-                          backgroundColor: "#4992FF",
-                          borderRadius: !isMobile ? "12px" : "8px",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            width: "100%",
-                            height: "100%",
-                            alignItems: "center",
-                          }}
-                        >
-                          <CustomIcon
-                            name="rückreise"
-                            style={{
-                              strokeWidth: 0.1,
-                              stroke: "#FFFFFF",
-                              fill: "#FFFFFF",
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                      <Box sx={{ paddingLeft: "10px", textAlign: "left" }}>
-                        <Typography
-                          sx={{
-                            lineHeight: !isMobile ? "18px" : "14px",
-                            fontWeight: 500,
-                            fontSize: "14px",
-                            color: "#8B8B8B",
-                          }}
-                        >
-                          {_getReturnText(index + 2, connection)}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: "#000000",
-                            fontWeight: 500,
-                            paddingTop: "3px",
-                            width: "300px",
-                            lineHeight: !isMobile ? "18px" : "16px",
-                            fontSize: "20px",
-                          }}
-                        >
-                          {getReturnText(connection)}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ position: "absolute", right: 20, top: 20 }}>
-                        <CustomIcon
-                          name="shuffle"
-                          style={{
-                            strokeWidth: 0.3,
-                            stroke: "#4992FF",
-                            fill: "#4992FF",
-                            width: !isMobile ? "18px" : "16px",
-                            height: !isMobile ? "18px" : "16px",
-                          }}
-                        />
-                      </Box>
-                      <Box sx={{ position: "absolute", right: 41, top: 20 }}>
-                        <Box
-                          sx={{
-                            color: "#4992FF",
-                            fontSize: !isMobile ? "16px" : "14px",
-                            fontWeight: !isMobile ? 600 : 500,
-                            lineHeight: !isMobile ? "16px" : "14px",
-                          }}
-                        >
-                          {" "}
-                          {getNumberOfTransfers(
-                            connection,
-                            "return_no_of_transfers",
-                          )}{" "}
-                          {t("details.umstiege")}
-                        </Box>
-                      </Box>
-                    </Box>
-                  </AccordionSummary>
+                  <ItineraryAccordionSummary
+                    iconName="rückreise"
+                    text1={_getReturnText(index + 2, connection)}
+                    text2={getReturnText(connection)}
+                    numberOfTransfers={getNumberOfTransfers(
+                      connection,
+                      "return_no_of_transfers",
+                    )}
+                  />
                   <AccordionDetails>
                     <Timeline position="right">
                       {createReturnEntries(connection)}
@@ -622,10 +251,10 @@ export default function ItineraryTourTimeLineContainer({
                   <Typography
                     color="rgba(0, 0, 0, 0.56)"
                     textAlign="center"
-                    fontSize={!isMobile ? "14.25px" : "12.47px"}
-                    fontWeight={!isMobile ? 600 : 500}
-                    lineHeight={!isMobile ? "22px" : "19.25px"}
                     sx={{
+                      fontSize: { xs: "12px", sm: "14px" },
+                      fontWeight: 600,
+                      lineHeight: { xs: "19px", sm: "22px" },
                       textDecoration: "underline",
                       fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
                     }}

@@ -81,26 +81,20 @@ export default function DetailReworked() {
   const [triggerCombinedGPX] = useLazyGetCombinedGPXQuery();
 
   const dispatch = useAppDispatch();
-  const { data: allCities = [] } = useGetCitiesQuery();
+  const { data: allCities = [], isSuccess: areCitiesLoaded } =
+    useGetCitiesQuery();
   const city = useSelector((state: RootState) => state.search.city);
 
+  // Sync route param → Redux (URL is source of truth on this page)
   useEffect(() => {
-    if (allCities) {
-      if (cityOne && cityOne !== "no-city") {
-        const city = allCities.find((c) => c.value === cityOne);
-        if (city) {
-          dispatch(cityUpdated(city));
-          dispatch(citySlugUpdated(city.value));
-        } else {
-          dispatch(cityUpdated(null));
-          dispatch(citySlugUpdated(null));
-        }
-      } else if (!cityOne || cityOne === "no-city") {
-        dispatch(cityUpdated(null));
-        dispatch(citySlugUpdated(null));
-      }
-    }
-  }, [allCities, cityOne]);
+    if (!areCitiesLoaded) return;
+    const resolved =
+      cityOne && cityOne !== "no-city"
+        ? (allCities.find((c) => c.value === cityOne) ?? null)
+        : null;
+    dispatch(cityUpdated(resolved));
+    dispatch(citySlugUpdated(resolved?.value ?? null));
+  }, [allCities, areCitiesLoaded, cityOne, dispatch]);
 
   const shareUrl = () => {
     let _shareUrl = "";
@@ -141,12 +135,6 @@ export default function DetailReworked() {
   const goToSearchPage = () => {
     navigate(`/search` + (city ? `?city=${city.value}` : ""));
   };
-
-  useEffect(() => {
-    if (city?.value) {
-      navigate(`/tour/${idOne}/${city.value}`);
-    }
-  }, [city]);
 
   const LoadingSpinner = () => (
     <div
@@ -669,8 +657,7 @@ export default function DetailReworked() {
                   dateIndex={dateIndex}
                   updateConnIndex={updateConnIndex}
                   tour={tour}
-                  city={city?.value}
-                  idOne={idOne}
+                  tourId={idOne}
                 />
               </Box>
               {tour?.valid_tour === 1 && (
