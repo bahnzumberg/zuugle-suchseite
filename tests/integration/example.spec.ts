@@ -1,18 +1,22 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Search Functionality", () => {
-  test("homepage loads and displays search bar", async ({ page }) => {
+  test("Homepage with city selection and search bar", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Zuugle/);
-    await expect(page.locator("header").first())
-      .toBeVisible()
-      .catch(() => {});
-    await page.getByRole("button", { name: "Suche" }).click();
-    await page.getByRole("textbox").fill("test");
-    await page.getByRole("button", { name: "close" }).click();
-    await page.getByRole("button", { name: "ab Verkehrsknoten" }).click();
-    await page.getByText("Baden").click();
-    await expect(page.locator(".main-search-bar")).toContainText("ab Baden");
+    await expect(page.getByRole("combobox").nth(1)).toBeVisible();
+    await page.getByRole("button", { name: "Open" }).click({ delay: 200 });
+    await page.getByText("Innsbruck").click();
+    await page
+      .getByRole("combobox", { name: "Berggipfel, Region," })
+      .fill("Wild");
+    await page.getByText("Wildspitze").click();
+    await expect(page).toHaveURL(
+      "search?city=innsbruck&search=Wildspitze&search_type=peak&lang=de",
+    );
+    await expect(
+      page.getByRole("link", { name: "Wildspitze - Skitour" }),
+    ).toBeVisible();
   });
 
   test("search with valid term and city returns results", async ({ page }) => {
