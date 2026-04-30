@@ -142,7 +142,12 @@ const getWrapper = async (req, res) => {
     }
 
     const result = await knex("city")
-        .select("city_slug", "city_name", "lat", "lon")
+        .select(
+            "city_slug",
+            "city_name",
+            knex.raw("lat::double precision as lat"),
+            knex.raw("lon::double precision as lon"),
+        )
         .where({ city_slug: city_slug })
         .first();
 
