@@ -59,7 +59,6 @@ export default function RangeCard({ range }: RangeCardProps) {
           sx={{
             textAlign: "left",
             fontWeight: "bold",
-            fontFamily: '"Juniper Bay", cursive',
             fontSize: "18px",
           }}
           color={"#FFFFFF"}

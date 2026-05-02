@@ -63,7 +63,7 @@
     "test:e2e": "playwright test"
   },
   "lint-staged": {
-    "**/*.js": "eslint --cache --fix --max-warnings 0",
+    "**/*.js": "eslint --cache --fix --max-warnings 0 --no-warn-ignored",
     "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {

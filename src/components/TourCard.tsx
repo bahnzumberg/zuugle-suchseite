@@ -3,6 +3,7 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { convertNumToTime, getTourLink } from "../utils/globals";
+import { tourTypes } from "../utils/language_Utils";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
@@ -78,14 +79,13 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               left: 10,
               bgcolor: "rgba(37, 73, 128, 0.85)",
               color: "#FFFFFF",
-              fontSize: 14,
-              fontFamily: '"Juniper Bay", cursive',
             }}
             label={`${tour?.range}`}
           />
         </Box>
         <CardContent
           sx={{
+            position: "relative",
             display: "flex",
             flexDirection: "column",
             flexGrow: 1,
@@ -94,6 +94,23 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             },
           }}
         >
+          {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
+            <Typography
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 25,
+                fontFamily: '"Juniper Bay"',
+                fontSize: "28px",
+                color: "#712579",
+                lineHeight: 1,
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+              }}
+            >
+              {t("main.top_tour")}
+            </Typography>
+          )}
           <Box
             sx={{
               display: "flex",
@@ -112,6 +129,28 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               }}
             />
             <Typography variant="grayP">{tour.provider_name}</Typography>
+            {tour?.type &&
+              (() => {
+                const typeKey = tour.type
+                  .toLowerCase()
+                  .replace(/\s*&\s*/g, "_");
+                const matched = tourTypes.find((tt) => tt === typeKey);
+                const label = matched ? t(`filter.${matched}`) : tour.type;
+                return (
+                  <Typography
+                    sx={{
+                      marginLeft: "auto",
+                      fontFamily: '"Juniper Bay", cursive',
+                      fontSize: "18px",
+                      color: "var(--primary)",
+                      lineHeight: 1,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                );
+              })()}
           </Box>
           <Typography
             variant="inherit"

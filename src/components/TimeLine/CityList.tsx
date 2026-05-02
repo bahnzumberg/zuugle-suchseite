@@ -22,11 +22,15 @@ function CityChip({ slug, name, tourId, reachable }: CityChipProps) {
       href={reachable ? `/tour/${tourId}/${slug}` : `/search?city=${slug}`}
       clickable
       sx={{
-        bgcolor: "#F5F5F5",
+        backgroundColor: "var(--bzb-lindgruen)",
+        color: "var(--bzb-bahnblau)",
         fontSize: "13px",
         fontWeight: 500,
+        borderRadius: "16px",
+        transition: "background-color 0.15s ease, color 0.15s ease",
         "&:hover": {
-          bgcolor: "#E0E0E0",
+          backgroundColor: "var(--bzb-bahnblau) !important",
+          color: "#fff",
         },
       }}
     />

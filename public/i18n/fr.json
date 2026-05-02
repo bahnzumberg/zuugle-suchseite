@@ -80,7 +80,8 @@
     "country_ungarn": "Hongrie",
     "country_schweiz": "Suisse",
     "country_italien": "Italie",
-    "country_slowenien": "Slovénie"
+    "country_slowenien": "Slovénie",
+    "filter_city_description": "Filtrer les randonnées accessibles depuis la région de :"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",
@@ -141,7 +142,8 @@
     "alle_bergtouren_von_cityname": "Sorties en montagne accessibles en train et en bus à partir de {{city.label}}",
     "tour": "Randonnée",
     "areaSearchTrigger": "Rechercher des randonnées qui visitent cette zone.",
-    "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées."
+    "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées.",
+    "top_tour": "Super rando!"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",

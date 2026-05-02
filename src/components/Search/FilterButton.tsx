@@ -23,9 +23,11 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
   const muiTheme = useTheme();
   const isXsScreen = useMediaQuery(muiTheme.breakpoints.only("xs"));
 
-  const buttonColor = activeFilter
-    ? theme.palette.primary.main
-    : theme.palette.secondary.main;
+  const inactiveColor = theme.palette.secondary.main;
+
+  // Active state: Lindgrün bg, Bahnblau text/border
+  const activeBg = "#ccd8a1";
+  const activeFg = "#254980";
 
   if (isXsScreen) {
     return (
@@ -33,15 +35,21 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
         onClick={() => setFilterOn(true)}
         aria-label={t("filter.filter")}
         sx={{
-          backgroundColor: lighten(buttonColor, 0.9),
-          color: buttonColor,
+          backgroundColor: activeFilter
+            ? activeBg
+            : lighten(inactiveColor, 0.9),
+          color: activeFilter ? activeFg : inactiveColor,
           height: 40,
           width: 40,
-          boxShadow: `0 1px 4px ${lighten(buttonColor, 0.7)}`,
+          boxShadow: activeFilter
+            ? `0 1px 4px rgba(37,73,128,0.25)`
+            : `0 1px 4px ${lighten(inactiveColor, 0.7)}`,
           transition: "all 0.2s ease-in-out",
           "&:hover": {
-            backgroundColor: lighten(buttonColor, 0.84),
-            color: darken(buttonColor, 0.08),
+            backgroundColor: activeFilter
+              ? darken(activeBg, 0.06)
+              : lighten(inactiveColor, 0.84),
+            color: activeFilter ? activeFg : darken(inactiveColor, 0.08),
           },
         }}
       >
@@ -57,18 +65,28 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
         variant="outlined"
         sx={() => ({
           minWidth: { xs: "49%", sm: 100 },
-          backgroundColor: lighten(buttonColor, 0.9),
-          color: buttonColor,
-          borderColor: lighten(buttonColor, 0.3),
+          backgroundColor: activeFilter
+            ? activeBg
+            : lighten(inactiveColor, 0.9),
+          color: activeFilter ? activeFg : inactiveColor,
+          borderColor: activeFilter
+            ? "transparent"
+            : lighten(inactiveColor, 0.3),
           height: 40,
           fontWeight: 700,
           transition: "all 0.2s ease-in-out",
-          boxShadow: `0 1px 4px ${lighten(buttonColor, 0.7)}`,
+          boxShadow: activeFilter
+            ? `0 1px 4px rgba(37,73,128,0.25)`
+            : `0 1px 4px ${lighten(inactiveColor, 0.7)}`,
           "&:hover": {
-            backgroundColor: lighten(buttonColor, 0.84),
-            borderColor: buttonColor,
-            boxShadow: `0 2px 8px ${lighten(buttonColor, 0.62)}`,
-            color: darken(buttonColor, 0.08),
+            backgroundColor: activeFilter
+              ? darken(activeBg, 0.06)
+              : lighten(inactiveColor, 0.84),
+            borderColor: activeFilter ? "transparent" : inactiveColor,
+            boxShadow: activeFilter
+              ? `0 2px 8px rgba(37,73,128,0.3)`
+              : `0 2px 8px ${lighten(inactiveColor, 0.62)}`,
+            color: activeFilter ? activeFg : darken(inactiveColor, 0.08),
           },
         })}
       >

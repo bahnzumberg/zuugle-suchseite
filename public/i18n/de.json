@@ -80,7 +80,8 @@
     "country_ungarn": "Ungarn",
     "country_schweiz": "Schweiz",
     "country_italien": "Italien",
-    "country_slowenien": "Slowenien"
+    "country_slowenien": "Slowenien",
+    "filter_city_description": "Filtere auf erreichbare Touren aus der Region um:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -141,7 +142,8 @@
     "alle_bergtouren_von_cityname": "Alle Bergtouren, die du von {{city.label }} aus, mit Bahn und Bus, erreichen kannst.",
     "tour": "Tour",
     "areaSearchTrigger": "Finde Touren die diese Gegend besuchen.",
-    "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten."
+    "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten.",
+    "top_tour": "Top Tour!"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",
@@ -275,7 +277,7 @@
     "search": "Suche",
     "abbrechen": "Abbrechen",
     "dein_heimatbahnhof": "Dein Verkehrsknoten",
-    "ab_heimatbahnhof": "von",
+    "ab_heimatbahnhof": "ab",
     "keine_ergebnisse": "Keine Ergebnisse gefunden",
     "waehle_dein_heimatbahnhof": "Bitte wähle deinen Verkehrsknoten",
     "um_reise_berechnen_zu_koenen": "Um die Reise berechnen zu können",

@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Switch from "@mui/material/Switch";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { FilterObject } from "../../../models/Filter";
@@ -19,54 +19,40 @@ export default function TourLength({
   const { t } = useTranslation();
 
   return (
-    <Box className={"filter-box border"}>
+    <Box>
       <Typography variant={"subtitle1"}>{t("filter.tourlaenge")}</Typography>
-      <Grid container>
-        <Grid
-          sx={{
-            borderRight: "1px solid #EAEAEA",
-            paddingRight: "16px",
-          }}
-          size={6}
-        >
-          <Grid container spacing={0}>
-            <Grid sx={{ alignSelf: "center" }} size={6}>
-              <Typography>{t("filter.tagestour")}</Typography>
-            </Grid>
-            <Grid sx={{ textAlign: "right" }} size={6}>
-              <Switch
-                checked={tempFilter.singleDayTour ?? true}
-                onChange={(e) =>
-                  setTempFilter({
-                    ...tempFilter,
-                    singleDayTour: e.target.checked,
-                  })
-                }
-                disabled={!fetchedFilter?.isSingleDayTourPossible}
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid sx={{ paddingLeft: "16px" }} size={6}>
-          <Grid container spacing={0}>
-            <Grid sx={{ alignSelf: "center" }} size={6}>
-              <Typography>{t("filter.mehrtagestour")}</Typography>
-            </Grid>
-            <Grid sx={{ textAlign: "right" }} size={6}>
-              <Switch
-                checked={tempFilter.multipleDayTour ?? true}
-                onChange={(e) =>
-                  setTempFilter({
-                    ...tempFilter,
-                    multipleDayTour: e.target.checked,
-                  })
-                }
-                disabled={!fetchedFilter?.isMultipleDayTourPossible}
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Box sx={{ display: "flex", flexDirection: "column", pt: "4px" }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={tempFilter.singleDayTour ?? false}
+              onChange={(e) =>
+                setTempFilter({
+                  ...tempFilter,
+                  singleDayTour: e.target.checked,
+                })
+              }
+              disabled={!fetchedFilter?.isSingleDayTourPossible}
+            />
+          }
+          label={t("filter.tagestour")}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={tempFilter.multipleDayTour ?? false}
+              onChange={(e) =>
+                setTempFilter({
+                  ...tempFilter,
+                  multipleDayTour: e.target.checked,
+                })
+              }
+              disabled={!fetchedFilter?.isMultipleDayTourPossible}
+            />
+          }
+          label={t("filter.mehrtagestour")}
+        />
+      </Box>
     </Box>
   );
 }

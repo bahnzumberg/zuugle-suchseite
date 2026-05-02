@@ -8,12 +8,17 @@ import { useLazyGetFilterQuery } from "../../features/apiSlice";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
-import { geolocationUpdated } from "../../features/searchSlice";
+import {
+  cityUpdated,
+  CityObject,
+  geolocationUpdated,
+} from "../../features/searchSlice";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DialogContent from "@mui/material/DialogContent";
+import Grid from "@mui/material/Grid";
 import CountryFilter from "./FilterOptions/Country";
 import LanguageFilter from "./FilterOptions/Language";
 import SportTypeFilter from "./FilterOptions/SportType";
@@ -26,6 +31,7 @@ import TraverseFilter from "./FilterOptions/Traverse";
 import AscentFilter from "./FilterOptions/Ascent";
 import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
+import CityFilter from "./FilterOptions/CityFilter";
 import LoadingView from "./LoadingView";
 import { CheckboxOptionsFilterKey } from "./types";
 import {
@@ -45,6 +51,7 @@ export interface FilterProps {
 
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const dispatch = useAppDispatch();
+  const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const search = useSelector((state: RootState) => state.search.searchWithType);
   const geolocation = useSelector(
@@ -55,6 +62,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     lng?: number | string;
     radius?: number | string;
   }>({});
+  const [tempCity, setTempCity] = useState<CityObject | null>(null);
 
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
@@ -95,6 +103,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     setTempGeolocation(geolocation ?? {});
   }, [geolocation]);
 
+  useEffect(() => {
+    setTempCity(city);
+  }, [city]);
+
   function submitFilter() {
     dispatch(
       filterUpdated(getActiveFilterFields({ defaultFilterValues, tempFilter })),
@@ -114,6 +126,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     } else {
       dispatch(geolocationUpdated(null));
     }
+    dispatch(cityUpdated(tempCity));
     setShowFilter(false);
   }
 
@@ -127,12 +140,12 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const [, setSelectAllToggle] = useState<
     Record<CheckboxOptionsFilterKey, boolean>
   >({
-    ranges: true,
-    countries: true,
-    types: true,
-    languages: true,
-    difficulties: true,
-    providers: true,
+    ranges: false,
+    countries: false,
+    types: false,
+    languages: false,
+    difficulties: false,
+    providers: false,
   });
 
   const { t } = useTranslation();
@@ -157,7 +170,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   ): boolean {
     const array = tempFilter[arrayKey];
     if (!Array.isArray(array)) {
-      return true; // default
+      return false; // default: nothing checked
     }
 
     // @ts-ignore
@@ -278,16 +291,23 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             <LoadingView />
           ) : (
             <Fragment>
-              <TourLengthFilter
-                tempFilter={tempFilter}
-                setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
-              />
-              <SeasonFilter
-                tempFilter={tempFilter}
-                setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
-              />
+              <CityFilter tempCity={tempCity} setTempCity={setTempCity} />
+              <Grid container spacing={0} className="filter-box border">
+                <Grid size={6} sx={{ borderRight: "1px solid #EAEAEA", pr: 2 }}>
+                  <TourLengthFilter
+                    tempFilter={tempFilter}
+                    setTempFilter={setTempFilter}
+                    fetchedFilter={fetchedFilter}
+                  />
+                </Grid>
+                <Grid size={6} sx={{ pl: 2 }}>
+                  <SeasonFilter
+                    tempFilter={tempFilter}
+                    setTempFilter={setTempFilter}
+                    fetchedFilter={fetchedFilter}
+                  />
+                </Grid>
+              </Grid>
               <TraverseFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}

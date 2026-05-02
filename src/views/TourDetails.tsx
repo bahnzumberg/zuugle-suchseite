@@ -9,13 +9,13 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import dayjs from "dayjs";
+
 import { useEffect, useState } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
-import { useParams, useSearchParams } from "react-router";
-import "dayjs/plugin/isBetween";
+import { useParams } from "react-router";
+
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -32,12 +32,10 @@ import Search from "../components/Search/Search";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
-  useLazyGetCombinedGPXQuery,
-  useLazyGetConnectionsExtendedQuery,
   useLazyGetGPXQuery,
   useLazyGetProviderGpxOkQuery,
 } from "../features/apiSlice";
-import { Connection, ConnectionResult } from "../models/Connections";
+
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
 import { useSelector } from "react-redux";
@@ -48,12 +46,6 @@ import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 
 export default function DetailReworked() {
-  const [activeConnection, setActiveConnection] =
-    useState<ConnectionResult | null>(null);
-  const [activeReturnConnection, setActiveReturnConnection] =
-    useState<Connection | null>(null);
-  const [dateIndex, setDateIndex] = useState(0);
-  const [searchParams] = useSearchParams();
   const [tourDifficulty, setTourDifficulty] = useState<string | null>(null);
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
@@ -70,15 +62,11 @@ export default function DetailReworked() {
 
   const [triggerProviderPermit, { data: providerPermit }] =
     useLazyGetProviderGpxOkQuery();
-  const [triggerConnections, { data: connections }] =
-    useLazyGetConnectionsExtendedQuery();
+
   const [triggerGPX, { data: track, isLoading: isGpxLoading }] =
     useLazyGetGPXQuery();
   const [triggerFromTourGPX, { data: fromTourTrack }] = useLazyGetGPXQuery();
-  const [currentFromTourGPX, setCurrentFromTourGPX] = useState("");
   const [triggerToTourGPX, { data: toTourTrack }] = useLazyGetGPXQuery();
-  const [currentToTourGPX, setCurrentToTourGPX] = useState("");
-  const [triggerCombinedGPX] = useLazyGetCombinedGPXQuery();
 
   const dispatch = useAppDispatch();
   const { data: allCities = [], isSuccess: areCitiesLoaded } =
@@ -159,18 +147,11 @@ export default function DetailReworked() {
     if (tour?.difficulty) {
       setTourDifficulty(tour.difficulty);
     }
-    // only load connections if the tour is valid
     if (tour && idOne) {
       triggerGPX(tour.gpx_file);
       if (city) {
-        triggerConnections({
-          id: idOne,
-          city: city.value,
-        });
         triggerFromTourGPX(tour.fromtour_gpx_file);
-        setCurrentFromTourGPX(tour.fromtour_gpx_file);
         triggerToTourGPX(tour.totour_gpx_file);
-        setCurrentToTourGPX(tour.totour_gpx_file);
       }
     }
   }, [tour, city]);
@@ -185,71 +166,8 @@ export default function DetailReworked() {
     }
   }, [tour]);
 
-  useEffect(() => {
-    setSocialMediaDropDownToggle(false);
-  }, [dateIndex]);
-
-  useEffect(() => {
-    let index = dateIndex;
-    if (connections) {
-      // Get date from searchParams and check its validity
-      const date = dayjs(searchParams.get("datum"));
-      if (date.isValid()) {
-        const startDate = dayjs(connections[0].date);
-        const endDate = dayjs(connections[6].date);
-
-        // Check if the date is between the startDate and endDate (inclusive)
-        if (date.isBetween(startDate, endDate, "day", "[]")) {
-          // Find the index of the connection that matches the date
-          index = connections.findIndex(
-            (connection) =>
-              dayjs(connection.date).format("DD.MM.YYYY") ===
-              date.format("DD.MM.YYYY"),
-          );
-          setDateIndex(index);
-        } else {
-          goToSearchPage();
-        }
-      }
-
-      // Ensure the index is valid before setting active connection
-      if (index !== -1 && connections[index]) {
-        setActiveConnection(connections[index]);
-        setActiveReturnConnection(connections[index].returns[0]);
-      }
-    }
-  }, [connections]);
-
-  // update toTour and fromTour GPX if necessary
-  useEffect(() => {
-    const newToTourGPX = activeConnection?.connections[0]?.gpx_file;
-    if (newToTourGPX && newToTourGPX !== currentToTourGPX) {
-      triggerToTourGPX(newToTourGPX);
-      setCurrentToTourGPX(newToTourGPX);
-    }
-
-    const newFromTourGPX = activeReturnConnection?.gpx_file;
-    if (newFromTourGPX && newFromTourGPX !== currentFromTourGPX) {
-      triggerFromTourGPX(newFromTourGPX);
-      setCurrentFromTourGPX(newFromTourGPX);
-    }
-  }, [activeConnection, activeReturnConnection]);
-
   const downloadButtonsDisabled = () => {
-    return (
-      !tour ||
-      !tour.gpx_file ||
-      !activeConnection?.connections[0]?.totour_track_key ||
-      !activeReturnConnection?.fromtour_track_key
-    );
-  };
-
-  const updateConnIndex = (index: number) => {
-    setDateIndex(index);
-    setActiveConnection(connections ? connections[index] : null);
-    setActiveReturnConnection(
-      connections ? connections[index].returns[0] : null,
-    );
+    return !tour || !tour.gpx_file;
   };
 
   const shareButtonHandler = (event: React.MouseEvent<HTMLElement>) => {
@@ -276,18 +194,13 @@ export default function DetailReworked() {
   };
 
   async function downloadGpx() {
-    if (
-      tour?.id &&
-      activeReturnConnection?.fromtour_track_key &&
-      activeConnection?.connections[0]?.totour_track_key
-    ) {
-      const res = await triggerCombinedGPX({
-        id: tour?.id,
-        key_anreise: activeConnection.connections[0].totour_track_key,
-        key_abreise: activeReturnConnection.fromtour_track_key,
-      }).unwrap();
-      if (res) {
-        fileDownload(res, parseFileName(tour.title, "zuugle_", ".gpx"));
+    if (tour?.id && tour?.gpx_file) {
+      const gpxData = track;
+      if (gpxData) {
+        fileDownload(
+          gpxData as unknown as string,
+          parseFileName(tour.title, "zuugle_", ".gpx"),
+        );
       }
     }
   }
@@ -543,7 +456,31 @@ export default function DetailReworked() {
       {isTourLoading ? (
         <LoadingSpinner />
       ) : (
-        <Box>
+        <Box sx={{ marginTop: "-25px" }}>
+          {track && (
+            <Box
+              sx={{ width: "100%", position: "relative" }}
+              className="tour-detail-map-container"
+            >
+              <Chip
+                sx={{
+                  position: "absolute",
+                  top: 35,
+                  left: 10,
+                  bgcolor: "rgba(37, 73, 128, 0.85)",
+                  color: "#FFFFFF",
+                  zIndex: 5,
+                }}
+                label={`${tour?.range}`}
+              />
+              <InteractiveMap
+                gpxPositions={track || []}
+                anreiseGpxPositions={toTourTrack || []}
+                abreiseGpxPositions={fromTourTrack || []}
+                scrollWheelZoom={false}
+              />
+            </Box>
+          )}
           <Box className="tour-detail-header">
             <Box
               sx={{
@@ -556,7 +493,7 @@ export default function DetailReworked() {
             >
               <Typography variant="title">{tour?.title}</Typography>
               {city?.label && (
-                <Typography variant="title">
+                <Typography variant="title" sx={{ fontWeight: 400 }}>
                   {"|"}
                   <CustomIcon
                     name="transportTrain"
@@ -573,33 +510,6 @@ export default function DetailReworked() {
             </Box>
           </Box>
           <Box sx={{ backgroundColor: "#fff" }}>
-            {track && (
-              <Box
-                sx={{ width: "100%", position: "relative" }}
-                className="tour-detail-map-container"
-              >
-                <Chip
-                  sx={{
-                    position: "absolute",
-                    top: 10,
-                    left: 10,
-                    bgcolor: "rgba(37, 73, 128, 0.85)",
-                    color: "#FFFFFF",
-                    fontSize: 14,
-                    fontFamily: '"Juniper Bay", cursive',
-                    zIndex: 5,
-                  }}
-                  label={`${tour?.range}`}
-                />
-                <InteractiveMap
-                  gpxPositions={track || []}
-                  anreiseGpxPositions={toTourTrack || []}
-                  abreiseGpxPositions={fromTourTrack || []}
-                  scrollWheelZoom={false}
-                />
-              </Box>
-            )}
-
             <div className="tour-detail-data-container">
               <Box>
                 <TourDetailProperties tour={tour}></TourDetailProperties>
@@ -666,13 +576,7 @@ export default function DetailReworked() {
                 )}
               </Box>
               <Box className="tour-detail-itinerary-container">
-                <Itinerary
-                  connectionData={connections}
-                  dateIndex={dateIndex}
-                  updateConnIndex={updateConnIndex}
-                  tour={tour}
-                  tourId={idOne}
-                />
+                <Itinerary tour={tour} tourId={idOne} />
               </Box>
               {tour?.valid_tour === 1 && (
                 <Box className="tour-detail-conditional-mobile">

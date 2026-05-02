@@ -24,7 +24,7 @@ export default function KPIContainer({
       sx={{
         bgcolor: "primary.main",
         borderRadius: "24px",
-        width: "68vw",
+        width: "100%",
         margin: "auto",
       }}
     >

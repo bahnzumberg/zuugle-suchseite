@@ -80,7 +80,8 @@
     "country_ungarn": "Ungheria",
     "country_schweiz": "Svizzera",
     "country_italien": "Italia",
-    "country_slowenien": "Slovenia"
+    "country_slowenien": "Slovenia",
+    "filter_city_description": "Filtra per escursioni raggiungibili dalla zona di:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",
@@ -141,7 +142,8 @@
     "alle_bergtouren_von_cityname": "Itinerari raggiungibili in treno e autobus da {{city.label}}",
     "tour": "Percorrenza",
     "areaSearchTrigger": "Cerca i percorsi che raggiungono questa zona.",
-    "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati."
+    "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati.",
+    "top_tour": "Sentiero fantastico!"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",

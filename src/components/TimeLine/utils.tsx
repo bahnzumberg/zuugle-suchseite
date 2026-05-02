@@ -67,13 +67,13 @@ const transportIcons: Record<string, JSX.Element> = {
   train_key: (
     <CustomIcon
       name="transportTrain"
-      style={{ strokeWidth: 0.8, stroke: "#254980" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980", color: "#101010" }}
     />
   ),
   metro_key: (
     <CustomIcon
       name="transportTrain"
-      style={{ strokeWidth: 0.8, stroke: "#254980" }}
+      style={{ strokeWidth: 0.8, stroke: "#254980", color: "#101010" }}
     />
   ),
   tram_key: (

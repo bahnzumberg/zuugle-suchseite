@@ -80,7 +80,8 @@
     "country_ungarn": "Madžarska",
     "country_schweiz": "Švica",
     "country_italien": "Italija",
-    "country_slowenien": "Slovenija"
+    "country_slowenien": "Slovenija",
+    "filter_city_description": "Filtriraj dostopne ture iz območja:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
@@ -141,7 +142,8 @@
     "alle_bergtouren_von_cityname": "Gorskih tur in izletov iz {{city.label}} – dostopnih z vlakom in avtobusom",
     "tour": "Tur",
     "areaSearchTrigger": "Išči poti do tega območja.",
-    "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje."
+    "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje.",
+    "top_tour": "Top pohod!"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Varstvo podatkov nam je pomembno. Zato smo se odrekli številnim možnostim, ki so sicer tehnično izvedljive, a bi posegle v zasebnost naših obiskovalcev.",
