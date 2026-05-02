@@ -15,7 +15,7 @@ test.describe("Search Functionality", () => {
       "search?city=innsbruck&search=Wildspitze&search_type=peak&lang=de",
     );
     await expect(
-      page.getByRole("link", { name: "Wildspitze - Skitour" }),
+      page.getByRole("link", { name: "Wildspitze - Skitour" }).first(),
     ).toBeVisible();
   });
 
