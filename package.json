@@ -17,7 +17,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.10",
     "@mui/lab": "^7.0.1-beta.21",
-    "@mui/material": "^7.3.10",
+    "@mui/material": "^9.0.0",
     "@mui/x-date-pickers": "^8.28.4",
     "@phosphor-icons/react": "^2.1.10",
     "@reduxjs/toolkit": "^2.11.2",
