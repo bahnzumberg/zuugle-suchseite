@@ -107,14 +107,18 @@ export default function Start() {
         <Header totals={totals} isLoading={isTotalsLoading} />
       </Box>
       <TotalToursHeader loadedTours={loadedTours} />
-
       {!isTotalsLoading && (
         <>
           {totals?.total_tours && totals?.total_tours > 0 && (
             <>
               <Box style={{ background: "#fff" }}>
                 <Paper elevation={0} className={"header-line"}>
-                  <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
+                  <Typography
+                    sx={{
+                      color: "#FFFFFF",
+                      textAlign: "center",
+                    }}
+                  >
                     {t("start.zuugle_sucht_fuer_dich_1")}{" "}
                     {totals?.total_provider}{" "}
                     {t("start.zuugle_sucht_fuer_dich_2")}

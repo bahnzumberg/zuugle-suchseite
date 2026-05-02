@@ -38,8 +38,11 @@ export default function Header({ totals, isLoading }: HeaderProps) {
             </Box>
             {isLoading ? (
               <Box
-                sx={{ display: "flex", justifyContent: "center" }}
-                marginTop={"80px"}
+                sx={{
+                  marginTop: "80px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
                 <CircularProgress size={60} sx={{ color: "#FFF" }} />
               </Box>

@@ -17,8 +17,6 @@ export default function Footer() {
       <Box sx={{ marginBottom: "50px" }}>
         <Grid container spacing={2} sx={{ paddingBottom: "10px" }}>
           <Grid
-            justifySelf="center"
-            alignItems="center"
             style={{ alignItems: "flex-end" }}
             size={{
               xs: 12,
@@ -26,6 +24,10 @@ export default function Footer() {
               md: 6,
               lg: 6,
               xl: 6,
+            }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
             }}
           >
             <a
@@ -42,8 +44,6 @@ export default function Footer() {
             </a>
           </Grid>
           <Grid
-            justifySelf="center"
-            alignItems="center"
             style={{ alignItems: "flex-end" }}
             size={{
               xs: 12,
@@ -51,6 +51,10 @@ export default function Footer() {
               md: 6,
               lg: 6,
               xl: 6,
+            }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
             }}
           >
             <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">

@@ -30,7 +30,13 @@ export default function DifficultyFilter({
 
   return (
     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: "center",
+        }}
+      >
         <Typography variant={"subtitle1"}>
           {t("filter.schwierigkeit")}
         </Typography>

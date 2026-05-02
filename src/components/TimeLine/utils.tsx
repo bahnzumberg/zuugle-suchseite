@@ -274,9 +274,13 @@ export const getDetailEntry = (
   return (
     <TimelineItem key={key}>
       <TimelineOppositeContent
-        color="text.secondary"
-        sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
         className={"timeline-opposite-container"}
+        sx={{
+          color: "text.secondary",
+          flex: 0.2,
+          marginTop: "auto",
+          marginBottom: "auto",
+        }}
       >
         <div>{getIconForConnectionDescriptionEntry(entry)}</div>
       </TimelineOppositeContent>
@@ -302,8 +306,8 @@ export const getDetailEntry = (
             <InfoOutlinedIcon sx={{ fontSize: "18px", color: "info.dark" }} />
             <Typography
               variant={"text"}
-              color={"info.dark"}
               sx={{
+                color: "info.dark",
                 fontSize: "14px",
                 lineHeight: "16px",
               }}
@@ -314,8 +318,11 @@ export const getDetailEntry = (
         )}
         <Typography
           variant={"text"}
-          color={"#8B8B8B"}
-          sx={{ fontSize: "14px", lineHeight: "16px" }}
+          sx={{
+            color: "#8B8B8B",
+            fontSize: "14px",
+            lineHeight: "16px",
+          }}
         >
           {getTextForConnectionDescriptionEntry(entry)}
         </Typography>
@@ -332,14 +339,14 @@ export const getStationEntry = (
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
-        color="text.secondary"
+        className={"timeline-opposite-container"}
         sx={{
+          color: "text.secondary",
           flex: 0.2,
           paddingTop: isLast ? "24px" : "0px",
           lineHeight: "14px",
           paddingBottom: isLast ? "0px" : "24px",
         }}
-        className={"timeline-opposite-container"}
       >
         <Box sx={{ color: "#101010", fontSize: "14px" }}>
           {entry.T === "D" ? entry.DT : entry.AT}
@@ -380,9 +387,13 @@ export const walkToFromEntry = (text: string, key: string) => {
   return (
     <TimelineItem key={key}>
       <TimelineOppositeContent
-        color="text.secondary"
-        sx={{ flex: 0.2, marginTop: "auto", marginBottom: "auto" }}
         className={"timeline-opposite-container"}
+        sx={{
+          color: "text.secondary",
+          flex: 0.2,
+          marginTop: "auto",
+          marginBottom: "auto",
+        }}
       >
         <div>{transportIcons["walk"]}</div>
       </TimelineOppositeContent>
@@ -398,8 +409,11 @@ export const walkToFromEntry = (text: string, key: string) => {
       >
         <Typography
           variant={"text"}
-          color={"#8B8B8B"}
-          sx={{ fontSize: "14px", lineHeight: "16px" }}
+          sx={{
+            color: "#8B8B8B",
+            fontSize: "14px",
+            lineHeight: "16px",
+          }}
         >
           {text}
         </Typography>
@@ -412,14 +426,14 @@ export const getDepartureEntry = (entry: DepartureJSON, key: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
-        color="text.secondary"
+        className={"timeline-opposite-container"}
         sx={{
+          color: "text.secondary",
           flex: 0.2,
           paddingTop: "0px",
           lineHeight: "14px",
           paddingBottom: "24px",
         }}
-        className={"timeline-opposite-container"}
       >
         <Box sx={{ color: "#101010", fontSize: "14px" }}>{entry.DT}</Box>
       </TimelineOppositeContent>
@@ -445,9 +459,13 @@ export const getArrivalEntry = (entry: ArrivalJSON, key: string) => {
   return (
     <TimelineItem sx={{ minHeight: 0 }} key={key}>
       <TimelineOppositeContent
-        color="text.secondary"
-        sx={{ flex: 0.2, paddingTop: "24px", paddingBottom: 0 }}
         className={"timeline-opposite-container"}
+        sx={{
+          color: "text.secondary",
+          flex: 0.2,
+          paddingTop: "24px",
+          paddingBottom: 0,
+        }}
       >
         <Box
           sx={{

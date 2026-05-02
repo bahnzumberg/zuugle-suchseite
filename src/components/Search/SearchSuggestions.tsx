@@ -85,7 +85,9 @@ export default function SearchSuggestions({
       <ListItemText
         primary={option?.term}
         secondary={secondaryText}
-        slotProps={{ secondary: { fontSize: "0.8rem", lineHeight: 1.2 } }}
+        slotProps={{
+          secondary: { sx: { fontSize: "0.8rem", lineHeight: 1.2 } },
+        }}
       />
     </ListItem>
   );

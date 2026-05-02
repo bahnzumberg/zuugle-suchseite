@@ -34,7 +34,12 @@ export default function KPIContainer({
             {t("start.ziel_von_zuugle")}
           </Typography>
           <Box sx={{ textAlign: "center", marginTop: "20px" }}>
-            <Typography variant={"text"} color={"#FFFFFF"}>
+            <Typography
+              variant={"text"}
+              sx={{
+                color: "#FFFFFF",
+              }}
+            >
               {" "}
               {t("start.weil_es_braucht_kein_auto")}{" "}
             </Typography>
@@ -57,7 +62,12 @@ export default function KPIContainer({
                 <Typography variant={"h3"}>
                   {Number(totalTours).toLocaleString()}
                 </Typography>
-                <Typography variant={"text"} color={"#FFFFFF"}>
+                <Typography
+                  variant={"text"}
+                  sx={{
+                    color: "#FFFFFF",
+                  }}
+                >
                   {t("start.öffi_bergtouren")}
                 </Typography>
               </Box>
@@ -74,7 +84,12 @@ export default function KPIContainer({
             >
               <Box>
                 <Typography variant={"h3"}>{totalProvider}</Typography>
-                <Typography variant={"text"} color={"#FFFFFF"}>
+                <Typography
+                  variant={"text"}
+                  sx={{
+                    color: "#FFFFFF",
+                  }}
+                >
                   {t("start.durchsuchte_portale")}
                 </Typography>
               </Box>
@@ -91,7 +106,12 @@ export default function KPIContainer({
             >
               <Box>
                 <Typography variant={"h3"}>{totalCities}</Typography>
-                <Typography variant={"text"} color={"#FFFFFF"}>
+                <Typography
+                  variant={"text"}
+                  sx={{
+                    color: "#FFFFFF",
+                  }}
+                >
                   {t("start.verfügbare_heimatbahnhöfe")}
                 </Typography>
               </Box>
@@ -110,7 +130,12 @@ export default function KPIContainer({
                 <Typography variant={"h3"}>
                   {Number(totalConnections).toLocaleString()}
                 </Typography>
-                <Typography variant={"text"} color={"#FFFFFF"}>
+                <Typography
+                  variant={"text"}
+                  sx={{
+                    color: "#FFFFFF",
+                  }}
+                >
                   {t("start.anzahl_öffi_verbindungen")}
                 </Typography>
               </Box>
