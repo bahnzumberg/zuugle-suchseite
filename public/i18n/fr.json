@@ -143,7 +143,9 @@
     "tour": "Randonnée",
     "areaSearchTrigger": "Rechercher des randonnées qui visitent cette zone.",
     "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées.",
-    "top_tour": "Super rando!"
+    "top_tour": "Super rando!",
+    "gebirgsgruppe": "Massif",
+    "schwierigkeit": "Difficulté"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",
@@ -233,7 +235,7 @@
     "warnung_andere_station": "C'est la gare de la personne qui a créé le lien qui a été prise.",
     "teilen": "Partager",
     "teilen_description": "Partager le lien de la visite en transports publics",
-    "umstiege": "Trans.",
+    "umstiege": "Correspondances",
     "kopieren": "Copier",
     "circa": "environ",
     "stunden_tour": "Heures Tour",
@@ -251,6 +253,7 @@
     "seilbahn": "le téléphérique",
     "faehre": "le ferry",
     "taxi": "le taxi",
+    "fussweg": "À pied",
     "verschiedenes": "Divers",
     "touren-ausgangspunkt": "Point de départ",
     "ankunft_bei_tourstart": "Arrivée au point de départ de la randonnée",
@@ -270,7 +273,22 @@
     "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires.",
     "weitere_staedte_anzeigen": "Afficher plus de villes",
     "staedte_mit_verbindung": "Villes avec des connexions en transports publics vers cette randonnée",
-    "staedte_ohne_verbindung": "Villes sans connexion"
+    "staedte_ohne_verbindung": "Villes sans connexion",
+    "startort": "Lieu de départ",
+    "startort_placeholder": "Saisir une adresse ou un arrêt",
+    "zielort": "Destination",
+    "aktivitaetsdatum": "Date de l'activité",
+    "heute": "Aujourd'hui",
+    "morgen": "Demain",
+    "anderes_datum": "Autre date",
+    "anreise": "Aller",
+    "verbindung_suchen": "Rechercher une connexion",
+    "direkt": "Direct",
+    "umstieg": "Correspondance",
+    "verfuegbare_gehzeit": "Temps de marche disponible",
+    "gleis": "Quai",
+    "halte": "arrêts",
+    "tourdauer": "Durée de la randonnée"
   },
   "search": {
     "go": "Allez!",
@@ -284,6 +302,10 @@
     "oeffi_touren_alpenraum": "Sorties sans voiture dans les Alpes",
     "keine_vorschlaege": "Aucune suggestion"
   },
-  "start_pages": { "zur_kartenansicht": "Afficher la carte" },
-  "main_only": { "kartenansicht_entfernen": "Fermer la carte" }
+  "start_pages": {
+    "zur_kartenansicht": "Afficher la carte"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Fermer la carte"
+  }
 }

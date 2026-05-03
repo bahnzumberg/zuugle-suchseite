@@ -143,7 +143,9 @@
     "tour": "Tur",
     "areaSearchTrigger": "Išči poti do tega območja.",
     "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje.",
-    "top_tour": "Top pohod!"
+    "top_tour": "Top pohod!",
+    "gebirgsgruppe": "Gorska skupina",
+    "schwierigkeit": "Težavnost"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Varstvo podatkov nam je pomembno. Zato smo se odrekli številnim možnostim, ki so sicer tehnično izvedljive, a bi posegle v zasebnost naših obiskovalcev.",
@@ -233,7 +235,7 @@
     "warnung_andere_station": "To je bilo vzeto s postaje osebe, ki je ustvarila LInk.",
     "teilen": "Delite",
     "teilen_description": "Delite povezavo do ogleda javnega prevoza",
-    "umstiege": "Trans.",
+    "umstiege": "Prestopi",
     "kopieren": "Kopiraj",
     "circa": "okoli",
     "stunden_tour": "ure ogleda",
@@ -251,6 +253,7 @@
     "seilbahn": "Žičnica",
     "faehre": "Trajekt",
     "taxi": "Taxi",
+    "fussweg": "Pešpot",
     "verschiedenes": "Razni",
     "touren-ausgangspunkt": "Izhodiščna točka",
     "ankunft_bei_tourstart": "Prihod na začetek poti",
@@ -270,7 +273,22 @@
     "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red.",
     "weitere_staedte_anzeigen": "Prikaži več mest",
     "staedte_mit_verbindung": "Mesta z javnim prevozom do te ture",
-    "staedte_ohne_verbindung": "Mesta brez povezave"
+    "staedte_ohne_verbindung": "Mesta brez povezave",
+    "startort": "Izhodišče",
+    "startort_placeholder": "Vnesite naslov ali postajo",
+    "zielort": "Cilj",
+    "aktivitaetsdatum": "Datum aktivnosti",
+    "heute": "Danes",
+    "morgen": "Jutri",
+    "anderes_datum": "Drug datum",
+    "anreise": "Odhod",
+    "verbindung_suchen": "Iskanje povezave",
+    "direkt": "Direktno",
+    "umstieg": "Prestop",
+    "verfuegbare_gehzeit": "Razpoložljivi čas hoje",
+    "gleis": "Peron",
+    "halte": "postaj",
+    "tourdauer": "Trajanje ture"
   },
   "search": {
     "go": "Naprej!",
@@ -284,6 +302,10 @@
     "oeffi_touren_alpenraum": "z javnim prevozom dostopne ture v alpskem prostoru",
     "keine_vorschlaege": "Ni predlogov"
   },
-  "start_pages": { "zur_kartenansicht": "Pokaži zemljevid" },
-  "main_only": { "kartenansicht_entfernen": "Zapri zemljevid" }
+  "start_pages": {
+    "zur_kartenansicht": "Pokaži zemljevid"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Zapri zemljevid"
+  }
 }

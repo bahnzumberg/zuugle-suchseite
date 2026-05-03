@@ -49,10 +49,6 @@ body * {
   text-rendering: optimizeLegibility !important;
 }
 
-.App {
-  text-align: center;
-}
-
 /* width */
 body ::-webkit-scrollbar {
   width: 12px;
@@ -394,7 +390,7 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-header {
-  padding: 2rem 1rem;
+  padding: 2rem 0;
   text-align: left;
 }
 
@@ -417,17 +413,12 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-data-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
   padding: 1rem;
 }
 
 .tour-detail-map-container {
   width: 100%;
-  height: 250px;
+  height: 100%;
 }
 
 .tour-detail-provider-container {
@@ -513,9 +504,9 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-detail-itinerary-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
+  justify-content: flex-start;
+  align-items: stretch;
+  min-width: 0;
   gap: 24px;
 }
 
@@ -524,9 +515,8 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-itinerary {
-  border-radius: 30px;
-  background: #ebebeb;
-  padding: 25px;
+  padding: 0;
+  min-width: 0;
 }
 
 .tour-detail-itinerary > div:nth-of-type(2) > div::before {
@@ -542,7 +532,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-weight: 700;
   font-size: 18px;
   line-height: 18px;
-  text-align: center;
+  text-align: left;
   color: #000000;
   margin-bottom: 25px;
 }
@@ -665,9 +655,8 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-detail-action-btns-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  max-width: 325px;
+  align-items: flex-start;
+  gap: 8px;
   margin: 1rem 0;
 }
 
@@ -676,15 +665,15 @@ body ::-webkit-scrollbar-thumb:hover {
   border: none;
   background-color: var(--bzb-akelei);
   color: #ffffff;
-  max-width: 325px;
-  width: 325px;
-  height: 56px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 20px;
+  height: auto;
 
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  margin: 0.5rem 0;
   transition: background-color 0.2s ease;
 }
 
@@ -693,20 +682,6 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 @media only screen and (max-width: 1024px) {
-  .tour-detail-properties {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .tour-detail-properties-el:nth-child(even):before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 19px;
-    height: 41px;
-    width: 1px;
-    background: #dddddd;
-  }
-
   .tour-detail-img-container img {
     width: 325px;
     height: auto;
@@ -715,12 +690,8 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (min-width: 1025px) {
   .tour-detail-header {
-    padding: 2rem 7rem;
+    padding: 2rem 0;
     text-align: left;
-  }
-
-  .tour-detail-itinerary {
-    width: 390px;
   }
 
   .tour-detail-img-container {
@@ -728,25 +699,7 @@ body ::-webkit-scrollbar-thumb:hover {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-
     margin: 2rem 0;
-  }
-
-  .tour-detail-conditional-mobile {
-    display: none;
-  }
-
-  .tour-detail-conditional-desktop {
-    display: block;
-  }
-
-  .tour-detail-data-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-
-    padding: 2rem 7rem;
   }
 
   .tour-detail-action-btns-container {
@@ -754,7 +707,6 @@ body ::-webkit-scrollbar-thumb:hover {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    /*padding: 2rem 7rem;*/
     max-width: 400px;
   }
 
@@ -763,32 +715,9 @@ body ::-webkit-scrollbar-thumb:hover {
     width: 400px;
   }
 
-  .tour-detail-properties-el {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .tour-detail-properties {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .tour-detail-properties-el:nth-child(3n)::before,
-  .tour-detail-properties-el:nth-child(3n-1)::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 19px;
-    height: 41px;
-    width: 1px;
-    background: #dddddd;
-  }
-
   .tour-detail-map-container {
     width: 100%;
-    height: 450px;
+    height: 100%;
   }
 
   .tour-detail-provider-link {
@@ -799,10 +728,7 @@ body ::-webkit-scrollbar-thumb:hover {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
-    align-self: stretch;
-
-    padding: 0 0 0 3rem;
+    align-items: stretch;
     height: 100%;
   }
 }
@@ -1141,55 +1067,37 @@ colLeft .domainItem {
 /* ==================================== */
 /* ==================================== */
 
-/* Common styles */
+/* Common styles – compact horizontal KPI row */
 .tour-detail-properties {
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
-  max-width: 706px; /* Max width */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 0;
   margin: 0;
-  gap: 0; /* No gap between grid items */
-  height: 100%;
+  padding: 0;
 }
 
-/* Ensure consistent spacing and alignment within each cell */
+/* Each KPI element: inline with pipe separator */
 .tour-detail-properties-el {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; /* Align text to the left */
-  padding-right: 0.5rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 0; /* Ensure no extra space below */
-  height: 100%; /* allow children elements to adjust heights */
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 0;
+  white-space: nowrap;
   text-align: start;
+}
+
+/* Pipe separator between items */
+.tour-detail-properties-el:not(:last-child)::after {
+  content: "|";
+  color: #bbb;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 14px;
 }
 
 /* Reset margins for Typography elements */
 .tour-detail-properties-el .MuiTypography-root {
   margin: 0;
   padding: 0;
-}
-
-/* Styles for desktop (min-width: 679px) */
-@media (min-width: 679px) {
-  .tour-detail-properties {
-    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* 3 columns with vertical dividers */
-  }
-
-  .tour-detail-properties-el {
-    padding-left: 1rem;
-  }
-}
-
-/* Styles for small screens (max-width: 678px) */
-@media (max-width: 678px) {
-  .tour-detail-properties {
-    grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
-    grid-template-rows: auto auto auto; /* 3 rows */
-  }
-
-  .tour-detail-properties-el {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
 }

@@ -143,7 +143,9 @@
     "tour": "Percorrenza",
     "areaSearchTrigger": "Cerca i percorsi che raggiungono questa zona.",
     "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati.",
-    "top_tour": "Sentiero fantastico!"
+    "top_tour": "Sentiero fantastico!",
+    "gebirgsgruppe": "Gruppo montuoso",
+    "schwierigkeit": "Difficoltà"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",
@@ -250,6 +252,7 @@
     "seilbahn": "Funivia",
     "faehre": "Traghetto",
     "taxi": "Taxi",
+    "fussweg": "A piedi",
     "verschiedenes": "Varie",
     "touren-ausgangspunkt": "Punto di partenza",
     "ankunft_bei_tourstart": "Arrivo all'inizio del tour",
@@ -269,7 +272,22 @@
     "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari.",
     "weitere_staedte_anzeigen": "Mostra più città",
     "staedte_mit_verbindung": "Città con collegamenti di trasporto pubblico per questa escursione",
-    "staedte_ohne_verbindung": "Città senza collegamento"
+    "staedte_ohne_verbindung": "Città senza collegamento",
+    "startort": "Luogo di partenza",
+    "startort_placeholder": "Inserisci indirizzo o fermata",
+    "zielort": "Destinazione",
+    "aktivitaetsdatum": "Data dell'attività",
+    "heute": "Oggi",
+    "morgen": "Domani",
+    "anderes_datum": "Altra data",
+    "anreise": "Andata",
+    "verbindung_suchen": "Cerca collegamento",
+    "direkt": "Diretto",
+    "umstieg": "Cambio",
+    "verfuegbare_gehzeit": "Tempo di percorrenza disponibile",
+    "gleis": "Banchina",
+    "halte": "fermate",
+    "tourdauer": "Tempo di percorrenza"
   },
   "search": {
     "go": "Vai!",
@@ -283,6 +301,10 @@
     "oeffi_touren_alpenraum": "Itinerari raggiungibili con i mezzi pubblici nelle Alpi",
     "keine_vorschlaege": "Nessun suggerimento"
   },
-  "start_pages": { "zur_kartenansicht": "Mostra mappa" },
-  "main_only": { "kartenansicht_entfernen": "Chiudi mappa" }
+  "start_pages": {
+    "zur_kartenansicht": "Mostra mappa"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Chiudi mappa"
+  }
 }

@@ -143,7 +143,9 @@
     "tour": "Tour",
     "areaSearchTrigger": "Find tours that visit this area.",
     "areaSearchTooltip": "Only tours that visit the marked area are shown.",
-    "top_tour": "Top tour!"
+    "top_tour": "Top tour!",
+    "gebirgsgruppe": "Mountain range",
+    "schwierigkeit": "Difficulty"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",
@@ -233,7 +235,7 @@
     "warnung_andere_station": "It was taken from the station of the person who created the LInk.",
     "teilen": "Share",
     "teilen_description": "Share link to public transport tour",
-    "umstiege": "Trans.",
+    "umstiege": "Transfers",
     "kopieren": "Copy",
     "circa": "approx.",
     "stunden_tour": "Hours Tour",
@@ -251,6 +253,7 @@
     "seilbahn": "cable car",
     "faehre": "ferry",
     "taxi": "taxi",
+    "fussweg": "walk",
     "verschiedenes": "miscellaneous",
     "touren-ausgangspunkt": "Starting point",
     "ankunft_bei_tourstart": "Arrival at tour start",
@@ -270,7 +273,22 @@
     "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables.",
     "weitere_staedte_anzeigen": "Show more cities",
     "staedte_mit_verbindung": "Cities with public transport connections to this tour",
-    "staedte_ohne_verbindung": "Cities without a connection"
+    "staedte_ohne_verbindung": "Cities without a connection",
+    "startort": "Departure",
+    "startort_placeholder": "Enter address or station",
+    "zielort": "Destination",
+    "aktivitaetsdatum": "Activity date",
+    "heute": "Today",
+    "morgen": "Tomorrow",
+    "anderes_datum": "Other date",
+    "anreise": "Outbound",
+    "verbindung_suchen": "Search connection",
+    "direkt": "Direct",
+    "umstieg": "Transfer",
+    "verfuegbare_gehzeit": "Available walking time",
+    "gleis": "platform",
+    "halte": "stops",
+    "tourdauer": "Tour duration"
   },
   "search": {
     "go": "Go!",
@@ -284,6 +302,10 @@
     "oeffi_touren_alpenraum": "Hikes reachable using public transport",
     "keine_vorschlaege": "No Suggestions"
   },
-  "start_pages": { "zur_kartenansicht": "Show map" },
-  "main_only": { "kartenansicht_entfernen": "Hide map" }
+  "start_pages": {
+    "zur_kartenansicht": "Show map"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Hide map"
+  }
 }

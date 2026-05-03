@@ -143,7 +143,9 @@
     "tour": "Tour",
     "areaSearchTrigger": "Finde Touren die diese Gegend besuchen.",
     "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten.",
-    "top_tour": "Top Tour!"
+    "top_tour": "Top Tour!",
+    "gebirgsgruppe": "Gebirgsgruppe",
+    "schwierigkeit": "Schwierigkeit"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",
@@ -233,7 +235,7 @@
     "warnung_andere_station": "Es wurde der Bahnhof der Person, die den Link erstellt hat genommen.",
     "teilen": "Teilen",
     "teilen_description": "Link zur Öffi-Tour teilen",
-    "umstiege": "Umst.",
+    "umstiege": "Umstiege",
     "kopieren": "Kopieren",
     "circa": "ca.",
     "stunden_tour": "Stunden Tour",
@@ -251,6 +253,7 @@
     "seilbahn": "Seilbahn",
     "faehre": "Fähre",
     "taxi": "Taxi",
+    "fussweg": "Fußweg",
     "verschiedenes": "Verschiedenes",
     "touren-ausgangspunkt": "Touren Ausgangspunkt",
     "ankunft_bei_tourstart": "Ankunft bei Tourstart",
@@ -270,7 +273,22 @@
     "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können.",
     "weitere_staedte_anzeigen": "Weitere Städte anzeigen",
     "staedte_mit_verbindung": "Städte mit Öffi-Verbindung zu dieser Tour",
-    "staedte_ohne_verbindung": "Städte ohne Verbindung"
+    "staedte_ohne_verbindung": "Städte ohne Verbindung",
+    "startort": "Startort",
+    "startort_placeholder": "Adresse oder Haltestelle eingeben",
+    "zielort": "Zielort",
+    "aktivitaetsdatum": "Aktivitätsdatum",
+    "heute": "Heute",
+    "morgen": "Morgen",
+    "anderes_datum": "Anderes Datum",
+    "anreise": "Anreise",
+    "verbindung_suchen": "Verbindung suchen",
+    "direkt": "Direkt",
+    "umstieg": "Umstieg",
+    "verfuegbare_gehzeit": "Verfügbare Gehzeit",
+    "gleis": "Bahnsteig",
+    "halte": "Halte",
+    "tourdauer": "Tourdauer"
   },
   "search": {
     "go": "Los!",
@@ -285,6 +303,10 @@
     "keine_vorschlaege": "Keine Vorschläge",
     "filter_ranges": ""
   },
-  "start_pages": { "zur_kartenansicht": "Karte anzeigen" },
-  "main_only": { "kartenansicht_entfernen": "Karte schließen" }
+  "start_pages": {
+    "zur_kartenansicht": "Karte anzeigen"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Karte schließen"
+  }
 }

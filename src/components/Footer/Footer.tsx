@@ -19,7 +19,7 @@ export default function Footer() {
           <Grid
             justifySelf="center"
             alignItems="center"
-            style={{ alignItems: "flex-end" }}
+            style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,
               sm: 12,
@@ -44,7 +44,7 @@ export default function Footer() {
           <Grid
             justifySelf="center"
             alignItems="center"
-            style={{ alignItems: "flex-end" }}
+            style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,
               sm: 12,

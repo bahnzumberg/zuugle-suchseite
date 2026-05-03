@@ -16,6 +16,10 @@ export interface Tour {
   max_ele: number;
   connection_arrival_stop_lon: string;
   connection_arrival_stop_lat: string;
+  start_stop_lon: number;
+  start_stop_lat: number;
+  end_stop_lon: number;
+  end_stop_lat: number;
   min_connection_duration: number;
   min_connection_no_of_transfers: number;
   avg_total_tour_duration: string;

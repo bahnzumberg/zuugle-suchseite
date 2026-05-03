@@ -42,11 +42,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
 import LanguageMenu from "../components/LanguageMenu";
-import Divider from "@mui/material/Divider";
-import Chip from "@mui/material/Chip";
 
 export default function DetailReworked() {
-  const [tourDifficulty, setTourDifficulty] = useState<string | null>(null);
   //Whether social media share buttons should be shown
   const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
     useState(false);
@@ -103,13 +100,6 @@ export default function DetailReworked() {
 
   // Translation-related
   const { t } = useTranslation();
-  const translateDiff = (diff: string) => {
-    if (diff === "Leicht" || diff === "leicht") {
-      return t("start.leicht");
-    } else if (diff === "Schwer" || diff === "schwer") {
-      return t("start.schwer");
-    } else return t("start.mittel");
-  };
 
   const handleCloseTab = () => {
     window.close();
@@ -143,9 +133,6 @@ export default function DetailReworked() {
   useEffect(() => {
     if (tour?.provider) {
       triggerProviderPermit(tour.provider);
-    }
-    if (tour?.difficulty) {
-      setTourDifficulty(tour.difficulty);
     }
     if (tour && idOne) {
       triggerGPX(tour.gpx_file);
@@ -456,149 +443,180 @@ export default function DetailReworked() {
       {isTourLoading ? (
         <LoadingSpinner />
       ) : (
-        <Box sx={{ marginTop: "-25px" }}>
-          {track && (
-            <Box
-              sx={{ width: "100%", position: "relative" }}
-              className="tour-detail-map-container"
-            >
-              <Chip
-                sx={{
-                  position: "absolute",
-                  top: 35,
-                  left: 10,
-                  bgcolor: "rgba(37, 73, 128, 0.85)",
-                  color: "#FFFFFF",
-                  zIndex: 5,
-                }}
-                label={`${tour?.range}`}
-              />
-              <InteractiveMap
-                gpxPositions={track || []}
-                anreiseGpxPositions={toTourTrack || []}
-                abreiseGpxPositions={fromTourTrack || []}
-                scrollWheelZoom={false}
-              />
+        <Box sx={{ mt: "-25px" }}>
+          {/* ─── Content wrapper (full width, max 1400px) ─── */}
+          <Box
+            sx={{
+              maxWidth: "1400px",
+              mx: "auto",
+              px: { xs: "16px", md: "24px" },
+            }}
+          >
+            {/* ─── Title ─── */}
+            <Box className="tour-detail-header">
+              <Typography variant="title" component="h1">
+                {tour?.title}
+              </Typography>
             </Box>
-          )}
-          <Box className="tour-detail-header">
+
+            {/* ─── Description (full width, under title) ─── */}
+            {tour?.description && (
+              <Box sx={{ textAlign: "left", pb: "12px" }}>
+                <Typography variant="body1" sx={{ lineHeight: "1.6" }}>
+                  {tour.description}
+                </Typography>
+              </Box>
+            )}
+
+            {/* ─── Info row: KPIs (left) | Provider (right) ─── */}
             <Box
               sx={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                flexWrap: "wrap",
-                gap: 1,
+                flexDirection: { xs: "column", md: "row" },
+                gap: "16px",
+                pb: "16px",
+                alignItems: { md: "stretch" },
               }}
             >
-              <Typography variant="title">{tour?.title}</Typography>
-              {city?.label && (
-                <Typography variant="title" sx={{ fontWeight: 400 }}>
-                  {"|"}
-                  <CustomIcon
-                    name="transportTrain"
+              {/* LEFT: KPIs – Wolkenblau box – same width as Fahrplan column */}
+              <Box
+                sx={{
+                  flex: { md: "1 1 50%" },
+                  minWidth: 0,
+                  bgcolor: "rgba(170, 181, 215, 0.25)",
+                  borderRadius: "12px",
+                  px: "16px",
+                  py: "12px",
+                }}
+              >
+                <TourDetailProperties tour={tour} />
+              </Box>
+
+              {/* RIGHT: Provider info – Lindgrün box – same width as Map column */}
+              {!!tour && (
+                <Box
+                  sx={{
+                    flex: { md: "1 1 50%" },
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    bgcolor: "rgba(204, 216, 161, 0.4)",
+                    borderRadius: "12px",
+                    px: "16px",
+                    py: "12px",
+                  }}
+                >
+                  <img
+                    src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+                    alt={tour.provider_name}
                     style={{
-                      stroke: "none",
-                      marginLeft: "8px",
-                      marginRight: "8px",
-                      marginBottom: "-3px",
+                      borderRadius: "100%",
+                      height: "64px",
+                      width: "64px",
+                      flexShrink: 0,
                     }}
                   />
-                  {t("search.ab_heimatbahnhof")} {city?.label}
-                </Typography>
+                  <Box sx={{ textAlign: "left" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "16px",
+                        lineHeight: "20px",
+                        color: "#101010",
+                      }}
+                    >
+                      {tour.provider_name}
+                    </Typography>
+                    <a
+                      href={providerUrl()}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        fontSize: "14px",
+                        lineHeight: "18px",
+                        color: "var(--bzb-akelei)",
+                        wordBreak: "break-all",
+                      }}
+                    >
+                      {tour.url}
+                    </a>
+                  </Box>
+                </Box>
               )}
             </Box>
-          </Box>
-          <Box sx={{ backgroundColor: "#fff" }}>
-            <div className="tour-detail-data-container">
-              <Box>
-                <TourDetailProperties tour={tour}></TourDetailProperties>
-                <Box sx={{ textAlign: "left" }}>
-                  <div className="tour-detail-difficulties">
-                    <span className="tour-detail-difficulty">
-                      {tourDifficulty && translateDiff(tourDifficulty)}
-                    </span>
-                  </div>
-                  <Typography variant="textSmall">
-                    {tour?.description}
-                  </Typography>
-                </Box>
-                <a
-                  className="tour-detail-provider-container"
-                  href={providerUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: "none" }}
+
+            {/* ═══════════════════════════════════════════════ */}
+            {/* ─── DOMINANT SECTION: Fahrplan + Map ─── */}
+            {/* ═══════════════════════════════════════════════ */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { md: "flex-start" },
+                gap: "16px",
+                mt: "8px",
+                /* Make these panels fill most of the viewport */
+                minHeight: { md: "calc(100vh - 320px)" },
+              }}
+            >
+              {/* ─── LEFT: Fahrplan (on desktop) / 1st on mobile ─── */}
+              <Box
+                sx={{
+                  flex: { md: "1 1 50%" },
+                  minWidth: 0,
+                  minHeight: { xs: "400px", md: "unset" },
+                  order: { xs: 1, md: 1 },
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Box
+                  className="tour-detail-itinerary-container"
+                  sx={{ flex: 1, minWidth: 0 }}
                 >
-                  <div className="tour-detail-provider-icon">
-                    {!!tour && (
-                      <img
-                        src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
-                        alt={tour.provider_name}
-                        style={{
-                          borderRadius: "100%",
-                          height: "48px",
-                          width: "48px",
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div className="tour-detail-provider-name-link">
-                    <span className="tour-detail-provider-name">
-                      {tour?.provider_name}
-                    </span>
-                    <span className="tour-detail-provider-link">
-                      {tour?.url}
-                    </span>
-                  </div>
-                </a>
-                {tour?.valid_tour === 1 && (
-                  <Box className="tour-detail-conditional-desktop">
-                    <Divider variant="middle" />
-                    <div className="tour-detail-img-container">
-                      <img
-                        src={tour?.image_url ?? ""}
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                        alt={tour?.title}
-                        style={{
-                          display: tour?.image_url ? "block" : "none",
-                        }}
-                      />
-                    </div>
-                  </Box>
-                )}
-                {city && idOne && (
-                  <Box className="tour-detail-conditional-desktop">
-                    {actionButtonPart}
-                  </Box>
-                )}
+                  <Itinerary tour={tour} tourId={idOne} />
+                </Box>
               </Box>
-              <Box className="tour-detail-itinerary-container">
-                <Itinerary tour={tour} tourId={idOne} />
-              </Box>
-              {tour?.valid_tour === 1 && (
-                <Box className="tour-detail-conditional-mobile">
-                  <Divider variant="middle" />
-                  <div className="tour-detail-img-container">
-                    <img
-                      src={tour?.image_url ?? ""}
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                      alt={tour?.title}
-                      style={{ display: tour?.image_url ? "block" : "none" }}
+
+              {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
+              <Box
+                sx={{
+                  flex: { md: "1 1 50%" },
+                  minHeight: { xs: "350px", md: "unset" },
+                  height: { md: "calc(100vh - 320px)" },
+                  order: { xs: 2, md: 2 },
+                  display: "flex",
+                  flexDirection: "column",
+                  pt: { md: "20px" },
+                  gap: "12px",
+                  position: { md: "sticky" },
+                  top: { md: "16px" },
+                  alignSelf: { md: "flex-start" },
+                }}
+              >
+                {track && (
+                  <Box
+                    sx={{
+                      flex: { md: 1 },
+                      height: { xs: "350px", md: "auto" },
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      position: "relative",
+                    }}
+                    className="tour-detail-map-container"
+                  >
+                    <InteractiveMap
+                      gpxPositions={track || []}
+                      anreiseGpxPositions={toTourTrack || []}
+                      abreiseGpxPositions={fromTourTrack || []}
+                      scrollWheelZoom={false}
                     />
-                  </div>
-                </Box>
-              )}
-              {tour?.valid_tour === 1 && city && idOne && (
-                <Box className="tour-detail-conditional-mobile">
-                  {actionButtonPart}
-                </Box>
-              )}
-            </div>
+                  </Box>
+                )}
+                {/* GPX Download + Share below the map */}
+                {city && idOne && actionButtonPart}
+              </Box>
+            </Box>
           </Box>
           <Footer></Footer>
         </Box>

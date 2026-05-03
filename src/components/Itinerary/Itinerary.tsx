@@ -1,7 +1,7 @@
 import { Tour } from "../../models/Tour";
 import Divider from "@mui/material/Divider";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import {
   useGetCities2TourQuery,
   useGetCitiesQuery,
@@ -10,7 +10,7 @@ import { t } from "i18next";
 import CityList from "../TimeLine/CityList";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
-import DianaWidgetWrapper from "../DianaWidget/DianaWidgetWrapper";
+import ConnectionSearchForm from "../ConnectionSearch/ConnectionSearchForm";
 
 export interface ItineraryProps {
   tour?: Tour;
@@ -23,15 +23,11 @@ const Itinerary = ({ tour, tourId }: ItineraryProps) => {
   });
   const city = useSelector((state: RootState) => state.search.city);
 
-  const isTourReachable = cities2tour?.some(
-    (c) => c.city_slug === city?.value && c.reachable === 1,
-  );
-
   return (
     <div className="tour-detail-itinerary-container">
       <div className="tour-detail-itinerary">
-        {city && tour ? (
-          <DianaWidgetWrapper tour={tour} cityLabel={city.label} />
+        {tour ? (
+          <ConnectionSearchForm tour={tour} />
         ) : (
           <>
             <p className="tour-detail-itinerary-header">
@@ -43,7 +39,7 @@ const Itinerary = ({ tour, tourId }: ItineraryProps) => {
                 borderRadius: "16px",
                 padding: "20px",
                 position: "relative",
-                textAlign: "center",
+                textAlign: "left",
               }}
             >
               <Typography
@@ -55,11 +51,7 @@ const Itinerary = ({ tour, tourId }: ItineraryProps) => {
               >
                 {!city
                   ? t("details.bitte_stadt_waehlen")
-                  : city && !isTourReachable
-                    ? t("details.keine_verbindungen_stadt_7_tage", {
-                        city: city.label,
-                      })
-                    : t("search.keine_ergebnisse")}
+                  : t("search.keine_ergebnisse")}
               </Typography>
             </Box>
           </>
