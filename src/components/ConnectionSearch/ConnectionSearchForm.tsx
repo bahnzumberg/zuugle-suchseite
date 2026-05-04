@@ -272,8 +272,9 @@ export default function ConnectionSearchForm({
               placeholder={t("details.startort_placeholder")}
               size="small"
               slotProps={{
+                ...params.slotProps,
                 input: {
-                  ...params.InputProps,
+                  ...params.slotProps?.input,
                   startAdornment: (
                     <InputAdornment position="start">
                       <LocationOnIcon sx={{ color: "#8B8B8B" }} />
@@ -284,7 +285,7 @@ export default function ConnectionSearchForm({
                       {autocompleteLoading ? (
                         <CircularProgress size={18} />
                       ) : null}
-                      {params.InputProps.endAdornment}
+                      {params.slotProps?.input?.endAdornment}
                     </>
                   ),
                 },

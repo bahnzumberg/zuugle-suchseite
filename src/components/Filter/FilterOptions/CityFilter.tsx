@@ -88,8 +88,9 @@ export default function CityFilter({ tempCity, setTempCity }: CityFilterProps) {
               placeholder={t("start.heimatbahnhof")}
               variant="outlined"
               slotProps={{
+                ...params.slotProps,
                 input: {
-                  ...params.InputProps,
+                  ...params.slotProps?.input,
                   startAdornment: (
                     <CustomIcon
                       name="transportTrain"
@@ -107,7 +108,7 @@ export default function CityFilter({ tempCity, setTempCity }: CityFilterProps) {
                       {isLoading ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
-                      {params.InputProps.endAdornment}
+                      {params.slotProps?.input?.endAdornment}
                     </Fragment>
                   ),
                 },

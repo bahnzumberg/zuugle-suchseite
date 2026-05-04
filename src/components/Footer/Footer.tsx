@@ -17,8 +17,6 @@ export default function Footer() {
       <Box sx={{ marginBottom: "50px" }}>
         <Grid container spacing={2} sx={{ paddingBottom: "10px" }}>
           <Grid
-            justifySelf="center"
-            alignItems="center"
             style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,
@@ -46,8 +44,6 @@ export default function Footer() {
             </a>
           </Grid>
           <Grid
-            justifySelf="center"
-            alignItems="center"
             style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,

@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import { buttonClasses } from "@mui/material/Button";
 
 export const theme = createTheme({
   palette: {
@@ -37,11 +38,11 @@ export const theme = createTheme({
         root: {
           borderRadius: 12,
           textTransform: "none",
-        },
-        containedPrimary: {
-          backgroundColor: "#712579",
-          "&:hover": {
-            backgroundColor: "#254980",
+          [`&.${buttonClasses.contained}.${buttonClasses.colorPrimary}`]: {
+            backgroundColor: "#712579",
+            "&:hover": {
+              backgroundColor: "#254980",
+            },
           },
         },
       },
