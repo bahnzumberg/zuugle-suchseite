@@ -37,7 +37,6 @@ export default function RangeCardContainer({
                 display: "block",
                 marginRight: "20px",
                 verticalAlign: "top",
-                marginBottom: "5px",
               }}
             >
               <Link to={`/search/?range=${range.range}`}>
@@ -68,7 +67,7 @@ function Card({ range }: { range: RangeObject }) {
     <Box
       className={"react-horizontal-scrolling-card"}
       tabIndex={0}
-      style={{ marginBottom: "5px", width: "392px", marginRight: "20px" }}
+      style={{ width: "392px", marginRight: "20px" }}
     >
       <RangeCard range={range} />
     </Box>
