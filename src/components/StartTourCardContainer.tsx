@@ -9,8 +9,7 @@ import Grid from "@mui/material/Grid";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const gridItemStyles = {
-  justifyContent: "center",
-  display: "grid",
+  display: "flex",
 };
 
 const renderCTA = (t: (key: string) => string) => (

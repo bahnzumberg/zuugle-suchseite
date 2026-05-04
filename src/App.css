@@ -90,8 +90,7 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-card {
   text-align: left;
   height: 100%;
-  width: clamp(320px, 30vw, 400px);
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
   transition:
     transform 0.2s ease,
@@ -101,18 +100,6 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-@media (max-width: 1199px) {
-  .tour-card {
-    width: clamp(320px, 45vw, 400px);
-  }
-}
-
-@media (max-width: 899px) {
-  .tour-card {
-    width: clamp(320px, 90vw, 400px);
-  }
 }
 
 .tour_card_Image {
