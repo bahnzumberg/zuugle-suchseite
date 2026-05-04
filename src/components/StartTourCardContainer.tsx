@@ -5,7 +5,6 @@ import TourCard from "./TourCard";
 import { Tour } from "../models/Tour";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const renderCTA = (t: (key: string) => string) => (
@@ -82,25 +81,23 @@ export default function StartTourCardContainer({
         <CircularProgress />
       ) : (
         <>
-          <Grid
-            container
-            direction="row"
+          <Box
             sx={{
-              gap: "16px",
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                md: "1fr 1fr",
+                sm: "1fr 1fr",
                 lg: "1fr 1fr 1fr",
               },
+              gap: "30px",
             }}
           >
             {displayTours.map((tour, index) => (
-              <Grid key={index} sx={{ display: "flex" }}>
+              <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
                 <TourCard tour={tour} city={city} provider={provider} />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
           {renderCTA(t)}
         </>
       )}

@@ -1,4 +1,3 @@
-import Grid from "@mui/material/Grid";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -49,29 +48,27 @@ export default function TourCardContainer({
           endMessage={<p> </p>}
           style={{ overflow: "hidden" }}
         >
-          <Grid
-            container
-            direction="row"
+          <Box
             sx={{
-              gap: "16px",
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                md: "1fr 1fr",
+                sm: "1fr 1fr",
                 lg: "1fr 1fr 1fr",
               },
+              gap: "30px",
             }}
           >
             {tours.map((tour, index) => (
-              <Grid key={index} sx={{ display: "flex" }}>
+              <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
                 <TourCard
                   tour={tour}
                   city={city?.value || null}
                   provider={provider}
                 />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </InfiniteScroll>
       }
     </Box>

@@ -216,6 +216,8 @@ body ::-webkit-scrollbar-thumb:hover {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .seo-bar {
