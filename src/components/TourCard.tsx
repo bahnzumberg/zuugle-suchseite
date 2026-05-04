@@ -30,7 +30,12 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
     if (JSON.stringify(tour.image_url) === "null") {
       setImage("https://cdn.zuugle.at/img/dummy.webp");
     } else {
-      setImage(tour.image_url);
+      // Normalize CDN dimensions to 400x150 for consistent tile images
+      let url = tour.image_url;
+      url = url.replace(/[?&]width=\d+/g, "");
+      url = url.replace(/[?&]height=\d+/g, "");
+      const separator = url.includes("?") ? "&" : "?";
+      setImage(`${url}${separator}width=600&height=400`);
     }
   }, [tour]);
 
@@ -57,6 +62,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
       href={tourLink}
       style={{
         textDecoration: "none",
+        width: "100%",
       }}
       target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
       rel={city && city !== "no-city" ? "noopener noreferrer" : undefined}
@@ -69,8 +75,10 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
           <CardMedia
             component={"img"}
             image={image}
-            height="150"
+            width="600"
+            height="400"
             alt={`${tour?.title}`}
+            sx={{ objectFit: "cover", width: "100%", maxHeight: "200px" }}
           />
           <Chip
             sx={{
