@@ -8,10 +8,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const gridItemStyles = {
-  display: "flex",
-};
-
 const renderCTA = (t: (key: string) => string) => (
   <Box
     sx={{
@@ -86,13 +82,21 @@ export default function StartTourCardContainer({
         <CircularProgress />
       ) : (
         <>
-          <Grid container spacing={2} direction="row">
+          <Grid
+            container
+            direction="row"
+            sx={{
+              gap: "16px",
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "1fr 1fr",
+                lg: "1fr 1fr 1fr",
+              },
+            }}
+          >
             {displayTours.map((tour, index) => (
-              <Grid
-                key={index}
-                size={{ xs: 12, md: 6, lg: 4 }}
-                sx={gridItemStyles}
-              >
+              <Grid key={index} sx={{ display: "flex" }}>
                 <TourCard tour={tour} city={city} provider={provider} />
               </Grid>
             ))}
