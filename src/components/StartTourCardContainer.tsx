@@ -15,23 +15,20 @@ const gridItemStyles = {
 
 const renderCTA = (t: (key: string) => string) => (
   <Box
-    style={{
+    sx={{
       display: "flex",
-      flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
+      gap: "20px",
+      flexWrap: "wrap",
       width: "100%",
-      padding: "10px",
+      pt: "30px",
+      pb: "10px",
     }}
   >
     <Typography
-      style={{
+      sx={{
         fontSize: "16px",
         fontWeight: "600",
-        padding: "30px 20px",
-        maxWidth: "400px",
-        boxSizing: "border-box",
-        textAlign: "center",
         color: "#254980",
       }}
     >
@@ -89,20 +86,20 @@ export default function StartTourCardContainer({
       {tours.length === 0 && isLoading ? (
         <CircularProgress />
       ) : (
-        <Grid container spacing={2} direction="row">
-          {displayTours.map((tour, index) => (
-            <Grid
-              key={index}
-              size={{ xs: 12, md: 6, lg: 4 }}
-              sx={gridItemStyles}
-            >
-              <TourCard tour={tour} city={city} provider={provider} />
-            </Grid>
-          ))}
-          <Grid key={"discover"} size={12} sx={gridItemStyles}>
-            {renderCTA(t)}
+        <>
+          <Grid container spacing={2} direction="row">
+            {displayTours.map((tour, index) => (
+              <Grid
+                key={index}
+                size={{ xs: 12, md: 6, lg: 4 }}
+                sx={gridItemStyles}
+              >
+                <TourCard tour={tour} city={city} provider={provider} />
+              </Grid>
+            ))}
           </Grid>
-        </Grid>
+          {renderCTA(t)}
+        </>
       )}
     </>
   );
