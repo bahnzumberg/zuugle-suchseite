@@ -24,12 +24,24 @@ export default function GeolocationSearch({
 
   return (
     <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
-      <Grid container alignItems="center" spacing={1}>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          alignItems: "center",
+        }}
+      >
         <Typography variant={"subtitle1"}>
           {t("filter.geolocation_search")}
         </Typography>{" "}
         {!!tempGeolocation?.lat !== !!tempGeolocation?.lng && (
-          <Box display="flex" alignItems="center" gap={0.5}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+            }}
+          >
             <WarningIcon color="error" fontSize="small" />
             <Typography sx={{ color: "error.main" }}>
               {" " + t("filter.geolocation_search_warning") + " "}

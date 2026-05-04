@@ -10,11 +10,15 @@ import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
 import { ConnectionResult } from "../models/Connections";
 
-export interface CityResponse {
+export interface CitiesResponse {
   success: boolean;
   cities: CityObject[];
 }
 
+export interface CityResponse {
+  success: boolean;
+  city: CityObject;
+}
 export interface Cities2TourCity {
   city_slug: string;
   city_name: string;
@@ -170,7 +174,7 @@ export const api = createApi({
       query: () => {
         return `cities/?domain=${domain}`;
       },
-      transformResponse: (response: CityResponse) => {
+      transformResponse: (response: CitiesResponse) => {
         return response.cities;
       },
     }),
@@ -283,6 +287,14 @@ export const api = createApi({
         return response.cities;
       },
     }),
+    getCity: build.query<CityObject, string>({
+      query: (citySlug) => {
+        return `city?city_slug=${citySlug}`;
+      },
+      transformResponse: (response: CityResponse) => {
+        return response.city;
+      },
+    }),
   }),
 });
 
@@ -304,6 +316,7 @@ function toSearchParams<T extends object>(obj: T): URLSearchParams {
 
 export const {
   useGetCitiesQuery,
+  useGetCityQuery,
   useGetTotalsQuery,
   useGetToursQuery,
   useLazyGetToursQuery,

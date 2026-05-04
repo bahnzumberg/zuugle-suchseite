@@ -115,8 +115,10 @@ export default function AutocompleteSearch({
           placeholder={t("start.placeholder_suche")}
           variant={inputVariant}
           slotProps={{
+            ...params.slotProps,
+
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               disableUnderline: true,
               startAdornment: currentSearch ? (
                 <Icon sx={{ px: 1, color: "#666", marginRight: 1 }} />
@@ -126,7 +128,7 @@ export default function AutocompleteSearch({
                   {suggestionsFetching ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                 </Fragment>
               ),
             },

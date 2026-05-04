@@ -104,7 +104,6 @@ export default function Start() {
         <Header totals={totals} isLoading={isTotalsLoading} />
       </Box>
       <TotalToursHeader loadedTours={loadedTours} />
-
       {!isTotalsLoading && (
         <>
           {totals?.total_tours && totals?.total_tours > 0 && (

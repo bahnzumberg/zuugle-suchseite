@@ -27,6 +27,10 @@ export default function Footer() {
               lg: 6,
               xl: 6,
             }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
+            }}
           >
             <a
               href="https://www.bmkluk.gv.at/"
@@ -51,6 +55,10 @@ export default function Footer() {
               md: 6,
               lg: 6,
               xl: 6,
+            }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
             }}
           >
             <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">

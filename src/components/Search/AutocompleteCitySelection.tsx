@@ -52,7 +52,11 @@ export default function AutocompleteCitySelection({
         // eslint-disable-next-line react/prop-types
         const { key, ...otherProps } = props;
         return (
-          <ListItem key={key} {...otherProps}>
+          <ListItem
+            key={key}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            {...otherProps}
+          >
             <ListItemIcon>
               <div
                 style={{
@@ -91,8 +95,10 @@ export default function AutocompleteCitySelection({
           }}
           variant={inputVariant}
           slotProps={{
+            ...params.slotProps,
+
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               startAdornment: (
                 <CustomIcon
                   name="transportTrain"
@@ -110,7 +116,7 @@ export default function AutocompleteCitySelection({
                   {isLoading ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                 </Fragment>
               ),
             },

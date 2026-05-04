@@ -4,6 +4,8 @@ import { SearchWithType } from "./apiSlice";
 export interface CityObject {
   label: string;
   value: string;
+  lat?: number;
+  lon?: number;
 }
 
 export interface BoundsObject {

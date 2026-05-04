@@ -57,10 +57,16 @@ export default function TourCardContainer({
           <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
             {tours.map((tour, index) => (
               <Grid
-                display="flex"
                 key={index}
                 size={{ xs: 12, md: 6, lg: 4 }}
-                sx={gridItemStyles}
+                sx={[
+                  {
+                    display: "flex",
+                  },
+                  ...(Array.isArray(gridItemStyles)
+                    ? gridItemStyles
+                    : [gridItemStyles]),
+                ]}
               >
                 <TourCard
                   tour={tour}

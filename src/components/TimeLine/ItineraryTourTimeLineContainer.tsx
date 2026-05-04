@@ -249,9 +249,9 @@ export default function ItineraryTourTimeLineContainer({
                   onClick={addMoreConnections}
                 >
                   <Typography
-                    color="rgba(0, 0, 0, 0.56)"
-                    textAlign="center"
                     sx={{
+                      color: "rgba(0, 0, 0, 0.56)",
+                      textAlign: "center",
                       fontSize: { xs: "12px", sm: "14px" },
                       fontWeight: 600,
                       lineHeight: { xs: "19px", sm: "22px" },

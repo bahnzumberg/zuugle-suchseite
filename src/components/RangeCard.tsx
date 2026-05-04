@@ -35,8 +35,11 @@ export default function RangeCard({ range }: RangeCardProps) {
         }}
       >
         <Typography
-          sx={{ textAlign: "left", fontWeight: "bold" }}
-          color={"#FFFFFF"}
+          sx={{
+            color: "#FFFFFF",
+            textAlign: "left",
+            fontWeight: "bold",
+          }}
         >
           <SouthEastIcon
             style={{
