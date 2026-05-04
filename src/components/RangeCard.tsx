@@ -63,8 +63,8 @@ export default function RangeCard({ range }: RangeCardProps) {
             textAlign: "left",
             fontWeight: "bold",
             fontSize: "18px",
+            color: "#FFFFFF",
           }}
-          color={"#FFFFFF"}
         >
           {range.range}
         </Typography>
