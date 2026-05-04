@@ -17,7 +17,6 @@ import { useAppDispatch } from "../../hooks";
 import { mapUpdated } from "../../features/searchSlice";
 import RangeCardContainer from "../../components/RangeCardContainer";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 // Dynamische Imports für nicht-kritische Komponenten
