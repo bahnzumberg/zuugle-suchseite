@@ -108,7 +108,6 @@ export default function Start() {
         <>
           {totals?.total_tours && totals?.total_tours > 0 && (
             <>
-
               <Box className={"cards-container"}>
                 <Typography
                   variant={"h4"}
