@@ -74,6 +74,7 @@ export interface CoordinateReplacement {
 interface ConnectionResultsProps {
   data: ConnectionsResultData;
   coordinateReplacements?: CoordinateReplacement;
+  tourDurationHours?: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -103,14 +104,26 @@ function calcDurationMinutes(start: string, end: string): number {
   );
 }
 
-function formatDuration(minutes: number, t: (key: string) => string): string {
+function formatDuration(minutes: number): string {
+  if (!minutes || isNaN(minutes)) return "-";
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  const minUnit = t("details.min_minute");
-  const hUnit = t("details.h_hour");
-  if (h === 0) return `${m} ${minUnit}`;
-  if (m === 0) return `${h} ${hUnit}`;
-  return `${h} ${hUnit} ${m} ${minUnit}`;
+  const mm = m < 10 ? `0${m}` : `${m}`;
+  return `${h}:${mm} h`;
+}
+
+/** Format decimal hours (e.g. 7.5 → "7:30 h") — same logic as convertNumToTime(n, true) */
+function formatDurationFromHours(decimalHours: number): string {
+  if (!decimalHours || isNaN(decimalHours)) return "-";
+  const sign = decimalHours >= 0 ? 1 : -1;
+  decimalHours = decimalHours * sign;
+  const hour = Math.floor(decimalHours);
+  let decpart = decimalHours - hour;
+  const min = 1 / 60;
+  decpart = min * Math.round(decpart / min);
+  let minute = String(Math.floor(decpart * 60));
+  if (minute.length < 2) minute = "0" + minute;
+  return `${hour}:${minute} h`;
 }
 
 function transferLabel(n: number, t: (key: string) => string): string {
@@ -409,8 +422,52 @@ function ConnectionTimeline({
   lang: string;
   t: (key: string) => string;
 }) {
+  const firstEl = elements[0];
+  const lastEl = elements[elements.length - 1];
+  const firstIsNonJourney = firstEl && (firstEl.type === "WALK" || firstEl.type === "TRSF");
+  const lastIsNonJourney = lastEl && (lastEl.type === "WALK" || lastEl.type === "TRSF");
+
   return (
     <Box sx={{ mt: "12px" }}>
+      {/* Show first station if the first element is a WALK/TRSF */}
+      {firstIsNonJourney && (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: "30px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                border: "2px solid var(--bzb-akelei)",
+                bgcolor: "var(--bzb-akelei)",
+              }}
+            />
+          </Box>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 700,
+              color: "var(--bzb-akelei)",
+              minWidth: "50px",
+              mr: "12px",
+            }}
+          >
+            {formatTime(firstEl.departure_time)}
+          </Typography>
+          <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+            {resolveLocationName(firstEl.from_location, coordinateReplacements)}
+          </Typography>
+        </Box>
+      )}
+
       {elements.map((el, idx) => {
         const isTransfer = el.type === "TRSF";
         const isFirst = idx === 0;
@@ -599,6 +656,45 @@ function ConnectionTimeline({
           </Box>
         );
       })}
+
+      {/* Show last station if the last element is a WALK/TRSF */}
+      {lastIsNonJourney && (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: "30px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Box
+              sx={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                border: "2px solid var(--bzb-akelei)",
+                bgcolor: "var(--bzb-akelei)",
+              }}
+            />
+          </Box>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 700,
+              color: "var(--bzb-akelei)",
+              minWidth: "50px",
+              mr: "12px",
+            }}
+          >
+            {formatTime(lastEl.arrival_time)}
+          </Typography>
+          <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+            {resolveLocationName(lastEl.to_location, coordinateReplacements)}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }
@@ -608,6 +704,7 @@ function ConnectionTimeline({
 export default function ConnectionResults({
   data,
   coordinateReplacements,
+  tourDurationHours,
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
@@ -727,7 +824,9 @@ export default function ConnectionResults({
           />
           {t("details.tourdauer")}:{" "}
           <strong>
-            {formatDuration(activity.activity_duration_minutes, t)}
+            {tourDurationHours !== undefined
+              ? formatDurationFromHours(tourDurationHours)
+              : formatDuration(activity.activity_duration_minutes)}
           </strong>
         </Typography>
         <Divider sx={{ my: "8px" }} />
@@ -745,7 +844,7 @@ export default function ConnectionResults({
             sx={{ fontSize: "20px", color: "var(--bzb-akelei)", flexShrink: 0 }}
           />
           {t("details.verfuegbare_gehzeit")}:{" "}
-          <strong>{formatDuration(availableMinutes, t)}</strong>
+          <strong>{formatDuration(availableMinutes)}</strong>
         </Typography>
         {activity.activity_start_location_display_name &&
           activity.activity_end_location_display_name && (

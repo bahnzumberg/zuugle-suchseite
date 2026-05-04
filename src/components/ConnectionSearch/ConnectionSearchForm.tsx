@@ -547,14 +547,31 @@ export default function ConnectionSearchForm({
 
         {/* Connections result */}
         {connectionsResult && (
-          <ConnectionResults
-            data={connectionsResult}
-            coordinateReplacements={{
-              lat: departureLat,
-              lon: departureLon,
-              displayName: departureLocation?.displayName || inputValue,
-            }}
-          />
+          <Box>
+            <ConnectionResults
+              data={connectionsResult}
+              coordinateReplacements={{
+                lat: departureLat,
+                lon: departureLon,
+                displayName: departureLocation?.displayName || inputValue,
+              }}
+              tourDurationHours={Number(tour.avg_total_tour_duration)}
+            />
+            {/* JSON dump for testing purposes */}
+            <Box
+              sx={{
+                mt: 4,
+                p: 2,
+                bgcolor: "#f5f5f5",
+                borderRadius: "8px",
+                overflow: "auto",
+                fontSize: "12px",
+                fontFamily: "monospace",
+              }}
+            >
+              <pre>{JSON.stringify(connectionsResult, null, 2)}</pre>
+            </Box>
+          </Box>
         )}
       </Box>
     </LocalizationProvider>
