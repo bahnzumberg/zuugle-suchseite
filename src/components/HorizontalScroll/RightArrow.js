@@ -9,11 +9,12 @@ export function RightArrow() {
   return (
     <div
       style={{
-        position: "absolute",
+        display: "flex",
+        alignItems: "center",
         height: "100%",
         zIndex: 10,
-        right: "10px",
-        top: 0,
+        paddingLeft: "10px",
+        paddingRight: "10px",
       }}
       className={"react-horizontal-scrolling-arrow-container"}
     >
