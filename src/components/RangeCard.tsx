@@ -12,7 +12,10 @@ export interface RangeCardProps {
 export default function RangeCard({ range }: RangeCardProps) {
   let imageUrl = range.image_url;
   if (imageUrl && imageUrl.includes("null.webp") && range.range) {
-    imageUrl = imageUrl.replace("null.webp", parseFileName(range.range, "", ".webp"));
+    imageUrl = imageUrl.replace(
+      "null.webp",
+      parseFileName(range.range, "", ".webp"),
+    );
   }
 
   return (

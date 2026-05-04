@@ -424,8 +424,10 @@ function ConnectionTimeline({
 }) {
   const firstEl = elements[0];
   const lastEl = elements[elements.length - 1];
-  const firstIsNonJourney = firstEl && (firstEl.type === "WALK" || firstEl.type === "TRSF");
-  const lastIsNonJourney = lastEl && (lastEl.type === "WALK" || lastEl.type === "TRSF");
+  const firstIsNonJourney =
+    firstEl && (firstEl.type === "WALK" || firstEl.type === "TRSF");
+  const lastIsNonJourney =
+    lastEl && (lastEl.type === "WALK" || lastEl.type === "TRSF");
 
   return (
     <Box sx={{ mt: "12px" }}>
