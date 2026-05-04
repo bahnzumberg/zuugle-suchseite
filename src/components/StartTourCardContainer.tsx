@@ -89,7 +89,7 @@ export default function StartTourCardContainer({
       {tours.length === 0 && isLoading ? (
         <CircularProgress />
       ) : (
-        <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
+        <Grid container spacing={2} direction="row">
           {displayTours.map((tour, index) => (
             <Grid
               key={index}
@@ -99,11 +99,7 @@ export default function StartTourCardContainer({
               <TourCard tour={tour} city={city} provider={provider} />
             </Grid>
           ))}
-          <Grid
-            key={"discover"}
-            size={{ xs: 12, md: 6, lg: 4 }}
-            sx={gridItemStyles}
-          >
+          <Grid key={"discover"} size={12} sx={gridItemStyles}>
             {renderCTA(t)}
           </Grid>
         </Grid>
