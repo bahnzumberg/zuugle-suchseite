@@ -118,7 +118,7 @@ export default function AutocompleteSearch({
             ...params.slotProps,
 
             input: {
-              ...params.slotProps.input,
+              ...params.slotProps?.input,
               disableUnderline: true,
               startAdornment: currentSearch ? (
                 <Icon sx={{ px: 1, color: "#666", marginRight: 1 }} />
@@ -128,7 +128,7 @@ export default function AutocompleteSearch({
                   {suggestionsFetching ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
-                  {params.slotProps.input.endAdornment}
+                  {params.slotProps?.input?.endAdornment}
                 </Fragment>
               ),
             },
