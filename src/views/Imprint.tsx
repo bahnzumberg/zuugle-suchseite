@@ -56,11 +56,11 @@ function Imprint() {
           <Typography variant={"h5"} sx={{ marginTop: "20px" }}>
             {t("impressum.vereinsvorstand")}
           </Typography>
-
-          <Typography>Sarah Pallauf (Vorsitzende)</Typography>
-          <Typography>David Kurz (Kassier)</Typography>
-          <Typography>Dietmar Trummer (Schriftführer)</Typography>
-          <Typography>Martin Heppner (Kassier Stellvertreter)</Typography>
+          <Typography>
+            <a href={"https://verein.bahn-zum-berg.at/team/"}>
+              https://verein.bahn-zum-berg.at/team/
+            </a>
+          </Typography>
 
           <Typography variant={"h5"} sx={{ marginTop: "20px" }}>
             {" "}
@@ -82,24 +82,6 @@ function Imprint() {
             {t("impressum.haftung_fuer_links")}
           </Typography>
           <Typography> {t("impressum.verknuepfung_links")} </Typography>
-
-          <Typography variant={"h5"} sx={{ marginTop: "20px" }}>
-            {t("impressum.lizenzbedingungen")}
-          </Typography>
-          <Typography>
-            {t("impressum.anfuehrung_quellen")}
-            <a
-              href={
-                "https://www.bahn-zum-berg.at/rechtshinweise-fahrplandaten/"
-              }
-              target={"_blank"}
-              rel="noreferrer"
-            >
-              {" "}
-              Bahn zum Berg
-            </a>
-          </Typography>
-          <Typography> </Typography>
         </Box>
       </Box>
     </Box>
