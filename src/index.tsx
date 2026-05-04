@@ -108,12 +108,11 @@ if (!rootElement) {
         <BrowserRouter>
           <UnheadProvider head={head}>
             <Head>
-              <link
-                id="favicon"
-                rel="icon"
-                href="https://cdn.zuugle.at/favicon.png"
-                type="image/x-icon"
-              />
+              <link rel="icon" type="image/png" href="https://cdn.zuugle.at/favicon-96x96.png" sizes="96x96" />
+              <link rel="icon" type="image/svg+xml" href="https://cdn.zuugle.at/favicon.svg" />
+              <link rel="shortcut icon" href="https://cdn.zuugle.at/favicon.ico" />
+              <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.zuugle.at/apple-touch-icon.png" />
+              <link rel="manifest" href="https://cdn.zuugle.at/site.webmanifest" />
               {shouldPreload && (
                 <link rel="preload" href={preloadUrl} as="image" />
               )}
