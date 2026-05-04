@@ -47,7 +47,7 @@ const renderCTA = (t: (key: string) => string) => (
         endIcon={<ArrowForwardIcon />}
         sx={{
           backgroundColor: "var(--bzb-lindgruen)",
-          color: "var(--bzb-bahnblau)",
+          color: "#ffffff",
           fontWeight: 700,
           fontSize: "16px",
           borderRadius: "12px",
