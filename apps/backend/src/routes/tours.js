@@ -468,15 +468,18 @@ const getMatchingTourIds = async (req) => {
     let poi_bindings = [];
     let pois = [];
 
+    // For toggle pairs (single/multi-day, summer/winter): if the frontend explicitly
+    // sets one side to true, default the other to false so the filter actually activates.
+    // When neither side is set (or both are set), defaults stay true → show all.
     const defaultFilter = {
-        singleDayTour: true,
-        multipleDayTour: true,
-        summerSeason: true,
-        winterSeason: true,
+        singleDayTour: !(filter?.multipleDayTour === true),
+        multipleDayTour: !(filter?.singleDayTour === true),
+        summerSeason: !(filter?.winterSeason === true),
+        winterSeason: !(filter?.summerSeason === true),
         traverse: false,
     };
 
-    // merge with filter from body
+    // merge with filter from body — explicit values override the smart defaults above
     const filterJSON = {
         ...defaultFilter,
         ...filter,
@@ -878,7 +881,9 @@ const listWrapper = async (req, res) => {
                         t.min_connection_no_of_transfers, 
                         ROUND(t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
                         t.ascent, 
-                        t.number_of_days
+                        t.number_of_days,
+                        quality_rating,
+                        traverse
                         FROM city2tour_flat AS t 
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
@@ -1705,6 +1710,73 @@ const tourGpxWrapper = async (req, res) => {
 };
 
 /**
+ * Fetches the start and end stop coordinates of a tour from the tracks tables.
+ * Start = first point of the "fromtour" track (where passengers board heading to the trail).
+ * End   = last point of the "fromtour" track (where passengers alight after the trail).
+ * When a city slug is provided the query is scoped to that city's connection;
+ * otherwise any available fahrplan row is used (LIMIT 1 ensures a single result).
+ * Results are cached in Valkey for 24 hours.
+ * @param {number} tourId  - The tour ID.
+ * @param {string} [city]  - Optional city slug (e.g. "leoben"). Omit or pass null/"no-city" to skip city filter.
+ * @returns {Promise<{start_stop_lon, start_stop_lat, end_stop_lon, end_stop_lat}|null>}
+ */
+const getTourStopsCoordinates = async (tourId, city) => {
+    const effectiveCity = city && city.length > 0 && city !== "no-city" ? city : null;
+    const cacheKey = `tours:stops:coordinates:${tourId}:${effectiveCity || "any"}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return cached;
+    }
+
+    try {
+        const cityClause = effectiveCity ? `AND f.city_slug=?` : ``;
+        const bindings = effectiveCity ? [tourId, effectiveCity] : [tourId];
+
+        const result = await knex.raw(
+            `SELECT
+                tour.id AS tour_id,
+                tt.track_point_lon AS start_stop_lon,
+                tt.track_point_lat AS start_stop_lat,
+                ft.track_point_lon AS end_stop_lon,
+                ft.track_point_lat AS end_stop_lat
+            FROM tour
+            INNER JOIN fahrplan AS f
+                ON tour.hashed_url = f.hashed_url
+            INNER JOIN tracks AS tt
+                ON tt.track_key = f.fromtour_track_key
+               AND tt.track_point_sequence = 1
+            CROSS JOIN LATERAL (
+                SELECT track_point_lon, track_point_lat
+                FROM tracks
+                WHERE track_key = f.fromtour_track_key
+                ORDER BY track_point_sequence DESC
+                LIMIT 1
+            ) AS ft
+            WHERE tour.id = ?
+            ${cityClause}
+            GROUP BY tour.id, tt.track_point_lon, tt.track_point_lat, ft.track_point_lon, ft.track_point_lat
+            LIMIT 1`,
+            bindings,
+        );
+
+        if (result && result.rows && result.rows.length > 0) {
+            const round4 = (v) => parseFloat(parseFloat(v).toFixed(4));
+            const coords = {
+                start_stop_lon: round4(result.rows[0].start_stop_lon),
+                start_stop_lat: round4(result.rows[0].start_stop_lat),
+                end_stop_lon: round4(result.rows[0].end_stop_lon),
+                end_stop_lat: round4(result.rows[0].end_stop_lat),
+            };
+            cacheService.set(cacheKey, coords, 1 * 24 * 60 * 60);
+            return coords;
+        }
+    } catch (e) {
+        logger.error("Error fetching tour coordinates for tour", tourId, ":", e);
+    }
+    return null;
+};
+
+/**
  * Formats a tour entry for the frontend.
  * Adds full image URLs, provider names, difficulty text, and canonical/alternate links.
  * @param {object} entry - The raw tour entry from the database.
@@ -1766,6 +1838,15 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
         if (canonical) {
             entry.canonical = canonical.rows;
         }
+    }
+
+    // Add start/end stop coordinates of the tour trail
+    const coords = await getTourStopsCoordinates(entry.id, city);
+    if (coords) {
+        entry.start_stop_lon = coords.start_stop_lon;
+        entry.start_stop_lat = coords.start_stop_lat;
+        entry.end_stop_lon = coords.end_stop_lon;
+        entry.end_stop_lat = coords.end_stop_lat;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
