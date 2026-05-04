@@ -10,11 +10,9 @@ export function RightArrow() {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch",
         height: "100%",
         zIndex: 10,
-        paddingLeft: "10px",
-        paddingRight: "10px",
       }}
       className={"react-horizontal-scrolling-arrow-container"}
     >
@@ -22,9 +20,11 @@ export function RightArrow() {
         disabled={isLastItemVisible}
         onClick={() => scrollNext()}
         style={{
-          backgroundColor: "black",
-          color: "#FFF",
-          opacity: isLastItemVisible ? 0 : 0.6,
+          backgroundColor: "#aab5d7",
+          color: "#254980",
+          opacity: isLastItemVisible ? 0 : 1,
+          borderRadius: "12px",
+          minWidth: "40px",
         }}
         className={"react-horizontal-scrolling-arrow"}
       >

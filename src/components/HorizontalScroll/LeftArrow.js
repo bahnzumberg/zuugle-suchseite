@@ -10,11 +10,9 @@ export function LeftArrow() {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch",
         height: "100%",
         zIndex: 10,
-        paddingLeft: "10px",
-        paddingRight: "10px",
       }}
       className={"react-horizontal-scrolling-arrow-container"}
     >
@@ -22,9 +20,11 @@ export function LeftArrow() {
         disabled={isFirstItemVisible}
         onClick={() => scrollPrev()}
         style={{
-          backgroundColor: "black",
-          color: "#FFF",
-          opacity: isFirstItemVisible ? 0 : 0.6,
+          backgroundColor: "#aab5d7",
+          color: "#254980",
+          opacity: isFirstItemVisible ? 0 : 1,
+          borderRadius: "12px",
+          minWidth: "40px",
         }}
         className={"react-horizontal-scrolling-arrow"}
       >
