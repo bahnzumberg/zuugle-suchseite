@@ -171,10 +171,10 @@ function DomainMenu() {
                 >
                   <img
                     className="pointy"
-                    src={`https://cdn.zuugle.at/img/zuugle.svg`}
+                    src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
                     height={"19px"}
-                    width={"34px"}
-                    alt="Logo Zuugle"
+                    width={"auto"}
+                    alt="Logo Bahn zum Berg"
                     onClick={() => {
                       setShowDomainMenu(false);
                       window.location.replace(item.url);

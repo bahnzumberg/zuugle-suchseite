@@ -7,7 +7,12 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    ignores: ["build/**", "server/**", "public/DianaWidget.bundle.js"], // <-- global ignore block
+    ignores: [
+      "build/**",
+      "server/**",
+      "public/DianaWidget.bundle.js",
+      "DianaWidget-main/**",
+    ], // <-- global ignore block
   },
   {
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"],

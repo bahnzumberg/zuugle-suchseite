@@ -142,6 +142,24 @@ export default function KPIContainer({
             </Grid>
           </Grid>
         </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: "50px",
+            paddingBottom: "0px",
+          }}
+        >
+          <a href="https://verein.bahn-zum-berg.at/">
+            <img
+              src="https://cdn.zuugle.at/img/bahnzumberg_logo_white.svg"
+              alt="Bahn zum Berg"
+              style={{ height: "100px", width: "auto" }}
+              loading="lazy"
+            />
+          </a>
+        </Box>
       </Box>
     </Paper>
   );

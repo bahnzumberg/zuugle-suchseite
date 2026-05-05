@@ -130,7 +130,7 @@ export default function Start() {
                   sx={{
                     textAlign: "left",
                     paddingBottom: "15px",
-                    paddingTop: "40px",
+                    paddingTop: "50px",
                   }}
                 >
                   {getRangeText()}

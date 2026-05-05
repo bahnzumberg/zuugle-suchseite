@@ -86,20 +86,26 @@ export default function Footer() {
           >
             <Grid container spacing={2}>
               <Grid
-                style={{ maxWidth: "30px" }}
+                style={{ maxWidth: "45px" }}
                 className={"footer-logo"}
                 size={{
                   xs: "auto",
                   md: 2,
                 }}
               >
-                <img
-                  src={`https://cdn.zuugle.at/img/zuugle.svg`}
-                  height={"20px"}
-                  width={"36px"}
-                  alt="Logo Zuugle"
-                  loading="lazy"
-                />
+                <a
+                  href="https://verein.bahn-zum-berg.at/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
+                    width={"45px"}
+                    height={"auto"}
+                    alt="Bahn zum Berg"
+                    loading="lazy"
+                  />
+                </a>
               </Grid>
               <Grid
                 size={{
