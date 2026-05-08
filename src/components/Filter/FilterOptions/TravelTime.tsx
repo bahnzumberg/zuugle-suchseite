@@ -14,7 +14,6 @@ import { getDurationAsHours } from "../../../utils/globals";
 interface TravelTimeProps {
   tempFilter: FilterObject;
   setTempFilter: (filter: FilterObject) => void;
-  fetchedFilter?: FilterObject;
   getFilterValue: <K extends keyof FilterObject>(
     propertyName: K,
     defaultValue: NonNullable<FilterObject[K]>,
@@ -24,7 +23,6 @@ interface TravelTimeProps {
 export default function TravelTime({
   tempFilter,
   setTempFilter,
-  fetchedFilter,
   getFilterValue,
 }: TravelTimeProps) {
   const { t } = useTranslation();
@@ -44,8 +42,8 @@ export default function TravelTime({
           </Typography>
           <GeneralSlider
             step={0.5}
-            min={fetchedFilter?.minTransportDuration ?? 0}
-            max={fetchedFilter?.maxTransportDuration ?? 50}
+            min={0}
+            max={6}
             value={[
               getFilterValue("minTransportDuration", 0),
               getFilterValue("maxTransportDuration", 50),
@@ -109,8 +107,8 @@ export default function TravelTime({
           </Typography>
           <GeneralSlider
             step={2}
-            min={fetchedFilter?.minDistance ?? 0}
-            max={fetchedFilter?.maxDistance ?? 80}
+            min={0}
+            max={80}
             value={[
               getFilterValue("minDistance", 0),
               getFilterValue("maxDistance", 80),

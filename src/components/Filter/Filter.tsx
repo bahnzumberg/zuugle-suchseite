@@ -316,13 +316,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
               <AscentFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
                 getFilterValue={getFilterValue}
               />
               <TravelTimeFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
                 getFilterValue={getFilterValue}
               />
               <SportTypeFilter

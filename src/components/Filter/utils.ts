@@ -131,23 +131,21 @@ export function getActiveFilterFields({
   );
 }
 
-export function getDefaultFilterValues(
-  fetchedFilter: FilterObject | undefined,
-): FilterObject {
+export function getDefaultFilterValues(): FilterObject {
   return {
     singleDayTour: false,
     multipleDayTour: false,
     summerSeason: false,
     winterSeason: false,
     traverse: false,
-    minAscent: fetchedFilter?.minAscent ?? 0,
-    maxAscent: fetchedFilter?.maxAscent ?? 3000,
-    minDescent: fetchedFilter?.minDescent ?? 0,
-    maxDescent: fetchedFilter?.maxDescent ?? 3000,
-    minTransportDuration: fetchedFilter?.minTransportDuration ?? 0,
-    maxTransportDuration: fetchedFilter?.maxTransportDuration ?? 50,
-    minDistance: fetchedFilter?.minDistance ?? 0,
-    maxDistance: fetchedFilter?.maxDistance ?? 80,
+    minAscent: 0,
+    maxAscent: 3000,
+    minDescent: 0,
+    maxDescent: 3000,
+    minTransportDuration: 0,
+    maxTransportDuration: 6,
+    minDistance: 0,
+    maxDistance: 80,
     ranges: [],
     types: [],
     languages: [],

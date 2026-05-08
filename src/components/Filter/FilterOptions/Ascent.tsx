@@ -9,7 +9,6 @@ import GeneralSlider from "../../GeneralSlider";
 interface AscentProps {
   tempFilter: FilterObject;
   setTempFilter: (filter: FilterObject) => void;
-  fetchedFilter?: FilterObject;
   getFilterValue: <K extends keyof FilterObject>(
     propertyName: K,
     defaultValue: NonNullable<FilterObject[K]>,
@@ -19,7 +18,6 @@ interface AscentProps {
 export default function Ascent({
   tempFilter,
   setTempFilter,
-  fetchedFilter,
   getFilterValue,
 }: AscentProps) {
   const { t } = useTranslation();
@@ -39,8 +37,8 @@ export default function Ascent({
           </Typography>
           <GeneralSlider
             step={100}
-            min={fetchedFilter?.minAscent ?? 0}
-            max={fetchedFilter?.maxAscent ?? 3000}
+            min={0}
+            max={3000}
             value={[
               getFilterValue("minAscent", 0),
               getFilterValue("maxAscent", 3000),
@@ -111,8 +109,8 @@ export default function Ascent({
           </Typography>
           <GeneralSlider
             step={100}
-            min={fetchedFilter?.minDescent ?? 0}
-            max={fetchedFilter?.maxDescent ?? 3000}
+            min={0}
+            max={3000}
             value={[
               getFilterValue("minDescent", 0),
               getFilterValue("maxDescent", 3000),
