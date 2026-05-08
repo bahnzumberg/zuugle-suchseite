@@ -25,13 +25,15 @@ if (config.cache && config.cache.enabled) {
     });
 }
 
+const ns = (key) => `${config.cache.namespace}:${key}`;
+
 const get = async (key) => {
     if (!redis) return null;
     // Fail fast if not connected
     if (redis.status !== "ready") return null;
 
     try {
-        const data = await redis.get(key);
+        const data = await redis.get(ns(key));
         if (!data) return null;
         return JSON.parse(data);
     } catch (e) {
@@ -43,7 +45,7 @@ const get = async (key) => {
 const set = async (key, value, ttl = config.cache.ttl) => {
     if (!redis || redis.status !== "ready") return;
     try {
-        await redis.set(key, JSON.stringify(value), "EX", ttl);
+        await redis.set(ns(key), JSON.stringify(value), "EX", ttl);
     } catch (e) {
         logger.warn("Cache set failed:", e.message);
     }
