@@ -129,6 +129,7 @@ export interface FilterParams {
   search?: string;
   search_type?: string;
   city?: string;
+  filter?: FilterObject;
 }
 
 export interface FilterResponse {
@@ -234,7 +235,12 @@ export const api = createApi({
     }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
-        return `tours/filter?${toSearchParams(params)}&domain=${domain}`;
+        const { filter, ...queryParams } = params;
+        return {
+          url: `tours/filter?${toSearchParams(queryParams)}&domain=${domain}`,
+          method: "POST",
+          body: filter ? { filter } : {},
+        };
       },
       transformResponse: (response: FilterResponse) => {
         return { filter: response.filter, providers: response.providers };
