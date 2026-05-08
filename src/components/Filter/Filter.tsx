@@ -405,11 +405,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 }
                 values={fetchedFilter?.countries ?? []}
               />
-              <GeolocationSearchFilter
-                tempGeolocation={tempGeolocation}
-                updateGeolocation={updateGeolocation}
-                handleAutoRadius={handleAutoRadius}
-              />
               <ProviderFilter
                 onToggleAll={() => onToggleAll("providers")}
                 isChecked={(value) => displayAsSelected("providers", value)}
@@ -418,6 +413,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 }
                 values={fetchedFilter?.providers ?? []}
                 fetchedProviders={fetchedProviders ?? []}
+              />
+              <GeolocationSearchFilter
+                tempGeolocation={tempGeolocation}
+                updateGeolocation={updateGeolocation}
+                handleAutoRadius={handleAutoRadius}
               />
             </Fragment>
           )}

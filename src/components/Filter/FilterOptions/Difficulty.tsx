@@ -56,7 +56,7 @@ export default function DifficultyFilter({
           list={options}
           isChecked={isChecked}
           onChange={({ checked, value }) => onChange({ value, checked })}
-          gridSize={4}
+          gridSize={{ xs: 6, sm: 4 }}
         />
       </Grid>
     </Box>

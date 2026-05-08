@@ -23,6 +23,8 @@ export default function SportTypeFilter({
       toggleLabel={t("filter.alle_an_abwaehlen")}
       onToggleAll={onToggleAll}
       showSection={!!values.length}
+      defaultExpanded
+      isActive={values.some((v) => isChecked(v))}
     >
       <CheckboxList
         list={options}

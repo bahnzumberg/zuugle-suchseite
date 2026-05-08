@@ -12,14 +12,14 @@ interface CheckboxListProps<T extends string | number> {
   list: CheckboxItem<T>[];
   isChecked: (value: T) => boolean;
   onChange: (params: { value: T; checked: boolean }) => void;
-  gridSize?: number;
+  gridSize?: number | Record<string, number>;
 }
 
 export default function CheckboxList<T extends string | number>({
   list,
   isChecked,
   onChange,
-  gridSize = 6,
+  gridSize = { xs: 12, sm: 6 },
 }: CheckboxListProps<T>) {
   return (
     <>

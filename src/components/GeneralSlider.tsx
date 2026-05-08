@@ -21,7 +21,7 @@ const EntitySlider = styled(Slider)(() => ({
   "& .MuiSlider-rail": {
     background: "#254980",
     height: "5px",
-    opacity: 1,
+    opacity: 0.3,
     border: "none",
   },
 }));

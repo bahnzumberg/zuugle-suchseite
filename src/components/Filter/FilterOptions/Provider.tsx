@@ -28,6 +28,7 @@ export default function ProviderFilter({
       toggleLabel={t("filter.alle_an_abwaehlen")}
       onToggleAll={onToggleAll}
       showSection={!!values.length}
+      isActive={values.some((v) => isChecked(v))}
     >
       <CheckboxList
         list={options}
