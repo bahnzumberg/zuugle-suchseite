@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -64,6 +64,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }>({});
   const [tempCity, setTempCity] = useState<CityObject | null>(null);
 
+  // Prevents the debounced re-fetch from firing after a server response updates tempFilter
+  const isServerUpdate = useRef(false);
+  const hasInitialized = useRef(false);
+
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
   const storedFilter = useSelector((state: RootState) => state.filter);
@@ -75,7 +79,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const { filter: fetchedFilter, providers: fetchedProviders } =
     filterData ?? {};
 
-  const defaultFilterValues = getDefaultFilterValues(fetchedFilter);
+  const defaultFilterValues = getDefaultFilterValues();
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
@@ -87,17 +91,55 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
         city: citySlug || "",
         search: search?.term || "",
         search_type: search?.type !== "term" ? search?.type : "",
+        filter: storedFilter,
       });
+    } else {
+      hasInitialized.current = false;
     }
   }, [showFilter]);
 
   // tempFilter has to be updated with fetched and stored filter values
   useEffect(() => {
     if (!isFilterFetching && fetchedFilter) {
-      const merged = { ...defaultFilterValues, ...storedFilter };
-      setTempFilter(merged);
+      isServerUpdate.current = true;
+      if (!hasInitialized.current) {
+        // First load: pre-populate from stored filter and capture bounds snapshot
+        hasInitialized.current = true;
+        setTempFilter({ ...defaultFilterValues, ...storedFilter });
+      } else {
+        // Subsequent re-fetches: preserve user's in-progress selections, only update bounds/defaults
+        setTempFilter((prev) => ({ ...defaultFilterValues, ...prev }));
+      }
     }
   }, [fetchedFilter, isFilterFetching, storedFilter]);
+
+  // Re-fetch narrowed filter options when user changes selections (debounced)
+  useEffect(() => {
+    if (!showFilter) return;
+    if (isServerUpdate.current) {
+      isServerUpdate.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      // Strip checkbox arrays so they don't narrow each other (disjunctive faceting)
+      const scalarFilter: FilterObject = {
+        ...tempFilter,
+        ranges: undefined,
+        types: undefined,
+        languages: undefined,
+        difficulties: undefined,
+        providers: undefined,
+        countries: undefined,
+      };
+      triggerFetchFilter({
+        city: citySlug || "",
+        search: search?.term || "",
+        search_type: search?.type !== "term" ? search?.type : "",
+        filter: scalarFilter,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [tempFilter]);
 
   useEffect(() => {
     setTempGeolocation(geolocation ?? {});
@@ -287,7 +329,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       </IconButton>
       <DialogContent dividers>
         <Box style={{ maxHeight: "600px" }}>
-          {isFilterFetching ? (
+          {isFilterFetching && !fetchedFilter ? (
             <LoadingView />
           ) : (
             <Fragment>
