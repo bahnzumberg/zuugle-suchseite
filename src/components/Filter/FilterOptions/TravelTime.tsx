@@ -44,6 +44,7 @@ export default function TravelTime({
             step={0.5}
             min={0}
             max={6}
+            ariaLabel={`${t("main.anfahrtszeit")} (${t("details.h_hour")})`}
             value={[
               getFilterValue("minTransportDuration", 0),
               getFilterValue("maxTransportDuration", 50),

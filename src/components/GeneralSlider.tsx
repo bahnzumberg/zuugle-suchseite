@@ -34,6 +34,7 @@ export interface SliderProps {
   min: number;
   max: number;
   step?: number;
+  ariaLabel?: string;
 }
 
 export default function GeneralSlider({
@@ -43,6 +44,7 @@ export default function GeneralSlider({
   min,
   max,
   step = 1,
+  ariaLabel,
 }: SliderProps) {
   return (
     <Box sx={containerSx}>
@@ -52,6 +54,7 @@ export default function GeneralSlider({
         value={value}
         step={step}
         onChange={onChange}
+        aria-label={ariaLabel}
       />
     </Box>
   );

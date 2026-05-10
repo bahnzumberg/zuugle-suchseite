@@ -44,6 +44,7 @@ export default function SliderWithInputs({
         min={sliderMin}
         max={sliderMax}
         value={[minValue, maxValue]}
+        ariaLabel={title}
         onChange={(_, value) => {
           if (Array.isArray(value)) {
             onChangeSlider(value[0], value[1]);
