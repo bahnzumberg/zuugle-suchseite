@@ -84,14 +84,27 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const [tempFilter, setTempFilter] =
     useState<FilterObject>(defaultFilterValues);
 
+  function fetchFilterScalar(filter: FilterObject) {
+    const scalarFilter = {
+      ...filter,
+      ranges: undefined,
+      types: undefined,
+      languages: undefined,
+      difficulties: undefined,
+      providers: undefined,
+      countries: undefined,
+    };
+    triggerFetchFilter({
+      city: citySlug || "",
+      search: search?.term || "",
+      search_type: search?.type !== "term" ? search?.type : "",
+      filter: scalarFilter,
+    });
+  }
+
   useEffect(() => {
     if (showFilter) {
-      triggerFetchFilter({
-        city: citySlug || "",
-        search: search?.term || "",
-        search_type: search?.type !== "term" ? search?.type : "",
-        filter: storedFilter,
-      });
+      fetchFilterScalar(storedFilter);
     } else {
       hasInitialized.current = false;
     }
@@ -120,22 +133,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       return;
     }
     const timer = setTimeout(() => {
-      // Strip checkbox arrays so they don't narrow each other (disjunctive faceting)
-      const scalarFilter: FilterObject = {
-        ...tempFilter,
-        ranges: undefined,
-        types: undefined,
-        languages: undefined,
-        difficulties: undefined,
-        providers: undefined,
-        countries: undefined,
-      };
-      triggerFetchFilter({
-        city: citySlug || "",
-        search: search?.term || "",
-        search_type: search?.type !== "term" ? search?.type : "",
-        filter: scalarFilter,
-      });
+      fetchFilterScalar(tempFilter);
     }, 500);
     return () => clearTimeout(timer);
   }, [tempFilter]);
