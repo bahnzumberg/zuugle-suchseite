@@ -191,7 +191,7 @@ describe("Zuugle API UAT Tests", () => {
             limit: "10",
             currLanguage: "de",
             page: "1",
-            search: "Wildspitze",
+            search: "Brandjochkreuz",
             search_type: "peak",
         });
         const url = `${baseUrl}/api/tours?${params.toString()}`;
