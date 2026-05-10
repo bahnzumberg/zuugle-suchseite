@@ -8,8 +8,6 @@ import Box from "@mui/material/Box";
 
 interface FilterSectionProps {
   title: string;
-  toggleLabel: string;
-  onToggleAll: () => void;
   children: React.ReactNode;
   showSection: boolean;
   defaultExpanded?: boolean;
@@ -18,8 +16,6 @@ interface FilterSectionProps {
 
 export default function FilterSection({
   title,
-  toggleLabel,
-  onToggleAll,
   children,
   showSection,
   defaultExpanded = false,
@@ -68,16 +64,6 @@ export default function FilterSection({
             }}
           />
         )}
-        <Typography
-          className="cursor-link"
-          sx={{ fontSize: "14px" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleAll();
-          }}
-        >
-          {toggleLabel}
-        </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0, pb: 2 }}>
         <Grid container>{children}</Grid>
