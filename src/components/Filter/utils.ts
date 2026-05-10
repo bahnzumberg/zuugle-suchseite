@@ -44,6 +44,8 @@ export function getCountryTranslationMap(
     Schweiz: t("filter.country_schweiz"),
     Italia: t("filter.country_italien"),
     Slovenija: t("filter.country_slowenien"),
+    Liechtenstein: t("filter.country_liechtenstein"),
+    France: t("filter.country_frankreich"),
   };
 }
 
