@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -10,11 +9,11 @@ import { useTranslation } from "react-i18next";
 import { FilterObject } from "../../../models/Filter";
 import GeneralSlider from "../../GeneralSlider";
 import { getDurationAsHours } from "../../../utils/globals";
+import SliderWithInputs from "./SliderWithInputs";
 
 interface TravelTimeProps {
   tempFilter: FilterObject;
   setTempFilter: (filter: FilterObject) => void;
-  fetchedFilter?: FilterObject;
   getFilterValue: <K extends keyof FilterObject>(
     propertyName: K,
     defaultValue: NonNullable<FilterObject[K]>,
@@ -24,7 +23,6 @@ interface TravelTimeProps {
 export default function TravelTime({
   tempFilter,
   setTempFilter,
-  fetchedFilter,
   getFilterValue,
 }: TravelTimeProps) {
   const { t } = useTranslation();
@@ -44,8 +42,8 @@ export default function TravelTime({
           </Typography>
           <GeneralSlider
             step={0.5}
-            min={fetchedFilter?.minTransportDuration ?? 0}
-            max={fetchedFilter?.maxTransportDuration ?? 50}
+            min={0}
+            max={6}
             value={[
               getFilterValue("minTransportDuration", 0),
               getFilterValue("maxTransportDuration", 50),
@@ -60,7 +58,6 @@ export default function TravelTime({
               }
             }}
           />
-
           <Box sx={{ marginTop: "15px" }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Grid container spacing={"10px"}>
@@ -104,72 +101,29 @@ export default function TravelTime({
           sx={{ paddingLeft: { xs: 0, sm: "16px" } }}
           size={{ xs: 12, sm: 6 }}
         >
-          <Typography>
-            {t("filter.gehdistanz")} ({t("details.km_kilometer")})
-          </Typography>
-          <GeneralSlider
-            step={2}
-            min={fetchedFilter?.minDistance ?? 0}
-            max={fetchedFilter?.maxDistance ?? 80}
-            value={[
-              getFilterValue("minDistance", 0),
-              getFilterValue("maxDistance", 80),
-            ]}
-            onChange={(_, value) => {
-              if (Array.isArray(value)) {
-                setTempFilter({
-                  ...tempFilter,
-                  minDistance: value[0],
-                  maxDistance: value[1],
-                });
-              }
-            }}
+          <SliderWithInputs
+            title={t("filter.gehdistanz")}
+            unit={t("details.km_kilometer")}
+            sliderMin={0}
+            sliderMax={80}
+            sliderStep={2}
+            minValue={getFilterValue("minDistance", 0)}
+            maxValue={getFilterValue("maxDistance", 80)}
+            onChangeSlider={(min, max) =>
+              setTempFilter({
+                ...tempFilter,
+                minDistance: min,
+                maxDistance: max,
+              })
+            }
+            onChangeMin={(v) =>
+              setTempFilter({ ...tempFilter, minDistance: v })
+            }
+            onChangeMax={(v) =>
+              setTempFilter({ ...tempFilter, maxDistance: v })
+            }
+            capLabel={`80+ ${t("details.km_kilometer")}`}
           />
-          <Box sx={{ marginTop: "15px" }}>
-            <Grid container spacing={"10px"}>
-              <Grid size={6}>
-                <TextField
-                  type="number"
-                  label={t("filter.minimum")}
-                  variant="outlined"
-                  value={getFilterValue("minDistance", 0)}
-                  onChange={(e) =>
-                    setTempFilter({
-                      ...tempFilter,
-                      minDistance: +e.target.value,
-                    })
-                  }
-                />
-              </Grid>
-              <Grid size={6}>
-                <TextField
-                  type="number"
-                  label={t("filter.maximum")}
-                  variant="outlined"
-                  value={getFilterValue("maxDistance", 80)}
-                  onChange={(e) =>
-                    setTempFilter({
-                      ...tempFilter,
-                      maxDistance: +e.target.value,
-                    })
-                  }
-                />
-                {getFilterValue("maxDistance", 80) >= 80 && (
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      width: "100%",
-                      textAlign: "left",
-                      paddingTop: "5px",
-                      color: "#8B8B8B",
-                    }}
-                  >
-                    80+ {t("details.km_kilometer")}
-                  </div>
-                )}
-              </Grid>
-            </Grid>
-          </Box>
         </Grid>
       </Grid>
     </Box>

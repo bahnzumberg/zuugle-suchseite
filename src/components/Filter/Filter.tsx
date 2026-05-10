@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -19,11 +19,7 @@ import Dialog from "@mui/material/Dialog";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DialogContent from "@mui/material/DialogContent";
 import Grid from "@mui/material/Grid";
-import CountryFilter from "./FilterOptions/Country";
-import LanguageFilter from "./FilterOptions/Language";
-import SportTypeFilter from "./FilterOptions/SportType";
-import RangeFilter from "./FilterOptions/Range";
-import ProviderFilter from "./FilterOptions/Provider";
+import CheckboxFilterSection from "./FilterOptions/CheckboxFilterSection";
 import DifficultyFilter from "./FilterOptions/Difficulty";
 import TourLengthFilter from "./FilterOptions/TourLength";
 import SeasonFilter from "./FilterOptions/Season";
@@ -33,11 +29,14 @@ import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
 import CityFilter from "./FilterOptions/CityFilter";
 import LoadingView from "./LoadingView";
-import { CheckboxOptionsFilterKey } from "./types";
 import {
   countFilterActive,
   getActiveFilterFields,
   getDefaultFilterValues,
+  getSportTypeTranslationMap,
+  getLanguageTranslationMap,
+  getCountryTranslationMap,
+  getTransformedFilterOptions,
 } from "./utils";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -64,6 +63,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   }>({});
   const [tempCity, setTempCity] = useState<CityObject | null>(null);
 
+  // Prevents the debounced re-fetch from firing after a server response updates tempFilter
+  const isServerUpdate = useRef(false);
+  const hasInitialized = useRef(false);
+
   // Handle 3 filter objects:
   // the Filter currently stored in the state,
   const storedFilter = useSelector((state: RootState) => state.filter);
@@ -75,29 +78,65 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const { filter: fetchedFilter, providers: fetchedProviders } =
     filterData ?? {};
 
-  const defaultFilterValues = getDefaultFilterValues(fetchedFilter);
+  const defaultFilterValues = getDefaultFilterValues();
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
     useState<FilterObject>(defaultFilterValues);
 
+  function fetchFilterScalar(filter: FilterObject) {
+    const scalarFilter = {
+      ...filter,
+      ranges: undefined,
+      types: undefined,
+      languages: undefined,
+      difficulties: undefined,
+      providers: undefined,
+      countries: undefined,
+    };
+    triggerFetchFilter({
+      city: citySlug || "",
+      search: search?.term || "",
+      search_type: search?.type !== "term" ? search?.type : "",
+      filter: scalarFilter,
+    });
+  }
+
   useEffect(() => {
     if (showFilter) {
-      triggerFetchFilter({
-        city: citySlug || "",
-        search: search?.term || "",
-        search_type: search?.type !== "term" ? search?.type : "",
-      });
+      fetchFilterScalar(storedFilter);
+    } else {
+      hasInitialized.current = false;
     }
   }, [showFilter]);
 
   // tempFilter has to be updated with fetched and stored filter values
   useEffect(() => {
     if (!isFilterFetching && fetchedFilter) {
-      const merged = { ...defaultFilterValues, ...storedFilter };
-      setTempFilter(merged);
+      isServerUpdate.current = true;
+      if (!hasInitialized.current) {
+        // First load: pre-populate from stored filter and capture bounds snapshot
+        hasInitialized.current = true;
+        setTempFilter({ ...defaultFilterValues, ...storedFilter });
+      } else {
+        // Subsequent re-fetches: preserve user's in-progress selections, only update bounds/defaults
+        setTempFilter((prev) => ({ ...defaultFilterValues, ...prev }));
+      }
     }
   }, [fetchedFilter, isFilterFetching, storedFilter]);
+
+  // Re-fetch narrowed filter options when user changes selections (debounced)
+  useEffect(() => {
+    if (!showFilter) return;
+    if (isServerUpdate.current) {
+      isServerUpdate.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetchFilterScalar(tempFilter);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [tempFilter]);
 
   useEffect(() => {
     setTempGeolocation(geolocation ?? {});
@@ -135,18 +174,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     dispatch(geolocationUpdated(null));
     setShowFilter(false);
   }
-
-  //TODO: we can derive this state from tempFilter and default filter object
-  const [, setSelectAllToggle] = useState<
-    Record<CheckboxOptionsFilterKey, boolean>
-  >({
-    ranges: false,
-    countries: false,
-    types: false,
-    languages: false,
-    difficulties: false,
-    providers: false,
-  });
 
   const { t } = useTranslation();
 
@@ -209,27 +236,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     }
   }
 
-  const onToggleAll = (
-    keyToUpdate: CheckboxOptionsFilterKey,
-    fallbackValue: Array<string | number> = [],
-  ) => {
-    setSelectAllToggle((prevToggle) => {
-      const isSelected = prevToggle[keyToUpdate];
-
-      setTempFilter((prevFilter) => ({
-        ...prevFilter,
-        [keyToUpdate]: isSelected
-          ? []
-          : (fetchedFilter?.[keyToUpdate] ?? fallbackValue),
-      }));
-
-      return {
-        ...prevToggle,
-        [keyToUpdate]: !isSelected,
-      };
-    });
-  };
-
   const updateGeolocation = (
     value: string,
     field: "lat" | "lng" | "radius",
@@ -287,7 +293,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       </IconButton>
       <DialogContent dividers>
         <Box style={{ maxHeight: "600px" }}>
-          {isFilterFetching ? (
+          {isFilterFetching && !fetchedFilter ? (
             <LoadingView />
           ) : (
             <Fragment>
@@ -316,68 +322,82 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
               <AscentFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
                 getFilterValue={getFilterValue}
               />
               <TravelTimeFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
                 getFilterValue={getFilterValue}
               />
-              <SportTypeFilter
-                onToggleAll={() => onToggleAll("types")}
+              <CheckboxFilterSection
+                title={t("main.sportart")}
+                options={getTransformedFilterOptions({
+                  list: fetchedFilter?.types ?? [],
+                  translationMap: getSportTypeTranslationMap(t),
+                })}
                 isChecked={(value) => displayAsSelected("types", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("types", value, checked)
                 }
-                values={fetchedFilter?.types ?? []}
+                defaultExpanded
               />
               <DifficultyFilter
-                onToggleAll={() => onToggleAll("difficulties", [1, 2, 3])}
                 isChecked={(value) => displayAsSelected("difficulties", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("difficulties", value, checked)
                 }
                 values={fetchedFilter?.difficulties ?? [1, 2, 3]}
               />
-              <LanguageFilter
-                onToggleAll={() => onToggleAll("languages")}
+              <CheckboxFilterSection
+                title={t("filter.sprache")}
+                options={getTransformedFilterOptions({
+                  list: fetchedFilter?.languages ?? [],
+                  translationMap: getLanguageTranslationMap(t),
+                }).filter((l) => !!l.value && !!l.label)}
                 isChecked={(value) => displayAsSelected("languages", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("languages", value, checked)
                 }
-                values={fetchedFilter?.languages ?? []}
               />
-              <RangeFilter
-                onToggleAll={() => onToggleAll("ranges")}
+              <CheckboxFilterSection
+                title={t("filter.regionen")}
+                options={(fetchedFilter?.ranges ?? []).map((v) => ({
+                  value: v,
+                  label: v,
+                }))}
                 isChecked={(value) => displayAsSelected("ranges", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("ranges", value, checked)
                 }
-                values={fetchedFilter?.ranges ?? []}
               />
-              <CountryFilter
-                onToggleAll={() => onToggleAll("countries")}
+              <CheckboxFilterSection
+                title={t("filter.countries")}
+                options={getTransformedFilterOptions({
+                  list: fetchedFilter?.countries ?? [],
+                  translationMap: getCountryTranslationMap(t),
+                })}
                 isChecked={(value) => displayAsSelected("countries", value)}
                 onChange={({ value, checked }) =>
                   updateTempArray("countries", value, checked)
                 }
-                values={fetchedFilter?.countries ?? []}
+              />
+              <CheckboxFilterSection
+                title={t("filter.provider")}
+                options={(fetchedFilter?.providers ?? []).map((v) => ({
+                  value: v,
+                  label:
+                    fetchedProviders?.find((p) => p.provider === v)
+                      ?.provider_name ?? "",
+                }))}
+                isChecked={(value) => displayAsSelected("providers", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("providers", value, checked)
+                }
               />
               <GeolocationSearchFilter
                 tempGeolocation={tempGeolocation}
                 updateGeolocation={updateGeolocation}
                 handleAutoRadius={handleAutoRadius}
-              />
-              <ProviderFilter
-                onToggleAll={() => onToggleAll("providers")}
-                isChecked={(value) => displayAsSelected("providers", value)}
-                onChange={({ value, checked }) =>
-                  updateTempArray("providers", value, checked)
-                }
-                values={fetchedFilter?.providers ?? []}
-                fetchedProviders={fetchedProviders ?? []}
               />
             </Fragment>
           )}
