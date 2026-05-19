@@ -959,6 +959,7 @@ const listWrapper = async (req, res) => {
                                 ${where_city_bound}
                                 AND tour.${shortMonth}='true'
                                 AND t.range_slug IS NOT NULL
+                                AND t.range_slug <> 'null'
                                 AND t.range IS NOT NULL
                                 GROUP BY 1, 2, 3
                                 ORDER BY SUM(1.0/(t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
