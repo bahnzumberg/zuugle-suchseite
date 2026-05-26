@@ -453,8 +453,15 @@ export default function DetailReworked() {
             }}
           >
             {/* ─── Title ─── */}
-            <Box className="tour-detail-header">
-              <Typography variant="title" component="h1">
+            <Box
+              className="tour-detail-header"
+              sx={{ mt: { xs: "24px", md: "32px" } }}
+            >
+              <Typography
+                variant="title"
+                component="h1"
+                sx={{ color: "#101010" }}
+              >
                 {tour?.title}
               </Typography>
             </Box>
