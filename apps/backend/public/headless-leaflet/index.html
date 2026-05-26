@@ -59,8 +59,7 @@
                 14,
             );
 
-            // var tiles = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
-            var tiles = L.tileLayer("https://tile.bahnzumberg.at/{z}/{x}/{y}.png", {
+            var tiles = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
                 maxZoom: 17,
                 attribution: "",
             }).addTo(map);
@@ -70,13 +69,18 @@
                     async: true,
                     marker_options: {
                         startIconUrl:
-                            gpxTrackUrls.length == 1 ? "startpunkt.png" : "transparent.png",
-                        endIconUrl: gpxTrackUrls.length == 1 ? "zielpunkt.png" : "transparent.png",
-                        shadowUrl: "pin-shadow.png",
+                            gpxTrackUrls.length == 1
+                                ? "../img/startpunkt.png"
+                                : "../img/transparent.png",
+                        endIconUrl:
+                            gpxTrackUrls.length == 1
+                                ? "../img/zielpunkt.png"
+                                : "../img/transparent.png",
+                        shadowUrl: "../img/pin-shadow.png",
                     },
                     polyline_options: {
                         // color: 'red',
-                        color: "#FF7663",
+                        color: "#001D47",
                         opacity: 1,
                         weight: 6,
                         lineCap: "round",
@@ -93,12 +97,12 @@
                     async: true,
                     marker_options: {
                         startIconUrl: "transparent.png",
-                        endIconUrl: "zielpunkt.png",
+                        endIconUrl: "../img/zielpunkt.png",
                         // shadowUrl: 'transparent.png'
                     },
                     polyline_options: {
                         // color: 'blue',
-                        color: "#FF7663",
+                        color: "#001D47",
                         opacity: 1,
                         weight: 6,
                         lineCap: "round",
@@ -110,13 +114,13 @@
                 new L.GPX(gpxTrackUrls[2], {
                     async: true,
                     marker_options: {
-                        startIconUrl: "startpunkt.png",
-                        endIconUrl: "zielpunkt.png",
-                        // shadowUrl: 'transparent.png'
+                        startIconUrl: "../img/startpunkt.png",
+                        endIconUrl: "../img/zielpunkt.png",
+                        // shadowUrl: '../img/transparent.png'
                     },
                     polyline_options: {
                         // color: 'blue',
-                        color: "#FF7663",
+                        color: "#001D47",
                         opacity: 1,
                         weight: 6,
                         lineCap: "round",
