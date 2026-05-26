@@ -176,7 +176,9 @@ export default function KPIContainer({
               display: "block",
               marginTop: "12px",
               textAlign: "center",
-              maxWidth: 420,
+              width: "100%",
+              maxWidth: { xs: 420, md: "none" },
+              whiteSpace: { xs: "normal", md: "nowrap" },
             }}
           >
             {t("start.weil_es_braucht_kein_auto")}
