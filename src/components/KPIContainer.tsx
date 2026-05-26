@@ -151,22 +151,33 @@ export default function KPIContainer({
         <Box
           sx={{
             display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             justifyContent: "center",
             paddingTop: "50px",
             paddingBottom: "0px",
           }}
         >
-          <a href="https://verein.bahn-zum-berg.at/">
+          <a
+            href="https://verein.bahn-zum-berg.at/"
+            style={{ display: "block" }}
+          >
             <img
               src="https://cdn.zuugle.at/img/bahnzumberg_logo_white.svg"
               alt="Bahn zum Berg"
-              style={{ height: "100px", width: "auto" }}
+              style={{ height: "100px", width: "auto", display: "block" }}
               loading="lazy"
             />
           </a>
           <Typography
             variant={"text"}
-            sx={{ color: "#FFFFFF", display: "block", marginTop: "16px" }}
+            sx={{
+              color: "#FFFFFF",
+              display: "block",
+              marginTop: "12px",
+              textAlign: "center",
+              maxWidth: 420,
+            }}
           >
             {t("start.weil_es_braucht_kein_auto")}
           </Typography>
