@@ -19,6 +19,7 @@ export default function RangeCardContainer({
 }: RangeCardContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [tileWidth, setTileWidth] = useState(392);
+  const [visibleCount, setVisibleCount] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const isMobile = useIsMobile();
 
@@ -40,6 +41,7 @@ export default function RangeCardContainer({
         Math.floor((width + GAP) / (MIN_TILE_WIDTH + GAP)),
       );
       setTileWidth((width - (count - 1) * GAP) / count);
+      setVisibleCount(count);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -54,6 +56,21 @@ export default function RangeCardContainer({
     },
     [tileWidth],
   );
+
+  // seamless loop: if user scrolls into cloned region, snap back to original items
+  const onScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const count = ranges?.length ?? 0;
+    if (!count) return;
+    const unit = tileWidth + GAP;
+    const rawIndex = Math.round(el.scrollLeft / unit);
+    if (rawIndex >= count) {
+      // snap back without animation to equivalent original index
+      const target = (rawIndex - count) * unit;
+      el.scrollLeft = target;
+    }
+  }, [tileWidth, ranges?.length]);
 
   const pause = useCallback(() => {
     isPausedRef.current = true;
@@ -70,14 +87,8 @@ export default function RangeCardContainer({
       const el = containerRef.current;
       if (!el) return;
       const current = Math.round(el.scrollLeft / (tileWidth + GAP));
-      const count = ranges?.length ?? 0;
-      const visible = Math.max(
-        1,
-        Math.floor((el.clientWidth + GAP) / (tileWidth + GAP)),
-      );
-      const lastStart = Math.max(0, count - visible);
-      // if we're at or past the last possible start index, loop to 0
-      scrollToIndex(current >= lastStart ? 0 : current + 1);
+      // always advance right by one (allow entering cloned region)
+      scrollToIndex(current + 1);
     }, AUTOPLAY_DELAY);
     return () => clearInterval(id);
   }, [tileWidth, ranges?.length, scrollToIndex]);
@@ -108,13 +119,9 @@ export default function RangeCardContainer({
     const el = containerRef.current;
     if (!el) return;
     const count = ranges?.length ?? 1;
-    const visible = Math.max(
-      1,
-      Math.floor((el.clientWidth + GAP) / (tileWidth + GAP)),
-    );
-    const lastStart = Math.max(0, count - visible);
-    const rawIndex = Math.round(el.scrollLeft / (tileWidth + GAP));
-    const index = Math.max(0, Math.min(rawIndex, lastStart));
+    const unit = tileWidth + GAP;
+    const rawIndex = Math.round(el.scrollLeft / unit);
+    const index = ((rawIndex % count) + count) % count; // normalize
     scrollToIndex(index);
   };
 
@@ -158,9 +165,12 @@ export default function RangeCardContainer({
     );
   }
 
+  const extended = [...items, ...items.slice(0, visibleCount)];
+
   return (
     <Box
       ref={containerRef}
+      onScroll={onScroll}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={finishDrag}
@@ -181,23 +191,27 @@ export default function RangeCardContainer({
         cursor: isDragging ? "grabbing" : "grab",
       }}
     >
-      {items.map((range, index) => (
-        <Box
-          key={index}
-          sx={{
-            flex: `0 0 ${tileWidth}px`,
-            minWidth: `${tileWidth}px`,
-          }}
-        >
-          <Link
-            to={`/search/?range=${range.range}`}
-            draggable={false}
-            style={{ display: "block" }}
+      {extended.map((range, index) => {
+        const isClone = index >= items.length;
+        const key = isClone ? `clone-${index - items.length}` : `item-${index}`;
+        return (
+          <Box
+            key={key}
+            sx={{
+              flex: `0 0 ${tileWidth}px`,
+              minWidth: `${tileWidth}px`,
+            }}
           >
-            <RangeCard range={range} />
-          </Link>
-        </Box>
-      ))}
+            <Link
+              to={`/search/?range=${range.range}`}
+              draggable={false}
+              style={{ display: "block" }}
+            >
+              <RangeCard range={range} />
+            </Link>
+          </Box>
+        );
+      })}
     </Box>
   );
 }
