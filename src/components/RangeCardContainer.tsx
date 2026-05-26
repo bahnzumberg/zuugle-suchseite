@@ -71,7 +71,13 @@ export default function RangeCardContainer({
       if (!el) return;
       const current = Math.round(el.scrollLeft / (tileWidth + GAP));
       const count = ranges?.length ?? 0;
-      scrollToIndex(current >= count - 1 ? 0 : current + 1);
+      const visible = Math.max(
+        1,
+        Math.floor((el.clientWidth + GAP) / (tileWidth + GAP)),
+      );
+      const lastStart = Math.max(0, count - visible);
+      // if we're at or past the last possible start index, loop to 0
+      scrollToIndex(current >= lastStart ? 0 : current + 1);
     }, AUTOPLAY_DELAY);
     return () => clearInterval(id);
   }, [tileWidth, ranges?.length, scrollToIndex]);
@@ -102,10 +108,13 @@ export default function RangeCardContainer({
     const el = containerRef.current;
     if (!el) return;
     const count = ranges?.length ?? 1;
-    const index = Math.max(
-      0,
-      Math.min(Math.round(el.scrollLeft / (tileWidth + GAP)), count - 1),
+    const visible = Math.max(
+      1,
+      Math.floor((el.clientWidth + GAP) / (tileWidth + GAP)),
     );
+    const lastStart = Math.max(0, count - visible);
+    const rawIndex = Math.round(el.scrollLeft / (tileWidth + GAP));
+    const index = Math.max(0, Math.min(rawIndex, lastStart));
     scrollToIndex(index);
   };
 
