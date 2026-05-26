@@ -214,7 +214,7 @@ export default function SearchResults() {
             <Search setFilterOn={setFilterOn} />
           </Box>
         )}
-        <TotalToursHeader loadedTours={loadedTours} />
+        <TotalToursHeader loadedTours={loadedTours} setFilterOn={setFilterOn} />
       </Box>
       {showMap && (
         <Box>

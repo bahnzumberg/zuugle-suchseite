@@ -114,7 +114,7 @@ export default function InteractiveMap({
         {!!gpxPositions && gpxPositions.length > 0 && (
           <Polyline
             ref={setPoly}
-            pathOptions={{ weight: 5, color: "#FF7663" }}
+            pathOptions={{ weight: 5, color: "#001D47" }}
             positions={gpxPositions}
           />
         )}
@@ -124,7 +124,7 @@ export default function InteractiveMap({
           <Polyline
             pathOptions={{
               weight: 5,
-              color: "#FF7663",
+              color: "#001D47",
               dashArray: "5,10",
               dashOffset: "1",
               lineCap: "square",
@@ -136,7 +136,7 @@ export default function InteractiveMap({
           <Polyline
             pathOptions={{
               weight: 5,
-              color: "#FF7663",
+              color: "#001D47",
               dashArray: "5,10",
               dashOffset: "0",
               lineCap: "square",

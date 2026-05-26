@@ -1,3 +1,4 @@
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
@@ -15,6 +16,8 @@ import {
   getSportTypeTranslationMap,
 } from "./Filter/utils";
 
+const MAX_CHIPS = 5;
+
 interface ActiveChip {
   key: string;
   label: string;
@@ -23,21 +26,24 @@ interface ActiveChip {
 
 export default function TotalToursHeader({
   loadedTours,
+  setFilterOn,
 }: {
   loadedTours?: { total: number };
+  setFilterOn?: (v: boolean) => void;
 }) {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const storedFilter = useSelector((state: RootState) => state.filter);
   const city = useSelector((state: RootState) => state.search.city);
 
-  /**
-   * Build a list of removable chips from the active filter state.
-   */
+  // maxVisible = how many regular chips to show before "N weitere Filter"
+  // Starts at MAX_CHIPS - 1 = 4; reduced by ResizeObserver if overflow
+  const [maxVisible, setMaxVisible] = useState(MAX_CHIPS - 1);
+  const chipsRowRef = useRef<HTMLDivElement>(null);
+
   function buildChips(): ActiveChip[] {
     const chips: ActiveChip[] = [];
 
-    // City chip
     if (city) {
       chips.push({
         key: "city",
@@ -46,16 +52,12 @@ export default function TotalToursHeader({
       });
     }
 
-    // Helper to remove a single key from the stored filter
     const removeFilterKey = (...keys: (keyof FilterObject)[]) => {
       const next = { ...storedFilter };
-      for (const k of keys) {
-        delete next[k];
-      }
+      for (const k of keys) delete next[k];
       dispatch(filterUpdated(next));
     };
 
-    // Boolean filters
     if (storedFilter.singleDayTour === true) {
       chips.push({
         key: "singleDay",
@@ -92,15 +94,13 @@ export default function TotalToursHeader({
       });
     }
 
-    // Range filters (ascent, distance, transport duration)
     if (
       storedFilter.minAscent !== undefined ||
       storedFilter.maxAscent !== undefined
     ) {
-      const label = `${t("filter.anstieg")}: ${storedFilter.minAscent ?? 0}–${storedFilter.maxAscent ?? "∞"} hm`;
       chips.push({
         key: "ascent",
-        label,
+        label: `${t("filter.anstieg")}: ${storedFilter.minAscent ?? 0}–${storedFilter.maxAscent ?? "∞"} hm`,
         onDelete: () =>
           removeFilterKey("minAscent", "maxAscent", "minDescent", "maxDescent"),
       });
@@ -109,10 +109,9 @@ export default function TotalToursHeader({
       storedFilter.minDistance !== undefined ||
       storedFilter.maxDistance !== undefined
     ) {
-      const label = `${t("filter.gehdistanz")}: ${storedFilter.minDistance ?? 0}–${storedFilter.maxDistance ?? "∞"} km`;
       chips.push({
         key: "distance",
-        label,
+        label: `${t("filter.gehdistanz")}: ${storedFilter.minDistance ?? 0}–${storedFilter.maxDistance ?? "∞"} km`,
         onDelete: () => removeFilterKey("minDistance", "maxDistance"),
       });
     }
@@ -120,16 +119,14 @@ export default function TotalToursHeader({
       storedFilter.minTransportDuration !== undefined ||
       storedFilter.maxTransportDuration !== undefined
     ) {
-      const label = `${t("details.anreisedauer")}: ${storedFilter.minTransportDuration ?? 0}–${storedFilter.maxTransportDuration ?? "∞"} h`;
       chips.push({
         key: "transport",
-        label,
+        label: `${t("details.anreisedauer")}: ${storedFilter.minTransportDuration ?? 0}–${storedFilter.maxTransportDuration ?? "∞"} h`,
         onDelete: () =>
           removeFilterKey("minTransportDuration", "maxTransportDuration"),
       });
     }
 
-    // Array-based filters
     const sportMap = getSportTypeTranslationMap(t);
     if (storedFilter.types && storedFilter.types.length > 0) {
       for (const type of storedFilter.types) {
@@ -255,6 +252,47 @@ export default function TotalToursHeader({
 
   const chips = buildChips();
 
+  // Decide how many chips to show
+  const needsOverflow = chips.length > MAX_CHIPS;
+  const visibleCount = needsOverflow ? maxVisible : chips.length;
+  const hiddenCount = needsOverflow ? chips.length - visibleCount : 0;
+  const visibleChips = chips.slice(0, visibleCount);
+
+  // Reduce maxVisible if chip row overflows (runs before paint)
+  useLayoutEffect(() => {
+    if (!needsOverflow) return;
+    const el = chipsRowRef.current;
+    if (!el) return;
+    if (el.scrollWidth > el.clientWidth + 1) {
+      setMaxVisible((v) => Math.max(1, v - 1));
+    }
+  }, [maxVisible, needsOverflow, chips.length]);
+
+  // On container resize, reset to max and let layout effect adjust
+  useEffect(() => {
+    const el = chipsRowRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      setMaxVisible(MAX_CHIPS - 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const chipSx = {
+    flexShrink: 0,
+    backgroundColor: "var(--bzb-lindgruen)",
+    color: "var(--bzb-bahnblau)",
+    fontWeight: 500,
+    fontSize: "13px",
+    borderRadius: "16px",
+    "& .MuiChip-deleteIcon": {
+      color: "rgba(37, 73, 128, 0.6)",
+      fontSize: "16px",
+      "&:hover": { color: "var(--bzb-bahnblau)" },
+    },
+  };
+
   return (
     <Box className={"header-line-main"} sx={{ width: "100%" }}>
       <Box
@@ -298,6 +336,7 @@ export default function TotalToursHeader({
           )}
           {chips.length > 0 && (
             <Box
+              ref={chipsRowRef}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -306,29 +345,31 @@ export default function TotalToursHeader({
                 minWidth: 0,
               }}
             >
-              {chips.map((chip) => (
+              {visibleChips.map((chip) => (
                 <Chip
                   key={chip.key}
                   label={chip.label}
                   onDelete={chip.onDelete}
                   size="small"
+                  sx={chipSx}
+                />
+              ))}
+              {hiddenCount > 0 && (
+                <Chip
+                  label={`${hiddenCount} ${t("filter.weitere_filter")}`}
+                  size="small"
+                  onClick={() => setFilterOn?.(true)}
                   sx={{
+                    ...chipSx,
                     flexShrink: 0,
-                    backgroundColor: "var(--bzb-lindgruen)",
-                    color: "var(--bzb-bahnblau)",
-                    fontWeight: 500,
-                    fontSize: "13px",
-                    borderRadius: "16px",
-                    "& .MuiChip-deleteIcon": {
-                      color: "rgba(37, 73, 128, 0.6)",
-                      fontSize: "16px",
-                      "&:hover": {
-                        color: "var(--bzb-bahnblau)",
-                      },
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "var(--bzb-bahnblau)",
+                      color: "#fff",
                     },
                   }}
                 />
-              ))}
+              )}
             </Box>
           )}
         </Box>

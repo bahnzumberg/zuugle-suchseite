@@ -52,6 +52,8 @@ export default function SearchParamSync({
   useEffect(() => {
     if (search.city?.value) {
       dispatch(citySlugUpdated(search.city.value));
+    } else {
+      dispatch(citySlugUpdated(null));
     }
   }, [search.city]);
 

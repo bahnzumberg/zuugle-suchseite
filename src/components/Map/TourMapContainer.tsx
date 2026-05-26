@@ -541,7 +541,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       ...(isActive
                         ? {}
@@ -559,7 +559,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       dashArray: "5,10",
                       dashOffset: "1",
@@ -574,7 +574,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       dashArray: "5,10",
                       dashOffset: "0",
@@ -588,22 +588,20 @@ export default function TourMapContainer({
             );
           })}
 
-        {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
           <Polyline
-            key="gpx-track" // unique key prop
-            pathOptions={{ weight: 6, color: "#FF7663" }}
+            key="gpx-track"
+            pathOptions={{ weight: 6, color: "#001D47" }}
             positions={gpxTrack}
           />
         )}
 
-        {/* blue color  (fromtour) */}
         {fromtourGpxTrack.length > 0 && (
           <Polyline
             key="fromtour-track"
             pathOptions={{
               weight: 6,
-              color: "#FF7663",
+              color: "#001D47",
               opacity: 1,
               // opacity: !!totourGpxTrack ? 0.5 : 1,
               lineCap: "square",
@@ -614,13 +612,12 @@ export default function TourMapContainer({
           />
         )}
 
-        {/* orange color  (totour) */}
         {totourGpxTrack.length > 0 && (
           <Polyline
             key="totour-track"
             pathOptions={{
               weight: 6,
-              color: "#FF7663",
+              color: "#001D47",
               dashArray: "5,10",
               dashOffset: "1",
               opacity: 1,
