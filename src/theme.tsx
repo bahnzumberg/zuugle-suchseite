@@ -74,7 +74,7 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
+    fontFamily: `"Source Sans 3", "Helvetica", "Arial", sans-serif`,
     fontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
@@ -88,7 +88,7 @@ export const theme = createTheme({
       fontSize: "16px",
       color: "#101010",
       fontWeight: "400",
-      fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
+      fontFamily: `"Source Sans 3", "Helvetica", "Arial", sans-serif`,
     },
     subtitle1: {
       fontSize: 16,

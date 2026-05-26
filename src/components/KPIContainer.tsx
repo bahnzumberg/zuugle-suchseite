@@ -33,17 +33,6 @@ export default function KPIContainer({
           <Typography variant={"h3"} sx={{ marginTop: "20px" }}>
             {t("start.ziel_von_zuugle")}
           </Typography>
-          <Box sx={{ textAlign: "center", marginTop: "20px" }}>
-            <Typography
-              variant={"text"}
-              sx={{
-                color: "#FFFFFF",
-              }}
-            >
-              {" "}
-              {t("start.weil_es_braucht_kein_auto")}{" "}
-            </Typography>
-          </Box>
         </Box>
 
         <Box sx={{ marginTop: "50px" }}>
@@ -59,7 +48,10 @@ export default function KPIContainer({
               }}
             >
               <Box>
-                <Typography variant={"h3"}>
+                <Typography
+                  variant={"h3"}
+                  sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
+                >
                   {Number(totalTours).toLocaleString()}
                 </Typography>
                 <Typography
@@ -83,7 +75,12 @@ export default function KPIContainer({
               }}
             >
               <Box>
-                <Typography variant={"h3"}>{totalProvider}</Typography>
+                <Typography
+                  variant={"h3"}
+                  sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
+                >
+                  {totalProvider}
+                </Typography>
                 <Typography
                   variant={"text"}
                   sx={{
@@ -105,7 +102,12 @@ export default function KPIContainer({
               }}
             >
               <Box>
-                <Typography variant={"h3"}>{totalCities}</Typography>
+                <Typography
+                  variant={"h3"}
+                  sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
+                >
+                  {totalCities}
+                </Typography>
                 <Typography
                   variant={"text"}
                   sx={{
@@ -127,7 +129,10 @@ export default function KPIContainer({
               }}
             >
               <Box>
-                <Typography variant={"h3"}>
+                <Typography
+                  variant={"h3"}
+                  sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
+                >
                   {Number(totalConnections).toLocaleString()}
                 </Typography>
                 <Typography
@@ -159,6 +164,12 @@ export default function KPIContainer({
               loading="lazy"
             />
           </a>
+          <Typography
+            variant={"text"}
+            sx={{ color: "#FFFFFF", display: "block", marginTop: "16px" }}
+          >
+            {t("start.weil_es_braucht_kein_auto")}
+          </Typography>
         </Box>
       </Box>
     </Paper>

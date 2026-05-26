@@ -17,7 +17,7 @@ export default function Header({ title, subTitle }: HeaderProps) {
     <Box
       className={"header-container utils"}
       sx={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.zuugle.at/img/background_start_small_${tld}.webp)`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200)`,
         paddingLeft: 0,
         height: "300px",
       }}

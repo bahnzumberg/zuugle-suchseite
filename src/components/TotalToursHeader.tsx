@@ -331,7 +331,15 @@ export default function TotalToursHeader({
               {loadedTours.total === 1
                 ? ` ${t("main.ergebnis")}`
                 : ` ${t("main.ergebnisse")}`}
-              {chips.length > 0 ? ":" : ""}
+              {chips.length > 0 && (
+                <Box
+                  component="span"
+                  sx={{ color: "#aaa", fontWeight: 400, ml: "2px" }}
+                >
+                  {" "}
+                  |
+                </Box>
+              )}
             </Typography>
           )}
           {chips.length > 0 && (
