@@ -56,7 +56,7 @@ export default function Header({ totals, isLoading }: HeaderProps) {
 
             <Box className="header-text">
               <Typography variant="h1" sx={{ height: "162px" }}>
-                {totals?.tours_country.toLocaleString()}{" "}
+                {totals?.tours_country?.toLocaleString()}{" "}
                 {t("start.tourenanzahl_untertitel")}
               </Typography>
             </Box>
