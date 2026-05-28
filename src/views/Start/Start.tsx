@@ -164,7 +164,7 @@ export default function Start() {
                   </Box>
                   <Box sx={{ marginTop: "80px" }}>
                     <KPIContainer
-                      totalTours={totals?.total_tours || 0}
+                      totalTours={totals?.tours_country || 0}
                       totalConnections={totals?.total_connections || 0}
                       totalCities={totals?.total_cities || 0}
                       totalProvider={totals?.total_provider || 0}
