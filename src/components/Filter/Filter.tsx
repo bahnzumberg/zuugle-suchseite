@@ -298,6 +298,28 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
           ) : (
             <Fragment>
               <CityFilter tempCity={tempCity} setTempCity={setTempCity} />
+              <TraverseFilter
+                tempFilter={tempFilter}
+                setTempFilter={setTempFilter}
+                fetchedFilter={fetchedFilter}
+              />
+              <AscentFilter
+                tempFilter={tempFilter}
+                setTempFilter={setTempFilter}
+                getFilterValue={getFilterValue}
+              />
+              <TravelTimeFilter
+                tempFilter={tempFilter}
+                setTempFilter={setTempFilter}
+                getFilterValue={getFilterValue}
+              />
+              <DifficultyFilter
+                isChecked={(value) => displayAsSelected("difficulties", value)}
+                onChange={({ value, checked }) =>
+                  updateTempArray("difficulties", value, checked)
+                }
+                values={fetchedFilter?.difficulties ?? [1, 2, 3]}
+              />
               <Grid container spacing={0} className="filter-box border">
                 <Grid size={6} sx={{ borderRight: "1px solid #EAEAEA", pr: 2 }}>
                   <TourLengthFilter
@@ -314,21 +336,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   />
                 </Grid>
               </Grid>
-              <TraverseFilter
-                tempFilter={tempFilter}
-                setTempFilter={setTempFilter}
-                fetchedFilter={fetchedFilter}
-              />
-              <AscentFilter
-                tempFilter={tempFilter}
-                setTempFilter={setTempFilter}
-                getFilterValue={getFilterValue}
-              />
-              <TravelTimeFilter
-                tempFilter={tempFilter}
-                setTempFilter={setTempFilter}
-                getFilterValue={getFilterValue}
-              />
               <CheckboxFilterSection
                 title={t("main.sportart")}
                 options={getTransformedFilterOptions({
@@ -339,14 +346,6 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 onChange={({ value, checked }) =>
                   updateTempArray("types", value, checked)
                 }
-                defaultExpanded
-              />
-              <DifficultyFilter
-                isChecked={(value) => displayAsSelected("difficulties", value)}
-                onChange={({ value, checked }) =>
-                  updateTempArray("difficulties", value, checked)
-                }
-                values={fetchedFilter?.difficulties ?? [1, 2, 3]}
               />
               <CheckboxFilterSection
                 title={t("filter.sprache")}
