@@ -209,31 +209,18 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     value: string | number | Provider,
     checked: boolean,
   ) {
-    if (!tempFilter[arrayKey]) {
-      // initialize tempFilter with all default values
-      setTempFilter({
-        ...tempFilter,
-        [arrayKey]: fetchedFilter?.[arrayKey],
-      });
-    }
-
-    const currentArray =
-      tempFilter[arrayKey] ?? fetchedFilter?.[arrayKey] ?? [];
-    const array: string[] | number[] | Provider[] = Array.isArray(currentArray)
-      ? currentArray
-      : [];
-
-    if (checked) {
-      setTempFilter({
-        ...tempFilter,
-        [arrayKey]: [...array, value],
-      });
-    } else {
-      setTempFilter({
-        ...tempFilter,
-        [arrayKey]: array.filter((t) => t !== value),
-      });
-    }
+    setTempFilter((prev) => {
+      const currentArray = prev[arrayKey] ?? fetchedFilter?.[arrayKey] ?? [];
+      const array: (string | number | Provider)[] = Array.isArray(currentArray)
+        ? currentArray
+        : [];
+      return {
+        ...prev,
+        [arrayKey]: checked
+          ? [...array, value]
+          : array.filter((t) => t !== value),
+      };
+    });
   }
 
   const updateGeolocation = (

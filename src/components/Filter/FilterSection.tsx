@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import { useState } from "react";
 
 interface FilterSectionProps {
   title: string;
@@ -12,6 +13,7 @@ interface FilterSectionProps {
   showSection: boolean;
   defaultExpanded?: boolean;
   isActive?: boolean;
+  headerAction?: React.ReactNode;
 }
 
 export default function FilterSection({
@@ -20,14 +22,18 @@ export default function FilterSection({
   showSection,
   defaultExpanded = false,
   isActive = false,
+  headerAction,
 }: FilterSectionProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
   if (!showSection) {
     return null;
   }
 
   return (
     <Accordion
-      defaultExpanded={defaultExpanded}
+      expanded={expanded}
+      onChange={(_, isExpanded) => setExpanded(isExpanded)}
       disableGutters
       elevation={0}
       square
@@ -63,6 +69,11 @@ export default function FilterSection({
               flexShrink: 0,
             }}
           />
+        )}
+        {expanded && headerAction && (
+          <Box sx={{ ml: "auto", mr: 1 }} onClick={(e) => e.stopPropagation()}>
+            {headerAction}
+          </Box>
         )}
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0, pb: 2 }}>
