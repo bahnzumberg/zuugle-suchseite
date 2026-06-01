@@ -202,15 +202,16 @@ const totalWrapper = async (req, res) => {
         [`total_tours_${city}`, `total_tours_${tld}`],
     );
 
+    const row = total.rows?.[0];
     const responseData = {
         success: true,
-        total_tours: total.rows[0]["tours"],
-        tours_city: total.rows[0]["tours_city"],
-        tours_country: total.rows[0]["tours_country"],
-        total_connections: total.rows[0]["connections"],
-        total_ranges: total.rows[0]["ranges"],
-        total_cities: total.rows[0]["cities"],
-        total_provider: total.rows[0]["provider"],
+        total_tours: row?.["tours"] ?? 0,
+        tours_city: row?.["tours_city"] ?? 0,
+        tours_country: row?.["tours_country"] ?? 0,
+        total_connections: row?.["connections"] ?? 0,
+        total_ranges: row?.["ranges"] ?? 0,
+        total_cities: row?.["cities"] ?? 0,
+        total_provider: row?.["provider"] ?? 0,
     };
     cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);

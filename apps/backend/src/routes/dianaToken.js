@@ -1,6 +1,25 @@
 import express from "express";
-import { CLIENT_ID, CLIENT_SECRET, dev_mode } from "../diana-config.js";
+import { existsSync } from "fs";
+import path from "path";
 import logger from "../utils/logger";
+
+const CONFIG_PATH = path.resolve(__dirname, "../diana-config.js");
+
+// Lazy-load credentials on first request — avoids top-level await
+let CLIENT_ID, CLIENT_SECRET;
+let configLoaded = false;
+
+async function loadConfig() {
+    if (configLoaded) return true;
+    if (!existsSync(CONFIG_PATH)) return false;
+    try {
+        ({ CLIENT_ID, CLIENT_SECRET } = await import("../diana-config.js"));
+        configLoaded = true;
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 const router = express.Router();
 
@@ -18,6 +37,14 @@ const DIANA_TOKEN_URL = "https://api.zuugle-services.net/o/token/";
  *   2. On HTTP 401 from the Diana API to refresh the token
  */
 router.get("/", async (req, res) => {
+    const ok = await loadConfig();
+    if (!ok || !CLIENT_ID || !CLIENT_SECRET) {
+        return res.status(503).json({
+            success: false,
+            error: "Credentials for Diana GreenConnect API are missing. Maybe you have to rename diana-config.js.example to diana-config.js?",
+        });
+    }
+
     try {
         const body = new URLSearchParams({
             grant_type: "client_credentials",
@@ -30,11 +57,6 @@ router.get("/", async (req, res) => {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: body.toString(),
         };
-
-        // In dev_mode, skip SSL verification (Node 18+ with undici)
-        if (dev_mode) {
-            logger.warn("diana-token: dev_mode is ON — SSL verification disabled");
-        }
 
         const response = await fetch(DIANA_TOKEN_URL, fetchOptions);
 
