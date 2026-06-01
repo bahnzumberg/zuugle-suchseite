@@ -30,7 +30,9 @@ import {
   localTimeToUtc,
 } from "../../utils/dianaApi";
 import { DIANA_ACTIVITY_TIMES } from "../../utils/dianaConfig";
-import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
+import ConnectionResults, {
+  ConnectionsResultData,
+} from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
   tour: Tour;
@@ -87,6 +89,7 @@ export default function ConnectionSearchForm({
   const [isSearching, setIsSearching] = useState(false);
   const [connectionsResult, setConnectionsResult] =
     useState<ConnectionsResultData | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
@@ -102,90 +105,293 @@ export default function ConnectionSearchForm({
     }
   };
 
+  const activityDurationMinutes = Math.round(
+    parseFloat(tour.avg_total_tour_duration) * 60,
+  );
+
+  /**
+   * Build the shared URLSearchParams for the connections API call.
+   * Used for both initial search and scroll (before/after) requests.
+   */
+  const buildSearchParams = (selectedDate: string): URLSearchParams => {
+    let userStartLocation: string;
+    let userStartLocationType: string;
+    if (departureLat && departureLon) {
+      userStartLocation = `${departureLat},${departureLon}`;
+      userStartLocationType = "coordinates";
+    } else {
+      userStartLocation = departureLocation!.displayName;
+      userStartLocationType = departureLocation!.locationType || "address";
+    }
+
+    const utcTimes = {
+      earliest_start: localTimeToUtc(
+        DIANA_ACTIVITY_TIMES.earliest_start_time,
+        selectedDate,
+      ),
+      latest_start: localTimeToUtc(
+        DIANA_ACTIVITY_TIMES.latest_start_time,
+        selectedDate,
+      ),
+      earliest_end: localTimeToUtc(
+        DIANA_ACTIVITY_TIMES.earliest_end_time,
+        selectedDate,
+      ),
+      latest_end: localTimeToUtc(
+        DIANA_ACTIVITY_TIMES.latest_end_time,
+        selectedDate,
+      ),
+    };
+
+    const params = new URLSearchParams({
+      user_start_location: userStartLocation,
+      user_start_location_type: userStartLocationType,
+      activity_name: tour.title,
+      activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
+      activity_start_location_type: "coordinates",
+      activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
+      activity_end_location_type: "coordinates",
+      activity_duration_minutes: String(activityDurationMinutes),
+      activity_earliest_start_time: utcTimes.earliest_start,
+      activity_latest_start_time: utcTimes.latest_start,
+      activity_earliest_end_time: utcTimes.earliest_end,
+      activity_latest_end_time: utcTimes.latest_end,
+      date: selectedDate,
+      lang: mapLanguage(lang),
+      use_flex: "false",
+      timezone: "Europe/Vienna",
+    });
+
+    if (isMultiDay) {
+      params.set("activity_duration_days", String(tour.number_of_days));
+    }
+
+    return params;
+  };
+
   const handleSearch = async () => {
     if (!departureLocation) return;
 
     setIsSearching(true);
     setConnectionsResult(null);
+    setSearchError(null);
 
     try {
       const token = await fetchDianaToken();
       const selectedDate = getSelectedDate();
-
-      // Build user_start_location based on locationType
-      let userStartLocation: string;
-      let userStartLocationType: string;
-      if (departureLat && departureLon) {
-        userStartLocation = `${departureLat},${departureLon}`;
-        userStartLocationType = "coordinates";
-      } else {
-        userStartLocation = departureLocation.displayName;
-        userStartLocationType = departureLocation.locationType || "address";
-      }
-
-      // Activity time windows (UTC): generous defaults
-      // Earliest arrival at activity: 06:00, latest: 12:00
-      // Earliest departure from activity: 12:00, latest: 22:00
-      const activityDurationMinutes = Math.round(
-        parseFloat(tour.avg_total_tour_duration) * 60,
-      );
-
-      // Convert MEZ times from config to UTC for the selected date
-      const utcTimes = {
-        earliest_start: localTimeToUtc(
-          DIANA_ACTIVITY_TIMES.earliest_start_time,
-          selectedDate,
-        ),
-        latest_start: localTimeToUtc(
-          DIANA_ACTIVITY_TIMES.latest_start_time,
-          selectedDate,
-        ),
-        earliest_end: localTimeToUtc(
-          DIANA_ACTIVITY_TIMES.earliest_end_time,
-          selectedDate,
-        ),
-        latest_end: localTimeToUtc(
-          DIANA_ACTIVITY_TIMES.latest_end_time,
-          selectedDate,
-        ),
-      };
-
-      const params = new URLSearchParams({
-        user_start_location: userStartLocation,
-        user_start_location_type: userStartLocationType,
-        activity_name: tour.title,
-        activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
-        activity_start_location_type: "coordinates",
-        activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
-        activity_end_location_type: "coordinates",
-        activity_duration_minutes: String(activityDurationMinutes),
-        activity_earliest_start_time: utcTimes.earliest_start,
-        activity_latest_start_time: utcTimes.latest_start,
-        activity_earliest_end_time: utcTimes.earliest_end,
-        activity_latest_end_time: utcTimes.latest_end,
-        date: selectedDate,
-        lang: mapLanguage(lang),
-      });
-
-      if (isMultiDay) {
-        params.set("activity_duration_days", String(tour.number_of_days));
-      }
+      const params = buildSearchParams(selectedDate);
 
       const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!resp.ok) {
-        throw new Error(`Connections API failed: ${resp.status}`);
+        const errData = await resp.json().catch(() => null);
+        const code = String(errData?.code ?? "");
+
+        if (code === "6001" || code === "6002") {
+          // Quota exceeded — point user to fallback
+          setSearchError(t("details.kontingent_erschoepft"));
+        } else if (
+          // Partial "no connections in one direction" — e.g. 2017-1, 2017-2
+          // These always mean the entire search failed; show friendly message.
+          code.startsWith("2017") ||
+          code.startsWith("2018") ||
+          code.startsWith("2019") ||
+          code.startsWith("2020") ||
+          code.startsWith("2021") ||
+          code.startsWith("2022") ||
+          code.startsWith("2023") ||
+          code === "2024" ||
+          code === "2027" ||
+          code === "2002"
+        ) {
+          setSearchError(t("details.keine_verbindungen"));
+        } else if (code.startsWith("3") || code.startsWith("2025")) {
+          // Routing provider temporarily unavailable — retryable
+          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+        } else {
+          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+        }
+        return;
       }
 
       const data = await resp.json();
+
+      // Check if the response actually has connections
+      const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+      const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+      if (!hasTo && !hasFrom) {
+        setSearchError(t("details.keine_verbindungen"));
+        return;
+      }
+
       setConnectionsResult(data);
-      console.log("✅ Diana connections result:", data);
     } catch (err) {
       console.error("❌ Diana connections error:", err);
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("diana-config") || msg.includes("Credentials")) {
+        setSearchError(msg);
+      } else {
+        setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+      }
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  /**
+   * Scroll to earlier connections (prepend to existing list).
+   * Uses the first connection's start timestamp as the "before" anchor.
+   */
+  const handleScrollBefore = async (direction: "to" | "from") => {
+    if (!departureLocation || !connectionsResult) return;
+
+    try {
+      const token = await fetchDianaToken();
+      const selectedDate = getSelectedDate();
+      const params = buildSearchParams(selectedDate);
+
+      const connectionsList =
+        direction === "to"
+          ? connectionsResult.connections.to_activity
+          : connectionsResult.connections.from_activity;
+
+      if (connectionsList.length === 0) return;
+
+      const firstTimestamp = connectionsList[0].connection_start_timestamp;
+
+      if (direction === "to") {
+        params.set("to_connections_before", firstTimestamp);
+      } else {
+        params.set("from_connections_before", firstTimestamp);
+      }
+
+      const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!resp.ok) return;
+
+      const newData: ConnectionsResultData = await resp.json();
+
+      setConnectionsResult((prev) => {
+        if (!prev) return prev;
+
+        if (direction === "to") {
+          const existingIds = new Set(
+            prev.connections.to_activity.map((c) => c.connection_id),
+          );
+          const newConns = (
+            newData.connections.to_activity || []
+          ).filter((c) => !existingIds.has(c.connection_id));
+          return {
+            ...prev,
+            connections: {
+              ...prev.connections,
+              to_activity: [...newConns, ...prev.connections.to_activity],
+              has_more_before_to_activity:
+                newData.connections.has_more_before_to_activity,
+            },
+          };
+        } else {
+          const existingIds = new Set(
+            prev.connections.from_activity.map((c) => c.connection_id),
+          );
+          const newConns = (
+            newData.connections.from_activity || []
+          ).filter((c) => !existingIds.has(c.connection_id));
+          return {
+            ...prev,
+            connections: {
+              ...prev.connections,
+              from_activity: [...newConns, ...prev.connections.from_activity],
+              has_more_before_from_activity:
+                newData.connections.has_more_before_from_activity,
+            },
+          };
+        }
+      });
+    } catch (err) {
+      console.error("❌ Scroll before error:", err);
+    }
+  };
+
+  /**
+   * Scroll to later connections (append to existing list).
+   * Uses the last connection's start timestamp as the "after" anchor.
+   */
+  const handleScrollAfter = async (direction: "to" | "from") => {
+    if (!departureLocation || !connectionsResult) return;
+
+    try {
+      const token = await fetchDianaToken();
+      const selectedDate = getSelectedDate();
+      const params = buildSearchParams(selectedDate);
+
+      const connectionsList =
+        direction === "to"
+          ? connectionsResult.connections.to_activity
+          : connectionsResult.connections.from_activity;
+
+      if (connectionsList.length === 0) return;
+
+      const lastTimestamp =
+        connectionsList[connectionsList.length - 1].connection_start_timestamp;
+
+      if (direction === "to") {
+        params.set("to_connections_after", lastTimestamp);
+      } else {
+        params.set("from_connections_after", lastTimestamp);
+      }
+
+      const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!resp.ok) return;
+
+      const newData: ConnectionsResultData = await resp.json();
+
+      setConnectionsResult((prev) => {
+        if (!prev) return prev;
+
+        if (direction === "to") {
+          const existingIds = new Set(
+            prev.connections.to_activity.map((c) => c.connection_id),
+          );
+          const newConns = (
+            newData.connections.to_activity || []
+          ).filter((c) => !existingIds.has(c.connection_id));
+          return {
+            ...prev,
+            connections: {
+              ...prev.connections,
+              to_activity: [...prev.connections.to_activity, ...newConns],
+              has_more_after_to_activity:
+                newData.connections.has_more_after_to_activity,
+            },
+          };
+        } else {
+          const existingIds = new Set(
+            prev.connections.from_activity.map((c) => c.connection_id),
+          );
+          const newConns = (
+            newData.connections.from_activity || []
+          ).filter((c) => !existingIds.has(c.connection_id));
+          return {
+            ...prev,
+            connections: {
+              ...prev.connections,
+              from_activity: [...prev.connections.from_activity, ...newConns],
+              has_more_after_from_activity:
+                newData.connections.has_more_after_from_activity,
+            },
+          };
+        }
+      });
+    } catch (err) {
+      console.error("❌ Scroll after error:", err);
     }
   };
 
@@ -545,6 +751,36 @@ export default function ConnectionSearchForm({
           </Box>
         )}
 
+        {/* Hint: no location selected */}
+        {!departureLocation && inputValue.length > 0 && (
+          <Typography
+            sx={{
+              mt: "8px",
+              fontSize: "13px",
+              color: "#e65100",
+            }}
+          >
+            {t("details.startort_aus_liste_waehlen")}
+          </Typography>
+        )}
+
+        {/* Search error */}
+        {searchError && !isSearching && (
+          <Box
+            sx={{
+              mt: "16px",
+              p: "12px 16px",
+              bgcolor: "#fff3e0",
+              borderRadius: "10px",
+              borderLeft: "4px solid #e65100",
+            }}
+          >
+            <Typography sx={{ fontSize: "14px", color: "#bf360c" }}>
+              {searchError}
+            </Typography>
+          </Box>
+        )}
+
         {/* Connections result */}
         {connectionsResult && (
           <ConnectionResults
@@ -555,6 +791,11 @@ export default function ConnectionSearchForm({
               displayName: departureLocation?.displayName || inputValue,
             }}
             tourDurationHours={Number(tour.avg_total_tour_duration)}
+            tour={tour}
+            searchDate={getSelectedDate()}
+            activityDurationMinutes={activityDurationMinutes}
+            onScrollBefore={handleScrollBefore}
+            onScrollAfter={handleScrollAfter}
           />
         )}
       </Box>

@@ -84,7 +84,7 @@
     "country_slowenien": "Slovenija",
     "country_liechtenstein": "Lihtenštajn",
     "country_frankreich": "Francija",
-    "filter_city_description": "Filtriraj dostopne ture iz območja:"
+    "filter_city_description": "Samo ture dosegljive iz:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
@@ -291,7 +291,26 @@
     "verfuegbare_gehzeit": "Razpoložljivi čas hoje",
     "gleis": "Peron",
     "halte": "postaj",
-    "tourdauer": "Trajanje ture"
+    "tourdauer": "Trajanje ture",
+    "frueher": "Prej",
+    "spaeter": "Pozneje",
+    "terminkonflikt": "Konflikt urnika: Izberite zgodnejšo odhodno ali poznejšo povratno zvezo!",
+    "zeitmangel_kurz": "Na voljo je samo {0}!",
+    "echtzeit": "V realnem času",
+    "ticket": "Vozovnica",
+    "kalender": "Koledar",
+    "link_kopiert": "Povezava kopirana!",
+    "wanderung": "Pohodništvo",
+    "schliessen": "Zapri",
+    "ticket_kaufen": "Kupi vozovnico",
+    "ticket_hinfahrt": "Vozovnice za odhod",
+    "ticket_rueckfahrt": "Vozovnice za povratek",
+    "ticket_oebb_fallback": "Vozovnice ÖBB",
+    "von_bis_zeiten": "Od {0} do {1}",
+    "verfuegbar": "na voljo",
+    "startort_aus_liste_waehlen": "Izberite predlog s seznama",
+    "kontingent_erschoepft": "Kvota poizvedb urnikov je presežena.",
+    "verbindungssuche_fehlgeschlagen": "Iskanje povezave ni uspelo. Poskusite znova."
   },
   "search": {
     "go": "Naprej!",

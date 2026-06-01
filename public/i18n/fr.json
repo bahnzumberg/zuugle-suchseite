@@ -84,7 +84,7 @@
     "country_slowenien": "Slovénie",
     "country_liechtenstein": "Liechtenstein",
     "country_frankreich": "France",
-    "filter_city_description": "Filtrer les randonnées accessibles depuis la région de :"
+    "filter_city_description": "Uniquement les tours accessibles depuis:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",
@@ -291,7 +291,26 @@
     "verfuegbare_gehzeit": "Temps de marche disponible",
     "gleis": "Quai",
     "halte": "arrêts",
-    "tourdauer": "Durée de la randonnée"
+    "tourdauer": "Durée de la randonnée",
+    "frueher": "Plus tôt",
+    "spaeter": "Plus tard",
+    "terminkonflikt": "Conflit horaire: Choisissez un départ plus tôt ou un retour plus tard!",
+    "zeitmangel_kurz": "Seulement {0} disponibles!",
+    "echtzeit": "Temps réel",
+    "ticket": "Billet",
+    "kalender": "Calendrier",
+    "link_kopiert": "Lien copié!",
+    "wanderung": "Randonnée",
+    "schliessen": "Fermer",
+    "ticket_kaufen": "Acheter un billet",
+    "ticket_hinfahrt": "Billets aller",
+    "ticket_rueckfahrt": "Billets retour",
+    "ticket_oebb_fallback": "Billets ÖBB",
+    "von_bis_zeiten": "De {0} à {1}",
+    "verfuegbar": "disponible",
+    "startort_aus_liste_waehlen": "Veuillez sélectionner une suggestion dans la liste",
+    "kontingent_erschoepft": "Quota des requêtes d'horaires épuisé.",
+    "verbindungssuche_fehlgeschlagen": "La recherche de connexion a échoué. Veuillez réessayer."
   },
   "search": {
     "go": "Allez!",

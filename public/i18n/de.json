@@ -84,7 +84,7 @@
     "country_slowenien": "Slowenien",
     "country_liechtenstein": "Liechtenstein",
     "country_frankreich": "Frankreich",
-    "filter_city_description": "Filtere auf erreichbare Touren aus der Region um:"
+    "filter_city_description": "Nur Touren erreichbar von:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -291,7 +291,26 @@
     "verfuegbare_gehzeit": "Verfügbare Gehzeit",
     "gleis": "Bahnsteig",
     "halte": "Halte",
-    "tourdauer": "Tourdauer"
+    "tourdauer": "Tourdauer",
+    "frueher": "Früher",
+    "spaeter": "Später",
+    "terminkonflikt": "Terminkonflikt: Entweder frühere Hinfahrt oder spätere Rückfahrt wählen!",
+    "zeitmangel_kurz": "Es stehen nur {0} zur Verfügung!",
+    "echtzeit": "Echtzeit",
+    "ticket": "Ticket",
+    "kalender": "Kalender",
+    "link_kopiert": "Link kopiert!",
+    "wanderung": "Wanderung",
+    "schliessen": "Schließen",
+    "ticket_kaufen": "Ticket kaufen",
+    "ticket_hinfahrt": "Tickets für Anreise",
+    "ticket_rueckfahrt": "Tickets für Rückreise",
+    "ticket_oebb_fallback": "Tickets bei ÖBB",
+    "von_bis_zeiten": "Von {0} bis {1}",
+    "verfuegbar": "verfügbar",
+    "startort_aus_liste_waehlen": "Bitte einen Vorschlag aus der Liste auswählen",
+    "kontingent_erschoepft": "Kontingent der Fahrplanabfrage erschöpft.",
+    "verbindungssuche_fehlgeschlagen": "Verbindungssuche fehlgeschlagen. Bitte erneut versuchen."
   },
   "search": {
     "go": "Los!",

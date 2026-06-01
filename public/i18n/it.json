@@ -84,7 +84,7 @@
     "country_slowenien": "Slovenia",
     "country_liechtenstein": "Liechtenstein",
     "country_frankreich": "Francia",
-    "filter_city_description": "Filtra per escursioni raggiungibili dalla zona di:"
+    "filter_city_description": "Solo tour raggiungibili da:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",
@@ -290,7 +290,26 @@
     "verfuegbare_gehzeit": "Tempo di percorrenza disponibile",
     "gleis": "Banchina",
     "halte": "fermate",
-    "tourdauer": "Tempo di percorrenza"
+    "tourdauer": "Tempo di percorrenza",
+    "frueher": "Prima",
+    "spaeter": "Dopo",
+    "terminkonflikt": "Conflitto di orario: Scegli un'andata più presto o un ritorno più tardi!",
+    "zeitmangel_kurz": "Solo {0} disponibili!",
+    "echtzeit": "Tempo reale",
+    "ticket": "Biglietto",
+    "kalender": "Calendario",
+    "link_kopiert": "Link copiato!",
+    "wanderung": "Escursione",
+    "schliessen": "Chiudi",
+    "ticket_kaufen": "Acquista biglietto",
+    "ticket_hinfahrt": "Biglietti andata",
+    "ticket_rueckfahrt": "Biglietti ritorno",
+    "ticket_oebb_fallback": "Biglietti ÖBB",
+    "von_bis_zeiten": "Dalle {0} alle {1}",
+    "verfuegbar": "disponibile",
+    "startort_aus_liste_waehlen": "Seleziona un suggerimento dall'elenco",
+    "kontingent_erschoepft": "Quota delle richieste orari esaurita.",
+    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova."
   },
   "search": {
     "go": "Vai!",

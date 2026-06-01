@@ -84,7 +84,7 @@
     "country_slowenien": "Slovenia",
     "country_liechtenstein": "Liechtenstein",
     "country_frankreich": "France",
-    "filter_city_description": "Filter for accessible tours from the region around:"
+    "filter_city_description": "Only tours reachable from:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",
@@ -291,7 +291,26 @@
     "verfuegbare_gehzeit": "Available walking time",
     "gleis": "platform",
     "halte": "stops",
-    "tourdauer": "Tour duration"
+    "tourdauer": "Tour duration",
+    "frueher": "Earlier",
+    "spaeter": "Later",
+    "terminkonflikt": "Schedule conflict: Choose an earlier outbound or later return connection!",
+    "zeitmangel_kurz": "Only {0} available!",
+    "echtzeit": "Real-time",
+    "ticket": "Ticket",
+    "kalender": "Calendar",
+    "link_kopiert": "Link copied!",
+    "wanderung": "Hike",
+    "schliessen": "Close",
+    "ticket_kaufen": "Buy ticket",
+    "ticket_hinfahrt": "Outbound tickets",
+    "ticket_rueckfahrt": "Return tickets",
+    "ticket_oebb_fallback": "Tickets at ÖBB",
+    "von_bis_zeiten": "From {0} to {1}",
+    "verfuegbar": "available",
+    "startort_aus_liste_waehlen": "Please select a suggestion from the list",
+    "kontingent_erschoepft": "Timetable query quota exceeded.",
+    "verbindungssuche_fehlgeschlagen": "Connection search failed. Please try again."
   },
   "search": {
     "go": "Go!",
