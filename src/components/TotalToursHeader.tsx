@@ -21,7 +21,7 @@ const MAX_CHIPS = 5;
 interface ActiveChip {
   key: string;
   label: string;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 export default function TotalToursHeader({
@@ -48,7 +48,6 @@ export default function TotalToursHeader({
       chips.push({
         key: "city",
         label: `${t("search.ab_heimatbahnhof")} ${city.label}`,
-        onDelete: () => dispatch(cityUpdated(null)),
       });
     }
 
@@ -357,7 +356,7 @@ export default function TotalToursHeader({
                 <Chip
                   key={chip.key}
                   label={chip.label}
-                  onDelete={chip.onDelete}
+                  {...(chip.onDelete ? { onDelete: chip.onDelete } : {})}
                   size="small"
                   sx={chipSx}
                 />
