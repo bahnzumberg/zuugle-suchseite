@@ -119,8 +119,32 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
         hasInitialized.current = true;
         setTempFilter({ ...defaultFilterValues, ...storedFilter });
       } else {
-        // Subsequent re-fetches: preserve user's in-progress selections, only update bounds/defaults
-        setTempFilter((prev) => ({ ...defaultFilterValues, ...prev }));
+        // Subsequent re-fetches: preserve user's in-progress selections, only update bounds/defaults.
+        // Intersect array selections with available options to drop stale values (e.g. a region
+        // that's no longer reachable after travel time is reduced).
+        setTempFilter((prev) => {
+          const intersect = <T,>(
+            prevArr: T[] | undefined,
+            available: T[] | undefined,
+          ): T[] | undefined => {
+            if (!prevArr) return prevArr;
+            if (!available) return prevArr;
+            return prevArr.filter((v) => available.includes(v));
+          };
+          return {
+            ...defaultFilterValues,
+            ...prev,
+            ranges: intersect(prev.ranges, fetchedFilter?.ranges),
+            types: intersect(prev.types, fetchedFilter?.types),
+            languages: intersect(prev.languages, fetchedFilter?.languages),
+            countries: intersect(prev.countries, fetchedFilter?.countries),
+            providers: intersect(prev.providers, fetchedFilter?.providers),
+            difficulties: intersect(
+              prev.difficulties,
+              fetchedFilter?.difficulties,
+            ),
+          };
+        });
       }
     }
   }, [fetchedFilter, isFilterFetching, storedFilter]);
