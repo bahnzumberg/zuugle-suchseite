@@ -35,7 +35,11 @@ function getPreloadedSearchState() {
           type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
         }
       : null,
-    city: cityObject,
+    // URL city param takes precedence; only use stored city object if it matches the URL slug
+    city:
+      !params.get("city") || params.get("city") === cityObject?.value
+        ? cityObject
+        : null,
     citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
     language: params.get("lang") ?? null,
