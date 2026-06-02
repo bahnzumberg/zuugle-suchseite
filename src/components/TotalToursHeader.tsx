@@ -292,93 +292,91 @@ export default function TotalToursHeader({
   };
 
   return (
-    <Box className={"header-line-main"} sx={{ width: "100%" }}>
+    <Box
+      sx={{
+        height: "30px",
+        paddingY: "10px",
+        paddingX: "15px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        overflow: "hidden",
+        flexWrap: "nowrap",
+      }}
+    >
       <Box
         sx={{
-          paddingTop: "35px",
-          paddingBottom: "6px",
-          paddingX: "15px",
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          justifyContent: "center",
           gap: "8px",
           overflow: "hidden",
-          flexWrap: "nowrap",
+          maxWidth: "100%",
         }}
       >
-        <Box
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            overflow: "hidden",
-            maxWidth: "100%",
-          }}
-        >
-          {loadedTours?.total != undefined && (
-            <Typography
-              sx={{
-                fontSize: "16px",
-                fontWeight: 700,
-                color: "#333",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-              }}
-            >
-              {Number(loadedTours.total).toLocaleString()}
-              {loadedTours.total === 1
-                ? ` ${t("main.ergebnis")}`
-                : ` ${t("main.ergebnisse")}`}
-              {chips.length > 0 && (
-                <Box
-                  component="span"
-                  sx={{ color: "#aaa", fontWeight: 400, ml: "2px" }}
-                >
-                  {" "}
-                  |
-                </Box>
-              )}
-            </Typography>
-          )}
-          {chips.length > 0 && (
-            <Box
-              ref={chipsRowRef}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                overflow: "hidden",
-                minWidth: 0,
-              }}
-            >
-              {visibleChips.map((chip) => (
-                <Chip
-                  key={chip.key}
-                  label={chip.label}
-                  {...(chip.onDelete ? { onDelete: chip.onDelete } : {})}
-                  size="small"
-                  sx={chipSx}
-                />
-              ))}
-              {hiddenCount > 0 && (
-                <Chip
-                  label={`${hiddenCount} ${t("filter.weitere_filter")}`}
-                  size="small"
-                  onClick={() => setFilterOn?.(true)}
-                  sx={{
-                    ...chipSx,
-                    flexShrink: 0,
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "var(--bzb-bahnblau)",
-                      color: "#fff",
-                    },
-                  }}
-                />
-              )}
-            </Box>
-          )}
-        </Box>
+        {loadedTours?.total != undefined && (
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 700,
+              color: "#333",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            {Number(loadedTours.total).toLocaleString()}
+            {loadedTours.total === 1
+              ? ` ${t("main.ergebnis")}`
+              : ` ${t("main.ergebnisse")}`}
+            {chips.length > 0 && (
+              <Box
+                component="span"
+                sx={{ color: "#aaa", fontWeight: 400, ml: "2px" }}
+              >
+                {" "}
+                |
+              </Box>
+            )}
+          </Typography>
+        )}
+        {chips.length > 0 && (
+          <Box
+            ref={chipsRowRef}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              overflow: "hidden",
+              minWidth: 0,
+            }}
+          >
+            {visibleChips.map((chip) => (
+              <Chip
+                key={chip.key}
+                label={chip.label}
+                {...(chip.onDelete ? { onDelete: chip.onDelete } : {})}
+                size="small"
+                sx={chipSx}
+              />
+            ))}
+            {hiddenCount > 0 && (
+              <Chip
+                label={`${hiddenCount} ${t("filter.weitere_filter")}`}
+                size="small"
+                onClick={() => setFilterOn?.(true)}
+                sx={{
+                  ...chipSx,
+                  flexShrink: 0,
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "var(--bzb-bahnblau)",
+                    color: "#fff",
+                  },
+                }}
+              />
+            )}
+          </Box>
+        )}
       </Box>
     </Box>
   );

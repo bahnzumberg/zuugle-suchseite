@@ -110,7 +110,6 @@ export default function Start() {
                   variant={"h4"}
                   sx={{
                     textAlign: "left",
-                    paddingTop: "20px",
                     paddingBottom: "15px",
                   }}
                 >

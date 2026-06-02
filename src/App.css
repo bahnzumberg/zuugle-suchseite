@@ -196,19 +196,6 @@ body ::-webkit-scrollbar-thumb:hover {
   margin-bottom: 30px;
 }
 
-.header-line {
-  background: #ffff;
-  z-index: 0;
-}
-
-.header-line-main {
-  min-height: 70px;
-  margin-top: -20px;
-  background-color: #fff;
-  border-radius: 12px 12px 0 0;
-  z-index: 0;
-}
-
 .header-container {
   height: 500px;
   background-position: center center;
@@ -241,10 +228,25 @@ body ::-webkit-scrollbar-thumb:hover {
 .cards-container {
   padding: 30px;
   max-width: 1400px;
+  margin-top: 8px;
   margin-left: auto;
   margin-right: auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .cards-container,
+  .tour-detail-header {
+    margin-top: 16px;
+  }
+}
+
+@media (min-width: 900px) {
+  .cards-container,
+  .tour-detail-header {
+    margin-top: 32px;
+  }
 }
 
 .seo-bar {
@@ -263,10 +265,6 @@ body ::-webkit-scrollbar-thumb:hover {
     padding-left: 10px;
     font-size: 36px;
     letter-spacing: 0px;
-  }
-
-  .header-line {
-    display: none;
   }
 
   .header-container {
@@ -403,6 +401,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 .tour-detail-header {
   padding: 2rem 0;
+  margin-top: 8px;
   text-align: left;
 }
 

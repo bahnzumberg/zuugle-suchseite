@@ -443,7 +443,7 @@ export default function DetailReworked() {
       {isTourLoading ? (
         <LoadingSpinner />
       ) : (
-        <Box sx={{ mt: "-25px" }}>
+        <Box>
           {/* ─── Content wrapper (full width, max 1400px) ─── */}
           <Box
             sx={{
@@ -453,10 +453,7 @@ export default function DetailReworked() {
             }}
           >
             {/* ─── Title ─── */}
-            <Box
-              className="tour-detail-header"
-              sx={{ mt: { xs: "24px", md: "32px" } }}
-            >
+            <Box className="tour-detail-header">
               <Typography
                 variant="title"
                 component="h1"

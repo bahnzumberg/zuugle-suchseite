@@ -153,7 +153,10 @@ export default function SearchResults() {
   }, [location, allCities]);
 
   const renderCardContainer = () => (
-    <Box className="cards-container">
+    <Box
+      className="cards-container"
+      sx={{ marginTop: { xs: 0, md: 0, lg: "14px" } }}
+    >
       <TourCardContainer
         tours={tours}
         hasMore={hasMore}
