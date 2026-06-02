@@ -44,7 +44,14 @@ export default function SearchResults() {
   const [triggerMoreTours] = useLazyGetToursQuery();
   const [filterOn, setFilterOn] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 5);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   usePageHeader({
     header: `Zuugle ${t("main.ergebnisse")}`,
@@ -164,7 +171,8 @@ export default function SearchResults() {
           position: "sticky",
           top: 0,
           zIndex: 100,
-          backgroundColor: "#f7f7f7",
+          backgroundColor: "#fff",
+          borderBottom: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "none",
         }}
       >
         <Box className={"search-result-header-container"}>

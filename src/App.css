@@ -204,11 +204,9 @@ body ::-webkit-scrollbar-thumb:hover {
 .header-line-main {
   min-height: 70px;
   margin-top: -20px;
-  background-color: #f7f7f7;
+  background-color: #fff;
+  border-radius: 12px 12px 0 0;
   z-index: 0;
-  box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
 }
 
 .header-container {
@@ -389,9 +387,6 @@ body ::-webkit-scrollbar-thumb:hover {
   position: relative;
   padding-bottom: 50px;
   z-index: 10;
-  box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
 }
 
 @media only screen and (min-width: 910px) {

@@ -38,39 +38,35 @@ export default function TourCardContainer({
   }, [tours]);
 
   return (
-    <Box>
-      {
-        <InfiniteScroll
-          dataLength={tours.length}
-          next={fetchMore}
-          hasMore={hasMore}
-          loader={<CircularProgress size={LOADER_HEIGHT} />}
-          endMessage={<p> </p>}
-          style={{ overflow: "hidden" }}
-        >
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "1fr 1fr",
-                lg: "1fr 1fr 1fr",
-              },
-              gap: "30px",
-            }}
-          >
-            {tours.map((tour, index) => (
-              <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
-                <TourCard
-                  tour={tour}
-                  city={city?.value || null}
-                  provider={provider}
-                />
-              </Box>
-            ))}
+    <InfiniteScroll
+      dataLength={tours.length}
+      next={fetchMore}
+      hasMore={hasMore}
+      loader={<CircularProgress size={LOADER_HEIGHT} />}
+      endMessage={<p> </p>}
+      style={{ overflow: "visible" }}
+    >
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr 1fr",
+            lg: "1fr 1fr 1fr",
+          },
+          gap: "30px",
+        }}
+      >
+        {tours.map((tour, index) => (
+          <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
+            <TourCard
+              tour={tour}
+              city={city?.value || null}
+              provider={provider}
+            />
           </Box>
-        </InfiniteScroll>
-      }
-    </Box>
+        ))}
+      </Box>
+    </InfiniteScroll>
   );
 }
