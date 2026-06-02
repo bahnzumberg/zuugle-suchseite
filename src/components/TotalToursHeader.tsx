@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "..";
 import { useAppDispatch } from "../hooks";
 import { filterUpdated } from "../features/filterSlice";
-import { cityUpdated } from "../features/searchSlice";
 import { FilterObject } from "../models/Filter";
 import {
   getCountryTranslationMap,

@@ -22,7 +22,6 @@ import Typography from "@mui/material/Typography";
 // Dynamische Imports für nicht-kritische Komponenten
 import KPIContainer from "../../components/KPIContainer";
 import Footer from "../../components/Footer/Footer";
-import TotalToursHeader from "../../components/TotalToursHeader";
 
 export default function Start() {
   const { t } = useTranslation();
@@ -102,7 +101,6 @@ export default function Start() {
       <Box style={{ background: "#fff" }}>
         <Header totals={totals} isLoading={isTotalsLoading} />
       </Box>
-      <TotalToursHeader loadedTours={loadedTours} />
       {!isTotalsLoading && (
         <>
           {totals?.total_tours && totals?.total_tours > 0 && (
