@@ -350,7 +350,6 @@ function getVehicleTypeLabel(
 function ConnectionTabs({
   connections,
   selectedId,
-  recommendedId,
   onSelect,
   t,
   conflictThreshold,
@@ -1034,8 +1033,6 @@ function generateIcs(
   toConn: Connection,
   fromConn: Connection,
   tourTitle: string,
-  coordinateReplacements?: CoordinateReplacement,
-  lang?: string,
 ): string {
   const now = toIcsDate(new Date().toISOString());
 
@@ -1129,7 +1126,7 @@ export default function ConnectionResults({
     if (!toExists) {
       setSelectedToId(connections.recommended_to_activity_connection);
     }
-  }, [connections.to_activity]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [connections.to_activity]);
 
   useEffect(() => {
     const fromExists = connections.from_activity.some(
@@ -1138,7 +1135,7 @@ export default function ConnectionResults({
     if (!fromExists) {
       setSelectedFromId(connections.recommended_from_activity_connection);
     }
-  }, [connections.from_activity]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [connections.from_activity]);
 
   // Toggle state: details hidden by default
   const [toExpanded, setToExpanded] = useState(false);
@@ -1268,13 +1265,7 @@ export default function ConnectionResults({
   const handleCalendar = () => {
     if (actionsDisabled || !selectedTo || !selectedFrom) return;
     const tourTitle = tour?.title || t("details.wanderung");
-    const icsContent = generateIcs(
-      selectedTo,
-      selectedFrom,
-      tourTitle,
-      coordinateReplacements,
-      i18n.language,
-    );
+    const icsContent = generateIcs(selectedTo, selectedFrom, tourTitle);
 
     // Build filename: "Wanderung-DD-MM-YYYY.ics" from the Hinfahrt date
     const d = new Date(selectedTo.connection_start_timestamp);
