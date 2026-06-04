@@ -30,9 +30,7 @@ import {
   localTimeToUtc,
 } from "../../utils/dianaApi";
 import { DIANA_ACTIVITY_TIMES } from "../../utils/dianaConfig";
-import ConnectionResults, {
-  ConnectionsResultData,
-} from "./ConnectionResults";
+import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
   tour: Tour;
@@ -282,9 +280,9 @@ export default function ConnectionSearchForm({
           const existingIds = new Set(
             prev.connections.to_activity.map((c) => c.connection_id),
           );
-          const newConns = (
-            newData.connections.to_activity || []
-          ).filter((c) => !existingIds.has(c.connection_id));
+          const newConns = (newData.connections.to_activity || []).filter(
+            (c) => !existingIds.has(c.connection_id),
+          );
           return {
             ...prev,
             connections: {
@@ -298,9 +296,9 @@ export default function ConnectionSearchForm({
           const existingIds = new Set(
             prev.connections.from_activity.map((c) => c.connection_id),
           );
-          const newConns = (
-            newData.connections.from_activity || []
-          ).filter((c) => !existingIds.has(c.connection_id));
+          const newConns = (newData.connections.from_activity || []).filter(
+            (c) => !existingIds.has(c.connection_id),
+          );
           return {
             ...prev,
             connections: {
@@ -360,9 +358,9 @@ export default function ConnectionSearchForm({
           const existingIds = new Set(
             prev.connections.to_activity.map((c) => c.connection_id),
           );
-          const newConns = (
-            newData.connections.to_activity || []
-          ).filter((c) => !existingIds.has(c.connection_id));
+          const newConns = (newData.connections.to_activity || []).filter(
+            (c) => !existingIds.has(c.connection_id),
+          );
           return {
             ...prev,
             connections: {
@@ -376,9 +374,9 @@ export default function ConnectionSearchForm({
           const existingIds = new Set(
             prev.connections.from_activity.map((c) => c.connection_id),
           );
-          const newConns = (
-            newData.connections.from_activity || []
-          ).filter((c) => !existingIds.has(c.connection_id));
+          const newConns = (newData.connections.from_activity || []).filter(
+            (c) => !existingIds.has(c.connection_id),
+          );
           return {
             ...prev,
             connections: {

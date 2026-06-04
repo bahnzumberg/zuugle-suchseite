@@ -9,6 +9,7 @@
 Diana GreenConnect ist ein **Fahrplan-Suchsystem für Öffi-Wanderungen**. Der Benutzer wählt auf einer Karte eine Start- und Zielhaltestelle, gibt Datum und geplante Gehzeit ein, und erhält passende Hin- und Rückverbindungen mit öffentlichen Verkehrsmitteln.
 
 ### Hauptfunktionen
+
 - Verbindungssuche (Hin- und Rückfahrt) über die Diana API
 - Verbindungsslots wählen und visuell vergleichen
 - Zeitkonflikte erkennen und anzeigen
@@ -49,12 +50,12 @@ React App
 
 ## 3. Umgebungsvariablen
 
-| Variable | Kontext | Beschreibung |
-|---|---|---|
-| `DIANA_CLIENT_ID` | Server | OAuth2 Client-ID |
-| `DIANA_CLIENT_SECRET` | Server | OAuth2 Client-Secret |
-| `DIANA_TOKEN_URL` | Server | OAuth2 Token-Endpoint (Default: `https://api.zuugle-services.net/o/token/`) |
-| `NEXT_PUBLIC_DIANA_API_URL` | Client | Diana API Base-URL (Default: `https://api.zuugle-services.net`) |
+| Variable                    | Kontext | Beschreibung                                                                |
+| --------------------------- | ------- | --------------------------------------------------------------------------- |
+| `DIANA_CLIENT_ID`           | Server  | OAuth2 Client-ID                                                            |
+| `DIANA_CLIENT_SECRET`       | Server  | OAuth2 Client-Secret                                                        |
+| `DIANA_TOKEN_URL`           | Server  | OAuth2 Token-Endpoint (Default: `https://api.zuugle-services.net/o/token/`) |
+| `NEXT_PUBLIC_DIANA_API_URL` | Client  | Diana API Base-URL (Default: `https://api.zuugle-services.net`)             |
 
 ---
 
@@ -89,6 +90,7 @@ Wenn ein API-Call 401 zurückgibt, wird automatisch ein Token-Refresh ausgelöst
 ### 4.3 API-Client (dianaFetch)
 
 Wrapper um `fetch()`:
+
 - Setzt `Authorization: Bearer {token}` Header
 - Bei 401: automatischer Token-Refresh + Retry
 - Bei 5xx: Throw → triggert `fetchWithRetry`
@@ -99,6 +101,7 @@ Wrapper um `fetch()`:
 ## 5. Datentypen
 
 ### 5.1 DianaStop
+
 ```typescript
 interface DianaStop {
   lat: number;
@@ -108,24 +111,25 @@ interface DianaStop {
 ```
 
 ### 5.2 ConnectionElement
+
 Ein einzelner Abschnitt einer Verbindung (Zugfahrt, Fußweg, Umstieg).
 
 ```typescript
 interface ConnectionElement {
-  type: 'JNY' | 'WALK' | 'TRSF';  // Journey, Walk, Transfer
-  departure_time: string;           // ISO 8601 UTC
-  arrival_time: string;             // ISO 8601 UTC
-  vehicle_type?: number;            // 1=Zug, 2=Bus, 3=Tram, 4=U-Bahn, etc.
-  vehicle_name?: string;            // z.B. "RJX 62"
-  from_location?: string;           // Haltestellenname
+  type: "JNY" | "WALK" | "TRSF"; // Journey, Walk, Transfer
+  departure_time: string; // ISO 8601 UTC
+  arrival_time: string; // ISO 8601 UTC
+  vehicle_type?: number; // 1=Zug, 2=Bus, 3=Tram, 4=U-Bahn, etc.
+  vehicle_name?: string; // z.B. "RJX 62"
+  from_location?: string; // Haltestellenname
   to_location?: string;
   from_location_coordinates?: { lat: number; lon: number };
   to_location_coordinates?: { lat: number; lon: number };
-  platform_orig?: string;           // Abfahrtsgleis
-  platform_dest?: string;           // Ankunftsgleis
-  duration?: number;                // Dauer in Minuten
-  direction?: string;               // Fahrtziel des Zuges
-  n_intermediate_stops?: number;    // Anzahl Zwischenhalte (exkl. Endstation)
+  platform_orig?: string; // Abfahrtsgleis
+  platform_dest?: string; // Ankunftsgleis
+  duration?: number; // Dauer in Minuten
+  direction?: string; // Fahrtziel des Zuges
+  n_intermediate_stops?: number; // Anzahl Zwischenhalte (exkl. Endstation)
   alerts?: Array<{ header_text?: string; description_text?: string }>;
 }
 ```
@@ -145,42 +149,44 @@ interface ConnectionElement {
 | 10 | Taxi |
 
 ### 5.3 Connection
+
 Eine vollständige Verbindung (Hin- oder Rückfahrt).
 
 ```typescript
 interface Connection {
   connection_elements: ConnectionElement[];
-  connection_start_timestamp: string;  // ISO 8601 UTC
-  connection_end_timestamp: string;    // ISO 8601 UTC
-  connection_transfers?: number;       // Anzahl Umstiege
+  connection_start_timestamp: string; // ISO 8601 UTC
+  connection_end_timestamp: string; // ISO 8601 UTC
+  connection_transfers?: number; // Anzahl Umstiege
 }
 ```
 
 ### 5.4 SearchResults
+
 Die vollständige API-Antwort.
 
 ```typescript
 interface SearchResults {
   connections: {
-    to_activity: Connection[];     // Hinfahrten
-    from_activity: Connection[];   // Rückfahrten
-    recommended_to_activity_connection?: number;   // Empfohlener Index
+    to_activity: Connection[]; // Hinfahrten
+    from_activity: Connection[]; // Rückfahrten
+    recommended_to_activity_connection?: number; // Empfohlener Index
     recommended_from_activity_connection?: number;
-    has_more_before_to_activity?: boolean | null;   // Frühere verfügbar?
-    has_more_after_to_activity?: boolean | null;    // Spätere verfügbar?
+    has_more_before_to_activity?: boolean | null; // Frühere verfügbar?
+    has_more_after_to_activity?: boolean | null; // Spätere verfügbar?
     has_more_before_from_activity?: boolean | null;
     has_more_after_from_activity?: boolean | null;
   };
   activity?: {
     name?: string;
-    start_location?: string;                // "lat,lon"
+    start_location?: string; // "lat,lon"
     end_location?: string;
     start_location_display_name?: string;
     end_location_display_name?: string;
     duration_minutes?: number;
-    duration_days?: number;                 // > 1 bei Mehrtagestouren
+    duration_days?: number; // > 1 bei Mehrtagestouren
   };
-  live?: boolean;   // Echtzeitdaten verfügbar?
+  live?: boolean; // Echtzeitdaten verfügbar?
 }
 ```
 
@@ -197,41 +203,41 @@ Authorization: Bearer {token}
 
 **Pflicht-Parameter:**
 
-| Parameter | Beschreibung |
-|---|---|
-| `date` | Reisedatum (YYYY-MM-DD) |
-| `activity_name` | Name der Aktivität (z.B. "Wanderung") |
-| `activity_start_location` | Start-Koordinaten "lat,lon" |
-| `activity_start_location_type` | `"coordinates"` |
-| `activity_end_location` | Ziel-Koordinaten "lat,lon" |
-| `activity_end_location_type` | `"coordinates"` |
-| `timezone` | `"Europe/Vienna"` |
-| `activity_earliest_start_time` | Frühester Aufbruch (HH:MM:SS UTC) |
-| `activity_latest_start_time` | Spätester Aufbruch (HH:MM:SS UTC) |
-| `activity_earliest_end_time` | Früheste Rückkehr (HH:MM:SS UTC) |
-| `activity_latest_end_time` | Späteste Rückkehr (HH:MM:SS UTC) |
-| `activity_duration_minutes` | Geplante Gehzeit in Minuten |
-| `user_start_location` | Abfahrtsort (Koordinaten oder Adresse) |
-| `user_start_location_type` | `"coordinates"` oder `"address"` |
-| `user_start_location_display_name` | Anzeigename des Abfahrtsortes |
-| `activity_start_location_display_name` | Anzeigename der Start-Haltestelle |
-| `activity_end_location_display_name` | Anzeigename der Ziel-Haltestelle |
-| `use_flex` | `"true"` oder `"false"` (Bedarfsverkehr) |
+| Parameter                              | Beschreibung                             |
+| -------------------------------------- | ---------------------------------------- |
+| `date`                                 | Reisedatum (YYYY-MM-DD)                  |
+| `activity_name`                        | Name der Aktivität (z.B. "Wanderung")    |
+| `activity_start_location`              | Start-Koordinaten "lat,lon"              |
+| `activity_start_location_type`         | `"coordinates"`                          |
+| `activity_end_location`                | Ziel-Koordinaten "lat,lon"               |
+| `activity_end_location_type`           | `"coordinates"`                          |
+| `timezone`                             | `"Europe/Vienna"`                        |
+| `activity_earliest_start_time`         | Frühester Aufbruch (HH:MM:SS UTC)        |
+| `activity_latest_start_time`           | Spätester Aufbruch (HH:MM:SS UTC)        |
+| `activity_earliest_end_time`           | Früheste Rückkehr (HH:MM:SS UTC)         |
+| `activity_latest_end_time`             | Späteste Rückkehr (HH:MM:SS UTC)         |
+| `activity_duration_minutes`            | Geplante Gehzeit in Minuten              |
+| `user_start_location`                  | Abfahrtsort (Koordinaten oder Adresse)   |
+| `user_start_location_type`             | `"coordinates"` oder `"address"`         |
+| `user_start_location_display_name`     | Anzeigename des Abfahrtsortes            |
+| `activity_start_location_display_name` | Anzeigename der Start-Haltestelle        |
+| `activity_end_location_display_name`   | Anzeigename der Ziel-Haltestelle         |
+| `use_flex`                             | `"true"` oder `"false"` (Bedarfsverkehr) |
 
 **Optionale Parameter:**
 
-| Parameter | Beschreibung |
-|---|---|
+| Parameter                | Beschreibung                    |
+| ------------------------ | ------------------------------- |
 | `activity_duration_days` | Anzahl Tage bei Mehrtagestouren |
 
 **Scroll-Parameter** (zum Nachladen früherer/späterer Verbindungen):
 
-| Parameter | Beschreibung |
-|---|---|
-| `to_connections_before` | Hinfahrten VOR diesem Timestamp laden |
-| `to_connections_after` | Hinfahrten NACH diesem Timestamp laden |
-| `from_connections_before` | Rückfahrten VOR diesem Timestamp laden |
-| `from_connections_after` | Rückfahrten NACH diesem Timestamp laden |
+| Parameter                 | Beschreibung                            |
+| ------------------------- | --------------------------------------- |
+| `to_connections_before`   | Hinfahrten VOR diesem Timestamp laden   |
+| `to_connections_after`    | Hinfahrten NACH diesem Timestamp laden  |
+| `from_connections_before` | Rückfahrten VOR diesem Timestamp laden  |
+| `from_connections_after`  | Rückfahrten NACH diesem Timestamp laden |
 
 ### 6.2 Zeitfenster-Logik
 
@@ -261,13 +267,14 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```typescript
 {
   features: Array<{
     geometry: { coordinates: [lon, lat] };
     diana_properties: {
       display_name: string;
-      location_type?: string;  // "station" oder "address"
+      location_type?: string; // "station" oder "address"
       type_hint?: number;
     };
   }>;
@@ -328,6 +335,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```typescript
 {
   ticketshop_links?: Array<{
@@ -346,21 +354,22 @@ Content-Type: application/json
 
 Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 
-| Code | Bedeutung | Verhalten |
-|---|---|---|
-| `6001`, `6002` | Kontingent erschöpft | Keine Retry, Hinweis auf www.anachb.at |
-| `2027` | Keine Haltestelle in der Nähe | Keine Retry |
-| `2022-1` | Keine Verbindungen heute (zu spät) | Keine Retry |
-| `2017`-`2024` (mit Suffix `-1`) | Keine Hinfahrt gefunden | Keine Retry, mit Datum/Ort-Details |
-| `2017`-`2024` (mit Suffix `-2`) | Keine Rückfahrt gefunden | Keine Retry, mit Datum/Ort-Details |
-| `2017`-`2024` (ohne Suffix) | Generell keine Verbindung | Keine Retry |
-| `2002` | Ort nicht gefunden | Keine Retry |
-| `2003` | Suchdienst nicht erreichbar | Retry |
-| `2025-1`, `2025-2` | Berechnungsfehler | Retry |
-| `3001`-`3004` | Fahrplandienst nicht erreichbar | Retry |
-| HTTP 400 + `user_start_location` | Ungültiger Abfahrtsort | Keine Retry |
+| Code                             | Bedeutung                          | Verhalten                              |
+| -------------------------------- | ---------------------------------- | -------------------------------------- |
+| `6001`, `6002`                   | Kontingent erschöpft               | Keine Retry, Hinweis auf www.anachb.at |
+| `2027`                           | Keine Haltestelle in der Nähe      | Keine Retry                            |
+| `2022-1`                         | Keine Verbindungen heute (zu spät) | Keine Retry                            |
+| `2017`-`2024` (mit Suffix `-1`)  | Keine Hinfahrt gefunden            | Keine Retry, mit Datum/Ort-Details     |
+| `2017`-`2024` (mit Suffix `-2`)  | Keine Rückfahrt gefunden           | Keine Retry, mit Datum/Ort-Details     |
+| `2017`-`2024` (ohne Suffix)      | Generell keine Verbindung          | Keine Retry                            |
+| `2002`                           | Ort nicht gefunden                 | Keine Retry                            |
+| `2003`                           | Suchdienst nicht erreichbar        | Retry                                  |
+| `2025-1`, `2025-2`               | Berechnungsfehler                  | Retry                                  |
+| `3001`-`3004`                    | Fahrplandienst nicht erreichbar    | Retry                                  |
+| HTTP 400 + `user_start_location` | Ungültiger Abfahrtsort             | Keine Retry                            |
 
 **Retry-Strategie:**
+
 - Maximal 3 Versuche
 - 1,5 Sekunden Wartezeit zwischen Versuchen
 - Fehler mit `_noRetry: true` werden nicht wiederholt
@@ -373,6 +382,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 ### 8.1 DianaPanel (Hauptcontainer)
 
 **State:**
+
 - `selectedToIdx` / `selectedFromIdx` — ausgewählte Hin-/Rückfahrt-Indizes
 - `dateFrom` / `dateTo` — Reisedatum (Default: morgen)
 - `durationValue` — Gehzeit-Eingabe als String
@@ -381,6 +391,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 - `isShareRestore` — Flag ob aus Share-Link geladen wurde
 
 **Ablauf bei Suche:**
+
 1. Validierung: Start + Ziel gesetzt? Origin gültig? Duration ausgefüllt (bei Eintagestour)?
 2. Wenn Origin-Text ohne Autocomplete-Auswahl → Reset auf Default-Origin
 3. API-Call über `useConnectionSearch.search()`
@@ -390,6 +401,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 ### 8.2 DianaForm
 
 **Felder:**
+
 - **Abfahrt von:** Text-Input mit Autocomplete (Default: konfigurierter Bahnhof)
 - **Von / Bis:** Datum-Inputs (min: heute, max: letzter Fahrplantag)
 - **Dauer:** Frei-Text (akzeptiert: "3", "2.5", "2:30", "1h 30min", "90min")
@@ -397,6 +409,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 - **Suche-Button:** Deaktiviert wenn Origin out-of-bounds oder Start/Ziel fehlt
 
 **Duration-Parsing** (flexibles Format):
+
 ```
 "3"        → 3.0 Stunden
 "2.5"      → 2.5 Stunden
@@ -408,6 +421,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 ```
 
 **Verhalten:**
+
 - Bei Von > Bis: Bis wird automatisch auf Von gesetzt
 - Datums-Felder werden on blur auf [heute, letzter_tag_im_fahrplan] geclampt
 - Bei Mehrtages-Tour (Von ≠ Bis): Duration-Feld wird ausgeblendet
@@ -420,6 +434,7 @@ Die API gibt strukturierte Fehler mit `code`-Feld zurück. Die Behandlung:
 Besteht aus drei Sektionen:
 
 #### Hinfahrt-Sektion
+
 - **Titel:** "Hinfahrt DD.MM.YYYY" + optional 🟢 Echtzeit-Badge
 - **Connection-Slots:** Horizontale scrollbare Karten mit Start-End-Zeit, Dauer, Umstiegszahl
 - **Connection-Detail:** Vertikal aufgebaut mit Legs (Abschnitte):
@@ -430,6 +445,7 @@ Besteht aus drei Sektionen:
 - **Scroll-Buttons:** ◀ (früher) und ▶ (später) — immer sichtbar wenn `has_more_before/after` true
 
 #### Wanderung-Sektion
+
 - Hintergrund: grüner Rahmen
 - Zeigt: Geplante Gehzeit, Verfügbare Gehzeit (Von–Bis mit Dauer)
 - **Wenn Dauer negativ** (Rückfahrt vor Ankunft): roter Text "Terminkonflikt: Entweder frühere Hinfahrt oder spätere Rückfahrt wählen!"
@@ -437,6 +453,7 @@ Besteht aus drei Sektionen:
 - Bei Mehrtagestour: Start-/Enddatum und -zeiten statt Gehzeit
 
 #### Rückfahrt-Sektion
+
 - Gleicher Aufbau wie Hinfahrt, aber **Slots unter dem Detail** (statt darüber)
 
 #### Slot-Greying (Zeitkonflikte)
@@ -471,15 +488,18 @@ Drei Buttons in einer Reihe:
 ## 9. Scroll-Logik (Frühere/Spätere Verbindungen)
 
 ### Nachladen
+
 - ◀ Button: Sendet `to_connections_before` / `from_connections_before` mit dem Timestamp der ersten Verbindung
 - ▶ Button: Sendet `to_connections_after` / `from_connections_after` mit dem Timestamp der letzten Verbindung
 - Neue Verbindungen werden in die bestehende Liste eingefügt (prepend/append)
 
 ### Merge-Logik
+
 - Bei Prepend (neue frühere): `selectedIdx` wird um die Anzahl neuer Verbindungen erhöht (damit die aktive Auswahl stabil bleibt)
 - `has_more_before/after` Flags werden aus der Scroll-Antwort aktualisiert
 
 ### Rendering
+
 - Die Scroll-Buttons sind **immer** im DOM wenn `has_more_before`/`has_more_after` true ist
 - Sie befinden sich **innerhalb** des horizontalen Scroll-Containers an den Rändern
 - Kein JavaScript-basiertes Scroll-Position-Tracking nötig
@@ -489,6 +509,7 @@ Drei Buttons in einer Reihe:
 ## 10. Share-Link System
 
 ### Erstellen
+
 1. User klickt "Teilen"
 2. Payload wird an `POST /share/` gesendet (inkl. Origin, Datum, Dauer, gewählte Verbindungen, Activity)
 3. API gibt `shareId` zurück
@@ -497,6 +518,7 @@ Drei Buttons in einer Reihe:
 6. "✔ Link kopiert" wird 2,5s angezeigt
 
 ### Wiederherstellen
+
 1. Beim Laden der Seite: URL wird auf `diana-share` Parameter geprüft
 2. `GET /share/{shareId}` wird aufgerufen
 3. Aus der Antwort werden wiederhergestellt:
@@ -533,6 +555,7 @@ Generiert eine `.ics`-Datei mit 3-4 Events:
 Erweiterte Funktion: Ein Freund teilt seine Verbindung, und der zweite Benutzer sucht Verbindungen, die sich mit denen des ersten überschneiden.
 
 ### Ablauf
+
 1. Benutzer A teilt seinen Link
 2. Benutzer B öffnet den Link → sieht "Optimize"-Modus
 3. Benutzer B kann eigenen Abfahrtsort eingeben
@@ -541,7 +564,9 @@ Erweiterte Funktion: Ein Freund teilt seine Verbindung, und der zweite Benutzer 
 6. Treffpunkt wird automatisch ermittelt und angezeigt
 
 ### Shared-Leg-Analyse
+
 Algorithmus vergleicht die Legs zweier Verbindungen rückwärts (bei Hinfahrt) bzw. vorwärts (bei Rückfahrt):
+
 - JNY-Legs matchen wenn: gleicher `vehicle_name` UND gleiche `arrival_time` (Hin) / `departure_time` (Rück)
 - WALK/TRSF-Legs matchen wenn: gleiche `from_location`
 - Erster gemeinsamer Leg = Treffpunkt
@@ -555,22 +580,29 @@ Die gesamte Konfiguration liegt in einer `appConfig.ts`. Hier die für Diana rel
 ```typescript
 const APP_CONFIG = {
   diana: {
-    abfahrt_von_name: 'Wien Hauptbahnhof',  // Default-Abfahrtsort
+    abfahrt_von_name: "Wien Hauptbahnhof", // Default-Abfahrtsort
     abfahrt_von_lat: 48.185318,
     abfahrt_von_lon: 16.376555,
-    bounds: {                                 // Bounding-Box für Autocomplete-Filter
-      minLat: 48.005, maxLat: 48.35,
-      minLon: 15.88,  maxLon: 16.63,
+    bounds: {
+      // Bounding-Box für Autocomplete-Filter
+      minLat: 48.005,
+      maxLat: 48.35,
+      minLon: 15.88,
+      maxLon: 16.63,
     },
-    letzter_tag_im_fahrplan: "2026-12-13",   // Max-Datum für Datumsfelder
-    show_flex_toggle: true,                   // Bedarfsverkehr-Toggle anzeigen?
-    button_ok: 'Verbindungen suchen',
-    button_nok: 'Abfahrtsort zu weit entfernt',
+    letzter_tag_im_fahrplan: "2026-12-13", // Max-Datum für Datumsfelder
+    show_flex_toggle: true, // Bedarfsverkehr-Toggle anzeigen?
+    button_ok: "Verbindungen suchen",
+    button_nok: "Abfahrtsort zu weit entfernt",
     // Zeitfenster für die Suche:
-    earliest_start_h: 8,  earliest_start_m: 0,   // 08:00
-    latest_start_h: 14,   latest_start_m: 0,      // 14:00
-    earliest_end_h: 12,   earliest_end_m: 0,       // 12:00
-    latest_end_h: 20,     latest_end_m: 0,          // 20:00
+    earliest_start_h: 8,
+    earliest_start_m: 0, // 08:00
+    latest_start_h: 14,
+    latest_start_m: 0, // 14:00
+    earliest_end_h: 12,
+    earliest_end_m: 0, // 12:00
+    latest_end_h: 20,
+    latest_end_m: 0, // 20:00
   },
 };
 ```
@@ -581,18 +613,18 @@ const APP_CONFIG = {
 
 ### Funktionen
 
-| Funktion | Input | Output | Beschreibung |
-|---|---|---|---|
-| `localTimeToUtc(dateStr, h, m)` | `"2026-05-29", 8, 0` | `{ h: 6, m: 0 }` | Lokale Uhrzeit → UTC |
-| `fmtUtcTime(utc)` | `{ h: 6, m: 0 }` | `"06:00:00"` | UTC-Objekt → String |
-| `toLocalTime(isoStr)` | ISO-String | `"14:00"` | ISO → Lokale Uhrzeit (Europe/Vienna) |
-| `toLocalDate(isoStr)` | ISO-String | `"29.05.2026"` | ISO → Lokales Datum |
-| `fmtMin(m)` | `90` | `"1 h 30 min"` | Minuten → lesbare Dauer |
-| `formatDuration(min)` | `144` | `"2 h 24 min"` | Minuten → Dauer-String |
-| `parseDuration(val)` | `"2:30"` | `2.5` | Frei-Text → Stunden |
-| `cleanStopName(name)` | `"Wien Hbf  "` | `"Wien Hbf"` | Trailing-Whitespace/Sonderzeichen entfernen |
-| `getTodayISO()` | — | `"2026-05-28"` | Heutiges Datum als YYYY-MM-DD |
-| `getTomorrowISO()` | — | `"2026-05-29"` | Morgiges Datum als YYYY-MM-DD |
+| Funktion                        | Input                | Output           | Beschreibung                                |
+| ------------------------------- | -------------------- | ---------------- | ------------------------------------------- |
+| `localTimeToUtc(dateStr, h, m)` | `"2026-05-29", 8, 0` | `{ h: 6, m: 0 }` | Lokale Uhrzeit → UTC                        |
+| `fmtUtcTime(utc)`               | `{ h: 6, m: 0 }`     | `"06:00:00"`     | UTC-Objekt → String                         |
+| `toLocalTime(isoStr)`           | ISO-String           | `"14:00"`        | ISO → Lokale Uhrzeit (Europe/Vienna)        |
+| `toLocalDate(isoStr)`           | ISO-String           | `"29.05.2026"`   | ISO → Lokales Datum                         |
+| `fmtMin(m)`                     | `90`                 | `"1 h 30 min"`   | Minuten → lesbare Dauer                     |
+| `formatDuration(min)`           | `144`                | `"2 h 24 min"`   | Minuten → Dauer-String                      |
+| `parseDuration(val)`            | `"2:30"`             | `2.5`            | Frei-Text → Stunden                         |
+| `cleanStopName(name)`           | `"Wien Hbf  "`       | `"Wien Hbf"`     | Trailing-Whitespace/Sonderzeichen entfernen |
+| `getTodayISO()`                 | —                    | `"2026-05-28"`   | Heutiges Datum als YYYY-MM-DD               |
+| `getTomorrowISO()`              | —                    | `"2026-05-29"`   | Morgiges Datum als YYYY-MM-DD               |
 
 ---
 
@@ -603,6 +635,7 @@ Jeder ConnectionElement wird als "Leg" gerendert mit:
 ### Leg-Typen
 
 **JNY (Journey — Fahrt):**
+
 - Icon: basierend auf `vehicle_type` (Zug/Bus/Tram/U-Bahn/Seilbahn/Taxi)
 - Anzeige: Fahrzeug-Typ + Name (z.B. "Zug RJX 62")
 - Optional: Richtung ("→ München Hbf"), Abfahrt-/Ankunftsgleis
@@ -611,14 +644,17 @@ Jeder ConnectionElement wird als "Leg" gerendert mit:
 - Bei Alerts: Warnbox mit ⚠ Text
 
 **WALK (Fußweg):**
+
 - Icon: Fußweg-Symbol
 - Anzeige: "Fußweg (9 min)"
 
 **TRSF (Umstieg/Transfer):**
+
 - Icon: Umstieg-Symbol
 - Anzeige: "Umstieg (2 min)"
 
 ### Timeline-Darstellung
+
 - Linke Spalte: Uhrzeit (lokale Zeit)
 - Rechte Spalte: Haltestellenname + Details
 - Vertikale Linie mit grünen Punkten verbindet die Legs
@@ -630,10 +666,12 @@ Jeder ConnectionElement wird als "Leg" gerendert mit:
 ## 16. Connection-Slot-Darstellung
 
 Jeder Slot zeigt:
+
 - **Zeitspanne:** "12:28 - 14:00"
-- **Info-Zeile:** "1:32 h    2 ⇄" (Dauer + Umstiegszahl)
+- **Info-Zeile:** "1:32 h 2 ⇄" (Dauer + Umstiegszahl)
 
 ### States
+
 - **Normal:** Dunkler Hintergrund, dezente Farben
 - **Active:** Grüner Border, heller Text
 - **Conflict:** Opacity 0.35, auf Hover 0.6
@@ -676,19 +714,19 @@ else:
 
 ## 19. Zusammenfassung der Dateien
 
-| Datei | Funktion |
-|---|---|
-| `dianaApi.ts` | API-Client mit OAuth2 + Auto-Refresh |
-| `oauth2.ts` | Server-seitiger Token-Fetch (SSR) |
-| `fetchWithRetry.ts` | Generischer Retry-Wrapper |
-| `dateUtils.ts` | Datums-/Zeitformatierung + Duration-Parsing |
-| `calendarExport.ts` | ICS-Kalender-Generierung |
-| `useConnectionSearch.ts` | Hook: Verbindungssuche + Scroll |
-| `useShareLink.ts` | Hook: Share-Links erstellen/wiederherstellen |
-| `DianaPanel.tsx` | Hauptcontainer, State-Management |
-| `DianaForm.tsx` | Suchformular |
-| `DianaAutocomplete.tsx` | Adress-Autocomplete |
-| `DianaResults.tsx` | Ergebnisanzeige (Slots + Legs + Wanderung) |
-| `DianaActionButtons.tsx` | Ticket/Teilen/Kalender Buttons |
-| `TicketModal.tsx` | Ticket-Links Modal |
-| `api/token/route.ts` | OAuth2 Token-Refresh API-Route |
+| Datei                    | Funktion                                     |
+| ------------------------ | -------------------------------------------- |
+| `dianaApi.ts`            | API-Client mit OAuth2 + Auto-Refresh         |
+| `oauth2.ts`              | Server-seitiger Token-Fetch (SSR)            |
+| `fetchWithRetry.ts`      | Generischer Retry-Wrapper                    |
+| `dateUtils.ts`           | Datums-/Zeitformatierung + Duration-Parsing  |
+| `calendarExport.ts`      | ICS-Kalender-Generierung                     |
+| `useConnectionSearch.ts` | Hook: Verbindungssuche + Scroll              |
+| `useShareLink.ts`        | Hook: Share-Links erstellen/wiederherstellen |
+| `DianaPanel.tsx`         | Hauptcontainer, State-Management             |
+| `DianaForm.tsx`          | Suchformular                                 |
+| `DianaAutocomplete.tsx`  | Adress-Autocomplete                          |
+| `DianaResults.tsx`       | Ergebnisanzeige (Slots + Legs + Wanderung)   |
+| `DianaActionButtons.tsx` | Ticket/Teilen/Kalender Buttons               |
+| `TicketModal.tsx`        | Ticket-Links Modal                           |
+| `api/token/route.ts`     | OAuth2 Token-Refresh API-Route               |

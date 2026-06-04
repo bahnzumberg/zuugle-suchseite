@@ -34,7 +34,9 @@ export async function fetchDianaToken(): Promise<string> {
   const resp = await fetch(DIANA_TOKEN_URL);
   if (!resp.ok) {
     const body = await resp.json().catch(() => null);
-    const err = new Error(body?.error ?? `Diana token fetch failed: ${resp.status}`);
+    const err = new Error(
+      body?.error ?? `Diana token fetch failed: ${resp.status}`,
+    );
     (err as Error & { status?: number }).status = resp.status;
     throw err;
   }

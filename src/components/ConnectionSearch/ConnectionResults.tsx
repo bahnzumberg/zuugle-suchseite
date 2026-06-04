@@ -160,10 +160,7 @@ function transferLabel(n: number, t: (key: string) => string): string {
  * Format an ISO timestamp to ICS-compatible format: "20260529T120000Z"
  */
 function toIcsDate(isoString: string): string {
-  return isoString
-    .replace(/[-:]/g, "")
-    .replace(/\.\d+/, "")
-    .replace(" ", "T");
+  return isoString.replace(/[-:]/g, "").replace(/\.\d+/, "").replace(" ", "T");
 }
 
 /**
@@ -407,7 +404,9 @@ function ConnectionTabs({
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}>
+    <Box
+      sx={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}
+    >
       {/* Früher button */}
       {hasMoreBefore && (
         <Box component="span" sx={scrollBtnSx} onClick={onScrollBefore}>
@@ -448,8 +447,10 @@ function ConnectionTabs({
           const isConflicting =
             conflictThreshold != null &&
             (conflictCheckStart
-              ? new Date(conn.connection_start_timestamp) < new Date(conflictThreshold)
-              : new Date(conn.connection_end_timestamp) > new Date(conflictThreshold));
+              ? new Date(conn.connection_start_timestamp) <
+                new Date(conflictThreshold)
+              : new Date(conn.connection_end_timestamp) >
+                new Date(conflictThreshold));
 
           return (
             <Box
@@ -482,7 +483,9 @@ function ConnectionTabs({
               >
                 {timeRange}
               </Typography>
-              <Typography sx={{ fontSize: "11px", mt: "2px", whiteSpace: "nowrap" }}>
+              <Typography
+                sx={{ fontSize: "11px", mt: "2px", whiteSpace: "nowrap" }}
+              >
                 {durationLabel} &nbsp;{transfers} ⇄
               </Typography>
               <Typography sx={{ fontSize: "11px", mt: "1px" }}>
@@ -832,7 +835,10 @@ function TicketModal({
       try {
         const token = await fetchDianaToken();
 
-        const requests: Promise<{ links: TicketLink[]; direction: "to" | "from" }>[] = [];
+        const requests: Promise<{
+          links: TicketLink[];
+          direction: "to" | "from";
+        }>[] = [];
 
         if (selectedTo) {
           requests.push(
@@ -978,7 +984,11 @@ function TicketModal({
             {toLinks.length > 0 && (
               <Box sx={{ mb: "16px" }}>
                 <Typography
-                  sx={{ fontWeight: 600, mb: "8px", color: "var(--bzb-akelei)" }}
+                  sx={{
+                    fontWeight: 600,
+                    mb: "8px",
+                    color: "var(--bzb-akelei)",
+                  }}
                 >
                   {t("details.ticket_hinfahrt")}
                 </Typography>
@@ -988,7 +998,11 @@ function TicketModal({
             {fromLinks.length > 0 && (
               <Box>
                 <Typography
-                  sx={{ fontWeight: 600, mb: "8px", color: "var(--bzb-akelei)" }}
+                  sx={{
+                    fontWeight: 600,
+                    mb: "8px",
+                    color: "var(--bzb-akelei)",
+                  }}
                 >
                   {t("details.ticket_rueckfahrt")}
                 </Typography>
@@ -1185,8 +1199,7 @@ export default function ConnectionResults({
   const fromConflictThreshold = arrivalAtActivity; // Rückfahrt: conn_start < to.end = conflict
 
   // Buttons disabled when conflict or no selection
-  const actionsDisabled =
-    hasConflict || !selectedTo || !selectedFrom;
+  const actionsDisabled = hasConflict || !selectedTo || !selectedFrom;
 
   const hinfahrtDate = selectedTo
     ? formatDate(selectedTo.connection_start_timestamp)
@@ -1215,17 +1228,19 @@ export default function ConnectionResults({
           : null,
         date: searchDate || new Date().toISOString().substring(0, 10),
         dateEnd: null,
-        duration: activityDurationMinutes ? String(activityDurationMinutes) : null,
+        duration: activityDurationMinutes
+          ? String(activityDurationMinutes)
+          : null,
         alpenvereinaktiv_tour_id: null,
         to_connection_start_time:
           selectedTo?.connection_start_timestamp ?? null,
         to_connection_end_time: selectedTo?.connection_end_timestamp ?? null,
         from_connection_start_time:
           selectedFrom?.connection_start_timestamp ?? null,
-        from_connection_end_time: selectedFrom?.connection_end_timestamp ?? null,
+        from_connection_end_time:
+          selectedFrom?.connection_end_timestamp ?? null,
         activity: null,
-        shareURLPrefix:
-          window.location.origin + window.location.pathname,
+        shareURLPrefix: window.location.origin + window.location.pathname,
       };
 
       const resp = await fetch(`${DIANA_API_BASE}/share/`, {
@@ -1274,7 +1289,14 @@ export default function ConnectionResults({
       {/* ─── Anreise Datum ─── */}
       {connections.to_activity.length > 0 && (
         <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "8px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              mb: "8px",
+            }}
+          >
             <Typography
               sx={{
                 fontSize: "16px",
@@ -1553,7 +1575,10 @@ export default function ConnectionResults({
           variant="outlined"
           startIcon={
             shareLoading ? (
-              <CircularProgress size={16} sx={{ color: "var(--bzb-bahnblau)" }} />
+              <CircularProgress
+                size={16}
+                sx={{ color: "var(--bzb-bahnblau)" }}
+              />
             ) : (
               <ShareIcon />
             )
