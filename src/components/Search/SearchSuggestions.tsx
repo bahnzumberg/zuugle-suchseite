@@ -10,7 +10,7 @@ import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import { SearchWithType } from "../../features/apiSlice";
 import { HTMLAttributes } from "react";
 import { useTranslation } from "react-i18next";
-import { ReactComponent as TransportTrain } from "../../icons/svg/ic_transport_train.svg";
+import TransportTrain from "../../icons/svg/ic_transport_train.svg?react";
 
 export interface SearchSuggestionsProps {
   option: SearchWithType;

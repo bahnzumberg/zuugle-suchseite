@@ -511,7 +511,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <img
-                    src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+                    src={`/icons/provider/logo_${tour.provider}.svg`}
                     alt={tour.provider_name}
                     style={{
                       borderRadius: "100%",

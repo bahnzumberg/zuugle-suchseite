@@ -27,7 +27,7 @@ import { filterUpdated } from "../features/filterSlice";
  * than on other pages.
  */
 export default function SearchParamSync({
-  isSearchResultsPage: isSearchResultsPage,
+  isSearchResultsPage,
 }: {
   isSearchResultsPage: boolean;
 }) {

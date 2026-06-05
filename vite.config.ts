@@ -1,6 +1,17 @@
+import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  plugins: [react(), svgr()],
+  server: {
+    port: 3000,
+    open: true,
+  },
+  build: {
+    outDir: "build",
+    assetsDir: "app_static",
+  },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "react"],
     categories: {
@@ -36,7 +47,6 @@ export default defineConfig({
       "react/no-unescaped-entities": "error",
       "react/no-unknown-property": "error",
       "react/no-unsafe": "off",
-      "react/react-in-jsx-scope": "error",
       "react/require-render-return": "error",
       "no-array-constructor": "error",
       "no-unused-expressions": "error",
@@ -240,7 +250,7 @@ export default defineConfig({
     ],
   },
   staged: {
-    "**/*.js": "vp lint --fix --max-warnings 0 --no-warn-ignored",
+    "**/*.js": "vp lint --fix",
     "**/*": "vp fmt",
   },
   fmt: {
@@ -250,6 +260,11 @@ export default defineConfig({
     tabWidth: 2,
     printWidth: 80,
     sortPackageJson: false,
-    ignorePatterns: ["node_modules", "build", "dist", ".Jules"],
+    ignorePatterns: [
+      "node_modules",
+      "build",
+      "dist",
+      "public/DianaWidget.bundle.js",
+    ],
   },
 });

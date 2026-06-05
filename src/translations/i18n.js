@@ -26,7 +26,7 @@ i18n
     // Wir verwenden nicht mehr den "resources"-Block,
     // da das Backend die Dateien dynamisch lädt.
     backend: {
-      loadPath: "/app_static/i18n/{{lng}}.json", // Pfad zu den JSON-Dateien im Build-Verzeichnis
+      loadPath: "/i18n/{{lng}}.json",
       requestOptions: {
         cache: "no-cache",
         credentials: "include",

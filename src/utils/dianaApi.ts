@@ -9,7 +9,7 @@ import { DIANA_API_BASE_URL } from "./dianaConfig";
 // Same base-URL logic as apiSlice: dev → localhost:8080, prod → relative
 const API_BASE =
   window.location.host.indexOf("localhost") >= 0
-    ? process.env.REACT_APP_API_URL
+    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
     : `${window.location.protocol}//${window.location.host}/api`;
 
 /** URL of the backend token proxy */
