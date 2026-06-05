@@ -1,15 +1,14 @@
 import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import { getTopLevelDomain } from "./utils/globals";
 
-// Direct imports - lazy loading is handled by App.tsx Suspense
-import Start from "./views/Start/Start";
-import SearchResults from "./views/SearchResults";
-import Imprint from "./views/Imprint";
-import Privacy from "./views/Privacy";
-import DetailReworked from "./views/TourDetails";
+const Start = lazy(() => import("./views/Start/Start"));
+const SearchResults = lazy(() => import("./views/SearchResults"));
+const Imprint = lazy(() => import("./views/Imprint"));
+const Privacy = lazy(() => import("./views/Privacy"));
+const DetailReworked = lazy(() => import("./views/TourDetails"));
 
 interface ThemedAppProps {
   routeKey:

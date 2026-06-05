@@ -1,4 +1,3 @@
-import { lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { getDomainText, getTLD } from "../../utils/globals";
@@ -9,9 +8,8 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TotalResponse } from "../../features/apiSlice";
 import { RootState } from "../..";
-
-const DomainMenu = lazy(() => import("../../components/DomainMenu"));
-const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
+import DomainMenu from "../../components/DomainMenu";
+import LanguageMenu from "../../components/LanguageMenu";
 
 export interface HeaderProps {
   totals?: TotalResponse;
