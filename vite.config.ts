@@ -7,6 +7,17 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    proxy: process.env.UAT_TARGET
+      ? {
+          "/api": {
+            target: process.env.UAT_TARGET,
+            changeOrigin: true,
+            headers: {
+              Authorization: `Basic ${Buffer.from(process.env.UAT_AUTH ?? "").toString("base64")}`,
+            },
+          },
+        }
+      : undefined,
   },
   build: {
     outDir: "build",

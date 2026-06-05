@@ -50,7 +50,8 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "dev:uat": "VITE_API_URL=https://www2.zuugle.at/api vp dev",
+    "dev:main": "VITE_API_URL=https://www.zuugle.at/api vp dev",
+    "dev:uat": "VITE_API_URL=/api UAT_TARGET=https://www2.zuugle.at UAT_AUTH=bzb:bzb vp dev",
     "build": "vp build",
     "preview": "vp preview",
     "format": "vp fmt .",
