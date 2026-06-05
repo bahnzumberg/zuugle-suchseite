@@ -2,16 +2,11 @@
 
 ## Before every commit
 
-Run both checks and fix any issues before committing:
-
-```
-npm run format        # format all files with prettier
-npm run lint          # tsc --noEmit + eslint
-```
+Run `vp fmt .` and `vp lint --fix` to auto-fix, then `vp check` to verify all checks pass.
 
 - Do not commit unformatted files.
 - All lint and TypeScript errors must be fixed before committing.
-- Avoid `// eslint-disable` comments — fix the underlying issue instead.
+- Avoid `// oxlint-disable` comments — fix the underlying issue instead.
 
 ## Commit messages
 

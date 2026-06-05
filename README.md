@@ -28,19 +28,25 @@
 
 ## First time installation
 
-### Install Volta
+### Install Vite+
 
-Volta makes it really easy to always have the correct node engine (similar to nvm but faster and even simpler).
+Install the `vp` CLI globally.
 
-Follow the installation directions: https://docs.volta.sh/guide/getting-started
+**macOS / Linux**
 
-### Install all modules
+    curl -fsSL https://vite.plus | bash
+
+**Windows**
+
+    irm https://vite.plus/ps1 | iex
+
+After installation, open a new shell and verify with `vp help`.
+
+### Install dependencies
 
 Execute in the project directory:
 
-    npm install
-
-and install all dependencies.
+    vp install
 
 ## Run frontend with local backend
 
@@ -50,13 +56,13 @@ Follow the steps described at https://github.com/bahnzumberg/zuugle-api#zuugleat
 
 ### Execute frontend locally
 
-    npm run start
+    vp dev
 
 This will run the frontend in a browser on http://localhost:3000
 
 ## Run frontend with remote backend
 
-    npm run start-remote-api
+    VITE_API_URL=https://www2.zuugle.at/api vp dev
 
 ## Common issues
 
@@ -70,20 +76,15 @@ sudo sysctl -p
 
 ## Contributing
 
-We use [Prettier](https://prettier.io/) to ensure consistent formatting across all files (things like newlines, and quotation marks).
-We use [ESLint](https://eslint.org/) to avoid common issues and also ensure consistent style in JavaScript/TypeScript code.
-We use [tsc](https://www.typescriptlang.org/docs/handbook/compiler-options.html) to check for type errors in TypeScript code.
+We use [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting, [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting, and TypeScript's `tsc` for type checking. All three run together via `vp check`, and in our GitHub pipeline on every push.
+Pre-commit hooks run automatically after `vp install`.
 
-All three tools are run in our GitHub pipeline on every push. If one of them finds an issue, the pipeline fails.
-Prettier and ESLint are also run as pre-commit hooks, to catch problems as soon as possible.
-The pre-commit hooks get activated automatically once you call `npm install`.
-
-Before you push any changes to `uat` or `main` please go through the following checklist:
+Before you push any changes to `dev`, `uat`, or `main` please go through the following checklist:
 
 1. Test your code
-2. `npm run format` applies prettier to all files
-3. `npm run lint:fix` applies ESLint checks and fixes all issues that can be automatically fixed ➡️ manually fix remaining issues
-4. `npm run tsc` checks for type errors ➡️ fix them manually
+2. `vp fmt .` formats all files
+3. `vp lint --fix` fixes all auto-fixable lint issues ➡️ manually fix remaining issues
+4. `vp check` verifies formatting, linting, and types ➡️ fix remaining issues manually
 5. check your commits and messages:
    - one logical change per commit
    - changes that belong together are committed together

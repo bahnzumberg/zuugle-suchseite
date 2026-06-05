@@ -4,41 +4,9 @@
 
 All agents and contributors must follow these rules before committing or submitting any changes.
 
-### Formatting
+### Formatting and linting
 
-Every file you touch must be formatted before committing. Run:
-
-```
-npm run format
-```
-
-Do not commit files that are not formatted. `prettier --check .` is the source of truth. If you are only modifying a subset of files, you may run `prettier --write <file>` on just those files.
-
-### Linting
-
-Every file you touch must pass linting before committing. Run:
-
-```
-npm run lint
-```
-
-This runs TypeScript type checking (`tsc --noEmit`) followed by ESLint. Fix all errors before committing — warnings should also be resolved where possible. Do not use `// eslint-disable` comments to silence errors without a documented reason.
-
-To auto-fix fixable lint issues:
-
-```
-npm run lint:fix
-```
-
-### Pre-commit checklist
-
-Before every commit, verify:
-
-1. `npm run format:check` passes with no diff
-2. `npm run lint` exits with no errors
-3. No new TypeScript type errors introduced
-
-Commits that fail formatting or linting checks will not be accepted.
+Run `vp fmt .` and `vp lint --fix` to auto-fix issues, then `vp check` to verify. Fix all remaining errors — warnings should also be resolved where possible. Do not use `// oxlint-disable` comments to silence errors without a documented reason. Do not commit unformatted files.
 
 ## Commit Guidelines
 
