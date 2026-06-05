@@ -14,7 +14,7 @@ test.describe("Search Functionality", () => {
       .fill("brand");
     await page.getByText("Brandjochkreuz").click();
     await expect(page).toHaveURL(
-      "search?search=Brandjochkreuz&search_type=peak&lang=de",
+      "search?lang=de&search=Brandjochkreuz&search_type=peak",
     );
     await expect(
       page

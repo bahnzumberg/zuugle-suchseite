@@ -2,6 +2,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
 import { lazy, useEffect } from "react";
 import { theme } from "./theme";
+import LanguageParamSync from "./components/LanguageParamSync";
 
 const Start = lazy(() => import("./views/Start/Start"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
@@ -57,5 +58,10 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     }
   };
 
-  return <ThemeProvider theme={theme}>{renderRoute()}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <LanguageParamSync />
+      {renderRoute()}
+    </ThemeProvider>
+  );
 }

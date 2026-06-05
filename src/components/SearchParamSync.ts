@@ -7,7 +7,6 @@ import {
   boundsUpdated,
   citySlugUpdated,
   cityUpdated,
-  languageUpdated,
   mapUpdated,
   geolocationUpdated,
   providerUpdated,
@@ -72,6 +71,8 @@ export default function SearchParamSync({
 
   useEffect(() => {
     const newParams = new URLSearchParams();
+    // lang is managed by LanguageParamSync — preserve whatever it has set
+    updateParam(newParams, "lang", params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
     updateParam(
@@ -89,11 +90,7 @@ export default function SearchParamSync({
       "search_type",
       isSearchResultsPage ? search.searchWithType?.type : null,
     );
-    updateParam(
-      newParams,
-      "lang",
-      isSearchResultsPage ? search.language : null,
-    );
+    updateParam(newParams, "lang", search.language);
     if (!search.geolocation) {
       updateParam(
         newParams,
@@ -134,7 +131,6 @@ export default function SearchParamSync({
   useEffect(() => {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
-    updateReduxFromParam("lang", languageUpdated);
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
     } else {
