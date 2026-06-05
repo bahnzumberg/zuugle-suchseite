@@ -1,9 +1,0 @@
-# Dependencies
-node_modules
-
-# Build outputs
-build
-dist
-
-# Jules folder
-.Jules
