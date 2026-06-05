@@ -72,6 +72,9 @@ test.describe("Tour Detail Page", () => {
 
 test("Mountain ranges are visible and clickable", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Wienerwald", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Wienerwald", exact: true })
+    .first()
+    .click();
   await expect(page.locator(".tour-card").nth(2)).toContainText("Wienerwald");
 });
