@@ -5,36 +5,35 @@ import { initReactI18next } from "react-i18next";
 
 const supportedLanguages = ["en", "de", "sl", "fr", "it"];
 
+// On the first visit, set the language from the domain TLD before i18next
+// initialises so the browser-language detector reads the right value from
+// localStorage and avoids a post-render language switch.
+if (!localStorage.getItem("visited")) {
+  const tldToLang: Record<string, string> = { si: "sl", fr: "fr", it: "it" };
+  const tld = window.location.hostname.split(".").pop() ?? "";
+  localStorage.setItem("i18nextLng", tldToLang[tld] ?? "de");
+  localStorage.setItem("visited", "true");
+}
+
 const detectionOptions = {
   order: [
     "querystring",
-    "cookie",
     "localStorage",
     "sessionStorage",
     "navigator",
     "htmlTag",
-    "path",
-    "subdomain",
   ],
+  caches: ["localStorage"],
 };
 
 i18n
-  .use(Backend) // Hier wird das Backend-Plugin verwendet, um die Dateien zu laden
+  .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    // Wir verwenden nicht mehr den "resources"-Block,
-    // da das Backend die Dateien dynamisch lädt.
     backend: {
-      loadPath: "/i18n/{{lng}}.json",
-      requestOptions: {
-        cache: "no-cache",
-        credentials: "include",
-      },
-      crossDomain: true,
-      withCredentials: true,
+      loadPath: `${import.meta.env.BASE_URL}i18n/{{lng}}.json?v=${__BUILD_HASH__}`,
     },
-    //lng: "de", // Diese Zeile muss auskommentiert bleiben, da du LanguageDetector verwendest
     fallbackLng: "de",
     supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true,

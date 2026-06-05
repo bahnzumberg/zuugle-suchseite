@@ -12,6 +12,9 @@ export default defineConfig({
     outDir: "build",
     assetsDir: "app_static",
   },
+  define: {
+    __BUILD_HASH__: JSON.stringify(Date.now().toString(36)),
+  },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "react"],
     categories: {

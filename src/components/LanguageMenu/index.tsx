@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { useTranslation } from "react-i18next";
@@ -8,47 +8,46 @@ import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import Modal from "@mui/material/Modal";
 
+const ALL_LANGUAGES = [
+  { key: "de", nativeName: "Deutsch" },
+  { key: "en", nativeName: "English" },
+  { key: "fr", nativeName: "Français" },
+  { key: "it", nativeName: "Italiano" },
+  { key: "sl", nativeName: "Slovenščina" },
+];
+
 function LanguageMenu() {
   const { i18n } = useTranslation();
-
-  const resolvedLanguage = i18n.language;
-  const storedLanguage = localStorage.getItem("lang");
   const reduxLanguage = useSelector(
     (state: RootState) => state.search.language,
   );
-  const [languages] = useState([
-    { key: "en", nativeName: "English" },
-    { key: "fr", nativeName: "Français" },
-    { key: "de", nativeName: "Deutsch" },
-    { key: "it", nativeName: "Italiano" },
-    { key: "sl", nativeName: "Slovenščina" },
-  ]);
-
   const dispatch = useAppDispatch();
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const activeLanguage = i18n.resolvedLanguage ?? "de";
+
+  // Active language first, rest sorted alphabetically.
+  const sortedLanguages = useMemo(() => {
+    const others = ALL_LANGUAGES.filter((l) => l.key !== activeLanguage).sort(
+      (a, b) => a.key.localeCompare(b.key),
+    );
+    const active = ALL_LANGUAGES.find((l) => l.key === activeLanguage);
+    return active ? [active, ...others] : others;
+  }, [activeLanguage]);
+
+  // Sync i18next resolved language into Redux on mount. Covers sessions without
+  // a ?lang= URL param, which SearchParamSync would otherwise miss.
+  useEffect(() => {
+    if (!reduxLanguage) {
+      dispatch(languageUpdated(activeLanguage));
+    }
+  }, []);
 
   const setLanguage = (lng: string) => {
-    localStorage.setItem("lang", lng);
     langChange(lng);
     setShowLanguageMenu(false);
     dispatch(languageUpdated(lng));
   };
-
-  useEffect(() => {
-    const currLanguage = reduxLanguage || storedLanguage || resolvedLanguage;
-    let currIndex = 0;
-    if (currLanguage) {
-      currIndex = languages.findIndex((lang) => lang.key === currLanguage);
-    }
-    const [langObject] = languages.splice(currIndex, 1);
-    languages.sort((a, b) => a.key.localeCompare(b.key));
-    languages.unshift(langObject);
-    setLanguage(currLanguage);
-  }, [reduxLanguage]);
-
-  const i18LangFormatted = i18n.services.languageUtils.formatLanguageCode(
-    i18n.language,
-  );
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   return (
     <div>
@@ -104,7 +103,7 @@ function LanguageMenu() {
               </span>
             </div>
             <div className="languageOptions">
-              {languages.map((item) => (
+              {sortedLanguages.map((item) => (
                 <span
                   className="languageItem"
                   onClick={() => setLanguage(item.key)}
@@ -112,8 +111,7 @@ function LanguageMenu() {
                   style={{
                     width: 140,
                     marginBottom: 5,
-                    color:
-                      i18LangFormatted === item.key ? "#254980" : undefined,
+                    color: activeLanguage === item.key ? "#254980" : undefined,
                   }}
                 >
                   {item.nativeName}

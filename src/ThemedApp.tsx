@@ -2,7 +2,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
 import { lazy, useEffect } from "react";
 import { theme } from "./theme";
-import { getTopLevelDomain } from "./utils/globals";
 
 const Start = lazy(() => import("./views/Start/Start"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
@@ -22,28 +21,6 @@ interface ThemedAppProps {
 }
 
 export default function ThemedApp({ routeKey }: ThemedAppProps) {
-  // Set language on first visit
-  useEffect(() => {
-    if (!localStorage.getItem("visited")) {
-      const domain = getTopLevelDomain();
-      switch (domain) {
-        case "si":
-          i18next.changeLanguage("sl");
-          break;
-        case "fr":
-          i18next.changeLanguage("fr");
-          break;
-        case "it":
-          i18next.changeLanguage("it");
-          break;
-        default:
-          i18next.changeLanguage("de");
-          break;
-      }
-      localStorage.setItem("visited", String(true));
-    }
-  }, []);
-
   // Matomo tracking
   useEffect(() => {
     // @ts-expect-error matomo
