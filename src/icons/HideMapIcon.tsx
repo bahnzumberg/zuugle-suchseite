@@ -8,7 +8,12 @@ type HideMapIconProps = {
 
 export function HideMapIcon({ sx }: HideMapIconProps) {
   return (
-    <Box sx={{ position: "relative", display: "inline-flex", ...sx }}>
+    <Box
+      sx={[
+        { position: "relative", display: "inline-flex" },
+        ...(Array.isArray(sx) ? sx : [sx ?? {}]),
+      ]}
+    >
       <MapOutlinedIcon sx={{ fontSize: "inherit" }} />
       <Box
         sx={{

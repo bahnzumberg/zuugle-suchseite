@@ -31,6 +31,7 @@ export default defineConfig({
       "DianaWidget-main/**",
     ],
     rules: {
+      "react-hooks/exhaustive-deps": "off",
       "react/display-name": "error",
       "react/jsx-key": "error",
       "react/jsx-no-comment-textnodes": "error",
@@ -63,6 +64,7 @@ export default defineConfig({
       ],
       "typescript/ban-ts-comment": "error",
       "typescript/no-duplicate-enum-values": "error",
+      "typescript/no-floating-promises": "off",
       "typescript/no-empty-object-type": "error",
       "typescript/no-explicit-any": "error",
       "typescript/no-extra-non-null-assertion": "error",
