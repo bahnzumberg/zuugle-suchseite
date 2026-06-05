@@ -38,6 +38,7 @@ app.use(
   "/app_static",
   express.static(path.join(__dirname, "../app/app_static")),
 );
+app.use("/i18n", express.static(path.join(__dirname, "../app/i18n")));
 app.use(
   "/api",
   createProxyMiddleware({ target: "http://localhost:6060", secure: false }),

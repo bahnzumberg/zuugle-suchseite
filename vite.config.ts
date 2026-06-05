@@ -252,7 +252,7 @@ export default defineConfig({
     ],
   },
   staged: {
-    "**/*.js": "vp lint --fix",
+    "src/**/*.{js,ts,tsx}": "vp lint --fix",
     "**/*": "vp fmt",
   },
   fmt: {
