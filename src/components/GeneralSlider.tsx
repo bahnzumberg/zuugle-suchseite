@@ -27,7 +27,7 @@ const EntitySlider = styled(Slider)(() => ({
 }));
 
 export interface SliderProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   containerSx?: any;
   value: number | number[];
   onChange: (event: Event, newValue: number | number[]) => void;

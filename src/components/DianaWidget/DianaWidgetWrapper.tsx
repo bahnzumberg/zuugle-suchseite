@@ -97,7 +97,7 @@ function durationToMinutes(duration: string): number {
 
 const DianaWidgetWrapper = ({ tour, cityLabel }: DianaWidgetWrapperProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

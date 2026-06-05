@@ -72,7 +72,7 @@ export function useDianaAutocomplete(lang: string) {
           const features = Array.isArray(data) ? data : data.features || [];
 
           const mapped: AutocompleteOption[] = features.map(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line @typescript-eslint/no-explicit-any
             (feature: any) => ({
               displayName:
                 feature.diana_properties?.display_name ||
