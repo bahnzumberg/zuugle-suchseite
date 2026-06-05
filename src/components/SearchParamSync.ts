@@ -71,8 +71,9 @@ export default function SearchParamSync({
 
   useEffect(() => {
     const newParams = new URLSearchParams();
-    // lang is managed by LanguageParamSync — preserve whatever it has set
-    updateParam(newParams, "lang", params.get("lang"));
+    // lang is managed by LanguageParamSync — use Redux value when available,
+    // fall back to URL to avoid wiping it during initialisation (when language is null)
+    updateParam(newParams, "lang", search.language ?? params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
     updateParam(
@@ -90,7 +91,6 @@ export default function SearchParamSync({
       "search_type",
       isSearchResultsPage ? search.searchWithType?.type : null,
     );
-    updateParam(newParams, "lang", search.language);
     if (!search.geolocation) {
       updateParam(
         newParams,
