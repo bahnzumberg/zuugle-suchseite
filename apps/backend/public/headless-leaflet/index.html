@@ -53,6 +53,34 @@
 
             function getStartIcon() {}
 
+            // Hide the end marker (zielpunkt) if start and end positions are the
+            // same (round trip). Coordinates are compared rounded to 3 decimal
+            // places (~111 m precision) so tiny GPS deviations are ignored.
+            function hideEndMarkerIfRoundTrip(gpxLayer) {
+                var startMarker = null;
+                var endMarker = null;
+                gpxLayer.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker) {
+                        var url = (layer.options.icon && layer.options.icon.options.iconUrl) || "";
+                        if (url.indexOf("startpunkt") >= 0) {
+                            startMarker = layer;
+                        } else if (url.indexOf("zielpunkt") >= 0) {
+                            endMarker = layer;
+                        }
+                    }
+                });
+                if (startMarker && endMarker) {
+                    var sLL = startMarker.getLatLng();
+                    var eLL = endMarker.getLatLng();
+                    if (
+                        sLL.lat.toFixed(3) === eLL.lat.toFixed(3) &&
+                        sLL.lng.toFixed(3) === eLL.lng.toFixed(3)
+                    ) {
+                        gpxLayer.removeLayer(endMarker);
+                    }
+                }
+            }
+
             // Coordinates of London. This is easy to check and to replace with a valid image.
             var map = L.map("map", { zoomControl: false, attributionControl: false }).setView(
                 [51.505, -0.09],
@@ -70,16 +98,15 @@
                     marker_options: {
                         startIconUrl:
                             gpxTrackUrls.length == 1
-                                ? "../img/startpunkt.png"
+                                ? "../img/startpunkt.svg"
                                 : "../img/transparent.png",
                         endIconUrl:
                             gpxTrackUrls.length == 1
-                                ? "../img/zielpunkt.png"
+                                ? "../img/zielpunkt.svg"
                                 : "../img/transparent.png",
                         shadowUrl: "../img/pin-shadow.png",
                     },
                     polyline_options: {
-                        // color: 'red',
                         color: "#001D47",
                         opacity: 1,
                         weight: 6,
@@ -88,6 +115,7 @@
                 })
                     .on("loaded", function (e) {
                         map.fitBounds(e.target.getBounds().pad(0.15));
+                        hideEndMarkerIfRoundTrip(e.target);
                     })
                     .addTo(map);
             }
@@ -97,11 +125,9 @@
                     async: true,
                     marker_options: {
                         startIconUrl: "transparent.png",
-                        endIconUrl: "../img/zielpunkt.png",
-                        // shadowUrl: 'transparent.png'
+                        endIconUrl: "../img/zielpunkt.svg",
                     },
                     polyline_options: {
-                        // color: 'blue',
                         color: "#001D47",
                         opacity: 1,
                         weight: 6,
@@ -114,18 +140,20 @@
                 new L.GPX(gpxTrackUrls[2], {
                     async: true,
                     marker_options: {
-                        startIconUrl: "../img/startpunkt.png",
-                        endIconUrl: "../img/zielpunkt.png",
-                        // shadowUrl: '../img/transparent.png'
+                        startIconUrl: "../img/startpunkt.svg",
+                        endIconUrl: "../img/zielpunkt.svg",
                     },
                     polyline_options: {
-                        // color: 'blue',
                         color: "#001D47",
                         opacity: 1,
                         weight: 6,
                         lineCap: "round",
                     },
-                }).addTo(map);
+                })
+                    .on("loaded", function (e) {
+                        hideEndMarkerIfRoundTrip(e.target);
+                    })
+                    .addTo(map);
             }
         </script>
     </body>
