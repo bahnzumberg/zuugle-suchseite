@@ -48,7 +48,7 @@ function PopupCard({
             }}
           >
             <img
-              src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+              src={`/icons/provider/logo_${tour.provider}.svg`}
               alt={tour.provider_name}
               style={{ borderRadius: "100%", height: "13px", width: "13px" }}
             />

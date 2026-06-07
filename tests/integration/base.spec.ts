@@ -14,7 +14,7 @@ test.describe("Search Functionality", () => {
       .fill("brand");
     await page.getByText("Brandjochkreuz").click();
     await expect(page).toHaveURL(
-      "search?search=Brandjochkreuz&search_type=peak&lang=de",
+      "search?lang=de&search=Brandjochkreuz&search_type=peak",
     );
     await expect(
       page
@@ -72,6 +72,9 @@ test.describe("Tour Detail Page", () => {
 
 test("Mountain ranges are visible and clickable", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Wienerwald", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Wienerwald", exact: true })
+    .first()
+    .click();
   await expect(page.locator(".tour-card").nth(2)).toContainText("Wienerwald");
 });

@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      with_backup:
+        description: "Create a server-side backup before deploying"
+        type: boolean
+        default: false
+    secrets:
+      DEPLOY_ACCESS:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      REMOTE_HOST:
+        required: true
+      REMOTE_USER:
+        required: true
+      REMOTE_TARGET:
+        required: true
+      REMOTE_PORT:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20.19.3"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Unlock network access to server
+        run: |
+          curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "${{ secrets.DEPLOY_ACCESS }}"
+          echo "Waiting 59 seconds for access rule to activate..."
+          sleep 59
+
+      - name: Back up current deployment
+        if: inputs.with_backup
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
+          script: |
+            rm -f /root/suchseite/backup/app.tar.gz
+            tar -zcvf /root/suchseite/backup/app.tar.gz /root/suchseite/app/
+
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@5d8aeab1a56041e269567e67a08ce00df324a617 # v6.0.1
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "build/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}

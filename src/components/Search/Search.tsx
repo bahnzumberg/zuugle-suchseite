@@ -27,6 +27,7 @@ export default function Search({ setFilterOn }: SearchProps) {
   const navigate = useNavigate();
   const filter = useSelector((state: RootState) => state.filter);
   const provider = useSelector((state: RootState) => state.search.provider);
+  const language = useSelector((state: RootState) => state.search.language);
   const city = useSelector((state: RootState) => state.search.city);
   const { data: allCities = [] } = useGetCitiesQuery();
   const isSearchPage = window.location.pathname === "/search";
@@ -87,6 +88,9 @@ export default function Search({ setFilterOn }: SearchProps) {
       const searchParams = new URLSearchParams();
       if (provider) {
         searchParams.set("p", provider);
+      }
+      if (language) {
+        searchParams.set("lang", language);
       }
       if (search.type === "range") {
         searchParams.set("range", search.term);

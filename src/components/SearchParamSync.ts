@@ -7,7 +7,6 @@ import {
   boundsUpdated,
   citySlugUpdated,
   cityUpdated,
-  languageUpdated,
   mapUpdated,
   geolocationUpdated,
   providerUpdated,
@@ -27,7 +26,7 @@ import { filterUpdated } from "../features/filterSlice";
  * than on other pages.
  */
 export default function SearchParamSync({
-  isSearchResultsPage: isSearchResultsPage,
+  isSearchResultsPage,
 }: {
   isSearchResultsPage: boolean;
 }) {
@@ -72,6 +71,9 @@ export default function SearchParamSync({
 
   useEffect(() => {
     const newParams = new URLSearchParams();
+    // lang is managed by LanguageParamSync — use Redux value when available,
+    // fall back to URL to avoid wiping it during initialisation (when language is null)
+    updateParam(newParams, "lang", search.language ?? params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
     updateParam(
@@ -88,11 +90,6 @@ export default function SearchParamSync({
       newParams,
       "search_type",
       isSearchResultsPage ? search.searchWithType?.type : null,
-    );
-    updateParam(
-      newParams,
-      "lang",
-      isSearchResultsPage ? search.language : null,
     );
     if (!search.geolocation) {
       updateParam(
@@ -134,7 +131,6 @@ export default function SearchParamSync({
   useEffect(() => {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
-    updateReduxFromParam("lang", languageUpdated);
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
     } else {

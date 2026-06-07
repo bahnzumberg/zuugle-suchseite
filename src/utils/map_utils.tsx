@@ -63,7 +63,7 @@ export function getDefaultBoundsForDomain(domain: string): {
 
   const bounds =
     domain in boundsDefinitions
-      ? // @ts-ignore
+      ? // @ts-expect-error: domain is narrowed by `in` check but index signature lacks that constraint
         boundsDefinitions[domain]
       : boundsDefinitions.at;
   const center: [number, number] = [

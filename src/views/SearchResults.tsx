@@ -150,7 +150,7 @@ export default function SearchResults() {
     } else {
       setDirectLink(null);
     }
-  }, [location, allCities]);
+  }, [allCities]);
 
   const renderCardContainer = () => (
     <Box

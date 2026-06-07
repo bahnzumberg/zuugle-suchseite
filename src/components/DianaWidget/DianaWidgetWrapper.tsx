@@ -24,11 +24,11 @@ interface DianaWidgetWrapperProps {
 // Use same base URL logic as apiSlice: dev → localhost:8080, prod → relative
 const API_BASE =
   window.location.host.indexOf("localhost") >= 0
-    ? process.env.REACT_APP_API_URL
+    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
     : `${window.location.protocol}//${window.location.host}/api`;
 
 const DIANA_TOKEN_URL = `${API_BASE}/diana-token`;
-const WIDGET_BUNDLE_URL = "/app_static/DianaWidget.bundle.js";
+const WIDGET_BUNDLE_URL = "/DianaWidget.bundle.js";
 
 /**
  * Fetches a Diana API access token from our backend proxy.
@@ -97,7 +97,7 @@ function durationToMinutes(duration: string): number {
 
 const DianaWidgetWrapper = ({ tour, cityLabel }: DianaWidgetWrapperProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

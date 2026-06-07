@@ -224,7 +224,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       return false; // default: nothing checked
     }
 
-    // @ts-ignore
+    // @ts-expect-error: FilterObject array values are heterogeneous; value type cannot be unified
     return array.includes(value);
   }
 

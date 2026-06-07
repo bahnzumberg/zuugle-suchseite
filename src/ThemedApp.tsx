@@ -1,15 +1,14 @@
 import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { theme } from "./theme";
-import { getTopLevelDomain } from "./utils/globals";
+import LanguageParamSync from "./components/LanguageParamSync";
 
-// Direct imports - lazy loading is handled by App.tsx Suspense
-import Start from "./views/Start/Start";
-import SearchResults from "./views/SearchResults";
-import Imprint from "./views/Imprint";
-import Privacy from "./views/Privacy";
-import DetailReworked from "./views/TourDetails";
+const Start = lazy(() => import("./views/Start/Start"));
+const SearchResults = lazy(() => import("./views/SearchResults"));
+const Imprint = lazy(() => import("./views/Imprint"));
+const Privacy = lazy(() => import("./views/Privacy"));
+const DetailReworked = lazy(() => import("./views/TourDetails"));
 
 interface ThemedAppProps {
   routeKey:
@@ -23,28 +22,6 @@ interface ThemedAppProps {
 }
 
 export default function ThemedApp({ routeKey }: ThemedAppProps) {
-  // Set language on first visit
-  useEffect(() => {
-    if (!localStorage.getItem("visited")) {
-      const domain = getTopLevelDomain();
-      switch (domain) {
-        case "si":
-          i18next.changeLanguage("sl");
-          break;
-        case "fr":
-          i18next.changeLanguage("fr");
-          break;
-        case "it":
-          i18next.changeLanguage("it");
-          break;
-        default:
-          i18next.changeLanguage("de");
-          break;
-      }
-      localStorage.setItem("visited", String(true));
-    }
-  }, []);
-
   // Matomo tracking
   useEffect(() => {
     // @ts-expect-error matomo
@@ -81,5 +58,10 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     }
   };
 
-  return <ThemeProvider theme={theme}>{renderRoute()}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <LanguageParamSync />
+      {renderRoute()}
+    </ThemeProvider>
+  );
 }

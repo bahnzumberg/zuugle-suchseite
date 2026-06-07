@@ -161,7 +161,7 @@ export interface CombinedGPXParams {
 
 const baseURL =
   window.location.host.indexOf("localhost") >= 0
-    ? process.env.REACT_APP_API_URL
+    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
     : `${window.location.protocol}//${window.location.host}/api`;
 
 const domain = window.location.hostname;

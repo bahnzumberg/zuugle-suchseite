@@ -38,42 +38,33 @@
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
     "react-router": "^7.14.2",
-    "react-share": "^5.3.0",
-    "webpack-bundle-analyzer": "^5.3.0",
-    "webpack-cli": "^7.0.2"
+    "react-share": "^5.3.0"
   },
   "overrides": {
     "react-infinite-scroll-component": {
       "react": ">=17.0.0",
       "react-dom": ">=17.0.0"
-    }
+    },
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
   "scripts": {
-    "start": "webpack serve --mode development --port 3000 --open --watch ./src --hot --progress --host localhost --static .",
-    "start-remote-api": "webpack serve --config webpack.config_uat.js --mode development --port 3000 --open --hot --progress --host localhost --static .",
-    "build": "npm run build-app",
-    "build-app": "webpack --config webpack.config_prod.js",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "prepare": "husky",
-    "lint-staged": "lint-staged",
-    "lint": "tsc --noEmit && eslint --cache",
-    "lint:fix": "eslint --cache --fix",
+    "dev": "vp dev",
+    "dev:main": "VITE_API_URL=https://www.zuugle.at/api vp dev",
+    "dev:uat": "VITE_API_URL=/api UAT_TARGET=https://www2.zuugle.at UAT_AUTH=bzb:bzb vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
+    "format": "vp fmt .",
+    "format:check": "vp fmt --check .",
+    "prepare": "vp config",
+    "lint-staged": "vp staged",
+    "lint": "tsc --noEmit && vp lint",
+    "lint:fix": "vp lint --fix",
     "tsc": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "lint-staged": {
-    "**/*.js": "eslint --cache --fix --max-warnings 0 --no-warn-ignored",
-    "**/*": "prettier --write --ignore-unknown"
-  },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.3",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
-    "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.59.1",
-    "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet.markercluster": "^1.5.6",
@@ -81,33 +72,10 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "babel-loader": "^10.1.1",
-    "babel-plugin-import": "^1.13.8",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^14.0.0",
-    "css-loader": "^7.1.4",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "file-loader": "^6.2.0",
-    "globals": "^17.6.0",
-    "html-loader": "^5.1.0",
-    "html-webpack-plugin": "^5.6.7",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "mini-css-extract-plugin": "^2.10.2",
-    "prettier": "^3.8.3",
-    "source-map-loader": "^5.0.0",
-    "style-loader": "^4.0.0",
-    "terser-webpack-plugin": "^5.5.0",
+    "@vitejs/plugin-react": "^6.0.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.59.1",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.106.2",
-    "webpack-dev-server": "^5.2.3"
+    "vite-plugin-svgr": "^4.0.0",
+    "vite-plus": "latest"
   },
-  "volta": {
-    "node": "20.19.3"
-  }
+  "packageManager": "npm@11.16.0"
 }

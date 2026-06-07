@@ -114,17 +114,17 @@ export function getActiveFilterFields({
 
       //TODO: remove ts-ignore
       if (Array.isArray(defVal) && Array.isArray(curVal)) {
-        // @ts-ignore
+        // @ts-expect-error: FilterObject values are heterogeneous; narrowed by Array.isArray above
         const equalSets = areSetsEqual(new Set(defVal), new Set(curVal));
         if (!equalSets) {
-          // @ts-ignore
+          // @ts-expect-error: FilterObject values are heterogeneous; key type cannot be narrowed further
           activeFilters[key] = curVal;
         }
         return activeFilters;
       }
 
       if (defVal !== curVal) {
-        // @ts-ignore
+        // @ts-expect-error: FilterObject values are heterogeneous; key type cannot be narrowed further
         activeFilters[key] = curVal;
       }
       return activeFilters;
