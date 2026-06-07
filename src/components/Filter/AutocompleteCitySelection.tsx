@@ -1,10 +1,7 @@
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetCitiesQuery } from "../../features/apiSlice";
-import { RootState } from "../..";
-import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../hooks";
-import { cityUpdated } from "../../features/searchSlice";
+import { CityObject } from "../../features/searchSlice";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -13,15 +10,16 @@ import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import { CustomIcon } from "../../icons/CustomIcon";
 
-export default function AutocompleteCitySelection({
-  inputVariant,
-}: {
-  inputVariant?: "standard" | "outlined" | "filled";
-}) {
-  const { t } = useTranslation();
+interface AutocompleteCitySelectionProps {
+  value: CityObject | null;
+  onChange: (city: CityObject | null) => void;
+}
 
-  const dispatch = useAppDispatch();
-  const city = useSelector((state: RootState) => state.search.city);
+export default function AutocompleteCitySelection({
+  value,
+  onChange,
+}: AutocompleteCitySelectionProps) {
+  const { t } = useTranslation();
   const { data: allCities = [], isFetching: isLoading } = useGetCitiesQuery();
 
   return (
@@ -40,14 +38,13 @@ export default function AutocompleteCitySelection({
       clearOnBlur
       selectOnFocus
       size="small"
-      getOptionLabel={(option) =>
-        t("search.ab_heimatbahnhof") + " " + option.label
-      }
+      getOptionLabel={(option) => option.label}
       options={allCities}
-      value={city ?? null}
-      onChange={(event, newValue) => {
-        dispatch(cityUpdated(newValue));
+      value={value}
+      onChange={(_event, newValue) => {
+        onChange(newValue);
       }}
+      isOptionEqualToValue={(option, value) => option.value === value.value}
       renderOption={(props, option) => {
         // eslint-disable-next-line react/prop-types
         const { key, ...otherProps } = props;
@@ -90,13 +87,12 @@ export default function AutocompleteCitySelection({
           placeholder={t("start.heimatbahnhof")}
           sx={{
             "& .MuiInputBase-input": {
-              color: "#6d6b6b", // Text color
+              color: "#6d6b6b",
             },
           }}
-          variant={inputVariant}
+          variant="outlined"
           slotProps={{
             ...params.slotProps,
-
             input: {
               ...params.slotProps.input,
               startAdornment: (

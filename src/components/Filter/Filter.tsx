@@ -27,7 +27,7 @@ import TraverseFilter from "./FilterOptions/Traverse";
 import AscentFilter from "./FilterOptions/Ascent";
 import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
-import CityFilter from "./FilterOptions/CityFilter";
+import AutocompleteCitySelection from "./AutocompleteCitySelection";
 import LoadingView from "./LoadingView";
 import {
   countFilterActive,
@@ -320,7 +320,17 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             <LoadingView />
           ) : (
             <Fragment>
-              <CityFilter tempCity={tempCity} setTempCity={setTempCity} />
+              <Box className="filter-box border" sx={{ paddingTop: "20px" }}>
+                <Typography variant="subtitle1">
+                  {t("filter.filter_city_description")}
+                </Typography>
+                <Box sx={{ paddingTop: "16px" }}>
+                  <AutocompleteCitySelection
+                    value={tempCity}
+                    onChange={setTempCity}
+                  />
+                </Box>
+              </Box>
               <TraverseFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}
