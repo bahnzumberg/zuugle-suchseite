@@ -23,6 +23,12 @@ if (persistedCity) {
   }
 }
 
+// As there is only one city in Liechtenstein we support,
+// Vaduz will be selected and nobody has to set the city manually.
+if (getTLD() === "li") {
+  cityObject = { label: "Vaduz", value: "vaduz" };
+}
+
 function getPreloadedSearchState() {
   const params = new URLSearchParams(window.location.search);
   const searchPhrase = params.get("search") ?? "";

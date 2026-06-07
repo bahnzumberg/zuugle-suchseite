@@ -96,7 +96,7 @@ function createPoiIcon(type: PoiResult["type"]): L.DivIcon {
  * Displays a home icon on an orange background badge.
  */
 function createSelectedCityIcon(): L.DivIcon {
-  const bg = theme.palette.info.main;
+  const bg = "#ccd8a1"; // Lindgrün (Corporate Design)
   const homeIconHtml = renderToStaticMarkup(
     <HomeRoundedIcon
       style={{
@@ -412,7 +412,7 @@ export default function TourMapContainer({
     // created once for the whole component lifetime
     () =>
       L.icon({
-        iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
+        iconUrl: "https://cdn.zuugle.at/img/startpunkt.svg",
         iconSize: [33, 45],
         iconAnchor: [16, 46],
       }),

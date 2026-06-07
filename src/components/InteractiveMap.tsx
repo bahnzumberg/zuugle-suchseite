@@ -28,12 +28,12 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const startIcon = L.icon({
-    iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
+    iconUrl: "https://cdn.zuugle.at/img/startpunkt.svg",
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
   const endIcon = L.icon({
-    iconUrl: "https://cdn.zuugle.at/img/zielpunkt.png",
+    iconUrl: "https://cdn.zuugle.at/img/zielpunkt.svg",
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
@@ -73,23 +73,48 @@ export default function InteractiveMap({
     }
   }, []);
 
+  // Compare two LatLng positions rounded to 3 decimal places (~111 m).
+  // When they match the tour is a round trip and zielpunkt is hidden.
+  const isSamePosition = (
+    a: L.LatLngExpression,
+    b: L.LatLngExpression,
+  ): boolean => {
+    const toLatLng = (p: L.LatLngExpression): L.LatLng =>
+      p instanceof L.LatLng ? p : Array.isArray(p) ? L.latLng(p[0] as number, p[1] as number) : L.latLng(p);
+    const la = toLatLng(a);
+    const lb = toLatLng(b);
+    return (
+      la.lat.toFixed(3) === lb.lat.toFixed(3) &&
+      la.lng.toFixed(3) === lb.lng.toFixed(3)
+    );
+  };
+
+  const getStartPosition = (): L.LatLngExpression | null => {
+    if (anreiseGpxPositions.length > 0) return anreiseGpxPositions[0];
+    if (gpxPositions.length > 0) return gpxPositions[0];
+    return null;
+  };
+
+  const getEndPosition = (): L.LatLngExpression | null => {
+    if (abreiseGpxPositions.length > 0)
+      return abreiseGpxPositions[abreiseGpxPositions.length - 1];
+    if (gpxPositions.length > 0)
+      return gpxPositions[gpxPositions.length - 1];
+    return null;
+  };
+
+  const startPos = getStartPosition();
+  const endPos = getEndPosition();
+
+  // Hide zielpunkt when start and end are at the same position (round trip)
+  const isRoundTrip =
+    startPos !== null && endPos !== null && isSamePosition(startPos, endPos);
+
   const getStartMarker = () => {
-    if (anreiseGpxPositions.length > 0) {
-      return <StartMarker position={anreiseGpxPositions[0]} />;
-    } else if (gpxPositions.length > 0) {
-      return <StartMarker position={gpxPositions[0]} />;
-    }
+    if (startPos) return <StartMarker position={startPos} />;
   };
   const getEndMarker = () => {
-    if (abreiseGpxPositions.length > 0) {
-      return (
-        <EndMarker
-          position={abreiseGpxPositions[abreiseGpxPositions.length - 1]}
-        />
-      );
-    } else if (gpxPositions.length > 0) {
-      return <EndMarker position={gpxPositions[gpxPositions.length - 1]} />;
-    }
+    if (endPos && !isRoundTrip) return <EndMarker position={endPos} />;
   };
 
   return (
@@ -118,8 +143,8 @@ export default function InteractiveMap({
             positions={gpxPositions}
           />
         )}
-        {getStartMarker()}
         {getEndMarker()}
+        {getStartMarker()}
         {!!anreiseGpxPositions && anreiseGpxPositions.length > 0 && (
           <Polyline
             pathOptions={{
