@@ -31,7 +31,7 @@ export default function AutocompleteCitySelection({
       }}
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
-        listbox: { sx: { borderRadius: 3 } },
+        listbox: { sx: { py: 0.5 } },
       }}
       autoHighlight
       blurOnSelect
@@ -51,31 +51,28 @@ export default function AutocompleteCitySelection({
         return (
           <ListItem
             key={key}
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              borderRadius: 1.5,
+              mx: 0.5,
+              my: 0.25,
+              width: "auto",
+            }}
             {...otherProps}
           >
-            <ListItemIcon>
-              <div
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <CustomIcon
+                name="transportTrain"
                 style={{
-                  borderRadius: "10px",
-                  backgroundColor: "#d9d9d9",
-                  height: "40px",
-                  width: "40px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  strokeWidth: "1px",
+                  fill: "#8b8b8b",
+                  stroke: "none",
+                  width: 20,
+                  height: 20,
                 }}
-              >
-                <CustomIcon
-                  name="transportTrain"
-                  style={{
-                    strokeWidth: "1px",
-                    fill: "#000",
-                    stroke: "none",
-                    marginRight: "8px",
-                  }}
-                />
-              </div>
+              />
             </ListItemIcon>
             <ListItemText primary={option?.label} />
           </ListItem>
