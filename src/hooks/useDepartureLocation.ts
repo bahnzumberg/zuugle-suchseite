@@ -3,6 +3,8 @@ import { useState, useCallback } from "react";
 export interface DepartureLocation {
   displayName: string;
   locationType: "address" | "station";
+  citySlug?: string;
+  cityName?: string;
 }
 
 const STORAGE_KEY = "departureLocation";
@@ -60,6 +62,17 @@ export function useDepartureLocation() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(location));
         localStorage.setItem(STORAGE_KEY_LAT, String(lat));
         localStorage.setItem(STORAGE_KEY_LON, String(lon));
+
+        // Set city from GeoJSON lookup for tour filtering
+        if (location.citySlug && location.cityName) {
+          localStorage.setItem(
+            "city",
+            JSON.stringify({
+              value: location.citySlug,
+              label: location.cityName,
+            }),
+          );
+        }
       } else {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(STORAGE_KEY_LAT);

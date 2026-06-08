@@ -1,10 +1,10 @@
 /**
  * Shared Diana API utilities.
  *
- * Provides token fetching, language mapping, and MEZ→UTC time conversion
- * for direct Diana API calls (address-autocomplete, connections, etc.).
+ * All Diana API calls are proxied through the Zuugle backend.
+ * The backend handles token management and can enrich responses
+ * (e.g. city lookup via GeoJSON).
  */
-import { DIANA_API_BASE_URL } from "./dianaConfig";
 
 // Same base-URL logic as apiSlice: dev → localhost:8080, prod → relative
 const API_BASE =
@@ -13,10 +13,10 @@ const API_BASE =
     : `${window.location.protocol}//${window.location.host}/api`;
 
 /** URL of the backend token proxy */
-const DIANA_TOKEN_URL = `${API_BASE}/diana-token`;
+const DIANA_TOKEN_URL = `${API_BASE}/diana/token`;
 
-/** Re-export for convenience */
-export const DIANA_API_BASE = DIANA_API_BASE_URL;
+/** Base URL for all Diana proxy endpoints on the Zuugle backend */
+export const DIANA_PROXY_BASE = `${API_BASE}/diana`;
 
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;

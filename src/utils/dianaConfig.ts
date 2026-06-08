@@ -1,13 +1,13 @@
 /**
  * Diana API configuration.
  *
+ * All Diana API calls are proxied through the Zuugle backend (/api/diana/...).
+ * See dianaApi.ts for the proxy base URL.
+ *
  * All time values are stored in MEZ (Europe/Vienna local time).
  * They MUST be converted to UTC before sending to the Diana API.
  * Use `localTimeToUtc()` from dianaApi.ts for conversion.
  */
-
-/** Base URL for the Diana API */
-export const DIANA_API_BASE_URL = "https://api.zuugle-services.net";
 
 /**
  * Activity time windows (MEZ / Europe/Vienna local time).

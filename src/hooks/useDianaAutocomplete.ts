@@ -1,15 +1,13 @@
 import { useState, useCallback, useRef } from "react";
-import {
-  fetchDianaToken,
-  DIANA_API_BASE,
-  mapLanguage,
-} from "../utils/dianaApi";
+import { DIANA_PROXY_BASE, mapLanguage } from "../utils/dianaApi";
 
 export interface AutocompleteOption {
   displayName: string;
   locationType: "address" | "station";
   lat: number;
   lon: number;
+  citySlug?: string;
+  cityName?: string;
 }
 
 /**
@@ -47,7 +45,6 @@ export function useDianaAutocomplete(lang: string) {
           const controller = new AbortController();
           abortRef.current = controller;
 
-          const token = await fetchDianaToken();
           const params = new URLSearchParams({
             q: query,
             limit: "6",
@@ -55,9 +52,8 @@ export function useDianaAutocomplete(lang: string) {
           });
 
           const resp = await fetch(
-            `${DIANA_API_BASE}/address-autocomplete?${params}`,
+            `${DIANA_PROXY_BASE}/address-autocomplete?${params}`,
             {
-              headers: { Authorization: `Bearer ${token}` },
               signal: controller.signal,
             },
           );
@@ -82,6 +78,8 @@ export function useDianaAutocomplete(lang: string) {
                 feature.diana_properties?.location_type || "address",
               lat: feature.geometry?.coordinates?.[1] ?? 0,
               lon: feature.geometry?.coordinates?.[0] ?? 0,
+              citySlug: feature.zuugle_properties?.city_slug ?? undefined,
+              cityName: feature.zuugle_properties?.city_name ?? undefined,
             }),
           );
 

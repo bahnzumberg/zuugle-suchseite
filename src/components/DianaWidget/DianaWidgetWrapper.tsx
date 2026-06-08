@@ -27,7 +27,7 @@ const API_BASE =
     ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
     : `${window.location.protocol}//${window.location.host}/api`;
 
-const DIANA_TOKEN_URL = `${API_BASE}/diana-token`;
+const DIANA_TOKEN_URL = `${API_BASE}/diana/token`;
 const WIDGET_BUNDLE_URL = "/DianaWidget.bundle.js";
 
 /**

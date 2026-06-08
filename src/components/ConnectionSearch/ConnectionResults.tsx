@@ -13,13 +13,8 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import CloseIcon from "@mui/icons-material/Close";
+
 import SubwayIcon from "@mui/icons-material/Subway";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import LocalTaxiIcon from "@mui/icons-material/LocalTaxi";
@@ -30,12 +25,12 @@ import PlaceIcon from "@mui/icons-material/Place";
 import ParkIcon from "@mui/icons-material/Park";
 import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import CommuteIcon from "@mui/icons-material/Commute";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+
 import ShareIcon from "@mui/icons-material/Share";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { icons } from "../../icons/icons";
 import { useTranslation } from "react-i18next";
-import { fetchDianaToken, DIANA_API_BASE } from "../../utils/dianaApi";
+import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import { Tour } from "../../models/Tour";
 
 // ─── Types ────────────────────────────────────────────────────
@@ -88,6 +83,8 @@ export interface CoordinateReplacement {
   lat: number | null;
   lon: number | null;
   displayName: string;
+  citySlug?: string;
+  cityName?: string;
 }
 
 interface ConnectionResultsProps {
@@ -95,10 +92,14 @@ interface ConnectionResultsProps {
   coordinateReplacements?: CoordinateReplacement;
   tourDurationHours?: number;
   tour?: Tour;
-  onScrollBefore?: (direction: "to" | "from") => void;
-  onScrollAfter?: (direction: "to" | "from") => void;
   searchDate?: string;
   activityDurationMinutes?: number;
+  shareTimeHints?: {
+    toStart?: string;
+    toEnd?: string;
+    fromStart?: string;
+    fromEnd?: string;
+  } | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -148,12 +149,6 @@ function formatDurationFromHours(decimalHours: number): string {
   let minute = String(Math.floor(decpart * 60));
   if (minute.length < 2) minute = "0" + minute;
   return `${hour}:${minute} h`;
-}
-
-function transferLabel(n: number, t: (key: string) => string): string {
-  if (n === 0) return t("details.direkt");
-  if (n === 1) return `1 ${t("details.umstieg")}`;
-  return `${n} ${t("details.umstiege")}`;
 }
 
 /**
@@ -351,27 +346,17 @@ function ConnectionTabs({
   connections,
   selectedId,
   onSelect,
-  t,
   conflictThreshold,
   conflictCheckStart,
-  hasMoreBefore,
-  hasMoreAfter,
-  onScrollBefore,
-  onScrollAfter,
 }: {
   connections: Connection[];
   selectedId: number;
   recommendedId: number;
   onSelect: (id: number) => void;
-  t: (key: string) => string;
   conflictThreshold?: string;
   /** When true, checks connection_start_timestamp < threshold (for Rückfahrt).
    *  When false/undefined, checks connection_end_timestamp > threshold (for Hinfahrt). */
   conflictCheckStart?: boolean;
-  hasMoreBefore?: boolean | null;
-  hasMoreAfter?: boolean | null;
-  onScrollBefore?: () => void;
-  onScrollAfter?: () => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -384,35 +369,10 @@ function ConnectionTabs({
     }
   }, [selectedId, connections]);
 
-  const scrollBtnSx = {
-    flexShrink: 0,
-    alignSelf: "center",
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "var(--bzb-bahnblau)",
-    border: "1px solid var(--bzb-bahnblau)",
-    borderRadius: "8px",
-    px: "10px",
-    py: "4px",
-    cursor: "pointer",
-    bgcolor: "#fff",
-    whiteSpace: "nowrap" as const,
-    lineHeight: "24px",
-    userSelect: "none" as const,
-    "&:hover": { bgcolor: "#e8f0ff" },
-  };
-
   return (
     <Box
       sx={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}
     >
-      {/* Früher button */}
-      {hasMoreBefore && (
-        <Box component="span" sx={scrollBtnSx} onClick={onScrollBefore}>
-          ◀ {t("details.frueher")}
-        </Box>
-      )}
-
       {/* Tab scroll area */}
       <Box
         ref={scrollRef}
@@ -487,20 +447,10 @@ function ConnectionTabs({
               >
                 {durationLabel} &nbsp;{transfers} ⇄
               </Typography>
-              <Typography sx={{ fontSize: "11px", mt: "1px" }}>
-                {transferLabel(transfers, t)}
-              </Typography>
             </Box>
           );
         })}
       </Box>
-
-      {/* Später button */}
-      {hasMoreAfter && (
-        <Box component="span" sx={scrollBtnSx} onClick={onScrollAfter}>
-          {t("details.spaeter")} ▶
-        </Box>
-      )}
     </Box>
   );
 }
@@ -793,240 +743,6 @@ function ConnectionTimeline({
   );
 }
 
-// ─── Ticket Modal ─────────────────────────────────────────────
-
-interface TicketLink {
-  leg_from?: string;
-  leg_to?: string;
-  provider: string;
-  url: string;
-}
-
-interface TicketModalProps {
-  open: boolean;
-  onClose: () => void;
-  selectedTo?: Connection;
-  selectedFrom?: Connection;
-  t: (key: string) => string;
-}
-
-function TicketModal({
-  open,
-  onClose,
-  selectedTo,
-  selectedFrom,
-  t,
-}: TicketModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [toLinks, setToLinks] = useState<TicketLink[]>([]);
-  const [fromLinks, setFromLinks] = useState<TicketLink[]>([]);
-  const [fallback, setFallback] = useState(false);
-
-  useEffect(() => {
-    if (!open || (!selectedTo && !selectedFrom)) return;
-
-    setLoading(true);
-    setToLinks([]);
-    setFromLinks([]);
-    setFallback(false);
-
-    const fetchLinks = async () => {
-      try {
-        const token = await fetchDianaToken();
-
-        const requests: Promise<{
-          links: TicketLink[];
-          direction: "to" | "from";
-        }>[] = [];
-
-        if (selectedTo) {
-          requests.push(
-            fetch(`${DIANA_API_BASE}/generate-ticketshop-link`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                connection_elements: selectedTo.connection_elements,
-              }),
-            })
-              .then((r) => r.json())
-              .then((data) => ({
-                links:
-                  data.ticketshop_links ||
-                  (data.ticketshop_url
-                    ? [{ provider: "ÖBB", url: data.ticketshop_url }]
-                    : []),
-                direction: "to" as const,
-              })),
-          );
-        }
-
-        if (selectedFrom) {
-          requests.push(
-            fetch(`${DIANA_API_BASE}/generate-ticketshop-link`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                connection_elements: selectedFrom.connection_elements,
-              }),
-            })
-              .then((r) => r.json())
-              .then((data) => ({
-                links:
-                  data.ticketshop_links ||
-                  (data.ticketshop_url
-                    ? [{ provider: "ÖBB", url: data.ticketshop_url }]
-                    : []),
-                direction: "from" as const,
-              })),
-          );
-        }
-
-        const results = await Promise.all(requests);
-        let anyLinks = false;
-
-        for (const result of results) {
-          if (result.direction === "to") {
-            setToLinks(result.links);
-            if (result.links.length > 0) anyLinks = true;
-          } else {
-            setFromLinks(result.links);
-            if (result.links.length > 0) anyLinks = true;
-          }
-        }
-
-        if (!anyLinks) setFallback(true);
-      } catch (err) {
-        console.error("Ticket link fetch error:", err);
-        setFallback(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLinks();
-  }, [open, selectedTo, selectedFrom]);
-
-  const renderLinks = (links: TicketLink[]) =>
-    links.map((link, i) => (
-      <Button
-        key={i}
-        variant="outlined"
-        href={link.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          borderRadius: "10px",
-          textTransform: "none",
-          fontWeight: 600,
-          fontSize: "14px",
-          borderColor: "var(--bzb-bahnblau)",
-          color: "var(--bzb-bahnblau)",
-          mb: "8px",
-          mr: "8px",
-          "&:hover": { bgcolor: "#e8f0ff" },
-        }}
-      >
-        {link.provider}
-      </Button>
-    ));
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          pr: "12px",
-        }}
-      >
-        {t("details.ticket_kaufen")}
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        {loading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: "24px" }}>
-            <CircularProgress />
-          </Box>
-        )}
-
-        {!loading && fallback && (
-          <Box>
-            <Button
-              variant="contained"
-              href="https://www.oebb.at/de/tickets-kundenkarten/tickets"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                borderRadius: "10px",
-                textTransform: "none",
-                fontWeight: 600,
-                bgcolor: "var(--bzb-bahnblau)",
-                "&:hover": { bgcolor: "#1a3a66" },
-              }}
-            >
-              {t("details.ticket_oebb_fallback")}
-            </Button>
-          </Box>
-        )}
-
-        {!loading && !fallback && (
-          <>
-            {toLinks.length > 0 && (
-              <Box sx={{ mb: "16px" }}>
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    mb: "8px",
-                    color: "var(--bzb-akelei)",
-                  }}
-                >
-                  {t("details.ticket_hinfahrt")}
-                </Typography>
-                <Box>{renderLinks(toLinks)}</Box>
-              </Box>
-            )}
-            {fromLinks.length > 0 && (
-              <Box>
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    mb: "8px",
-                    color: "var(--bzb-akelei)",
-                  }}
-                >
-                  {t("details.ticket_rueckfahrt")}
-                </Typography>
-                <Box>{renderLinks(fromLinks)}</Box>
-              </Box>
-            )}
-          </>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={onClose}
-          sx={{
-            textTransform: "none",
-            color: "#555",
-            fontWeight: 600,
-          }}
-        >
-          {t("details.schliessen")}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 // ─── ICS generation ───────────────────────────────────────────
 
 function generateIcs(
@@ -1045,6 +761,14 @@ function generateIcs(
       )
       .join("\\n");
 
+  // Build human-readable route summaries from actual connection endpoints
+  const toElements = toConn.connection_elements;
+  const fromElements = fromConn.connection_elements;
+  const toFrom = toElements[0]?.from_location || "";
+  const toTo = toElements[toElements.length - 1]?.to_location || "";
+  const fromFrom = fromElements[0]?.from_location || "";
+  const fromTo = fromElements[fromElements.length - 1]?.to_location || "";
+
   const toStart = toIcsDate(toConn.connection_start_timestamp);
   const toEnd = toIcsDate(toConn.connection_end_timestamp);
   const fromStart = toIcsDate(fromConn.connection_start_timestamp);
@@ -1061,7 +785,7 @@ function generateIcs(
     `DTSTAMP:${now}`,
     `DTSTART:${toStart}`,
     `DTEND:${toEnd}`,
-    `SUMMARY:Anreise: ${tourTitle}`,
+    `SUMMARY:Anreise: ${toFrom} → ${toTo}`,
     `DESCRIPTION:${formatLegs(toConn.connection_elements)}`,
     "END:VEVENT",
     "BEGIN:VEVENT",
@@ -1076,7 +800,7 @@ function generateIcs(
     `DTSTAMP:${now}`,
     `DTSTART:${fromStart}`,
     `DTEND:${fromEnd}`,
-    `SUMMARY:Rückreise: ${tourTitle}`,
+    `SUMMARY:Rückreise: ${fromFrom} → ${fromTo}`,
     `DESCRIPTION:${formatLegs(fromConn.connection_elements)}`,
     "END:VEVENT",
     "END:VCALENDAR",
@@ -1102,20 +826,40 @@ export default function ConnectionResults({
   coordinateReplacements,
   tourDurationHours,
   tour,
-  onScrollBefore,
-  onScrollAfter,
   searchDate,
   activityDurationMinutes,
+  shareTimeHints,
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
 
-  const [selectedToId, setSelectedToId] = useState(
-    connections.recommended_to_activity_connection,
-  );
-  const [selectedFromId, setSelectedFromId] = useState(
-    connections.recommended_from_activity_connection,
-  );
+  // Pick initial selection: match share hints if available, else use recommended
+  const resolveInitialTo = (): number => {
+    if (shareTimeHints?.toStart) {
+      const match = connections.to_activity.find(
+        (c) =>
+          c.connection_start_timestamp === shareTimeHints.toStart &&
+          c.connection_end_timestamp === shareTimeHints.toEnd,
+      );
+      if (match) return match.connection_id;
+    }
+    return connections.recommended_to_activity_connection;
+  };
+
+  const resolveInitialFrom = (): number => {
+    if (shareTimeHints?.fromStart) {
+      const match = connections.from_activity.find(
+        (c) =>
+          c.connection_start_timestamp === shareTimeHints.fromStart &&
+          c.connection_end_timestamp === shareTimeHints.fromEnd,
+      );
+      if (match) return match.connection_id;
+    }
+    return connections.recommended_from_activity_connection;
+  };
+
+  const [selectedToId, setSelectedToId] = useState(resolveInitialTo);
+  const [selectedFromId, setSelectedFromId] = useState(resolveInitialFrom);
 
   // Sync selected IDs when data changes (after scroll prepend/append)
   useEffect(() => {
@@ -1142,7 +886,7 @@ export default function ConnectionResults({
   const [fromExpanded, setFromExpanded] = useState(false);
 
   // Action button states
-  const [ticketOpen, setTicketOpen] = useState(false);
+
   const [shareLoading, setShareLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
@@ -1210,7 +954,6 @@ export default function ConnectionResults({
     if (actionsDisabled) return;
     setShareLoading(true);
     try {
-      const token = await fetchDianaToken();
       const payload = {
         origin:
           coordinateReplacements?.lat && coordinateReplacements?.lon
@@ -1240,10 +983,9 @@ export default function ConnectionResults({
         shareURLPrefix: window.location.origin + window.location.pathname,
       };
 
-      const resp = await fetch(`${DIANA_API_BASE}/share/`, {
+      const resp = await fetch(`${DIANA_PROXY_BASE}/share`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
@@ -1251,10 +993,22 @@ export default function ConnectionResults({
 
       const { shareId } = await resp.json();
       const shareUrl = `${window.location.origin}${window.location.pathname}?diana-share=${shareId}`;
-      await navigator.clipboard.writeText(shareUrl);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2500);
+
+      // Use native Web Share API if available, otherwise copy to clipboard
+      if (navigator.share) {
+        await navigator.share({
+          title: tour?.title || "Zuugle",
+          text: t("details.teilen_text"),
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2500);
+      }
     } catch (err) {
+      // User cancelled the share dialog — not an error
+      if (err instanceof Error && err.name === "AbortError") return;
       console.error("Share error:", err);
     } finally {
       setShareLoading(false);
@@ -1340,12 +1094,7 @@ export default function ConnectionResults({
             selectedId={selectedToId}
             recommendedId={connections.recommended_to_activity_connection}
             onSelect={handleToSelect}
-            t={t}
             conflictThreshold={toConflictThreshold}
-            hasMoreBefore={connections.has_more_before_to_activity}
-            hasMoreAfter={connections.has_more_after_to_activity}
-            onScrollBefore={() => onScrollBefore?.("to")}
-            onScrollAfter={() => onScrollAfter?.("to")}
           />
 
           {/* Anreise Detail (toggle) */}
@@ -1516,13 +1265,8 @@ export default function ConnectionResults({
             selectedId={selectedFromId}
             recommendedId={connections.recommended_from_activity_connection}
             onSelect={handleFromSelect}
-            t={t}
             conflictThreshold={fromConflictThreshold}
             conflictCheckStart={true}
-            hasMoreBefore={connections.has_more_before_from_activity}
-            hasMoreAfter={connections.has_more_after_from_activity}
-            onScrollBefore={() => onScrollBefore?.("from")}
-            onScrollAfter={() => onScrollAfter?.("from")}
           />
         </Box>
       )}
@@ -1536,31 +1280,6 @@ export default function ConnectionResults({
           flexWrap: "wrap",
         }}
       >
-        {/* Ticket */}
-        <Button
-          variant="contained"
-          startIcon={<ConfirmationNumberIcon />}
-          disabled={actionsDisabled}
-          onClick={() => setTicketOpen(true)}
-          sx={{
-            borderRadius: "10px",
-            textTransform: "none",
-            fontWeight: 600,
-            fontSize: "14px",
-            bgcolor: "var(--bzb-akelei)",
-            color: "#fff",
-            "&:hover": { bgcolor: "#5a1d61" },
-            "&.Mui-disabled": {
-              bgcolor: "var(--bzb-akelei)",
-              color: "#fff",
-              opacity: 0.4,
-              cursor: "not-allowed",
-            },
-          }}
-        >
-          {t("details.ticket")}
-        </Button>
-
         {/* Teilen */}
         <Button
           variant="outlined"
@@ -1621,14 +1340,19 @@ export default function ConnectionResults({
         </Button>
       </Box>
 
-      {/* ─── Ticket Modal ─── */}
-      <TicketModal
-        open={ticketOpen}
-        onClose={() => setTicketOpen(false)}
-        selectedTo={selectedTo}
-        selectedFrom={selectedFrom}
-        t={t}
-      />
+      {/* ─── GeoJSON Lookup ─── */}
+      {coordinateReplacements?.citySlug && (
+        <Typography
+          sx={{
+            mt: "12px",
+            fontSize: "13px",
+            color: "#888",
+          }}
+        >
+          GeoJSON Lookup: {coordinateReplacements.citySlug} /{" "}
+          {coordinateReplacements.cityName}
+        </Typography>
+      )}
     </Box>
   );
 }

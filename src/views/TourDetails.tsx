@@ -111,8 +111,25 @@ export default function DetailReworked() {
   const navigate = useNavigate();
 
   const goToSearchPage = () => {
-    navigate(`/search` + (city ? `?city=${city.value}` : ""));
+    const langParam = get_currLanguage(i18n);
+    const params = new URLSearchParams();
+    params.set("lang", langParam);
+    if (city) params.set("city", city.value);
+    navigate(`/search?${params}`);
   };
+
+  // Intercept browser back button: navigate to /search with city
+  useEffect(() => {
+    const handlePopState = () => {
+      const langParam = get_currLanguage(i18n);
+      const params = new URLSearchParams();
+      params.set("lang", langParam);
+      if (city) params.set("city", city.value);
+      navigate(`/search?${params}`, { replace: true });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [city, i18n, navigate]);
 
   const LoadingSpinner = () => (
     <div

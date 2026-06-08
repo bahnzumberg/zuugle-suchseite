@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useParams, useSearchParams } from "react-router";
+import { useAppDispatch } from "../../hooks";
+import { cityUpdated, citySlugUpdated } from "../../features/searchSlice";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -24,8 +27,7 @@ import {
 } from "../../hooks/useDepartureLocation";
 import { useDianaAutocomplete } from "../../hooks/useDianaAutocomplete";
 import {
-  fetchDianaToken,
-  DIANA_API_BASE,
+  DIANA_PROXY_BASE,
   mapLanguage,
   localTimeToUtc,
 } from "../../utils/dianaApi";
@@ -41,6 +43,8 @@ export default function ConnectionSearchForm({
 }: ConnectionSearchFormProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.substring(0, 2);
+  const dispatch = useAppDispatch();
+  const routeParams = useParams();
 
   // Departure location from localStorage
   const {
@@ -88,6 +92,17 @@ export default function ConnectionSearchForm({
   const [connectionsResult, setConnectionsResult] =
     useState<ConnectionsResultData | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+
+  // Share restore state
+  const [searchParams] = useSearchParams();
+  const shareId = searchParams.get("diana-share");
+  const [shareTimeHints, setShareTimeHints] = useState<{
+    toStart?: string;
+    toEnd?: string;
+    fromStart?: string;
+    fromEnd?: string;
+  } | null>(null);
+  const shareRestored = useRef(false);
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
@@ -167,6 +182,139 @@ export default function ConnectionSearchForm({
     return params;
   };
 
+  // ── Share restore: fetch shared journey and auto-search ──
+  const triggerSearchWithParams = useCallback(
+    async (lat: number, lon: number, displayName: string, date: string) => {
+      // Set departure location
+      const loc: DepartureLocation = {
+        displayName,
+        locationType: "address",
+      };
+      setDepartureLocation(loc, lat, lon);
+      setInputValue(displayName);
+
+      // Set date
+      const d = dayjs(date);
+      if (d.isSame(today, "day")) {
+        setDateMode("today");
+      } else if (d.isSame(today.add(1, "day"), "day")) {
+        setDateMode("tomorrow");
+      } else {
+        setDateMode("custom");
+        setCustomDate(d);
+      }
+
+      // Build and execute search
+      setIsSearching(true);
+      setConnectionsResult(null);
+      setSearchError(null);
+
+      try {
+        const utcTimes = {
+          earliest_start: localTimeToUtc(
+            DIANA_ACTIVITY_TIMES.earliest_start_time,
+            date,
+          ),
+          latest_start: localTimeToUtc(
+            DIANA_ACTIVITY_TIMES.latest_start_time,
+            date,
+          ),
+          earliest_end: localTimeToUtc(
+            DIANA_ACTIVITY_TIMES.earliest_end_time,
+            date,
+          ),
+          latest_end: localTimeToUtc(
+            DIANA_ACTIVITY_TIMES.latest_end_time,
+            date,
+          ),
+        };
+
+        const params = new URLSearchParams({
+          user_start_location: `${lat},${lon}`,
+          user_start_location_type: "coordinates",
+          activity_name: tour.title,
+          activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
+          activity_start_location_type: "coordinates",
+          activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
+          activity_end_location_type: "coordinates",
+          activity_duration_minutes: String(activityDurationMinutes),
+          activity_earliest_start_time: utcTimes.earliest_start,
+          activity_latest_start_time: utcTimes.latest_start,
+          activity_earliest_end_time: utcTimes.earliest_end,
+          activity_latest_end_time: utcTimes.latest_end,
+          date,
+          lang: mapLanguage(lang),
+          use_flex: "false",
+          timezone: "Europe/Vienna",
+        });
+
+        const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
+
+        if (!resp.ok) {
+          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+          return;
+        }
+
+        const data = await resp.json();
+        const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+        const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+        if (!hasTo && !hasFrom) {
+          setSearchError(t("details.keine_verbindungen"));
+          return;
+        }
+
+        setConnectionsResult(data);
+      } catch {
+        setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [tour, lang, t, activityDurationMinutes, today, setDepartureLocation],
+  );
+
+  useEffect(() => {
+    if (!shareId || shareRestored.current) return;
+    shareRestored.current = true;
+
+    const restoreShare = async () => {
+      try {
+        const resp = await fetch(
+          `${DIANA_PROXY_BASE}/share/${encodeURIComponent(shareId)}`,
+        );
+        if (!resp.ok) return;
+
+        const shareData = await resp.json();
+
+        const lat = shareData.origin_lat
+          ? parseFloat(shareData.origin_lat)
+          : null;
+        const lon = shareData.origin_lon
+          ? parseFloat(shareData.origin_lon)
+          : null;
+        const displayName = shareData.origin_display_name || "";
+        const date =
+          shareData.date || new Date().toISOString().substring(0, 10);
+
+        // Store time hints for selecting the right connections
+        setShareTimeHints({
+          toStart: shareData.to_connection_start_time ?? undefined,
+          toEnd: shareData.to_connection_end_time ?? undefined,
+          fromStart: shareData.from_connection_start_time ?? undefined,
+          fromEnd: shareData.from_connection_end_time ?? undefined,
+        });
+
+        if (lat && lon) {
+          await triggerSearchWithParams(lat, lon, displayName, date);
+        }
+      } catch (err) {
+        console.error("Share restore error:", err);
+      }
+    };
+
+    restoreShare();
+  }, [shareId, triggerSearchWithParams]);
+
   const handleSearch = async () => {
     if (!departureLocation) return;
 
@@ -175,13 +323,10 @@ export default function ConnectionSearchForm({
     setSearchError(null);
 
     try {
-      const token = await fetchDianaToken();
       const selectedDate = getSelectedDate();
       const params = buildSearchParams(selectedDate);
 
-      const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
@@ -225,6 +370,25 @@ export default function ConnectionSearchForm({
       }
 
       setConnectionsResult(data);
+
+      // Update city in Redux and URL when GeoJSON lookup found a city
+      if (departureLocation?.citySlug && departureLocation?.cityName) {
+        const cityObj = {
+          value: departureLocation.citySlug,
+          label: departureLocation.cityName,
+        };
+        dispatch(cityUpdated(cityObj));
+        dispatch(citySlugUpdated(departureLocation.citySlug));
+
+        // Replace URL: /tour/:id/no-city → /tour/:id/:citySlug
+        // Using replaceState so browser back button goes to /search, not /no-city
+        const { idOne } = routeParams;
+        if (idOne) {
+          const lang = i18n.language.substring(0, 2);
+          const newPath = `/tour/${idOne}/${departureLocation.citySlug}?lang=${lang}`;
+          window.history.replaceState(null, "", newPath);
+        }
+      }
     } catch (err) {
       console.error("❌ Diana connections error:", err);
       const msg = err instanceof Error ? err.message : "";
@@ -235,161 +399,6 @@ export default function ConnectionSearchForm({
       }
     } finally {
       setIsSearching(false);
-    }
-  };
-
-  /**
-   * Scroll to earlier connections (prepend to existing list).
-   * Uses the first connection's start timestamp as the "before" anchor.
-   */
-  const handleScrollBefore = async (direction: "to" | "from") => {
-    if (!departureLocation || !connectionsResult) return;
-
-    try {
-      const token = await fetchDianaToken();
-      const selectedDate = getSelectedDate();
-      const params = buildSearchParams(selectedDate);
-
-      const connectionsList =
-        direction === "to"
-          ? connectionsResult.connections.to_activity
-          : connectionsResult.connections.from_activity;
-
-      if (connectionsList.length === 0) return;
-
-      const firstTimestamp = connectionsList[0].connection_start_timestamp;
-
-      if (direction === "to") {
-        params.set("to_connections_before", firstTimestamp);
-      } else {
-        params.set("from_connections_before", firstTimestamp);
-      }
-
-      const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!resp.ok) return;
-
-      const newData: ConnectionsResultData = await resp.json();
-
-      setConnectionsResult((prev) => {
-        if (!prev) return prev;
-
-        if (direction === "to") {
-          const existingIds = new Set(
-            prev.connections.to_activity.map((c) => c.connection_id),
-          );
-          const newConns = (newData.connections.to_activity || []).filter(
-            (c) => !existingIds.has(c.connection_id),
-          );
-          return {
-            ...prev,
-            connections: {
-              ...prev.connections,
-              to_activity: [...newConns, ...prev.connections.to_activity],
-              has_more_before_to_activity:
-                newData.connections.has_more_before_to_activity,
-            },
-          };
-        } else {
-          const existingIds = new Set(
-            prev.connections.from_activity.map((c) => c.connection_id),
-          );
-          const newConns = (newData.connections.from_activity || []).filter(
-            (c) => !existingIds.has(c.connection_id),
-          );
-          return {
-            ...prev,
-            connections: {
-              ...prev.connections,
-              from_activity: [...newConns, ...prev.connections.from_activity],
-              has_more_before_from_activity:
-                newData.connections.has_more_before_from_activity,
-            },
-          };
-        }
-      });
-    } catch (err) {
-      console.error("❌ Scroll before error:", err);
-    }
-  };
-
-  /**
-   * Scroll to later connections (append to existing list).
-   * Uses the last connection's start timestamp as the "after" anchor.
-   */
-  const handleScrollAfter = async (direction: "to" | "from") => {
-    if (!departureLocation || !connectionsResult) return;
-
-    try {
-      const token = await fetchDianaToken();
-      const selectedDate = getSelectedDate();
-      const params = buildSearchParams(selectedDate);
-
-      const connectionsList =
-        direction === "to"
-          ? connectionsResult.connections.to_activity
-          : connectionsResult.connections.from_activity;
-
-      if (connectionsList.length === 0) return;
-
-      const lastTimestamp =
-        connectionsList[connectionsList.length - 1].connection_start_timestamp;
-
-      if (direction === "to") {
-        params.set("to_connections_after", lastTimestamp);
-      } else {
-        params.set("from_connections_after", lastTimestamp);
-      }
-
-      const resp = await fetch(`${DIANA_API_BASE}/connections?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!resp.ok) return;
-
-      const newData: ConnectionsResultData = await resp.json();
-
-      setConnectionsResult((prev) => {
-        if (!prev) return prev;
-
-        if (direction === "to") {
-          const existingIds = new Set(
-            prev.connections.to_activity.map((c) => c.connection_id),
-          );
-          const newConns = (newData.connections.to_activity || []).filter(
-            (c) => !existingIds.has(c.connection_id),
-          );
-          return {
-            ...prev,
-            connections: {
-              ...prev.connections,
-              to_activity: [...prev.connections.to_activity, ...newConns],
-              has_more_after_to_activity:
-                newData.connections.has_more_after_to_activity,
-            },
-          };
-        } else {
-          const existingIds = new Set(
-            prev.connections.from_activity.map((c) => c.connection_id),
-          );
-          const newConns = (newData.connections.from_activity || []).filter(
-            (c) => !existingIds.has(c.connection_id),
-          );
-          return {
-            ...prev,
-            connections: {
-              ...prev.connections,
-              from_activity: [...prev.connections.from_activity, ...newConns],
-              has_more_after_from_activity:
-                newData.connections.has_more_after_from_activity,
-            },
-          };
-        }
-      });
-    } catch (err) {
-      console.error("❌ Scroll after error:", err);
     }
   };
 
@@ -449,6 +458,8 @@ export default function ConnectionSearchForm({
               const loc: DepartureLocation = {
                 displayName: value.displayName,
                 locationType: value.locationType,
+                citySlug: value.citySlug,
+                cityName: value.cityName,
               };
               setDepartureLocation(loc, value.lat, value.lon);
               setInputValue(value.displayName);
@@ -787,13 +798,14 @@ export default function ConnectionSearchForm({
               lat: departureLat,
               lon: departureLon,
               displayName: departureLocation?.displayName || inputValue,
+              citySlug: departureLocation?.citySlug,
+              cityName: departureLocation?.cityName,
             }}
             tourDurationHours={Number(tour.avg_total_tour_duration)}
             tour={tour}
             searchDate={getSelectedDate()}
             activityDurationMinutes={activityDurationMinutes}
-            onScrollBefore={handleScrollBefore}
-            onScrollAfter={handleScrollAfter}
+            shareTimeHints={shareTimeHints}
           />
         )}
       </Box>
