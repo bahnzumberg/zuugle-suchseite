@@ -416,9 +416,9 @@ function ConnectionTabs({
               key={conn.connection_id}
               onClick={() => onSelect(conn.connection_id)}
               sx={{
-                minWidth: "130px",
-                px: "12px",
-                py: "8px",
+                minWidth: "100px",
+                px: "8px",
+                py: "6px",
                 borderRadius: "10px",
                 cursor: "pointer",
                 textAlign: "center",
@@ -550,6 +550,25 @@ function ConnectionTimeline({
         }
 
         if (isTransfer) {
+          // Arrival platform from the preceding leg, departure platform from the next leg
+          const prevPlatform =
+            idx > 0 ? elements[idx - 1].platform_dest : undefined;
+          const nextPlatform =
+            idx < elements.length - 1
+              ? elements[idx + 1].platform_orig
+              : undefined;
+          const tInterp = t as unknown as (
+            key: string,
+            opts: Record<string, string>,
+          ) => string;
+          const platformInfo =
+            prevPlatform && nextPlatform
+              ? `, ${tInterp("details.von_gleis_zu_gleis", { from: prevPlatform, to: nextPlatform })}`
+              : prevPlatform
+                ? `, ${tInterp("details.von_gleis", { from: prevPlatform })}`
+                : nextPlatform
+                  ? `, ${tInterp("details.zu_gleis", { to: nextPlatform })}`
+                  : "";
           return (
             <Box
               key={idx}
@@ -567,6 +586,7 @@ function ConnectionTimeline({
               />
               <Typography sx={{ fontSize: "14px", color: "#888" }}>
                 {t("details.umstieg")} ({durationMin} {t("details.min_minute")})
+                {platformInfo}
               </Typography>
             </Box>
           );
@@ -881,9 +901,9 @@ export default function ConnectionResults({
     }
   }, [connections.from_activity]);
 
-  // Toggle state: details hidden by default
-  const [toExpanded, setToExpanded] = useState(false);
-  const [fromExpanded, setFromExpanded] = useState(false);
+  // Toggle state: details expanded by default so user sees timeline immediately
+  const [toExpanded, setToExpanded] = useState(true);
+  const [fromExpanded, setFromExpanded] = useState(true);
 
   // Action button states
 
@@ -1035,6 +1055,7 @@ export default function ConnectionResults({
       {connections.to_activity.length > 0 && (
         <Box>
           <Box
+            id="anreise-header"
             sx={{
               display: "flex",
               alignItems: "center",
@@ -1260,14 +1281,16 @@ export default function ConnectionResults({
           )}
 
           {/* Horizontale Rückreisenavigation */}
-          <ConnectionTabs
-            connections={connections.from_activity}
-            selectedId={selectedFromId}
-            recommendedId={connections.recommended_from_activity_connection}
-            onSelect={handleFromSelect}
-            conflictThreshold={fromConflictThreshold}
-            conflictCheckStart={true}
-          />
+          <Box sx={{ mt: "12px" }}>
+            <ConnectionTabs
+              connections={connections.from_activity}
+              selectedId={selectedFromId}
+              recommendedId={connections.recommended_from_activity_connection}
+              onSelect={handleFromSelect}
+              conflictThreshold={fromConflictThreshold}
+              conflictCheckStart={true}
+            />
+          </Box>
         </Box>
       )}
 
@@ -1282,13 +1305,10 @@ export default function ConnectionResults({
       >
         {/* Teilen */}
         <Button
-          variant="outlined"
+          variant="contained"
           startIcon={
             shareLoading ? (
-              <CircularProgress
-                size={16}
-                sx={{ color: "var(--bzb-bahnblau)" }}
-              />
+              <CircularProgress size={16} sx={{ color: "#fff" }} />
             ) : (
               <ShareIcon />
             )
@@ -1300,14 +1320,14 @@ export default function ConnectionResults({
             textTransform: "none",
             fontWeight: 600,
             fontSize: "14px",
-            borderColor: "var(--bzb-bahnblau)",
-            color: "var(--bzb-bahnblau)",
-            "&:hover": { bgcolor: "#e8f0ff" },
+            px: "16px",
+            py: "6px",
+            bgcolor: shareCopied ? "var(--bzb-bahnblau)" : "var(--bzb-akelei)",
+            color: "#fff",
+            "&:hover": { bgcolor: shareCopied ? "#1a3a66" : "#5a1d61" },
             "&.Mui-disabled": {
-              borderColor: "var(--bzb-bahnblau)",
-              color: "var(--bzb-bahnblau)",
-              opacity: 0.4,
-              cursor: "not-allowed",
+              bgcolor: "#ccc",
+              color: "#888",
             },
           }}
         >
@@ -1316,7 +1336,7 @@ export default function ConnectionResults({
 
         {/* Kalender */}
         <Button
-          variant="outlined"
+          variant="contained"
           startIcon={<CalendarMonthIcon />}
           disabled={actionsDisabled}
           onClick={handleCalendar}
@@ -1325,34 +1345,20 @@ export default function ConnectionResults({
             textTransform: "none",
             fontWeight: 600,
             fontSize: "14px",
-            borderColor: "#888",
-            color: "#555",
-            "&:hover": { bgcolor: "#f5f5f5", borderColor: "#555" },
+            px: "16px",
+            py: "6px",
+            bgcolor: "var(--bzb-akelei)",
+            color: "#fff",
+            "&:hover": { bgcolor: "#5a1d61" },
             "&.Mui-disabled": {
-              borderColor: "#888",
-              color: "#555",
-              opacity: 0.4,
-              cursor: "not-allowed",
+              bgcolor: "#ccc",
+              color: "#888",
             },
           }}
         >
           {t("details.kalender")}
         </Button>
       </Box>
-
-      {/* ─── GeoJSON Lookup ─── */}
-      {coordinateReplacements?.citySlug && (
-        <Typography
-          sx={{
-            mt: "12px",
-            fontSize: "13px",
-            color: "#888",
-          }}
-        >
-          GeoJSON Lookup: {coordinateReplacements.citySlug} /{" "}
-          {coordinateReplacements.cityName}
-        </Typography>
-      )}
     </Box>
   );
 }

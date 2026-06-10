@@ -1,13 +1,7 @@
 import { Tour } from "../../models/Tour";
-import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {
-  useGetCities2TourQuery,
-  useGetCitiesQuery,
-} from "../../features/apiSlice";
 import { t } from "i18next";
-import CityList from "../TimeLine/CityList";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import ConnectionSearchForm from "../ConnectionSearch/ConnectionSearchForm";
@@ -16,11 +10,7 @@ export interface ItineraryProps {
   tour?: Tour;
   tourId?: string;
 }
-const Itinerary = ({ tour, tourId }: ItineraryProps) => {
-  const { data: cities = [] } = useGetCitiesQuery();
-  const { data: cities2tour } = useGetCities2TourQuery(tourId ?? "", {
-    skip: !tourId,
-  });
+const Itinerary = ({ tour, tourId: _tourId }: ItineraryProps) => {
   const city = useSelector((state: RootState) => state.search.city);
 
   return (
@@ -54,16 +44,6 @@ const Itinerary = ({ tour, tourId }: ItineraryProps) => {
                   : t("search.keine_ergebnisse")}
               </Typography>
             </Box>
-          </>
-        )}
-        {tour && tourId && !city && (
-          <>
-            <Divider sx={{ my: "24px" }} />
-            <CityList
-              tourId={tourId}
-              cities2tour={cities2tour}
-              allCities={cities}
-            />
           </>
         )}
       </div>

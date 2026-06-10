@@ -92,6 +92,7 @@ export default function ConnectionSearchForm({
   const [connectionsResult, setConnectionsResult] =
     useState<ConnectionsResultData | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const scrollAfterResultRef = useRef(false);
 
   // Share restore state
   const [searchParams] = useSearchParams();
@@ -371,6 +372,17 @@ export default function ConnectionSearchForm({
 
       setConnectionsResult(data);
 
+      // Scroll to Anreise header after manual search
+      if (scrollAfterResultRef.current) {
+        scrollAfterResultRef.current = false;
+        setTimeout(() => {
+          document.getElementById("anreise-header")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 150);
+      }
+
       // Update city in Redux and URL when GeoJSON lookup found a city
       if (departureLocation?.citySlug && departureLocation?.cityName) {
         const cityObj = {
@@ -423,6 +435,23 @@ export default function ConnectionSearchForm({
   };
 
   const canSearch = !!departureLocation;
+
+  // Auto-search: if departure location is already set (from localStorage),
+  // trigger search automatically on mount — unless we're restoring a share link.
+  const autoSearchTriggered = useRef(false);
+  useEffect(() => {
+    if (
+      autoSearchTriggered.current ||
+      shareId ||
+      !departureLocation ||
+      isSearching ||
+      connectionsResult
+    )
+      return;
+    autoSearchTriggered.current = true;
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [departureLocation]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
@@ -520,21 +549,21 @@ export default function ConnectionSearchForm({
             <Typography sx={{ ...sectionLabelSx, mt: "20px" }}>
               {t("details.aktivitaetsdatum")}
             </Typography>
-            {/* Single-day: all controls in one row */}
             <Box
               sx={{
                 display: "flex",
                 gap: "8px",
                 alignItems: "center",
-                flexWrap: "nowrap",
+                flexWrap: "wrap",
                 mt: "8px",
               }}
             >
               <Button
                 variant={dateMode === "today" ? "contained" : "outlined"}
-                disabled={isTodayDisabled}
                 onClick={() => setDateMode("today")}
+                disabled={isTodayDisabled}
                 sx={{
+                  display: { xs: "none", sm: "inline-flex" },
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 600,
@@ -566,6 +595,7 @@ export default function ConnectionSearchForm({
                 variant={dateMode === "tomorrow" ? "contained" : "outlined"}
                 onClick={() => setDateMode("tomorrow")}
                 sx={{
+                  display: { xs: "none", sm: "inline-flex" },
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 600,
@@ -589,73 +619,82 @@ export default function ConnectionSearchForm({
                 {t("details.morgen")}
               </Button>
 
-              {/* DatePicker wrapper: flex:1 fills remaining space */}
-              <Box sx={{ flex: "1 1 0", minWidth: "48px" }}>
-                <DatePicker
-                  value={dateMode === "custom" ? customDate : null}
-                  onChange={(date) => {
-                    setDateMode("custom");
-                    setCustomDate(date);
-                  }}
-                  minDate={today}
-                  format="DD.MM.YYYY"
-                  slotProps={{
-                    textField: {
-                      size: "small",
-                      fullWidth: true,
-                      sx: {
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "12px",
-                          ...(dateMode === "custom"
-                            ? {
-                                bgcolor: "var(--bzb-bahnblau)",
-                                color: "#fff",
-                                "& fieldset": { borderColor: "transparent" },
-                                "& input": { color: "#fff" },
-                                "& .MuiInputBase-input": { color: "#fff" },
-                                "& .MuiSvgIcon-root": { color: "#fff" },
-                              }
-                            : {}),
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Box>
-
-              {/* Verbindung suchen */}
-              <Button
-                variant="contained"
-                disabled={!canSearch || isSearching}
-                onClick={handleSearch}
+              <Box
                 sx={{
-                  flex: "0 0 auto",
-                  minWidth: "160px",
-                  bgcolor: isSearching
-                    ? "var(--bzb-bahnblau)"
-                    : "var(--bzb-akelei)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  px: "16px",
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                  display: "flex",
+                  gap: "8px",
+                  alignItems: "center",
+                  flex: "1 1 100%",
+                  minWidth: 0,
+                  "@media (min-width: 600px)": {
+                    flex: "1 1 0",
                   },
-                  "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
                 }}
               >
-                {isSearching ? (
-                  <CircularProgress
-                    size={22}
-                    sx={{ color: "#fff", mx: "24px" }}
+                <Box sx={{ flex: "1 1 0", minWidth: "120px" }}>
+                  <DatePicker
+                    value={
+                      dateMode === "today"
+                        ? today
+                        : dateMode === "tomorrow"
+                          ? today.add(1, "day")
+                          : customDate
+                    }
+                    onChange={(date) => {
+                      setDateMode("custom");
+                      setCustomDate(date);
+                    }}
+                    minDate={today}
+                    format="DD.MM.YYYY"
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        fullWidth: true,
+                        sx: {
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "12px",
+                          },
+                        },
+                      },
+                    }}
                   />
-                ) : (
-                  t("details.verbindung_suchen")
-                )}
-              </Button>
+                </Box>
+
+                <Button
+                  variant="contained"
+                  disabled={!canSearch || isSearching}
+                  onClick={() => {
+                    scrollAfterResultRef.current = true;
+                    handleSearch();
+                  }}
+                  sx={{
+                    flex: "0 0 auto",
+                    bgcolor: isSearching
+                      ? "var(--bzb-bahnblau)"
+                      : "var(--bzb-akelei)",
+                    color: "#fff",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    px: "16px",
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                      bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                    },
+                    "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
+                  }}
+                >
+                  {isSearching ? (
+                    <CircularProgress
+                      size={22}
+                      sx={{ color: "#fff", mx: "24px" }}
+                    />
+                  ) : (
+                    t("details.verbindung_suchen")
+                  )}
+                </Button>
+              </Box>
             </Box>
           </>
         ) : (
@@ -729,7 +768,10 @@ export default function ConnectionSearchForm({
               <Button
                 variant="contained"
                 disabled={!canSearch || isSearching}
-                onClick={handleSearch}
+                onClick={() => {
+                  scrollAfterResultRef.current = true;
+                  handleSearch();
+                }}
                 sx={{
                   flex: "0 0 auto",
                   mx: "auto",

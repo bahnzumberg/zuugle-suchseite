@@ -1,34 +1,22 @@
-import * as React from "react";
-import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import EmailIcon from "@mui/icons-material/Email";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import XIcon from "@mui/icons-material/X";
 import fileDownload from "js-file-download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
+import DownloadIcon from "@mui/icons-material/Download";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 
-import {
-  EmailShareButton,
-  FacebookShareButton,
-  TwitterShareButton,
-  WhatsappShareButton,
-} from "react-share";
 import DomainMenu from "../components/DomainMenu";
 import Footer from "../components/Footer/Footer";
 import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
 import TourDetailProperties from "../components/TourDetailProperties";
-import { get_currLanguage, parseFileName, shortenText } from "../utils/globals";
-import Search from "../components/Search/Search";
+import { get_currLanguage, parseFileName } from "../utils/globals";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
@@ -44,9 +32,6 @@ import { CustomIcon } from "../icons/CustomIcon";
 import LanguageMenu from "../components/LanguageMenu";
 
 export default function DetailReworked() {
-  //Whether social media share buttons should be shown
-  const [socialMediaDropDownToggle, setSocialMediaDropDownToggle] =
-    useState(false);
   const { cityOne } = useParams();
   const { idOne } = useParams();
 
@@ -81,13 +66,13 @@ export default function DetailReworked() {
     dispatch(citySlugUpdated(resolved?.value ?? null));
   }, [allCities, areCitiesLoaded, cityOne, dispatch]);
 
-  const shareUrl = () => {
-    let _shareUrl = "";
-    if (city && idOne) {
-      _shareUrl = `https://${window.location.host}/tour/${idOne}/${city.value} `;
+  // Prevent browser scroll restoration on page load/refresh
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
-    return _shareUrl;
-  };
+    window.scrollTo(0, 0);
+  }, []);
 
   const providerUrl = () => {
     let url = tour?.url;
@@ -144,9 +129,6 @@ export default function DetailReworked() {
     </div>
   );
 
-  //max number of characters used per specific UI element (buttons)
-  const maxLength = 35;
-
   useEffect(() => {
     if (tour?.provider) {
       triggerProviderPermit(tour.provider);
@@ -174,29 +156,6 @@ export default function DetailReworked() {
     return !tour || !tour.gpx_file;
   };
 
-  const shareButtonHandler = (event: React.MouseEvent<HTMLElement>) => {
-    const clickedElement = event.target as HTMLElement;
-    const svgButton = clickedElement?.closest(".share-button"); // Find the closest parent with class "share-button"
-
-    if (svgButton) {
-      setSocialMediaDropDownToggle((current) => !current);
-    }
-  };
-
-  // Shared icon styling for social media buttons
-  const socialIconStyle = {
-    fontSize: 24,
-    color: "#FFFFFF",
-    marginLeft: "12px",
-    marginRight: "4px",
-  };
-
-  const copyIconStyle = {
-    fontSize: 24,
-    color: "#101010",
-    marginLeft: "4px",
-  };
-
   async function downloadGpx() {
     if (tour?.id && tour?.gpx_file) {
       const gpxData = track;
@@ -214,155 +173,31 @@ export default function DetailReworked() {
       <>
         {providerPermit && (
           <Button
-            className="tour-detail-action-btns"
-            disabled={downloadButtonsDisabled()}
-            onClick={() => {
-              downloadGpx();
+            variant="contained"
+            startIcon={
+              isGpxLoading ? (
+                <CircularProgress size={16} sx={{ color: "#fff" }} />
+              ) : (
+                <DownloadIcon />
+              )
+            }
+            disabled={downloadButtonsDisabled() || isGpxLoading}
+            onClick={() => downloadGpx()}
+            sx={{
+              bgcolor: "var(--bzb-akelei)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "14px",
+              borderRadius: "10px",
+              textTransform: "none",
+              px: "16px",
+              whiteSpace: "nowrap",
+              "&:hover": { bgcolor: "#5a1d61" },
+              "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
             }}
           >
-            <CustomIcon
-              name="downlaodIcon"
-              style={{
-                width: "25px",
-                height: "25px",
-                stroke: "#FFFFFF",
-                fill: "none",
-              }}
-            />
-            <span style={{ color: "#FFFFFF", width: "45px" }}>GPX</span>
-            {isGpxLoading ? (
-              <CircularProgress
-                sx={{ width: "20px", height: "20px", fontWeight: 600 }}
-                size={"small"}
-              />
-            ) : (
-              <span style={{ color: "#FFFFFF", paddingLeft: "8px" }}>
-                {t("details.track_gps_geraet")}
-              </span>
-            )}
+            {t("main.gpx_download")}
           </Button>
-        )}
-
-        {/*
-        Share button
-        When clicked, a link will be generated and the social media options will be shown
-        */}
-        <Button
-          className="tour-detail-action-btns share-button"
-          disabled={false}
-          onClick={shareButtonHandler}
-        >
-          <CustomIcon
-            name="shareIcon"
-            style={{
-              width: "25px",
-              height: "25px",
-              stroke: "#FFFFFF",
-              fill: "none",
-            }}
-          />
-          <span style={{ color: "#FFFFFF", width: "45px" }}>
-            {t("details.teilen")}
-          </span>
-          <span style={{ color: "#FFFFFF", paddingLeft: "8px" }}>
-            {shortenText(t("details.teilen_description"), 0, maxLength)}
-          </span>
-        </Button>
-
-        {socialMediaDropDownToggle && shareUrl() !== null && (
-          <div>
-            <TwitterShareButton
-              windowWidth={800}
-              windowHeight={800}
-              className="tour-detail-action-btns"
-              style={{
-                borderRadius: "12px",
-                backgroundColor: "#000000",
-                border: "none",
-              }}
-              url={shareUrl()}
-              title={t("details.teilen_text")}
-            >
-              <XIcon sx={socialIconStyle} />
-              <span style={{ color: "#FFFFFF", fontWeight: 600 }}>X</span>
-            </TwitterShareButton>
-            <EmailShareButton
-              windowWidth={800}
-              windowHeight={800}
-              className="tour-detail-action-btns"
-              style={{
-                borderRadius: "12px",
-                backgroundColor: "#EA4335",
-                border: "none",
-              }}
-              url={shareUrl()}
-              subject={"Zuugle Tour"}
-              body={t("details.teilen_text")}
-            >
-              <EmailIcon sx={socialIconStyle} />
-              <span
-                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
-              >
-                Email
-              </span>
-            </EmailShareButton>
-            <FacebookShareButton
-              windowWidth={800}
-              windowHeight={800}
-              className="tour-detail-action-btns"
-              style={{
-                borderRadius: "12px",
-                backgroundColor: "#1877F2",
-                border: "none",
-              }}
-              url={shareUrl()}
-              hashtag={"Zuugle"}
-            >
-              <FacebookIcon sx={socialIconStyle} />
-              <span
-                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
-              >
-                Facebook
-              </span>
-            </FacebookShareButton>
-            <WhatsappShareButton
-              windowWidth={800}
-              windowHeight={800}
-              className="tour-detail-action-btns"
-              style={{
-                borderRadius: "12px",
-                backgroundColor: "#25D366",
-                border: "none",
-              }}
-              url={shareUrl()}
-              title={t("details.teilen_text")}
-            >
-              <WhatsAppIcon sx={socialIconStyle} />
-              <span
-                style={{ color: "#FFFFFF", width: "43px", fontWeight: 600 }}
-              >
-                WhatsApp
-              </span>
-            </WhatsappShareButton>
-            <Button
-              className="tour-detail-action-btns"
-              style={{
-                borderRadius: "12px",
-                backgroundColor: "#F5F5F5",
-                border: "1.5px solid #101010",
-              }}
-              onClick={() => {
-                navigator.clipboard.writeText(shareUrl());
-              }}
-            >
-              <ContentPasteIcon sx={copyIconStyle} />
-              <span
-                style={{ color: "#101010", width: "43px", fontWeight: 600 }}
-              >
-                {t("details.kopieren")}
-              </span>
-            </Button>
-          </div>
         )}
 
         {!!downloadButtonsDisabled() && (
@@ -395,11 +230,23 @@ export default function DetailReworked() {
       { "http-equiv": "content-language", content: currLanguage },
       { name: "title", content: page_title },
       { name: "description", content: description },
-      { property: "og:url", content: shareUrl() },
+      {
+        property: "og:url",
+        content:
+          city && idOne
+            ? `https://${window.location.host}/tour/${idOne}/${city.value}`
+            : "",
+      },
       { property: "og:title", content: page_title },
       { property: "og:description", content: "" },
       { property: "og:image", content: imageUrl },
-      { property: "twitter:url", content: shareUrl() },
+      {
+        property: "twitter:url",
+        content:
+          city && idOne
+            ? `https://${window.location.host}/tour/${idOne}/${city.value}`
+            : "",
+      },
       { property: "twitter:title", content: page_title },
       { property: "twitter:description", content: description },
       { property: "twitter:image", content: imageUrl },
@@ -445,16 +292,6 @@ export default function DetailReworked() {
               <LanguageMenu />
             </Box>
           </Box>
-        </Box>
-        <Box
-          sx={{
-            mt: "-50px",
-            display: "flex",
-            justifyContent: "center",
-            position: "relative",
-          }}
-        >
-          <Search />
         </Box>
       </Box>
       {isTourLoading ? (

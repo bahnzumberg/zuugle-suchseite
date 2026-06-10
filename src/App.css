@@ -651,7 +651,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (max-width: 600px) {
   .tour-detail-itinerary {
-    max-width: 300px;
+    max-width: 100%;
   }
   .tour-detail-itinerary-calendar {
     max-width: 400px;
