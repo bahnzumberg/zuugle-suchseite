@@ -79,6 +79,9 @@
                         gpxLayer.removeLayer(endMarker);
                     }
                 }
+                if (startMarker) {
+                    startMarker.setZIndexOffset(1000);
+                }
             }
 
             // Coordinates of London. This is easy to check and to replace with a valid image.
@@ -115,7 +118,7 @@
                 })
                     .on("loaded", function (e) {
                         map.fitBounds(e.target.getBounds().pad(0.15));
-                        hideEndMarkerIfRoundTrip(e.target);
+                        hideEndMarkerIfRoundTrip(e.layers);
                     })
                     .addTo(map);
             }
@@ -151,7 +154,7 @@
                     },
                 })
                     .on("loaded", function (e) {
-                        hideEndMarkerIfRoundTrip(e.target);
+                        hideEndMarkerIfRoundTrip(e.layers);
                     })
                     .addTo(map);
             }
