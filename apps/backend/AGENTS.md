@@ -81,13 +81,49 @@ npm run import-files
 
 ## 🧪 Testing & Quality Assurance
 
-- **Automatisierte Tests:** Aktuell **NICHT** vorhanden. Agenten sollen keine Tests ausführen oder fehlschlagende Test-Runs halluzinieren.
-- **Linting:** Ein Linter-Setup ist in Arbeit (Branch eslint). Aktuell gilt: Halte dich an den bestehenden Code-Style (Standard JS/Node).
-- **Validierung:** Da keine Tests existieren, muss der Code durch npm run build und manuelles Starten (npm run start) verifiziert werden.
+Tests **MÜSSEN** vor jedem Commit lokal ausgeführt und bestanden werden.
+
+```bash
+npm run tsc    # TypeScript-Prüfung
+npm test       # Jest Test-Suite
+```
+
+### GPX-Referenzbild aktualisieren
+
+Der Test `test/gpx-image.test.js` vergleicht generierte GPX-Kartenbilder mit einem Referenzbild unter `test/fixtures/gpx_image_reference.webp`. Wenn Änderungen an der Kartendarstellung vorgenommen werden (Marker, Farben, Layout, Leaflet-Konfiguration etc.), **muss** das Referenzbild aktualisiert werden:
+
+```bash
+# 1. Altes Referenzbild löschen
+rm test/fixtures/gpx_image_reference.webp
+
+# 2. Test einmal ausführen → erzeugt neues Referenzbild aus dem generierten Bild
+npm test -- --testPathPattern=gpx-image
+
+# 3. Neues Referenzbild prüfen und committen
+git add test/fixtures/gpx_image_reference.webp
+```
+
+Wird das Referenzbild nach Darstellungsänderungen **nicht** aktualisiert, schlägt der Test in CI fehl.
+
+- **Linting:** `npm run lint` und `npm run format` vor dem Commit ausführen.
+- **Validierung:** Zusätzlich `npm run build` und manuelles Starten (`npm run start`) zur Verifikation.
+
+## 📝 Commit-Richtlinien
+
+- **Ein logischer Change pro Commit.** Zusammengehöriges zusammen committen — aber keine unzusammenhängenden Änderungen bündeln.
+- **Erste Zeile unter 72 Zeichen.** Sie wird in `git log --oneline`, GitHub PR-Ansichten und E-Mail-Benachrichtigungen abgeschnitten.
+- **Intention beschreiben, nicht Dateien.** Warum wurde die Änderung gemacht, nicht was mechanisch geändert wurde.
+- **Issues referenzieren,** wenn vorhanden: `Fixes #42`, `Closes #87`.
+- `git rebase -i` nutzen, um unübersichtliche History vor dem Push auf `uat` zu bereinigen.
+
+Schlecht: `fix stuff`, `wip`, `changes`  
+Gut: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`
 
 ## ✅ Definition of Done
 
-1. Code basiert auf dem aktuellen uat Stand.
-2. npm run build ist erfolgreich.
-3. Der Server startet lokal ohne Absturz (npm run start).
-4. Keine Hardcoded Credentials (nutze Environment Variables).
+1. Code basiert auf dem aktuellen `uat` Stand.
+2. `npm run tsc` läuft ohne Fehler.
+3. `npm test` läuft ohne Fehler (inkl. aktualisiertes GPX-Referenzbild, falls nötig).
+4. `npm run build` ist erfolgreich.
+5. Der Server startet lokal ohne Absturz (`npm run start`).
+6. Keine Hardcoded Credentials (nutze Environment Variables).
