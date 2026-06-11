@@ -27,7 +27,7 @@ import TraverseFilter from "./FilterOptions/Traverse";
 import AscentFilter from "./FilterOptions/Ascent";
 import TravelTimeFilter from "./FilterOptions/TravelTime";
 import GeolocationSearchFilter from "./FilterOptions/GeolocationSearch";
-import CityFilter from "./FilterOptions/CityFilter";
+import AutocompleteCitySelection from "./AutocompleteCitySelection";
 import LoadingView from "./LoadingView";
 import {
   countFilterActive,
@@ -119,28 +119,40 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
         hasInitialized.current = true;
         setTempFilter({ ...defaultFilterValues, ...storedFilter });
       } else {
-        // Subsequent re-fetches: preserve user's in-progress selections, only update bounds/defaults.
-        // Intersect array selections with available options to drop stale values (e.g. a region
-        // that's no longer reachable after travel time is reduced).
+        // Re-fetch response arrived. Two possible causes:
+        // 1. User changed a selection inside the open dialog → debounce triggered a re-fetch.
+        //    Preserve in-progress selections (use prev) and intersect arrays with available options.
+        // 2. storedFilter changed externally while dialog is closed (e.g. chip removal).
+        //    Re-sync from storedFilter so the stale prev is discarded.
         setTempFilter((prev) => {
+          const base = showFilter ? prev : storedFilter;
           const intersect = <T,>(
-            prevArr: T[] | undefined,
+            arr: T[] | undefined,
             available: T[] | undefined,
           ): T[] | undefined => {
-            if (!prevArr) return prevArr;
-            if (!available) return prevArr;
-            return prevArr.filter((v) => available.includes(v));
+            if (!arr) return arr;
+            if (!available) return arr;
+            return arr.filter((v) => available.includes(v));
           };
           return {
             ...defaultFilterValues,
-            ...prev,
-            ranges: intersect(prev.ranges, fetchedFilter?.ranges),
-            types: intersect(prev.types, fetchedFilter?.types),
-            languages: intersect(prev.languages, fetchedFilter?.languages),
-            countries: intersect(prev.countries, fetchedFilter?.countries),
-            providers: intersect(prev.providers, fetchedFilter?.providers),
+            ...base,
+            ranges: intersect(base.ranges ?? [], fetchedFilter?.ranges),
+            types: intersect(base.types ?? [], fetchedFilter?.types),
+            languages: intersect(
+              base.languages ?? [],
+              fetchedFilter?.languages,
+            ),
+            countries: intersect(
+              base.countries ?? [],
+              fetchedFilter?.countries,
+            ),
+            providers: intersect(
+              base.providers ?? [],
+              fetchedFilter?.providers,
+            ),
             difficulties: intersect(
-              prev.difficulties,
+              base.difficulties ?? [],
               fetchedFilter?.difficulties,
             ),
           };
@@ -308,7 +320,17 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             <LoadingView />
           ) : (
             <Fragment>
-              <CityFilter tempCity={tempCity} setTempCity={setTempCity} />
+              <Box className="filter-box border" sx={{ paddingTop: "20px" }}>
+                <Typography variant="subtitle1">
+                  {t("filter.filter_city_description")}
+                </Typography>
+                <Box sx={{ paddingTop: "16px" }}>
+                  <AutocompleteCitySelection
+                    value={tempCity}
+                    onChange={setTempCity}
+                  />
+                </Box>
+              </Box>
               <TraverseFilter
                 tempFilter={tempFilter}
                 setTempFilter={setTempFilter}

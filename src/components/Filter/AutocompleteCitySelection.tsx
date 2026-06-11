@@ -1,10 +1,7 @@
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetCitiesQuery } from "../../features/apiSlice";
-import { RootState } from "../..";
-import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../hooks";
-import { cityUpdated } from "../../features/searchSlice";
+import { CityObject } from "../../features/searchSlice";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -13,15 +10,16 @@ import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import { CustomIcon } from "../../icons/CustomIcon";
 
-export default function AutocompleteCitySelection({
-  inputVariant,
-}: {
-  inputVariant?: "standard" | "outlined" | "filled";
-}) {
-  const { t } = useTranslation();
+interface AutocompleteCitySelectionProps {
+  value: CityObject | null;
+  onChange: (city: CityObject | null) => void;
+}
 
-  const dispatch = useAppDispatch();
-  const city = useSelector((state: RootState) => state.search.city);
+export default function AutocompleteCitySelection({
+  value,
+  onChange,
+}: AutocompleteCitySelectionProps) {
+  const { t } = useTranslation();
   const { data: allCities = [], isFetching: isLoading } = useGetCitiesQuery();
 
   return (
@@ -33,52 +31,48 @@ export default function AutocompleteCitySelection({
       }}
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
-        listbox: { sx: { borderRadius: 3 } },
+        listbox: { sx: { py: 0.5 } },
       }}
       autoHighlight
       blurOnSelect
       clearOnBlur
       selectOnFocus
       size="small"
-      getOptionLabel={(option) =>
-        t("search.ab_heimatbahnhof") + " " + option.label
-      }
+      getOptionLabel={(option) => option.label}
       options={allCities}
-      value={city ?? null}
-      onChange={(event, newValue) => {
-        dispatch(cityUpdated(newValue));
+      value={value}
+      onChange={(_event, newValue) => {
+        onChange(newValue);
       }}
+      isOptionEqualToValue={(option, value) => option.value === value.value}
       renderOption={(props, option) => {
         // eslint-disable-next-line react/prop-types
         const { key, ...otherProps } = props;
         return (
           <ListItem
             key={key}
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              borderRadius: 1.5,
+              mx: 0.5,
+              my: 0.25,
+              width: "auto",
+            }}
             {...otherProps}
           >
-            <ListItemIcon>
-              <div
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <CustomIcon
+                name="transportTrain"
                 style={{
-                  borderRadius: "10px",
-                  backgroundColor: "#d9d9d9",
-                  height: "40px",
-                  width: "40px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  strokeWidth: "1px",
+                  fill: "#8b8b8b",
+                  stroke: "none",
+                  width: 20,
+                  height: 20,
                 }}
-              >
-                <CustomIcon
-                  name="transportTrain"
-                  style={{
-                    strokeWidth: "1px",
-                    fill: "#000",
-                    stroke: "none",
-                    marginRight: "8px",
-                  }}
-                />
-              </div>
+              />
             </ListItemIcon>
             <ListItemText primary={option?.label} />
           </ListItem>
@@ -90,13 +84,12 @@ export default function AutocompleteCitySelection({
           placeholder={t("start.heimatbahnhof")}
           sx={{
             "& .MuiInputBase-input": {
-              color: "#6d6b6b", // Text color
+              color: "#6d6b6b",
             },
           }}
-          variant={inputVariant}
+          variant="outlined"
           slotProps={{
             ...params.slotProps,
-
             input: {
               ...params.slotProps.input,
               startAdornment: (

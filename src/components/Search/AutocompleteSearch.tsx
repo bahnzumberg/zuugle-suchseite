@@ -79,7 +79,7 @@ export default function AutocompleteSearch({
     <Autocomplete
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
-        listbox: { sx: { borderRadius: 3 } },
+        listbox: { sx: { py: 0.5 } },
       }}
       freeSolo
       blurOnSelect

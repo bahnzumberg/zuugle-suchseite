@@ -62,25 +62,23 @@ export default function SearchSuggestions({
   return (
     <ListItem
       {...props}
-      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        borderRadius: 1.5,
+        mx: 0.5,
+        my: 0.25,
+        width: "auto",
+      }}
       title={title}
     >
-      <ListItemIcon sx={{ "& path": { fill: "#8b8b8b" } }}>
-        <div
-          style={{
-            borderRadius: "10px",
-            backgroundColor: "#d9d9d9",
-            height: "40px",
-            width: "40px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {Icon ? (
-            <Icon style={{ fontSize: "24px", color: "#8b8b8b" }} />
-          ) : null}
-        </div>
+      <ListItemIcon
+        sx={{ minWidth: 32, color: "#8b8b8b", "& path": { fill: "#8b8b8b" } }}
+      >
+        {Icon ? (
+          <Icon style={{ fontSize: "20px", width: 20, height: 20 }} />
+        ) : null}
       </ListItemIcon>
       <ListItemText
         primary={option?.term}
