@@ -80,7 +80,11 @@ export default function InteractiveMap({
     b: L.LatLngExpression,
   ): boolean => {
     const toLatLng = (p: L.LatLngExpression): L.LatLng =>
-      p instanceof L.LatLng ? p : Array.isArray(p) ? L.latLng(p[0] as number, p[1] as number) : L.latLng(p);
+      p instanceof L.LatLng
+        ? p
+        : Array.isArray(p)
+          ? L.latLng(p[0] as number, p[1] as number)
+          : L.latLng(p);
     const la = toLatLng(a);
     const lb = toLatLng(b);
     return (
@@ -98,8 +102,7 @@ export default function InteractiveMap({
   const getEndPosition = (): L.LatLngExpression | null => {
     if (abreiseGpxPositions.length > 0)
       return abreiseGpxPositions[abreiseGpxPositions.length - 1];
-    if (gpxPositions.length > 0)
-      return gpxPositions[gpxPositions.length - 1];
+    if (gpxPositions.length > 0) return gpxPositions[gpxPositions.length - 1];
     return null;
   };
 
