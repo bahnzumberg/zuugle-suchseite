@@ -331,13 +331,14 @@ export default function DetailReworked() {
                 flexDirection: { xs: "column", md: "row" },
                 gap: "16px",
                 pb: "16px",
-                alignItems: { md: "stretch" },
+                alignItems: { md: "center" },
               }}
             >
               {/* LEFT: KPIs – Wolkenblau box – same width as Fahrplan column */}
               <Box
                 sx={{
                   flex: { md: "1 1 50%" },
+                  alignSelf: { md: "stretch" },
                   minWidth: 0,
                   bgcolor: "rgba(170, 181, 215, 0.25)",
                   borderRadius: "12px",
