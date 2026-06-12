@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import RouteIcon from "@mui/icons-material/Route";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import NorthIcon from "@mui/icons-material/North";
@@ -19,8 +20,8 @@ export interface TourDetailPropertiesProps {
 const difficultyColor = (diff: string) => {
   const d = diff.toLowerCase();
   if (d === "leicht") return "#2e7d32";
-  if (d === "schwer") return "#c62828";
-  return "#e65100";
+  if (d === "schwer") return "#e65100";
+  return undefined;
 };
 
 const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
@@ -56,6 +57,20 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
       : convertNumToTime(Number(tour.avg_total_tour_duration), true);
 
   const kpis = [
+    ...(tour.type
+      ? [
+          {
+            key: "type",
+            label: t("filter.sportart"),
+            value: translateTourType(tour.type) ?? tour.type,
+            icon: (
+              <DirectionsRunIcon
+                sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       key: "dauer",
       label: t("main.dauer"),
@@ -112,39 +127,18 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
         height: "100%",
       }}
     >
-      {/* Top tour + sport type (left) | Range (right) */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "8px",
-          flexWrap: "wrap",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {tour.type && (
-            <Typography
-              sx={{
-                fontFamily: '"Juniper Bay", cursive',
-                fontSize: "28px",
-                color: "var(--primary)",
-                lineHeight: 1,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {translateTourType(tour.type)}
-            </Typography>
-          )}
-        </Box>
-        {tour.range && (
-          <Chip
-            label={tour.range}
-            size="small"
-            sx={{ bgcolor: "rgba(37, 73, 128, 0.85)", color: "#fff" }}
-          />
-        )}
-      </Box>
+      {/* Range chip */}
+      {tour.range && (
+        <Chip
+          label={tour.range}
+          size="small"
+          sx={{
+            bgcolor: "rgba(37, 73, 128, 0.85)",
+            color: "#fff",
+            alignSelf: "flex-start",
+          }}
+        />
+      )}
 
       {/* KPI grid */}
       <Box
@@ -180,7 +174,7 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
                 fontWeight: 700,
                 color: item.valueColor ?? "var(--bzb-bahnblau)",
                 lineHeight: 1.2,
-                pl: "22px",
+                pl: item.icon ? "22px" : 0,
               }}
             >
               {item.value}
