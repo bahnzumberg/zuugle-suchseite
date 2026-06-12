@@ -10,6 +10,7 @@ import RouteIcon from "@mui/icons-material/Route";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
+import TerrainIcon from "@mui/icons-material/Terrain";
 
 export interface TourDetailPropertiesProps {
   tour?: Tour;
@@ -93,6 +94,12 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
       label: t("main.abstieg"),
       value: formatNumber(tour.descent ?? 0, " " + hm),
       icon: <SouthIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
+    },
+    {
+      key: "max_ele",
+      label: t("main.maximale_hoehe"),
+      value: formatNumber(tour.max_ele ?? 0, " " + hm),
+      icon: <TerrainIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
   ];
 
