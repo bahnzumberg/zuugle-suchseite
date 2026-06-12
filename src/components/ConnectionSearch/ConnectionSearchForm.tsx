@@ -74,20 +74,15 @@ export default function ConnectionSearchForm({
   // Date state
   const isMultiDay = tour.number_of_days > 1;
   const today = dayjs();
+  const tomorrow = today.add(1, "day");
 
-  // Single-day: "today" | "tomorrow" | custom date
-  const [dateMode, setDateMode] = useState<"today" | "tomorrow" | "custom">(
-    "tomorrow",
-  );
+  // Single-day: selected date (default: tomorrow)
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(tomorrow);
 
-  // Disable "Heute" after 12:00 noon for single-day tours
-  const isTodayDisabled = !isMultiDay && today.hour() >= 12;
-  const [customDate, setCustomDate] = useState<Dayjs | null>(null);
-
-  // Multi-day: departure date + return date
-  const [departureDate, setDepartureDate] = useState<Dayjs | null>(today);
+  // Multi-day: departure date + return date (default: tomorrow)
+  const [departureDate, setDepartureDate] = useState<Dayjs | null>(tomorrow);
   const [returnDate, setReturnDate] = useState<Dayjs | null>(
-    today.add(tour.number_of_days - 1, "day"),
+    tomorrow.add(tour.number_of_days - 1, "day"),
   );
 
   // Search state
@@ -109,16 +104,9 @@ export default function ConnectionSearchForm({
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
-      return departureDate?.format("YYYY-MM-DD") || today.format("YYYY-MM-DD");
+      return departureDate?.format("YYYY-MM-DD") || tomorrow.format("YYYY-MM-DD");
     }
-    switch (dateMode) {
-      case "today":
-        return today.format("YYYY-MM-DD");
-      case "tomorrow":
-        return today.add(1, "day").format("YYYY-MM-DD");
-      case "custom":
-        return customDate?.format("YYYY-MM-DD") || today.format("YYYY-MM-DD");
-    }
+    return selectedDate.format("YYYY-MM-DD");
   };
 
   const activityDurationMinutes = Math.round(
@@ -198,14 +186,7 @@ export default function ConnectionSearchForm({
 
       // Set date
       const d = dayjs(date);
-      if (d.isSame(today, "day")) {
-        setDateMode("today");
-      } else if (d.isSame(today.add(1, "day"), "day")) {
-        setDateMode("tomorrow");
-      } else {
-        setDateMode("custom");
-        setCustomDate(d);
-      }
+      setSelectedDate(d);
 
       // Build and execute search
       setIsSearching(true);
@@ -427,22 +408,7 @@ export default function ConnectionSearchForm({
 
   const canSearch = !!departureLocation;
 
-  // Auto-search: if departure location is already set (from localStorage),
-  // trigger search automatically on mount — unless we're restoring a share link.
-  const autoSearchTriggered = useRef(false);
-  useEffect(() => {
-    if (
-      autoSearchTriggered.current ||
-      shareId ||
-      !departureLocation ||
-      isSearching ||
-      connectionsResult
-    )
-      return;
-    autoSearchTriggered.current = true;
-    handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departureLocation]);
+
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
@@ -568,67 +534,6 @@ export default function ConnectionSearchForm({
                 mt: "8px",
               }}
             >
-              <Button
-                variant={dateMode === "today" ? "contained" : "outlined"}
-                onClick={() => setDateMode("today")}
-                disabled={isTodayDisabled}
-                sx={{
-                  display: { xs: "none", sm: "inline-flex" },
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  px: "16px",
-                  whiteSpace: "nowrap",
-                  flex: "0 0 auto",
-                  ...(dateMode === "today"
-                    ? {
-                        bgcolor: "var(--bzb-bahnblau)",
-                        color: "#fff",
-                        "&:hover": { bgcolor: "#1a3a66" },
-                      }
-                    : {
-                        borderColor: "#ccc",
-                        color: "#333",
-                        "&:hover": { borderColor: "#999" },
-                      }),
-                  "&.Mui-disabled": {
-                    borderColor: "#eee",
-                    color: "#bbb",
-                    bgcolor: "#f5f5f5",
-                  },
-                }}
-              >
-                {t("details.heute")}
-              </Button>
-              <Button
-                variant={dateMode === "tomorrow" ? "contained" : "outlined"}
-                onClick={() => setDateMode("tomorrow")}
-                sx={{
-                  display: { xs: "none", sm: "inline-flex" },
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  px: "16px",
-                  whiteSpace: "nowrap",
-                  flex: "0 0 auto",
-                  ...(dateMode === "tomorrow"
-                    ? {
-                        bgcolor: "var(--bzb-bahnblau)",
-                        color: "#fff",
-                        "&:hover": { bgcolor: "#1a3a66" },
-                      }
-                    : {
-                        borderColor: "#ccc",
-                        color: "#333",
-                        "&:hover": { borderColor: "#999" },
-                      }),
-                }}
-              >
-                {t("details.morgen")}
-              </Button>
-
               <Box
                 sx={{
                   display: "flex",
@@ -643,16 +548,9 @@ export default function ConnectionSearchForm({
               >
                 <Box sx={{ flex: "1 1 0", minWidth: "120px" }}>
                   <DatePicker
-                    value={
-                      dateMode === "today"
-                        ? today
-                        : dateMode === "tomorrow"
-                          ? today.add(1, "day")
-                          : customDate
-                    }
+                    value={selectedDate}
                     onChange={(date) => {
-                      setDateMode("custom");
-                      setCustomDate(date);
+                      if (date) setSelectedDate(date);
                     }}
                     minDate={today}
                     format="DD.MM.YYYY"
@@ -815,19 +713,6 @@ export default function ConnectionSearchForm({
               </Button>
             </Box>
           </Box>
-        )}
-
-        {/* Hint: no location selected */}
-        {!departureLocation && inputValue.length > 0 && (
-          <Typography
-            sx={{
-              mt: "8px",
-              fontSize: "13px",
-              color: "#e65100",
-            }}
-          >
-            {t("details.startort_aus_liste_waehlen")}
-          </Typography>
         )}
 
         {/* Search error */}

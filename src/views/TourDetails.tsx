@@ -272,11 +272,11 @@ export default function DetailReworked() {
           zIndex: 100,
         }}
       >
-        <Box className="search-result-header-container">
-          <Box component={"div"} className="rowing">
+        <Box className="search-result-header-container" sx={{ pb: "0 !important" }}>
+          <Box component={"div"} className="rowing" sx={{ px: { xs: "10px", sm: "16px" } }}>
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
-                sx={{ mr: "16px", cursor: "pointer" }}
+                sx={{ mr: "12px", cursor: "pointer" }}
                 onClick={handleCloseTab}
               >
                 <CustomIcon
@@ -331,7 +331,7 @@ export default function DetailReworked() {
                 flexDirection: { xs: "column", md: "row" },
                 gap: "16px",
                 pb: "16px",
-                alignItems: { md: "center" },
+                alignItems: { md: "stretch" },
               }}
             >
               {/* LEFT: KPIs – Wolkenblau box – same width as Fahrplan column */}
@@ -354,6 +354,7 @@ export default function DetailReworked() {
                 <Box
                   sx={{
                     flex: { md: "1 1 50%" },
+                    alignSelf: { md: "stretch" },
                     display: "flex",
                     alignItems: "center",
                     gap: "12px",

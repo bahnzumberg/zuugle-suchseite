@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Tour } from "../models/Tour";
 import Link from "@mui/material/Link";
 import Chip from "@mui/material/Chip";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 
 const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 
@@ -64,8 +65,8 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
         textDecoration: "none",
         width: "100%",
       }}
-      target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
-      rel={city && city !== "no-city" ? "noopener noreferrer" : undefined}
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <Card
         className="tour-card"
@@ -90,6 +91,36 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             }}
             label={`${tour?.range}`}
           />
+          {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                bgcolor: "rgba(255, 255, 255, 0.85)",
+                color: "var(--bzb-akelei)",
+                borderRadius: "16px",
+                px: "10px",
+                py: "4px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+              }}
+            >
+              <StarRoundedIcon sx={{ fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontFamily: '"Juniper Bay"',
+                  fontSize: "20px",
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t("main.top_tour")}
+              </Typography>
+            </Box>
+          )}
         </Box>
         <CardContent
           sx={{
@@ -120,47 +151,27 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               }}
             />
             <Typography variant="grayP">{tour.provider_name}</Typography>
-            <Box
-              sx={{
-                marginLeft: "auto",
-                display: "flex",
-                gap: "8px",
-                alignItems: "center",
-              }}
-            >
-              {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
-                <Typography
-                  sx={{
-                    fontFamily: '"Juniper Bay"',
-                    fontSize: "28px",
-                    color: "secondary.main",
-                    lineHeight: 1,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {t("main.top_tour")}
-                </Typography>
-              )}
-              {tour?.type &&
-                (() => {
-                  const typeKey = tour.type
-                    .toLowerCase()
-                    .replace(/\s*&\s*/g, "_");
-                  const matched = tourTypes.find((tt) => tt === typeKey);
-                  const label = matched ? t(`filter.${matched}`) : tour.type;
-                  return (
-                    <Typography
-                      variant="blueP"
-                      sx={{
-                        fontSize: "15px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {label}
-                    </Typography>
-                  );
-                })()}
-            </Box>
+            {/* Right: sport type */}
+            {tour?.type &&
+              (() => {
+                const typeKey = tour.type
+                  .toLowerCase()
+                  .replace(/\s*&\s*/g, "_");
+                const matched = tourTypes.find((tt) => tt === typeKey);
+                const label = matched ? t(`filter.${matched}`) : tour.type;
+                return (
+                  <Typography
+                    sx={{
+                      marginLeft: "auto",
+                      fontSize: "15px",
+                      whiteSpace: "nowrap",
+                      color: "#333",
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                );
+              })()}
           </Box>
           <Typography
             variant="inherit"

@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
-import SearchSuggestions, { suggestionIconMap } from "./SearchSuggestions";
+import SearchSuggestions, { suggestionIconMap, suggestionColorMap } from "./SearchSuggestions";
 
 interface AutocompleteSearchProps {
   inputVariant?: "standard" | "outlined" | "filled";
@@ -50,6 +50,11 @@ export default function AutocompleteSearch({
 
   const Icon = useMemo(
     () => suggestionIconMap[searchWithType.type] ?? SearchIcon,
+    [searchWithType.type],
+  );
+
+  const iconColor = useMemo(
+    () => suggestionColorMap[searchWithType.type] ?? "#666",
     [searchWithType.type],
   );
 
@@ -121,7 +126,7 @@ export default function AutocompleteSearch({
               ...params.slotProps?.input,
               disableUnderline: true,
               startAdornment: currentSearch ? (
-                <Icon sx={{ px: 1, color: "#666", marginRight: 1 }} />
+                <Icon sx={{ px: 1, color: iconColor, marginRight: 1 }} />
               ) : null,
               endAdornment: (
                 <Fragment>

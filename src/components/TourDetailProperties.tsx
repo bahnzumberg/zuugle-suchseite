@@ -127,18 +127,6 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
         height: "100%",
       }}
     >
-      {/* Range chip */}
-      {tour.range && (
-        <Chip
-          label={tour.range}
-          size="small"
-          sx={{
-            bgcolor: "rgba(37, 73, 128, 0.85)",
-            color: "#fff",
-            alignSelf: "flex-start",
-          }}
-        />
-      )}
 
       {/* KPI grid */}
       <Box
@@ -181,6 +169,19 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
             </Typography>
           </Box>
         ))}
+        {/* Range chip as last grid item */}
+        {tour.range && (
+          <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+            <Chip
+              label={tour.range}
+              size="small"
+              sx={{
+                bgcolor: "rgba(37, 73, 128, 0.85)",
+                color: "#fff",
+              }}
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   );

@@ -127,7 +127,6 @@ function DomainMenu() {
   const { domain, listOfDomains } = getDomainsForHost(host);
 
   const secondMenu = [
-    { id: 0, name: "Über Zuugle", url: "https://verein.bahn-zum-berg.at/" },
     { id: 1, name: "Impressum", url: "https://" + domain + "/imprint" },
     { id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
   ];

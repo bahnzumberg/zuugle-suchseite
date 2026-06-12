@@ -39,6 +39,14 @@ const suggestionHelperMap: Partial<Record<SearchWithType["type"], string>> = {
   range: "filter.region_filter_helper",
 };
 
+export const suggestionColorMap: Record<string, string> = {
+  city: "var(--bzb-bahnblau)",
+  range: "var(--bzb-bahnblau)",
+  peak: "var(--bzb-akelei)",
+  hut: "var(--bzb-akelei)",
+  term: "#888",
+};
+
 export default function SearchSuggestions({
   option,
   props,
@@ -47,6 +55,7 @@ export default function SearchSuggestions({
   const Icon = suggestionIconMap[option.type];
   const title = t(suggestionTitleMap[option.type]);
   const helperKey = suggestionHelperMap[option.type];
+  const iconColor = suggestionColorMap[option.type] ?? "#888";
   const secondaryText = helperKey ? (
     <Box
       component="span"
@@ -74,7 +83,7 @@ export default function SearchSuggestions({
       title={title}
     >
       <ListItemIcon
-        sx={{ minWidth: 32, color: "#8b8b8b", "& path": { fill: "#8b8b8b" } }}
+        sx={{ minWidth: 32, color: iconColor, "& path": { fill: iconColor } }}
       >
         {Icon ? (
           <Icon style={{ fontSize: "20px", width: 20, height: 20 }} />
