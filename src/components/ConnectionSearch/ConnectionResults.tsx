@@ -37,7 +37,9 @@ import { Tour } from "../../models/Tour";
 
 interface ConnectionElement {
   from_location: string;
+  from_location_coordinates?: { lat: number; lon: number };
   to_location: string;
+  to_location_coordinates?: { lat: number; lon: number };
   departure_time: string;
   arrival_time: string;
   type: string; // "JNY" = journey, "TRSF" = transfer
@@ -100,6 +102,7 @@ interface ConnectionResultsProps {
     fromStart?: string;
     fromEnd?: string;
   } | null;
+  onStopHover?: (coords: { lat: number; lon: number } | null) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -360,12 +363,17 @@ function ConnectionTabs({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll selected tab into view
+  // Auto-scroll selected tab into view (horizontal only, no page scroll)
   useEffect(() => {
     const idx = connections.findIndex((c) => c.connection_id === selectedId);
     if (idx >= 0 && scrollRef.current) {
       const child = scrollRef.current.children[idx] as HTMLElement;
-      child?.scrollIntoView({ behavior: "smooth", inline: "center" });
+      if (child) {
+        const container = scrollRef.current;
+        const scrollLeft =
+          child.offsetLeft - container.offsetWidth / 2 + child.offsetWidth / 2;
+        container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+      }
     }
   }, [selectedId, connections]);
 
@@ -461,11 +469,13 @@ function ConnectionTimeline({
   coordinateReplacements,
   lang,
   t,
+  onStopHover,
 }: {
   elements: ConnectionElement[];
   coordinateReplacements?: CoordinateReplacement;
   lang: string;
   t: (key: string) => string;
+  onStopHover?: (coords: { lat: number; lon: number } | null) => void;
 }) {
   const firstEl = elements[0];
   const lastEl = elements[elements.length - 1];
@@ -475,7 +485,7 @@ function ConnectionTimeline({
     lastEl && (lastEl.type === "WALK" || lastEl.type === "TRSF");
 
   return (
-    <Box sx={{ mt: "12px" }}>
+    <Box sx={{ mt: "20px", mb: "20px" }}>
       {/* Show first station if the first element is a WALK/TRSF */}
       {firstIsNonJourney && (
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -509,7 +519,18 @@ function ConnectionTimeline({
           >
             {formatTime(firstEl.departure_time)}
           </Typography>
-          <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 600,
+              cursor: firstEl.from_location_coordinates ? "pointer" : undefined,
+            }}
+            onMouseEnter={() =>
+              firstEl.from_location_coordinates &&
+              onStopHover?.(firstEl.from_location_coordinates)
+            }
+            onMouseLeave={() => onStopHover?.(null)}
+          >
             {resolveLocationName(firstEl.from_location, coordinateReplacements)}
           </Typography>
         </Box>
@@ -627,7 +648,18 @@ function ConnectionTimeline({
               >
                 {formatTime(el.departure_time)}
               </Typography>
-              <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+              <Typography
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  cursor: el.from_location_coordinates ? "pointer" : undefined,
+                }}
+                onMouseEnter={() =>
+                  el.from_location_coordinates &&
+                  onStopHover?.(el.from_location_coordinates)
+                }
+                onMouseLeave={() => onStopHover?.(null)}
+              >
                 {resolveLocationName(el.from_location, coordinateReplacements)}
               </Typography>
             </Box>
@@ -712,7 +744,18 @@ function ConnectionTimeline({
                 >
                   {formatTime(el.arrival_time)}
                 </Typography>
-                <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+                <Typography
+                  sx={{
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    cursor: el.to_location_coordinates ? "pointer" : undefined,
+                  }}
+                  onMouseEnter={() =>
+                    el.to_location_coordinates &&
+                    onStopHover?.(el.to_location_coordinates)
+                  }
+                  onMouseLeave={() => onStopHover?.(null)}
+                >
                   {resolveLocationName(el.to_location, coordinateReplacements)}
                 </Typography>
               </Box>
@@ -754,7 +797,18 @@ function ConnectionTimeline({
           >
             {formatTime(lastEl.arrival_time)}
           </Typography>
-          <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 600,
+              cursor: lastEl.to_location_coordinates ? "pointer" : undefined,
+            }}
+            onMouseEnter={() =>
+              lastEl.to_location_coordinates &&
+              onStopHover?.(lastEl.to_location_coordinates)
+            }
+            onMouseLeave={() => onStopHover?.(null)}
+          >
             {resolveLocationName(lastEl.to_location, coordinateReplacements)}
           </Typography>
         </Box>
@@ -849,6 +903,7 @@ export default function ConnectionResults({
   searchDate,
   activityDurationMinutes,
   shareTimeHints,
+  onStopHover,
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
@@ -1125,6 +1180,7 @@ export default function ConnectionResults({
               coordinateReplacements={coordinateReplacements}
               lang={i18n.language}
               t={t}
+              onStopHover={onStopHover}
             />
           )}
         </Box>
@@ -1277,6 +1333,7 @@ export default function ConnectionResults({
               coordinateReplacements={coordinateReplacements}
               lang={i18n.language}
               t={t}
+              onStopHover={onStopHover}
             />
           )}
 

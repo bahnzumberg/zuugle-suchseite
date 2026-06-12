@@ -47,7 +47,7 @@ export function useDianaAutocomplete(lang: string) {
 
           const params = new URLSearchParams({
             q: query,
-            limit: "6",
+            limit: "5",
             lang: mapLanguage(lang),
           });
 

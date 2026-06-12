@@ -9,15 +9,16 @@ import ConnectionSearchForm from "../ConnectionSearch/ConnectionSearchForm";
 export interface ItineraryProps {
   tour?: Tour;
   tourId?: string;
+  onStopHover?: (coords: { lat: number; lon: number } | null) => void;
 }
-const Itinerary = ({ tour, tourId: _tourId }: ItineraryProps) => {
+const Itinerary = ({ tour, tourId: _tourId, onStopHover }: ItineraryProps) => {
   const city = useSelector((state: RootState) => state.search.city);
 
   return (
     <div className="tour-detail-itinerary-container">
       <div className="tour-detail-itinerary">
         {tour ? (
-          <ConnectionSearchForm tour={tour} />
+          <ConnectionSearchForm tour={tour} onStopHover={onStopHover} />
         ) : (
           <>
             <p className="tour-detail-itinerary-header">

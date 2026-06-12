@@ -10,6 +10,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import DirectionsTransitIcon from "@mui/icons-material/DirectionsTransit";
 import { useTranslation } from "react-i18next";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -36,10 +37,12 @@ import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
   tour: Tour;
+  onStopHover?: (coords: { lat: number; lon: number } | null) => void;
 }
 
 export default function ConnectionSearchForm({
   tour,
+  onStopHover,
 }: ConnectionSearchFormProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.substring(0, 2);
@@ -92,7 +95,6 @@ export default function ConnectionSearchForm({
   const [connectionsResult, setConnectionsResult] =
     useState<ConnectionsResultData | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const scrollAfterResultRef = useRef(false);
 
   // Share restore state
   const [searchParams] = useSearchParams();
@@ -372,17 +374,6 @@ export default function ConnectionSearchForm({
 
       setConnectionsResult(data);
 
-      // Scroll to Anreise header after manual search
-      if (scrollAfterResultRef.current) {
-        scrollAfterResultRef.current = false;
-        setTimeout(() => {
-          document.getElementById("anreise-header")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 150);
-      }
-
       // Update city in Redux and URL when GeoJSON lookup found a city
       if (departureLocation?.citySlug && departureLocation?.cityName) {
         const cityObj = {
@@ -502,9 +493,15 @@ export default function ConnectionSearchForm({
               {...props}
               key={`${option.lat}-${option.lon}-${option.displayName}`}
             >
-              <LocationOnIcon
-                sx={{ color: "#8B8B8B", mr: 1, fontSize: "18px" }}
-              />
+              {option.locationType === "station" ? (
+                <DirectionsTransitIcon
+                  sx={{ color: "var(--bzb-bahnblau)", mr: 1, fontSize: "18px" }}
+                />
+              ) : (
+                <LocationOnIcon
+                  sx={{ color: "var(--bzb-akelei)", mr: 1, fontSize: "18px" }}
+                />
+              )}
               <Typography sx={{ fontSize: "14px" }}>
                 {option.displayName}
               </Typography>
@@ -521,7 +518,20 @@ export default function ConnectionSearchForm({
                   ...params.slotProps?.input,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LocationOnIcon sx={{ color: "#8B8B8B" }} />
+                      <LocationOnIcon
+                        sx={{
+                          color: "var(--bzb-akelei)",
+                          ...(!departureLocation && {
+                            "@keyframes bounce": {
+                              "0%, 100%": { transform: "translateY(0)" },
+                              "30%": { transform: "translateY(-4px)" },
+                              "50%": { transform: "translateY(0)" },
+                              "70%": { transform: "translateY(-2px)" },
+                            },
+                            animation: "bounce 1.5s ease infinite",
+                          }),
+                        }}
+                      />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -663,9 +673,9 @@ export default function ConnectionSearchForm({
                 <Button
                   variant="contained"
                   disabled={!canSearch || isSearching}
-                  onClick={() => {
-                    scrollAfterResultRef.current = true;
+                  onClick={(e) => {
                     handleSearch();
+                    (e.currentTarget as HTMLButtonElement).blur();
                   }}
                   sx={{
                     flex: "0 0 auto",
@@ -681,6 +691,9 @@ export default function ConnectionSearchForm({
                     whiteSpace: "nowrap",
                     "&:hover": {
                       bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                    },
+                    "&:focus, &:focus-visible": {
+                      bgcolor: "var(--bzb-akelei)",
                     },
                     "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
                   }}
@@ -764,17 +777,16 @@ export default function ConnectionSearchForm({
                 </Box>
               </Box>
 
-              {/* Search button: mx auto → right when same line, centered when wrapped */}
+              {/* Search button: left-aligned when wrapped on mobile */}
               <Button
                 variant="contained"
                 disabled={!canSearch || isSearching}
-                onClick={() => {
-                  scrollAfterResultRef.current = true;
+                onClick={(e) => {
                   handleSearch();
+                  (e.currentTarget as HTMLButtonElement).blur();
                 }}
                 sx={{
                   flex: "0 0 auto",
-                  mx: "auto",
                   alignSelf: "flex-end",
                   bgcolor: isSearching
                     ? "var(--bzb-bahnblau)"
@@ -788,6 +800,9 @@ export default function ConnectionSearchForm({
                   whiteSpace: "nowrap",
                   "&:hover": {
                     bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                  },
+                  "&:focus, &:focus-visible": {
+                    bgcolor: "var(--bzb-akelei)",
                   },
                   "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
                 }}
@@ -848,6 +863,7 @@ export default function ConnectionSearchForm({
             searchDate={getSelectedDate()}
             activityDurationMinutes={activityDurationMinutes}
             shareTimeHints={shareTimeHints}
+            onStopHover={onStopHover}
           />
         )}
       </Box>

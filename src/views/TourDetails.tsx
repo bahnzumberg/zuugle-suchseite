@@ -5,7 +5,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -34,6 +34,12 @@ import LanguageMenu from "../components/LanguageMenu";
 export default function DetailReworked() {
   const { cityOne } = useParams();
   const { idOne } = useParams();
+
+  // Hovered stop coordinates from the connection timeline
+  const [hoveredStop, setHoveredStop] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   const { i18n } = useTranslation();
 
@@ -65,14 +71,6 @@ export default function DetailReworked() {
     dispatch(cityUpdated(resolved));
     dispatch(citySlugUpdated(resolved?.value ?? null));
   }, [allCities, areCitiesLoaded, cityOne, dispatch]);
-
-  // Prevent browser scroll restoration on page load/refresh
-  useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-    window.scrollTo(0, 0);
-  }, []);
 
   const providerUrl = () => {
     let url = tour?.url;
@@ -432,7 +430,11 @@ export default function DetailReworked() {
                   className="tour-detail-itinerary-container"
                   sx={{ flex: 1, minWidth: 0 }}
                 >
-                  <Itinerary tour={tour} tourId={idOne} />
+                  <Itinerary
+                    tour={tour}
+                    tourId={idOne}
+                    onStopHover={setHoveredStop}
+                  />
                 </Box>
               </Box>
 
@@ -441,14 +443,14 @@ export default function DetailReworked() {
                 sx={{
                   flex: { md: "1 1 50%" },
                   minHeight: { xs: "350px", md: "unset" },
-                  height: { md: "calc(100vh - 320px)" },
+                  height: { md: "calc(100vh - 80px)" },
                   order: { xs: 2, md: 2 },
                   display: "flex",
                   flexDirection: "column",
                   pt: { md: "20px" },
                   gap: "12px",
                   position: { md: "sticky" },
-                  top: { md: "16px" },
+                  top: { md: "72px" },
                   alignSelf: { md: "flex-start" },
                 }}
               >
@@ -468,11 +470,12 @@ export default function DetailReworked() {
                       anreiseGpxPositions={toTourTrack || []}
                       abreiseGpxPositions={fromTourTrack || []}
                       scrollWheelZoom={false}
+                      hoveredStop={hoveredStop}
                     />
                   </Box>
                 )}
                 {/* GPX Download + Share below the map */}
-                {city && idOne && actionButtonPart}
+                {idOne && actionButtonPart}
               </Box>
             </Box>
           </Box>

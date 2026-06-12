@@ -14,6 +14,7 @@ export interface InteractiveMapProps {
   anreiseGpxPositions: L.LatLngExpression[];
   abreiseGpxPositions: L.LatLngExpression[];
   scrollWheelZoom?: boolean;
+  hoveredStop?: { lat: number; lon: number } | null;
 }
 
 export default function InteractiveMap({
@@ -21,6 +22,7 @@ export default function InteractiveMap({
   anreiseGpxPositions,
   abreiseGpxPositions,
   scrollWheelZoom = false,
+  hoveredStop,
 }: InteractiveMapProps) {
   const [map, setMap] = useState<L.Map | null>(null);
   const [poly, setPoly] = useState<L.Polyline | null>(null);
@@ -36,6 +38,11 @@ export default function InteractiveMap({
     iconUrl: "https://cdn.zuugle.at/img/zielpunkt.svg",
     iconSize: [33, 45],
     iconAnchor: [16, 46],
+  });
+  const stopIcon = L.icon({
+    iconUrl: "https://cdn.zuugle.at/img/stopsign.png",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
   });
 
   const StartMarker = ({ position }: { position: L.LatLngExpression }) => {
@@ -173,6 +180,12 @@ export default function InteractiveMap({
           />
         )}
         <ZoomControl position="bottomright" />
+        {hoveredStop && (
+          <Marker
+            position={[hoveredStop.lat, hoveredStop.lon]}
+            icon={stopIcon}
+          />
+        )}
       </MapContainer>
       {/* Fullscreen toggle button */}
       <button

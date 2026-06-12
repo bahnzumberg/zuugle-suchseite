@@ -84,90 +84,80 @@ export default function Footer() {
               md: 10,
             }}
           >
-            <Grid container spacing={2}>
-              <Grid
-                style={{ maxWidth: "45px" }}
-                className={"footer-logo"}
-                size={{
-                  xs: "auto",
-                  md: 2,
-                }}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: { xs: "8px 16px", md: "0px" },
+              }}
+            >
+              <a
+                href="https://verein.bahn-zum-berg.at/"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "flex", alignItems: "center" }}
               >
-                <a
-                  href="https://verein.bahn-zum-berg.at/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
-                    width={"45px"}
-                    height={"auto"}
-                    alt="Bahn zum Berg"
-                    loading="lazy"
-                  />
-                </a>
-              </Grid>
-              <Grid
-                size={{
-                  xs: "grow",
-                  md: 3,
-                }}
+                <img
+                  src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
+                  width={"45px"}
+                  height={"auto"}
+                  alt="Bahn zum Berg"
+                  loading="lazy"
+                />
+              </a>
+              <a
+                href="https://verein.bahn-zum-berg.at"
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: "none", color: "inherit" }}
               >
-                <a
-                  href="https://verein.bahn-zum-berg.at"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                <Typography
+                  sx={{
+                    marginLeft: "10px",
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                  }}
+                  className={"cursor-link"}
                 >
-                  <Typography
-                    sx={{
-                      marginLeft: "10px",
-                      textDecoration: "underline",
-                      whiteSpace: "nowrap",
-                    }}
-                    className={"cursor-link"}
-                  >
-                    © {`${currentYear}`} Bahn zum Berg
-                  </Typography>
-                </a>
-              </Grid>
-              <Grid size="grow">
-                <Link
-                  to="/privacy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  © {`${currentYear}`} Bahn zum Berg
+                </Typography>
+              </a>
+              <Link
+                to="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Typography
+                  sx={{
+                    marginLeft: "10px",
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                  }}
+                  className={"cursor-link"}
                 >
-                  <Typography
-                    sx={{
-                      marginLeft: "10px",
-                      textDecoration: "underline",
-                    }}
-                    className={"cursor-link"}
-                  >
-                    {t("start.datenschutz")}
-                  </Typography>
-                </Link>
-              </Grid>
-              <Grid size="grow">
-                <Link
-                  to="/imprint"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  {t("start.datenschutz")}
+                </Typography>
+              </Link>
+              <Link
+                to="/imprint"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Typography
+                  sx={{
+                    marginLeft: "10px",
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                  }}
+                  className={"cursor-link"}
                 >
-                  <Typography
-                    sx={{
-                      marginLeft: "10px",
-                      textDecoration: "underline",
-                    }}
-                    className={"cursor-link"}
-                  >
-                    {t("start.impressum")}
-                  </Typography>
-                </Link>
-              </Grid>
-            </Grid>
+                  {t("start.impressum")}
+                </Typography>
+              </Link>
+            </Box>
           </Grid>
           <Grid
             size={{
