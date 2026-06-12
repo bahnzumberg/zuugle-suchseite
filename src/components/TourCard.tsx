@@ -102,23 +102,6 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             },
           }}
         >
-          {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
-            <Typography
-              sx={{
-                position: "absolute",
-                top: 10,
-                right: 25,
-                fontFamily: '"Juniper Bay"',
-                fontSize: "28px",
-                color: "#712579",
-                lineHeight: 1,
-                whiteSpace: "nowrap",
-                pointerEvents: "none",
-              }}
-            >
-              {t("main.top_tour")}
-            </Typography>
-          )}
           <Box
             sx={{
               display: "flex",
@@ -137,28 +120,47 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               }}
             />
             <Typography variant="grayP">{tour.provider_name}</Typography>
-            {tour?.type &&
-              (() => {
-                const typeKey = tour.type
-                  .toLowerCase()
-                  .replace(/\s*&\s*/g, "_");
-                const matched = tourTypes.find((tt) => tt === typeKey);
-                const label = matched ? t(`filter.${matched}`) : tour.type;
-                return (
-                  <Typography
-                    sx={{
-                      marginLeft: "auto",
-                      fontFamily: '"Juniper Bay", cursive',
-                      fontSize: "18px",
-                      color: "var(--primary)",
-                      lineHeight: 1,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {label}
-                  </Typography>
-                );
-              })()}
+            <Box
+              sx={{
+                marginLeft: "auto",
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+              }}
+            >
+              {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
+                <Typography
+                  sx={{
+                    fontFamily: '"Juniper Bay"',
+                    fontSize: "28px",
+                    color: "secondary.main",
+                    lineHeight: 1,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {t("main.top_tour")}
+                </Typography>
+              )}
+              {tour?.type &&
+                (() => {
+                  const typeKey = tour.type
+                    .toLowerCase()
+                    .replace(/\s*&\s*/g, "_");
+                  const matched = tourTypes.find((tt) => tt === typeKey);
+                  const label = matched ? t(`filter.${matched}`) : tour.type;
+                  return (
+                    <Typography
+                      variant="blueP"
+                      sx={{
+                        fontSize: "15px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {label}
+                    </Typography>
+                  );
+                })()}
+            </Box>
           </Box>
           <Typography
             variant="inherit"

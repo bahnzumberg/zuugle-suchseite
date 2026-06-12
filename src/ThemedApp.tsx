@@ -4,7 +4,7 @@ import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
 
-const Start = lazy(() => import("./views/Start/Start"));
+const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
 const Imprint = lazy(() => import("./views/Imprint"));
 const Privacy = lazy(() => import("./views/Privacy"));
@@ -42,7 +42,7 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
   const renderRoute = () => {
     switch (routeKey) {
       case "start":
-        return <Start />;
+        return <StartNew />;
       case "search":
       case "city":
         return <SearchResults />;
@@ -54,7 +54,7 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
       case "privacy":
         return <Privacy />;
       default:
-        return <Start />;
+        return <StartNew />;
     }
   };
 
