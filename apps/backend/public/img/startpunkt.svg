@@ -22,8 +22,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="26.78487"
-     inkscape:cx="13.869771"
-     inkscape:cy="21.15"
+     inkscape:cx="13.907105"
+     inkscape:cy="12.37639"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="-8"
@@ -63,4 +63,16 @@
      cy="16.651192"
      rx="7.3362312"
      ry="7.2428951" />
+  <text
+     xml:space="preserve"
+     style="font-weight:bold;font-size:13.2402px;font-family:Sans;-inkscape-font-specification:'Sans Bold';text-align:end;writing-mode:lr-tb;direction:ltr;text-anchor:end;fill:#000000;stroke-width:0.413756"
+     x="20.270977"
+     y="20.913879"
+     id="text1"
+     transform="scale(0.95920457,1.0425305)"><tspan
+       sodipodi:role="line"
+       id="tspan1"
+       x="20.270977"
+       y="20.913879"
+       style="stroke-width:0.413756">1</tspan></text>
 </svg>
