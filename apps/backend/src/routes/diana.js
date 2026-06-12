@@ -1,5 +1,6 @@
 import express from "express";
 import logger from "../utils/logger";
+import cacheService from "../services/cache.js";
 import {
     getDianaToken,
     proxyGet,
@@ -98,11 +99,22 @@ router.get("/token", async (_req, res) => {
 
 // ─── GET /api/diana/address-autocomplete ─────────────────────────
 
+/** Bounding box for the Alpine region (only results within are kept) */
+const ALPINE_BOUNDS = { lonMin: 4, lonMax: 18, latMin: 43, latMax: 50 };
+
+/** Max results returned to the frontend */
+const AUTOCOMPLETE_CLIENT_LIMIT = 5;
+
+/** Results fetched from Diana (over-fetch to compensate for filtering) */
+const AUTOCOMPLETE_DIANA_LIMIT = 7;
+
 /**
  * GET /api/diana/address-autocomplete
  *
  * Proxies the Diana /address-autocomplete endpoint and enriches each
  * result with city information from local GeoJSON files.
+ * Results outside the Alpine bounding box are filtered out.
+ * The top 5 enriched results are cached in Valkey (24 h TTL).
  *
  * Query params: q, limit, hint_lat, hint_lon, lang, global_search
  * (same as Diana API, see Diana_API_Docs.md)
@@ -117,17 +129,44 @@ router.get("/address-autocomplete", async (req, res) => {
     }
 
     try {
-        const queryString = filterParams(req.query, AUTOCOMPLETE_PARAMS);
-        const result = await proxyGet("/address-autocomplete", queryString);
+        // Build cache key from the client's original params
+        const clientQueryString = filterParams(req.query, AUTOCOMPLETE_PARAMS);
+        const cacheKey = `diana:autocomplete:${clientQueryString}`;
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return res.status(200).json(cached);
+        }
+
+        // Override limit: fetch more from Diana to compensate for geo-filtering
+        const dianaParams = new URLSearchParams(clientQueryString);
+        dianaParams.set("limit", String(AUTOCOMPLETE_DIANA_LIMIT));
+        const result = await proxyGet("/address-autocomplete", dianaParams.toString());
 
         if (result.status !== 200) {
             return res.status(result.status).json(result.body);
         }
 
-        // Enrich each feature with city lookup
         const data = result.body;
-        const features = Array.isArray(data) ? data : data?.features || [];
+        let features = Array.isArray(data) ? data : data?.features || [];
 
+        // Filter out results outside the Alpine bounding box
+        features = features.filter((feature) => {
+            const coords = feature?.geometry?.coordinates;
+            if (!coords) return false;
+            const lon = coords[0];
+            const lat = coords[1];
+            return (
+                lon >= ALPINE_BOUNDS.lonMin &&
+                lon <= ALPINE_BOUNDS.lonMax &&
+                lat >= ALPINE_BOUNDS.latMin &&
+                lat <= ALPINE_BOUNDS.latMax
+            );
+        });
+
+        // Keep only the best results up to the client limit
+        features = features.slice(0, AUTOCOMPLETE_CLIENT_LIMIT);
+
+        // Enrich each feature with city lookup
         for (const feature of features) {
             const coords = feature?.geometry?.coordinates;
             const countryCode = feature?.properties?.countrycode;
@@ -149,6 +188,16 @@ router.get("/address-autocomplete", async (req, res) => {
             }
         }
 
+        // Update the response data with the filtered features
+        if (Array.isArray(data)) {
+            // Response was a plain array
+            const responseData = features;
+            cacheService.set(cacheKey, responseData, 24 * 60 * 60);
+            return res.status(200).json(responseData);
+        }
+        // Response was a GeoJSON FeatureCollection
+        data.features = features;
+        cacheService.set(cacheKey, data, 24 * 60 * 60);
         res.status(200).json(data);
     } catch (error) {
         logger.error("Diana autocomplete proxy error:", error.message);
@@ -161,16 +210,50 @@ router.get("/address-autocomplete", async (req, res) => {
 
 // ─── GET /api/diana/connections ──────────────────────────────────
 
+/** Pagination cursor params — requests containing these skip the cache */
+const CONNECTIONS_SCROLL_PARAMS = [
+    "to_connections_before",
+    "to_connections_after",
+    "from_connections_before",
+    "from_connections_after",
+];
+
 /**
  * GET /api/diana/connections
  *
  * Proxies the Diana /connections endpoint.
- * All query params are forwarded (filtered to known params).
+ * Initial searches (without pagination cursors) are cached in Valkey for 24 h.
+ * Cache key: tour coordinates + user start location + date.
  */
 router.get("/connections", async (req, res) => {
     try {
         const queryString = filterParams(req.query, CONNECTIONS_PARAMS);
+
+        // Determine if this is a scroll/pagination request
+        const isScrollRequest = CONNECTIONS_SCROLL_PARAMS.some(
+            (p) => req.query[p] && typeof req.query[p] === "string",
+        );
+
+        // Build cache key from the fields that uniquely identify a trip search
+        const cacheKey = isScrollRequest
+            ? null
+            : `diana:connections:${req.query.activity_start_location || ""}:${req.query.activity_end_location || ""}:${req.query.user_start_location || ""}:${req.query.date || ""}`;
+
+        // Check Valkey cache (only for initial, non-scroll requests)
+        if (cacheKey) {
+            const cached = await cacheService.get(cacheKey);
+            if (cached) {
+                return res.status(200).json(cached);
+            }
+        }
+
         const result = await proxyGet("/connections", queryString);
+
+        // Cache successful initial responses for 24 hours
+        if (cacheKey && result.status === 200) {
+            cacheService.set(cacheKey, result.body, 24 * 60 * 60);
+        }
+
         res.status(result.status).json(result.body);
     } catch (error) {
         logger.error("Diana connections proxy error:", error.message);

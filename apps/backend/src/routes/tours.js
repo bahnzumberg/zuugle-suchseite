@@ -1712,7 +1712,7 @@ const tourGpxWrapper = async (req, res) => {
 
 /**
  * Fetches the start and end stop coordinates of a tour from the tracks tables.
- * Start = first point of the "fromtour" track (where passengers board heading to the trail).
+ * Start = first point of the "totour" track (where the journey to the trail begins).
  * End   = last point of the "fromtour" track (where passengers alight after the trail).
  * When a city slug is provided the query is scoped to that city's connection;
  * otherwise any available fahrplan row is used (LIMIT 1 ensures a single result).
@@ -1744,7 +1744,7 @@ const getTourStopsCoordinates = async (tourId, city) => {
             INNER JOIN fahrplan AS f
                 ON tour.hashed_url = f.hashed_url
             INNER JOIN tracks AS tt
-                ON tt.track_key = f.fromtour_track_key
+                ON tt.track_key = f.totour_track_key
                AND tt.track_point_sequence = 1
             CROSS JOIN LATERAL (
                 SELECT track_point_lon, track_point_lat
