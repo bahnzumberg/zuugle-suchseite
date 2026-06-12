@@ -150,11 +150,9 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
                   const label = matched ? t(`filter.${matched}`) : tour.type;
                   return (
                     <Typography
+                      variant="blueP"
                       sx={{
-                        fontFamily: '"Juniper Bay", cursive',
-                        fontSize: "18px",
-                        color: "var(--primary)",
-                        lineHeight: 1,
+                        fontSize: "15px",
                         whiteSpace: "nowrap",
                       }}
                     >
