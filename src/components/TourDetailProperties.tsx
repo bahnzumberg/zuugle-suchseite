@@ -18,8 +18,8 @@ export interface TourDetailPropertiesProps {
 
 const difficultyColor = (diff: string) => {
   const d = diff.toLowerCase();
-  if (d === "Leicht") return "#2e7d32";
-  if (d === "Schwer") return "#c62828";
+  if (d === "leicht") return "#2e7d32";
+  if (d === "schwer") return "#c62828";
   return "#e65100";
 };
 
