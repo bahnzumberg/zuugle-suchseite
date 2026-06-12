@@ -869,19 +869,20 @@ const listWrapper = async (req, res) => {
         return res.status(200).json(responseData);
     }
 
-    const new_search_sql = `SELECT 
-                        t.id, 
-                        t.provider, 
+    const new_search_sql = `SELECT
+                        t.id,
+                        t.provider,
                         t.provider_name,
-                        t.url, 
-                        t.title, 
+                        t.url,
+                        t.title,
                         t.image_url,
-                        t.country, 
-                        t.range, 
+                        t.country,
+                        t.range,
+                        t.type,
                         t.min_connection_duration,
-                        t.min_connection_no_of_transfers, 
+                        t.min_connection_no_of_transfers,
                         ROUND(t.avg_total_tour_duration*100/25)*25/100 as avg_total_tour_duration,
-                        t.ascent, 
+                        t.ascent,
                         t.number_of_days,
                         quality_rating,
                         traverse
