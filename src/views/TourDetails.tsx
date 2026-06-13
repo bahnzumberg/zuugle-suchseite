@@ -1,6 +1,7 @@
 import fileDownload from "js-file-download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -272,8 +273,15 @@ export default function DetailReworked() {
           zIndex: 100,
         }}
       >
-        <Box className="search-result-header-container" sx={{ pb: "0 !important" }}>
-          <Box component={"div"} className="rowing" sx={{ px: { xs: "10px", sm: "16px" } }}>
+        <Box
+          className="search-result-header-container"
+          sx={{ pb: "0 !important" }}
+        >
+          <Box
+            component={"div"}
+            className="rowing"
+            sx={{ px: { xs: "10px", sm: "16px" } }}
+          >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
                 sx={{ mr: "12px", cursor: "pointer" }}
@@ -313,6 +321,17 @@ export default function DetailReworked() {
               >
                 {tour?.title}
               </Typography>
+              {tour?.range && (
+                <Chip
+                  label={tour.range}
+                  size="small"
+                  sx={{
+                    mt: "8px",
+                    bgcolor: "rgba(37, 73, 128, 0.85)",
+                    color: "#fff",
+                  }}
+                />
+              )}
             </Box>
 
             {/* ─── Description (full width, under title) ─── */}
@@ -471,7 +490,7 @@ export default function DetailReworked() {
                       gpxPositions={track || []}
                       anreiseGpxPositions={toTourTrack || []}
                       abreiseGpxPositions={fromTourTrack || []}
-                      scrollWheelZoom={false}
+                      scrollWheelZoom={true}
                       hoveredStop={hoveredStop}
                     />
                   </Box>

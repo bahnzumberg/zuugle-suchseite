@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
 import { Tour } from "../models/Tour";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
@@ -127,7 +126,6 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
         height: "100%",
       }}
     >
-
       {/* KPI grid */}
       <Box
         sx={{
@@ -169,19 +167,6 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
             </Typography>
           </Box>
         ))}
-        {/* Range chip as last grid item */}
-        {tour.range && (
-          <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-            <Chip
-              label={tour.range}
-              size="small"
-              sx={{
-                bgcolor: "rgba(37, 73, 128, 0.85)",
-                color: "#fff",
-              }}
-            />
-          </Box>
-        )}
       </Box>
     </Box>
   );

@@ -153,12 +153,6 @@ export interface ConnectionResponse {
   result: ConnectionResult[];
 }
 
-export interface CombinedGPXParams {
-  id: number;
-  key_anreise: number;
-  key_abreise: number;
-}
-
 const baseURL =
   window.location.host.indexOf("localhost") >= 0
     ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
@@ -261,16 +255,7 @@ export const api = createApi({
         }
       },
     }),
-    getCombinedGPX: build.query<Blob, CombinedGPXParams>({
-      query: (params) => {
-        const augmentedParams = { ...params, type: "all" };
-        return {
-          url: `tours/${params.id}/gpx`,
-          params: augmentedParams,
-          responseHandler: async (response) => await response.blob(),
-        };
-      },
-    }),
+
     getProviderGpxOk: build.query<boolean, string>({
       query: (provider) => `tours/provider/${provider}`,
       transformResponse: (response: {
@@ -341,6 +326,6 @@ export const {
   useLazyGetProviderGpxOkQuery,
   useGetConnectionsExtendedQuery,
   useLazyGetConnectionsExtendedQuery,
-  useLazyGetCombinedGPXQuery,
+
   useGetCities2TourQuery,
 } = api;
