@@ -3,7 +3,7 @@ let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
 import crypto from "crypto";
-import { mergeGpxFilesToOne, last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
+import { last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
 import moment from "moment";
 import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
@@ -1637,75 +1637,28 @@ const compareConnectionReturns = (conn1, conn2) => {
 
 /**
  * Serves the GPX file for a tour.
- * Can merge the main tour track with arrival (anreise) and departure (abreise) tracks if requested (`type=all`).
+ * The GPX file already contains the combined track (totour + main + fromtour).
  * @param {object} req - Express request object.
  * @param {object} res - Express response object.
  */
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
-    const type = req.query.type ? req.query.type : "gpx";
-    const key = req.query.key;
-    const keyAnreise = req.query.key_anreise;
-    const keyAbreise = req.query.key_abreise;
 
     res.setHeader("content-type", "application/gpx+xml");
     res.setHeader("Cache-Control", "public, max-age=31557600");
 
     try {
         let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
-        if (type == "all") {
-            let filePathMain = replaceFilePath(
-                path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`),
-            );
-            let filePathAbreise = replaceFilePath(
-                path.join(
-                    __dirname,
-                    BASE_PATH,
-                    `/public/gpx-track/fromtour/${last_two_characters(keyAbreise)}/${keyAbreise}.gpx`,
-                ),
-            );
-            let filePathAnreise = replaceFilePath(
-                path.join(
-                    __dirname,
-                    BASE_PATH,
-                    `/public/gpx-track/totour/${last_two_characters(keyAnreise)}/${keyAnreise}.gpx`,
-                ),
-            );
+        let filePath = replaceFilePath(
+            path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`),
+        );
 
-            const xml = await mergeGpxFilesToOne(filePathMain, filePathAnreise, filePathAbreise);
-            if (xml) {
-                res.status(200).send(xml);
-            } else {
-                res.status(400).json({ success: false });
-            }
-        } else {
-            let filePath = path.join(
-                __dirname,
-                BASE_PATH,
-                `/public/gpx/${last_two_characters(id)}/${id}.gpx`,
-            );
-            if (type == "abreise" && !!key) {
-                filePath = path.join(
-                    __dirname,
-                    BASE_PATH,
-                    `/public/gpx-track/fromtour/${last_two_characters(key)}/${key}.gpx`,
-                );
-            } else if (type == "anreise" && !!key) {
-                filePath = path.join(
-                    __dirname,
-                    BASE_PATH,
-                    `/public/gpx-track/totour/${last_two_characters(key)}/${key}.gpx`,
-                );
-            }
-            filePath = replaceFilePath(filePath);
-
-            let stream = fs.createReadStream(filePath);
-            stream.on("error", (error) => {
-                logger.info("error: ", error);
-                res.status(500).json({ success: false });
-            });
-            stream.on("open", () => stream.pipe(res));
-        }
+        let stream = fs.createReadStream(filePath);
+        stream.on("error", (error) => {
+            logger.info("error: ", error);
+            res.status(500).json({ success: false });
+        });
+        stream.on("open", () => stream.pipe(res));
     } catch (e) {
         logger.error(e);
     }
