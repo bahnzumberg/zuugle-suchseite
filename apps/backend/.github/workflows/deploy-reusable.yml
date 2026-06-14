@@ -57,6 +57,11 @@ on:
                 required: false
                 type: string
                 default: "10m"
+            pm2_app_name:
+                description: "PM2 app to restart. Scope this per environment so a UAT/DEV deploy does not restart the other env's apps (the host is shared). 'all' restarts every app."
+                required: false
+                type: string
+                default: "all"
         secrets:
             SSH_PRIVATE_KEY:
                 required: true
@@ -145,7 +150,7 @@ jobs:
                       npm install --omit=dev
                       ${{ inputs.setup_docker && 'docker compose -f docker-compose.uat.yaml up -d' || '' }}
                       ${{ inputs.rebuild_db_structure && './restore_databases.sh --structure' || '' }}
-                      pm2 restart all
+                      pm2 restart ${{ inputs.pm2_app_name }}
                       ${{ inputs.refresh_suggestions && 'sleep 10 && npm run refresh-search-suggestions' || '' }}
                       ${{ inputs.import_files && 'npm run import-files' || '' }}
 

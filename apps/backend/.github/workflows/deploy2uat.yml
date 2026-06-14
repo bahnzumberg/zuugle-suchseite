@@ -16,6 +16,7 @@ jobs:
             node_env: production
             command_timeout: 60m
             import_files: true
+            pm2_app_name: zuugle_api
         secrets:
             SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
             REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
