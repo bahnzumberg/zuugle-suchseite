@@ -1,0 +1,195 @@
+# Reusable deploy workflow shared by PROD / UAT / DEV.
+name: Deploy (reusable)
+
+on:
+    workflow_call:
+        inputs:
+            environment:
+                description: "Environment label used in test/issue titles (PROD/UAT/DEV)"
+                required: true
+                type: string
+            api_base_url:
+                description: "Base URL the post-deploy API tests run against"
+                required: true
+                type: string
+            do_backup:
+                description: "Back up the remote app dir before deploying (PROD)"
+                required: false
+                type: boolean
+                default: false
+            backup_archive_path:
+                description: "Where the backup tarball is written on the remote host"
+                required: false
+                type: string
+                default: "/root/suchseite/backup/api.tar.gz"
+            setup_docker:
+                description: "Start the docker compose DB stack on the remote host (UAT/DEV)"
+                required: false
+                type: boolean
+                default: false
+            rebuild_db_structure:
+                description: "Run restore_databases.sh --structure after deploy (UAT/DEV)"
+                required: false
+                type: boolean
+                default: false
+            refresh_suggestions:
+                description: "Run refresh-search-suggestions after restart (UAT)"
+                required: false
+                type: boolean
+                default: false
+            import_files:
+                description: "Run npm run import-files after restart (UAT/DEV)"
+                required: false
+                type: boolean
+                default: false
+            use_basic_auth:
+                description: "Pass basic-auth credentials to the API tests (UAT/DEV)"
+                required: false
+                type: boolean
+                default: false
+            node_env:
+                description: "NODE_ENV exported on the remote host during restart (empty = leave unset)"
+                required: false
+                type: string
+                default: ""
+            command_timeout:
+                description: "Timeout for the remote restart ssh command"
+                required: false
+                type: string
+                default: "10m"
+        secrets:
+            SSH_PRIVATE_KEY:
+                required: true
+            REMOTE_HOST:
+                required: true
+            REMOTE_USER:
+                required: true
+            REMOTE_PORT:
+                required: true
+            REMOTE_TARGET:
+                required: true
+            DEPLOY_ACCESS:
+                required: true
+            BASIC_AUTH_USER:
+                required: false
+            BASIC_AUTH_PASSWORD:
+                required: false
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.19.6"
+
+            - name: Cache node_modules
+              id: cache-npm
+              uses: actions/cache@v4
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: ~/.npm
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+
+            - name: Install npm dependencies
+              run: npm install
+            - name: Run build task
+              run: npm run build
+            - name: Unlock network access to server
+              run: |
+                  curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "${{ secrets.DEPLOY_ACCESS }}"
+                  echo "Waiting 59 seconds for access rule to activate..."
+                  sleep 59
+            - name: Back up app on remote host
+              if: inputs.do_backup
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ secrets.REMOTE_HOST }}
+                  username: ${{ secrets.REMOTE_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.REMOTE_PORT }}
+                  script: |
+                      rm ${{ inputs.backup_archive_path }}
+                      tar -zcvf ${{ inputs.backup_archive_path }} --exclude=${{ secrets.REMOTE_TARGET }}public/gpx-image --exclude=${{ secrets.REMOTE_TARGET }}public/gpx --exclude=${{ secrets.REMOTE_TARGET }}public/gpx-track ${{ secrets.REMOTE_TARGET }}
+            - name: Deploy to Server
+              uses: easingthemes/ssh-deploy@main
+              with:
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                  ARGS: "-rlgoDzvc -i --delete"
+                  SOURCE: "build/"
+                  REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+                  REMOTE_USER: ${{ secrets.REMOTE_USER }}
+                  TARGET: ${{ secrets.REMOTE_TARGET }}
+                  EXCLUDE: "/dist/, /node_modules/, /knexfile.js, /knexfileTourenDb.js, /public/gpx/, /public/gpx-image/, /public/gpx-image-with-track/, /public/gpx-track/, /public/robots.txt, *.md"
+            - name: Restart the API on remote host
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ secrets.REMOTE_HOST }}
+                  username: ${{ secrets.REMOTE_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.REMOTE_PORT }}
+                  command_timeout: ${{ inputs.command_timeout }}
+                  script: |
+                      export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
+                      ${{ inputs.node_env != '' && format('export NODE_ENV={0}', inputs.node_env) || '' }}
+                      cd ${{ secrets.REMOTE_TARGET }}
+                      npm install --omit=dev
+                      ${{ inputs.setup_docker && 'docker compose -f docker-compose.uat.yaml up -d' || '' }}
+                      ${{ inputs.rebuild_db_structure && './restore_databases.sh --structure' || '' }}
+                      pm2 restart all
+                      ${{ inputs.refresh_suggestions && 'sleep 10 && npm run refresh-search-suggestions' || '' }}
+                      ${{ inputs.import_files && 'npm run import-files' || '' }}
+
+    test-api:
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            issues: write
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.19.6"
+            - name: Install npm dependencies
+              run: npm install
+            - name: Run API Tests
+              env:
+                  API_BASE_URL: ${{ inputs.api_base_url }}
+                  API_USER: ${{ inputs.use_basic_auth && secrets.BASIC_AUTH_USER || '' }}
+                  API_PASSWORD: ${{ inputs.use_basic_auth && secrets.BASIC_AUTH_PASSWORD || '' }}
+              run: npm test
+            - name: Close Issue on Success
+              if: success()
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh issue list \
+                    --repo ${{ github.repository }} \
+                    --state open \
+                    --label "bug" \
+                    --search "BUG: ${{ inputs.environment }} API Tests Failed" \
+                    --json number \
+                    --jq '.[].number' \
+                    | xargs -r -I {} gh issue close {} --comment "✅ ${{ inputs.environment }} API Tests passed in workflow run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+            - name: Create Issue on Failure
+              if: failure()
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh issue create \
+                    --title "BUG: ${{ inputs.environment }} API Tests Failed" \
+                    --body "The automated API tests failed on ${{ inputs.environment }} environment.\n\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\nCommit: ${{ github.sha }}\nActor: @${{ github.actor }}" \
+                    --assignee "${{ github.actor }}" \
+                    --label "bug"
