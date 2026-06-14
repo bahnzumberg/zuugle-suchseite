@@ -3,21 +3,35 @@ import Box from "@mui/material/Box";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { RangeObject } from "../features/apiSlice";
 import Paper from "@mui/material/Paper";
+import { parseFileName } from "../utils/globals";
 
 export interface RangeCardProps {
   range: RangeObject;
 }
 
 export default function RangeCard({ range }: RangeCardProps) {
+  let imageUrl = range.image_url;
+  if (imageUrl && imageUrl.includes("null.webp") && range.range) {
+    imageUrl = imageUrl.replace(
+      "null.webp",
+      parseFileName(range.range, "", ".webp"),
+    );
+  }
+
   return (
     <Paper
       sx={{
         height: "228px",
-        backgroundImage: `url('${range.image_url}')`,
+        backgroundImage: `url('${imageUrl}')`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         position: "relative",
         borderRadius: "24px",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+        },
       }}
       className={"cursor-link"}
     >
@@ -30,12 +44,15 @@ export default function RangeCard({ range }: RangeCardProps) {
         }}
       >
         <Typography
-          sx={{ textAlign: "left", fontWeight: "bold" }}
-          color={"#FFFFFF"}
+          sx={{
+            color: "#FFFFFF",
+            textAlign: "left",
+            fontWeight: "bold",
+          }}
         >
           <SouthEastIcon
             style={{
-              background: "#000",
+              background: "rgba(37, 73, 128, 0.85)",
               borderRadius: "15px",
               padding: "10px",
             }}
@@ -51,8 +68,12 @@ export default function RangeCard({ range }: RangeCardProps) {
         }}
       >
         <Typography
-          sx={{ textAlign: "left", fontWeight: "bold" }}
-          color={"#FFFFFF"}
+          sx={{
+            textAlign: "left",
+            fontWeight: "bold",
+            fontSize: "18px",
+            color: "#FFFFFF",
+          }}
         >
           {range.range}
         </Typography>

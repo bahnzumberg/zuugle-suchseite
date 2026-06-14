@@ -17,9 +17,7 @@ export default function Footer() {
       <Box sx={{ marginBottom: "50px" }}>
         <Grid container spacing={2} sx={{ paddingBottom: "10px" }}>
           <Grid
-            justifySelf="center"
-            alignItems="center"
-            style={{ alignItems: "flex-end" }}
+            style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,
               sm: 12,
@@ -27,30 +25,32 @@ export default function Footer() {
               lg: 6,
               xl: 6,
             }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
+            }}
           >
-            <a
-              href="https://www.bmkluk.gv.at/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="https://www.bmluk.gv.at/" target="_blank" rel="noreferrer">
               <img
                 src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
                 height="100px"
-                alt="Funded by www.bmkluk.gv.at"
+                alt="Funded by www.bmluk.gv.at"
                 loading="lazy"
               />
             </a>
           </Grid>
           <Grid
-            justifySelf="center"
-            alignItems="center"
-            style={{ alignItems: "flex-end" }}
+            style={{ alignItems: "flex-end", textAlign: "center" }}
             size={{
               xs: 12,
               sm: 12,
               md: 6,
               lg: 6,
               xl: 6,
+            }}
+            sx={{
+              justifySelf: "center",
+              alignItems: "center",
             }}
           >
             <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
@@ -80,27 +80,37 @@ export default function Footer() {
               md: 10,
             }}
           >
-            <Grid container spacing={2}>
-              <Grid
-                style={{ maxWidth: "30px" }}
-                className={"footer-logo"}
-                size={{
-                  xs: "auto",
-                  md: 2,
-                }}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: { xs: "12px 0px", md: "0px" },
+                width: "100%",
+              }}
+            >
+              <a
+                href="https://verein.bahn-zum-berg.at/"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
               >
                 <img
-                  src={`https://cdn.zuugle.at/img/zuugle.svg`}
-                  height={"20px"}
-                  width={"36px"}
-                  alt="Logo Zuugle"
+                  src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
+                  width={"45px"}
+                  height={"auto"}
+                  alt="Bahn zum Berg"
                   loading="lazy"
                 />
-              </Grid>
-              <Grid
-                size={{
-                  xs: "grow",
-                  md: 3,
+              </a>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  flex: 1,
+                  gap: { xs: "8px 16px", md: "0px" },
                 }}
               >
                 <a
@@ -111,7 +121,6 @@ export default function Footer() {
                 >
                   <Typography
                     sx={{
-                      marginLeft: "10px",
                       textDecoration: "underline",
                       whiteSpace: "nowrap",
                     }}
@@ -120,8 +129,6 @@ export default function Footer() {
                     © {`${currentYear}`} Bahn zum Berg
                   </Typography>
                 </a>
-              </Grid>
-              <Grid size="grow">
                 <Link
                   to="/privacy"
                   target="_blank"
@@ -130,16 +137,14 @@ export default function Footer() {
                 >
                   <Typography
                     sx={{
-                      marginLeft: "10px",
                       textDecoration: "underline",
+                      whiteSpace: "nowrap",
                     }}
                     className={"cursor-link"}
                   >
                     {t("start.datenschutz")}
                   </Typography>
                 </Link>
-              </Grid>
-              <Grid size="grow">
                 <Link
                   to="/imprint"
                   target="_blank"
@@ -148,16 +153,16 @@ export default function Footer() {
                 >
                   <Typography
                     sx={{
-                      marginLeft: "10px",
                       textDecoration: "underline",
+                      whiteSpace: "nowrap",
                     }}
                     className={"cursor-link"}
                   >
                     {t("start.impressum")}
                   </Typography>
                 </Link>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Grid>
           <Grid
             size={{

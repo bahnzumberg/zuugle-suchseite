@@ -2,6 +2,56 @@
 @import "leaflet.markercluster/dist/MarkerCluster.css";
 @import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
+/* ==============================================
+   Bahn zum Berg – Corporate Design Farben
+   ============================================== */
+:root {
+  --bzb-bahnblau: #254980;
+  --bzb-akelei: #712579;
+  --bzb-veilchenlila: #bcb8dc;
+  --bzb-wolkenblau: #aab5d7;
+  --bzb-lindgruen: #ccd8a1;
+}
+
+/* Source Sans 3 – Standardschriftart (DSGVO-konform, lokal gespeichert) */
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://cdn.zuugle.at/fonts/source-sans-3-400.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://cdn.zuugle.at/fonts/source-sans-3-700.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("https://cdn.zuugle.at/fonts/source-sans-3-900.woff2")
+    format("woff2");
+}
+
+/* Juniper Bay – CD-Handschrift für Zitate und Hervorhebungen */
+@font-face {
+  font-family: "Juniper Bay";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff2") format("woff2"),
+    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff") format("woff");
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,8 +60,18 @@
 body {
   margin: 0;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    "Source Sans 3",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -25,10 +85,6 @@ body,
 body * {
   -webkit-font-smoothing: subpixel-antialiased !important;
   text-rendering: optimizeLegibility !important;
-}
-
-.App {
-  text-align: center;
 }
 
 /* width */
@@ -72,26 +128,20 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-card {
   text-align: left;
   height: 100%;
-  width: clamp(320px, 30vw, 400px);
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-@media (max-width: 1199px) {
-  .tour-card {
-    width: clamp(320px, 45vw, 400px);
-  }
-}
-
-@media (max-width: 899px) {
-  .tour-card {
-    width: clamp(320px, 90vw, 400px);
-  }
+.tour-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .tour_card_Image {
   width: 100%;
-  max-width: 392px;
   height: auto;
   display: flex;
   align-items: start;
@@ -155,19 +205,28 @@ body ::-webkit-scrollbar-thumb:hover {
   margin-bottom: 30px;
 }
 
-.header-line {
-  background: #ffff;
-  z-index: 0;
+/* ---- Hero logo row (below H1 on start page) ---- */
+.hero-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
-.header-line-main {
-  min-height: 70px;
-  margin-top: -20px;
-  background-color: #f7f7f7;
-  z-index: 0;
-  box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
+.hero-logo {
+  height: 59px;
+  width: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  transition: opacity 0.2s ease;
+}
+
+.hero-logo:hover {
+  opacity: 1;
+}
+
+.hero-logo-alpenkonvention {
+  height: 44px;
 }
 
 .header-container {
@@ -202,8 +261,25 @@ body ::-webkit-scrollbar-thumb:hover {
 .cards-container {
   padding: 30px;
   max-width: 1400px;
+  margin-top: 8px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .cards-container,
+  .tour-detail-header {
+    margin-top: 16px;
+  }
+}
+
+@media (min-width: 900px) {
+  .cards-container,
+  .tour-detail-header {
+    margin-top: 32px;
+  }
 }
 
 .seo-bar {
@@ -213,7 +289,7 @@ body ::-webkit-scrollbar-thumb:hover {
   /* border-bottom: 1px solid #ececec; */
   padding-bottom: 20px;
   padding-top: 20px;
-  background-color: #4992ff;
+  background-color: var(--bzb-bahnblau);
 }
 
 @media only screen and (max-width: 600px) {
@@ -224,7 +300,16 @@ body ::-webkit-scrollbar-thumb:hover {
     letter-spacing: 0px;
   }
 
-  .header-line {
+  .hero-logo-row {
+    margin-top: 14px;
+  }
+
+  .hero-logo {
+    height: 43px;
+  }
+
+  .hero-logo-alpenkonvention {
+    height: 32px;
     display: none;
   }
 
@@ -342,13 +427,10 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .search-result-header-container {
-  background-color: #4992ff;
+  background-color: var(--bzb-bahnblau);
   position: relative;
   padding-bottom: 50px;
   z-index: 10;
-  box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -webkit-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
-  -moz-box-shadow: 0px 5px 27px 0px rgba(0, 0, 0, 0.16);
 }
 
 @media only screen and (min-width: 910px) {
@@ -364,7 +446,8 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-header {
-  padding: 2rem 1rem;
+  padding: 2rem 0;
+  margin-top: 8px;
   text-align: left;
 }
 
@@ -387,17 +470,12 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-data-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
   padding: 1rem;
 }
 
 .tour-detail-map-container {
   width: 100%;
-  height: 250px;
+  height: 100%;
 }
 
 .tour-detail-provider-container {
@@ -405,7 +483,7 @@ body ::-webkit-scrollbar-thumb:hover {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  background: #4992ff;
+  background: var(--bzb-akelei);
   border: 1px solid #dddddd;
   border-radius: 18px;
   max-width: 400px;
@@ -483,9 +561,9 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-detail-itinerary-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
+  justify-content: flex-start;
+  align-items: stretch;
+  min-width: 0;
   gap: 24px;
 }
 
@@ -494,9 +572,8 @@ body ::-webkit-scrollbar-thumb:hover {
 }
 
 .tour-detail-itinerary {
-  border-radius: 30px;
-  background: #ebebeb;
-  padding: 25px;
+  padding: 0;
+  min-width: 0;
 }
 
 .tour-detail-itinerary > div:nth-of-type(2) > div::before {
@@ -512,7 +589,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-weight: 700;
   font-size: 18px;
   line-height: 18px;
-  text-align: center;
+  text-align: left;
   color: #000000;
   margin-bottom: 25px;
 }
@@ -533,7 +610,7 @@ body ::-webkit-scrollbar-thumb:hover {
   font-size: 14px;
   line-height: 18px;
   text-align: center;
-  color: #4992ff;
+  color: var(--bzb-bahnblau);
   padding: 14px 0 0 0;
   width: 100%;
   height: 30px;
@@ -611,7 +688,7 @@ body ::-webkit-scrollbar-thumb:hover {
   position: absolute;
   top: 2px;
   left: 2px;
-  background: #4992ff;
+  background: var(--bzb-bahnblau);
   border-radius: 50%;
   height: 41px;
   width: 41px;
@@ -620,7 +697,7 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (max-width: 600px) {
   .tour-detail-itinerary {
-    max-width: 300px;
+    max-width: 100%;
   }
   .tour-detail-itinerary-calendar {
     max-width: 400px;
@@ -635,41 +712,33 @@ body ::-webkit-scrollbar-thumb:hover {
 .tour-detail-action-btns-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  max-width: 325px;
+  align-items: flex-start;
+  gap: 8px;
   margin: 1rem 0;
 }
 
 .tour-detail-action-btns-container .tour-detail-action-btns {
   border-radius: 12px;
-  border: 1.5px solid #101010;
-  max-width: 325px;
-  width: 325px;
-  height: 56px;
+  border: none;
+  background-color: var(--bzb-akelei);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 20px;
+  height: auto;
 
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  margin: 0.5rem 0;
+  transition: background-color 0.2s ease;
+}
+
+.tour-detail-action-btns-container .tour-detail-action-btns:hover {
+  background-color: var(--bzb-bahnblau);
 }
 
 @media only screen and (max-width: 1024px) {
-  .tour-detail-properties {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .tour-detail-properties-el:nth-child(even):before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 19px;
-    height: 41px;
-    width: 1px;
-    background: #dddddd;
-  }
-
   .tour-detail-img-container img {
     width: 325px;
     height: auto;
@@ -678,12 +747,8 @@ body ::-webkit-scrollbar-thumb:hover {
 
 @media only screen and (min-width: 1025px) {
   .tour-detail-header {
-    padding: 2rem 7rem;
+    padding: 2rem 0;
     text-align: left;
-  }
-
-  .tour-detail-itinerary {
-    width: 390px;
   }
 
   .tour-detail-img-container {
@@ -691,25 +756,7 @@ body ::-webkit-scrollbar-thumb:hover {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-
     margin: 2rem 0;
-  }
-
-  .tour-detail-conditional-mobile {
-    display: none;
-  }
-
-  .tour-detail-conditional-desktop {
-    display: block;
-  }
-
-  .tour-detail-data-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-
-    padding: 2rem 7rem;
   }
 
   .tour-detail-action-btns-container {
@@ -717,7 +764,6 @@ body ::-webkit-scrollbar-thumb:hover {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    /*padding: 2rem 7rem;*/
     max-width: 400px;
   }
 
@@ -726,32 +772,9 @@ body ::-webkit-scrollbar-thumb:hover {
     width: 400px;
   }
 
-  .tour-detail-properties-el {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .tour-detail-properties {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .tour-detail-properties-el:nth-child(3n)::before,
-  .tour-detail-properties-el:nth-child(3n-1)::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 19px;
-    height: 41px;
-    width: 1px;
-    background: #dddddd;
-  }
-
   .tour-detail-map-container {
     width: 100%;
-    height: 450px;
+    height: 100%;
   }
 
   .tour-detail-provider-link {
@@ -762,10 +785,7 @@ body ::-webkit-scrollbar-thumb:hover {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
-    align-self: stretch;
-
-    padding: 0 0 0 3rem;
+    align-items: stretch;
     height: 100%;
   }
 }
@@ -799,18 +819,27 @@ ul.about-bullets {
 }
 
 .react-horizontal-scrolling-menu--wrapper {
-  position: relative;
 }
 
 .react-horizontal-scrolling-card {
   width: auto;
   /* margin-right: 20px; */
   vertical-align: top;
-  height: 98%;
+  height: 100%;
 }
 
 .react-horizontal-scrolling-arrow-container {
-  display: block;
+  display: flex;
+  align-items: center;
+}
+
+.react-horizontal-scrolling-menu--scroll-container {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.react-horizontal-scrolling-menu--scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 @media only screen and (max-width: 600px) {
@@ -824,14 +853,6 @@ ul.about-bullets {
 
 .react-horizontal-scrolling-arrow {
   margin: 0;
-  position: absolute;
-  top: 40px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  opacity: 0.5;
-  background-color: #000;
-  color: #fff;
 }
 
 .leaflet-control {
@@ -848,8 +869,8 @@ ul.about-bullets {
 }
 
 .custom-marker-cluster {
-  background: #4992ff;
-  border: 10px solid #4992ff;
+  background: var(--bzb-akelei);
+  border: 10px solid var(--bzb-akelei);
   border-radius: 50%;
   color: #fff;
   height: 33px;
@@ -878,7 +899,8 @@ ul.about-bullets {
 
 .seo-city-link {
   line-height: 24px;
-  color: #4992ff;
+  color: var(--bzb-akelei);
+  transition: color 0.2s ease;
 }
 
 .alignStart {
@@ -907,6 +929,10 @@ ul.about-bullets {
   box-sizing: border-box;
   padding-top: 7px;
   padding-bottom: 7px;
+  max-width: 1400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media only screen and (min-width: 600px) {
@@ -986,17 +1012,18 @@ ul.about-bullets {
 }
 
 .languageItem {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
   line-height: 34px;
   color: #8b8b8b;
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .languageItem:hover {
-  color: #4992ff;
+  color: var(--bzb-akelei);
 }
 
 .languageOptions {
@@ -1035,7 +1062,7 @@ ul.about-bullets {
 }
 
 colLeft .domainItem {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 15.4457px;
@@ -1047,7 +1074,7 @@ colLeft .domainItem {
 }
 
 .domainItem:hover {
-  color: #4992ff;
+  color: var(--bzb-akelei);
 }
 
 .colCenteral {
@@ -1102,55 +1129,37 @@ colLeft .domainItem {
 /* ==================================== */
 /* ==================================== */
 
-/* Common styles */
+/* Common styles – compact horizontal KPI row */
 .tour-detail-properties {
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr; /* Columns for elements and dividers */
-  max-width: 706px; /* Max width */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 0;
   margin: 0;
-  gap: 0; /* No gap between grid items */
-  height: 100%;
+  padding: 0;
 }
 
-/* Ensure consistent spacing and alignment within each cell */
+/* Each KPI element: inline with pipe separator */
 .tour-detail-properties-el {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; /* Align text to the left */
-  padding-right: 0.5rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 0; /* Ensure no extra space below */
-  height: 100%; /* allow children elements to adjust heights */
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 0;
+  white-space: nowrap;
   text-align: start;
+}
+
+/* Pipe separator between items */
+.tour-detail-properties-el:not(:last-child)::after {
+  content: "|";
+  color: #bbb;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 14px;
 }
 
 /* Reset margins for Typography elements */
 .tour-detail-properties-el .MuiTypography-root {
   margin: 0;
   padding: 0;
-}
-
-/* Styles for desktop (min-width: 679px) */
-@media (min-width: 679px) {
-  .tour-detail-properties {
-    grid-template-columns: 1fr 1px 1fr 1px 1fr; /* 3 columns with vertical dividers */
-  }
-
-  .tour-detail-properties-el {
-    padding-left: 1rem;
-  }
-}
-
-/* Styles for small screens (max-width: 678px) */
-@media (max-width: 678px) {
-  .tour-detail-properties {
-    grid-template-columns: 1fr 1px 1fr; /* 2 columns with a vertical divider */
-    grid-template-rows: auto auto auto; /* 3 rows */
-  }
-
-  .tour-detail-properties-el {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
 }

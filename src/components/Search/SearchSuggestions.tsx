@@ -10,7 +10,7 @@ import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import { SearchWithType } from "../../features/apiSlice";
 import { HTMLAttributes } from "react";
 import { useTranslation } from "react-i18next";
-import { ReactComponent as TransportTrain } from "../../icons/svg/ic_transport_train.svg";
+import TransportTrain from "../../icons/svg/ic_transport_train.svg?react";
 
 export interface SearchSuggestionsProps {
   option: SearchWithType;
@@ -39,6 +39,14 @@ const suggestionHelperMap: Partial<Record<SearchWithType["type"], string>> = {
   range: "filter.region_filter_helper",
 };
 
+export const suggestionColorMap: Record<string, string> = {
+  city: "var(--bzb-bahnblau)",
+  range: "var(--bzb-bahnblau)",
+  peak: "var(--bzb-bahnblau)",
+  hut: "var(--bzb-bahnblau)",
+  term: "var(--bzb-bahnblau)",
+};
+
 export default function SearchSuggestions({
   option,
   props,
@@ -47,6 +55,7 @@ export default function SearchSuggestions({
   const Icon = suggestionIconMap[option.type];
   const title = t(suggestionTitleMap[option.type]);
   const helperKey = suggestionHelperMap[option.type];
+  const iconColor = suggestionColorMap[option.type] ?? "#888";
   const secondaryText = helperKey ? (
     <Box
       component="span"
@@ -62,30 +71,28 @@ export default function SearchSuggestions({
   return (
     <ListItem
       {...props}
-      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        borderRadius: 1.5,
+        mx: 0.5,
+        my: 0.25,
+        width: "auto",
+      }}
       title={title}
     >
-      <ListItemIcon sx={{ "& path": { fill: "#8b8b8b" } }}>
-        <div
-          style={{
-            borderRadius: "10px",
-            backgroundColor: "#d9d9d9",
-            height: "40px",
-            width: "40px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {Icon ? (
-            <Icon style={{ fontSize: "24px", color: "#8b8b8b" }} />
-          ) : null}
-        </div>
+      <ListItemIcon sx={{ minWidth: 32, color: iconColor }}>
+        {Icon ? (
+          <Icon style={{ fontSize: "20px", width: 20, height: 20 }} />
+        ) : null}
       </ListItemIcon>
       <ListItemText
         primary={option?.term}
         secondary={secondaryText}
-        slotProps={{ secondary: { fontSize: "0.8rem", lineHeight: 1.2 } }}
+        slotProps={{
+          secondary: { sx: { fontSize: "0.8rem", lineHeight: 1.2 } },
+        }}
       />
     </ListItem>
   );

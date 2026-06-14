@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router";
 import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
 import { useIsMobile } from "../../utils/muiUtils";
@@ -12,6 +13,9 @@ const MapBtn = () => {
   const showMap = useSelector((state: RootState) => state.search.map);
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isSearchPage = location.pathname === "/search";
 
   const iconSize = { fontSize: 22 };
   const icon = showMap ? (
@@ -27,6 +31,11 @@ const MapBtn = () => {
       : t("start_pages.zur_kartenansicht");
 
   const handleClick = () => {
+    if (!isSearchPage) {
+      // Navigate to /search and show the map there
+      navigate("/search?map=true");
+      return;
+    }
     if (showMap) {
       dispatch(boundsUpdated(null));
     }
@@ -47,6 +56,10 @@ const MapBtn = () => {
         borderRadius: "50px 50px",
         margin: "2 auto",
         bottom: "8px",
+        backgroundColor: "#712579",
+        "&:hover": {
+          backgroundColor: "#254980",
+        },
       }}
     >
       {mapBtnText}

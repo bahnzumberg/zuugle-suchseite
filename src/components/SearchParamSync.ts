@@ -4,10 +4,8 @@ import { RootState } from "..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../hooks";
 import {
-  boundsUpdated,
   citySlugUpdated,
   cityUpdated,
-  languageUpdated,
   mapUpdated,
   geolocationUpdated,
   providerUpdated,
@@ -20,6 +18,33 @@ import {
 } from "../features/apiSlice";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { filterUpdated } from "../features/filterSlice";
+import { FilterObject } from "../models/Filter";
+import { getDefaultFilterValues } from "./Filter/utils";
+
+const SCALAR_FILTER_KEYS = [
+  "singleDayTour",
+  "multipleDayTour",
+  "summerSeason",
+  "winterSeason",
+  "traverse",
+  "minAscent",
+  "maxAscent",
+  "minDescent",
+  "maxDescent",
+  "minTransportDuration",
+  "maxTransportDuration",
+  "minDistance",
+  "maxDistance",
+] as const;
+
+const ARRAY_FILTER_KEYS = [
+  "ranges",
+  "types",
+  "languages",
+  "difficulties",
+  "providers",
+  "countries",
+] as const;
 
 /**
  * Keeps query parameters in sync with the Redux store.
@@ -27,7 +52,7 @@ import { filterUpdated } from "../features/filterSlice";
  * than on other pages.
  */
 export default function SearchParamSync({
-  isSearchResultsPage: isSearchResultsPage,
+  isSearchResultsPage,
 }: {
   isSearchResultsPage: boolean;
 }) {
@@ -52,6 +77,8 @@ export default function SearchParamSync({
   useEffect(() => {
     if (search.city?.value) {
       dispatch(citySlugUpdated(search.city.value));
+    } else {
+      dispatch(citySlugUpdated(null));
     }
   }, [search.city]);
 
@@ -70,6 +97,8 @@ export default function SearchParamSync({
 
   useEffect(() => {
     const newParams = new URLSearchParams();
+    // use Redux value when available, fall back to URL during initialisation (when language is null)
+    updateParam(newParams, "lang", search.language ?? params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
     updateParam(newParams, "p", search.provider);
     updateParam(
@@ -87,36 +116,35 @@ export default function SearchParamSync({
       "search_type",
       isSearchResultsPage ? search.searchWithType?.type : null,
     );
-    updateParam(
-      newParams,
-      "lang",
-      isSearchResultsPage ? search.language : null,
-    );
-    if (!search.geolocation) {
+    if (isSearchResultsPage && search.geolocation) {
+      updateParam(newParams, "lat", String(search.geolocation.lat));
+      updateParam(newParams, "lng", String(search.geolocation.lng));
       updateParam(
         newParams,
-        "bounds",
-        isSearchResultsPage && search.bounds
-          ? JSON.stringify(search.bounds)
-          : null,
+        "radius",
+        String(search.geolocation.radius ?? 100),
       );
     } else {
-      updateParam(newParams, "bounds", null);
+      updateParam(newParams, "lat", null);
+      updateParam(newParams, "lng", null);
+      updateParam(newParams, "radius", null);
     }
-    updateParam(
-      newParams,
-      "geolocation",
-      isSearchResultsPage && search.geolocation
-        ? JSON.stringify(search.geolocation)
-        : null,
-    );
-    updateParam(
-      newParams,
-      "filter",
-      isSearchResultsPage && Object.keys(filter).length > 0
-        ? JSON.stringify(filter)
-        : null,
-    );
+
+    if (isSearchResultsPage) {
+      const defaults = getDefaultFilterValues();
+      for (const key of SCALAR_FILTER_KEYS) {
+        const val = filter[key];
+        if (val !== undefined && val !== defaults[key]) {
+          newParams.set(key, String(val));
+        }
+      }
+      for (const key of ARRAY_FILTER_KEYS) {
+        const arr = filter[key];
+        if (arr?.length) {
+          newParams.set(key, arr.map(String).join("|"));
+        }
+      }
+    }
     setParams(newParams, { replace: true });
   }, [search, filter]);
 
@@ -132,7 +160,6 @@ export default function SearchParamSync({
   useEffect(() => {
     if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
     updateReduxFromParam("p", providerUpdated);
-    updateReduxFromParam("lang", languageUpdated);
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
     } else {
@@ -153,45 +180,45 @@ export default function SearchParamSync({
         dispatch(mapUpdated(false));
       }
 
-      // geolocation comes either as "geolocation" or as separate "lat", "lng" and "radius"
       const lat = params.get("lat");
       const lng = params.get("lng");
       const radius = params.get("radius");
-      const geolocation = params.get("geolocation");
-      if (geolocation || (lat && lng)) {
-        const parsedLocation = geolocation
-          ? JSON.parse(geolocation)
-          : { lat: lat, lng: lng, radius: radius };
-        if (!parsedLocation.radius) {
-          parsedLocation.radius = 100;
-        }
-        dispatch(geolocationUpdated(parsedLocation));
+      if (lat && lng) {
+        dispatch(
+          geolocationUpdated({
+            lat: Number(lat),
+            lng: Number(lng),
+            radius: radius ? Number(radius) : 100,
+          }),
+        );
       } else {
         dispatch(geolocationUpdated(null));
       }
 
-      const bounds = params.get("bounds");
-      if (!geolocation && bounds) {
-        const parsedBounds = JSON.parse(bounds);
-        dispatch(boundsUpdated(parsedBounds));
-      } else {
-        dispatch(boundsUpdated(null));
+      const filterObject: FilterObject = {};
+      for (const key of SCALAR_FILTER_KEYS) {
+        const value = params.get(key);
+        if (value === "true") (filterObject[key] as boolean) = true;
+        else if (value === "false") (filterObject[key] as boolean) = false;
+        else if (value !== null && !isNaN(Number(value)))
+          (filterObject[key] as number) = Number(value);
       }
-
-      const filterParam = params.get("filter");
-      let parsedFilter = {};
-      if (filterParam) {
-        parsedFilter = JSON.parse(filterParam);
-        dispatch(filterUpdated(parsedFilter));
-      } else {
-        dispatch(filterUpdated({}));
+      for (const key of ARRAY_FILTER_KEYS) {
+        const raw = params.get(key);
+        if (raw) {
+          const values = raw.split("|").filter(Boolean);
+          if (values.length) {
+            (filterObject[key] as string[] | number[]) =
+              key === "difficulties" ? values.map(Number) : values;
+          }
+        }
       }
-
-      // if range is set like this -> update range in filter
+      // ?range=slug from range-card navigation
       const range = params.get("range");
-      if (range) {
-        dispatch(filterUpdated({ ...parsedFilter, ranges: [range] }));
+      if (range && !filterObject.ranges?.length) {
+        filterObject.ranges = [range];
       }
+      dispatch(filterUpdated(filterObject));
     }
   }, []);
 

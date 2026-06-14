@@ -1,9 +1,13 @@
 import { createTheme } from "@mui/material/styles";
+import { buttonClasses } from "@mui/material/Button";
 
 export const theme = createTheme({
   palette: {
     primary: {
-      main: "#4992FF",
+      main: "#254980",
+    },
+    secondary: {
+      main: "#712579",
     },
     info: {
       main: "#FF7663",
@@ -34,6 +38,12 @@ export const theme = createTheme({
         root: {
           borderRadius: 12,
           textTransform: "none",
+          [`&.${buttonClasses.contained}.${buttonClasses.colorPrimary}`]: {
+            backgroundColor: "#712579",
+            "&:hover": {
+              backgroundColor: "#254980",
+            },
+          },
         },
       },
     },
@@ -64,7 +74,7 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
+    fontFamily: `"Source Sans 3", "Helvetica", "Arial", sans-serif`,
     fontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
@@ -78,7 +88,7 @@ export const theme = createTheme({
       fontSize: "16px",
       color: "#101010",
       fontWeight: "400",
-      fontFamily: `"Open Sans", "Helvetica", "Arial", sans-serif`,
+      fontFamily: `"Source Sans 3", "Helvetica", "Arial", sans-serif`,
     },
     subtitle1: {
       fontSize: 16,
@@ -88,6 +98,7 @@ export const theme = createTheme({
     title: {
       fontSize: 32,
       fontWeight: 700,
+      color: "#712579",
     },
     h1: {
       fontSize: 54,
@@ -112,7 +123,7 @@ export const theme = createTheme({
     },
     h5: {
       fontSize: 14,
-      color: "#4992FF",
+      color: "#254980",
       fontWeight: 700,
       textTransform: "uppercase",
     },
@@ -128,7 +139,7 @@ export const theme = createTheme({
     },
     blueP: {
       fontSize: 12,
-      color: "#4992FF",
+      color: "#254980",
       fontWeight: 500,
     },
     blackP: {
@@ -163,7 +174,7 @@ export const theme = createTheme({
     link: {
       fontSize: "16px",
       lineHeight: "22px",
-      color: "#4992FF",
+      color: "#254980",
     },
     error: {
       fontSize: "16px",

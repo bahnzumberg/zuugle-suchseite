@@ -60,6 +60,7 @@
     "italienisch": "Italiano",
     "englisch": "Inglese",
     "filter": "Filtro",
+    "weitere_filter": "altri filtri",
     "easy": "Facile",
     "medium": "Medio",
     "hard": "Difficile",
@@ -80,7 +81,10 @@
     "country_ungarn": "Ungheria",
     "country_schweiz": "Svizzera",
     "country_italien": "Italia",
-    "country_slowenien": "Slovenia"
+    "country_slowenien": "Slovenia",
+    "country_liechtenstein": "Liechtenstein",
+    "country_frankreich": "Francia",
+    "filter_city_description": "Solo tour raggiungibili da:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABILE DEI CONTENUTI",
@@ -95,7 +99,8 @@
     "haftung_fuer_links": "RESPONSABILITÀ PER I LINK",
     "verknuepfung_links": "Questo motore di ricerca per itinerari raggiungibili con i mezzi pubblici contiene link che rinviano a siti di terzi (\"link esterni\"). La responsabilità per tali siti ricade sui rispettivi operatori. Quando abbiamo creato i link esterni a contenuti di terzi, abbiamo verificato l'esistenza di eventuali violazioni della legge. In sede di verifica non sono state riscontrate violazioni della legge. Tuttavia, non abbiamo alcuna influenza sull’aspetto grafico e sui contenuti attuali e futuri delle pagine collegate. Utilizzare link esterni non significa far propri i relativi contenuti. Il monitoraggio costante dei link esterni, dato il loro elevato numero, è impossibile in assenza di indicazioni concrete di una violazione della legge. Tuttavia, se dovessimo venire a conoscenza di una violazione della legge, cancelleremmo senza indugio tali link esterni.",
     "lizenzbedingungen": "CONDIZIONI DI LICENZA PER GLI ORARI DEI SERVIZI DI TRASPORTO PUBBLICO",
-    "anfuehrung_quellen": "Le diverse fonti e condizioni di licenza degli orari dei servizi di trasporto pubblico utilizzati sono visibili qui."
+    "anfuehrung_quellen": "Le diverse fonti e condizioni di licenza degli orari dei servizi di trasporto pubblico utilizzati sono visibili qui.",
+    "gefoerdert_von": "FINANZIATO DA"
   },
   "index": {
     "zuugle_description": "Zuugle mostra i collegamenti verificati, in treno e autobus, per itinerari alpinistici, escursionistici, scialpinistici e ciaspolistici.",
@@ -141,7 +146,10 @@
     "alle_bergtouren_von_cityname": "Itinerari raggiungibili in treno e autobus da {{city.label}}",
     "tour": "Percorrenza",
     "areaSearchTrigger": "Cerca i percorsi che raggiungono questa zona.",
-    "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati."
+    "areaSearchTooltip": "Solo i percorsi che raggiungono la zona segnalata verranno mostrati.",
+    "top_tour": "Sentiero fantastico!",
+    "gebirgsgruppe": "Gruppo montuoso",
+    "schwierigkeit": "Difficoltà"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",
@@ -197,7 +205,7 @@
     "nutzer_innen_ueber_zuugle": "Leggi cosa pensano gli utenti di Zuugle",
     "werbung": "Pubblicità",
     "ziel_von_zuugle": "Zuugle intende dare visibilità a tutti gli itinerari in montagna raggiungibili in treno e autobus.",
-    "weil_es_braucht_kein_auto": "Perché: non serve un auto per immergersi nella natura. Ti spieghiamo noi come fare.",
+    "weil_es_braucht_kein_auto": "Zuugle è gestito dall'organizzazione senza scopo di lucro \"Bahn zum Berg\".",
     "jetzt_oeffitour_suchen": "Cerca subito un itinerario raggiungibile con i mezzi pubblici",
     "öffi_bergtouren": "Itinerari in montagna raggiungibili con i mezzi pubblici",
     "heimatbahnhoefe_in": "Stazioni ferroviarie in",
@@ -248,6 +256,7 @@
     "seilbahn": "Funivia",
     "faehre": "Traghetto",
     "taxi": "Taxi",
+    "fussweg": "A piedi",
     "verschiedenes": "Varie",
     "touren-ausgangspunkt": "Punto di partenza",
     "ankunft_bei_tourstart": "Arrivo all'inizio del tour",
@@ -267,7 +276,44 @@
     "bitte_stadt_waehlen": "Selezionate una città (città di residenza o vicina al vostro luogo di residenza) in modo da potervi mostrare gli orari.",
     "weitere_staedte_anzeigen": "Mostra più città",
     "staedte_mit_verbindung": "Città con collegamenti di trasporto pubblico per questa escursione",
-    "staedte_ohne_verbindung": "Città senza collegamento"
+    "staedte_ohne_verbindung": "Città senza collegamento",
+    "startort": "Luogo di partenza",
+    "startort_placeholder": "Inserisci indirizzo o fermata",
+    "zielort": "Destinazione",
+    "aktivitaetsdatum": "Data dell'attività",
+    "heute": "Oggi",
+    "morgen": "Domani",
+    "anderes_datum": "Altra data",
+    "anreise": "Andata",
+    "verbindung_suchen": "Cerca collegamento",
+    "direkt": "Diretto",
+    "umstieg": "Cambio",
+    "verfuegbare_gehzeit": "Tempo di percorrenza disponibile",
+    "gleis": "Banchina",
+    "von_gleis_zu_gleis": "dal binario {{from}} al binario {{to}}",
+    "von_gleis": "dal binario {{from}}",
+    "zu_gleis": "al binario {{to}}",
+    "halte": "fermate",
+    "tourdauer": "Tempo di percorrenza",
+    "frueher": "Prima",
+    "spaeter": "Dopo",
+    "terminkonflikt": "Conflitto di orario: Scegli un'andata più presto o un ritorno più tardi!",
+    "zeitmangel_kurz": "Solo {0} disponibili!",
+    "echtzeit": "Tempo reale",
+    "ticket": "Biglietto",
+    "kalender": "Calendario",
+    "link_kopiert": "Link copiato!",
+    "wanderung": "Escursione",
+    "schliessen": "Chiudi",
+    "ticket_kaufen": "Acquista biglietto",
+    "ticket_hinfahrt": "Biglietti andata",
+    "ticket_rueckfahrt": "Biglietti ritorno",
+    "ticket_oebb_fallback": "Biglietti ÖBB",
+    "von_bis_zeiten": "Dalle {0} alle {1}",
+    "verfuegbar": "disponibile",
+    "startort_aus_liste_waehlen": "Seleziona un suggerimento dall'elenco",
+    "kontingent_erschoepft": "Quota delle richieste orari esaurita.",
+    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova."
   },
   "search": {
     "go": "Vai!",
@@ -281,6 +327,14 @@
     "oeffi_touren_alpenraum": "Itinerari raggiungibili con i mezzi pubblici nelle Alpi",
     "keine_vorschlaege": "Nessun suggerimento"
   },
-  "start_pages": { "zur_kartenansicht": "Mostra mappa" },
-  "main_only": { "kartenansicht_entfernen": "Chiudi mappa" }
+  "start_pages": {
+    "zur_kartenansicht": "Mostra mappa"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Chiudi mappa"
+  },
+  "cookie_consent": {
+    "text": "Questo sito utilizza esclusivamente cookie tecnicamente necessari. Per le richieste di orari, i dati vengono trasmessi a server nell'UE, ma non vengono memorizzati.",
+    "accept": "Capito"
+  }
 }

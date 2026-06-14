@@ -14,26 +14,27 @@ const EntitySlider = styled(Slider)(() => ({
   },
   "& .MuiSlider-track": {
     height: "5px",
-    background: "#4992FF",
+    background: "#254980",
     opacity: 1,
     border: "none",
   },
   "& .MuiSlider-rail": {
-    background: "#4992FF",
+    background: "#254980",
     height: "5px",
-    opacity: 1,
+    opacity: 0.3,
     border: "none",
   },
 }));
 
 export interface SliderProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   containerSx?: any;
   value: number | number[];
   onChange: (event: Event, newValue: number | number[]) => void;
   min: number;
   max: number;
   step?: number;
+  ariaLabel?: string;
 }
 
 export default function GeneralSlider({
@@ -43,6 +44,7 @@ export default function GeneralSlider({
   min,
   max,
   step = 1,
+  ariaLabel,
 }: SliderProps) {
   return (
     <Box sx={containerSx}>
@@ -52,6 +54,7 @@ export default function GeneralSlider({
         value={value}
         step={step}
         onChange={onChange}
+        aria-label={ariaLabel}
       />
     </Box>
   );

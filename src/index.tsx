@@ -23,6 +23,12 @@ if (persistedCity) {
   }
 }
 
+// As there is only one city in Liechtenstein we support,
+// Vaduz will be selected and nobody has to set the city manually.
+if (getTLD() === "li") {
+  cityObject = { label: "Vaduz", value: "vaduz" };
+}
+
 function getPreloadedSearchState() {
   const params = new URLSearchParams(window.location.search);
   const searchPhrase = params.get("search") ?? "";
@@ -35,7 +41,11 @@ function getPreloadedSearchState() {
           type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
         }
       : null,
-    city: cityObject,
+    // URL city param takes precedence; only use stored city object if it matches the URL slug
+    city:
+      !params.get("city") || params.get("city") === cityObject?.value
+        ? cityObject
+        : null,
     citySlug: params.get("city") ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
     language: params.get("lang") ?? null,
@@ -88,8 +98,8 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 const tld = getTLD();
 
 const preloadUrl = isMobileDevice()
-  ? `https://cdn.zuugle.at/img/background_start_mobil_${tld}.webp`
-  : `https://cdn.zuugle.at/img/background_start_small_${tld}.webp`;
+  ? `https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=500:570&width=500`
+  : `https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200`;
 
 const currentPath = window.location.pathname;
 const shouldPreload = currentPath === "/" || currentPath === "/total";
@@ -109,10 +119,28 @@ if (!rootElement) {
           <UnheadProvider head={head}>
             <Head>
               <link
-                id="favicon"
                 rel="icon"
-                href="https://cdn.zuugle.at/favicon.png"
-                type="image/x-icon"
+                type="image/png"
+                href="https://cdn.zuugle.at/favicon-96x96.png"
+                sizes="96x96"
+              />
+              <link
+                rel="icon"
+                type="image/svg+xml"
+                href="https://cdn.zuugle.at/favicon.svg"
+              />
+              <link
+                rel="shortcut icon"
+                href="https://cdn.zuugle.at/favicon.ico"
+              />
+              <link
+                rel="apple-touch-icon"
+                sizes="180x180"
+                href="https://cdn.zuugle.at/apple-touch-icon.png"
+              />
+              <link
+                rel="manifest"
+                href="https://cdn.zuugle.at/site.webmanifest"
               />
               {shouldPreload && (
                 <link rel="preload" href={preloadUrl} as="image" />

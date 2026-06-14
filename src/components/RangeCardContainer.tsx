@@ -1,12 +1,14 @@
+import { useRef, useEffect, useState, useCallback } from "react";
 import Box from "@mui/material/Box";
-import { ScrollMenu } from "react-horizontal-scrolling-menu";
-import "react-horizontal-scrolling-menu/dist/styles.css";
-import { LeftArrow } from "./HorizontalScroll/LeftArrow";
-import { RightArrow } from "./HorizontalScroll/RightArrow";
 import RangeCard from "./RangeCard";
 import { RangeObject } from "../features/apiSlice";
 import { useIsMobile } from "../utils/muiUtils";
 import { Link } from "react-router";
+
+const GAP = 16;
+const MIN_TILE_WIDTH = 280;
+const AUTOPLAY_DELAY = 3500;
+const PAUSE_AFTER_INTERACTION = 7000;
 
 export interface RangeCardContainerProps {
   ranges: RangeObject[];
@@ -15,62 +17,201 @@ export interface RangeCardContainerProps {
 export default function RangeCardContainer({
   ranges,
 }: RangeCardContainerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [tileWidth, setTileWidth] = useState(392);
+  const [visibleCount, setVisibleCount] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
   const isMobile = useIsMobile();
+
+  const isPausedRef = useRef(false);
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const scrollStartRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+
+  // Responsive tile width: fill container, always show complete tiles
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0].contentRect.width;
+      const count = Math.max(
+        1,
+        Math.floor((width + GAP) / (MIN_TILE_WIDTH + GAP)),
+      );
+      setTileWidth((width - (count - 1) * GAP) / count);
+      setVisibleCount(count);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      containerRef.current?.scrollTo({
+        left: index * (tileWidth + GAP),
+        behavior: "smooth",
+      });
+    },
+    [tileWidth],
+  );
+
+  // seamless loop: if user scrolls into cloned region, snap back to original items
+  const onScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const count = ranges?.length ?? 0;
+    if (!count) return;
+    const unit = tileWidth + GAP;
+    const rawIndex = Math.round(el.scrollLeft / unit);
+    if (rawIndex >= count) {
+      // snap back without animation to equivalent original index
+      const target = (rawIndex - count) * unit;
+      el.scrollLeft = target;
+    }
+  }, [tileWidth, ranges?.length]);
+
+  const pause = useCallback(() => {
+    isPausedRef.current = true;
+    if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+    pauseTimerRef.current = setTimeout(() => {
+      isPausedRef.current = false;
+    }, PAUSE_AFTER_INTERACTION);
+  }, []);
+
+  // Autoplay
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (isPausedRef.current) return;
+      const el = containerRef.current;
+      if (!el) return;
+      const current = Math.round(el.scrollLeft / (tileWidth + GAP));
+      // always advance right by one (allow entering cloned region)
+      scrollToIndex(current + 1);
+    }, AUTOPLAY_DELAY);
+    return () => clearInterval(id);
+  }, [tileWidth, ranges?.length, scrollToIndex]);
+
+  // Mouse drag handlers (desktop)
+  const onMouseDown = (e: React.MouseEvent) => {
+    draggingRef.current = true;
+    hasDraggedRef.current = false;
+    dragStartXRef.current = e.clientX;
+    scrollStartRef.current = containerRef.current?.scrollLeft ?? 0;
+    setIsDragging(true);
+    pause();
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!draggingRef.current) return;
+    const delta = dragStartXRef.current - e.clientX;
+    if (Math.abs(delta) > 5) hasDraggedRef.current = true;
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = scrollStartRef.current + delta;
+    }
+  };
+
+  const finishDrag = () => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    setIsDragging(false);
+    const el = containerRef.current;
+    if (!el) return;
+    const count = ranges?.length ?? 1;
+    const unit = tileWidth + GAP;
+    const rawIndex = Math.round(el.scrollLeft / unit);
+    const index = ((rawIndex % count) + count) % count; // normalize
+    scrollToIndex(index);
+  };
+
+  const items = ranges?.length > 0 ? ranges : [];
 
   if (isMobile) {
     return (
-      <Box>
-        <Box
-          style={{
-            width: "100%",
-            overflowX: "scroll",
-            whiteSpace: "nowrap",
-            display: "flex",
-            alignItems: "stretch",
-          }}
-        >
-          {(ranges?.length > 0 ? ranges : []).map((range, index) => (
-            <Box
-              key={index}
-              className={"scrolling-card-box"}
-              style={{
-                display: "block",
-                marginRight: "20px",
-                verticalAlign: "top",
-                marginBottom: "5px",
-              }}
+      <Box
+        ref={containerRef}
+        onTouchStart={pause}
+        sx={{
+          display: "flex",
+          gap: `${GAP}px`,
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+          "&::-webkit-scrollbar": { display: "none" },
+          msOverflowStyle: "none",
+          scrollbarWidth: "none",
+        }}
+      >
+        {items.map((range, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: `0 0 ${tileWidth}px`,
+              minWidth: `${tileWidth}px`,
+              scrollSnapAlign: "start",
+            }}
+          >
+            <Link
+              to={`/search/?range=${range.range}`}
+              draggable={false}
+              style={{ display: "block" }}
             >
-              <Link to={`/search/?range=${range.range}`}>
-                <RangeCard range={range} />
-              </Link>
-            </Box>
-          ))}
-        </Box>
+              <RangeCard range={range} />
+            </Link>
+          </Box>
+        ))}
       </Box>
     );
   }
 
-  return (
-    <Box>
-      <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
-        {(ranges?.length > 0 ? ranges : []).map((range) => (
-          <Link to={`/search/?range=${range.range}`} key={range.range}>
-            <Card range={range} />
-          </Link>
-        ))}
-      </ScrollMenu>
-    </Box>
-  );
-}
+  const extended = [...items, ...items.slice(0, visibleCount)];
 
-function Card({ range }: { range: RangeObject }) {
   return (
     <Box
-      className={"react-horizontal-scrolling-card"}
-      tabIndex={0}
-      style={{ marginBottom: "5px", width: "392px", marginRight: "20px" }}
+      ref={containerRef}
+      onScroll={onScroll}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={finishDrag}
+      onMouseLeave={finishDrag}
+      onClickCapture={(e) => {
+        if (hasDraggedRef.current) {
+          e.preventDefault();
+          e.stopPropagation();
+          hasDraggedRef.current = false;
+        }
+      }}
+      sx={{
+        display: "flex",
+        gap: `${GAP}px`,
+        overflowX: "hidden",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        cursor: isDragging ? "grabbing" : "grab",
+      }}
     >
-      <RangeCard range={range} />
+      {extended.map((range, index) => {
+        const isClone = index >= items.length;
+        const key = isClone ? `clone-${index - items.length}` : `item-${index}`;
+        return (
+          <Box
+            key={key}
+            sx={{
+              flex: `0 0 ${tileWidth}px`,
+              minWidth: `${tileWidth}px`,
+            }}
+          >
+            <Link
+              to={`/search/?range=${range.range}`}
+              draggable={false}
+              style={{ display: "block" }}
+            >
+              <RangeCard range={range} />
+            </Link>
+          </Box>
+        );
+      })}
     </Box>
   );
 }

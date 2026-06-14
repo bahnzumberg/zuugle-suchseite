@@ -79,7 +79,7 @@ export default function ResizableCircle({
       <Circle
         center={center}
         radius={initialRadius}
-        pathOptions={{ color: "#4992ff", fillOpacity: 0.2 }}
+        pathOptions={{ color: "#254980", fillOpacity: 0.2 }}
         ref={circleRef}
         // Use eventHandlers to intercept the click
         eventHandlers={{

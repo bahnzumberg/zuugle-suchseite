@@ -10,11 +10,15 @@ import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
 import { ConnectionResult } from "../models/Connections";
 
-export interface CityResponse {
+export interface CitiesResponse {
   success: boolean;
   cities: CityObject[];
 }
 
+export interface CityResponse {
+  success: boolean;
+  city: CityObject;
+}
 export interface Cities2TourCity {
   city_slug: string;
   city_name: string;
@@ -125,6 +129,7 @@ export interface FilterParams {
   search?: string;
   search_type?: string;
   city?: string;
+  filter?: FilterObject;
 }
 
 export interface FilterResponse {
@@ -148,15 +153,29 @@ export interface ConnectionResponse {
   result: ConnectionResult[];
 }
 
-export interface CombinedGPXParams {
-  id: number;
-  key_anreise: number;
-  key_abreise: number;
+export interface LicensePublisher {
+  name: string;
+  url?: string;
+}
+
+export interface LicenseEntry {
+  country_code: string;
+  country_name: string;
+  human_name: string;
+  license_url?: string;
+  spdx_license_identifier?: string;
+  publisher?: LicensePublisher;
+  source?: string;
+}
+
+export interface LicensesResponse {
+  success: boolean;
+  licenses: LicenseEntry[];
 }
 
 const baseURL =
   window.location.host.indexOf("localhost") >= 0
-    ? process.env.REACT_APP_API_URL
+    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
     : `${window.location.protocol}//${window.location.host}/api`;
 
 const domain = window.location.hostname;
@@ -170,13 +189,14 @@ export const api = createApi({
       query: () => {
         return `cities/?domain=${domain}`;
       },
-      transformResponse: (response: CityResponse) => {
+      transformResponse: (response: CitiesResponse) => {
         return response.cities;
       },
     }),
     getTotals: build.query<TotalResponse, string | undefined>({
       query: (city) => {
-        return `tours/total${city && city !== "no-city" ? `?city=${city}` : ""}`;
+        const cityParam = city && city !== "no-city" ? `city=${city}&` : "";
+        return `tours/total?${cityParam}domain=${domain}`;
       },
     }),
     getTour: build.query<Tour, TourParams>({
@@ -230,7 +250,12 @@ export const api = createApi({
     }),
     getFilter: build.query<FilterWithProviders, FilterParams>({
       query: (params) => {
-        return `tours/filter?${toSearchParams(params)}&domain=${domain}`;
+        const { filter, ...queryParams } = params;
+        return {
+          url: `tours/filter?${toSearchParams(queryParams)}&domain=${domain}`,
+          method: "POST",
+          body: filter ? { filter } : {},
+        };
       },
       transformResponse: (response: FilterResponse) => {
         return { filter: response.filter, providers: response.providers };
@@ -250,16 +275,7 @@ export const api = createApi({
         }
       },
     }),
-    getCombinedGPX: build.query<Blob, CombinedGPXParams>({
-      query: (params) => {
-        const augmentedParams = { ...params, type: "all" };
-        return {
-          url: `tours/${params.id}/gpx`,
-          params: augmentedParams,
-          responseHandler: async (response) => await response.blob(),
-        };
-      },
-    }),
+
     getProviderGpxOk: build.query<boolean, string>({
       query: (provider) => `tours/provider/${provider}`,
       transformResponse: (response: {
@@ -283,6 +299,18 @@ export const api = createApi({
         return response.cities;
       },
     }),
+    getCity: build.query<CityObject, string>({
+      query: (citySlug) => {
+        return `city?city_slug=${citySlug}`;
+      },
+      transformResponse: (response: CityResponse) => {
+        return response.city;
+      },
+    }),
+    getLicenses: build.query<LicenseEntry[], void>({
+      query: () => "licenses",
+      transformResponse: (response: LicensesResponse) => response.licenses,
+    }),
   }),
 });
 
@@ -304,6 +332,7 @@ function toSearchParams<T extends object>(obj: T): URLSearchParams {
 
 export const {
   useGetCitiesQuery,
+  useGetCityQuery,
   useGetTotalsQuery,
   useGetToursQuery,
   useLazyGetToursQuery,
@@ -321,6 +350,7 @@ export const {
   useLazyGetProviderGpxOkQuery,
   useGetConnectionsExtendedQuery,
   useLazyGetConnectionsExtendedQuery,
-  useLazyGetCombinedGPXQuery,
+
   useGetCities2TourQuery,
+  useGetLicensesQuery,
 } = api;

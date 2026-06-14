@@ -60,6 +60,7 @@
     "italienisch": "Italijanščina",
     "englisch": "Angleščina",
     "filter": "Filter",
+    "weitere_filter": "dodatnih filtrov",
     "easy": "Enostavno",
     "medium": "Srednje",
     "hard": "Težavno",
@@ -80,7 +81,10 @@
     "country_ungarn": "Madžarska",
     "country_schweiz": "Švica",
     "country_italien": "Italija",
-    "country_slowenien": "Slovenija"
+    "country_slowenien": "Slovenija",
+    "country_liechtenstein": "Lihtenštajn",
+    "country_frankreich": "Francija",
+    "filter_city_description": "Samo ture dosegljive iz:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "ZA VSEBINO SPLETNE STRANI ODGOVARJA",
@@ -95,7 +99,8 @@
     "haftung_fuer_links": "JAMSTVO ZA POVEZAVE",
     "verknuepfung_links": "Ta iskalnik za potovanja z javnim prevozom vsebuje povezave do spletnih strani tretjih ponudnikov (»zunanje povezave«). Za te spletne strani so odgovorni njihovi upravitelji. Pri prvem vključevanju zunanjih povezav do vsebin tretjih ponudnikov smo preverili morebitne zakonske kršitve. Takrat nismo zaznali nobenih kršitev, vendar nimamo nikakršnega vpliva na trenutno in prihodno vsebino spletnih strani povezanih strani. Vključevanje zunanjih povezav ne pomeni, da si prisvajamo vsebino na povezanih straneh. Brez konkretnih dokazov o zakonskih kršitvah stalna kontrola zaradi velikega števila povezav za nas ni izvedljiva. V kolikor bomo obveščeni o kršitvah zakonodaje bomo tovrstne zunanje povezave takoj izbrisali.",
     "lizenzbedingungen": "LICENČNI POGOJI ZA PODATKE VOZNIH REDOV",
-    "anfuehrung_quellen": "Tukaj so navedeni različni viri in licenčni pogoji za uporabljene podatke o voznih redih."
+    "anfuehrung_quellen": "Tukaj so navedeni različni viri in licenčni pogoji za uporabljene podatke o voznih redih.",
+    "gefoerdert_von": "FINANCIRANO S STRANI"
   },
   "index": {
     "zuugle_description": "Zuugle ti prikaže preverjene povezave z vlakom in avtobusom do gorskih tur, pohodniških poti, turnega smučanja, krpljanja, itn. z izhodiščem iz tvojega kraja bivanja.",
@@ -141,7 +146,10 @@
     "alle_bergtouren_von_cityname": "Gorskih tur in izletov iz {{city.label}} – dostopnih z vlakom in avtobusom",
     "tour": "Tur",
     "areaSearchTrigger": "Išči poti do tega območja.",
-    "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje."
+    "areaSearchTooltip": "Prikazane so samo poti, ki potekajo skozi označeno območje.",
+    "top_tour": "Top pohod!",
+    "gebirgsgruppe": "Gorska skupina",
+    "schwierigkeit": "Težavnost"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Varstvo podatkov nam je pomembno. Zato smo se odrekli številnim možnostim, ki so sicer tehnično izvedljive, a bi posegle v zasebnost naših obiskovalcev.",
@@ -197,7 +205,7 @@
     "nutzer_innen_ueber_zuugle": "Uporabniki o iskalniku Zuugle",
     "werbung": "Oglas",
     "ziel_von_zuugle": "Iskalnik Zuugle želi prikazati vse gorske ture, ki so dostopne z vlakom ali avtobusom.",
-    "weil_es_braucht_kein_auto": "Zakaj? Ker ne potrebujete avtomobila, da se podate v naravo. Rade volje ti povemo kako.",
+    "weil_es_braucht_kein_auto": "Zuugle upravlja neprofitna organizacija \"Bahn zum Berg\".",
     "jetzt_oeffitour_suchen": "Poišči turo, ki je dostopna z javnim prevozom",
     "öffi_bergtouren": "z javnim prevozom dostopnih gorskih tur",
     "heimatbahnhoefe_in": "Gorske ture, dosegljive z javnim prevozom",
@@ -231,7 +239,7 @@
     "warnung_andere_station": "To je bilo vzeto s postaje osebe, ki je ustvarila LInk.",
     "teilen": "Delite",
     "teilen_description": "Delite povezavo do ogleda javnega prevoza",
-    "umstiege": "Trans.",
+    "umstiege": "Prestopi",
     "kopieren": "Kopiraj",
     "circa": "okoli",
     "stunden_tour": "ure ogleda",
@@ -249,6 +257,7 @@
     "seilbahn": "Žičnica",
     "faehre": "Trajekt",
     "taxi": "Taxi",
+    "fussweg": "Pešpot",
     "verschiedenes": "Razni",
     "touren-ausgangspunkt": "Izhodiščna točka",
     "ankunft_bei_tourstart": "Prihod na začetek poti",
@@ -268,7 +277,44 @@
     "bitte_stadt_waehlen": "Izberite mesto (mesto stalnega ali bližnjega prebivališča), da vam lahko prikažemo vozni red.",
     "weitere_staedte_anzeigen": "Prikaži več mest",
     "staedte_mit_verbindung": "Mesta z javnim prevozom do te ture",
-    "staedte_ohne_verbindung": "Mesta brez povezave"
+    "staedte_ohne_verbindung": "Mesta brez povezave",
+    "startort": "Izhodišče",
+    "startort_placeholder": "Vnesite naslov ali postajo",
+    "zielort": "Cilj",
+    "aktivitaetsdatum": "Datum aktivnosti",
+    "heute": "Danes",
+    "morgen": "Jutri",
+    "anderes_datum": "Drug datum",
+    "anreise": "Odhod",
+    "verbindung_suchen": "Iskanje povezave",
+    "direkt": "Direktno",
+    "umstieg": "Prestop",
+    "verfuegbare_gehzeit": "Razpoložljivi čas hoje",
+    "gleis": "Peron",
+    "von_gleis_zu_gleis": "s perona {{from}} na peron {{to}}",
+    "von_gleis": "s perona {{from}}",
+    "zu_gleis": "na peron {{to}}",
+    "halte": "postaj",
+    "tourdauer": "Trajanje ture",
+    "frueher": "Prej",
+    "spaeter": "Pozneje",
+    "terminkonflikt": "Konflikt urnika: Izberite zgodnejšo odhodno ali poznejšo povratno zvezo!",
+    "zeitmangel_kurz": "Na voljo je samo {0}!",
+    "echtzeit": "V realnem času",
+    "ticket": "Vozovnica",
+    "kalender": "Koledar",
+    "link_kopiert": "Povezava kopirana!",
+    "wanderung": "Pohodništvo",
+    "schliessen": "Zapri",
+    "ticket_kaufen": "Kupi vozovnico",
+    "ticket_hinfahrt": "Vozovnice za odhod",
+    "ticket_rueckfahrt": "Vozovnice za povratek",
+    "ticket_oebb_fallback": "Vozovnice ÖBB",
+    "von_bis_zeiten": "Od {0} do {1}",
+    "verfuegbar": "na voljo",
+    "startort_aus_liste_waehlen": "Izberite predlog s seznama",
+    "kontingent_erschoepft": "Kvota poizvedb urnikov je presežena.",
+    "verbindungssuche_fehlgeschlagen": "Iskanje povezave ni uspelo. Poskusite znova."
   },
   "search": {
     "go": "Naprej!",
@@ -282,6 +328,14 @@
     "oeffi_touren_alpenraum": "z javnim prevozom dostopne ture v alpskem prostoru",
     "keine_vorschlaege": "Ni predlogov"
   },
-  "start_pages": { "zur_kartenansicht": "Pokaži zemljevid" },
-  "main_only": { "kartenansicht_entfernen": "Zapri zemljevid" }
+  "start_pages": {
+    "zur_kartenansicht": "Pokaži zemljevid"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Zapri zemljevid"
+  },
+  "cookie_consent": {
+    "text": "Ta spletna stran uporablja izključno tehnično nujne piškotke. Pri poizvedbah voznega reda se podatki posredujejo strežnikom v EU, vendar se ne shranjujejo.",
+    "accept": "Razumem"
+  }
 }

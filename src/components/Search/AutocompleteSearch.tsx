@@ -12,7 +12,10 @@ import { useSelector } from "react-redux";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
-import SearchSuggestions, { suggestionIconMap } from "./SearchSuggestions";
+import SearchSuggestions, {
+  suggestionIconMap,
+  suggestionColorMap,
+} from "./SearchSuggestions";
 
 interface AutocompleteSearchProps {
   inputVariant?: "standard" | "outlined" | "filled";
@@ -53,6 +56,11 @@ export default function AutocompleteSearch({
     [searchWithType.type],
   );
 
+  const iconColor = useMemo(
+    () => suggestionColorMap[searchWithType.type] ?? "#666",
+    [searchWithType.type],
+  );
+
   useEffect(() => {
     return () => debouncedTrigger.cancel();
   }, [debouncedTrigger]);
@@ -79,7 +87,7 @@ export default function AutocompleteSearch({
     <Autocomplete
       slotProps={{
         paper: { sx: { borderRadius: 3 } },
-        listbox: { sx: { borderRadius: 3 } },
+        listbox: { sx: { py: 0.5 } },
       }}
       freeSolo
       blurOnSelect
@@ -115,18 +123,20 @@ export default function AutocompleteSearch({
           placeholder={t("start.placeholder_suche")}
           variant={inputVariant}
           slotProps={{
+            ...params.slotProps,
+
             input: {
-              ...params.InputProps,
+              ...params.slotProps?.input,
               disableUnderline: true,
               startAdornment: currentSearch ? (
-                <Icon sx={{ px: 1, color: "#666", marginRight: 1 }} />
+                <Icon sx={{ px: 1, color: iconColor, marginRight: 1 }} />
               ) : null,
               endAdornment: (
                 <Fragment>
                   {suggestionsFetching ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
-                  {params.InputProps.endAdornment}
+                  {params.slotProps?.input?.endAdornment}
                 </Fragment>
               ),
             },

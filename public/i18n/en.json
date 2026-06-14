@@ -60,6 +60,7 @@
     "italienisch": "Italian",
     "englisch": "English",
     "filter": "Filter",
+    "weitere_filter": "more filters",
     "easy": "Easy",
     "medium": "Medium",
     "hard": "Hard",
@@ -80,7 +81,10 @@
     "country_ungarn": "Hungary",
     "country_schweiz": "Switzerland",
     "country_italien": "Italy",
-    "country_slowenien": "Slovenia"
+    "country_slowenien": "Slovenia",
+    "country_liechtenstein": "Liechtenstein",
+    "country_frankreich": "France",
+    "filter_city_description": "Only tours reachable from:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSIBLE FOR THE CONTENT",
@@ -95,7 +99,8 @@
     "haftung_fuer_links": "LIABILITY FOR LINKS",
     "verknuepfung_links": "This search engine for public transport tours contains links to third-party websites (\"external links\"). These websites are the responsibility of the respective operators. When we first created the external links to the third-party content, we checked whether there were any legal violations. At that time, no legal violations were apparent. However, we have no influence whatsoever on the current and future design and content of the linked pages. The inclusion of external links does not imply that we adopt the content behind the link as our own. Due to the large number of external links, it is not reasonable for us to constantly monitor them without concrete evidence of legal violations. However, we will delete such external links immediately if we become aware of any legal violations.",
     "lizenzbedingungen": "LICENCES FOR TIMETABLE DATA",
-    "anfuehrung_quellen": "The various sources and licence terms of timetable data used are listed here."
+    "anfuehrung_quellen": "The various sources and licence terms of timetable data used are listed here.",
+    "gefoerdert_von": "FUNDED BY"
   },
   "index": {
     "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
@@ -141,7 +146,10 @@
     "alle_bergtouren_von_cityname": "All hikes reachable via public transport from {{city.label}}",
     "tour": "Tour",
     "areaSearchTrigger": "Find tours that visit this area.",
-    "areaSearchTooltip": "Only tours that visit the marked area are shown."
+    "areaSearchTooltip": "Only tours that visit the marked area are shown.",
+    "top_tour": "Top tour!",
+    "gebirgsgruppe": "Mountain range",
+    "schwierigkeit": "Difficulty"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",
@@ -197,7 +205,7 @@
     "nutzer_innen_ueber_zuugle": "Users about Zuugle",
     "werbung": "Advertising",
     "ziel_von_zuugle": "The aim of Zuugle is to make visible all hikes in the Alps that can be reached by train and bus.",
-    "weil_es_braucht_kein_auto": "Because: You don't need a car to get to nature. We will gladly tell you how.",
+    "weil_es_braucht_kein_auto": "Zuugle is created and powered by non-profit organisation \"Bahn zum Berg\".",
     "jetzt_oeffitour_suchen": "Search for hikes reachable using public transport",
     "öffi_bergtouren": "Hikes reachable using public transport",
     "heimatbahnhoefe_in": "Stations in",
@@ -231,7 +239,7 @@
     "warnung_andere_station": "It was taken from the station of the person who created the LInk.",
     "teilen": "Share",
     "teilen_description": "Share link to public transport tour",
-    "umstiege": "Trans.",
+    "umstiege": "Transfers",
     "kopieren": "Copy",
     "circa": "approx.",
     "stunden_tour": "Hours Tour",
@@ -249,6 +257,7 @@
     "seilbahn": "cable car",
     "faehre": "ferry",
     "taxi": "taxi",
+    "fussweg": "walk",
     "verschiedenes": "miscellaneous",
     "touren-ausgangspunkt": "Starting point",
     "ankunft_bei_tourstart": "Arrival at tour start",
@@ -268,7 +277,44 @@
     "bitte_stadt_waehlen": "Please select a city (city of residence or near your place of residence) so that we can show your timetables.",
     "weitere_staedte_anzeigen": "Show more cities",
     "staedte_mit_verbindung": "Cities with public transport connections to this tour",
-    "staedte_ohne_verbindung": "Cities without a connection"
+    "staedte_ohne_verbindung": "Cities without a connection",
+    "startort": "Departure",
+    "startort_placeholder": "Enter address or station",
+    "zielort": "Destination",
+    "aktivitaetsdatum": "Activity date",
+    "heute": "Today",
+    "morgen": "Tomorrow",
+    "anderes_datum": "Other date",
+    "anreise": "Outbound",
+    "verbindung_suchen": "Search connection",
+    "direkt": "Direct",
+    "umstieg": "Transfer",
+    "verfuegbare_gehzeit": "Available walking time",
+    "gleis": "platform",
+    "von_gleis_zu_gleis": "from platform {{from}} to platform {{to}}",
+    "von_gleis": "from platform {{from}}",
+    "zu_gleis": "to platform {{to}}",
+    "halte": "stops",
+    "tourdauer": "Tour duration",
+    "frueher": "Earlier",
+    "spaeter": "Later",
+    "terminkonflikt": "Schedule conflict: Choose an earlier outbound or later return connection!",
+    "zeitmangel_kurz": "Only {0} available!",
+    "echtzeit": "Real-time",
+    "ticket": "Ticket",
+    "kalender": "Calendar",
+    "link_kopiert": "Link copied!",
+    "wanderung": "Hike",
+    "schliessen": "Close",
+    "ticket_kaufen": "Buy ticket",
+    "ticket_hinfahrt": "Outbound tickets",
+    "ticket_rueckfahrt": "Return tickets",
+    "ticket_oebb_fallback": "Tickets at ÖBB",
+    "von_bis_zeiten": "From {0} to {1}",
+    "verfuegbar": "available",
+    "startort_aus_liste_waehlen": "Please select a suggestion from the list",
+    "kontingent_erschoepft": "Timetable query quota exceeded.",
+    "verbindungssuche_fehlgeschlagen": "Connection search failed. Please try again."
   },
   "search": {
     "go": "Go!",
@@ -282,6 +328,14 @@
     "oeffi_touren_alpenraum": "Hikes reachable using public transport",
     "keine_vorschlaege": "No Suggestions"
   },
-  "start_pages": { "zur_kartenansicht": "Show map" },
-  "main_only": { "kartenansicht_entfernen": "Hide map" }
+  "start_pages": {
+    "zur_kartenansicht": "Show map"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Hide map"
+  },
+  "cookie_consent": {
+    "text": "This site uses only technically necessary cookies. For timetable queries, request data is transmitted to servers within the EU but is not stored.",
+    "accept": "Understood"
+  }
 }

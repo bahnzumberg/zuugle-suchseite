@@ -31,8 +31,8 @@
 
 .circle-marker {
   background: white;
-  border: 2px solid #4992ff;
-  color: #4992ff;
+  border: 2px solid var(--bzb-akelei);
+  color: var(--bzb-akelei);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -43,7 +43,7 @@
 }
 
 .circle-marker:hover {
-  background: #4992ff;
+  background: var(--bzb-akelei);
   color: white;
 }
 

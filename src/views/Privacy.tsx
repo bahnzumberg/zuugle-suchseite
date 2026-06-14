@@ -4,6 +4,8 @@ import Header from "./Header";
 import { useTranslation } from "react-i18next";
 import Typography from "@mui/material/Typography";
 
+import { usePageHeader } from "../utils/seoPageHelper";
+
 function Privacy() {
   //translation related
   const { t } = useTranslation();
@@ -12,6 +14,8 @@ function Privacy() {
       Matomo
     </a>
   );
+
+  usePageHeader({ header: t("privacy.datenschutzerklaerung") });
 
   useEffect(() => {
     // @ts-expect-error matomo
@@ -24,6 +28,7 @@ function Privacy() {
       <Header
         title={t("privacy.datenschutzerklaerung")}
         subTitle={"aktualisiert: April 2022"}
+        backgroundColor="var(--bzb-wolkenblau)"
       />
 
       <Box className={"start-body-container static-container"}>

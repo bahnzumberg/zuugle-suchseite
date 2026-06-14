@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import WarningIcon from "@mui/icons-material/Warning";
 import { useTranslation } from "react-i18next";
+import FilterSection from "../FilterSection";
 
 interface GeolocationSearchProps {
   tempGeolocation: {
@@ -21,24 +22,26 @@ export default function GeolocationSearch({
   handleAutoRadius,
 }: GeolocationSearchProps) {
   const { t } = useTranslation();
+  const hasGeolocation =
+    isFinite(parseFloat(tempGeolocation?.lat as string)) &&
+    isFinite(parseFloat(tempGeolocation?.lng as string));
 
   return (
-    <Box className="filter-box border" sx={{ p: 2, pt: 3 }}>
-      <Grid container alignItems="center" spacing={1}>
-        <Typography variant={"subtitle1"}>
-          {t("filter.geolocation_search")}
-        </Typography>{" "}
-        {!!tempGeolocation?.lat !== !!tempGeolocation?.lng && (
-          <Box display="flex" alignItems="center" gap={0.5}>
-            <WarningIcon color="error" fontSize="small" />
-            <Typography sx={{ color: "error.main" }}>
-              {" " + t("filter.geolocation_search_warning") + " "}
-            </Typography>
-          </Box>
-        )}
-      </Grid>
-      <Grid container spacing={"10px"} sx={{ marginTop: "15px" }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+    <FilterSection
+      title={t("filter.geolocation_search")}
+      showSection={true}
+      isActive={hasGeolocation}
+    >
+      {!!tempGeolocation?.lat !== !!tempGeolocation?.lng && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+          <WarningIcon color="error" fontSize="small" />
+          <Typography sx={{ color: "error.main" }}>
+            {t("filter.geolocation_search_warning")}
+          </Typography>
+        </Box>
+      )}
+      <Grid container spacing={"10px"} sx={{ width: "100%" }}>
+        <Grid size={{ xs: 12, sm: 4.5 }}>
           <TextField
             label="lat"
             fullWidth
@@ -47,7 +50,7 @@ export default function GeolocationSearch({
             onBlur={handleAutoRadius}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ xs: 12, sm: 4.5 }}>
           <TextField
             label="lon"
             fullWidth
@@ -56,9 +59,7 @@ export default function GeolocationSearch({
             onBlur={handleAutoRadius}
           />
         </Grid>
-      </Grid>
-      <Grid container sx={{ mt: 2 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
+        <Grid size={{ xs: 12, sm: 3 }}>
           <TextField
             label="Radius (m)"
             fullWidth
@@ -67,6 +68,6 @@ export default function GeolocationSearch({
           />
         </Grid>
       </Grid>
-    </Box>
+    </FilterSection>
   );
 }

@@ -60,6 +60,7 @@
     "italienisch": "Italienisch",
     "englisch": "Englisch",
     "filter": "Filter",
+    "weitere_filter": "weitere Filter",
     "easy": "Leicht",
     "medium": "Mittel",
     "hard": "Schwer",
@@ -80,7 +81,10 @@
     "country_ungarn": "Ungarn",
     "country_schweiz": "Schweiz",
     "country_italien": "Italien",
-    "country_slowenien": "Slowenien"
+    "country_slowenien": "Slowenien",
+    "country_liechtenstein": "Liechtenstein",
+    "country_frankreich": "Frankreich",
+    "filter_city_description": "Nur Touren erreichbar von:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "FÜR DEN INHALT VERANTWORTLICH",
@@ -95,7 +99,8 @@
     "haftung_fuer_links": "HAFTUNG FÜR LINKS",
     "verknuepfung_links": "Diese Suchmaschine für Öffi-Touren enthält Verknüpfungen zu Websites Dritter („externe Links“). Diese Websites unterliegen der Haftung der jeweiligen Betreiber. Bei der erstmaligen Anlage der externen Links auf die fremden Inhalte haben wir geprüft, ob etwaige Rechtsverstöße bestehen. Zu dem betreffenden Zeitpunkt waren keine Rechtsverstöße ersichtlich. Wir haben aber keinerlei Einfluss auf die aktuelle und zukünftige Gestaltung und auf die Inhalte der verknüpften Seiten. Das Setzen von externen Links bedeutet nicht, dass wir uns die hinter dem Link liegenden Inhalte zu Eigen machen. Eine ständige Kontrolle der externen Links ist für uns ohne konkrete Hinweise auf Rechtsverstöße wegen der großen Anzahl nicht zumutbar. Bei Kenntnis von Rechtsverstößen werden wir jedoch derartige externe Links unverzüglich löschen.",
     "lizenzbedingungen": "LIZENZBEDINGUNGEN FAHRPLANDATEN",
-    "anfuehrung_quellen": "Die unterschiedlichen Quellen und Lizenzbedingungen der eingesetzten Fahrplandaten sind hier angeführt."
+    "anfuehrung_quellen": "Die unterschiedlichen Quellen und Lizenzbedingungen der eingesetzten Fahrplandaten sind hier angeführt.",
+    "gefoerdert_von": "GEFÖRDERT VON"
   },
   "index": {
     "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
@@ -141,7 +146,10 @@
     "alle_bergtouren_von_cityname": "Alle Bergtouren, die du von {{city.label }} aus, mit Bahn und Bus, erreichen kannst.",
     "tour": "Tour",
     "areaSearchTrigger": "Finde Touren die diese Gegend besuchen.",
-    "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten."
+    "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten.",
+    "top_tour": "Top Tour!",
+    "gebirgsgruppe": "Gebirgsgruppe",
+    "schwierigkeit": "Schwierigkeit"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",
@@ -196,8 +204,8 @@
     "mehr_erfahren": "Mehr erfahren",
     "nutzer_innen_ueber_zuugle": "Nutzer:innen über Zuugle",
     "werbung": "Werbung",
-    "ziel_von_zuugle": "Das Ziel von Zuugle ist es, alle Bergtouren, die mit Bahn und Bus erreichbar sind, sichtbar zu machen.",
-    "weil_es_braucht_kein_auto": "Weil: Es braucht kein Auto, um in die Natur zu kommen. Wir sagen dir gerne wie.",
+    "ziel_von_zuugle": "Das Ziel von Zuugle ist es, alle Bergtouren in den Alpen, die mit Bahn und Bus erreichbar sind, sichtbar zu machen.",
+    "weil_es_braucht_kein_auto": "Zuugle wird von der non-profit Organisation \"Bahn zum Berg\" betrieben.",
     "jetzt_oeffitour_suchen": "Jetzt Öffi-Tour suchen",
     "öffi_bergtouren": "Öffi-Bergtouren",
     "heimatbahnhoefe_in": "Verkehrsknoten in",
@@ -231,7 +239,7 @@
     "warnung_andere_station": "Es wurde der Bahnhof der Person, die den Link erstellt hat genommen.",
     "teilen": "Teilen",
     "teilen_description": "Link zur Öffi-Tour teilen",
-    "umstiege": "Umst.",
+    "umstiege": "Umstiege",
     "kopieren": "Kopieren",
     "circa": "ca.",
     "stunden_tour": "Stunden Tour",
@@ -249,6 +257,7 @@
     "seilbahn": "Seilbahn",
     "faehre": "Fähre",
     "taxi": "Taxi",
+    "fussweg": "Fußweg",
     "verschiedenes": "Verschiedenes",
     "touren-ausgangspunkt": "Touren Ausgangspunkt",
     "ankunft_bei_tourstart": "Ankunft bei Tourstart",
@@ -268,14 +277,51 @@
     "bitte_stadt_waehlen": "Bitte wähle eine Stadt (Wohnort oder nahe deinem Wohnort) aus, damit wir dir deine Fahrpläne anzeigen können.",
     "weitere_staedte_anzeigen": "Weitere Städte anzeigen",
     "staedte_mit_verbindung": "Städte mit Öffi-Verbindung zu dieser Tour",
-    "staedte_ohne_verbindung": "Städte ohne Verbindung"
+    "staedte_ohne_verbindung": "Städte ohne Verbindung",
+    "startort": "Startort",
+    "startort_placeholder": "Adresse oder Haltestelle eingeben",
+    "zielort": "Zielort",
+    "aktivitaetsdatum": "Aktivitätsdatum",
+    "heute": "Heute",
+    "morgen": "Morgen",
+    "anderes_datum": "Anderes Datum",
+    "anreise": "Anreise",
+    "verbindung_suchen": "Verbindung suchen",
+    "direkt": "Direkt",
+    "umstieg": "Umstieg",
+    "verfuegbare_gehzeit": "Verfügbare Gehzeit",
+    "gleis": "Bahnsteig",
+    "von_gleis_zu_gleis": "von Bahnsteig {{from}} zu Bahnsteig {{to}}",
+    "von_gleis": "von Bahnsteig {{from}}",
+    "zu_gleis": "zu Bahnsteig {{to}}",
+    "halte": "Halte",
+    "tourdauer": "Tourdauer",
+    "frueher": "Früher",
+    "spaeter": "Später",
+    "terminkonflikt": "Terminkonflikt: Entweder frühere Hinfahrt oder spätere Rückfahrt wählen!",
+    "zeitmangel_kurz": "Es stehen nur {0} zur Verfügung!",
+    "echtzeit": "Echtzeit",
+    "ticket": "Ticket",
+    "kalender": "Kalender",
+    "link_kopiert": "Link kopiert!",
+    "wanderung": "Wanderung",
+    "schliessen": "Schließen",
+    "ticket_kaufen": "Ticket kaufen",
+    "ticket_hinfahrt": "Tickets für Anreise",
+    "ticket_rueckfahrt": "Tickets für Rückreise",
+    "ticket_oebb_fallback": "Tickets bei ÖBB",
+    "von_bis_zeiten": "Von {0} bis {1}",
+    "verfuegbar": "verfügbar",
+    "startort_aus_liste_waehlen": "Bitte einen Vorschlag aus der Liste auswählen",
+    "kontingent_erschoepft": "Kontingent der Fahrplanabfrage erschöpft.",
+    "verbindungssuche_fehlgeschlagen": "Verbindungssuche fehlgeschlagen. Bitte erneut versuchen."
   },
   "search": {
     "go": "Los!",
     "search": "Suche",
     "abbrechen": "Abbrechen",
     "dein_heimatbahnhof": "Dein Verkehrsknoten",
-    "ab_heimatbahnhof": "von",
+    "ab_heimatbahnhof": "ab",
     "keine_ergebnisse": "Keine Ergebnisse gefunden",
     "waehle_dein_heimatbahnhof": "Bitte wähle deinen Verkehrsknoten",
     "um_reise_berechnen_zu_koenen": "Um die Reise berechnen zu können",
@@ -283,6 +329,14 @@
     "keine_vorschlaege": "Keine Vorschläge",
     "filter_ranges": ""
   },
-  "start_pages": { "zur_kartenansicht": "Karte anzeigen" },
-  "main_only": { "kartenansicht_entfernen": "Karte schließen" }
+  "start_pages": {
+    "zur_kartenansicht": "Karte anzeigen"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Karte schließen"
+  },
+  "cookie_consent": {
+    "text": "Diese Seite verwendet ausschließlich technisch notwendige Cookies. Für Fahrplanauskünfte werden Anfragedaten an Server in der EU übermittelt, aber nicht gespeichert.",
+    "accept": "Verstanden"
+  }
 }

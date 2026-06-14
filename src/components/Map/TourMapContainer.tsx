@@ -36,6 +36,7 @@ import {
 } from "../../features/searchSlice";
 import {
   PoiResult,
+  useGetCityQuery,
   useLazyGetGPXQuery,
   useLazyGetTourQuery,
 } from "../../features/apiSlice";
@@ -49,6 +50,7 @@ import { useSearchParams } from "react-router";
 import { renderToStaticMarkup } from "react-dom/server";
 import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 
 // Re-export Marker for backward compatibility
 export type { Marker };
@@ -86,6 +88,34 @@ function createPoiIcon(type: PoiResult["type"]): L.DivIcon {
     iconSize: [38, 48],
     iconAnchor: [19, 46],
     popupAnchor: [0, -40],
+  });
+}
+
+/**
+ * Creates a Leaflet divIcon for the selected city (home station) marker.
+ * Displays a home icon on an orange background badge.
+ */
+function createSelectedCityIcon(): L.DivIcon {
+  const bg = "#ccd8a1"; // Lindgrün (Corporate Design)
+  const homeIconHtml = renderToStaticMarkup(
+    <HomeRoundedIcon
+      style={{
+        color: "#fff",
+        fontSize: "22px",
+      }}
+    />,
+  );
+
+  return L.divIcon({
+    html: `
+      <div style="background:${bg};border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:2px solid #fff;">
+        ${homeIconHtml}
+      </div>
+    `,
+    className: "",
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -22],
   });
 }
 
@@ -188,6 +218,10 @@ export default function TourMapContainer({
     (state: RootState) => state.search.geolocation,
   );
   const city = useSelector((state: RootState) => state.search.city);
+  const shouldFetchSelectedCity = !!city?.value && city.value !== "no-city";
+  const { data: selectedCity } = useGetCityQuery(city?.value ?? "", {
+    skip: !shouldFetchSelectedCity,
+  });
   const searchWithType = useSelector(
     (state: RootState) => state.search.searchWithType,
   );
@@ -378,13 +412,23 @@ export default function TourMapContainer({
     // created once for the whole component lifetime
     () =>
       L.icon({
-        iconUrl: "https://cdn.zuugle.at/img/startpunkt.png",
+        iconUrl: "https://cdn.zuugle.at/img/startpunkt.svg",
         iconSize: [33, 45],
         iconAnchor: [16, 46],
       }),
     [],
   );
 
+  const selectedCityIcon = useMemo(() => createSelectedCityIcon(), []);
+  const selectedCityPosition = useMemo(() => {
+    if (
+      typeof selectedCity?.lat !== "number" ||
+      typeof selectedCity?.lon !== "number"
+    ) {
+      return null;
+    }
+    return L.latLng(selectedCity.lat, selectedCity.lon);
+  }, [selectedCity?.lat, selectedCity?.lon]);
   const handleMarkerClick = useCallback((mark: Marker) => {
     setActiveMarker((prev) => (prev?.id === mark.id ? null : mark));
   }, []);
@@ -497,7 +541,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       ...(isActive
                         ? {}
@@ -515,7 +559,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       dashArray: "5,10",
                       dashOffset: "1",
@@ -530,7 +574,7 @@ export default function TourMapContainer({
                     className="track-clickable"
                     pathOptions={{
                       weight: isActive ? 6 : 4,
-                      color: "#FF7663",
+                      color: "#001D47",
                       opacity: isActive ? 1 : 0.7,
                       dashArray: "5,10",
                       dashOffset: "0",
@@ -544,22 +588,20 @@ export default function TourMapContainer({
             );
           })}
 
-        {/* orange color  (tour track) */}
         {gpxTrack.length > 0 && (
           <Polyline
-            key="gpx-track" // unique key prop
-            pathOptions={{ weight: 6, color: "#FF7663" }}
+            key="gpx-track"
+            pathOptions={{ weight: 6, color: "#001D47" }}
             positions={gpxTrack}
           />
         )}
 
-        {/* blue color  (fromtour) */}
         {fromtourGpxTrack.length > 0 && (
           <Polyline
             key="fromtour-track"
             pathOptions={{
               weight: 6,
-              color: "#FF7663",
+              color: "#001D47",
               opacity: 1,
               // opacity: !!totourGpxTrack ? 0.5 : 1,
               lineCap: "square",
@@ -570,13 +612,12 @@ export default function TourMapContainer({
           />
         )}
 
-        {/* orange color  (totour) */}
         {totourGpxTrack.length > 0 && (
           <Polyline
             key="totour-track"
             pathOptions={{
               weight: 6,
-              color: "#FF7663",
+              color: "#001D47",
               dashArray: "5,10",
               dashOffset: "1",
               opacity: 1,
@@ -596,6 +637,18 @@ export default function TourMapContainer({
             removeOutsideVisibleBounds: true,
           }}
         />
+
+        {selectedCityPosition && (
+          <LeafletMarker
+            key={`selected-city-${city?.value ?? ""}`}
+            position={selectedCityPosition}
+            icon={selectedCityIcon}
+          >
+            <Tooltip direction="top" offset={[0, -22]}>
+              {selectedCity?.label ?? city?.label}
+            </Tooltip>
+          </LeafletMarker>
+        )}
 
         {/* Render POI markers */}
         {pois.map((poi) => (

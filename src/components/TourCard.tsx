@@ -3,12 +3,14 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { convertNumToTime, getTourLink } from "../utils/globals";
+import { tourTypes } from "../utils/language_Utils";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Tour } from "../models/Tour";
 import Link from "@mui/material/Link";
 import Chip from "@mui/material/Chip";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 
 const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 
@@ -29,7 +31,12 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
     if (JSON.stringify(tour.image_url) === "null") {
       setImage("https://cdn.zuugle.at/img/dummy.webp");
     } else {
-      setImage(tour.image_url);
+      // Normalize CDN dimensions to 400x150 for consistent tile images
+      let url = tour.image_url;
+      url = url.replace(/[?&]width=\d+/g, "");
+      url = url.replace(/[?&]height=\d+/g, "");
+      const separator = url.includes("?") ? "&" : "?";
+      setImage(`${url}${separator}width=600&height=400`);
     }
   }, [tour]);
 
@@ -56,9 +63,10 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
       href={tourLink}
       style={{
         textDecoration: "none",
+        width: "100%",
       }}
-      target={city && city !== "no-city" ? "_blank" : ""} // Set target to _blank only when city is set
-      rel={city && city !== "no-city" ? "noopener noreferrer" : undefined}
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <Card
         className="tour-card"
@@ -68,23 +76,55 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
           <CardMedia
             component={"img"}
             image={image}
-            height="150"
+            width="600"
+            height="400"
             alt={`${tour?.title}`}
+            sx={{ objectFit: "cover", width: "100%", maxHeight: "200px" }}
           />
           <Chip
             sx={{
               position: "absolute",
               top: 10,
               left: 10,
-              bgcolor: "#000",
-              color: "#C5C5C5",
-              fontSize: 12,
+              bgcolor: "rgba(37, 73, 128, 0.85)",
+              color: "#FFFFFF",
             }}
             label={`${tour?.range}`}
           />
+          {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                bgcolor: "rgba(255, 255, 255, 0.85)",
+                color: "var(--bzb-akelei)",
+                borderRadius: "16px",
+                px: "10px",
+                py: "4px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+              }}
+            >
+              <StarRoundedIcon sx={{ fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontFamily: '"Juniper Bay"',
+                  fontSize: "20px",
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t("main.top_tour")}
+              </Typography>
+            </Box>
+          )}
         </Box>
         <CardContent
           sx={{
+            position: "relative",
             display: "flex",
             flexDirection: "column",
             flexGrow: 1,
@@ -102,7 +142,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             }}
           >
             <img
-              src={`/app_static/icons/provider/logo_${tour.provider}.svg`}
+              src={`/icons/provider/logo_${tour.provider}.svg`}
               alt=""
               style={{
                 borderRadius: "100%",
@@ -111,6 +151,27 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               }}
             />
             <Typography variant="grayP">{tour.provider_name}</Typography>
+            {/* Right: sport type */}
+            {tour?.type &&
+              (() => {
+                const typeKey = tour.type
+                  .toLowerCase()
+                  .replace(/\s*&\s*/g, "_");
+                const matched = tourTypes.find((tt) => tt === typeKey);
+                const label = matched ? t(`filter.${matched}`) : tour.type;
+                return (
+                  <Typography
+                    sx={{
+                      marginLeft: "auto",
+                      fontSize: "15px",
+                      whiteSpace: "nowrap",
+                      color: "#333",
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                );
+              })()}
           </Box>
           <Typography
             variant="inherit"

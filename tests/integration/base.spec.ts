@@ -4,18 +4,22 @@ test.describe("Search Functionality", () => {
   test("Homepage with city selection and search bar", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Zuugle/);
-    await expect(page.getByRole("combobox").nth(1)).toBeVisible();
-    await page.getByRole("button", { name: "Open" }).click({ delay: 200 });
-    await page.getByText("Innsbruck").click();
+    // TODO: should there be a city selection on the startpage in the new design?
+    // await expect(page.getByRole("combobox").nth(1)).toBeVisible();
+    // await page.getByRole("button", { name: "Open" }).click({ delay: 200 });
+    // await page.getByText("Innsbruck").click();await page.goto('http://localhost:3000/');
+    await page.getByRole("combobox", { name: "Berggipfel, Region," }).click();
     await page
       .getByRole("combobox", { name: "Berggipfel, Region," })
-      .fill("Wild");
-    await page.getByText("Wildspitze").click();
+      .fill("brand");
+    await page.getByText("Brandjochkreuz").click();
     await expect(page).toHaveURL(
-      "search?city=innsbruck&search=Wildspitze&search_type=peak&lang=de",
+      "search?lang=de&search=Brandjochkreuz&search_type=peak",
     );
     await expect(
-      page.getByRole("link", { name: "Wildspitze - Skitour" }).first(),
+      page
+        .getByRole("link", { name: "Grandiose Tiefblicke auf Innsbruck" })
+        .first(),
     ).toBeVisible();
   });
 
@@ -68,6 +72,9 @@ test.describe("Tour Detail Page", () => {
 
 test("Mountain ranges are visible and clickable", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Wienerwald", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Wienerwald", exact: true })
+    .first()
+    .click();
   await expect(page.locator(".tour-card").nth(2)).toContainText("Wienerwald");
 });

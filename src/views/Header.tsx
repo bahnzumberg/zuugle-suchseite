@@ -5,9 +5,14 @@ import { getDomainText } from "../utils/globals";
 export interface HeaderProps {
   title: string;
   subTitle?: string;
+  backgroundColor?: string;
 }
 
-export default function Header({ title, subTitle }: HeaderProps) {
+export default function Header({
+  title,
+  subTitle,
+  backgroundColor,
+}: HeaderProps) {
   let tld = window.location.hostname.slice(-2);
   if (tld.length !== 2) {
     tld = "at";
@@ -17,7 +22,11 @@ export default function Header({ title, subTitle }: HeaderProps) {
     <Box
       className={"header-container utils"}
       sx={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.zuugle.at/img/background_start_small_${tld}.webp)`,
+        ...(backgroundColor
+          ? { backgroundColor }
+          : {
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200)`,
+            }),
         paddingLeft: 0,
         height: "300px",
       }}

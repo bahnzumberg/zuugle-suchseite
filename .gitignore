@@ -28,3 +28,7 @@ yarn-error.log*
 *.iml
 playwright-report/
 test-results/
+
+HOWTO-Diana-GreenConnect.md
+.env.diana
+DianaWidget-main

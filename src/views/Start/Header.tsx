@@ -1,5 +1,5 @@
-import { lazy } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { getDomainText, getTLD } from "../../utils/globals";
 import BackgroundImageLoader from "./BackgroundImageLoader";
 import Search from "../../components/Search/Search";
@@ -7,9 +7,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TotalResponse } from "../../features/apiSlice";
-
-const DomainMenu = lazy(() => import("../../components/DomainMenu"));
-const LanguageMenu = lazy(() => import("../../components/LanguageMenu"));
+import { RootState } from "../..";
+import DomainMenu from "../../components/DomainMenu";
+import LanguageMenu from "../../components/LanguageMenu";
 
 export interface HeaderProps {
   totals?: TotalResponse;
@@ -18,6 +18,7 @@ export interface HeaderProps {
 export default function Header({ totals, isLoading }: HeaderProps) {
   const { t } = useTranslation();
   const tld = getTLD();
+  const city = useSelector((state: RootState) => state.search.city);
 
   return (
     <>
@@ -38,8 +39,11 @@ export default function Header({ totals, isLoading }: HeaderProps) {
             </Box>
             {isLoading ? (
               <Box
-                sx={{ display: "flex", justifyContent: "center" }}
-                marginTop={"80px"}
+                sx={{
+                  marginTop: "80px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
                 <CircularProgress size={60} sx={{ color: "#FFF" }} />
               </Box>
@@ -56,8 +60,9 @@ export default function Header({ totals, isLoading }: HeaderProps) {
 
             <Box className="header-text">
               <Typography variant="h1" sx={{ height: "162px" }}>
-                {totals?.tours_country.toLocaleString()}{" "}
-                {t("start.tourenanzahl_untertitel")}
+                {city
+                  ? `${totals?.tours_city.toLocaleString()} ${t("start.tourenanzahl_untertitel_city", { capCity: city.label })}`
+                  : `${totals?.tours_country.toLocaleString()} ${t("start.tourenanzahl_untertitel")}`}
               </Typography>
             </Box>
           </>

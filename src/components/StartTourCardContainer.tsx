@@ -1,62 +1,54 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { Key } from "react";
 import { useTranslation } from "react-i18next";
 import TourCard from "./TourCard";
 import { Tour } from "../models/Tour";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const gridItemStyles = {
-  justifyContent: "center",
-  display: "grid",
-};
-
-const renderImage = (imageSrc: string, key: Key) => (
-  <Box key={key} style={gridItemStyles}>
-    <img
-      src={imageSrc}
-      alt="Advertisement"
-      className="tour_card_Image"
-      loading="lazy"
-      width={395} // these help browsers reserve space instantly
-      height={335}
-    />
-  </Box>
-);
-
-const renderFourth = (t: (key: string) => string) => (
+const renderCTA = (t: (key: string) => string) => (
   <Box
-    style={{
+    sx={{
       display: "flex",
-      flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
+      gap: "20px",
+      flexWrap: "wrap",
       width: "100%",
-      padding: "10px",
+      pt: "30px",
+      pb: "10px",
     }}
   >
     <Typography
-      style={{
+      sx={{
         fontSize: "16px",
         fontWeight: "600",
-        padding: "30px 20px",
-        borderTop: "1px solid #000",
-        maxWidth: "400px",
-        boxSizing: "border-box",
+        color: "#254980",
       }}
     >
       {t("start.mehr_abenteuer")}
     </Typography>
-    <a href="/search" className="cursor-link">
+    <a
+      href="/search"
+      className="cursor-link"
+      style={{ textDecoration: "none" }}
+    >
       <Button
-        style={{
-          border: "2px solid #000",
-          color: "#000",
-          width: "100%",
-          fontSize: "22px",
-          fontWeight: "600",
+        variant="contained"
+        endIcon={<ArrowForwardIcon />}
+        sx={{
+          backgroundColor: "var(--bzb-lindgruen)",
+          color: "#ffffff",
+          fontWeight: 700,
+          fontSize: "16px",
+          borderRadius: "12px",
+          padding: "10px 28px",
+          textTransform: "none",
+          boxShadow: "0 2px 8px rgba(37,73,128,0.15)",
+          "&:hover": {
+            backgroundColor: "#bece8f",
+            boxShadow: "0 4px 16px rgba(37,73,128,0.25)",
+          },
         }}
       >
         {t("start.mehr_anzeigen")}
@@ -80,48 +72,34 @@ export default function StartTourCardContainer({
 }: StartTourCardContainerProps) {
   const { t } = useTranslation();
 
-  const firstSet = tours.slice(0, 4);
-  const secondSet = tours.slice(4, 7);
+  // Show max 6 tours + 1 CTA
+  const displayTours = tours.slice(0, 6);
 
   return (
     <>
       {tours.length === 0 && isLoading ? (
         <CircularProgress />
       ) : (
-        <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
-          {firstSet.map((tour, index) => (
-            <Grid
-              key={index}
-              size={{ xs: 12, md: 6, lg: 4 }}
-              sx={gridItemStyles}
-            >
-              <TourCard tour={tour} city={city} provider={provider} />
-            </Grid>
-          ))}
-          <Grid
-            key={"image"}
-            size={{ xs: 12, md: 6, lg: 4 }}
-            sx={gridItemStyles}
+        <>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "1fr 1fr",
+                lg: "1fr 1fr 1fr",
+              },
+              gap: "30px",
+            }}
           >
-            {renderImage("https://cdn.zuugle.at/img/zuugle-ad.gif", "image1")}
-          </Grid>
-          {secondSet.map((tour, index) => (
-            <Grid
-              key={index}
-              size={{ xs: 12, md: 6, lg: 4 }}
-              sx={gridItemStyles}
-            >
-              <TourCard tour={tour} city={city} provider={provider} />
-            </Grid>
-          ))}
-          <Grid
-            key={"discover"}
-            size={{ xs: 12, md: 6, lg: 4 }}
-            sx={gridItemStyles}
-          >
-            {renderFourth(t)}
-          </Grid>
-        </Grid>
+            {displayTours.map((tour, index) => (
+              <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
+                <TourCard tour={tour} city={city} provider={provider} />
+              </Box>
+            ))}
+          </Box>
+          {renderCTA(t)}
+        </>
       )}
     </>
   );

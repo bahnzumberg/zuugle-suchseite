@@ -1,4 +1,3 @@
-import Grid from "@mui/material/Grid";
 import TourCard from "./TourCard";
 import Box from "@mui/material/Box";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -26,11 +25,6 @@ export default function TourCardContainer({
   const provider = useSelector((state: RootState) => state.search.provider);
   const LOADER_HEIGHT = 40;
 
-  const gridItemStyles = {
-    justifyContent: "center",
-    display: "grid",
-  };
-
   useEffect(() => {
     function needsMoreContent() {
       return (
@@ -44,34 +38,35 @@ export default function TourCardContainer({
   }, [tours]);
 
   return (
-    <Box>
-      {
-        <InfiniteScroll
-          dataLength={tours.length}
-          next={fetchMore}
-          hasMore={hasMore}
-          loader={<CircularProgress size={LOADER_HEIGHT} />}
-          endMessage={<p> </p>}
-          style={{ overflow: "hidden" }}
-        >
-          <Grid container spacing={2} direction="row" sx={{ p: 1 }}>
-            {tours.map((tour, index) => (
-              <Grid
-                display="flex"
-                key={index}
-                size={{ xs: 12, md: 6, lg: 4 }}
-                sx={gridItemStyles}
-              >
-                <TourCard
-                  tour={tour}
-                  city={city?.value || null}
-                  provider={provider}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </InfiniteScroll>
-      }
-    </Box>
+    <InfiniteScroll
+      dataLength={tours.length}
+      next={fetchMore}
+      hasMore={hasMore}
+      loader={<CircularProgress size={LOADER_HEIGHT} />}
+      endMessage={<p> </p>}
+      style={{ overflow: "visible" }}
+    >
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr 1fr",
+            lg: "1fr 1fr 1fr",
+          },
+          gap: "30px",
+        }}
+      >
+        {tours.map((tour, index) => (
+          <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
+            <TourCard
+              tour={tour}
+              city={city?.value || null}
+              provider={provider}
+            />
+          </Box>
+        ))}
+      </Box>
+    </InfiniteScroll>
   );
 }

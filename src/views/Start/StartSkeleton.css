@@ -8,7 +8,7 @@
 /* Hero section - solid color only, no background image */
 .skeleton-hero {
   height: 500px;
-  background-color: #4992ff;
+  background-color: var(--bzb-bahnblau);
   position: relative;
   display: flex;
   flex-direction: column;

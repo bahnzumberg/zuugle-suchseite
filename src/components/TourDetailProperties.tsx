@@ -1,36 +1,30 @@
-import { useState, useEffect } from "react";
 import { convertNumToTime, formatNumber } from "../utils/globals";
 import { useTranslation } from "react-i18next";
 import { tourTypes } from "../utils/language_Utils";
 import { Tour } from "../models/Tour";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import RouteIcon from "@mui/icons-material/Route";
+import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
+import NorthIcon from "@mui/icons-material/North";
+import SouthIcon from "@mui/icons-material/South";
+import TerrainIcon from "@mui/icons-material/Terrain";
 
 export interface TourDetailPropertiesProps {
   tour?: Tour;
 }
+
+const difficultyColor = (diff: string) => {
+  const d = diff.toLowerCase();
+  if (d === "leicht") return "#2e7d32";
+  if (d === "schwer") return "#e65100";
+  return undefined;
+};
+
 const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 679);
-
-  // const isDesktop = window.innerWidth >= 679;
-
   const { t } = useTranslation();
-
-  const m = t("details.m_meter");
-  const km = t("details.km_kilometer");
-  const hm = t("details.hm_hoehenmeter");
-
-  useEffect(() => {
-    const checkScreenWidth = () => {
-      setIsDesktop(window.innerWidth >= 679);
-    };
-
-    window.addEventListener("resize", checkScreenWidth);
-
-    return () => {
-      window.removeEventListener("resize", checkScreenWidth);
-    };
-  }, []);
 
   const translateTourType = (type: string) => {
     let translatedType = null;
@@ -42,163 +36,139 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
         translatedType = t(`filter.${typ}`);
       }
     });
-
     return translatedType;
   };
 
+  const translateDiff = (diff: string) => {
+    if (diff === "Leicht" || diff === "leicht") return t("start.leicht");
+    if (diff === "Schwer" || diff === "schwer") return t("start.schwer");
+    return t("start.mittel");
+  };
+
+  const km = t("details.km_kilometer");
+  const hm = t("details.hm_hoehenmeter");
+
+  if (!tour) return null;
+
+  const duration =
+    tour.number_of_days > 1
+      ? tour.number_of_days + " " + t("details.tage")
+      : convertNumToTime(Number(tour.avg_total_tour_duration), true);
+
+  const kpis = [
+    ...(tour.type
+      ? [
+          {
+            key: "type",
+            label: t("filter.sportart"),
+            value: translateTourType(tour.type) ?? tour.type,
+            icon: (
+              <DirectionsRunIcon
+                sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
+              />
+            ),
+          },
+        ]
+      : []),
+    {
+      key: "dauer",
+      label: t("main.dauer"),
+      value: duration,
+      icon: (
+        <AccessTimeIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />
+      ),
+    },
+    {
+      key: "distanz",
+      label: t("main.distanz"),
+      value: formatNumber(tour.distance ?? 0) + " " + km,
+      icon: <RouteIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
+    },
+    {
+      key: "schwierigkeit",
+      label: t("main.schwierigkeit"),
+      value: tour.difficulty ? translateDiff(tour.difficulty) : "-",
+      icon: (
+        <SignalCellularAltIcon
+          sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
+        />
+      ),
+      valueColor: tour.difficulty
+        ? difficultyColor(tour.difficulty)
+        : undefined,
+    },
+    {
+      key: "aufstieg",
+      label: t("main.aufstieg"),
+      value: formatNumber(tour.ascent ?? 0, " " + hm),
+      icon: <NorthIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
+    },
+    {
+      key: "abstieg",
+      label: t("main.abstieg"),
+      value: formatNumber(tour.descent ?? 0, " " + hm),
+      icon: <SouthIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
+    },
+    {
+      key: "max_ele",
+      label: t("main.maximale_hoehe"),
+      value: formatNumber(tour.max_ele ?? 0, " " + hm),
+      icon: <TerrainIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
+    },
+  ];
+
   return (
-    <>
-      {tour && (
-        <div className="tour-detail-properties">
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>{t("main.sportart")}</Typography>
-            <Typography variant={"h5alt"}>
-              {tour && translateTourType(tour.type)}
-            </Typography>
-          </div>
-          {/* Both mobile and desktop: we need the vertical divider here below to be visible */}
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{
-              height: "50%",
-              alignSelf: "center",
-              backgroundColor: "#DDDDDD",
-            }}
-          />
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>{t("main.dauer")}</Typography>
-            <Typography variant={"h5alt"}>
-              {tour?.number_of_days > 1
-                ? tour?.number_of_days + " " + t("details.tage")
-                : convertNumToTime(Number(tour?.avg_total_tour_duration), true)}
-            </Typography>
-          </div>
-          {/* only mobile: we need the horizontal divider here below to be visible */}
-          {!isDesktop && (
-            <Divider
-              orientation="horizontal"
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        height: "100%",
+      }}
+    >
+      {/* KPI grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+          gap: "8px 12px",
+        }}
+      >
+        {kpis.map((item) => (
+          <Box
+            key={item.key}
+            sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {item.icon}
+              <Typography
+                sx={{
+                  fontSize: "11px",
+                  color: "#777",
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  lineHeight: 1,
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Box>
+            <Typography
               sx={{
-                margin: "0.25rem 0",
-                gridColumn: "1 / -1",
-                backgroundColor: "#DDDDDD",
-                width: "90%",
-                height: "1px",
+                fontSize: "15px",
+                fontWeight: 700,
+                color: item.valueColor ?? "var(--bzb-bahnblau)",
+                lineHeight: 1.2,
+                pl: item.icon ? "22px" : 0,
               }}
-            />
-          )}
-          {/* only desktop: we need the vertical divider here below to be visible */}
-          {isDesktop && (
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{
-                height: "50%",
-                alignSelf: "center",
-                backgroundColor: "#DDDDDD",
-              }}
-            />
-          )}
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>{t("main.distanz")}</Typography>
-            <Typography variant={"h5alt"}>
-              {formatNumber(tour?.distance) + " " + km}
+            >
+              {item.value}
             </Typography>
-          </div>
-          {/* only desktop: we need the horizontal divider here below to be visible */}
-          {isDesktop && (
-            <Divider
-              orientation="horizontal"
-              sx={{
-                margin: "0.25rem 0",
-                gridColumn: "1 / -1",
-                backgroundColor: "#DDDDDD",
-                width: "90%",
-                height: "1px",
-              }}
-            />
-          )}
-          {/* only mobile: we need the vertical divider here below to be visible */}
-          {!isDesktop && (
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{
-                height: "50%",
-                alignSelf: "center",
-                backgroundColor: "#DDDDDD",
-              }}
-            />
-          )}
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>
-              {t("main.maximale_hoehe")}
-            </Typography>
-            <Typography variant={"h5alt"}>
-              {tour?.max_ele ? formatNumber(tour.max_ele) + " " + m : "-"}
-            </Typography>
-          </div>
-          {/* only mobile: we need the horizontal divider here below to be visible */}
-          {!isDesktop && (
-            <Divider
-              orientation="horizontal"
-              sx={{
-                margin: "0.25rem 0",
-                gridColumn: "1 / -1",
-                backgroundColor: "#DDDDDD",
-                width: "90%",
-                height: "1px",
-              }}
-            />
-          )}
-          {/* only desktop: we need the vertical divider here below to be visible */}
-          {isDesktop && (
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{
-                height: "50%",
-                alignSelf: "center",
-                backgroundColor: "#DDDDDD",
-              }}
-            />
-          )}
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>{t("main.aufstieg")}</Typography>
-            <Typography variant={"h5alt"}>
-              {formatNumber(tour?.ascent, " " + hm)}
-            </Typography>
-          </div>
-          {/* Both mobile and desktop: we need the vertical divider here below to be visible */}
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{
-              height: "50%",
-              alignSelf: "center",
-              backgroundColor: "#DDDDDD",
-            }}
-          />
-          <div className="tour-detail-properties-el">
-            <Typography variant={"infoKey"}>{t("main.abstieg")}</Typography>
-            <Typography variant={"h5alt"}>
-              {formatNumber(tour?.descent, " " + hm)}
-            </Typography>
-          </div>
-          {/* Both mobile and desktop: we need the horizontal divider here below to be visible */}
-          <Divider
-            orientation="horizontal"
-            sx={{
-              margin: "0.25rem 0",
-              gridColumn: "1 / -1",
-              backgroundColor: "#DDDDDD",
-              width: "90%",
-              height: "1px",
-            }}
-          />
-        </div>
-      )}
-    </>
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
 };
 

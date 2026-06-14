@@ -60,6 +60,7 @@
     "italienisch": "Italien",
     "englisch": "Anglais",
     "filter": "Filtre",
+    "weitere_filter": "filtres supplémentaires",
     "easy": "Facile",
     "medium": "Moyenne",
     "hard": "Difficile",
@@ -80,7 +81,10 @@
     "country_ungarn": "Hongrie",
     "country_schweiz": "Suisse",
     "country_italien": "Italie",
-    "country_slowenien": "Slovénie"
+    "country_slowenien": "Slovénie",
+    "country_liechtenstein": "Liechtenstein",
+    "country_frankreich": "France",
+    "filter_city_description": "Uniquement les tours accessibles depuis:"
   },
   "impressum": {
     "verantwortlich_fuer_inhalt": "RESPONSABLE DU CONTENU",
@@ -95,7 +99,8 @@
     "haftung_fuer_links": "Clause de non-responsabilité pour les liens",
     "verknuepfung_links": "Ce moteur de recherche pour les sorties en montagne accessibles en transports en commun contient des liens vers les sites Web de tiers (\"liens externes\"). Ces sites sont soumis à la responsabilité de leurs exploitants respectifs. Au moment de la création des liens externes, aucun contenu illicite n’a pu être identifié sur les sites vers lesquels ces liens ont été créés. Nous n'avons toutefois aucune influence sur la présentation actuelle ou future ni sur les contenus des pages mises en lien. Le placement de liens n’implique en aucune manière une approbation du contenu des sites concernés. En raison du grand nombre de lien externes, il ne nous est pas possible de les contrôler en permanence sans indice concret d'infraction. Toutefois, si des contenus illicites sont portés à notre connaissance, nous supprimerons immédiatement les liens concernés.",
     "lizenzbedingungen": "Conditions de licence pour les données des horaires",
-    "anfuehrung_quellen": "Les différentes sources et les conditions de licence pour les données d'horaires utilisées sont indiquées ici."
+    "anfuehrung_quellen": "Les différentes sources et les conditions de licence pour les données d'horaires utilisées sont indiquées ici.",
+    "gefoerdert_von": "FINANCÉ PAR"
   },
   "index": {
     "zuugle_description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
@@ -141,7 +146,10 @@
     "alle_bergtouren_von_cityname": "Sorties en montagne accessibles en train et en bus à partir de {{city.label}}",
     "tour": "Randonnée",
     "areaSearchTrigger": "Rechercher des randonnées qui visitent cette zone.",
-    "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées."
+    "areaSearchTooltip": "Seuls les randonnées qui visitent la zone marquée seront affichées.",
+    "top_tour": "Super rando!",
+    "gebirgsgruppe": "Massif",
+    "schwierigkeit": "Difficulté"
   },
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",
@@ -197,7 +205,7 @@
     "nutzer_innen_ueber_zuugle": "Ce que disent les utilisateurs et utilisatrices à propos de Zuugle",
     "werbung": "Publicité",
     "ziel_von_zuugle": "L'objectif de Zuugle est de rendre visibles toutes les randonnées en montagne accessibles en train et en bus.",
-    "weil_es_braucht_kein_auto": "Il n'est pas nécessaire d'avoir une voiture pour se rendre dans la nature : nous vous montrons comment.",
+    "weil_es_braucht_kein_auto": "Zuugle est géré par l'organisation à but non lucratif \"Bahn zum Berg\".",
     "jetzt_oeffitour_suchen": "Chercher maintenant une randonnée accessible en transports en commun",
     "öffi_bergtouren": "Randonnées accessibles en train et en bus",
     "heimatbahnhoefe_in": "Gare de départ à",
@@ -231,7 +239,7 @@
     "warnung_andere_station": "C'est la gare de la personne qui a créé le lien qui a été prise.",
     "teilen": "Partager",
     "teilen_description": "Partager le lien de la visite en transports publics",
-    "umstiege": "Trans.",
+    "umstiege": "Correspondances",
     "kopieren": "Copier",
     "circa": "environ",
     "stunden_tour": "Heures Tour",
@@ -249,6 +257,7 @@
     "seilbahn": "le téléphérique",
     "faehre": "le ferry",
     "taxi": "le taxi",
+    "fussweg": "À pied",
     "verschiedenes": "Divers",
     "touren-ausgangspunkt": "Point de départ",
     "ankunft_bei_tourstart": "Arrivée au point de départ de la randonnée",
@@ -268,7 +277,44 @@
     "bitte_stadt_waehlen": "Veuillez sélectionner une ville (domicile ou proche de votre domicile) pour que nous puissions afficher vos horaires.",
     "weitere_staedte_anzeigen": "Afficher plus de villes",
     "staedte_mit_verbindung": "Villes avec des connexions en transports publics vers cette randonnée",
-    "staedte_ohne_verbindung": "Villes sans connexion"
+    "staedte_ohne_verbindung": "Villes sans connexion",
+    "startort": "Lieu de départ",
+    "startort_placeholder": "Saisir une adresse ou un arrêt",
+    "zielort": "Destination",
+    "aktivitaetsdatum": "Date de l'activité",
+    "heute": "Aujourd'hui",
+    "morgen": "Demain",
+    "anderes_datum": "Autre date",
+    "anreise": "Aller",
+    "verbindung_suchen": "Rechercher une connexion",
+    "direkt": "Direct",
+    "umstieg": "Correspondance",
+    "verfuegbare_gehzeit": "Temps de marche disponible",
+    "gleis": "Quai",
+    "von_gleis_zu_gleis": "du quai {{from}} au quai {{to}}",
+    "von_gleis": "du quai {{from}}",
+    "zu_gleis": "au quai {{to}}",
+    "halte": "arrêts",
+    "tourdauer": "Durée de la randonnée",
+    "frueher": "Plus tôt",
+    "spaeter": "Plus tard",
+    "terminkonflikt": "Conflit horaire: Choisissez un départ plus tôt ou un retour plus tard!",
+    "zeitmangel_kurz": "Seulement {0} disponibles!",
+    "echtzeit": "Temps réel",
+    "ticket": "Billet",
+    "kalender": "Calendrier",
+    "link_kopiert": "Lien copié!",
+    "wanderung": "Randonnée",
+    "schliessen": "Fermer",
+    "ticket_kaufen": "Acheter un billet",
+    "ticket_hinfahrt": "Billets aller",
+    "ticket_rueckfahrt": "Billets retour",
+    "ticket_oebb_fallback": "Billets ÖBB",
+    "von_bis_zeiten": "De {0} à {1}",
+    "verfuegbar": "disponible",
+    "startort_aus_liste_waehlen": "Veuillez sélectionner une suggestion dans la liste",
+    "kontingent_erschoepft": "Quota des requêtes d'horaires épuisé.",
+    "verbindungssuche_fehlgeschlagen": "La recherche de connexion a échoué. Veuillez réessayer."
   },
   "search": {
     "go": "Allez!",
@@ -282,6 +328,14 @@
     "oeffi_touren_alpenraum": "Sorties sans voiture dans les Alpes",
     "keine_vorschlaege": "Aucune suggestion"
   },
-  "start_pages": { "zur_kartenansicht": "Afficher la carte" },
-  "main_only": { "kartenansicht_entfernen": "Fermer la carte" }
+  "start_pages": {
+    "zur_kartenansicht": "Afficher la carte"
+  },
+  "main_only": {
+    "kartenansicht_entfernen": "Fermer la carte"
+  },
+  "cookie_consent": {
+    "text": "Ce site utilise uniquement des cookies techniquement nécessaires. Pour les demandes d'horaires, les données sont transmises à des serveurs au sein de l'UE, mais ne sont pas enregistrées.",
+    "accept": "Compris"
+  }
 }

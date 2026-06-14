@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useIsMobile } from "../../utils/muiUtils";
 import {
   usePageHeader,
   getTranslatedCountryName,
@@ -18,13 +17,11 @@ import { useAppDispatch } from "../../hooks";
 import { mapUpdated } from "../../features/searchSlice";
 import RangeCardContainer from "../../components/RangeCardContainer";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 // Dynamische Imports für nicht-kritische Komponenten
 import KPIContainer from "../../components/KPIContainer";
 import Footer from "../../components/Footer/Footer";
-import TotalToursHeader from "../../components/TotalToursHeader";
 
 export default function Start() {
   const { t } = useTranslation();
@@ -52,8 +49,6 @@ export default function Start() {
       isFetching: isToursLoading,
     },
   ] = useLazyGetToursQuery();
-
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     // @ts-expect-error matomo
@@ -106,70 +101,46 @@ export default function Start() {
       <Box style={{ background: "#fff" }}>
         <Header totals={totals} isLoading={isTotalsLoading} />
       </Box>
-      <TotalToursHeader loadedTours={loadedTours} />
-
       {!isTotalsLoading && (
         <>
           {totals?.total_tours && totals?.total_tours > 0 && (
             <>
-              <Box style={{ background: "#fff" }}>
-                <Paper elevation={0} className={"header-line"}>
-                  <Typography color={"#FFFFFF"} sx={{ textAlign: "center" }}>
-                    {t("start.zuugle_sucht_fuer_dich_1")}{" "}
-                    {totals?.total_provider}{" "}
-                    {t("start.zuugle_sucht_fuer_dich_2")}
-                  </Typography>
-                </Paper>
-                <Box className={"start-body-container"}>
-                  <Box
-                    className={"cards-container"}
-                    sx={{
-                      marginTop: "20px",
-                      padding: isMobile ? "30px 20px" : "30px 10px",
-                      background: "#EBEBEB",
-                      borderRadius: "30px",
-                    }}
-                  >
-                    <Typography
-                      variant={"h4"}
-                      sx={{
-                        textAlign: "left",
-                        paddingTop: "20px",
-                        paddingBottom: "15px",
-                        marginLeft: !isMobile ? "64px" : null,
-                      }}
-                    >
-                      {getFavouriteToursText()}
-                    </Typography>
-                    <StartTourCardContainer
-                      tours={loadedTours.tours}
-                      city={city?.value || ""}
-                      isLoading={isToursLoading}
-                      provider={provider}
-                    />
-                  </Box>
-                  <Box style={{ padding: "30px 40px" }}>
-                    <Typography
-                      variant={"h4"}
-                      sx={{
-                        textAlign: "left",
-                        paddingBottom: "15px",
-                        paddingTop: "15px",
-                      }}
-                    >
-                      {getRangeText()}
-                    </Typography>
-                    {/* RangeCardContainer ist wieder statisch importiert */}
-                    <RangeCardContainer ranges={loadedTours.ranges} />
-                  </Box>
-                  <Box sx={{ marginTop: "80px" }}>
-                    <KPIContainer
-                      totalTours={totals?.total_tours || 0}
-                      totalConnections={totals?.total_connections || 0}
-                      totalCities={totals?.total_cities || 0}
-                      totalProvider={totals?.total_provider || 0}
-                    />
-                  </Box>
+              <Box className={"cards-container"}>
+                <Typography
+                  variant={"h4"}
+                  sx={{
+                    textAlign: "left",
+                    paddingBottom: "15px",
+                  }}
+                >
+                  {getFavouriteToursText()}
+                </Typography>
+                <StartTourCardContainer
+                  tours={loadedTours.tours}
+                  city={city?.value || ""}
+                  isLoading={isToursLoading}
+                  provider={provider}
+                />
+
+                <Typography
+                  variant={"h4"}
+                  sx={{
+                    textAlign: "left",
+                    paddingBottom: "15px",
+                    paddingTop: "50px",
+                  }}
+                >
+                  {getRangeText()}
+                </Typography>
+                <RangeCardContainer ranges={loadedTours.ranges} />
+
+                <Box sx={{ marginTop: "60px", marginBottom: "40px" }}>
+                  <KPIContainer
+                    totalTours={totals?.total_tours || 0}
+                    totalConnections={totals?.total_connections || 0}
+                    totalCities={totals?.total_cities || 0}
+                    totalProvider={totals?.total_provider || 0}
+                  />
                 </Box>
               </Box>
             </>
