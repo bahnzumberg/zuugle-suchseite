@@ -45,7 +45,7 @@ export function useSearchTours() {
 
   // SEO page header
   usePageHeader({
-    header: `Zuugle ${t("main.ergebnisse")}`,
+    header: `Zuugle ${city?.label || t(getTranslatedCountryName())}`,
     description: t("main.oeffi_bergtouren_fuer_cityname", {
       "city.label": search.city?.label || t(getTranslatedCountryName()),
     }),
