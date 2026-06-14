@@ -16,13 +16,6 @@ export interface TourDetailPropertiesProps {
   tour?: Tour;
 }
 
-const difficultyColor = (diff: string) => {
-  const d = diff.toLowerCase();
-  if (d === "leicht") return "#2e7d32";
-  if (d === "schwer") return "#e65100";
-  return undefined;
-};
-
 const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
   const { t } = useTranslation();
 
@@ -93,9 +86,6 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
           sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
         />
       ),
-      valueColor: tour.difficulty
-        ? difficultyColor(tour.difficulty)
-        : undefined,
     },
     {
       key: "aufstieg",
@@ -158,7 +148,7 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
               sx={{
                 fontSize: "15px",
                 fontWeight: 700,
-                color: item.valueColor ?? "var(--bzb-bahnblau)",
+                color: "var(--bzb-bahnblau)",
                 lineHeight: 1.2,
                 pl: item.icon ? "22px" : 0,
               }}

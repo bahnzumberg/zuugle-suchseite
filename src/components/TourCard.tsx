@@ -150,7 +150,12 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
                 width: "18px",
               }}
             />
-            <Typography variant="grayP">{tour.provider_name}</Typography>
+            <Typography
+              variant="grayP"
+              style={{ fontSize: "13px", color: "#000" }}
+            >
+              {tour.provider_name}
+            </Typography>
             {/* Right: sport type */}
             {tour?.type &&
               (() => {
@@ -163,7 +168,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
                   <Typography
                     sx={{
                       marginLeft: "auto",
-                      fontSize: "15px",
+                      fontSize: "13px",
                       whiteSpace: "nowrap",
                       color: "#333",
                     }}
@@ -194,7 +199,11 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
           >
             <Typography
               variant="blueP"
-              style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
+              style={{
+                borderRight: "1px solid #DDDDDD",
+                display: "block",
+                fontSize: "13px",
+              }}
             >
               {len_too_long && anreisedauer_notlong ? (
                 <>
@@ -211,7 +220,11 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
             </Typography>
             <Typography
               variant="blueP"
-              style={{ borderRight: "1px solid #DDDDDD", display: "block" }}
+              style={{
+                borderRight: "1px solid #DDDDDD",
+                display: "block",
+                fontSize: "13px",
+              }}
             >
               {len_too_long && umstiege_notlong ? (
                 <>
@@ -229,7 +242,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
 
             <Typography
               variant="blackP"
-              style={{ borderRight: "1px solid #DDDDDD" }}
+              style={{ borderRight: "1px solid #DDDDDD", fontSize: "13px" }}
             >
               {len_too_long && dauer_notlong ? (
                 <>
@@ -250,7 +263,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
               </span>
             </Typography>
 
-            <Typography variant="blackP">
+            <Typography variant="blackP" style={{ fontSize: "13px" }}>
               {len_too_long && anstieg_notlong ? (
                 <>
                   {t("filter.anstieg")}
