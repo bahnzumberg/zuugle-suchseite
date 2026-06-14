@@ -277,11 +277,7 @@ export default function DetailReworked() {
           className="search-result-header-container"
           sx={{ pb: "0 !important" }}
         >
-          <Box
-            component={"div"}
-            className="rowing"
-            sx={{ px: { xs: "10px", sm: "16px" } }}
-          >
+          <Box component={"div"} className="rowing">
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
                 sx={{ mr: "12px", cursor: "pointer" }}
@@ -309,7 +305,7 @@ export default function DetailReworked() {
             sx={{
               maxWidth: "1400px",
               mx: "auto",
-              px: { xs: "16px", md: "24px" },
+              px: { xs: "15px", sm: "30px" },
             }}
           >
             {/* ─── Title ─── */}
