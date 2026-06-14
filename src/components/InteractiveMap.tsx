@@ -46,7 +46,7 @@ export default function InteractiveMap({
   });
 
   const StartMarker = ({ position }: { position: L.LatLngExpression }) => {
-    return <Marker position={position} icon={startIcon}></Marker>;
+    return <Marker position={position} icon={startIcon} zIndexOffset={1000} />;
   };
 
   const EndMarker = ({ position }: { position: L.LatLngExpression }) => {
