@@ -32,6 +32,15 @@
     format("woff2");
 }
 
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("https://cdn.zuugle.at/fonts/source-sans-3-900.woff2")
+    format("woff2");
+}
+
 /* Juniper Bay – CD-Handschrift für Zitate und Hervorhebungen */
 @font-face {
   font-family: "Juniper Bay";
@@ -1003,7 +1012,7 @@ ul.about-bullets {
 }
 
 .languageItem {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1053,7 +1062,7 @@ ul.about-bullets {
 }
 
 colLeft .domainItem {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 15.4457px;
