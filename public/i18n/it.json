@@ -332,5 +332,9 @@
   },
   "main_only": {
     "kartenansicht_entfernen": "Chiudi mappa"
+  },
+  "cookie_consent": {
+    "text": "Questo sito utilizza esclusivamente cookie tecnicamente necessari. Per le richieste di orari, i dati vengono trasmessi a server nell'UE, ma non vengono memorizzati.",
+    "accept": "Capito"
   }
 }

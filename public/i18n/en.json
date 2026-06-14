@@ -333,5 +333,9 @@
   },
   "main_only": {
     "kartenansicht_entfernen": "Hide map"
+  },
+  "cookie_consent": {
+    "text": "This site uses only technically necessary cookies. For timetable queries, request data is transmitted to servers within the EU but is not stored.",
+    "accept": "Understood"
   }
 }

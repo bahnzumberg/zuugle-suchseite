@@ -3,6 +3,7 @@ import i18next from "i18next";
 import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
+import CookieConsent from "./components/CookieConsent";
 
 const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
@@ -62,6 +63,7 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     <ThemeProvider theme={theme}>
       <LanguageParamSync />
       {renderRoute()}
+      <CookieConsent />
     </ThemeProvider>
   );
 }

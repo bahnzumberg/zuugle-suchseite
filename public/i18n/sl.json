@@ -333,5 +333,9 @@
   },
   "main_only": {
     "kartenansicht_entfernen": "Zapri zemljevid"
+  },
+  "cookie_consent": {
+    "text": "Ta spletna stran uporablja izključno tehnično nujne piškotke. Pri poizvedbah voznega reda se podatki posredujejo strežnikom v EU, vendar se ne shranjujejo.",
+    "accept": "Razumem"
   }
 }

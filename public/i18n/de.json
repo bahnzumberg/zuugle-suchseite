@@ -334,5 +334,9 @@
   },
   "main_only": {
     "kartenansicht_entfernen": "Karte schließen"
+  },
+  "cookie_consent": {
+    "text": "Diese Seite verwendet ausschließlich technisch notwendige Cookies. Für Fahrplanauskünfte werden Anfragedaten an Server in der EU übermittelt, aber nicht gespeichert.",
+    "accept": "Verstanden"
   }
 }

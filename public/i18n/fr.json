@@ -333,5 +333,9 @@
   },
   "main_only": {
     "kartenansicht_entfernen": "Fermer la carte"
+  },
+  "cookie_consent": {
+    "text": "Ce site utilise uniquement des cookies techniquement nécessaires. Pour les demandes d'horaires, les données sont transmises à des serveurs au sein de l'UE, mais ne sont pas enregistrées.",
+    "accept": "Compris"
   }
 }
