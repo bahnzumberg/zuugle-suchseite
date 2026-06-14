@@ -142,7 +142,12 @@ const getWrapper = async (req, res) => {
     }
 
     const result = await knex("city")
-        .select("city_slug", "city_name", "lat", "lon")
+        .select(
+            "city_slug",
+            "city_name",
+            knex.raw("lat::double precision as lat"),
+            knex.raw("lon::double precision as lon"),
+        )
         .where({ city_slug: city_slug })
         .first();
 
@@ -211,7 +216,7 @@ const cities2tourWrapper = async (req, res) => {
         LEFT OUTER JOIN (SELECT city_slug, min_connection_duration FROM city2tour WHERE tour_id=?) as t
         ON c.city_slug=t.city_slug
         WHERE c.city_country=?
-        ORDER BY COALESCE(t.min_connection_duration, 9999) ASC, c.city_slug ASC
+        ORDER BY c.city_slug ASC
     `,
         [tour_id, tld],
     );

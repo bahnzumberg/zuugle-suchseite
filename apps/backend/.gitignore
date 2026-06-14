@@ -21,5 +21,7 @@ public/sitemap_*.xml
 src/firebase.json
 src/knexfile.js
 src/knexfileTourenDb.js
+src/diana-config.js
 test.json
 zuugle_postgresql.dump
+HOWTO-Diana-GreenConnect.md
