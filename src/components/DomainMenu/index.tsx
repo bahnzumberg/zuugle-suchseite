@@ -54,8 +54,8 @@ const UAT_DOMAINS = [
 // Development domain
 const DEV_DOMAIN = {
   name: "Localhost",
-  url: "http://localhost:3000/",
-  key: "http://localhost:3000/",
+  url: "http://localhost:3000",
+  key: "localhost:3000",
 };
 
 // Map to find which domain list and starting index
@@ -63,9 +63,9 @@ const DOMAIN_CONFIG: Record<
   string,
   { domainList: typeof PROD_DOMAINS; domain: string }
 > = {
-  "http://localhost:3000/": {
+  "localhost:3000": {
     domainList: [DEV_DOMAIN, ...PROD_DOMAINS],
-    domain: "http://localhost:3000/",
+    domain: "http://localhost:3000",
   },
   ...Object.fromEntries(
     PROD_DOMAINS.map((d) => [
@@ -127,8 +127,8 @@ function DomainMenu() {
   const { domain, listOfDomains } = getDomainsForHost(host);
 
   const secondMenu = [
-    { id: 1, name: "Impressum", url: "https://" + domain + "/imprint" },
-    { id: 2, name: "Datenschutz", url: "https://" + domain + "/privacy" },
+    { id: 1, name: "Impressum", url: domain + "/imprint" },
+    { id: 2, name: "Datenschutz", url: domain + "/privacy" },
   ];
   const [showDomainMenu, setShowDomainMenu] = useState(false);
 
