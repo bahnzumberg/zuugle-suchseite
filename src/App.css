@@ -196,6 +196,30 @@ body ::-webkit-scrollbar-thumb:hover {
   margin-bottom: 30px;
 }
 
+/* ---- Hero logo row (below H1 on start page) ---- */
+.hero-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.hero-logo {
+  height: 59px;
+  width: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  transition: opacity 0.2s ease;
+}
+
+.hero-logo:hover {
+  opacity: 1;
+}
+
+.hero-logo-alpenkonvention {
+  height: 44px;
+}
+
 .header-container {
   height: 500px;
   background-position: center center;
@@ -265,6 +289,19 @@ body ::-webkit-scrollbar-thumb:hover {
     padding-left: 10px;
     font-size: 36px;
     letter-spacing: 0px;
+  }
+
+  .hero-logo-row {
+    margin-top: 14px;
+  }
+
+  .hero-logo {
+    height: 43px;
+  }
+
+  .hero-logo-alpenkonvention {
+    height: 32px;
+    display: none;
   }
 
   .header-container {

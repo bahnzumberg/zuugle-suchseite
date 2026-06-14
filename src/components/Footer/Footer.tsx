@@ -30,15 +30,11 @@ export default function Footer() {
               alignItems: "center",
             }}
           >
-            <a
-              href="https://www.bmkluk.gv.at/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="https://www.bmluk.gv.at/" target="_blank" rel="noreferrer">
               <img
                 src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
                 height="100px"
-                alt="Funded by www.bmkluk.gv.at"
+                alt="Funded by www.bmluk.gv.at"
                 loading="lazy"
               />
             </a>
@@ -89,14 +85,15 @@ export default function Footer() {
                 display: "flex",
                 flexWrap: "wrap",
                 alignItems: "center",
-                gap: { xs: "8px 16px", md: "0px" },
+                gap: { xs: "12px 0px", md: "0px" },
+                width: "100%",
               }}
             >
               <a
                 href="https://verein.bahn-zum-berg.at/"
                 target="_blank"
                 rel="noreferrer"
-                style={{ display: "flex", alignItems: "center" }}
+                style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
               >
                 <img
                   src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
@@ -106,57 +103,65 @@ export default function Footer() {
                   loading="lazy"
                 />
               </a>
-              <a
-                href="https://verein.bahn-zum-berg.at"
-                target="_blank"
-                rel="noreferrer"
-                style={{ textDecoration: "none", color: "inherit" }}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  flex: 1,
+                  gap: { xs: "8px 16px", md: "0px" },
+                }}
               >
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                    whiteSpace: "nowrap",
-                  }}
-                  className={"cursor-link"}
+                <a
+                  href="https://verein.bahn-zum-berg.at"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  © {`${currentYear}`} Bahn zum Berg
-                </Typography>
-              </a>
-              <Link
-                to="/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                    whiteSpace: "nowrap",
-                  }}
-                  className={"cursor-link"}
+                  <Typography
+                    sx={{
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    © {`${currentYear}`} Bahn zum Berg
+                  </Typography>
+                </a>
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.datenschutz")}
-                </Typography>
-              </Link>
-              <Link
-                to="/imprint"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Typography
-                  sx={{
-                    marginLeft: "10px",
-                    textDecoration: "underline",
-                    whiteSpace: "nowrap",
-                  }}
-                  className={"cursor-link"}
+                  <Typography
+                    sx={{
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.datenschutz")}
+                  </Typography>
+                </Link>
+                <Link
+                  to="/imprint"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {t("start.impressum")}
-                </Typography>
-              </Link>
+                  <Typography
+                    sx={{
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                    className={"cursor-link"}
+                  >
+                    {t("start.impressum")}
+                  </Typography>
+                </Link>
+              </Box>
             </Box>
           </Grid>
           <Grid
