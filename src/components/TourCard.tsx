@@ -150,7 +150,10 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
                 width: "18px",
               }}
             />
-            <Typography variant="grayP" style={{ fontSize: "13px" }}>
+            <Typography
+              variant="grayP"
+              style={{ fontSize: "13px", color: "#000" }}
+            >
               {tour.provider_name}
             </Typography>
             {/* Right: sport type */}
