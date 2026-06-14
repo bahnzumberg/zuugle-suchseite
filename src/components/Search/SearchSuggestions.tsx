@@ -42,9 +42,9 @@ const suggestionHelperMap: Partial<Record<SearchWithType["type"], string>> = {
 export const suggestionColorMap: Record<string, string> = {
   city: "var(--bzb-bahnblau)",
   range: "var(--bzb-bahnblau)",
-  peak: "var(--bzb-akelei)",
-  hut: "var(--bzb-akelei)",
-  term: "#888",
+  peak: "var(--bzb-bahnblau)",
+  hut: "var(--bzb-bahnblau)",
+  term: "var(--bzb-bahnblau)",
 };
 
 export default function SearchSuggestions({
@@ -82,9 +82,7 @@ export default function SearchSuggestions({
       }}
       title={title}
     >
-      <ListItemIcon
-        sx={{ minWidth: 32, color: iconColor, "& path": { fill: iconColor } }}
-      >
+      <ListItemIcon sx={{ minWidth: 32, color: iconColor }}>
         {Icon ? (
           <Icon style={{ fontSize: "20px", width: 20, height: 20 }} />
         ) : null}
