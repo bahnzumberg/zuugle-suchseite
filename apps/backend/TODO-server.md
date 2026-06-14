@@ -2,9 +2,23 @@
 
 Things to verify on the server before/during next deployment.
 
-## ecosystem.config.js — entry point path
+## ecosystem.config.js — RESOLVED
 
-`ecosystem.config.js` has `script: "./api/index.js"`. Verify where PM2 is invoked from:
+The PM2 source of truth lives on the server at `~/suchseite/ecosystem.config.js`
+(one level **above** the API deploy targets), not in this repo. PM2 runs with
+`cwd = ~/suchseite`, so the `./api/index.js` / `./dev-api/index.js` paths resolve
+correctly from there.
 
-- If PM2 runs from the repo/build root → path should be `./index.js`
-- If PM2 runs from a parent directory and code lives in an `api/` subdirectory → path is correct as-is
+The server file manages **four** apps:
+
+| App                | script (relative to `~/suchseite`) | Source                                        |
+| ------------------ | ---------------------------------- | --------------------------------------------- |
+| `zuugle_api`       | `./api/index.js`                   | this repo (UAT API, deployed to `…/api/`)     |
+| `zuugle_proxy`     | `./server/server.js`               | frontend/proxy repo                           |
+| `dev-zuugle_api`   | `./dev-api/index.js`               | this repo (DEV API, deployed to `…/dev-api/`) |
+| `dev-zuugle_proxy` | `./dev-server/server.js`           | dev proxy repo                                |
+
+The `ecosystem.config.js` that used to sit in this repo was a stale single-app
+fork (only `zuugle_api`, missing `USE_CDN`, never deployed, never invoked) and has
+been removed. The real file is infrastructure config spanning multiple repos and
+should stay on the server / in a dedicated infra repo — not here.
