@@ -768,6 +768,13 @@ const getMatchingTourIds = async (req) => {
             ? `AND t.city_slug='${city.replace(/'/g, "''")}'`
             : `AND t.stop_selector='y'`;
 
+    // When no city is selected, prioritize tours reachable from more cities.
+    // When a city is selected, every tour has exactly 1 city_slug so this is omitted.
+    const reachability_order =
+        city && city.length > 0
+            ? ""
+            : `(SELECT COUNT(DISTINCT t2.city_slug) FROM city2tour_flat t2 WHERE t2.id = t.id AND t2.reachable_from_country='${tld}') DESC,`;
+
     // Generate List of IDs, which is hopefully already in Valkey, so it should be really fast
     let tourIds = [];
     const cacheKeyIds = generateKey("tours:ids", {
@@ -790,6 +797,7 @@ const getMatchingTourIds = async (req) => {
                             ${where_city_bound}
                             ${global_where_condition_bound}
                             ORDER BY 
+                            ${reachability_order}
                             CASE WHEN t.text_lang='${language}' THEN 1 ELSE 0 END DESC,
                             ${new_search_order_searchterm_bound}
                             t.month_order ASC, 
