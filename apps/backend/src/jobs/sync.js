@@ -510,7 +510,7 @@ export async function restoreDump() {
             if (code === 0) {
                 logger.info(`pg_restore executed successfully`);
                 // Clear CDN URLs from image_url so local import-files regenerates them with local path
-                // This is how the run "npm run import-data" would have left the column on production
+                // This is how the run "npm run import-data-prod" would have left the column on production
                 await knex.raw(
                     `UPDATE tour SET image_url = NULL WHERE image_url LIKE 'https://cdn.zuugle.at%';`,
                 );
