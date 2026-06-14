@@ -99,7 +99,8 @@
     "haftung_fuer_links": "RESPONSABILITÀ PER I LINK",
     "verknuepfung_links": "Questo motore di ricerca per itinerari raggiungibili con i mezzi pubblici contiene link che rinviano a siti di terzi (\"link esterni\"). La responsabilità per tali siti ricade sui rispettivi operatori. Quando abbiamo creato i link esterni a contenuti di terzi, abbiamo verificato l'esistenza di eventuali violazioni della legge. In sede di verifica non sono state riscontrate violazioni della legge. Tuttavia, non abbiamo alcuna influenza sull’aspetto grafico e sui contenuti attuali e futuri delle pagine collegate. Utilizzare link esterni non significa far propri i relativi contenuti. Il monitoraggio costante dei link esterni, dato il loro elevato numero, è impossibile in assenza di indicazioni concrete di una violazione della legge. Tuttavia, se dovessimo venire a conoscenza di una violazione della legge, cancelleremmo senza indugio tali link esterni.",
     "lizenzbedingungen": "CONDIZIONI DI LICENZA PER GLI ORARI DEI SERVIZI DI TRASPORTO PUBBLICO",
-    "anfuehrung_quellen": "Le diverse fonti e condizioni di licenza degli orari dei servizi di trasporto pubblico utilizzati sono visibili qui."
+    "anfuehrung_quellen": "Le diverse fonti e condizioni di licenza degli orari dei servizi di trasporto pubblico utilizzati sono visibili qui.",
+    "gefoerdert_von": "FINANZIATO DA"
   },
   "index": {
     "zuugle_description": "Zuugle mostra i collegamenti verificati, in treno e autobus, per itinerari alpinistici, escursionistici, scialpinistici e ciaspolistici.",

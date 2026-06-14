@@ -153,6 +153,26 @@ export interface ConnectionResponse {
   result: ConnectionResult[];
 }
 
+export interface LicensePublisher {
+  name: string;
+  url?: string;
+}
+
+export interface LicenseEntry {
+  country_code: string;
+  country_name: string;
+  human_name: string;
+  license_url?: string;
+  spdx_license_identifier?: string;
+  publisher?: LicensePublisher;
+  source?: string;
+}
+
+export interface LicensesResponse {
+  success: boolean;
+  licenses: LicenseEntry[];
+}
+
 const baseURL =
   window.location.host.indexOf("localhost") >= 0
     ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
@@ -287,6 +307,10 @@ export const api = createApi({
         return response.city;
       },
     }),
+    getLicenses: build.query<LicenseEntry[], void>({
+      query: () => "licenses",
+      transformResponse: (response: LicensesResponse) => response.licenses,
+    }),
   }),
 });
 
@@ -328,4 +352,5 @@ export const {
   useLazyGetConnectionsExtendedQuery,
 
   useGetCities2TourQuery,
+  useGetLicensesQuery,
 } = api;
