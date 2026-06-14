@@ -12,7 +12,10 @@ import { useSelector } from "react-redux";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
-import SearchSuggestions, { suggestionIconMap, suggestionColorMap } from "./SearchSuggestions";
+import SearchSuggestions, {
+  suggestionIconMap,
+  suggestionColorMap,
+} from "./SearchSuggestions";
 
 interface AutocompleteSearchProps {
   inputVariant?: "standard" | "outlined" | "filled";

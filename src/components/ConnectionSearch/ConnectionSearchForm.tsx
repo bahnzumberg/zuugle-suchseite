@@ -104,7 +104,9 @@ export default function ConnectionSearchForm({
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
-      return departureDate?.format("YYYY-MM-DD") || tomorrow.format("YYYY-MM-DD");
+      return (
+        departureDate?.format("YYYY-MM-DD") || tomorrow.format("YYYY-MM-DD")
+      );
     }
     return selectedDate.format("YYYY-MM-DD");
   };
@@ -407,8 +409,6 @@ export default function ConnectionSearchForm({
   };
 
   const canSearch = !!departureLocation;
-
-
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
