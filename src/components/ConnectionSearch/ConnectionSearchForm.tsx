@@ -27,12 +27,7 @@ import {
   DepartureLocation,
 } from "../../hooks/useDepartureLocation";
 import { useDianaAutocomplete } from "../../hooks/useDianaAutocomplete";
-import {
-  DIANA_PROXY_BASE,
-  mapLanguage,
-  localTimeToUtc,
-} from "../../utils/dianaApi";
-import { DIANA_ACTIVITY_TIMES } from "../../utils/dianaConfig";
+import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
@@ -130,25 +125,6 @@ export default function ConnectionSearchForm({
       userStartLocationType = departureLocation!.locationType || "address";
     }
 
-    const utcTimes = {
-      earliest_start: localTimeToUtc(
-        DIANA_ACTIVITY_TIMES.earliest_start_time,
-        selectedDate,
-      ),
-      latest_start: localTimeToUtc(
-        DIANA_ACTIVITY_TIMES.latest_start_time,
-        selectedDate,
-      ),
-      earliest_end: localTimeToUtc(
-        DIANA_ACTIVITY_TIMES.earliest_end_time,
-        selectedDate,
-      ),
-      latest_end: localTimeToUtc(
-        DIANA_ACTIVITY_TIMES.latest_end_time,
-        selectedDate,
-      ),
-    };
-
     const params = new URLSearchParams({
       user_start_location: userStartLocation,
       user_start_location_type: userStartLocationType,
@@ -158,12 +134,8 @@ export default function ConnectionSearchForm({
       activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
       activity_end_location_type: "coordinates",
       activity_duration_minutes: String(activityDurationMinutes),
-      activity_earliest_start_time: utcTimes.earliest_start,
-      activity_latest_start_time: utcTimes.latest_start,
-      activity_earliest_end_time: utcTimes.earliest_end,
-      activity_latest_end_time: utcTimes.latest_end,
       date: selectedDate,
-      lang: mapLanguage(lang),
+      lang: lang,
       use_flex: "false",
       timezone: "Europe/Vienna",
     });
@@ -196,25 +168,6 @@ export default function ConnectionSearchForm({
       setSearchError(null);
 
       try {
-        const utcTimes = {
-          earliest_start: localTimeToUtc(
-            DIANA_ACTIVITY_TIMES.earliest_start_time,
-            date,
-          ),
-          latest_start: localTimeToUtc(
-            DIANA_ACTIVITY_TIMES.latest_start_time,
-            date,
-          ),
-          earliest_end: localTimeToUtc(
-            DIANA_ACTIVITY_TIMES.earliest_end_time,
-            date,
-          ),
-          latest_end: localTimeToUtc(
-            DIANA_ACTIVITY_TIMES.latest_end_time,
-            date,
-          ),
-        };
-
         const params = new URLSearchParams({
           user_start_location: `${lat},${lon}`,
           user_start_location_type: "coordinates",
@@ -224,12 +177,8 @@ export default function ConnectionSearchForm({
           activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
           activity_end_location_type: "coordinates",
           activity_duration_minutes: String(activityDurationMinutes),
-          activity_earliest_start_time: utcTimes.earliest_start,
-          activity_latest_start_time: utcTimes.latest_start,
-          activity_earliest_end_time: utcTimes.earliest_end,
-          activity_latest_end_time: utcTimes.latest_end,
           date,
-          lang: mapLanguage(lang),
+          lang: lang,
           use_flex: "false",
           timezone: "Europe/Vienna",
         });
@@ -303,6 +252,15 @@ export default function ConnectionSearchForm({
 
   const handleSearch = async () => {
     if (!departureLocation) return;
+
+    // Matomo: track active "Verbindung suchen" button click
+    // @ts-expect-error matomo
+    const _mtm = (window._mtm = window._mtm || []);
+    _mtm.push({
+      event: "connection-search",
+      "connection-tour": tour.title,
+      "connection-departure": departureLocation.displayName,
+    });
 
     setIsSearching(true);
     setConnectionsResult(null);
@@ -387,6 +345,19 @@ export default function ConnectionSearchForm({
       setIsSearching(false);
     }
   };
+
+  // ── Auto-search: trigger immediately if a departure location is already
+  //    stored in localStorage (and this is not a share-restore scenario) ──
+  const autoSearchTriggered = useRef(false);
+  useEffect(() => {
+    if (autoSearchTriggered.current) return;
+    if (shareId) return; // Share restore handles its own search
+    if (!departureLocation || (!departureLat && !departureLon)) return;
+
+    autoSearchTriggered.current = true;
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [departureLocation, departureLat, departureLon, shareId]);
 
   const handleDepartureDateChange = (date: Dayjs | null) => {
     setDepartureDate(date);

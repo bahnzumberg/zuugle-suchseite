@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { DIANA_PROXY_BASE, mapLanguage } from "../utils/dianaApi";
+import { DIANA_PROXY_BASE } from "../utils/dianaApi";
 
 export interface AutocompleteOption {
   displayName: string;
@@ -48,7 +48,7 @@ export function useDianaAutocomplete(lang: string) {
           const params = new URLSearchParams({
             q: query,
             limit: "5",
-            lang: mapLanguage(lang),
+            lang: lang,
           });
 
           const resp = await fetch(
