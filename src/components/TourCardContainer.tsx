@@ -42,7 +42,7 @@ export default function TourCardContainer({
       dataLength={tours.length}
       next={fetchMore}
       hasMore={hasMore}
-      loader={<CircularProgress size={LOADER_HEIGHT} />}
+      loader={<CircularProgress size={LOADER_HEIGHT} aria-label="Loading" />}
       endMessage={<p> </p>}
       style={{ overflow: "visible" }}
     >
