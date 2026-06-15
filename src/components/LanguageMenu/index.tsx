@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { langChange } from "../../utils/language_Utils";
 import { useTranslation } from "react-i18next";
@@ -23,6 +23,7 @@ function LanguageMenu() {
   );
   const dispatch = useAppDispatch();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const triggerRef = useRef<HTMLSpanElement>(null);
 
   const activeLanguage = i18n.resolvedLanguage ?? "de";
 
@@ -49,10 +50,24 @@ function LanguageMenu() {
     dispatch(languageUpdated(lng));
   };
 
+  // Compute dropdown position anchored to trigger's right edge
+  const getDropdownPosition = (): React.CSSProperties => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      return {
+        position: "absolute" as const,
+        right: window.innerWidth - rect.right,
+        top: rect.top,
+      };
+    }
+    return { position: "absolute" as const, right: 30, top: 15 };
+  };
+
   return (
     <div>
       <span
         className="languageIcon centerMe"
+        ref={triggerRef}
         onClick={() => {
           setShowLanguageMenu(!showLanguageMenu);
         }}
@@ -72,6 +87,7 @@ function LanguageMenu() {
           <div
             className="languageMenu"
             style={{
+              ...getDropdownPosition(),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

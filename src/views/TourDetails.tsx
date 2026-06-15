@@ -278,13 +278,21 @@ export default function DetailReworked() {
           sx={{ pb: "0 !important" }}
         >
           <Box
-            component={"div"}
-            className="rowing"
-            sx={{ px: { xs: "10px", sm: "16px" } }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              maxWidth: "1400px",
+              mx: "auto",
+              px: { xs: "15px", sm: "30px" },
+              py: "7px",
+              boxSizing: "border-box",
+              width: "100%",
+            }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
-                sx={{ mr: "12px", cursor: "pointer" }}
+                sx={{ ml: "-13px", mr: "4px", cursor: "pointer" }}
                 onClick={handleCloseTab}
               >
                 <CustomIcon
@@ -309,7 +317,7 @@ export default function DetailReworked() {
             sx={{
               maxWidth: "1400px",
               mx: "auto",
-              px: { xs: "16px", md: "24px" },
+              px: { xs: "15px", sm: "30px" },
             }}
           >
             {/* ─── Title ─── */}

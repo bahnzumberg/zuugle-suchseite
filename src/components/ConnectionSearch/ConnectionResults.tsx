@@ -363,16 +363,29 @@ function ConnectionTabs({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll selected tab into view (horizontal only, no page scroll)
+  // Auto-scroll selected tab fully into view (never clipped left or right)
   useEffect(() => {
     const idx = connections.findIndex((c) => c.connection_id === selectedId);
     if (idx >= 0 && scrollRef.current) {
       const child = scrollRef.current.children[idx] as HTMLElement;
       if (child) {
         const container = scrollRef.current;
-        const scrollLeft =
-          child.offsetLeft - container.offsetWidth / 2 + child.offsetWidth / 2;
-        container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+        const childLeft = child.offsetLeft;
+        const childRight = childLeft + child.offsetWidth;
+        const viewLeft = container.scrollLeft;
+        const viewRight = viewLeft + container.clientWidth;
+        const pad = 4; // small breathing room in px
+
+        if (childLeft - pad < viewLeft) {
+          // Clipped on the left → align left edge
+          container.scrollTo({ left: childLeft - pad, behavior: "smooth" });
+        } else if (childRight + pad > viewRight) {
+          // Clipped on the right → align right edge
+          container.scrollTo({
+            left: childRight + pad - container.clientWidth,
+            behavior: "smooth",
+          });
+        }
       }
     }
   }, [selectedId, connections]);

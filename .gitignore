@@ -32,3 +32,5 @@ test-results/
 HOWTO-Diana-GreenConnect.md
 .env.diana
 DianaWidget-main
+# WSL Zone.Identifier metadata files
+*:Zone.Identifier
