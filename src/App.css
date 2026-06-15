@@ -996,15 +996,6 @@ ul.about-bullets {
   align-items: flex-start;
   justify-content: space-between;
   flex-direction: row;
-  position: absolute;
-  right: 30px;
-  top: 15px;
-}
-
-@media only screen and (max-width: 600px) {
-  .languageMenu {
-    right: 15px;
-  }
 }
 
 .closeIcon {
@@ -1055,18 +1046,9 @@ ul.about-bullets {
   background: #ffffff;
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
-  position: absolute;
-  left: 20px;
-  top: 15px;
   padding-left: 13px;
   padding-right: 13px;
   padding-top: 10px;
-}
-
-@media only screen and (max-width: 600px) {
-  .domainMenu {
-    left: 15px;
-  }
 }
 
 colLeft .domainItem {

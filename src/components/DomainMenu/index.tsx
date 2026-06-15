@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -80,6 +80,7 @@ const DOMAIN_CONFIG: Record<
 
 function DomainMenu() {
   const host = window.location.href;
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   // Find matching domain configuration and reorder with current domain first
   const getDomainsForHost = (
@@ -132,9 +133,26 @@ function DomainMenu() {
   ];
   const [showDomainMenu, setShowDomainMenu] = useState(false);
 
+  // Compute dropdown position from trigger element
+  const getDropdownPosition = (): React.CSSProperties => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      return {
+        position: "absolute" as const,
+        left: rect.left,
+        top: rect.top,
+      };
+    }
+    return { position: "absolute" as const, left: 20, top: 15 };
+  };
+
   return (
     <Box component={"div"} className="colLeft">
-      <div className="countrySwitch" onClick={() => setShowDomainMenu(true)}>
+      <div
+        className="countrySwitch"
+        ref={triggerRef}
+        onClick={() => setShowDomainMenu(true)}
+      >
         <img
           src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
           height={"19px"}
@@ -160,7 +178,7 @@ function DomainMenu() {
           open={showDomainMenu}
           style={{ outline: "none", border: "none" }}
         >
-          <div className="domainMenu colCenteral">
+          <div className="domainMenu colCenteral" style={getDropdownPosition()}>
             {listOfDomains.map((item, i) =>
               i === 0 ? (
                 <div
