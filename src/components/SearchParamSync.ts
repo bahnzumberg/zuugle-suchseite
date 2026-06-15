@@ -157,8 +157,29 @@ export default function SearchParamSync({
     dispatch(actionCreator(value ?? null));
   }
 
+  /** Read city from localStorage and dispatch to Redux if it differs. */
+  function syncCityFromLocalStorage() {
+    const stored = localStorage.getItem("city");
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.value && parsed.value !== search.citySlug) {
+        dispatch(cityUpdated(parsed));
+        dispatch(citySlugUpdated(parsed.value));
+      }
+    } catch {
+      /* ignore corrupt data */
+    }
+  }
+
   useEffect(() => {
-    if (params.get("city")) updateReduxFromParam("city", citySlugUpdated);
+    if (params.get("city")) {
+      // URL ?city= takes precedence
+      updateReduxFromParam("city", citySlugUpdated);
+    } else {
+      // No ?city= in URL — use localStorage as fallback
+      syncCityFromLocalStorage();
+    }
     updateReduxFromParam("p", providerUpdated);
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
@@ -221,6 +242,20 @@ export default function SearchParamSync({
       dispatch(filterUpdated(filterObject));
     }
   }, []);
+
+  // Sync city from localStorage when tab becomes visible again.
+  // Covers cross-tab updates, e.g. city set on tour detail page in another tab.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible") return;
+      if (params.get("city")) return; // URL param takes precedence
+      syncCityFromLocalStorage();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [search.citySlug, params, dispatch]);
 
   return null; // invisible sync component
 }
