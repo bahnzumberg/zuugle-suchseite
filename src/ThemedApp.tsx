@@ -7,19 +7,10 @@ import CookieConsent from "./components/CookieConsent";
 
 const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
-const Imprint = lazy(() => import("./views/Imprint"));
-const Privacy = lazy(() => import("./views/Privacy"));
 const DetailReworked = lazy(() => import("./views/TourDetails"));
 
 interface ThemedAppProps {
-  routeKey:
-    | "start"
-    | "search"
-    | "tour"
-    | "provider"
-    | "city"
-    | "imprint"
-    | "privacy";
+  routeKey: "start" | "search" | "tour" | "provider" | "city";
 }
 
 export default function ThemedApp({ routeKey }: ThemedAppProps) {
@@ -50,10 +41,6 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
       case "tour":
       case "provider":
         return <DetailReworked />;
-      case "imprint":
-        return <Imprint />;
-      case "privacy":
-        return <Privacy />;
       default:
         return <StartNew />;
     }

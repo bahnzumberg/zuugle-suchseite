@@ -5,6 +5,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
+import { useTranslation } from "react-i18next";
+import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
 
 // All production domains
 const PROD_DOMAINS = [
@@ -81,6 +83,7 @@ const DOMAIN_CONFIG: Record<
 function DomainMenu() {
   const host = window.location.href;
   const triggerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Find matching domain configuration and reorder with current domain first
   const getDomainsForHost = (
@@ -125,13 +128,14 @@ function DomainMenu() {
     };
   };
 
-  const { domain, listOfDomains } = getDomainsForHost(host);
+  const { listOfDomains } = getDomainsForHost(host);
 
-  const secondMenu = [
-    { id: 1, name: "Impressum", url: domain + "/imprint" },
-    { id: 2, name: "Datenschutz", url: domain + "/privacy" },
+  const secondMenu: { id: number; name: string; type: LegalDialogType }[] = [
+    { id: 1, name: t("start.impressum"), type: "imprint" },
+    { id: 2, name: t("start.datenschutz"), type: "privacy" },
   ];
   const [showDomainMenu, setShowDomainMenu] = useState(false);
+  const [legalDialog, setLegalDialog] = useState<LegalDialogType>(null);
 
   // Compute dropdown position from trigger element
   const getDropdownPosition = (): React.CSSProperties => {
@@ -240,7 +244,7 @@ function DomainMenu() {
                 }}
                 onClick={() => {
                   setShowDomainMenu(false);
-                  window.open(item.url);
+                  setLegalDialog(item.type);
                 }}
               >
                 {item.name}
@@ -249,6 +253,7 @@ function DomainMenu() {
           </div>
         </Modal>
       )}
+      <LegalDialog open={legalDialog} onClose={() => setLegalDialog(null)} />
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import DomainMenu from "../components/DomainMenu";
 import LanguageMenu from "../components/LanguageMenu";
@@ -11,6 +11,10 @@ import Filter from "../components/Filter/Filter";
 import TotalToursHeader from "../components/TotalToursHeader";
 import SearchParamSync from "../components/SearchParamSync";
 import { useSearchTours } from "../hooks/useSearchTours";
+import { useSearchParams } from "react-router";
+import LegalDialog, {
+  type LegalDialogType,
+} from "../components/LegalDialog/LegalDialog";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -29,6 +33,26 @@ export default function SearchResults() {
     directLink,
     showMap,
   } = useSearchTours();
+
+  // Open legal dialog from ?legal=imprint|privacy query param (used by redirects)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [legalDialog, setLegalDialog] = useState<LegalDialogType>(null);
+
+  useEffect(() => {
+    const legal = searchParams.get("legal");
+    if (legal === "imprint" || legal === "privacy") {
+      setLegalDialog(legal);
+    }
+  }, [searchParams]);
+
+  const closeLegalDialog = () => {
+    setLegalDialog(null);
+    // Remove ?legal= from URL without a navigation
+    if (searchParams.has("legal")) {
+      searchParams.delete("legal");
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
 
   return (
     <div>
@@ -112,6 +136,7 @@ export default function SearchResults() {
         </Box>
       )}
       <MapBtn />
+      <LegalDialog open={legalDialog} onClose={closeLegalDialog} />
     </div>
   );
 }
