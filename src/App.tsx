@@ -65,19 +65,11 @@ function App() {
         {/* Other routes with simple loader */}
         <Route
           path="/imprint"
-          element={
-            <Suspense fallback={<SimpleLoader />}>
-              <ThemedApp routeKey="imprint" />
-            </Suspense>
-          }
+          element={<Navigate to="/search?legal=imprint" replace />}
         />
         <Route
           path="/privacy"
-          element={
-            <Suspense fallback={<SimpleLoader />}>
-              <ThemedApp routeKey="privacy" />
-            </Suspense>
-          }
+          element={<Navigate to="/search?legal=privacy" replace />}
         />
         <Route
           path="/search"
