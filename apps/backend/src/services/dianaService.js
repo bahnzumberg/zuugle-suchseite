@@ -119,6 +119,62 @@ export async function proxyPost(path, payload) {
     return { status: response.status, body };
 }
 
+// ─── Utility helpers ─────────────────────────────────────────────
+
+/**
+ * Map an i18n language code to the Diana API language format.
+ * Diana supports: de, en, fr, it.  Anything else falls back to "en".
+ *
+ * @param {string} lang - e.g. "de", "sl", "en-US"
+ * @returns {string}
+ */
+export function mapLanguage(lang) {
+    if (!lang) return "en";
+    const code = lang.substring(0, 2).toLowerCase();
+    const supported = ["de", "en", "fr", "it"];
+    return supported.includes(code) ? code : "en";
+}
+
+/**
+ * Convert a local time string ("HH:MM") to UTC ("HH:MM") for a given date,
+ * respecting CET (UTC+1) vs CEST (UTC+2) automatically.
+ *
+ * Uses Intl.DateTimeFormat to determine the Vienna timezone offset
+ * for the given date, so DST transitions are handled correctly.
+ *
+ * Ported from frontend dianaApi.ts.
+ *
+ * @param {string} timeStr  - Local time in "HH:MM" format (Europe/Vienna)
+ * @param {string} dateStr  - Date in "YYYY-MM-DD" format, used to determine DST offset
+ * @returns {string}        - UTC time in "HH:MM" format
+ */
+export function localTimeToUtc(timeStr, dateStr) {
+    const viennaFormatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Vienna",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    });
+
+    // Find the UTC offset for Vienna on the given date
+    const refDate = new Date(`${dateStr}T12:00:00Z`);
+    const viennaParts = viennaFormatter.formatToParts(refDate);
+    const viennaHour = parseInt(viennaParts.find((p) => p.type === "hour")?.value || "0");
+    const utcHour = refDate.getUTCHours(); // 12
+    const offsetHours = viennaHour - utcHour; // 1 (CET) or 2 (CEST)
+
+    const [h, m] = timeStr.split(":").map(Number);
+    let utcH = h - offsetHours;
+    if (utcH < 0) utcH += 24;
+    if (utcH >= 24) utcH -= 24;
+
+    return `${String(utcH).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 // ─── GeoJSON City Lookup ─────────────────────────────────────────
 
 const GEOJSON_DIR = path.resolve(__dirname, "../utils/country-geojson");

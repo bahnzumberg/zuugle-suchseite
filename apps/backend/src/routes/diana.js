@@ -7,7 +7,10 @@ import {
     proxyPost,
     findCityByCoordinates,
     preloadGeoJson,
+    mapLanguage,
+    localTimeToUtc,
 } from "../services/dianaService";
+import { DIANA_ACTIVITY_TIMES } from "../utils/dianaConfig.js";
 
 const router = express.Router();
 
@@ -128,9 +131,17 @@ router.get("/address-autocomplete", async (req, res) => {
         });
     }
 
+    // Express req.query is immutable via getter — work on a mutable copy
+    const query = { ...req.query };
+
+    // Normalize language code for Diana API
+    if (query.lang) {
+        query.lang = mapLanguage(query.lang);
+    }
+
     try {
         // Build cache key from the client's original params
-        const clientQueryString = filterParams(req.query, AUTOCOMPLETE_PARAMS);
+        const clientQueryString = filterParams(query, AUTOCOMPLETE_PARAMS);
         const cacheKey = `diana:autocomplete:${clientQueryString}`;
         const cached = await cacheService.get(cacheKey);
         if (cached) {
@@ -227,17 +238,58 @@ const CONNECTIONS_SCROLL_PARAMS = [
  */
 router.get("/connections", async (req, res) => {
     try {
-        const queryString = filterParams(req.query, CONNECTIONS_PARAMS);
+        // Express req.query returns a fresh parsed object via getter — direct
+        // property assignments are silently discarded. Work on a mutable copy.
+        const query = { ...req.query };
+
+        // Determine date and timezone for UTC conversion of default time windows
+        const date =
+            typeof query.date === "string" && query.date
+                ? query.date
+                : new Date().toISOString().substring(0, 10);
+
+        // Inject default activity time windows if not provided by the client
+        if (!query.activity_earliest_start_time) {
+            query.activity_earliest_start_time = localTimeToUtc(
+                DIANA_ACTIVITY_TIMES.earliest_start_time,
+                date,
+            );
+        }
+        if (!query.activity_latest_start_time) {
+            query.activity_latest_start_time = localTimeToUtc(
+                DIANA_ACTIVITY_TIMES.latest_start_time,
+                date,
+            );
+        }
+        if (!query.activity_earliest_end_time) {
+            query.activity_earliest_end_time = localTimeToUtc(
+                DIANA_ACTIVITY_TIMES.earliest_end_time,
+                date,
+            );
+        }
+        if (!query.activity_latest_end_time) {
+            query.activity_latest_end_time = localTimeToUtc(
+                DIANA_ACTIVITY_TIMES.latest_end_time,
+                date,
+            );
+        }
+
+        // Normalize language code for Diana API
+        if (query.lang) {
+            query.lang = mapLanguage(query.lang);
+        }
+
+        const queryString = filterParams(query, CONNECTIONS_PARAMS);
 
         // Determine if this is a scroll/pagination request
         const isScrollRequest = CONNECTIONS_SCROLL_PARAMS.some(
-            (p) => req.query[p] && typeof req.query[p] === "string",
+            (p) => query[p] && typeof query[p] === "string",
         );
 
         // Build cache key from the fields that uniquely identify a trip search
         const cacheKey = isScrollRequest
             ? null
-            : `diana:connections:${req.query.activity_start_location || ""}:${req.query.activity_end_location || ""}:${req.query.user_start_location || ""}:${req.query.date || ""}`;
+            : `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${query.date || ""}`;
 
         // Check Valkey cache (only for initial, non-scroll requests)
         if (cacheKey) {
