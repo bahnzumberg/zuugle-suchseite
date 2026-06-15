@@ -150,19 +150,6 @@ function DomainMenu() {
     return { position: "absolute" as const, left: 20, top: 15 };
   };
 
-  // Compute dropdown position from trigger element
-  const getDropdownPosition = (): React.CSSProperties => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      return {
-        position: "absolute" as const,
-        left: rect.left,
-        top: rect.top,
-      };
-    }
-    return { position: "absolute" as const, left: 20, top: 15 };
-  };
-
   return (
     <Box component={"div"} className="colLeft">
       <div
