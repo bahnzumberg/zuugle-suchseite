@@ -541,6 +541,7 @@ export default function ConnectionSearchForm({
 
                 <Button
                   variant="contained"
+                  aria-label={t("details.verbindung_suchen")}
                   disabled={!canSearch || isSearching}
                   onClick={(e) => {
                     handleSearch();
@@ -649,6 +650,7 @@ export default function ConnectionSearchForm({
               {/* Search button: left-aligned when wrapped on mobile */}
               <Button
                 variant="contained"
+                aria-label={t("details.verbindung_suchen")}
                 disabled={!canSearch || isSearching}
                 onClick={(e) => {
                   handleSearch();
