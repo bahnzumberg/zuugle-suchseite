@@ -12,8 +12,8 @@
  * - latest_end_time:     Latest the user is willing to depart
  */
 export const DIANA_ACTIVITY_TIMES = {
-    earliest_start_time: "05:30",
-    latest_start_time: "15:00",
-    earliest_end_time: "12:00",
-    latest_end_time: "22:00",
+    earliest_start_time: "08:00",
+    latest_start_time: "12:30",
+    earliest_end_time: "14:00",
+    latest_end_time: "20:00",
 };
