@@ -46,6 +46,11 @@ const MapBtn = () => {
     <Button
       variant="contained"
       onClick={handleClick}
+      aria-label={
+        showMap
+          ? t("main_only.kartenansicht_entfernen")
+          : t("start_pages.zur_kartenansicht")
+      }
       color="primary"
       startIcon={isMobile ? undefined : icon} // show icon as main content on mobile
       sx={{

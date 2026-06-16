@@ -99,8 +99,10 @@
     "haftung_fuer_links": "HAFTUNG FÜR LINKS",
     "verknuepfung_links": "Diese Suchmaschine für Öffi-Touren enthält Verknüpfungen zu Websites Dritter („externe Links“). Diese Websites unterliegen der Haftung der jeweiligen Betreiber. Bei der erstmaligen Anlage der externen Links auf die fremden Inhalte haben wir geprüft, ob etwaige Rechtsverstöße bestehen. Zu dem betreffenden Zeitpunkt waren keine Rechtsverstöße ersichtlich. Wir haben aber keinerlei Einfluss auf die aktuelle und zukünftige Gestaltung und auf die Inhalte der verknüpften Seiten. Das Setzen von externen Links bedeutet nicht, dass wir uns die hinter dem Link liegenden Inhalte zu Eigen machen. Eine ständige Kontrolle der externen Links ist für uns ohne konkrete Hinweise auf Rechtsverstöße wegen der großen Anzahl nicht zumutbar. Bei Kenntnis von Rechtsverstößen werden wir jedoch derartige externe Links unverzüglich löschen.",
     "lizenzbedingungen": "LIZENZBEDINGUNGEN FAHRPLANDATEN",
+    "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> ist eine \"Bergtouren Suchmaschine Plus\" im Alpenraum (findet Bergtouren und zeigt die zugehörigen Fahrpläne an) und gehört zu 100 % dem gemeinnützigen Verein <1>Bahn zum Berg</1>. Als NGO konzentriert sich der Verein ausschließlich darauf, die nachhaltige Anreise zu Outdoor-Aktivitäten zu fördern. Für die Fahrplanabfrage wird das Produkt <2>Diana GreenConnect</2> eingesetzt, das von <3>Zuugle Services</3> Bahn zum Berg kostenfrei zur Verfügung gestellt wird.",
+    "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> ist ein eigenständiges, unabhängiges B2B-Unternehmen. Zuugle Services professionalisiert die Technologie hinter der Tourenplanung, um maßgeschneiderte, zukunftsfähige Mobilitätslösungen für Unternehmen, Regionen und Softwareanbieter zur Verfügung zu stellen.",
     "anfuehrung_quellen": "Die unterschiedlichen Quellen und Lizenzbedingungen der eingesetzten Fahrplandaten sind hier angeführt.",
-    "gefoerdert_von": "GEFÖRDERT VON"
+    "gefoerdert_von": "PARTNER & FÖRDERER"
   },
   "index": {
     "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",

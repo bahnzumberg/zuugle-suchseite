@@ -35,7 +35,7 @@ function SimpleLoader() {
 
 function App() {
   return (
-    <div
+    <main
       className="App"
       style={{
         minHeight: "100vh",
@@ -106,7 +106,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </div>
+    </main>
   );
 }
 

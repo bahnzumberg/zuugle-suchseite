@@ -51,6 +51,7 @@ export default function CookieConsent() {
       <Button
         variant="outlined"
         onClick={handleAccept}
+        aria-label={t("cookie_consent.accept")}
         sx={{
           color: "#fff",
           borderColor: "#fff",
