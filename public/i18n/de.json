@@ -232,6 +232,7 @@
     "zurueck": "Zurück"
   },
   "details": {
+    "tour_nicht_mehr_verfuegbar": "Diese Tour ist leider nicht verfügbar.",
     "track_gps_geraet": "Track für GPS-Gerät herunterladen",
     "start_ausgangort": "Start beim Ausgangsort",
     "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",

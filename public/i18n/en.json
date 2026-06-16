@@ -232,6 +232,7 @@
     "zurueck": "Back"
   },
   "details": {
+    "tour_nicht_mehr_verfuegbar": "This tour is not available.",
     "track_gps_geraet": "Download track for GPS-device",
     "start_ausgangort": "Start from the starting location",
     "keine_verbindungen": "No connections found for this day",

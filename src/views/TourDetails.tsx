@@ -5,6 +5,7 @@ import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 
 import { useEffect, useState } from "react";
 import { useHead } from "@unhead/react";
@@ -23,7 +24,9 @@ import {
   useGetTourQuery,
   useLazyGetGPXQuery,
   useLazyGetProviderGpxOkQuery,
+  useLazyGetToursQuery,
 } from "../features/apiSlice";
+import TourCard from "../components/TourCard";
 
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
@@ -61,6 +64,12 @@ export default function DetailReworked() {
   const { data: allCities = [], isSuccess: areCitiesLoaded } =
     useGetCitiesQuery();
   const city = useSelector((state: RootState) => state.search.city);
+  const provider = useSelector((state: RootState) => state.search.provider);
+
+  const [
+    triggerLoadTours,
+    { data: suggestedTours, isFetching: isSuggestionsLoading },
+  ] = useLazyGetToursQuery();
 
   // Sync route param → Redux (URL is source of truth on this page)
   useEffect(() => {
@@ -140,6 +149,16 @@ export default function DetailReworked() {
       }
     }
   }, [tour, city]);
+
+  useEffect(() => {
+    if (!isTourLoading && !tour) {
+      triggerLoadTours({
+        limit: 3,
+        city: cityOne && cityOne !== "no-city" ? cityOne : "",
+        currLanguage: get_currLanguage(i18n) || undefined,
+      });
+    }
+  }, [isTourLoading, tour, cityOne, triggerLoadTours]);
 
   useEffect(() => {
     // @ts-expect-error matomo
@@ -310,6 +329,77 @@ export default function DetailReworked() {
       </Box>
       {isTourLoading ? (
         <LoadingSpinner />
+      ) : !tour ? (
+        <Box
+          sx={{
+            maxWidth: "960px",
+            mx: "auto",
+            px: { xs: "15px", sm: "30px" },
+            py: "48px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "16px",
+              py: "48px",
+              px: "24px",
+              mb: "48px",
+              borderRadius: "16px",
+              bgcolor: "rgba(37, 73, 128, 0.06)",
+              border: "1px solid rgba(37, 73, 128, 0.12)",
+            }}
+          >
+            <SearchOffIcon
+              sx={{ fontSize: 56, color: "rgba(37, 73, 128, 0.45)" }}
+            />
+            <Typography variant="h4" sx={{ color: "#101010", fontWeight: 600 }}>
+              {t("details.tour_nicht_mehr_verfuegbar")}
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate("/")}
+            >
+              {t("start.suche")}
+            </Button>
+          </Box>
+          <Typography variant="h6" sx={{ mb: "16px", color: "#101010" }}>
+            {t(
+              city
+                ? "start.beliebte_bergtouren_nahe"
+                : "start.beliebte_bergtouren",
+            )}
+          </Typography>
+          {isSuggestionsLoading ? (
+            <CircularProgress />
+          ) : (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr",
+                },
+                gap: "20px",
+              }}
+            >
+              {(suggestedTours?.tours ?? []).slice(0, 3).map((st, i) => (
+                <Box key={i} sx={{ display: "flex", minWidth: 0 }}>
+                  <TourCard
+                    tour={st}
+                    city={city?.value ?? ""}
+                    provider={provider}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
       ) : (
         <Box>
           {/* ─── Content wrapper (full width, max 1400px) ─── */}

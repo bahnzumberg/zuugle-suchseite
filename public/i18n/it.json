@@ -231,6 +231,7 @@
     "mehr_anzeigen": "Mostra di più"
   },
   "details": {
+    "tour_nicht_mehr_verfuegbar": "Questo itinerario non è disponibile.",
     "track_gps_geraet": "Scarica traccia GPS",
     "start_ausgangort": "Inizio dalla località di partenza",
     "keine_verbindungen": "Nessun collegamento trovato per questa data",
