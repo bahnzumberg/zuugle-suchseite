@@ -412,9 +412,9 @@ export default function TourMapContainer({
     // created once for the whole component lifetime
     () =>
       L.icon({
-        iconUrl: "https://cdn.zuugle.at/img/startpunkt.svg",
-        iconSize: [33, 45],
-        iconAnchor: [16, 46],
+        iconUrl: "https://cdn.zuugle.at/img/startpunkt-slim.svg",
+        iconSize: [26, 38],
+        iconAnchor: [13, 38],
       }),
     [],
   );
