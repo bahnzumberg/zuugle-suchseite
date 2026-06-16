@@ -186,7 +186,12 @@ export default function ImprintContent() {
               target="_blank"
               rel="noreferrer"
             />,
-            <a key="zs" href="https://zuugle-services.com/" target="_blank" rel="noreferrer" />,
+            <a
+              key="zs"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+            />,
             <strong key="bold1" />,
           ]}
         />
@@ -196,7 +201,12 @@ export default function ImprintContent() {
         <Trans
           i18nKey="impressum.lizenz_absatz2"
           components={[
-            <a key="zs" href="https://zuugle-services.com/" target="_blank" rel="noreferrer" />,
+            <a
+              key="zs"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+            />,
             <strong key="bold2" />,
           ]}
         />
