@@ -138,22 +138,36 @@ function Imprint() {
             {t("impressum.gefoerdert_von")}
           </Typography>
 
-          <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-            <Grid style={{ textAlign: "center" }} size={{ xs: 12, md: 6 }}>
+          <Grid
+            container
+            spacing={2}
+            sx={{ marginTop: "10px", alignItems: "center" }}
+          >
+            <Grid
+              style={{ textAlign: "center" }}
+              size={{ xs: 12, sm: 6, md: 4 }}
+            >
               <a
                 href="https://www.bmluk.gv.at/"
                 target="_blank"
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
-                  height="100px"
+                  src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    maxHeight: "100px",
+                  }}
                   alt="Funded by www.bmluk.gv.at"
                   loading="lazy"
                 />
               </a>
             </Grid>
-            <Grid style={{ textAlign: "center" }} size={{ xs: 12, md: 6 }}>
+            <Grid
+              style={{ textAlign: "center" }}
+              size={{ xs: 12, sm: 6, md: 4 }}
+            >
               <a
                 href="https://www.alpconv.org/"
                 target="_blank"
@@ -161,9 +175,33 @@ function Imprint() {
               >
                 <img
                   src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
-                  height="75px"
-                  width="317px"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    maxHeight: "75px",
+                  }}
                   alt="Logo Alpenkonvention"
+                  loading="lazy"
+                />
+              </a>
+            </Grid>
+            <Grid
+              style={{ textAlign: "center" }}
+              size={{ xs: 12, sm: 6, md: 4 }}
+            >
+              <a
+                href="https://zuugle-services.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src="https://cdn.zuugle.at/img/Logo_Zuugle_Services_GmbH.svg"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    maxHeight: "75px",
+                  }}
+                  alt="Logo Zuugle Services"
                   loading="lazy"
                 />
               </a>

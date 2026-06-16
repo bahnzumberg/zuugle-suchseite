@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import Grid from "@mui/material/Grid";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
@@ -123,24 +123,41 @@ export default function ImprintContent() {
         {t("impressum.gefoerdert_von")}
       </Typography>
 
-      <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-        <Grid style={{ textAlign: "center" }} size={{ xs: 12, md: 6 }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ marginTop: "10px", alignItems: "center" }}
+      >
+        <Grid style={{ textAlign: "center" }} size={{ xs: 12, sm: 6, md: 4 }}>
           <a href="https://www.bmluk.gv.at/" target="_blank" rel="noreferrer">
             <img
-              src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
-              height="100px"
+              src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
+              style={{ maxWidth: "100%", height: "auto", maxHeight: "100px" }}
               alt="Funded by www.bmluk.gv.at"
               loading="lazy"
             />
           </a>
         </Grid>
-        <Grid style={{ textAlign: "center" }} size={{ xs: 12, md: 6 }}>
+        <Grid style={{ textAlign: "center" }} size={{ xs: 12, sm: 6, md: 4 }}>
           <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
             <img
               src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
-              height="75px"
-              width="317px"
+              style={{ maxWidth: "100%", height: "auto", maxHeight: "75px" }}
               alt="Logo Alpenkonvention"
+              loading="lazy"
+            />
+          </a>
+        </Grid>
+        <Grid style={{ textAlign: "center" }} size={{ xs: 12, sm: 6, md: 4 }}>
+          <a
+            href="https://zuugle-services.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src="https://cdn.zuugle.at/img/Logo_Zuugle_Services_GmbH.svg"
+              style={{ maxWidth: "100%", height: "auto", maxHeight: "75px" }}
+              alt="Logo Zuugle Services"
               loading="lazy"
             />
           </a>
@@ -149,6 +166,48 @@ export default function ImprintContent() {
 
       <Typography variant={"h5"} sx={{ marginTop: "40px" }}>
         {t("impressum.lizenzbedingungen")}
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.lizenz_absatz1"
+          values={{ domain: window.location.host }}
+          components={[
+            <a key="domain" href={window.location.origin} />,
+            <a
+              key="bzb"
+              href="https://verein.bahn-zum-berg.at"
+              target="_blank"
+              rel="noreferrer"
+            />,
+            <a
+              key="diana"
+              href="https://zuugle-services.com/en/diana-widget/"
+              target="_blank"
+              rel="noreferrer"
+            />,
+            <a
+              key="zs"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.lizenz_absatz2"
+          components={[
+            <a
+              key="zs"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
       </Typography>
 
       {isLoading && (

@@ -188,14 +188,18 @@ function DomainMenu() {
                 <div
                   className="rowing"
                   key={item.id}
-                  style={{ paddingTop: 12, paddingBottom: 12 }}
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    justifyContent: "flex-start",
+                  }}
                 >
                   <img
                     className="pointy"
-                    src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
+                    src={`https://cdn.zuugle.at/img/zuugle.svg`}
                     height={"19px"}
                     width={"auto"}
-                    alt="Logo Bahn zum Berg"
+                    alt="Logo Zuugle"
                     onClick={() => {
                       setShowDomainMenu(false);
                       window.location.replace(item.url);

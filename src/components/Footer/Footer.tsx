@@ -39,7 +39,7 @@ export default function Footer() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/BMLUK_Logo_srgb_EN.svg"
+                  src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
                   height="100px"
                   alt="Funded by www.bmluk.gv.at"
                   loading="lazy"

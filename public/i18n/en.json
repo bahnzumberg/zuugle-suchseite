@@ -99,8 +99,10 @@
     "haftung_fuer_links": "LIABILITY FOR LINKS",
     "verknuepfung_links": "This search engine for public transport tours contains links to third-party websites (\"external links\"). These websites are the responsibility of the respective operators. When we first created the external links to the third-party content, we checked whether there were any legal violations. At that time, no legal violations were apparent. However, we have no influence whatsoever on the current and future design and content of the linked pages. The inclusion of external links does not imply that we adopt the content behind the link as our own. Due to the large number of external links, it is not reasonable for us to constantly monitor them without concrete evidence of legal violations. However, we will delete such external links immediately if we become aware of any legal violations.",
     "lizenzbedingungen": "LICENCES FOR TIMETABLE DATA",
+    "lizenz_absatz1": "<0>{{domain}}</0> (Zuugle) is a \"Mountain Tour Search Engine Plus\" in the Alpine region (finds mountain tours and displays the corresponding timetables) and is 100% owned by the non-profit association <1>Bahn zum Berg</1>. As an NGO, the association focuses exclusively on promoting sustainable travel to outdoor activities. For timetable queries, the product <2>Diana GreenConnect</2> is used, which is provided free of charge to Bahn zum Berg by <3>Zuugle Services</3>.",
+    "lizenz_absatz2": "<0>Zuugle Services GmbH</0> (Zuugle Services) is an independent B2B company. Zuugle Services professionalises the technology behind tour planning to provide tailored, future-proof mobility solutions for businesses, regions and software providers.",
     "anfuehrung_quellen": "The various sources and licence terms of timetable data used are listed here.",
-    "gefoerdert_von": "FUNDED BY"
+    "gefoerdert_von": "PARTNERS & SUPPORTERS"
   },
   "index": {
     "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
