@@ -43,7 +43,7 @@ npm run lint
 
 ### Updating the GPX reference image
 
-`test/gpx-image.test.js` compares generated map screenshots against `test/fixtures/gpx_image_reference.webp`. If you change anything that affects map rendering (markers, colors, layout, Leaflet config), update the reference before committing:
+`test/gpx-image.test.js` compares generated map screenshots against `test/fixtures/gpx_image_reference.webp` using pixel-level diff (`pixelmatch`). Up to 2% of pixels may differ to tolerate minor tile server changes. If you change anything that visibly affects map rendering (markers, colors, layout, Leaflet config), update the reference before committing:
 
 ```bash
 rm test/fixtures/gpx_image_reference.webp
