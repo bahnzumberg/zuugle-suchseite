@@ -62,6 +62,7 @@ jobs:
                       docker compose -f docker-compose.uat.yaml up
                       ./restore_databases.sh --structure
                       pm2 restart all
+                      npm run import-files
 
     test-api:
         needs: build
