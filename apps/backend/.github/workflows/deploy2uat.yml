@@ -66,6 +66,7 @@ jobs:
                       # /usr/local/zuugle/import-data-files.sh
                       sleep 10
                       npm run refresh-search-suggestions
+                      npm run import-files
 
     test-api:
         needs: build
