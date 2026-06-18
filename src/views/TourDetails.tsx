@@ -332,7 +332,9 @@ export default function DetailReworked() {
       ) : !tour ? (
         <Box
           sx={{
-            maxWidth: "960px",
+            maxWidth: "1400px",
+            width: "100%",
+            boxSizing: "border-box",
             mx: "auto",
             px: { xs: "15px", sm: "30px" },
             py: "48px",
@@ -383,9 +385,9 @@ export default function DetailReworked() {
                 gridTemplateColumns: {
                   xs: "1fr",
                   sm: "1fr 1fr",
-                  md: "1fr 1fr 1fr",
+                  lg: "1fr 1fr 1fr",
                 },
-                gap: "20px",
+                gap: "30px",
               }}
             >
               {(suggestedTours?.tours ?? []).slice(0, 3).map((st, i) => (
