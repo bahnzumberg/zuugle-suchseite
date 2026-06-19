@@ -12,6 +12,7 @@
   },
   "Details": {
     "gpx_loading_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
+    "gpx_download_error": "The GPX file could not be downloaded. Please try again later.",
     "pdf_loading_notice": "Download to print / Send via mail",
     "disabled_download_button_notice": "Downloading is only possible when a connection is found. Try to select a different day.",
     "oeffi_fahrplan": "Public transport timetable",

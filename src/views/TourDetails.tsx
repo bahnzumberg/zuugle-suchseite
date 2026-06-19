@@ -1,8 +1,10 @@
 import fileDownload from "js-file-download";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
@@ -44,6 +46,9 @@ export default function DetailReworked() {
     lat: number;
     lon: number;
   } | null>(null);
+
+  // Whether the last GPX download attempt failed
+  const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
 
   const { i18n } = useTranslation();
 
@@ -175,14 +180,22 @@ export default function DetailReworked() {
   };
 
   async function downloadGpx() {
-    if (tour?.id && tour?.gpx_file) {
-      const gpxData = track;
-      if (gpxData) {
-        fileDownload(
-          gpxData as unknown as string,
-          parseFileName(tour.title, "zuugle_", ".gpx"),
-        );
+    if (!tour?.id || !tour?.gpx_file) {
+      return;
+    }
+    try {
+      const res = await fetch(tour.gpx_file);
+      if (!res.ok) {
+        throw new Error(`GPX download failed with status ${res.status}`);
       }
+      const gpxData = await res.text();
+      fileDownload(
+        gpxData,
+        parseFileName(tour.title, "zuugle_", ".gpx"),
+        "application/gpx+xml",
+      );
+    } catch {
+      setGpxDownloadFailed(true);
     }
   }
 
@@ -603,6 +616,21 @@ export default function DetailReworked() {
           <Footer></Footer>
         </Box>
       )}
+      <Snackbar
+        open={gpxDownloadFailed}
+        autoHideDuration={6000}
+        onClose={() => setGpxDownloadFailed(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setGpxDownloadFailed(false)}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {t("Details.gpx_download_error")}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

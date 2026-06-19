@@ -12,6 +12,7 @@
   },
   "Details": {
     "gpx_loading_notice": "Le téléchargement n'est possible que si une liaison a été trouvée. Essayez de choisir un autre jour.",
+    "gpx_download_error": "Le fichier GPX n'a pas pu être téléchargé. Veuillez réessayer plus tard.",
     "pdf_loading_notice": "Téléchargement pour impression / envoi d'un e-mail",
     "disabled_download_button_notice": "Le téléchargement n'est possible que si une liaison a été trouvée. Essayez de choisir un autre jour.",
     "oeffi_fahrplan": "Horaires de train et de bus",

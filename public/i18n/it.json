@@ -12,6 +12,7 @@
   },
   "Details": {
     "gpx_loading_notice": "Il download è possibile solo se il motore di ricerca trova un collegamento. Prova a selezionare un’altra data.",
+    "gpx_download_error": "Non è stato possibile scaricare il file GPX. Riprova più tardi.",
     "pdf_loading_notice": "Scarica e stampa / Invia per email",
     "disabled_download_button_notice": "Il download è possibile solo se il motore di ricerca trova un collegamento. Prova a selezionare un’altra data.",
     "oeffi_fahrplan": "Orario dei servizi di trasporto pubblico",
