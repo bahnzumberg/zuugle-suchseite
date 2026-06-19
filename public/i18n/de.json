@@ -12,6 +12,7 @@
   },
   "Details": {
     "gpx_loading_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
+    "gpx_download_error": "Die GPX-Datei konnte nicht heruntergeladen werden. Bitte versuchen Sie es später erneut.",
     "pdf_loading_notice": "Download für Druck / Mailversand",
     "disabled_download_button_notice": "Ein Download ist nur möglich wenn eine Verbindung gefunden wurde. Versuchen Sie bitte einen anderen Tag zu wählen.",
     "oeffi_fahrplan": "Öffi-Fahrplan",

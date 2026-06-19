@@ -12,6 +12,7 @@
   },
   "Details": {
     "gpx_loading_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
+    "gpx_download_error": "Datoteke GPX ni bilo mogoče prenesti. Poskusite znova pozneje.",
     "pdf_loading_notice": "Prenos za tiskanje / pošiljanje po e-pošti.",
     "disabled_download_button_notice": "Prenos poti je možen le v primeru, če je bila najdena povezava. Preveri drug datum.",
     "oeffi_fahrplan": "Vozni red javnega prevoza",
