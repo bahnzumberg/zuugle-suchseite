@@ -232,6 +232,7 @@
     "zurueck": "Nazaj"
   },
   "details": {
+    "tour_nicht_mehr_verfuegbar": "Ta tura ni na voljo.",
     "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
     "start_ausgangort": "Začetek pri izhodišču.",
     "keine_verbindungen": "Za ta dan ni najdena nobena povezava.",

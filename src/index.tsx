@@ -138,10 +138,7 @@ if (!rootElement) {
                 sizes="180x180"
                 href="https://cdn.zuugle.at/apple-touch-icon.png"
               />
-              <link
-                rel="manifest"
-                href="https://cdn.zuugle.at/site.webmanifest"
-              />
+              <link rel="manifest" href="/site.webmanifest" />
               {shouldPreload && (
                 <link rel="preload" href={preloadUrl} as="image" />
               )}

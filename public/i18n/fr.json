@@ -232,6 +232,7 @@
     "zurueck": "Retour"
   },
   "details": {
+    "tour_nicht_mehr_verfuegbar": "Cette randonnée n'est pas disponible.",
     "track_gps_geraet": "Télécharger la trace GPX",
     "start_ausgangort": "Début au lieu de départ de la randonnée",
     "keine_verbindungen": "Aucune desserte n'a été trouvée pour cette date.",
