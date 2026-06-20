@@ -19,6 +19,9 @@ DROP TABLE IF EXISTS canonical_alternate;
 DROP TABLE IF EXISTS city2tour_flat;
 DROP TABLE IF EXISTS logsearchphrase;
 DROP TABLE IF EXISTS logsearchphrase_archive;
+DROP TABLE IF EXISTS poi2tour;
+DROP TABLE IF EXISTS pois;
+DROP TABLE IF EXISTS search_suggestions;
 
 
 CREATE TABLE tour (
