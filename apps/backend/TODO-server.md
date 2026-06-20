@@ -30,7 +30,7 @@ up: `cdn.zuugle.at/foo` → `www.zuugle.at/public/foo`.
 
 Consequences:
 
-- `site.webmanifest` and the `web-app-manifest-*.png` icons are plain static files
+- ~~`site.webmanifest`~~ and the `web-app-manifest-*.png` icons are plain static files
   in this repo's `public/`, copied into the build (`cp -r public build/`) and
   served by `express.static("public")`. The CDN pulls them from there — the local
   PNGs are the **origin**, not dead files. Keep them.
