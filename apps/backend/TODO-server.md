@@ -2,26 +2,48 @@
 
 Things to verify on the server before/during next deployment.
 
-## ecosystem.config.js — RESOLVED
+## ecosystem.config.js
 
 The PM2 source of truth lives on the server at `~/suchseite/ecosystem.config.js`
-(one level **above** the API deploy targets), not in this repo. PM2 runs with
-`cwd = ~/suchseite`, so the `./api/index.js` / `./dev-api/index.js` paths resolve
-correctly from there.
+(one level **above** the API deploy targets). PM2 runs with `cwd = ~/suchseite`,
+so the `./api/index.js` / `./dev-api/index.js` paths resolve correctly from there.
 
-The server file manages **four** apps:
+Changes must be applied manually on each host.
 
-| App                | script (relative to `~/suchseite`) | Source                                        |
-| ------------------ | ---------------------------------- | --------------------------------------------- |
-| `zuugle_api`       | `./api/index.js`                   | this repo (UAT API, deployed to `…/api/`)     |
-| `zuugle_proxy`     | `./server/server.js`               | frontend/proxy repo                           |
-| `dev-zuugle_api`   | `./dev-api/index.js`               | this repo (DEV API, deployed to `…/dev-api/`) |
-| `dev-zuugle_proxy` | `./dev-server/server.js`           | dev proxy repo                                |
+**When applying changes on the server**, use the file — not the app name — so PM2
+re-reads the env block:
 
-The `ecosystem.config.js` that used to sit in this repo was a stale single-app
-fork (only `zuugle_api`, missing `USE_CDN`, never deployed, never invoked) and has
-been removed. The real file is infrastructure config spanning multiple repos and
-should stay on the server / in a dedicated infra repo — not here.
+```bash
+cd ~/suchseite
+pm2 restart ecosystem.config.js --update-env --only <app>
+pm2 save
+```
+
+Using `pm2 restart <app-name> --update-env` does **not** re-read the file.
+
+### Current state
+
+| App              | Host       | DB credentials in env block |
+| ---------------- | ---------- | --------------------------- |
+| `dev-zuugle_api` | uat-zuugle | ✓ set (cutover complete)    |
+| `zuugle_api`     | uat-zuugle | ✗ pending PROD cutover      |
+| `zuugle_api`     | zuugle-neu | ✗ pending PROD cutover      |
+
+### TODO: auto-deploy via GitHub Actions
+
+Currently the file is a manually-synced reference. The better long-term approach:
+deploy it from the workflow using `envsubst` so secrets never live in git:
+
+1. Add GitHub Secrets: `UAT_DB_PASSWORD`, `DEV_DB_PASSWORD` (and eventually
+   `PROD_DB_PASSWORD`).
+2. In `deploy-reusable.yml`, add a step after rsync that writes the filled-in file
+   to `~/suchseite/ecosystem.config.js` and runs
+   `pm2 restart ecosystem.config.js --update-env`.
+3. In `src/ecosystem.config.js`, replace actual passwords with `${DEV_DB_PASSWORD}`
+   placeholders — safe to commit.
+
+This pairs naturally with the PROD cutover (step 0 for PROD requires wiring up DB
+credentials there anyway).
 
 ## webmanifest / CDN — how it actually works
 
@@ -134,3 +156,96 @@ Deploy + open questions:
 - Composes with the Docker migration: if Dockerized, `ExecStart` becomes
   `docker compose run --rm importer npm run …`. Pick systemd **or** an ofelia
   sidecar as the trigger — not both.
+
+## Database deployment
+
+### What is the role of tourendb?
+
+`knexfileTourenDb.js` connects to the external MySQL source DB (`tourendatenbank_uat`
+/ `tourendatenbank`). `sync.js` uses it to query `vw_touren_to_search` and
+`vw_provider_to_search` — the direct MySQL import path.
+
+The UAT/DEV servers do **not** use this path. Their nightly load downloads a
+pre-built PostgreSQL dump from `uat-dump.zuugle.at` (`syncDataDockerDownload.js`),
+bypassing MySQL entirely. `knexfileTourenDb.js` on those servers has always had
+empty credentials and it doesn't matter.
+
+Only PROD (zuugle-neu) and local dev use the MySQL connection directly.
+
+### Use knex migrations
+
+Step 0 (env-driven committed knexfile) is **complete** — see commit `6be2dec`.
+
+Remaining steps to decouple data import from code deploy:
+
+#### Step 1 — Migration infrastructure
+
+- Create `src/migrations/` directory.
+- Add `cp -r src/migrations build/migrations` to `build:copy` in `package.json`
+  (migrations are CJS `.js` files — copied verbatim, not transformed by tsc).
+- Exclude `src/migrations/` from tsc so it doesn't try to compile CJS files.
+- Add npm scripts:
+    ```json
+    "migrate":          "knex --knexfile build/knexfile.js migrate:latest",
+    "migrate:make":     "knex --knexfile src/knexfile.js migrate:make",
+    "migrate:rollback": "knex --knexfile build/knexfile.js migrate:rollback",
+    "migrate:status":   "knex --knexfile build/knexfile.js migrate:status",
+    ```
+
+#### Step 2 — Baseline migration
+
+Create `src/migrations/0001_baseline.js` that faithfully ports `database.sql`:
+
+- `knex.schema.createTable(...)` for all 17 tables.
+- `knex.raw(...)` for what knex.schema can't express: extensions (`vector`, `cube`,
+  `earthdistance`, `pg_trgm`), column types (`tsvector`, `vector(1024)`), HNSW
+  index (`m=24, ef_construction=128`), GIN/GIST/trgm/covering indexes, the
+  `sync_tour_image_to_flat()` trigger, and the `city_static` seed rows.
+- Drop the `kpi` INSERT … SELECT statements — derived data recomputed by
+  `writeKPIs()`.
+- `exports.down` mirrors the current DROP TABLE block (including `poi2tour`,
+  `pois`, `search_suggestions` which the old block was missing — fixed in `ff7d949`).
+
+Verify: `npm run migrate` on a fresh container produces a schema that matches
+`pg_dump --schema-only` of the current UAT DB (no meaningful diff).
+
+#### Step 3 — Retire database.sql
+
+- Remove the `database.sql:/docker-entrypoint-initdb.d/init.sql` mount from
+  `docker-compose.yaml` and `docker-compose.uat.yaml`.
+- `src/jobs/resetDatabase.js`: after `DROP SCHEMA public CASCADE; CREATE SCHEMA
+public`, run `npm run migrate` instead of `psql -f database.sql`.
+- `src/jobs/rebuildDocker.js`: run `npm run migrate` after the fresh container
+  starts.
+- `restore_databases.sh`: replace the `--structure` branch (`cat database.sql |
+psql`) with `npm run migrate`. Decouple the data import — `--structure` must no
+  longer auto-trigger `syncDataDockerDownload.js`; the bare invocation stays as
+  data-import-only so the nightly cron is unaffected.
+- Remove `database.sql` from `build:copy` and delete the file.
+
+#### Step 4 — Code-only deploys for UAT/DEV
+
+- `deploy-reusable.yml`: add `run_migrations` boolean input; replace the
+  `rebuild_db_structure` → `restore_databases.sh --structure` step with
+  `npm run migrate` when set.
+- `deploy2uat.yml` / `deploy2dev.yml`: set `run_migrations: true`; remove
+  `rebuild_db_structure`, `import_files`, `refresh_suggestions`. Drop
+  `command_timeout` from 60m to ~10m.
+- `deploy2prod.yml`: unchanged this round (PROD deferred).
+
+#### Step 5 — Docs
+
+Update `README.md`, `README_UAT.md`, `CLAUDE.md`, and `.agent/constraints.md` to
+reflect schema-via-migrations, `npm run migrate` in setup, and code-only deploys.
+
+#### Manual server steps (coordinated, off-repo)
+
+1. **One-time baseline** of existing UAT/DEV DBs: drop schema and `migrate:latest`
+   to bootstrap a clean migration ledger, then let the nightly import reload data.
+   (Databases are disposable — rebuilt nightly from the dump.)
+2. **Change the UAT `pg_dump`** that produces `uat-dump.zuugle.at/zuugle_postgresql.dump`
+   to `--data-only` (and confirm no `--clean` flag). Until this is done, a full
+   schema+data dump can clobber migration-added columns on the next nightly import.
+   This command lives on the source server.
+3. **Verify nightly cron is active** on UAT and DEV before relying on code-only
+   deploys — `crontab -l` on the hosts. If disabled, a deploy won't refresh data.
