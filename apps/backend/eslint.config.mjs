@@ -21,6 +21,14 @@ export default defineConfig([
     },
     tseslint.configs.recommended,
     {
+        // Knexfiles and migrations are CommonJS: loaded by the knex CLI and by
+        // `node -e "require('./knexfile.js')"`, so they legitimately use require().
+        files: ["src/knexfile.js", "src/knexfileTourenDb.js", "src/migrations/**"],
+        rules: {
+            "@typescript-eslint/no-require-imports": "off",
+        },
+    },
+    {
         files: ["**/*.json"],
         plugins: { json },
         language: "json/json",

@@ -40,13 +40,12 @@ and install all dependencies.
 
 > **Note:** For UAT environment with two PostgreSQL instances, use `docker compose -f docker-compose.uat.yaml up -d` instead.
 
-### Setup database connection files
+### Configure the database connection
 
-Create a copy of each connection file and rename it. We need two "knexfile\*" files:
+Database connection settings are read from environment variables (see
+`src/knexfile.js` and `src/knexfileTourenDb.js`). Create a local `.env` from the template and fill in your values:
 
-    cp ./src/knexfileTourenDb.js.example ./src/knexfileTourenDb.js
-
-    cp ./src/knexfile.js.example ./src/knexfile.js
+    cp ./.env.example ./.env
 
 ## Load data and run backend
 
