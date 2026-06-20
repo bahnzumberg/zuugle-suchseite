@@ -11,10 +11,10 @@ jobs:
             environment: DEV
             api_base_url: https://dev.zuugle.at
             setup_docker: true
-            rebuild_db_structure: true
+            rebuild_db_structure: false
             use_basic_auth: true
-            command_timeout: 60m
-            import_files: true
+            command_timeout: 10m
+            import_files: false
             pm2_app_name: dev-zuugle_api
         secrets:
             SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
