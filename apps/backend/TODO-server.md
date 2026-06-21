@@ -2,6 +2,32 @@
 
 Things to verify on the server before/during next deployment.
 
+## .env files (job credentials)
+
+`import-files` (and other job scripts) run outside PM2 — either via the deploy
+workflow SSH step or via the Python cron (`start_zuugle_uat_load.py`). They don't
+inherit PM2's env block, so `DB_PASSWORD` is undefined and pg throws a SASL error.
+
+`knexfile.js` calls `dotenv.config()` which picks up a `.env` in the working
+directory. **Create this file manually** in each app directory that runs job scripts:
+
+```bash
+# /root/suchseite/api/.env  and  /root/suchseite/dev-api/.env
+cat > .env << 'EOF'
+NODE_ENV=production
+DB_HOST=<host>
+DB_PORT=5432
+DB_USER=<user>
+DB_PASSWORD=<password>
+DB_NAME=<db_name>
+EOF
+chmod 600 .env
+```
+
+**Possible long-term fix:** wire up DB credentials as GitHub Secrets and deploy the `.env`
+from the workflow — see the "auto-deploy via GitHub Actions" section under
+`ecosystem.config.js`.
+
 ## ecosystem.config.js
 
 The PM2 source of truth lives on the server at `~/suchseite/ecosystem.config.js`
