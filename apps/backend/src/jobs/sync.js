@@ -944,7 +944,7 @@ export async function syncTours() {
 
         const result = await query;
         if (!!result && result.length > 0 && result[0].length > 0) {
-            bulk_insert_tours(result[0]);
+            await bulk_insert_tours(result[0]);
         }
     }
 
@@ -952,6 +952,22 @@ export async function syncTours() {
     await knex.raw(
         `UPDATE tour SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
     ); // This is the needed size for the tour detail page
+
+    // Verify row count: PostgreSQL tour table must match MariaDB source
+    const pgCountResult = await knex("tour").count("* as cnt");
+    const pgCount = parseInt(pgCountResult[0].cnt, 10);
+    const mariaCountResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
+    const mariaCount = parseInt(mariaCountResult[0]["anzahl"], 10);
+
+    if (pgCount !== mariaCount) {
+        logger.error(
+            `SYNC TOURS COUNT MISMATCH: MariaDB vw_touren_to_search has ${mariaCount} rows, but PostgreSQL tour has only ${pgCount} rows (${mariaCount - pgCount} missing)`,
+        );
+    } else {
+        logger.info(
+            `SYNC TOURS COUNT OK: ${pgCount} tours in PostgreSQL match ${mariaCount} in MariaDB`,
+        );
+    }
 }
 
 export async function syncCities() {
@@ -1183,8 +1199,13 @@ const bulk_insert_tours = async (entries) => {
         await knex.raw(sql_insert);
         return true;
     } catch (err) {
-        logger.info("error: ", err);
-        return false;
+        logger.error(
+            `bulk_insert_tours FAILED for batch of ${entries.length} tours (IDs: ${entries
+                .slice(0, 5)
+                .map((e) => e.id)
+                .join(", ")}...): ${err.message}`,
+        );
+        throw err;
     }
 };
 
