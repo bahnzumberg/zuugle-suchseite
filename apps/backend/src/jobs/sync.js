@@ -879,12 +879,17 @@ async function createFileFromGpx(
 }
 
 export async function syncTours() {
-    // Set Maintenance mode for Zuugle (webpage is disabled)
-    await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
+    // ── Step 1: Ensure staging table tour_load exists ─────────────
+    const tableExists = await knex.raw(
+        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tour_load')`,
+    );
+    if (!tableExists.rows[0].exists) {
+        logger.info("Creating tour_load staging table (empty copy of tour, no indices)");
+        await knex.raw(`CREATE TABLE tour_load (LIKE tour INCLUDING DEFAULTS)`);
+    }
+    await knex.raw(`TRUNCATE tour_load;`);
 
-    // Table tours will be rebuild from scratch
-    await knex.raw(`TRUNCATE tour;`);
-
+    // ── Step 2: Load data from MariaDB into tour_load ────────────
     let limit = 100;
     const countResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
 
@@ -944,30 +949,38 @@ export async function syncTours() {
 
         const result = await query;
         if (!!result && result.length > 0 && result[0].length > 0) {
-            await bulk_insert_tours(result[0]);
+            await bulk_insert_tours(result[0], "tour_load");
         }
     }
 
-    await knex.raw(`UPDATE tour SET image_url=NULL WHERE image_url='null';`);
+    // ── Step 3: Apply image_url fixes on staging table ───────────
+    await knex.raw(`UPDATE tour_load SET image_url=NULL WHERE image_url='null';`);
     await knex.raw(
-        `UPDATE tour SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
+        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
     ); // This is the needed size for the tour detail page
 
-    // Verify row count: PostgreSQL tour table must match MariaDB source
-    const pgCountResult = await knex("tour").count("* as cnt");
-    const pgCount = parseInt(pgCountResult[0].cnt, 10);
+    // ── Step 4: Verify row count before swap ─────────────────────
+    const loadCountResult = await knex("tour_load").count("* as cnt");
+    const loadCount = parseInt(loadCountResult[0].cnt, 10);
     const mariaCountResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
     const mariaCount = parseInt(mariaCountResult[0]["anzahl"], 10);
 
-    if (pgCount !== mariaCount) {
+    if (loadCount !== mariaCount) {
         logger.error(
-            `SYNC TOURS COUNT MISMATCH: MariaDB vw_touren_to_search has ${mariaCount} rows, but PostgreSQL tour has only ${pgCount} rows (${mariaCount - pgCount} missing)`,
+            `SYNC TOURS COUNT MISMATCH: MariaDB vw_touren_to_search has ${mariaCount} rows, but tour_load has only ${loadCount} rows (${mariaCount - loadCount} missing). Aborting swap!`,
         );
-    } else {
-        logger.info(
-            `SYNC TOURS COUNT OK: ${pgCount} tours in PostgreSQL match ${mariaCount} in MariaDB`,
-        );
+        return;
     }
+
+    logger.info(
+        `SYNC TOURS COUNT OK: ${loadCount} rows in tour_load match ${mariaCount} in MariaDB. Swapping...`,
+    );
+
+    // ── Step 5: Fast swap — site downtime starts here ────────────
+    await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
+    await knex.raw(`TRUNCATE tour;`);
+    await knex.raw(`INSERT INTO tour SELECT * FROM tour_load;`);
+    // ── Site downtime ends here ──────────────────────────────────
 }
 
 export async function syncCities() {
@@ -1032,7 +1045,7 @@ const calcMonthOrder = (entry) => {
     return 1;
 };
 
-const bulk_insert_tours = async (entries) => {
+const bulk_insert_tours = async (entries, targetTable = "tour") => {
     let sql_values = "";
 
     for (let i = 0; i < entries.length; i++) {
@@ -1153,7 +1166,7 @@ const bulk_insert_tours = async (entries) => {
         sql_values = sql_values + "'" + entry.text_lang + "'" + "," + entry.maxele + ")";
     }
 
-    const sql_insert = `INSERT INTO tour (id, 
+    const sql_insert = `INSERT INTO ${targetTable} (id, 
                                           url, 
                                           provider,
                                           hashed_url,
