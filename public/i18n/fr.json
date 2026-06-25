@@ -284,6 +284,7 @@
     "startort_placeholder": "Saisir une adresse ou un arrêt",
     "zielort": "Destination",
     "aktivitaetsdatum": "Date de l'activité",
+    "bedarfsverkehr": "Transport à la demande",
     "heute": "Aujourd'hui",
     "morgen": "Demain",
     "anderes_datum": "Autre date",

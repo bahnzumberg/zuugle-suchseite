@@ -284,6 +284,7 @@
     "startort_placeholder": "Enter address or station",
     "zielort": "Destination",
     "aktivitaetsdatum": "Activity date",
+    "bedarfsverkehr": "On-demand transport",
     "heute": "Today",
     "morgen": "Tomorrow",
     "anderes_datum": "Other date",
