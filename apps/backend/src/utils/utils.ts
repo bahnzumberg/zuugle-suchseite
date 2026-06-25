@@ -26,7 +26,7 @@ export function isNumber(value: unknown) {
 
 export function getHost(origin: string) {
     if (process.env.NODE_ENV === "production") {
-        if (origin.length > 0) {
+        if (origin && origin.length > 0) {
             return `https://${origin}`;
         } else {
             return `https://www.zuugle.at`;
