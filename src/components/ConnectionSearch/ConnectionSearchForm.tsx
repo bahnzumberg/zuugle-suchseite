@@ -589,6 +589,25 @@ export default function ConnectionSearchForm({
               </Box>
             </Box>
 
+            {/* powered by */}
+            <Typography
+              component="a"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+              sx={{
+                display: "block",
+                textAlign: "right",
+                mt: "2px",
+                fontSize: "12px",
+                color: "#8b8b8b",
+                textDecoration: "none",
+                "&:hover": { color: "var(--bzb-akelei)" },
+              }}
+            >
+              powered by Zuugle Services
+            </Typography>
+
             {/* Bedarfsverkehr toggle */}
             <FormControlLabel
               control={
@@ -723,6 +742,25 @@ export default function ConnectionSearchForm({
               </Button>
             </Box>
 
+            {/* powered by */}
+            <Typography
+              component="a"
+              href="https://zuugle-services.com/"
+              target="_blank"
+              rel="noreferrer"
+              sx={{
+                display: "block",
+                textAlign: "right",
+                mt: "2px",
+                fontSize: "12px",
+                color: "#8b8b8b",
+                textDecoration: "none",
+                "&:hover": { color: "var(--bzb-akelei)" },
+              }}
+            >
+              powered by Zuugle Services
+            </Typography>
+
             {/* Bedarfsverkehr toggle */}
             <FormControlLabel
               control={
@@ -752,25 +790,6 @@ export default function ConnectionSearchForm({
             />
           </Box>
         )}
-
-        {/* powered by */}
-        <Typography
-          component="a"
-          href="https://zuugle-services.com/"
-          target="_blank"
-          rel="noreferrer"
-          sx={{
-            display: "block",
-            textAlign: "right",
-            mt: "6px",
-            fontSize: "12px",
-            color: "#8b8b8b",
-            textDecoration: "none",
-            "&:hover": { color: "var(--bzb-akelei)" },
-          }}
-        >
-          powered by Zuugle Services
-        </Typography>
 
         {/* Search error */}
         {searchError && !isSearching && (
