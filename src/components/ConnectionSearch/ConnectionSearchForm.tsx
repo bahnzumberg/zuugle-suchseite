@@ -612,7 +612,7 @@ export default function ConnectionSearchForm({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                gap: "4px",
                 mt: "12px",
               }}
             >
@@ -764,7 +764,7 @@ export default function ConnectionSearchForm({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                gap: "4px",
                 mt: "12px",
               }}
             >
