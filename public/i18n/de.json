@@ -286,6 +286,7 @@
     "startort_placeholder": "Adresse oder Haltestelle eingeben",
     "zielort": "Zielort",
     "aktivitaetsdatum": "Aktivitätsdatum",
+    "bedarfsverkehr": "Bedarfsverkehr",
     "heute": "Heute",
     "morgen": "Morgen",
     "anderes_datum": "Anderes Datum",

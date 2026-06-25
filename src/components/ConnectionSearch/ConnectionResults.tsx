@@ -103,6 +103,7 @@ interface ConnectionResultsProps {
     fromEnd?: string;
   } | null;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
+  useFlex?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -917,6 +918,7 @@ export default function ConnectionResults({
   activityDurationMinutes,
   shareTimeHints,
   onStopHover,
+  useFlex,
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
@@ -1080,7 +1082,7 @@ export default function ConnectionResults({
       });
 
       const { shareId } = await resp.json();
-      const shareUrl = `${window.location.origin}${window.location.pathname}?diana-share=${shareId}`;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?diana-share=${shareId}${useFlex ? "&flex=1" : ""}`;
 
       // Use native Web Share API if available, otherwise copy to clipboard
       if (navigator.share) {
