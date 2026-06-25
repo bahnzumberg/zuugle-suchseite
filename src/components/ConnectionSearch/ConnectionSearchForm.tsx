@@ -6,6 +6,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -85,6 +87,7 @@ export default function ConnectionSearchForm({
   const [connectionsResult, setConnectionsResult] =
     useState<ConnectionsResultData | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [useFlex, setUseFlex] = useState(false);
 
   // Share restore state
   const [searchParams] = useSearchParams();
@@ -136,7 +139,7 @@ export default function ConnectionSearchForm({
       activity_duration_minutes: String(activityDurationMinutes),
       date: selectedDate,
       lang: lang,
-      use_flex: "false",
+      use_flex: useFlex ? "true" : "false",
       timezone: "Europe/Vienna",
     });
 
@@ -179,7 +182,7 @@ export default function ConnectionSearchForm({
           activity_duration_minutes: String(activityDurationMinutes),
           date,
           lang: lang,
-          use_flex: "false",
+          use_flex: useFlex ? "true" : "false",
           timezone: "Europe/Vienna",
         });
 
@@ -211,6 +214,12 @@ export default function ConnectionSearchForm({
   useEffect(() => {
     if (!shareId || shareRestored.current) return;
     shareRestored.current = true;
+
+    // Restore flex toggle from share URL (?flex=1)
+    const flexParam = searchParams.get("flex");
+    if (flexParam === "1") {
+      setUseFlex(true);
+    }
 
     const restoreShare = async () => {
       try {
@@ -579,6 +588,34 @@ export default function ConnectionSearchForm({
                 </Button>
               </Box>
             </Box>
+
+            {/* Bedarfsverkehr toggle */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={useFlex}
+                  onChange={(e) => setUseFlex(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "var(--bzb-akelei)",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      backgroundColor: "var(--bzb-akelei)",
+                    },
+                  }}
+                />
+              }
+              label={t("details.bedarfsverkehr")}
+              sx={{
+                mt: "4px",
+                ml: 0,
+                "& .MuiFormControlLabel-label": {
+                  fontSize: "14px",
+                  color: "#555",
+                },
+              }}
+            />
           </>
         ) : (
           /* Multi-day tour: date pickers + button in same flex-wrap row */
@@ -685,6 +722,34 @@ export default function ConnectionSearchForm({
                 )}
               </Button>
             </Box>
+
+            {/* Bedarfsverkehr toggle */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={useFlex}
+                  onChange={(e) => setUseFlex(e.target.checked)}
+                  size="small"
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "var(--bzb-akelei)",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      backgroundColor: "var(--bzb-akelei)",
+                    },
+                  }}
+                />
+              }
+              label={t("details.bedarfsverkehr")}
+              sx={{
+                mt: "4px",
+                ml: 0,
+                "& .MuiFormControlLabel-label": {
+                  fontSize: "14px",
+                  color: "#555",
+                },
+              }}
+            />
           </Box>
         )}
 
@@ -741,6 +806,7 @@ export default function ConnectionSearchForm({
             activityDurationMinutes={activityDurationMinutes}
             shareTimeHints={shareTimeHints}
             onStopHover={onStopHover}
+            useFlex={useFlex}
           />
         )}
       </Box>
