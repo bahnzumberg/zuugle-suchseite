@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -609,32 +608,31 @@ export default function ConnectionSearchForm({
             </Typography>
 
             {/* Bedarfsverkehr toggle */}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={useFlex}
-                  onChange={(e) => setUseFlex(e.target.checked)}
-                  size="small"
-                  sx={{
-                    "& .MuiSwitch-switchBase.Mui-checked": {
-                      color: "var(--bzb-akelei)",
-                    },
-                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                      backgroundColor: "var(--bzb-akelei)",
-                    },
-                  }}
-                />
-              }
-              label={t("details.bedarfsverkehr")}
+            <Box
               sx={{
-                mt: "4px",
-                ml: 0,
-                "& .MuiFormControlLabel-label": {
-                  fontSize: "14px",
-                  color: "#555",
-                },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mt: "12px",
               }}
-            />
+            >
+              <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
+                {t("details.bedarfsverkehr")}
+              </Typography>
+              <Switch
+                checked={useFlex}
+                onChange={(e) => setUseFlex(e.target.checked)}
+                size="small"
+                sx={{
+                  "& .MuiSwitch-switchBase.Mui-checked": {
+                    color: "var(--bzb-akelei)",
+                  },
+                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                    backgroundColor: "var(--bzb-akelei)",
+                  },
+                }}
+              />
+            </Box>
           </>
         ) : (
           /* Multi-day tour: date pickers + button in same flex-wrap row */
@@ -762,32 +760,31 @@ export default function ConnectionSearchForm({
             </Typography>
 
             {/* Bedarfsverkehr toggle */}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={useFlex}
-                  onChange={(e) => setUseFlex(e.target.checked)}
-                  size="small"
-                  sx={{
-                    "& .MuiSwitch-switchBase.Mui-checked": {
-                      color: "var(--bzb-akelei)",
-                    },
-                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                      backgroundColor: "var(--bzb-akelei)",
-                    },
-                  }}
-                />
-              }
-              label={t("details.bedarfsverkehr")}
+            <Box
               sx={{
-                mt: "4px",
-                ml: 0,
-                "& .MuiFormControlLabel-label": {
-                  fontSize: "14px",
-                  color: "#555",
-                },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mt: "12px",
               }}
-            />
+            >
+              <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
+                {t("details.bedarfsverkehr")}
+              </Typography>
+              <Switch
+                checked={useFlex}
+                onChange={(e) => setUseFlex(e.target.checked)}
+                size="small"
+                sx={{
+                  "& .MuiSwitch-switchBase.Mui-checked": {
+                    color: "var(--bzb-akelei)",
+                  },
+                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                    backgroundColor: "var(--bzb-akelei)",
+                  },
+                }}
+              />
+            </Box>
           </Box>
         )}
 
