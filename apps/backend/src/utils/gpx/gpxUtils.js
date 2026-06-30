@@ -384,11 +384,135 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
     }
 };
 
-// Neue Funktion zur Überprüfung und Neuerstellung alter Bilder
+/**
+ * Regenerates a single GPX file from database data (gpx + tracks tables).
+ * Combines totour track, main GPX track, and fromtour track into one file.
+ * @param {string|number} id - Tour ID
+ * @param {string} hashedUrl - Hashed URL of the tour
+ * @param {string} title - Tour title
+ * @returns {Promise<string|null>} Path to created file, or null on failure
+ */
+export const regenerateGpxFile = async (id, hashedUrl, title) => {
+    let dir_go_up = "";
+    if (process.env.NODE_ENV == "production") {
+        dir_go_up = "../../";
+    } else {
+        dir_go_up = "../../../";
+    }
+
+    const lastTwoChars = last_two_characters(id);
+    const dirPath = path.join(__dirname, dir_go_up, "public/gpx/", lastTwoChars, "/");
+    const filePathName = path.join(dirPath, id + ".gpx");
+
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+
+        const result = await knex.raw(
+            `
+            WITH routing_keys AS (
+                -- Finde die häufigsten Keys für Vor- und Nachlauf
+                SELECT
+                    totour_track_key,
+                    fromtour_track_key
+                FROM fahrplan
+                WHERE hashed_url = ?
+                GROUP BY totour_track_key, fromtour_track_key
+                ORDER BY count(*) DESC
+                LIMIT 1
+            ),
+            combined_tracks AS (
+                -- Vorlauf (totour)
+                SELECT 
+                    NULL::text AS provider,
+                    ? AS hashed_url,
+                    1 AS part_order,
+                    track_point_sequence AS original_seq,
+                    track_point_lat AS lat,
+                    track_point_lon AS lon,
+                    track_point_elevation AS ele
+                FROM tracks
+                JOIN routing_keys rk ON tracks.track_key = rk.totour_track_key
+
+                UNION ALL
+
+                -- Der eigentliche Haupt-Track
+                SELECT 
+                    provider,
+                    hashed_url,
+                    2 AS part_order,
+                    waypoint AS original_seq,
+                    lat,
+                    lon,
+                    ele
+                FROM gpx 
+                WHERE hashed_url = ?
+
+                UNION ALL
+
+                -- Nachlauf (fromtour)
+                SELECT 
+                    NULL::text AS provider,
+                    ? AS hashed_url,
+                    3 AS part_order,
+                    track_point_sequence AS original_seq,
+                    track_point_lat AS lat,
+                    track_point_lon AS lon,
+                    track_point_elevation AS ele
+                FROM tracks
+                JOIN routing_keys rk ON tracks.track_key = rk.fromtour_track_key
+            )
+            -- Finale Ausgabe mit sauberer Neu-Nummerierung (1 bis n)
+            SELECT 
+                provider,
+                hashed_url,
+                ROW_NUMBER() OVER (ORDER BY part_order, original_seq) AS waypoint,
+                lat,
+                lon,
+                ele
+            FROM combined_tracks
+            ORDER BY waypoint;
+            `,
+            [hashedUrl, hashedUrl, hashedUrl, hashedUrl],
+        );
+
+        const waypoints = result.rows;
+        if (waypoints && waypoints.length > 0) {
+            const root = create({ version: "1.0" })
+                .ele("gpx", {
+                    version: "1.1",
+                    xmlns: "http://www.topografix.com/GPX/1/1",
+                    "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                })
+                .ele("trk")
+                .ele("name")
+                .txt(title)
+                .up()
+                .ele("trkseg");
+
+            waypoints.forEach((wp) => {
+                root.ele("trkpt", { lat: wp.lat, lon: wp.lon }).ele("ele").txt(wp.ele);
+            });
+
+            const xml = root.end({ prettyPrint: true });
+            if (xml) {
+                fs.writeFileSync(filePathName, xml);
+            }
+            return filePathName;
+        }
+        return null;
+    } catch (err) {
+        logger.error(`Error in regenerateGpxFile for tour ${id}:`, err);
+        return null;
+    }
+};
+
+// Überprüfung und Neuerstellung alter Bilder (inkl. zugehöriger GPX-Dateien)
 const cleanAndRecreateOldImages = async (dir_go_up) => {
     let idsToRecreate = [];
     const allToursWithImages = await knex.raw(
-        `SELECT id FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+        `SELECT id, hashed_url, title FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
     );
     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
 
@@ -411,6 +535,26 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
             if (isOlderThan30Days && shouldBeDeleted) {
                 logger.info(`Deleting old image for tour ID ${id}.`);
                 await fs.promises.unlink(filePath);
+
+                // Zugehöriges GPX-File löschen und frisch aus der DB regenerieren,
+                // damit das neue Image auf aktuellen Daten basiert
+                const gpxFilePath = path.join(
+                    __dirname,
+                    dir_go_up,
+                    "public/gpx/",
+                    lastTwoChars,
+                    id + ".gpx",
+                );
+                try {
+                    await fs.promises.unlink(gpxFilePath);
+                    logger.info(`Deleted GPX file for tour ID ${id}.`);
+                } catch (gpxErr) {
+                    if (gpxErr.code !== "ENOENT") {
+                        logger.error(`Error deleting GPX file for tour ID ${id}:`, gpxErr);
+                    }
+                }
+                await regenerateGpxFile(id, row.hashed_url, row.title);
+
                 idsToRecreate.push(id);
             }
         } catch (e) {

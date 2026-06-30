@@ -1,7 +1,7 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
-import { createImagesFromMap, last_two_characters } from "../utils/gpx/gpxUtils";
+import { createImagesFromMap, last_two_characters, regenerateGpxFile } from "../utils/gpx/gpxUtils";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
@@ -707,104 +707,23 @@ async function _syncGPX(id, h_url, title) {
     }
 
     try {
-        var fileName = id + ".gpx";
         var filePath = "";
         if (process.env.NODE_ENV == "production") {
             filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
         } else {
             filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
         }
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath, { recursive: true });
-        }
-        var filePathName = filePath + fileName;
-        var waypoints = null;
+        var filePathName = path.join(filePath, id + ".gpx");
         if (!fs.existsSync(filePathName)) {
-            try {
-                // Schritt 1: Serielle Datenbankabfrage. Die Funktion wartet hier.
-                // Combined query: totour track + main GPX + fromtour track
-                const result = await knex.raw(
-                    `
-                    WITH routing_keys AS (
-                        -- 1. Finde die häufigsten Keys für Vor- und Nachlauf
-                        SELECT
-                            totour_track_key,
-                            fromtour_track_key
-                        FROM fahrplan
-                        WHERE hashed_url = ?
-                        GROUP BY totour_track_key, fromtour_track_key
-                        ORDER BY count(*) DESC
-                        LIMIT 1
-                    ),
-                    combined_tracks AS (
-                        -- 2a. Vorlauf (totour)
-                        SELECT 
-                            NULL::text AS provider,
-                            ? AS hashed_url,
-                            1 AS part_order,
-                            track_point_sequence AS original_seq,
-                            track_point_lat AS lat,
-                            track_point_lon AS lon,
-                            track_point_elevation AS ele
-                        FROM tracks
-                        JOIN routing_keys rk ON tracks.track_key = rk.totour_track_key
-
-                        UNION ALL
-
-                        -- 2b. Der eigentliche Haupt-Track
-                        SELECT 
-                            provider,
-                            hashed_url,
-                            2 AS part_order,
-                            waypoint AS original_seq,
-                            lat,
-                            lon,
-                            ele
-                        FROM gpx 
-                        WHERE hashed_url = ?
-
-                        UNION ALL
-
-                        -- 2c. Nachlauf (fromtour)
-                        SELECT 
-                            NULL::text AS provider,
-                            ? AS hashed_url,
-                            3 AS part_order,
-                            track_point_sequence AS original_seq,
-                            track_point_lat AS lat,
-                            track_point_lon AS lon,
-                            track_point_elevation AS ele
-                        FROM tracks
-                        JOIN routing_keys rk ON tracks.track_key = rk.fromtour_track_key
-                    )
-                    -- 3. Finale Ausgabe mit sauberer Neu-Nummerierung (1 bis n)
-                    SELECT 
-                        provider,
-                        hashed_url,
-                        ROW_NUMBER() OVER (ORDER BY part_order, original_seq) AS waypoint,
-                        lat,
-                        lon,
-                        ele
-                    FROM combined_tracks
-                    ORDER BY waypoint;
-                `,
-                    [h_url, h_url, h_url, h_url],
-                );
-                waypoints = result.rows;
-            } catch (err) {
-                logger.info("Error in _syncGPX while trying to execute waypoints query: ", err);
-            }
-            if (!!waypoints && waypoints.length > 0 && !!filePathName) {
-                const writePromise = createFileFromGpx(waypoints, filePathName, title);
-                // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
-                activeFileWrites.push(writePromise);
-                writePromise.finally(() => {
-                    const index = activeFileWrites.indexOf(writePromise);
-                    if (index > -1) {
-                        activeFileWrites.splice(index, 1);
-                    }
-                });
-            }
+            const writePromise = regenerateGpxFile(id, h_url, title);
+            // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
+            activeFileWrites.push(writePromise);
+            writePromise.finally(() => {
+                const index = activeFileWrites.indexOf(writePromise);
+                if (index > -1) {
+                    activeFileWrites.splice(index, 1);
+                }
+            });
         }
     } catch (err) {
         logger.error(err);
