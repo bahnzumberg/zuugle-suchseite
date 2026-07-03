@@ -538,6 +538,7 @@ export async function writeKPIs() {
                                     CONCAT('total_tours_',reachable_from_country) AS NAME,
                                     COUNT(DISTINCT tour_id) AS VALUE
                                     FROM city2tour
+                                    WHERE stop_selector='y'
                                     GROUP BY reachable_from_country;`);
 
     await knex.raw(`DELETE FROM kpi WHERE kpi.name='total_connections';`);
