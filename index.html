@@ -59,6 +59,114 @@
       name="twitter:image"
       content="https://cdn.zuugle.at/img/Zuugle_Opengraph.jpg"
     />
+    <!-- App Shell: inline skeleton to avoid white screen while JS loads -->
+    <style>
+      .shell-header {
+        height: 500px;
+        background: #1a3a5c;
+        padding: 10px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+      .shell-text {
+        height: 24px;
+        width: 180px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        margin-bottom: 16px;
+      }
+      .shell-text--lg {
+        height: 40px;
+        width: 60%;
+        max-width: 500px;
+      }
+      .shell-text--md {
+        height: 32px;
+        width: 40%;
+        max-width: 340px;
+      }
+      .shell-search-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: -50px;
+        position: relative;
+        padding: 0 20px;
+      }
+      .shell-search {
+        height: 56px;
+        width: 100%;
+        max-width: 600px;
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+      .shell-pulse {
+        animation: shell-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes shell-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .shell-cards-wrap {
+        max-width: 1400px;
+        margin: 30px auto 0;
+        padding: 0 30px;
+        box-sizing: border-box;
+      }
+      .shell-cards-title {
+        height: 20px;
+        width: 160px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .shell-cards {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .shell-card {
+        width: 280px;
+        height: 320px;
+        background: #f2f2f2;
+        border-radius: 12px;
+      }
+      @media only screen and (max-width: 600px) {
+        .shell-header {
+          height: auto;
+          min-height: 310px;
+          padding-bottom: 50px;
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .shell-text--lg {
+          width: 80%;
+        }
+        .shell-text--md {
+          width: 60%;
+        }
+        .shell-cards-wrap {
+          padding: 0 10px;
+        }
+        .shell-card {
+          width: 100%;
+          height: 200px;
+        }
+      }
+    </style>
   </head>
 
   <body>
@@ -67,7 +175,26 @@
       für Öffi-Bergtouren benötigt aber Javascript um zu funktionieren. Bitte
       aktiviere Javacript in deinem Browser.</noscript
     >
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static skeleton replaced by React on mount -->
+      <div class="shell-header">
+        <div class="shell-text shell-pulse"></div>
+        <div class="shell-text shell-text--lg shell-pulse"></div>
+        <div class="shell-text shell-text--md shell-pulse"></div>
+      </div>
+      <div class="shell-search-wrap">
+        <div class="shell-search shell-pulse"></div>
+      </div>
+      <div class="shell-cards-wrap">
+        <div class="shell-cards-title shell-pulse"></div>
+        <div class="shell-cards">
+          <div class="shell-card shell-pulse"></div>
+          <div class="shell-card shell-pulse"></div>
+          <div class="shell-card shell-pulse"></div>
+          <div class="shell-card shell-pulse"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
