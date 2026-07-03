@@ -40,7 +40,9 @@ export function useSearchTours() {
   const [pageTours, setPageTours] = useState(1);
   const [directLink, setDirectLink] = useState<DirectLink | null>(null);
 
-  const { data: totals } = useGetTotalsQuery(citySlug || undefined);
+  const { data: totals, isFetching: isTotalsLoading } = useGetTotalsQuery(
+    citySlug || undefined,
+  );
   const { data: allCities = [] } = useGetCitiesQuery();
 
   // SEO page header
@@ -165,6 +167,7 @@ export function useSearchTours() {
     directLink,
     getHeroTitle,
     totals,
+    isTotalsLoading,
     showMap,
     city,
     citySlug,

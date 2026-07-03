@@ -140,7 +140,12 @@ if (!rootElement) {
               />
               <link rel="manifest" href="/site.webmanifest" />
               {shouldPreload && (
-                <link rel="preload" href={preloadUrl} as="image" />
+                <link
+                  rel="preload"
+                  href={preloadUrl}
+                  as="image"
+                  fetchPriority="high"
+                />
               )}
             </Head>
             <I18nextProvider i18n={i18n}>

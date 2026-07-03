@@ -8,6 +8,7 @@ import Search from "../components/Search/Search";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
 import Filter from "../components/Filter/Filter";
+import MaintenanceGuard from "../components/MaintenanceGuard";
 import TotalToursHeader from "../components/TotalToursHeader";
 import SearchParamSync from "../components/SearchParamSync";
 import { useSearchTours } from "../hooks/useSearchTours";
@@ -31,6 +32,8 @@ export default function SearchResults() {
     setFilterOn,
     allCities,
     directLink,
+    totals,
+    isTotalsLoading,
     showMap,
   } = useSearchTours();
 
@@ -55,88 +58,99 @@ export default function SearchResults() {
   };
 
   return (
-    <div>
-      <SearchParamSync isSearchResultsPage={true} />
-      <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
+    <>
+      <MaintenanceGuard totals={totals} isTotalsLoading={isTotalsLoading}>
+        <div>
+          <SearchParamSync isSearchResultsPage={true} />
+          <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
 
-      {/* Blue bar – sticky at top */}
-      <Box
-        sx={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          backgroundColor: "#fff",
-          borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-        }}
-      >
-        <Box className={"search-result-header-container"}>
-          {!!directLink && (
-            <Box className={"seo-bar"}>
-              <Typography
-                variant={"h1"}
-                sx={{ color: "#fff", fontSize: "18px", marginBottom: "5px" }}
-              >
-                {directLink.header}
-              </Typography>
-              <Typography
-                variant={"h2"}
-                sx={{ fontSize: "14px", color: "#fff" }}
-              >
-                {directLink.description}
-              </Typography>
-            </Box>
-          )}
-          <Box component={"div"} className="rowing">
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <DomainMenu />
-            </Box>
-            <LanguageMenu />
-          </Box>
-        </Box>
-        {!!allCities && allCities.length > 0 && (
+          {/* Blue bar – sticky at top */}
           <Box
             sx={{
-              mt: "-50px",
-              display: "flex",
-              justifyContent: "center",
-              position: "relative",
+              position: "sticky",
+              top: 0,
+              zIndex: 100,
+              backgroundColor: "#fff",
+              borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
             }}
           >
-            <Search setFilterOn={setFilterOn} />
-          </Box>
-        )}
-        <TotalToursHeader loadedTours={loadedTours} setFilterOn={setFilterOn} />
-      </Box>
-
-      {showMap && (
-        <Box>
-          <Suspense
-            fallback={
-              <Skeleton variant="rectangular" width="100%" height="100%" />
-            }
-          >
-            <TourMapContainer
-              markers={loadedTours?.markers || []}
-              pois={loadedTours?.pois || []}
-              isLoading={isToursLoading}
+            <Box className={"search-result-header-container"}>
+              {!!directLink && (
+                <Box className={"seo-bar"}>
+                  <Typography
+                    variant={"h1"}
+                    sx={{
+                      color: "#fff",
+                      fontSize: "18px",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    {directLink.header}
+                  </Typography>
+                  <Typography
+                    variant={"h2"}
+                    sx={{ fontSize: "14px", color: "#fff" }}
+                  >
+                    {directLink.description}
+                  </Typography>
+                </Box>
+              )}
+              <Box component={"div"} className="rowing">
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <DomainMenu />
+                </Box>
+                <LanguageMenu />
+              </Box>
+            </Box>
+            {!!allCities && allCities.length > 0 && (
+              <Box
+                sx={{
+                  mt: "-50px",
+                  display: "flex",
+                  justifyContent: "center",
+                  position: "relative",
+                }}
+              >
+                <Search setFilterOn={setFilterOn} />
+              </Box>
+            )}
+            <TotalToursHeader
+              loadedTours={loadedTours}
+              setFilterOn={setFilterOn}
             />
-          </Suspense>
-        </Box>
-      )}
-      {!!tours && tours.length > 0 && (
-        <Box
-          className="cards-container"
-          sx={{ marginTop: { xs: 0, md: 0, lg: "14px" } }}
-        >
-          <TourCardContainer
-            tours={tours}
-            hasMore={hasMore}
-            fetchMore={fetchMore}
-          />
-        </Box>
-      )}
-      <MapBtn />
+          </Box>
+
+          {showMap && (
+            <Box>
+              <Suspense
+                fallback={
+                  <Skeleton variant="rectangular" width="100%" height="100%" />
+                }
+              >
+                <TourMapContainer
+                  markers={loadedTours?.markers || []}
+                  pois={loadedTours?.pois || []}
+                  isLoading={isToursLoading}
+                />
+              </Suspense>
+            </Box>
+          )}
+          {!!tours && tours.length > 0 && (
+            <Box
+              className="cards-container"
+              sx={{ marginTop: { xs: 0, md: 0, lg: "14px" } }}
+            >
+              <TourCardContainer
+                tours={tours}
+                hasMore={hasMore}
+                fetchMore={fetchMore}
+              />
+            </Box>
+          )}
+          <MapBtn />
+        </div>
+      </MaintenanceGuard>
       <LegalDialog open={legalDialog} onClose={closeLegalDialog} />
-    </div>
+    </>
   );
 }
