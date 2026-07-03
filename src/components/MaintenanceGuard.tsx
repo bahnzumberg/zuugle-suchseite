@@ -2,8 +2,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useTranslation } from "react-i18next";
-import { getDomainText, getTLD } from "../utils/globals";
+import { getTLD } from "../utils/globals";
 import BackgroundImageLoader from "../views/Start/BackgroundImageLoader";
+import DomainMenu from "./DomainMenu";
 import type { TotalResponse } from "../features/apiSlice";
 
 export interface MaintenanceGuardProps {
@@ -34,16 +35,7 @@ export default function MaintenanceGuard({
       <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
         <Box className="header-text">
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <img
-              src="https://cdn.zuugle.at/img/zuugle_weiss.svg"
-              height="16px"
-              width="29px"
-              alt="Zuugle"
-              loading="lazy"
-            />
-            <Typography sx={{ fontSize: "16px", color: "#FFF", ml: 1 }}>
-              {getDomainText()}
-            </Typography>
+            <DomainMenu />
           </Box>
           <Box
             sx={{
@@ -64,16 +56,7 @@ export default function MaintenanceGuard({
       <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
         <Box className="header-text">
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <img
-              src="https://cdn.zuugle.at/img/zuugle_weiss.svg"
-              height="16px"
-              width="29px"
-              alt="Zuugle"
-              loading="lazy"
-            />
-            <Typography sx={{ fontSize: "16px", color: "#FFF", ml: 1 }}>
-              {getDomainText()}
-            </Typography>
+            <DomainMenu />
           </Box>
           <Typography variant="h1">{t("start.wartungsmodus")}</Typography>
         </Box>
