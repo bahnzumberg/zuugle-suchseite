@@ -44,7 +44,11 @@ app.use((req, res, next) => {
     }
     next();
 });
-//static file access
+//static file access – provider logos rarely change, serve with long cache
+app.use("/public/icons/provider", cors(corsOptions), express.static("public/icons/provider", {
+    maxAge: "365d",
+    immutable: true,
+}));
 app.use("/public", cors(corsOptions), express.static("public"));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
