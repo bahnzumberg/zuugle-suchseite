@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -289,6 +289,36 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
 
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
+  // Scroll-position tracking for fade-gradient indicators
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const updateScrollState = useCallback((el: HTMLElement) => {
+    const threshold = 4; // px tolerance for rounding
+    setCanScrollUp(el.scrollTop > threshold);
+    setCanScrollDown(
+      el.scrollTop + el.clientHeight < el.scrollHeight - threshold,
+    );
+  }, []);
+
+  // ref-callback: attaches the scroll listener once the DialogContent mounts
+  const scrollRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+      updateScrollState(node);
+      const handler = () => updateScrollState(node);
+      node.addEventListener("scroll", handler, { passive: true });
+      // ResizeObserver re-checks when content height changes (e.g. accordion open/close)
+      const ro = new ResizeObserver(() => updateScrollState(node));
+      ro.observe(node);
+      return () => {
+        node.removeEventListener("scroll", handler);
+        ro.disconnect();
+      };
+    },
+    [updateScrollState],
+  );
+
   return (
     <Dialog
       open={showFilter}
@@ -314,8 +344,13 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       >
         <CloseIcon />
       </IconButton>
-      <DialogContent dividers>
-        <Box style={{ maxHeight: "600px" }}>
+      <Box
+        className={`filter-scroll-wrapper${
+          canScrollUp ? " can-scroll-up" : ""
+        }${canScrollDown ? " can-scroll-down" : ""}`}
+        sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+      >
+        <DialogContent dividers ref={scrollRef}>
           {isFilterFetching && !fetchedFilter ? (
             <LoadingView />
           ) : (
@@ -433,8 +468,8 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
               />
             </Fragment>
           )}
-        </Box>
-      </DialogContent>
+        </DialogContent>
+      </Box>
       <DialogActions sx={{ py: 2 }}>
         <Button
           variant={"text"}
