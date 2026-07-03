@@ -38,28 +38,13 @@ export default function StartNew() {
 
   const tld = getTLD();
 
-  // Refs for measuring and scroll detection
+  // Refs for scroll detection
   const heroRef = useRef<HTMLDivElement>(null);
   const fixedBarRef = useRef<HTMLDivElement>(null);
-  const blueBarHeaderRef = useRef<HTMLDivElement>(null);
 
-  // The sticky top position = blue bar header height - 50px (search bar overlap)
-  const [stickyTop, setStickyTop] = useState(63); // sensible fallback
+  // Sticky snap position = blue bar header height - 50px (search bar overlap)
+  const STICKY_TOP = 63;
   const [showFixedBar, setShowFixedBar] = useState(false);
-
-  // Measure the blue bar header height to compute the sticky snap position
-  useEffect(() => {
-    if (!blueBarHeaderRef.current) return;
-    const measure = () => {
-      if (blueBarHeaderRef.current) {
-        setStickyTop(blueBarHeaderRef.current.offsetHeight - 50);
-      }
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(blueBarHeaderRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   // Detect when hero has scrolled past → show fixed blue bar instantly
   useEffect(() => {
@@ -97,10 +82,7 @@ export default function StartNew() {
               : "none",
           }}
         >
-          <Box
-            ref={blueBarHeaderRef}
-            className={"search-result-header-container"}
-          >
+          <Box className={"search-result-header-container"}>
             {!!directLink && (
               <Box className={"seo-bar"}>
                 <Typography
@@ -155,12 +137,12 @@ export default function StartNew() {
           </BackgroundImageLoader>
 
           {/* Sticky search bar – starts at hero bottom, scrolls up,
-            then snaps at the blue bar position (stickyTop).
+            then snaps at the blue bar position (STICKY_TOP).
             When snapped, the fixed blue bar appears behind it. */}
           <Box
             sx={{
               position: "sticky",
-              top: `${stickyTop}px`,
+              top: `${STICKY_TOP}px`,
               zIndex: 90,
               mt: "-50px",
             }}
