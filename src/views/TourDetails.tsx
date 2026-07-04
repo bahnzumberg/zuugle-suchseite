@@ -287,12 +287,20 @@ export default function DetailReworked() {
         rel: "alternate",
         href: `https://${window.location.hostname}/tour/${idOne}/no-city`,
       },
-      ...(tour?.canonical ?? []).map((entry) => ({
-        key: entry.zuugle_url,
-        rel: entry.canonical_yn === "y" ? "canonical" : "alternate",
-        href: `https://${entry.zuugle_url}`,
-        hrefLang: entry.href_lang,
-      })),
+      ...(tour?.canonical ?? []).map((entry) =>
+        entry.canonical_yn === "y"
+          ? {
+              key: entry.zuugle_url,
+              rel: "canonical" as const,
+              href: `https://${entry.zuugle_url}`,
+            }
+          : {
+              key: entry.zuugle_url,
+              rel: "alternate" as const,
+              href: `https://${entry.zuugle_url}`,
+              hreflang: entry.href_lang,
+            },
+      ),
     ],
   });
 
