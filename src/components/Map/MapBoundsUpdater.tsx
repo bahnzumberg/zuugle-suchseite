@@ -62,6 +62,16 @@ export function MapBoundsUpdater({
       markerBounds.extend(poiBounds);
       map.fitBounds(markerBounds, { animate: true });
     }
+    // case 4: map was just opened with no bounds/geolocation/poi search yet - fit to all tour markers
+    if (
+      !geolocation &&
+      !bounds &&
+      pois.length === 0 &&
+      markers.length > 0 &&
+      !markersInvalidated
+    ) {
+      map.fitBounds(getMarkersBounds(markers), { animate: true });
+    }
   }, [bounds, geolocation, markers, pois, markersInvalidated]);
 
   return null;

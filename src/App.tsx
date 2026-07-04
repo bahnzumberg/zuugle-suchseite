@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate, useSearchParams } from "react-router";
 import "./App.css";
 import StartSkeleton from "./views/Start/StartSkeleton";
 
@@ -33,6 +33,23 @@ function SimpleLoader() {
   );
 }
 
+/**
+ * Renders the start page, unless ?map=true is present.
+ * The hero image on "/" takes too much space for a useful map,
+ * so we redirect to /search where the map is properly displayed.
+ */
+function StartOrRedirectToSearch() {
+  const [params] = useSearchParams();
+  if (params.get("map") === "true") {
+    return <Navigate to={`/search?${params.toString()}`} replace />;
+  }
+  return (
+    <Suspense fallback={<StartSkeleton />}>
+      <ThemedApp routeKey="start" />
+    </Suspense>
+  );
+}
+
 function App() {
   return (
     <main
@@ -44,23 +61,9 @@ function App() {
       }}
     >
       <Routes>
-        {/* Start page with skeleton fallback */}
-        <Route
-          path="/"
-          element={
-            <Suspense fallback={<StartSkeleton />}>
-              <ThemedApp routeKey="start" />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/total"
-          element={
-            <Suspense fallback={<StartSkeleton />}>
-              <ThemedApp routeKey="start" />
-            </Suspense>
-          }
-        />
+        {/* Start page — redirect to /search when ?map=true */}
+        <Route path="/" element={<StartOrRedirectToSearch />} />
+        <Route path="/total" element={<StartOrRedirectToSearch />} />
 
         {/* Other routes with simple loader */}
         <Route

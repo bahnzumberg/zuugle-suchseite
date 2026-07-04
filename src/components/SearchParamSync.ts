@@ -181,8 +181,14 @@ export default function SearchParamSync({
       syncCityFromLocalStorage();
     }
     updateReduxFromParam("p", providerUpdated);
+    const urlProvider = params.get("p");
+
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
+      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
+      if (urlProvider) {
+        dispatch(filterUpdated({ ...filter, providers: [urlProvider] }));
+      }
     } else {
       const searchPhrase = params.get("search");
       const rawSearchType = params.get("search_type");
@@ -216,7 +222,7 @@ export default function SearchParamSync({
         dispatch(geolocationUpdated(null));
       }
 
-      const filterObject: FilterObject = {};
+      const filterObject: FilterObject = { ...filter };
       for (const key of SCALAR_FILTER_KEYS) {
         const value = params.get(key);
         if (value === "true") (filterObject[key] as boolean) = true;
@@ -238,6 +244,13 @@ export default function SearchParamSync({
       const range = params.get("range");
       if (range && !filterObject.ranges?.length) {
         filterObject.ranges = [range];
+      }
+      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
+      if (urlProvider && !filterObject.providers?.includes(urlProvider)) {
+        filterObject.providers = [
+          ...(filterObject.providers ?? []),
+          urlProvider,
+        ];
       }
       dispatch(filterUpdated(filterObject));
     }
