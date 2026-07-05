@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import json from "@eslint/json";
-import markdown from "@eslint/markdown";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import { defineConfig } from "eslint/config";
 
@@ -41,12 +40,9 @@ export default defineConfig([
         language: "json/jsonc",
         extends: ["json/recommended"],
     },
-    {
-        files: ["**/*.md"],
-        plugins: { markdown },
-        language: "markdown/gfm",
-        extends: ["markdown/recommended"],
-    },
+    // NOTE: markdown linting via @eslint/markdown was removed — it is incompatible
+    // with eslint 10 / @eslint/plugin-kit 0.7.x (MarkdownSourceCode.getLoc throws).
+    // Prettier (`npm run format` / `format:check`) still covers markdown formatting.
     {
         files: ["**/*.test.js"],
         languageOptions: { globals: globals.jest },
