@@ -1,96 +1,119 @@
 # UAT Server Setup (www2.zuugle.at)
 
-This guide documents the complete setup for the UAT server (`www2.zuugle.at`), which runs both `uat` and `dev` branches in isolated environments.
+This guide documents the UAT server (`www2.zuugle.at`), which runs both the `uat` and
+`dev` branches in isolated environments **from the same `docker-compose.yaml`**. Each
+environment lives in its own app directory with its own `.env`; `COMPOSE_PROJECT_NAME`
+selects and namespaces its stack, so the two never collide.
 
 ## Overview
 
-The UAT server runs three Docker containers:
+Each environment runs its own PostgreSQL + Valkey stack (one compose file, two projects):
 
-| Service        | Container             | Port | Purpose                   |
-| -------------- | --------------------- | ---- | ------------------------- |
-| PostgreSQL UAT | `zuugle-postgres-uat` | 5434 | Database for `uat` branch |
-| PostgreSQL DEV | `zuugle-postgres-dev` | 5433 | Database for `dev` branch |
-| Valkey         | `zuugle-valkey`       | 6379 | Redis-compatible cache    |
+| Environment | App dir `.env` | `COMPOSE_PROJECT_NAME` | `DB_PORT` | `CACHE_PORT` | pm2 app          |
+| ----------- | -------------- | ---------------------- | --------- | ------------ | ---------------- |
+| UAT         | UAT app dir    | `zuugle-uat`           | `5434`    | `6379`       | `zuugle_api`     |
+| DEV         | DEV app dir    | `zuugle-dev`           | `5433`    | `6380`       | `dev-zuugle_api` |
 
-## Installation
+> Two independent stacks on one host must publish **different** host ports — hence the
+> distinct `DB_PORT` and `CACHE_PORT` per environment. Do NOT use `5432` (reserved for
+> production-style native databases).
 
-### 1. Start Docker containers
+| Environment | DB Name                | DB User        |
+| ----------- | ---------------------- | -------------- |
+| UAT         | `zuugle_suchseite_db`  | `zuugle_suche` |
+| DEV         | `zuugle_suchseite_dev` | `postgres`     |
 
-```bash
-docker compose -f docker-compose.uat.yaml up -d
-```
+Container names are derived from `COMPOSE_PROJECT_NAME` (e.g. `zuugle-uat-postgres-1`),
+so nothing is hardcoded — `.env` is the single place per environment.
 
-### 2. Verify containers are running
+## Per-environment setup
 
-```bash
-docker ps
-```
+Do this **once in each app directory** (UAT and DEV). Deploys rsync everything except
+`.env`, so the server `.env` you create here persists across deploys.
 
-You should see `zuugle-postgres-uat`, `zuugle-postgres-dev`, and `zuugle-valkey`.
+### 1. Create the `.env`
 
-### 3. Configure knexfile.js
-
-Configure `src/knexfile.js` to connect to the Docker containers.
-
-### 4. Initial database restore
-
-Run the restore script manually to populate data:
+Copy the template and set the environment's values (secrets never live in git):
 
 ```bash
-./restore_databases.sh
+cp .env.example .env
 ```
 
-The script automatically:
+Set at least: `NODE_ENV`, `COMPOSE_PROJECT_NAME`, `DB_HOST=localhost`, `DB_PORT`,
+`DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `CACHE_PORT` per the tables above. Optionally
+pin `POSTGRES_IMAGE` / `VALKEY_IMAGE`.
 
-- Reads `containerName` from `src/knexfile.js`
-- Downloads the daily UAT dump
-- Restores to the matching container based on `NODE_ENV`
-
-### 5. Setup daily cron job
-
-Add a cron job to restore databases daily at 7:00 AM:
+### 2. Start the stack
 
 ```bash
-crontab -e
+docker compose up -d      # reads this dir's .env (COMPOSE_PROJECT_NAME + ports)
+docker compose ps
 ```
 
-Add this line (adjust paths):
+### 3. Schema + initial data
+
+```bash
+npm run build
+npm run migrate           # schema (the container starts empty)
+./restore_databases.sh    # download the daily dump and import it
+```
+
+`restore_databases.sh` downloads the dump and runs `npm run import-data`, which restores
+over the DB connection through the running `postgres` container — **no host database
+client is required**.
+
+> `./restore_databases.sh --structure` runs `npm run migrate` only (schema, no data).
+> The bare `./restore_databases.sh` imports data — this is what the nightly cron runs.
+
+### 4. Daily cron
 
 ```cron
-0 7 * * * /path/to/zuugle-api/restore_databases.sh >> /path/to/zuugle-api/logs/restore.log 2>&1
+0 7 * * * /path/to/<env-app-dir>/restore_databases.sh >> /path/to/<env-app-dir>/logs/restore.log 2>&1
 ```
 
-## Managing Docker containers
+## Managing a stack
+
+Run these from the environment's app directory (they act on that env's project):
 
 ```bash
-# Stop all containers
-docker compose -f docker-compose.uat.yaml down
-
-# Start containers
-docker compose -f docker-compose.uat.yaml up -d
-
-# Reset everything (deletes all data!)
-docker compose -f docker-compose.uat.yaml down -v
-
-# View logs
-docker compose -f docker-compose.uat.yaml logs -f
+docker compose down       # stop
+docker compose up -d      # start
+docker compose down -v    # reset (deletes this env's data!)
+docker compose logs -f    # logs
 ```
 
-### Rebuild containers (Version Upgrade or Clean Rebuild)
+### Rebuild the database container
 
-On the UAT server, you can rebuild any of the two DB containers:
+```bash
+npm run build
+npm run rebuild-docker     # recreates the postgres container + applies migrations
+./restore_databases.sh     # repopulate data
+```
 
-1. Set environment: `export NODE_ENV=production` (for UAT) or `export NODE_ENV=development` (for DEV)
-2. Build the script: `npm run build`
-3. Run rebuild: `npm run rebuild-docker`
-4. Restore data: `./restore_databases.sh`
+`rebuild-docker` uses `COMPOSE_PROJECT_NAME` from `.env`; it refuses to run where that is
+unset (i.e. a native/PROD host, where PostgreSQL is maintained manually).
 
-## Configuration Summary
+## Migrating an existing UAT/DEV host to this layout
 
-| Environment | DB Name                | User           | Port | Container             |
-| ----------- | ---------------------- | -------------- | ---- | --------------------- |
-| UAT         | `zuugle_suchseite_db`  | `zuugle_suche` | 5434 | `zuugle-postgres-uat` |
-| DEV         | `zuugle_suchseite_dev` | `postgres`     | 5433 | `zuugle-postgres-dev` |
-| Cache       | -                      | -              | 6379 | `zuugle-valkey`       |
+The previous setup used a separate `docker-compose.uat.yaml` and a `DB_CONTAINER_NAME`
+env var; both are gone. On each existing app directory:
 
-> **Note:** Do NOT use port 5432 as it may be used by production databases.
+1. Edit `.env`: **remove** `DB_CONTAINER_NAME`; **add** `COMPOSE_PROJECT_NAME`,
+   `CACHE_PORT` (distinct per env — see the table), and optionally the image tags.
+2. Bring the old stack down and the new one up:
+
+    ```bash
+    # old containers were named zuugle-postgres-uat / -dev / zuugle-valkey
+    docker rm -f zuugle-postgres-uat zuugle-postgres-dev zuugle-valkey 2>/dev/null || true
+    docker compose up -d
+    ```
+
+3. Recreate schema + data (the fresh stack starts empty):
+
+    ```bash
+    npm run migrate
+    ./restore_databases.sh
+    ```
+
+After this, ordinary pushes to `uat`/`dev` deploy normally — the workflow runs
+`docker compose up -d` (reading `.env`), `npm run migrate`, and restarts pm2.

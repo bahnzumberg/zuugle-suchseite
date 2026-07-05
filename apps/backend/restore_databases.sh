@@ -14,93 +14,35 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Central dump location on server
+# Central dump location on the server; absent on developer machines.
 DUMP_DIR="/usr/local/zuugle/uat-dump"
-
-# Check if running on server (central dump directory exists) or local dev
 if [ ! -d "$DUMP_DIR" ]; then
-    echo "You are developing on your local machine? Please run 'npm run import-data-docker-download'"
+    echo "Not on a server (no $DUMP_DIR). On your machine run: npm run import-data"
     exit 0
 fi
 
-# Read containerName from knexfile.js based on NODE_ENV
-NODE_ENV="${NODE_ENV:-production}"
-export NODE_ENV
+# NODE_ENV selects this app dir's env-driven DB config (see knexfile.js); the .env
+# here also carries COMPOSE_PROJECT_NAME so `npm run migrate` / import target the
+# right compose stack.
+export NODE_ENV="${NODE_ENV:-production}"
 
-CONTAINER_NAME=$(node -e "
-  const config = require('./knexfile.js');
-  const env = process.env.NODE_ENV || 'production';
-  console.log(config[env]?.containerName || '');
-")
-
-if [ -z "$CONTAINER_NAME" ]; then
-    echo "Error: No containerName found in knexfile.js for NODE_ENV=$NODE_ENV"
-    echo "This script is only for Docker-based databases (UAT/DEV)."
-    echo ""
-    echo "Make sure your knexfile.js has containerName set, e.g.:"
-    echo "  production: { containerName: 'zuugle-postgres-uat', ... }"
-    echo "  development: { containerName: 'zuugle-postgres-dev', ... }"
-    exit 1
-fi
-
-# Database credentials
-DB_NAME=$(node -e "
-  const config = require('./knexfile.js');
-  const env = process.env.NODE_ENV || 'production';
-  console.log(config[env]?.connection?.database || '');
-")
-DB_USER=$(node -e "
-  const config = require('./knexfile.js');
-  const env = process.env.NODE_ENV || 'production';
-  console.log(config[env]?.connection?.user || '');
-")
-
-if [ -z "$DB_NAME" ]; then
-    echo "Error: No database name found in knexfile.js for NODE_ENV=$NODE_ENV"
-    exit 1
-fi
-
-if [ -z "$DB_USER" ]; then
-    echo "Error: No database user found in knexfile.js for NODE_ENV=$NODE_ENV"
-    exit 1
-fi
-
-# Ensure Valkey cache container is running (shared across UAT/DEV)
-if docker ps --format '{{.Names}}' | grep -q '^zuugle-valkey$'; then
-    echo "Valkey container already running."
-elif docker ps -a --format '{{.Names}}' | grep -q '^zuugle-valkey$'; then
-    echo "Starting existing Valkey container..."
-    docker start zuugle-valkey
-else
-    echo "Creating Valkey container..."
-    docker run -d --name zuugle-valkey --restart always -p 127.0.0.1:6379:6379 valkey/valkey:8-alpine
-fi
-
-# Rebuild database structure if --structure flag is set
+# Schema-only rebuild (knex migrations). The nightly cron runs this script WITHOUT
+# --structure to refresh data; that path is unchanged.
 if [ "$REBUILD_STRUCTURE" = true ]; then
-    echo "Rebuilding database structure from database.sql..."
-    
-    if [ -f "database.sql" ]; then
-        cat database.sql | docker exec -i "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME"
-        echo "Structure rebuild completed."
-    else
-        echo "Error: database.sql not found!"
-        exit 1
-    fi
+    echo "Applying schema via knex migrations (npm run migrate)..."
+    npm run migrate
+    echo "Structure rebuild completed (schema only, no data import)."
+    exit 0
 fi
 
-# Locate the sync script
-if [ -f "jobs/syncDataDockerDownload.js" ]; then
-    SCRIPT_PATH="jobs/syncDataDockerDownload.js"
-else
-    echo "Error: Cannot find jobs/syncDataDockerDownload.js"
-    exit 1
-fi
+# --- Data import (bare invocation; used by the nightly cron) ---
+# Downloads the dump and restores it over the DB connection. The restore transport
+# (compose container vs native pg_restore) is auto-detected, so no host DB client
+# is required.
+echo "Importing data (NODE_ENV=$NODE_ENV)..."
+npm run import-data
 
-echo "Restoring $CONTAINER_NAME (NODE_ENV=$NODE_ENV)..."
-node $SCRIPT_PATH
-
-# Clean up local copy
+# Clean up the downloaded dump.
 rm -f zuugle_postgresql.dump
 
-echo "$CONTAINER_NAME restored successfully."
+echo "Data import completed."

@@ -16,40 +16,46 @@ Execute in the project directory:
 
 and install all dependencies.
 
-### Setup Docker containers (PostgreSQL + Valkey)
+### Configure the environment
 
-1. Install [Docker](https://www.docker.com/) on your local machine
+All settings are read from a gitignored `.env` (see `src/knexfile.js`,
+`src/knexfileTourenDb.js`, `src/config.js`). Create one from the template:
 
-2. Start all containers using docker compose:
+    cp ./.env.example ./.env
+
+The defaults already match the Docker stack below, so for local development you can
+usually leave them as-is. `COMPOSE_PROJECT_NAME` names/namespaces your compose stack.
+
+### Start the database stack (Docker Compose)
+
+This is the one supported local setup — it works the same with or without VS Code.
+
+1. Install [Docker](https://www.docker.com/) on your machine (that is the only
+   prerequisite — the database client tools come from the container).
+
+2. Start PostgreSQL + Valkey:
 
     ```bash
     docker compose up -d
     ```
 
-    This starts:
-    - **PostgreSQL** (zuugle-container) on port `5433`
-    - **Valkey Cache** (zuugle-valkey) on port `6379`
+    This starts, from a single `docker-compose.yaml`:
+    - **PostgreSQL** (pgvector) on port `5433`
+    - **Valkey cache** on port `6379`
 
-3. Verify the containers are running:
+3. Verify they are running:
 
     ```bash
-    docker ps
+    docker compose ps
     ```
 
-    You should see `zuugle-container` and `zuugle-valkey` in the list.
-
-> **Note:** For UAT environment with two PostgreSQL instances, use `docker compose -f docker-compose.uat.yaml up -d` instead.
-
-### Configure the database connection
-
-Database connection settings are read from environment variables (see
-`src/knexfile.js` and `src/knexfileTourenDb.js`). Create a local `.env` from the template and fill in your values:
-
-    cp ./.env.example ./.env
+> **Prefer a sandbox?** The optional dev container in `.devcontainer/` runs Claude Code
+> with restricted network egress. It ships its own PostgreSQL + pgvector (started
+> automatically on `127.0.0.1:5433`) so it stays self-contained; it has no Valkey, but
+> the cache degrades gracefully so the API still runs (uncached). See the note in
+> `.devcontainer/` — it is a security tool, not a replacement for the Compose setup.
 
 ## Load data and run backend
-
-### Restore database
 
 First, build the project:
 
@@ -57,49 +63,71 @@ First, build the project:
 npm run build
 ```
 
-Download the dump file and import it using this script:
+Create the database schema (knex migrations — the container starts empty):
 
 ```bash
-npm run import-data-docker-download
+npm run migrate
 ```
+
+Download the production dump and import it:
+
+```bash
+npm run import-data
+```
+
+`import-data` restores the dump over the database connection. It streams into the
+running Compose `postgres` container (no local `psql`/`pg_restore` needed); in the dev
+container or on a native host it uses the local `pg_restore` instead.
+
+> **Schema changes:** the schema lives in `src/migrations/`. Create a new migration with
+> `npm run migrate:make <name>`, then apply it with `npm run migrate`. There is no
+> `database.sql` file.
 
 ### Create GPX files and images
 
-Start API locally:
+Start the API locally, and in a new terminal run the update script:
 
     npm run start
-
-And in a new terminal start the update script:
-
     npm run import-files
 
 ### Execute backend locally
 
     npm run start
 
-> **Hint:** On local environment using the function `logger('anytext');` writes to the file `api.log` in your `zuugle-api/` directory. This is helpful when debugging SQL code, etc.
+> **Hint:** On the local environment `logger('anytext');` writes to `api.log` in your
+> `zuugle-api/` directory. Helpful when debugging SQL, etc.
 
-## Managing Docker containers
+## Managing the Docker stack
 
-Stop all containers:
+```bash
+docker compose down       # stop
+docker compose up -d      # start
+docker compose logs -f    # logs
+```
 
-    docker compose down
+### Rebuild the database container (version upgrade or clean rebuild)
 
-Start containers again:
+To upgrade the PostgreSQL image or rebuild from scratch:
 
-    docker compose up -d
+1. Build: `npm run build`
+2. Rebuild: `npm run rebuild-docker` (recreates the `postgres` container **and** applies migrations)
+3. Import data: `npm run import-data`
 
-View logs:
+## Branches & deployment
 
-    docker compose logs -f
+Three branches auto-deploy via GitHub Actions (see `.github/workflows/`). All three
+share one reusable workflow; each environment differs only by its server-side `.env`.
+See `README_UAT.md` for the server setup.
 
-### Rebuild containers (Version Upgrade or Clean Rebuild)
+| Branch | Environment | URL            |
+| ------ | ----------- | -------------- |
+| `dev`  | DEV         | dev.zuugle.at  |
+| `uat`  | UAT         | www2.zuugle.at |
+| `main` | PROD        | www.zuugle.at  |
 
-To upgrade the PostgreSQL version or completely rebuild the database structure:
-
-1. Build the script: `npm run build`
-2. Run rebuild: `npm run rebuild-docker`
-3. Import data: `npm run import-data-docker-download`
+`dev` and `uat` are both deployable development branches (UAT is the primary one — branch
+your feature work from `uat`). **Never push directly to `main`.** See `CLAUDE.md` for the
+full workflow.
 
 ## Follow frontend Readme
 
