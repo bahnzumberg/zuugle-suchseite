@@ -4,8 +4,8 @@
     "description": "",
     "main": "index.js",
     "engines": {
-        "node": "^20.19.6",
-        "npm": ">=9.5"
+        "node": "^24.18.0",
+        "npm": ">=11"
     },
     "bugs": {
         "url": "https://github.com/bahnzumberg/zuugle-api/issues/",
@@ -84,6 +84,6 @@
         "xmlbuilder2": "^4.0.3"
     },
     "volta": {
-        "node": "20.19.6"
+        "node": "24.18.0"
     }
 }

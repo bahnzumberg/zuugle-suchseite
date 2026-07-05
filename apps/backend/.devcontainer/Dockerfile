@@ -1,5 +1,5 @@
-# Node 20 dev image ships with git, curl, sudo and a `node` user.
-FROM mcr.microsoft.com/devcontainers/javascript-node:20
+# Node 24 dev image ships with git, curl, sudo and a `node` user.
+FROM mcr.microsoft.com/devcontainers/javascript-node:24
 
 # Only extra packages needed: the egress firewall toolchain (iptables/ipset)
 # plus dig for resolving the allowlist.

@@ -19,7 +19,7 @@ Node.js backend API for the "Bahn zum Berg" (Zuugle) platform. Manages tour data
 
 ## Tech Stack
 
-- **Runtime:** Node.js v20.19.6 (see `.nvmrc`) — use `nvm`
+- **Runtime:** Node.js v24.18.0 (see `.nvmrc`) — use `nvm`
 - **Database:** PostgreSQL (local via Docker on port 5433)
 - **ORM:** Knex.js
 - **Logging:** custom logger → `logs/api.logs`

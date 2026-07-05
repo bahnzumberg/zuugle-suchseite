@@ -75,11 +75,11 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 30
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Install Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
               with:
-                  node-version: "20.19.6"
+                  node-version: "24.18.0"
 
             - name: Cache node_modules
               id: cache-npm
@@ -106,7 +106,7 @@ jobs:
                   sleep 59
             - name: Back up app on remote host
               if: inputs.do_backup
-              uses: appleboy/ssh-action@v1.0.0
+              uses: appleboy/ssh-action@v1.2.4
               with:
                   host: ${{ secrets.REMOTE_HOST }}
                   username: ${{ secrets.REMOTE_USER }}
@@ -116,7 +116,7 @@ jobs:
                       rm ${{ inputs.backup_archive_path }}
                       tar -zcvf ${{ inputs.backup_archive_path }} --exclude=${{ secrets.REMOTE_TARGET }}public/gpx-image --exclude=${{ secrets.REMOTE_TARGET }}public/gpx --exclude=${{ secrets.REMOTE_TARGET }}public/gpx-track ${{ secrets.REMOTE_TARGET }}
             - name: Deploy to Server
-              uses: easingthemes/ssh-deploy@main
+              uses: easingthemes/ssh-deploy@v6.0.1
               with:
                   SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
                   ARGS: "-rlgoDzvc -i --delete"
@@ -126,7 +126,7 @@ jobs:
                   TARGET: ${{ secrets.REMOTE_TARGET }}
                   EXCLUDE: "/dist/, /node_modules/, /public/gpx/, /public/gpx-image/, /public/gpx-image-with-track/, /public/gpx-track/, /public/robots.txt, *.md, .env"
             - name: Restart the API on remote host
-              uses: appleboy/ssh-action@v1.0.0
+              uses: appleboy/ssh-action@v1.2.4
               with:
                   host: ${{ secrets.REMOTE_HOST }}
                   username: ${{ secrets.REMOTE_USER }}
@@ -134,7 +134,7 @@ jobs:
                   port: ${{ secrets.REMOTE_PORT }}
                   command_timeout: ${{ inputs.command_timeout }}
                   script: |
-                      export PATH=$PATH:/root/.nvm/versions/node/v20.19.6/bin
+                      export PATH=$PATH:/root/.nvm/versions/node/v24.18.0/bin
                       ${{ inputs.node_env != '' && format('export NODE_ENV={0}', inputs.node_env) || '' }}
                       cd ${{ secrets.REMOTE_TARGET }}
                       npm install --omit=dev
@@ -150,11 +150,11 @@ jobs:
             issues: write
             contents: read
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Install Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
               with:
-                  node-version: "20.19.6"
+                  node-version: "24.18.0"
             - name: Install npm dependencies
               run: npm install
             - name: Run API Tests
