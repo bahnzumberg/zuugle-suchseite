@@ -236,13 +236,8 @@ const getWrapper = async (req, res) => {
 
     const tld = get_domain_country(domain);
 
-    if (isNaN(id)) {
+    if (!Number.isInteger(id) || id <= 0 || id > 2147483647) {
         res.status(400).json({ success: false, message: "Invalid tour ID" });
-        return;
-    }
-
-    if (!id) {
-        res.status(404).json({ success: false });
         return;
     }
 
