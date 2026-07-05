@@ -5,7 +5,6 @@ import { createImagesFromMap, last_two_characters, regenerateGpxFile } from "../
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
-import request from "request";
 import { spawn } from "cross-spawn";
 import logger from "../utils/logger";
 
@@ -283,17 +282,20 @@ export async function fixTours() {
                         await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
                         // logger.info("Id "+entry.id+" wurde auf NULL gesetzt")
                     } else {
-                        const options = {
-                            timeout: 10000, // Set timeout to 10 seconds (default might be lower)
-                        };
-                        request(entry.image_url, options, (error, response) => {
-                            if (error || response.statusCode != 200) {
-                                // logger.info("Response: ", response)
-                                // logger.info("Error: ", error)
-                                knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
-                                // logger.info("Id "+entry.id+" wurde auf NULL gesetzt")
+                        // Null out image_url if the image is unreachable or
+                        // returns a non-200 (10s timeout, matching the old default).
+                        try {
+                            const response = await fetch(entry.image_url, {
+                                signal: AbortSignal.timeout(10000),
+                            });
+                            if (!response.ok) {
+                                await knex.raw(
+                                    `UPDATE tour SET image_url = NULL WHERE id=${entry.id}`,
+                                );
                             }
-                        });
+                        } catch {
+                            await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
+                        }
                     }
                 } catch (err) {
                     logger.info("const updatePromises = tour_image_url.map: ", err);

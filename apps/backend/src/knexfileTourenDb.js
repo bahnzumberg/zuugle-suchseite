@@ -2,7 +2,7 @@
 require("dotenv").config({ quiet: true });
 
 const config = {
-    client: "mysql",
+    client: "mysql2",
     connection: {
         host: process.env.TOUREN_DB_HOST,
         user: process.env.TOUREN_DB_USER,
