@@ -10,12 +10,12 @@ jobs:
             environment: UAT
             api_base_url: https://www2.zuugle.at
             setup_docker: true
-            rebuild_db_structure: true
-            refresh_suggestions: true
+            # Code-only deploy: apply schema migrations, then restart. Data (and
+            # search suggestions) are refreshed by the nightly load, not the deploy.
+            run_migrations: true
             use_basic_auth: true
             node_env: production
-            command_timeout: 60m
-            import_files: true
+            command_timeout: 10m
             pm2_app_name: zuugle_api
         secrets:
             SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}

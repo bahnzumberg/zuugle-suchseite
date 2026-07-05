@@ -27,18 +27,8 @@ on:
                 required: false
                 type: boolean
                 default: false
-            rebuild_db_structure:
-                description: "Run restore_databases.sh --structure after deploy (UAT/DEV)"
-                required: false
-                type: boolean
-                default: false
-            refresh_suggestions:
-                description: "Run refresh-search-suggestions after restart (UAT)"
-                required: false
-                type: boolean
-                default: false
-            import_files:
-                description: "Run npm run import-files after restart (UAT/DEV)"
+            run_migrations:
+                description: "Run knex migrations (npm run migrate) after deploy (UAT/DEV)"
                 required: false
                 type: boolean
                 default: false
@@ -149,10 +139,8 @@ jobs:
                       cd ${{ secrets.REMOTE_TARGET }}
                       npm install --omit=dev
                       ${{ inputs.setup_docker && 'docker compose -f docker-compose.uat.yaml up -d' || '' }}
-                      ${{ inputs.rebuild_db_structure && './restore_databases.sh --structure' || '' }}
+                      ${{ inputs.run_migrations && 'npm run migrate' || '' }}
                       pm2 restart ${{ inputs.pm2_app_name }}
-                      ${{ inputs.refresh_suggestions && 'sleep 10 && npm run refresh-search-suggestions' || '' }}
-                      ${{ inputs.import_files && 'npm run import-files' || '' }}
 
     test-api:
         needs: build
