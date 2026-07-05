@@ -28,13 +28,22 @@ docker ps
 
 You should see `zuugle-postgres-uat`, `zuugle-postgres-dev`, and `zuugle-valkey`.
 
-### 3. Configure knexfile.js
+### 3. Configure the environment
 
-Configure `src/knexfile.js` to connect to the Docker containers.
+`src/knexfile.js` is env-driven and holds no credentials. Create a `.env` in each app
+directory (copy `.env.example`) with the DB host/port/user/password/name and
+`DB_CONTAINER_NAME` for that environment. Secrets never live in git.
 
-### 4. Initial database restore
+### 4. Initial database schema + restore
 
-Run the restore script manually to populate data:
+Create the schema first (containers start empty — there is no `database.sql` init mount):
+
+```bash
+npm run build
+npm run migrate
+```
+
+Then populate data with the restore script:
 
 ```bash
 ./restore_databases.sh
@@ -42,9 +51,13 @@ Run the restore script manually to populate data:
 
 The script automatically:
 
-- Reads `containerName` from `src/knexfile.js`
+- Reads `containerName` / DB config from `src/knexfile.js` (i.e. from the env)
 - Downloads the daily UAT dump
 - Restores to the matching container based on `NODE_ENV`
+
+> `./restore_databases.sh --structure` now runs `npm run migrate` (schema only) and does
+> **not** import data. The bare `./restore_databases.sh` imports data only — this is what
+> the nightly cron runs.
 
 ### 5. Setup daily cron job
 
@@ -82,7 +95,7 @@ On the UAT server, you can rebuild any of the two DB containers:
 
 1. Set environment: `export NODE_ENV=production` (for UAT) or `export NODE_ENV=development` (for DEV)
 2. Build the script: `npm run build`
-3. Run rebuild: `npm run rebuild-docker`
+3. Run rebuild: `npm run rebuild-docker` (recreates the container **and** applies the knex migrations)
 4. Restore data: `./restore_databases.sh`
 
 ## Configuration Summary

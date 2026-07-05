@@ -57,11 +57,21 @@ First, build the project:
 npm run build
 ```
 
-Download the dump file and import it using this script:
+Create the database schema (knex migrations — the container starts empty):
+
+```bash
+npm run migrate
+```
+
+Download the dump file and import the data using this script:
 
 ```bash
 npm run import-data-docker-download
 ```
+
+> **Schema changes:** the schema lives in `src/migrations/`. Create a new migration with
+> `npm run migrate:make <name>`, then apply it with `npm run migrate`. There is no longer a
+> `database.sql` file.
 
 ### Create GPX files and images
 
@@ -98,7 +108,7 @@ View logs:
 To upgrade the PostgreSQL version or completely rebuild the database structure:
 
 1. Build the script: `npm run build`
-2. Run rebuild: `npm run rebuild-docker`
+2. Run rebuild: `npm run rebuild-docker` (recreates the container **and** applies the knex migrations)
 3. Import data: `npm run import-data-docker-download`
 
 ## Branches & deployment
