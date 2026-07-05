@@ -24,6 +24,22 @@ RUN install -d -m 0755 /etc/apt/keyrings \
   && apt-get install -y --no-install-recommends claude-code \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Local PostgreSQL for development inside the sandbox. Installed at BUILD time
+# (image build has full network, before the runtime egress firewall applies) so
+# the runtime allowlist stays tiny. postgresql-17 ships the contrib extensions
+# (cube, earthdistance, pg_trgm) and postgresql-17-pgvector adds `vector` —
+# matching the pgvector/pgvector image used in UAT/PROD. Postgres runs on
+# 127.0.0.1 (loopback is always firewall-allowed); see start-postgres.sh.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends postgresql-17 postgresql-17-pgvector \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install the Postgres start script and allow `node` to run ONLY it as root.
+COPY start-postgres.sh /usr/local/bin/start-postgres.sh
+RUN chmod +x /usr/local/bin/start-postgres.sh \
+  && echo "node ALL=(root) NOPASSWD: /usr/local/bin/start-postgres.sh" > /etc/sudoers.d/node-postgres \
+  && chmod 0440 /etc/sudoers.d/node-postgres
+
 # Ensure the Claude config dir exists and is owned by `node`; a named volume
 # mounted here inherits this ownership on first use.
 RUN mkdir -p /home/node/.claude && chown -R node:node /home/node/.claude

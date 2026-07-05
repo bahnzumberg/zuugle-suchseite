@@ -19,8 +19,9 @@
     // Persist Claude Code auth + settings across rebuilds (per-project volume,
     // not shared with other repos). No host secrets are mounted in.
     "mounts": ["source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"],
-    // Apply the egress allowlist once the container network is up.
-    "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+    // Apply the egress allowlist once the container network is up, then start the
+    // in-container Postgres (127.0.0.1:5433, reachable via always-allowed loopback).
+    "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && sudo /usr/local/bin/start-postgres.sh",
     "waitFor": "postStartCommand",
     "customizations": {
         "settings": {

@@ -40,6 +40,11 @@ and install all dependencies.
 
 > **Note:** For UAT environment with two PostgreSQL instances, use `docker compose -f docker-compose.uat.yaml up -d` instead.
 
+> **Using the sandboxed dev container?** Skip this step. The dev container ships its own
+> PostgreSQL 17 + pgvector and starts it automatically on `127.0.0.1:5433` (the default-deny
+> egress firewall can't reach a host Postgres, so it runs in-container). A matching `.env` is
+> all you need; then run `npm run build && npm run migrate`. See `.devcontainer/`.
+
 ### Configure the database connection
 
 Database connection settings are read from environment variables (see
