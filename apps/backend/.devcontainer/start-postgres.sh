@@ -32,4 +32,7 @@ if ! su - postgres -c "psql -p ${PORT} -tAc \"SELECT 1 FROM pg_database WHERE da
     su - postgres -c "createdb -p ${PORT} ${DB}"
 fi
 
-echo "PostgreSQL ${PGVER} ready on 127.0.0.1:${PORT} (db=${DB}). Next: npm run build && npm run migrate"
+# The dump import works here too: `npm run import-data` falls back to this
+# bundled PostgreSQL's native pg_restore when no compose stack is present.
+echo "PostgreSQL ${PGVER} ready on 127.0.0.1:${PORT} (db=${DB})."
+echo "Next: npm run build && npm run migrate && npm run import-data"
