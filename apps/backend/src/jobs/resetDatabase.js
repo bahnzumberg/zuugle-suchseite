@@ -2,7 +2,7 @@
  * resetDatabase.js
  *
  * Drops ALL objects in the public schema (tables, views, triggers, functions, sequences)
- * and rebuilds the database from scratch using database.sql.
+ * and rebuilds the database from scratch by running the knex migrations.
  *
  * Usage: npm run reset-database
  * (After building: node build/jobs/resetDatabase.js)
@@ -11,7 +11,6 @@
 import { execSync } from "child_process";
 import * as readline from "readline";
 import * as path from "path";
-import * as fs from "fs";
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -33,7 +32,7 @@ async function main() {
     console.log("==============================================");
     console.log("");
     console.log("WARNING: This will PERMANENTLY DELETE ALL DATA in the database");
-    console.log("         and rebuild it from scratch using database.sql.");
+    console.log("         and rebuild it from scratch via knex migrations.");
     console.log("");
 
     const confirm = await ask("Are you sure you want to continue? (Y/N): ");
@@ -68,31 +67,10 @@ async function main() {
 
     const { host, port, user, password, database } = config.connection;
 
-    // Determine path to database.sql (works both in src tree and in build/)
-    const possiblePaths = [
-        path.resolve(__dirname, "../../database.sql"), // from build/jobs/
-        path.resolve(__dirname, "../../../database.sql"), // fallback
-        path.resolve(process.cwd(), "database.sql"), // cwd
-    ];
-
-    let sqlFilePath = null;
-    for (const p of possiblePaths) {
-        if (fs.existsSync(p)) {
-            sqlFilePath = p;
-            break;
-        }
-    }
-
-    if (!sqlFilePath) {
-        console.error("Could not find database.sql. Make sure it exists at the project root.");
-        process.exit(1);
-    }
-
     console.log(`\nUsing database config for environment: "${env}"`);
     console.log(`Host:     ${host}:${port}`);
     console.log(`Database: ${database}`);
     console.log(`User:     ${user}`);
-    console.log(`SQL file: ${sqlFilePath}`);
     console.log("");
 
     const env_vars = {
@@ -115,16 +93,15 @@ async function main() {
         process.exit(1);
     }
 
-    // Step 2: Apply database.sql
-    console.log("[2/2] Rebuilding database from database.sql...");
+    // Step 2: Rebuild schema via knex migrations.
+    // `npm run migrate` resolves to the correct knexfile for the cwd (build/ locally,
+    // the deploy target on servers) and reads the same DB_* env as the drop above.
+    console.log("[2/2] Rebuilding schema via knex migrations (npm run migrate)...");
     try {
-        execSync(`${psqlBase} -f "${sqlFilePath}"`, {
-            env: env_vars,
-            stdio: "inherit",
-        });
+        execSync("npm run migrate", { env: env_vars, stdio: "inherit" });
         console.log("      Done.\n");
     } catch (err) {
-        console.error("Failed to apply database.sql:", err.message);
+        console.error("Failed to run migrations:", err.message);
         process.exit(1);
     }
 

@@ -4,7 +4,7 @@
  * Stops, removes, and recreates the Docker PostgreSQL container for the
  * current environment. This is useful for:
  *   - PostgreSQL version upgrades (new Docker image)
- *   - Database schema changes (database.sql is re-applied on fresh container)
+ *   - Database schema changes (knex migrations are re-applied on the fresh container)
  *
  * The correct container and docker-compose file are determined automatically
  * from the knexfile.js configuration (containerName field).
@@ -164,7 +164,8 @@ async function main() {
     console.log(`  DB User:        ${dbUser}`);
     console.log("");
     console.log("  ⚠️  This will DESTROY the container and all its data.");
-    console.log("     The database will be recreated empty from database.sql.");
+    console.log("     The database is recreated empty, then the schema is applied by");
+    console.log("     knex migrations (npm run migrate).");
     console.log("     You will need to run 'npm run import-data-docker-download' afterwards.");
     console.log("");
 
@@ -208,9 +209,13 @@ async function main() {
     console.log("PostgreSQL version:");
     run(`docker exec ${containerName} psql --version`);
 
+    // --- Apply schema via knex migrations (container starts empty now) ---
+    console.log("\nApplying schema via knex migrations (npm run migrate)...");
+    run("npm run migrate", { cwd: projectRoot });
+
     console.log("");
     console.log("==============================================");
-    console.log("  ✅ Container rebuilt successfully!");
+    console.log("  ✅ Container rebuilt and schema migrated!");
     console.log("");
     console.log("  Next step: populate the database with data:");
     console.log("    npm run import-data-docker-download");

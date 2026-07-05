@@ -10,8 +10,7 @@ services:
             POSTGRES_DB: zuugle_suchseite_dev
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: docker
-        volumes:
-            - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+        # Schema is applied by knex migrations (`npm run migrate`), not an init mount.
 
     valkey:
         image: valkey/valkey:8-alpine

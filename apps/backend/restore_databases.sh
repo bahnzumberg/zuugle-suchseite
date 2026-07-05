@@ -76,19 +76,17 @@ else
     docker run -d --name zuugle-valkey --restart always -p 127.0.0.1:6379:6379 valkey/valkey:8-alpine
 fi
 
-# Rebuild database structure if --structure flag is set
+# Rebuild database structure via knex migrations if --structure flag is set.
+# This is schema-only and intentionally does NOT import data — the nightly cron
+# runs this script WITHOUT --structure to refresh data, and that path is unchanged.
 if [ "$REBUILD_STRUCTURE" = true ]; then
-    echo "Rebuilding database structure from database.sql..."
-    
-    if [ -f "database.sql" ]; then
-        cat database.sql | docker exec -i "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME"
-        echo "Structure rebuild completed."
-    else
-        echo "Error: database.sql not found!"
-        exit 1
-    fi
+    echo "Rebuilding database structure via knex migrations (npm run migrate)..."
+    npm run migrate
+    echo "Structure rebuild completed (schema only, no data import)."
+    exit 0
 fi
 
+# --- Data import (bare invocation; used by the nightly cron) ---
 # Locate the sync script
 if [ -f "jobs/syncDataDockerDownload.js" ]; then
     SCRIPT_PATH="jobs/syncDataDockerDownload.js"
