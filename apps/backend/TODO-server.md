@@ -113,14 +113,18 @@ package.json scripts **by name** — so renaming an npm script silently breaks c
 | `start_zuugle_load.py` (prod, zuugle-neu) | `import-data-prod`, `import-files`                                           | `NODE_ENV=production`, `USE_CDN=true`  |
 | `start_zuugle_uat_load.py` (uat-zuugle)   | `import-files` (+ `restore_databases.sh` directly, in `api/` and `dev-api/`) | `NODE_ENV=production`, `USE_CDN=false` |
 
-Also out-of-band: `refresh-search-suggestions` is run by the UAT deploy workflow.
+Search suggestions are refreshed **as part of the nightly data load** — `import-data`
+runs `refreshSearchSuggestions()` in its sequence (as does `import-data-prod` on PROD),
+so `restore_databases.sh` covers it. The deploy workflow does **not** run it. The
+standalone `refresh-search-suggestions` script remains for manual/out-of-band runs.
 
-**Keep these alias names stable:** `import-data-prod`, `import-files`, and
-`refresh-search-suggestions` — the server Python load scripts call them by name, so
-rename them here and there in lockstep. `import-data` (local/DEV/UAT dump seeding,
-formerly `import-data-docker-download`) is only invoked from `restore_databases.sh`
-and the dev docs within this repo, so it can be renamed from here alone. The other
-redundant aliases (`import-data-full`, `import-files-prod`) were unused and removed.
+**Keep these alias names stable:** `import-data-prod` and `import-files` are called by
+name from the server Python load scripts, so rename them here and there in lockstep.
+`refresh-search-suggestions` may be invoked by an out-of-band job outside this repo —
+keep it too, to be safe. `import-data` (local/DEV/UAT dump seeding, formerly
+`import-data-docker-download`) is only invoked from `restore_databases.sh` and the dev
+docs within this repo, so it can be renamed from here alone. The other redundant
+aliases (`import-data-full`, `import-files-prod`) were unused and removed.
 
 ### TODO: replace cron with systemd timers, versioned in this repo
 
