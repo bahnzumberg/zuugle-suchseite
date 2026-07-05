@@ -234,6 +234,12 @@
   },
   "details": {
     "tour_nicht_mehr_verfuegbar": "Ta tura ni na voljo.",
+    "tour_andere_city_warnung": "Potovanje iz izbranega mesta je lahko zelo dolgo ali sploh ni mogoče.",
+    "tour_inaktiv": "Ta tura trenutno ni dosegljiva z vlakom in avtobusom ali jo je {{provider}} izbrisal.",
+    "svg_erreichbar": "Dosegljivo z vlakom in avtobusom",
+    "svg_nicht_erreichbar": "Ni dosegljivo z vlakom in avtobusom",
+    "svg_nicht_verfuegbar": "tura ni na voljo",
+    "svg_ueberschrift": "Letni pregled dosegljivosti",
     "track_gps_geraet": "Prenesi sledilnik za napravo GPS.",
     "start_ausgangort": "Začetek pri izhodišču.",
     "keine_verbindungen": "Za ta dan ni najdena nobena povezava.",

@@ -234,6 +234,12 @@
   },
   "details": {
     "tour_nicht_mehr_verfuegbar": "Cette randonnée n'est pas disponible.",
+    "tour_andere_city_warnung": "Le trajet depuis la ville sélectionnée peut être très long ou impossible.",
+    "tour_inaktiv": "Cette randonnée n'est actuellement pas accessible en train et en bus ou a été supprimée par {{provider}}.",
+    "svg_erreichbar": "Accessible en train et en bus",
+    "svg_nicht_erreichbar": "Non accessible en train et en bus",
+    "svg_nicht_verfuegbar": "randonnée non disponible",
+    "svg_ueberschrift": "Aperçu annuel de l'accessibilité",
     "track_gps_geraet": "Télécharger la trace GPX",
     "start_ausgangort": "Début au lieu de départ de la randonnée",
     "keine_verbindungen": "Aucune desserte n'a été trouvée pour cette date.",

@@ -233,7 +233,13 @@
     "zurueck": "Zurück"
   },
   "details": {
-    "tour_nicht_mehr_verfuegbar": "Diese Tour ist leider nicht verfügbar.",
+    "tour_nicht_mehr_verfuegbar": "Diese Tour ist nicht verfügbar.",
+    "tour_andere_city_warnung": "Die Anreise aus der gewählten Stadt kann sehr lang sein oder gar nicht möglich sein.",
+    "tour_inaktiv": "Diese Tour ist mit Bahn und Bus derzeit nicht erreichbar oder wurde von {{provider}} gelöscht.",
+    "svg_erreichbar": "Mit Bahn und Bus erreichbar",
+    "svg_nicht_erreichbar": "Mit Bahn und Bus nicht erreichbar",
+    "svg_nicht_verfuegbar": "Tour nicht verfügbar",
+    "svg_ueberschrift": "Jahresüberblick Erreichbarkeit",
     "track_gps_geraet": "Track für GPS-Gerät herunterladen",
     "start_ausgangort": "Start beim Ausgangsort",
     "keine_verbindungen": "Für diesen Tag wurden keine Verbindungen gefunden.",
