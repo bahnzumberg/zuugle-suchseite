@@ -1,14 +1,5 @@
 #!/bin/bash
 # Start the in-container PostgreSQL for local development in the sandbox.
-#
-# The dev container's egress is default-deny, so it cannot reach a Postgres
-# running on the host. Instead we run Postgres INSIDE the container on
-# 127.0.0.1 (loopback is always allowed by the firewall) so `npm run migrate`,
-# `npm run import-data-docker-download`, tests, etc. work offline.
-#
-# postgresql-17 + pgvector are installed at image-build time (see Dockerfile),
-# which matches the pgvector/pgvector image used in UAT/PROD. This script is
-# idempotent and runs on every container start (via postStartCommand, as root).
 set -euo pipefail
 
 PGVER=17

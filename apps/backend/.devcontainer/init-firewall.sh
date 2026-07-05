@@ -3,15 +3,7 @@
 #
 # Default policy is DROP. Only DNS, loopback, the Docker host network, and the
 # handful of domains Claude Code + this project need are allowed out.
-#
-# GitHub is allowed over HTTPS (443) for general access — cloning public repos,
-# the `gh` API, raw files, npm-from-github, etc. But ALL outbound SSH (port 22)
-# is blocked, so `git@github.com` push/pull cannot work regardless of whether
-# the editor forwards your SSH agent / key into the container. In other words:
-# read/browse GitHub over HTTPS = yes; use your SSH key to push/pull = no.
-#
-# To let this project do more, uncomment entries from the ADD-BACK MENU below
-# and rebuild/re-run. This script re-runs on every container start.
+# This script re-runs on every container start.
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -38,9 +30,6 @@ iptables -A OUTPUT -o lo -j ACCEPT
 ipset create allowed-domains hash:net
 
 # Resolve each allowed domain to its current IPs and add them to the ipset.
-# NOTE: this is a point-in-time snapshot. CDN-fronted hosts (Anthropic, npm,
-# unpkg, cloudflare) rotate IPs; if egress starts failing later, just re-run
-# this script (or rebuild) to refresh.
 add_domain() {
     local domain="$1"
     echo "Resolving $domain..."
