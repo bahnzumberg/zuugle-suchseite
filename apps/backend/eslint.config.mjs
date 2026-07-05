@@ -35,6 +35,13 @@ export default defineConfig([
         extends: ["json/recommended"],
     },
     {
+        // devcontainer.json is JSONC (comments allowed) per the Dev Containers spec.
+        files: [".devcontainer/**/*.json"],
+        plugins: { json },
+        language: "json/jsonc",
+        extends: ["json/recommended"],
+    },
+    {
         files: ["**/*.md"],
         plugins: { markdown },
         language: "markdown/gfm",

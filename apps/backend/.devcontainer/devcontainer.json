@@ -1,0 +1,33 @@
+{
+    "name": "zuugle-api (sandboxed)",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    // The Claude Code CLI is installed in the Dockerfile from Anthropic's signed
+    // apt repo; the VS Code extension is added under customizations.vscode below.
+    // Required only so the in-container egress firewall can program iptables/ipset.
+    "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+    // Non-root user. Keep this non-root: --dangerously-skip-permissions refuses to
+    // run as root, and root would let a bypassed session tamper with the firewall.
+    "remoteUser": "node",
+    "containerEnv": {
+        "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+        // Drop optional telemetry/error-reporting egress (Statsig/Sentry) so the
+        // allowlist can stay tiny. Remove if you want usage metrics.
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    },
+    // Persist Claude Code auth + settings across rebuilds (per-project volume,
+    // not shared with other repos). No host secrets are mounted in.
+    "mounts": ["source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"],
+    // Apply the egress allowlist once the container network is up.
+    "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+    "waitFor": "postStartCommand",
+    "customizations": {
+        "settings": {
+            "remote.containers.copyGitConfig": false
+        },
+        "vscode": {
+            "extensions": ["anthropic.claude-code"]
+        }
+    }
+}
