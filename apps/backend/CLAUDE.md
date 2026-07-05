@@ -30,7 +30,7 @@ Node.js backend API for the "Bahn zum Berg" (Zuugle) platform. Manages tour data
 nvm use && npm install                  # setup
 npm run build                           # compile + copy assets
 npm run migrate                         # apply DB schema (knex migrations)
-npm run import-data-docker-download     # seed local DB from UAT dump
+npm run import-data                     # seed local DB from UAT dump
 npm run start                           # dev server
 ```
 

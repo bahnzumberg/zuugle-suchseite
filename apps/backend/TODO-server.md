@@ -115,11 +115,12 @@ package.json scripts **by name** — so renaming an npm script silently breaks c
 
 Also out-of-band: `refresh-search-suggestions` is run by the UAT deploy workflow.
 
-**Keep these alias names stable:** `import-data-prod`, `import-files`,
-`refresh-search-suggestions`, and `import-data-docker-download` (local dev seeding).
-The redundant aliases `import-data`, `import-data-full`, and `import-files-prod`
-were unused by any cron/workflow/dev-doc and have been removed. If you ever rename
-the survivors, update the Python scripts on the servers in lockstep.
+**Keep these alias names stable:** `import-data-prod`, `import-files`, and
+`refresh-search-suggestions` — the server Python load scripts call them by name, so
+rename them here and there in lockstep. `import-data` (local/DEV/UAT dump seeding,
+formerly `import-data-docker-download`) is only invoked from `restore_databases.sh`
+and the dev docs within this repo, so it can be renamed from here alone. The other
+redundant aliases (`import-data-full`, `import-files-prod`) were unused and removed.
 
 ### TODO: replace cron with systemd timers, versioned in this repo
 
@@ -192,7 +193,7 @@ Deploy + open questions:
 `vw_provider_to_search` — the direct MySQL import path.
 
 The UAT/DEV servers do **not** use this path. Their nightly load downloads a
-pre-built PostgreSQL dump from `uat-dump.zuugle.at` (`syncDataDockerDownload.js`),
+pre-built PostgreSQL dump from `uat-dump.zuugle.at` (`syncDataImport.js`),
 bypassing MySQL entirely. `knexfileTourenDb.js` on those servers has always had
 empty credentials and it doesn't matter.
 
@@ -245,7 +246,7 @@ public`, run `npm run migrate` instead of `psql -f database.sql`.
   starts.
 - `restore_databases.sh`: replace the `--structure` branch (`cat database.sql |
 psql`) with `npm run migrate`. Decouple the data import — `--structure` must no
-  longer auto-trigger `syncDataDockerDownload.js`; the bare invocation stays as
+  longer auto-trigger the data import; the bare invocation stays as
   data-import-only so the nightly cron is unaffected.
 - Remove `database.sql` from `build:copy` and delete the file.
 
