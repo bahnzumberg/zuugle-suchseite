@@ -31,11 +31,6 @@ const config = {
     },
 };
 
-// Docker container name (used by the rebuild/restore jobs). Unset on native PROD hosts.
-if (process.env.DB_CONTAINER_NAME) {
-    config.containerName = process.env.DB_CONTAINER_NAME;
-}
-
 module.exports = {
     production: config,
     development: config,

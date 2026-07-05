@@ -403,123 +403,78 @@ export async function truncateAll() {
     }
 }
 
-function getContainerName() {
-    const env = process.env.NODE_ENV || "development";
-    if (knexConfig[env] && knexConfig[env].containerName) {
-        return knexConfig[env].containerName;
-    }
-    return process.env.DB_CONTAINER_NAME || "zuugle-container";
+// How we reach PostgreSQL for the dump restore, in priority order:
+//   1. a running compose "postgres" service -> restore through the container's own
+//      pg_restore, so no client is needed on the host (covers local, DEV, UAT).
+//   2. a native pg_restore on PATH -> restore over TCP (covers the dev container's
+//      bundled PostgreSQL and native PROD).
+// `docker compose` reads .env / COMPOSE_PROJECT_NAME from the cwd, so it targets the
+// correct stack automatically.
+function isComposePostgresRunning() {
+    const res = spawn.sync("docker", ["compose", "ps", "--status", "running", "-q", "postgres"], {
+        encoding: "utf8",
+    });
+    return res.status === 0 && !!res.stdout && res.stdout.trim().length > 0;
 }
 
-export async function copyDump(localPath, remotePath) {
-    return new Promise((resolve, reject) => {
-        const container = getContainerName();
-        logger.info(`Copying dump to container ${container}...`);
-        const dockerProc = spawn("docker", ["cp", localPath, `${container}:${remotePath}`]);
-
-        let stderrData = "";
-        dockerProc.stderr.on("data", (data) => {
-            stderrData += data.toString();
-            logger.error(`docker cp stderr: ${data}`);
-        });
-
-        dockerProc.on("close", (code) => {
-            if (code === 0) {
-                logger.info(`Dump copied successfully to ${container}:${remotePath}`);
-                resolve(undefined);
-            } else {
-                // Check for specific error: container not running
-                if (
-                    stderrData.includes("is not running") ||
-                    stderrData.includes("No such container")
-                ) {
-                    logger.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
-                    logger.error(
-                        `   Please start the container first with: docker start ${container}\n`,
-                    );
-                    reject(
-                        new Error(
-                            `Docker container "${container}" is not running. Start it with: docker start ${container}`,
-                        ),
-                    );
-                } else {
-                    reject(new Error(`docker cp exited with code ${code}: ${stderrData}`));
-                }
-            }
-        });
-    });
+function hasNativePgRestore() {
+    return spawn.sync("pg_restore", ["--version"], { encoding: "utf8" }).status === 0;
 }
 
 export async function restoreDump() {
-    return new Promise((resolve, reject) => {
-        const env = process.env.NODE_ENV || "development";
-        const config = knexConfig[env];
+    const env = process.env.NODE_ENV || "development";
+    const conn = (knexConfig[env] && knexConfig[env].connection) || {};
+    const dbName = conn.database || process.env.DB_NAME || "zuugle_suchseite_dev";
+    const dbUser = conn.user || process.env.DB_USER || "postgres";
+    const dbHost = conn.host || process.env.DB_HOST || "localhost";
+    const dbPort = String(conn.port || process.env.DB_PORT || 5432);
+    const dbPassword = conn.password || process.env.DB_PASSWORD || "";
+    const dumpFile = "zuugle_postgresql.dump";
 
-        const container = getContainerName();
-        const dbName =
-            config && config.connection && config.connection.database
-                ? config.connection.database
-                : process.env.DB_NAME || "zuugle_suchseite_dev";
-        const dbUser =
-            config && config.connection && config.connection.user
-                ? config.connection.user
-                : process.env.DB_USER || "postgres";
-        const dbDump = "/tmp/zuugle_postgresql.dump";
+    if (!fs.existsSync(dumpFile)) {
+        throw new Error(`Dump file not found: ${path.resolve(dumpFile)}`);
+    }
 
-        logger.info(`Restoring dump in container ${container} (DB: ${dbName}, User: ${dbUser})...`);
-        const dockerProc = spawn("docker", [
-            "exec",
-            container,
-            "pg_restore",
-            "-U",
-            dbUser,
-            "-d",
-            dbName,
-            "--no-owner",
-            "--no-privileges",
-            dbDump,
-        ]);
-        dockerProc.stdout.on("data", (data) => {
-            logger.info(`stdout: ${data}`);
+    const restoreArgs = ["--no-owner", "--no-privileges", "-U", dbUser, "-d", dbName];
+    let proc;
+
+    if (isComposePostgresRunning()) {
+        // Stream the dump into the container's pg_restore via stdin — no docker cp
+        // and no host client. `-T` disables TTY allocation so the pipe works.
+        logger.info(`Restoring dump via docker compose (DB: ${dbName}, user: ${dbUser})...`);
+        proc = spawn(
+            "docker",
+            ["compose", "exec", "-T", "postgres", "pg_restore", ...restoreArgs],
+            { stdio: ["pipe", "inherit", "inherit"] },
+        );
+        fs.createReadStream(dumpFile).pipe(proc.stdin);
+    } else if (hasNativePgRestore()) {
+        logger.info(`Restoring dump via pg_restore to ${dbHost}:${dbPort} (DB: ${dbName})...`);
+        proc = spawn("pg_restore", ["-h", dbHost, "-p", dbPort, ...restoreArgs, dumpFile], {
+            stdio: ["ignore", "inherit", "inherit"],
+            env: { ...process.env, PGPASSWORD: dbPassword },
         });
-        dockerProc.stderr.on("data", (data) => {
-            const errorMessage = data.toString();
+    } else {
+        throw new Error(
+            "Cannot restore the dump: no running compose 'postgres' service and no native " +
+                "pg_restore found. Start the database with `docker compose up -d`, or install " +
+                "postgresql-client.",
+        );
+    }
 
-            // Check for specific error: container not running
-            if (errorMessage.includes("is not running")) {
-                logger.error(`\n❌ ERROR: Docker container "${container}" is not running.`);
-                logger.error(
-                    `   Please start the container first with: docker start ${container}\n`,
-                );
-                reject(
-                    new Error(
-                        `Docker container "${container}" is not running. Start it with: docker start ${container}`,
-                    ),
-                );
-            } else if (errorMessage.includes("duplicate key value violates unique constraint")) {
-                logger.error(`\n❌ ERROR: ${errorMessage}`);
-                logger.error(
-                    `   💡 Maybe the new table is still missing in function truncateAll()?\n`,
-                );
-                reject(new Error(errorMessage));
-            } else {
-                reject(new Error(errorMessage));
-            }
-        });
-        dockerProc.on("close", async (code) => {
-            if (code === 0) {
-                logger.info(`pg_restore executed successfully`);
-                // Clear CDN URLs from image_url so local import-files regenerates them with local path
-                // This is how the run "npm run import-data-prod" would have left the column on production
-                await knex.raw(
-                    `UPDATE tour SET image_url = NULL WHERE image_url LIKE 'https://cdn.zuugle.at%';`,
-                );
-                resolve(undefined);
-            } else {
-                reject(new Error(`pg_restore exited with code ${code}`));
-            }
+    await new Promise((resolve, reject) => {
+        proc.on("error", reject);
+        proc.on("close", (code) => {
+            if (code === 0) resolve(undefined);
+            else reject(new Error(`pg_restore exited with code ${code}`));
         });
     });
+
+    // Clear CDN URLs so local `npm run import-files` regenerates images with a local
+    // path — matching how "npm run import-data-prod" leaves the column on production.
+    await knex.raw(
+        `UPDATE tour SET image_url = NULL WHERE image_url LIKE 'https://cdn.zuugle.at%';`,
+    );
 }
 
 export async function writeKPIs() {

@@ -1,19 +1,15 @@
 /**
  * rebuildDocker.js
  *
- * Stops, removes, and recreates the Docker PostgreSQL container for the
- * current environment. This is useful for:
- *   - PostgreSQL version upgrades (new Docker image)
- *   - Database schema changes (knex migrations are re-applied on the fresh container)
+ * Stops, removes, and recreates the compose PostgreSQL container for the current
+ * environment (local, DEV, or UAT), then re-applies the knex migrations. Useful
+ * for a PostgreSQL version upgrade or a clean-slate rebuild.
  *
- * The correct container and docker-compose file are determined automatically
- * from the knexfile.js configuration (containerName field).
+ * The environment is selected by COMPOSE_PROJECT_NAME (from .env), which also tells
+ * this script whether the host is compose-managed. It refuses to run where that is
+ * unset — i.e. native PROD, where PostgreSQL is maintained manually.
  *
  * Usage: npm run rebuild-docker
- *
- * NOTE: This script refuses to run on production (NODE_ENV=production on
- *       a machine without docker-compose files), where PostgreSQL is
- *       installed natively and must be maintained manually.
  */
 
 import { execSync } from "child_process";
@@ -21,58 +17,30 @@ import * as path from "path";
 import * as fs from "fs";
 import * as readline from "readline";
 
-// --- Container-to-Service mapping ---
-// Maps container names to their docker-compose file and service name.
-const CONTAINER_MAP = {
-    "zuugle-container": {
-        composeFile: "docker-compose.yaml",
-        serviceName: "postgres",
-    },
-    "zuugle-postgres-uat": {
-        composeFile: "docker-compose.uat.yaml",
-        serviceName: "postgres-uat",
-    },
-    "zuugle-postgres-dev": {
-        composeFile: "docker-compose.uat.yaml",
-        serviceName: "postgres-dev",
-    },
-};
+const SERVICE = "postgres";
 
 function getProjectRoot() {
-    // From build/jobs/ → project root is ../../
-    // From src/jobs/  → project root is ../../
-    const possibleRoots = [
+    // From build/jobs/ or src/jobs/ the root holds docker-compose.yaml.
+    const candidates = [
         path.resolve(__dirname, "../../"),
         path.resolve(__dirname, "../../../"),
         path.resolve(process.cwd()),
     ];
-    for (const root of possibleRoots) {
-        if (fs.existsSync(path.join(root, "docker-compose.yaml"))) {
-            return root;
-        }
+    for (const root of candidates) {
+        if (fs.existsSync(path.join(root, "docker-compose.yaml"))) return root;
     }
     return process.cwd();
 }
 
 function loadKnexConfig() {
-    const knexfilePath = path.resolve(__dirname, "../knexfile.js");
+    // Requiring the knexfile also loads .env (dotenv), which populates
+    // COMPOSE_PROJECT_NAME for the guard and for `docker compose`.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require(knexfilePath);
-}
-
-function getContainerName(knexConfig) {
-    const env = process.env.NODE_ENV || "development";
-    if (knexConfig[env] && knexConfig[env].containerName) {
-        return knexConfig[env].containerName;
-    }
-    return process.env.DB_CONTAINER_NAME || "zuugle-container";
+    return require(path.resolve(__dirname, "../knexfile.js"));
 }
 
 function ask(question) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
     return new Promise((resolve) => {
         rl.question(question, (answer) => {
             rl.close();
@@ -87,24 +55,23 @@ function run(cmd, opts = {}) {
         execSync(cmd, { stdio: "inherit", ...opts });
         return true;
     } catch (err) {
-        if (!opts.ignoreError) {
-            throw err;
-        }
+        if (!opts.ignoreError) throw err;
         return false;
     }
 }
 
-function waitForDatabase(containerName, dbUser, maxRetries = 30) {
+function waitForDatabase(dbUser, opts, maxRetries = 30) {
     console.log("\n⏳ Waiting for PostgreSQL to be ready...");
     for (let i = 1; i <= maxRetries; i++) {
         try {
-            execSync(`docker exec ${containerName} pg_isready -U ${dbUser}`, { stdio: "pipe" });
+            execSync(`docker compose exec -T ${SERVICE} pg_isready -U ${dbUser}`, {
+                stdio: "pipe",
+                ...opts,
+            });
             console.log("✅ PostgreSQL is ready.\n");
             return true;
         } catch {
-            if (i < maxRetries) {
-                execSync("sleep 1");
-            }
+            if (i < maxRetries) execSync("sleep 1");
         }
     }
     console.error("❌ PostgreSQL did not become ready in time.");
@@ -112,61 +79,38 @@ function waitForDatabase(containerName, dbUser, maxRetries = 30) {
 }
 
 async function main() {
+    const knexConfig = loadKnexConfig();
     const env = process.env.NODE_ENV || "development";
 
-    // --- Safety check: refuse to run on production server ---
-    if (env === "production") {
-        const projectRoot = getProjectRoot();
-        const hasUatCompose = fs.existsSync(path.join(projectRoot, "docker-compose.uat.yaml"));
-        if (!hasUatCompose) {
-            console.error("");
-            console.error("❌ ERROR: This script cannot run on production.");
-            console.error("   Production uses a natively installed PostgreSQL database");
-            console.error("   that must be maintained manually.");
-            console.error("");
-            process.exit(1);
-        }
-        // If docker-compose.uat.yaml exists, we're on the UAT server —
-        // production profile there means the UAT database, which is OK.
-    }
-
-    // --- Load configuration ---
-    const knexConfig = loadKnexConfig();
-    const containerName = getContainerName(knexConfig);
-    const mapping = CONTAINER_MAP[containerName];
-
-    if (!mapping) {
-        console.error(`❌ Unknown container: "${containerName}"`);
-        console.error("   Known containers:", Object.keys(CONTAINER_MAP).join(", "));
-        process.exit(1);
-    }
-
-    const projectRoot = getProjectRoot();
-    const composeFilePath = path.join(projectRoot, mapping.composeFile);
-
-    if (!fs.existsSync(composeFilePath)) {
-        console.error(`❌ Compose file not found: ${composeFilePath}`);
+    // Compose-managed hosts set COMPOSE_PROJECT_NAME (local/DEV/UAT); native PROD
+    // does not, so this is our guard against touching a manually-maintained DB.
+    const project = process.env.COMPOSE_PROJECT_NAME;
+    if (!project) {
+        console.error("");
+        console.error("❌ ERROR: COMPOSE_PROJECT_NAME is not set.");
+        console.error("   rebuild-docker only manages compose-based databases (local/DEV/UAT).");
+        console.error("   Native hosts (e.g. PROD) maintain PostgreSQL manually.");
+        console.error("");
         process.exit(1);
     }
 
     const dbUser = knexConfig[env]?.connection?.user || process.env.DB_USER || "postgres";
+    const opts = { cwd: getProjectRoot() };
 
-    // --- Show what we're about to do ---
     console.log("");
     console.log("==============================================");
     console.log("     ZUUGLE DOCKER CONTAINER REBUILD");
     console.log("==============================================");
     console.log("");
     console.log(`  Environment:    ${env}`);
-    console.log(`  Container:      ${containerName}`);
-    console.log(`  Compose file:   ${mapping.composeFile}`);
-    console.log(`  Service:        ${mapping.serviceName}`);
+    console.log(`  Compose proj:   ${project}`);
+    console.log(`  Service:        ${SERVICE}`);
     console.log(`  DB User:        ${dbUser}`);
     console.log("");
     console.log("  ⚠️  This will DESTROY the container and all its data.");
     console.log("     The database is recreated empty, then the schema is applied by");
     console.log("     knex migrations (npm run migrate).");
-    console.log("     You will need to run 'npm run import-data-docker-download' afterwards.");
+    console.log("     You will need to run 'npm run import-data' afterwards.");
     console.log("");
 
     const confirm = await ask("Continue? (Y/N): ");
@@ -175,50 +119,35 @@ async function main() {
         process.exit(0);
     }
 
-    const composeCmd = `docker compose -f ${mapping.composeFile}`;
-
-    // --- Step 1: Stop and remove the container ---
     console.log("\n[1/4] Stopping container...");
-    run(`${composeCmd} stop ${mapping.serviceName}`, {
-        cwd: projectRoot,
-        ignoreError: true,
-    });
+    run(`docker compose stop ${SERVICE}`, { ...opts, ignoreError: true });
 
     console.log("\n[2/4] Removing container...");
-    run(`${composeCmd} rm -f ${mapping.serviceName}`, {
-        cwd: projectRoot,
-        ignoreError: true,
-    });
+    run(`docker compose rm -f ${SERVICE}`, { ...opts, ignoreError: true });
 
-    // --- Step 2: Pull latest image ---
     console.log("\n[3/4] Pulling latest image...");
-    run(`${composeCmd} pull ${mapping.serviceName}`, { cwd: projectRoot });
+    run(`docker compose pull ${SERVICE}`, opts);
 
-    // --- Step 3: Start fresh container ---
     console.log("\n[4/4] Starting fresh container...");
-    run(`${composeCmd} up -d ${mapping.serviceName}`, { cwd: projectRoot });
+    run(`docker compose up -d ${SERVICE}`, opts);
 
-    // --- Step 4: Wait for database readiness ---
-    const dbReady = waitForDatabase(containerName, dbUser);
-    if (!dbReady) {
+    if (!waitForDatabase(dbUser, opts)) {
         console.error("Container started but database is not responding.");
         process.exit(1);
     }
 
-    // --- Verify version ---
     console.log("PostgreSQL version:");
-    run(`docker exec ${containerName} psql --version`);
+    run(`docker compose exec -T ${SERVICE} psql --version`, opts);
 
-    // --- Apply schema via knex migrations (container starts empty now) ---
     console.log("\nApplying schema via knex migrations (npm run migrate)...");
-    run("npm run migrate", { cwd: projectRoot });
+    run("npm run migrate", opts);
 
     console.log("");
     console.log("==============================================");
     console.log("  ✅ Container rebuilt and schema migrated!");
     console.log("");
     console.log("  Next step: populate the database with data:");
-    console.log("    npm run import-data-docker-download");
+    console.log("    npm run import-data");
     console.log("==============================================");
     console.log("");
 
