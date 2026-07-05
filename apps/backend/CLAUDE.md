@@ -13,10 +13,13 @@ Node.js backend API for the "Bahn zum Berg" (Zuugle) platform. Manages tour data
     git checkout uat && git pull origin uat && git checkout -b feature/name
     ```
 - Pushing to `uat` triggers GitHub Action `UAT Deploy` → Build → SCP to server → PM2 restart
+- `dev` is a parallel deployable branch (pushing it triggers `DEV Deploy` to the same host,
+  a separate target dir/DB). `main` deploys to PROD. Branch/env map: `dev`→dev.zuugle.at,
+  `uat`→www2.zuugle.at, `main`→www.zuugle.at.
 
 ## Tech Stack
 
-- **Runtime:** Node.js v20.5.0 — use `nvm`
+- **Runtime:** Node.js v20.19.6 (see `.nvmrc`) — use `nvm`
 - **Database:** PostgreSQL (local via Docker on port 5433)
 - **ORM:** Knex.js
 - **Logging:** custom logger → `logs/api.logs`

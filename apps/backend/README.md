@@ -101,6 +101,20 @@ To upgrade the PostgreSQL version or completely rebuild the database structure:
 2. Run rebuild: `npm run rebuild-docker`
 3. Import data: `npm run import-data-docker-download`
 
+## Branches & deployment
+
+Three branches auto-deploy via GitHub Actions (see `.github/workflows/`):
+
+| Branch | Environment | URL            |
+| ------ | ----------- | -------------- |
+| `dev`  | DEV         | dev.zuugle.at  |
+| `uat`  | UAT         | www2.zuugle.at |
+| `main` | PROD        | www.zuugle.at  |
+
+`dev` and `uat` are both deployable development branches (UAT is the primary one — branch
+your feature work from `uat`). **Never push directly to `main`.** See `CLAUDE.md` for the
+full workflow.
+
 ## Follow frontend Readme
 
 Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite
