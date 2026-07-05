@@ -34,18 +34,30 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends postgresql-17 postgresql-17-pgvector \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Drop the base image's blanket passwordless root for `node`. The
+# mcr.microsoft.com/devcontainers/javascript-node image ships /etc/sudoers.d/node
+# with `node ALL=(root) NOPASSWD:ALL`, which would let the container user (and any
+# code/agent running as it) rewrite the egress firewall, run apt, flush iptables,
+# etc. Remove it so `node` can sudo ONLY the two audited scripts below — and only
+# with no arguments (the trailing "" pins argv). The scripts are root-owned and
+# not writable by `node`, so they cannot be edited and then sudo-run.
+RUN rm -f /etc/sudoers.d/node
+
 # Install the Postgres start script and allow `node` to run ONLY it as root.
 COPY start-postgres.sh /usr/local/bin/start-postgres.sh
-RUN chmod +x /usr/local/bin/start-postgres.sh \
-  && echo "node ALL=(root) NOPASSWD: /usr/local/bin/start-postgres.sh" > /etc/sudoers.d/node-postgres \
+RUN chown root:root /usr/local/bin/start-postgres.sh \
+  && chmod 0755 /usr/local/bin/start-postgres.sh \
+  && echo 'node ALL=(root) NOPASSWD: /usr/local/bin/start-postgres.sh ""' > /etc/sudoers.d/node-postgres \
   && chmod 0440 /etc/sudoers.d/node-postgres
 
 # Ensure the Claude config dir exists and is owned by `node`; a named volume
 # mounted here inherits this ownership on first use.
 RUN mkdir -p /home/node/.claude && chown -R node:node /home/node/.claude
 
-# Install the firewall script and allow `node` to run ONLY that script as root.
+# Install the firewall script and allow `node` to run ONLY that script as root
+# (no arguments — the trailing "" pins argv). Root-owned and not node-writable.
 COPY init-firewall.sh /usr/local/bin/init-firewall.sh
-RUN chmod +x /usr/local/bin/init-firewall.sh \
-  && echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall \
+RUN chown root:root /usr/local/bin/init-firewall.sh \
+  && chmod 0755 /usr/local/bin/init-firewall.sh \
+  && echo 'node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh ""' > /etc/sudoers.d/node-firewall \
   && chmod 0440 /etc/sudoers.d/node-firewall
