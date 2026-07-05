@@ -138,7 +138,7 @@ jobs:
                       ${{ inputs.node_env != '' && format('export NODE_ENV={0}', inputs.node_env) || '' }}
                       cd ${{ secrets.REMOTE_TARGET }}
                       npm install --omit=dev
-                      ${{ inputs.setup_docker && 'docker compose -f docker-compose.uat.yaml up -d' || '' }}
+                      ${{ inputs.setup_docker && 'docker compose up -d' || '' }}
                       ${{ inputs.run_migrations && 'npm run migrate' || '' }}
                       pm2 restart ${{ inputs.pm2_app_name }}
 
