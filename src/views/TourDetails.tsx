@@ -52,10 +52,41 @@ export default function DetailReworked() {
 
   const { i18n } = useTranslation();
 
-  const { data: tour, isFetching: isTourLoading } = useGetTourQuery({
+  const { data: tour, isLoading: isTourLoading } = useGetTourQuery({
     id: idOne || "",
     city: cityOne,
   });
+
+  // SVG365 availability: check if an availability SVG exists for this tour
+  // Loads for inactive tours (valid_tour=0) and when no tour is found at all
+  const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
+  const [svgExists, setSvgExists] = useState(false);
+  useEffect(() => {
+    if (!idOne) return;
+    // Only fetch SVG when a tour exists (valid_tour >= 0)
+    if (!tour) return;
+    const suffix = idOne.slice(-2).padStart(2, "0");
+    const url = `/svg365/${suffix}/${idOne}.svg`;
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error("not found");
+        return r.text();
+      })
+      .then((text) => {
+        // Inject preserveAspectRatio="none" so the 1px-tall SVG stretches.
+        // Keep <title> elements for native browser tooltips on hover.
+        const patched = text.replace(
+          "<svg ",
+          '<svg preserveAspectRatio="none" ',
+        );
+        setSvgMarkup(patched);
+        setSvgExists(true);
+      })
+      .catch(() => {
+        setSvgMarkup(null);
+        setSvgExists(false);
+      });
+  }, [idOne, tour]);
 
   const [triggerProviderPermit, { data: providerPermit }] =
     useLazyGetProviderGpxOkQuery();
@@ -304,6 +335,13 @@ export default function DetailReworked() {
     ],
   });
 
+  // Derived tour status:
+  //  -1 = tour not found (API 404)
+  //   0 = inactive tour (from tour_inactive table)
+  //   1 = active, reachable from selected city (default)
+  //   2 = active, but NOT reachable from selected city
+  const validTour: number = !tour ? -1 : (tour.valid_tour ?? 1);
+
   return (
     <>
       <Box
@@ -350,7 +388,7 @@ export default function DetailReworked() {
       </Box>
       {isTourLoading ? (
         <LoadingSpinner />
-      ) : !tour ? (
+      ) : validTour === -1 ? (
         <Box
           sx={{
             maxWidth: "1400px",
@@ -390,38 +428,42 @@ export default function DetailReworked() {
               {t("start.suche")}
             </Button>
           </Box>
-          <Typography variant="h6" sx={{ mb: "16px", color: "#101010" }}>
-            {t(
-              city
-                ? "start.beliebte_bergtouren_nahe"
-                : "start.beliebte_bergtouren",
-            )}
-          </Typography>
+          {/* Show suggestions only when there are results */}
           {isSuggestionsLoading ? (
             <CircularProgress />
-          ) : (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                  lg: "1fr 1fr 1fr",
-                },
-                gap: "30px",
-              }}
-            >
-              {(suggestedTours?.tours ?? []).slice(0, 3).map((st, i) => (
-                <Box key={i} sx={{ display: "flex", minWidth: 0 }}>
-                  <TourCard
-                    tour={st}
-                    city={city?.value ?? ""}
-                    provider={provider}
-                  />
-                </Box>
-              ))}
-            </Box>
-          )}
+          ) : (suggestedTours?.tours ?? []).length > 0 ? (
+            <>
+              <Typography variant="h6" sx={{ mb: "8px", fontWeight: 600 }}>
+                {t(
+                  city
+                    ? "start.beliebte_bergtouren_nahe"
+                    : "start.beliebte_bergtouren",
+                )}
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "1fr 1fr",
+                    lg: "1fr 1fr 1fr",
+                  },
+                  gap: "30px",
+                }}
+              >
+                {(suggestedTours?.tours ?? []).slice(0, 3).map((st, i) => (
+                  <Box key={i} sx={{ display: "flex", minWidth: 0 }}>
+                    <TourCard
+                      tour={st}
+                      city={city?.value ?? ""}
+                      provider={provider}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </>
+          ) : null}
+          <Footer />
         </Box>
       ) : (
         <Box>
@@ -464,6 +506,13 @@ export default function DetailReworked() {
               </Box>
             )}
 
+            {/* ─── Warning for validTour === 2 ─── */}
+            {validTour === 2 && (
+              <Alert severity="warning" sx={{ mb: "16px" }}>
+                {t("details.tour_andere_city_warnung")}
+              </Alert>
+            )}
+
             {/* ─── Info row: KPIs (left) | Provider (right) ─── */}
             <Box
               sx={{
@@ -474,19 +523,37 @@ export default function DetailReworked() {
                 alignItems: { md: "stretch" },
               }}
             >
-              {/* LEFT: KPIs – Wolkenblau box – same width as Fahrplan column */}
+              {/* LEFT: KPIs or inactive message */}
               <Box
                 sx={{
                   flex: { md: "1 1 50%" },
                   alignSelf: { md: "stretch" },
                   minWidth: 0,
-                  bgcolor: "rgba(170, 181, 215, 0.25)",
+                  bgcolor:
+                    validTour === 0
+                      ? "rgba(37, 73, 128, 0.06)"
+                      : "rgba(170, 181, 215, 0.25)",
                   borderRadius: "12px",
                   px: "16px",
                   py: "12px",
+                  ...(validTour === 0 && {
+                    display: "flex",
+                    alignItems: "center",
+                  }),
                 }}
               >
-                <TourDetailProperties tour={tour} />
+                {validTour === 0 ? (
+                  <Typography
+                    variant="body1"
+                    sx={{ color: "#000", fontWeight: 600 }}
+                  >
+                    {t("details.tour_inaktiv", {
+                      provider: tour?.provider_name,
+                    })}
+                  </Typography>
+                ) : (
+                  <TourDetailProperties tour={tour} />
+                )}
               </Box>
 
               {/* RIGHT: Provider info – Lindgrün box – same width as Map column */}
@@ -544,82 +611,133 @@ export default function DetailReworked() {
             </Box>
 
             {/* ═══════════════════════════════════════════════ */}
-            {/* ─── DOMINANT SECTION: Fahrplan + Map ─── */}
+            {/* ─── DOMINANT SECTION: Fahrplan + Map (Cases 1 & 2) ─── */}
             {/* ═══════════════════════════════════════════════ */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                alignItems: { md: "flex-start" },
-                gap: "16px",
-                mt: "8px",
-                /* Make these panels fill most of the viewport */
-                minHeight: { md: "calc(100vh - 320px)" },
-              }}
-            >
-              {/* ─── LEFT: Fahrplan (on desktop) / 1st on mobile ─── */}
+            {validTour !== 0 && (
+              /* ─── Cases 1 & 2: Active tour → Fahrplan + Map ─── */
               <Box
                 sx={{
-                  flex: { md: "1 1 50%" },
-                  minWidth: 0,
-                  minHeight: { xs: "400px", md: "unset" },
-                  order: { xs: 1, md: 1 },
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: { xs: "column", md: "row" },
+                  alignItems: { md: "flex-start" },
+                  gap: "16px",
+                  mt: "8px",
+                  /* Make these panels fill most of the viewport */
+                  minHeight: { md: "calc(100vh - 320px)" },
                 }}
               >
+                {/* ─── LEFT: Fahrplan (on desktop) / 1st on mobile ─── */}
                 <Box
-                  className="tour-detail-itinerary-container"
-                  sx={{ flex: 1, minWidth: 0 }}
+                  sx={{
+                    flex: { md: "1 1 50%" },
+                    minWidth: 0,
+                    minHeight: { xs: "400px", md: "unset" },
+                    order: { xs: 1, md: 1 },
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
-                  <Itinerary
-                    tour={tour}
-                    tourId={idOne}
-                    onStopHover={setHoveredStop}
-                  />
-                </Box>
-              </Box>
-
-              {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
-              <Box
-                sx={{
-                  flex: { md: "1 1 50%" },
-                  minHeight: { xs: "350px", md: "unset" },
-                  height: { md: "calc(100vh - 80px)" },
-                  order: { xs: 2, md: 2 },
-                  display: "flex",
-                  flexDirection: "column",
-                  pt: { md: "20px" },
-                  gap: "12px",
-                  position: { md: "sticky" },
-                  top: { md: "72px" },
-                  alignSelf: { md: "flex-start" },
-                }}
-              >
-                {track && (
                   <Box
-                    sx={{
-                      flex: { md: 1 },
-                      height: { xs: "350px", md: "auto" },
-                      borderRadius: "12px",
-                      overflow: "hidden",
-                      position: "relative",
-                    }}
-                    className="tour-detail-map-container"
+                    className="tour-detail-itinerary-container"
+                    sx={{ flex: 1, minWidth: 0 }}
                   >
-                    <InteractiveMap
-                      gpxPositions={track || []}
-                      anreiseGpxPositions={toTourTrack || []}
-                      abreiseGpxPositions={fromTourTrack || []}
-                      scrollWheelZoom={true}
-                      hoveredStop={hoveredStop}
+                    <Itinerary
+                      tour={tour}
+                      tourId={idOne}
+                      onStopHover={setHoveredStop}
                     />
                   </Box>
-                )}
-                {/* GPX Download + Share below the map */}
-                {idOne && actionButtonPart}
+                </Box>
+
+                {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
+                <Box
+                  sx={{
+                    flex: { md: "1 1 50%" },
+                    minHeight: { xs: "350px", md: "unset" },
+                    height: { md: "calc(100vh - 80px)" },
+                    order: { xs: 2, md: 2 },
+                    display: "flex",
+                    flexDirection: "column",
+                    pt: { md: "20px" },
+                    gap: "12px",
+                    position: { md: "sticky" },
+                    top: { md: "72px" },
+                    alignSelf: { md: "flex-start" },
+                  }}
+                >
+                  {track && (
+                    <Box
+                      sx={{
+                        flex: { md: 1 },
+                        height: { xs: "350px", md: "auto" },
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                      className="tour-detail-map-container"
+                    >
+                      <InteractiveMap
+                        gpxPositions={track || []}
+                        anreiseGpxPositions={toTourTrack || []}
+                        abreiseGpxPositions={fromTourTrack || []}
+                        scrollWheelZoom={true}
+                        hoveredStop={hoveredStop}
+                      />
+                    </Box>
+                  )}
+                  {/* GPX Download + Share below the map */}
+                  {idOne && actionButtonPart}
+                </Box>
               </Box>
-            </Box>
+            )}
+
+            {/* ─── SVG365 Availability bar (all cases with valid_tour >= 0) ─── */}
+            {svgExists && svgMarkup && (
+              <Box sx={{ mt: "40px" }}>
+                <Typography variant="h6" sx={{ mb: "8px", fontWeight: 600 }}>
+                  {t("details.svg_ueberschrift")}
+                </Typography>
+                <Box
+                  dangerouslySetInnerHTML={{ __html: svgMarkup }}
+                  sx={{
+                    width: "100%",
+                    height: "40px",
+                    "& svg": {
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
+                    },
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: "11px",
+                    color: "#666",
+                    textAlign: "center",
+                    mt: "4px",
+                  }}
+                >
+                  <Box
+                    component="span"
+                    sx={{ color: "green", fontWeight: 600 }}
+                  >
+                    ■
+                  </Box>{" "}
+                  {t("details.svg_erreichbar")}&emsp;
+                  <Box component="span" sx={{ color: "red", fontWeight: 600 }}>
+                    ■
+                  </Box>{" "}
+                  {t("details.svg_nicht_erreichbar")}&emsp;
+                  <Box
+                    component="span"
+                    sx={{ color: "black", fontWeight: 600 }}
+                  >
+                    ■
+                  </Box>{" "}
+                  {t("details.svg_nicht_verfuegbar")}
+                </Typography>
+              </Box>
+            )}
           </Box>
           <Footer></Footer>
         </Box>
