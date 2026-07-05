@@ -694,14 +694,20 @@ export default function DetailReworked() {
             {/* ─── SVG365 Availability bar (all cases with valid_tour >= 0) ─── */}
             {svgExists && svgMarkup && (
               <Box sx={{ mt: "40px" }}>
-                <Typography variant="h6" sx={{ mb: "8px", fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ mb: "4px", fontWeight: 600 }}>
                   {t("details.svg_ueberschrift")}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ lineHeight: "1.6", mb: "12px" }}
+                >
+                  {t("details.svg_beschreibung")}
                 </Typography>
                 <Box
                   dangerouslySetInnerHTML={{ __html: svgMarkup }}
                   sx={{
                     width: "100%",
-                    height: "40px",
+                    height: "60px",
                     "& svg": {
                       width: "100%",
                       height: "100%",
