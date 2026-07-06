@@ -3,10 +3,12 @@ name: Code Checks
 on:
     push:
         branches:
+            - "dev"
             - "uat"
             - "main"
     pull_request:
         branches:
+            - "dev"
             - "uat"
             - "main"
 
@@ -17,12 +19,12 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v5
 
             - name: Set up Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
               with:
-                  node-version: 20
+                  node-version: "24.18.0"
 
             - name: Install dependencies
               run: npm ci
@@ -33,6 +35,5 @@ jobs:
             - name: Run ESLint
               run: npm run lint
 
-            # enable once TypeScript is in use
-            # - name: Run TypeScript (tsc)
-            #   run: npm run tsc
+            - name: Run TypeScript (tsc)
+              run: npm run tsc

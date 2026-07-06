@@ -712,7 +712,7 @@ const getMatchingTourIds = async (req) => {
         } else if (hashed_urls.length !== 0) {
             new_filter_where_poi = `AND t.hashed_url IN ${JSON.stringify(hashed_urls).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
         } else {
-            new_filter_where_poi = `AND t.hashed_url IN ('null') ;`;
+            new_filter_where_poi = `AND t.hashed_url IN ('null') `;
         }
     }
 
