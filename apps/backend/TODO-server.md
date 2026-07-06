@@ -2,32 +2,6 @@
 
 Things to verify on the server before/during next deployment.
 
-## .env files (job credentials)
-
-`import-files` (and other job scripts) run outside PM2 — either via the deploy
-workflow SSH step or via the Python cron (`start_zuugle_uat_load.py`). They don't
-inherit PM2's env block, so `DB_PASSWORD` is undefined and pg throws a SASL error.
-
-`knexfile.js` calls `dotenv.config()` which picks up a `.env` in the working
-directory. **Create this file manually** in each app directory that runs job scripts:
-
-```bash
-# /root/suchseite/api/.env  and  /root/suchseite/dev-api/.env
-cat > .env << 'EOF'
-NODE_ENV=production
-DB_HOST=<host>
-DB_PORT=5432
-DB_USER=<user>
-DB_PASSWORD=<password>
-DB_NAME=<db_name>
-EOF
-chmod 600 .env
-```
-
-**Possible long-term fix:** wire up DB credentials as GitHub Secrets and deploy the `.env`
-from the workflow — see the "auto-deploy via GitHub Actions" section under
-`ecosystem.config.js`.
-
 ## ecosystem.config.js
 
 The PM2 source of truth lives on the server at `~/suchseite/ecosystem.config.js`
@@ -52,7 +26,7 @@ Using `pm2 restart <app-name> --update-env` does **not** re-read the file.
 | App              | Host       | DB credentials in env block |
 | ---------------- | ---------- | --------------------------- |
 | `dev-zuugle_api` | uat-zuugle | ✓ set (cutover complete)    |
-| `zuugle_api`     | uat-zuugle | ✗ pending PROD cutover      |
+| `zuugle_api`     | uat-zuugle | ✓ set (cutover complete)    |
 | `zuugle_api`     | zuugle-neu | ✗ pending PROD cutover      |
 
 ### TODO: auto-deploy via GitHub Actions
@@ -73,12 +47,13 @@ credentials there anyway).
 
 ## webmanifest / CDN — how it actually works
 
-`cdn.zuugle.at` is a **BunnyCDN pull zone**. Bunny is configured with an origin and fetches + caches files on demand. The path mapping lines
-up: `cdn.zuugle.at/foo` → `www.zuugle.at/public/foo`.
+`cdn.zuugle.at` is a **BunnyCDN pull zone**. Bunny is configured with an origin and
+fetches + caches files on demand. The path mapping lines up:
+`cdn.zuugle.at/foo` → `www.zuugle.at/public/foo`.
 
 Consequences:
 
-- ~~`site.webmanifest`~~ and the `web-app-manifest-*.png` icons are plain static files
+- `site.webmanifest` and the `web-app-manifest-*.png` icons are plain static files
   in this repo's `public/`, copied into the build (`cp -r public build/`) and
   served by `express.static("public")`. The CDN pulls them from there — the local
   PNGs are the **origin**, not dead files. Keep them.
@@ -99,8 +74,9 @@ max-age=0`, so the edge revalidates with the origin on nearly every request —
    Once cached for days, purge via Bunny's API on regeneration, or cache-bust the
    stored `image_url` (e.g. `?v=<mtime>`).
 3. **Inconsistent `USE_CDN`.** Some URLs are hardcoded to `https://cdn.zuugle.at`
-   regardless of the flag (`routes/tours.js`, `jobs/sync.js`), so UAT/DEV also
-   emit prod-CDN URLs for range-images and the placeholder. Make consistent.
+   regardless of the flag (`src/routes/tours.js:986,1751`, `src/jobs/sync.js:714`),
+   so UAT/DEV also emit prod-CDN URLs for range-images and the placeholder. Make
+   consistent.
 
 ## Cron ↔ npm alias coupling
 
@@ -113,18 +89,17 @@ package.json scripts **by name** — so renaming an npm script silently breaks c
 | `start_zuugle_load.py` (prod, zuugle-neu) | `import-data-prod`, `import-files`                                           | `NODE_ENV=production`, `USE_CDN=true`  |
 | `start_zuugle_uat_load.py` (uat-zuugle)   | `import-files` (+ `restore_databases.sh` directly, in `api/` and `dev-api/`) | `NODE_ENV=production`, `USE_CDN=false` |
 
-Search suggestions are refreshed **as part of the nightly data load** — `import-data`
-runs `refreshSearchSuggestions()` in its sequence (as does `import-data-prod` on PROD),
-so `restore_databases.sh` covers it. The deploy workflow does **not** run it. The
-standalone `refresh-search-suggestions` script remains for manual/out-of-band runs.
+Search suggestions are refreshed **as part of the nightly data load** —
+`import-data` runs `refreshSearchSuggestions()` in its sequence (as does
+`import-data-prod` on PROD), so `restore_databases.sh` covers it. The deploy
+workflow does **not** run it. The standalone `refresh-search-suggestions` script
+remains for manual/out-of-band runs.
 
-**Keep these alias names stable:** `import-data-prod` and `import-files` are called by
-name from the server Python load scripts, so rename them here and there in lockstep.
-`refresh-search-suggestions` may be invoked by an out-of-band job outside this repo —
-keep it too, to be safe. `import-data` (local/DEV/UAT dump seeding, formerly
-`import-data-docker-download`) is only invoked from `restore_databases.sh` and the dev
-docs within this repo, so it can be renamed from here alone. The other redundant
-aliases (`import-data-full`, `import-files-prod`) were unused and removed.
+**Keep these alias names stable:** `import-data-prod` and `import-files` are called
+by name from the server Python load scripts. `refresh-search-suggestions` may be
+invoked by an out-of-band job — keep it too. `import-data` (local/DEV/UAT dump
+seeding) is only invoked from `restore_databases.sh` and dev docs within this repo,
+so it can be renamed from here alone.
 
 ### TODO: replace cron with systemd timers, versioned in this repo
 
@@ -203,80 +178,24 @@ empty credentials and it doesn't matter.
 
 Only PROD (zuugle-neu) and local dev use the MySQL connection directly.
 
-### Use knex migrations
+### Knex migrations
 
-Step 0 (env-driven committed knexfile) is **complete** — see commit `6be2dec`.
+Steps 1–4 are complete and deployed to dev and uat:
 
-Remaining steps to decouple data import from code deploy:
+- Migrations infrastructure in place (`src/migrations/`, npm scripts, build copy).
+- Baseline migration `src/migrations/0001_baseline.js` ported from `database.sql`.
+- `docker-compose.yaml`, `resetDatabase.js`, `rebuildDocker.js`, and
+  `restore_databases.sh` all use `npm run migrate` — no more `database.sql` references.
+- Deploy workflow: `run_migrations: true` and `command_timeout: 10m` set in
+  `deploy2uat.yml` / `deploy2dev.yml`; `rebuild_db_structure`, `import_files`,
+  `refresh_suggestions` steps removed.
 
-#### Step 1 — Migration infrastructure
+**Remaining:**
 
-- Create `src/migrations/` directory.
-- Add `cp -r src/migrations build/migrations` to `build:copy` in `package.json`
-  (migrations are CJS `.js` files — copied verbatim, not transformed by tsc).
-- Exclude `src/migrations/` from tsc so it doesn't try to compile CJS files.
-- Add npm scripts:
-    ```json
-    "migrate":          "knex --knexfile build/knexfile.js migrate:latest",
-    "migrate:make":     "knex --knexfile src/knexfile.js migrate:make",
-    "migrate:rollback": "knex --knexfile build/knexfile.js migrate:rollback",
-    "migrate:status":   "knex --knexfile build/knexfile.js migrate:status",
-    ```
-
-#### Step 2 — Baseline migration
-
-Create `src/migrations/0001_baseline.js` that faithfully ports `database.sql`:
-
-- `knex.schema.createTable(...)` for all 17 tables.
-- `knex.raw(...)` for what knex.schema can't express: extensions (`vector`, `cube`,
-  `earthdistance`, `pg_trgm`), column types (`tsvector`, `vector(1024)`), HNSW
-  index (`m=24, ef_construction=128`), GIN/GIST/trgm/covering indexes, the
-  `sync_tour_image_to_flat()` trigger, and the `city_static` seed rows.
-- Drop the `kpi` INSERT … SELECT statements — derived data recomputed by
-  `writeKPIs()`.
-- `exports.down` mirrors the current DROP TABLE block (including `poi2tour`,
-  `pois`, `search_suggestions` which the old block was missing — fixed in `ff7d949`).
-
-Verify: `npm run migrate` on a fresh container produces a schema that matches
-`pg_dump --schema-only` of the current UAT DB (no meaningful diff).
-
-#### Step 3 — Retire database.sql
-
-- Remove the `database.sql:/docker-entrypoint-initdb.d/init.sql` mount from
-  `docker-compose.yaml` and `docker-compose.uat.yaml`.
-- `src/jobs/resetDatabase.js`: after `DROP SCHEMA public CASCADE; CREATE SCHEMA
-public`, run `npm run migrate` instead of `psql -f database.sql`.
-- `src/jobs/rebuildDocker.js`: run `npm run migrate` after the fresh container
-  starts.
-- `restore_databases.sh`: replace the `--structure` branch (`cat database.sql |
-psql`) with `npm run migrate`. Decouple the data import — `--structure` must no
-  longer auto-trigger the data import; the bare invocation stays as
-  data-import-only so the nightly cron is unaffected.
-- Remove `database.sql` from `build:copy` and delete the file.
-
-#### Step 4 — Code-only deploys for UAT/DEV
-
-- `deploy-reusable.yml`: add `run_migrations` boolean input; replace the
-  `rebuild_db_structure` → `restore_databases.sh --structure` step with
-  `npm run migrate` when set.
-- `deploy2uat.yml` / `deploy2dev.yml`: set `run_migrations: true`; remove
-  `rebuild_db_structure`, `import_files`, `refresh_suggestions`. Drop
-  `command_timeout` from 60m to ~10m.
-- `deploy2prod.yml`: unchanged this round (PROD deferred).
-
-#### Step 5 — Docs
-
-Update `README.md`, `README_UAT.md`, `CLAUDE.md`, and `.agent/constraints.md` to
-reflect schema-via-migrations, `npm run migrate` in setup, and code-only deploys.
-
-#### Manual server steps (coordinated, off-repo)
-
-1. **One-time baseline** of existing UAT/DEV DBs: drop schema and `migrate:latest`
-   to bootstrap a clean migration ledger, then let the nightly import reload data.
-   (Databases are disposable — rebuilt nightly from the dump.)
-2. **Change the UAT `pg_dump`** that produces `uat-dump.zuugle.at/zuugle_postgresql.dump`
-   to `--data-only` (and confirm no `--clean` flag). Until this is done, a full
-   schema+data dump can clobber migration-added columns on the next nightly import.
-   This command lives on the source server.
-3. **Verify nightly cron is active** on UAT and DEV before relying on code-only
-   deploys — `crontab -l` on the hosts. If disabled, a deploy won't refresh data.
+- Delete `database.sql` from the repo. Mounts and all job references are already
+  gone — the file is now dead weight.
+- Update `README.md` and `README_UAT.md` to reflect schema-via-migrations and
+  `npm run migrate` in the setup steps. (`CLAUDE.md` and `.agent/constraints.md`
+  already updated.)
+- PROD cutover deferred — wire up DB credentials in the ecosystem.config.js on
+  zuugle-neu before running migrations there.
