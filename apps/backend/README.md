@@ -79,6 +79,11 @@ npm run import-data
 running Compose `postgres` container (no local `psql`/`pg_restore` needed); in the dev
 container or on a native host it uses the local `pg_restore` instead.
 
+> **PROD only:** `import-data-prod` (`syncDataProd.js`) is the production sync path — it
+> reads tour data directly from the live MySQL source database via `knexTourenDb` and
+> requires `TOUREN_DB_HOST/USER/PASSWORD/NAME` to be set. Local, DEV, and UAT
+> environments all use `import-data` (the dump) and leave those vars blank.
+
 > **Schema changes:** the schema lives in `src/migrations/`. Create a new migration with
 > `npm run migrate:make <name>`, then apply it with `npm run migrate`. There is no
 > `database.sql` file.
