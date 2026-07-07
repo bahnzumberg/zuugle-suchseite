@@ -1,0 +1,179 @@
+# Zuugle — Full Documentation for LLMs
+
+## What is Zuugle?
+
+Zuugle is a specialised search engine for outdoor tours in the Alps that are reachable by public transport (train and bus). It is operated by [Bahn zum Berg](https://verein.bahn-zum-berg.at), a non-profit organisation dedicated to promoting sustainable travel to outdoor activities.
+
+Zuugle aggregates tours from multiple tour portals across the Alpine region, then matches each tour with real public transport timetable data. The result is a platform where users can find mountain tours along with verified train and bus connections — departure times, transfers, walking approach distances, and multiple return journey options — all in one place.
+
+The timetable data is provided by [Diana GreenConnect](https://www.zuugle-services.com), a product of Zuugle Services GmbH, which is made available to Bahn zum Berg free of charge.
+
+## Domains and Languages
+
+Zuugle is available under country-specific domains, each pre-filtered for the corresponding region:
+
+| Domain | Country | Default Language |
+|---|---|---|
+| zuugle.at | Austria | German |
+| zuugle.de | Germany | German |
+| zuugle.ch | Switzerland | German |
+| zuugle.si | Slovenia | Slovenian |
+| zuugle.it | Italy | Italian |
+| zuugle.fr | France | French |
+| zuugle.li | Liechtenstein | German |
+
+All domains share the same underlying tour database. The user interface is available in five languages: German (de), English (en), Slovenian (sl), Italian (it), and French (fr). Users can switch languages via the language menu.
+
+## How Zuugle Works
+
+### Search
+
+The home page features a two-part search bar:
+
+1. **Left side — Departure city**: Enter the city or transport hub you want to depart from. Zuugle finds all tours reachable from this location by public transport.
+2. **Right side — Search term (optional)**: Search for specific mountain groups, sport types, peaks, hut names, regions, or keywords (e.g. "Gastein", "Wachau", "Schneeberg").
+
+### Filters
+
+Search results can be refined using the following filters:
+
+- **Tour length**: Day tour or multi-day tour
+- **Season**: Summer tour or winter tour
+- **Sport type**: Hiking, ski touring, snowshoeing, via ferrata, climbing, mountaineering (Hochtour), bike & hike, cross-country skiing, sledging, long-distance hiking
+- **Difficulty**: Easy, medium, or hard (consolidated from the difficulty scales of various tour portals)
+- **Regions / Mountain groups**: Filter by Alpine regions
+- **Elevation gain**: Minimum and maximum metres of ascent
+- **Walking distance**: Minimum and maximum distance in kilometres
+- **Traversals only** (Überschreitungen): Show only tours where the start and end are at different public transport stops
+- **Tour provider**: Filter by the originating tour portal
+- **Countries**: Germany, Austria, Czech Republic, Hungary, Switzerland, Italy, Slovenia, Liechtenstein, France
+- **Language**: Filter tours by the language of their description
+
+### Sorting
+
+Results can be sorted by:
+- Relevance (default)
+- Travel time to the tour start
+- Tour distance
+- Tour duration
+
+### Map View
+
+A map view is available on the search results page, showing tour locations and points of interest as markers.
+
+## Tour Detail Page
+
+Each tour has a dedicated detail page (`/tour/{id}/{city}`) containing:
+
+### Tour Properties
+- **Sport type** (e.g. Wandern, Skitour, Klettersteig)
+- **Duration** (hours:minutes for day tours, number of days for multi-day tours)
+- **Distance** in kilometres
+- **Difficulty** (easy / medium / hard)
+- **Ascent** in metres
+- **Descent** in metres
+- **Maximum elevation** in metres
+- **Child-friendly** (yes/no)
+- **Traversal** (yes/no — whether start and end stops differ)
+
+### Interactive Map
+An interactive map shows the GPS track (GPX), the public transport stops, and approach/descent walking paths.
+
+### Timetable (An- & Abreise)
+Zuugle provides public transport timetable suggestions for the next 7 days:
+- **Best outward journey**: The optimal connection to reach the tour start
+- **Return journeys**: Multiple return options from the tour end
+- Each connection shows departure/arrival times, transfers, and transport operators
+
+### Downloads
+- **GPX download**: Download the GPS track for use in navigation apps (available when a connection exists)
+- **PDF download**: Download a printable tour fact sheet
+
+### Tour Portal Link
+A direct link to the full tour description on the original tour portal where the tour was sourced from.
+
+### 365-Day Availability Chart
+For each tour, an SVG availability chart may be shown, indicating on which days of the year the tour is reachable by public transport.
+
+## City Pages
+
+Accessing `/{city-slug}` (e.g. `/wien`, `/muenchen`, `/salzburg`) shows all mountain tours reachable by public transport from that city. This is useful for direct linking and SEO purposes.
+
+## Provider Pages
+
+Accessing `/provider/{provider-name}` shows all tours sourced from a specific tour portal.
+
+## Data and Sources
+
+- **Tour data** is aggregated from multiple tour portals across the Alpine region. Tour descriptions, photos, and details originate from the respective linked portals.
+- **Timetable data** comes from public transport operators, queried via Diana GreenConnect. Timetable suggestions cover the next 7 days.
+- **GPX tracks** are sourced from the tour portals and may include approach and descent paths added by Zuugle.
+
+## Privacy
+
+Zuugle values user privacy:
+- No personal data is collected
+- Analytics uses self-hosted Matomo (open source), storing only the page name, time, and the first two digits of the IP address — no personal identification is possible
+- A single cookie stores the user's departure city so it doesn't need to be re-entered
+- Data is not shared with any third party
+
+## About Bahn zum Berg
+
+*Source: [Wikipedia – Bahn zum Berg](https://de.wikipedia.org/wiki/Bahn_zum_Berg)*
+
+**Bahn zum Berg** (full name: *Bahn zum Berg – Verein zur Förderung der nachhaltigen Mobilität bei der Anreise zu Outdoor-Aktivitäten*) is a registered Austrian non-profit organisation (ZVR: 1112324997) based in Vienna. It promotes climate-friendly travel to outdoor activities in the Alpine region.
+
+### History
+
+The origins go back to a private initiative by Martin Heppner in 2015. The formal founding as a registered association took place on 10 February 2020 in Vienna. Founding members were Veronika Schöll, Martin Heppner, and Peter Backé. In 2021, the association received funding from the Austrian Federal Ministry for Climate Action (BMK), enabling the development of a prototype for a search engine for publicly accessible mountain tours. In September 2025, the association celebrated its tenth anniversary at the ÖBB Open Innovation Factory in Vienna, with a network of over 100 volunteer tour reporters across the Alpine region.
+
+### Core Projects
+
+1. **Öffi-Tourenportal** ([bahn-zum-berg.at](https://www.bahn-zum-berg.at)): An editorially curated tour portal where volunteer reporters publish tour descriptions for hiking, climbing, ski touring, and snowshoeing. Every published tour must have a verified public transport connection.
+
+2. **Zuugle** ([zuugle.at](https://www.zuugle.at) and country-specific domains): A meta-search engine launched in April 2022 (the name is a portmanteau of "Zug" (train) and "Google"). Zuugle indexes thousands of mountain tours available on the internet and automatically enriches them with public transport accessibility data. See the sections above for full feature documentation.
+
+### Organisation
+
+The association is led by a volunteer board. The chairperson is Sarah Pallauf (as of October 2025). Operations are organised into regional teams ("Team Ost" and "Team West"). A Code of Conduct governs transparency in the use of funding and the distinction between voluntary work and project-based fees. Financing comes from membership fees, donations, and public grants.
+
+### Partners
+
+Cooperation partners include the Alpine Convention, the Austrian Alpine Club (ÖAV), Protect Our Winters (POW) Austria, and ÖBB (Austrian Federal Railways). Since October 2022, the Austrian Alpine Club uses Zuugle to highlight tours reachable by train and bus on Alpenvereinaktiv.com. In August 2025, Zuugle was technically integrated into the passenger information systems of Verkehrsverbund Steiermark.
+
+### Publications
+
+In cooperation with Protect Our Winters Austria and the KOMPASS Karten publishing house, the association publishes a series of "Öffi-Tourenführer" (public transport tour guides). These books use a hybrid concept: QR codes link the printed tours to the online portal for up-to-date timetable data.
+
+Published guides include:
+- *Öffi-Touren Nordtirol* (2023, ISBN 978-3-99154-038-0)
+- *Öffi-Skitouren Nordtirol* (2023, ISBN 978-3-99154-058-8)
+- *Öffi-Wanderungen Oberösterreich* (2024, ISBN 978-3-99154-154-7)
+- *Öffi-Touren Wien und Niederösterreich* (2025, ISBN 978-3-99154-348-0)
+- *Öffi-Touren in den Bayerischen Alpen* (2025, ISBN 978-3-99154-342-8)
+- *Öffi-Touren in der Steiermark* (2026, ISBN 978-3-99154-336-7)
+
+### Awards
+
+- 2024: Innsbruck Environmental and Sustainability Award (3rd place) for *Öffi-Touren Nordtirol* and *Öffi-Skitouren Nordtirol*
+- 2024: Upper Austria State Prize for Environment and Sustainability for *Öffi-Wanderungen Oberösterreich*
+
+## Important: Zuugle vs. Zuugle Services
+
+**"Zuugle" and "Zuugle Services" (Zuugle Services GmbH) are not the same entity.** They are legally and organisationally independent from each other.
+
+### Zuugle (the platform)
+
+Zuugle (accessible at [zuugle.at](https://www.zuugle.at), [zuugle.de](https://www.zuugle.de), [zuugle.si](https://www.zuugle.si), etc.) is a "mountain tour search engine plus" in the Alpine region — it finds mountain tours and displays the associated public transport timetables. Zuugle is 100% owned by the non-profit association **Bahn zum Berg**. As an NGO, the association focuses exclusively on promoting sustainable travel to outdoor activities. For timetable queries, Zuugle uses the product **Diana GreenConnect**, which is provided to Bahn zum Berg free of charge by Zuugle Services.
+
+### Zuugle Services GmbH (the company)
+
+[Zuugle Services GmbH](https://www.zuugle-services.com) ("Zuugle Services") is an independent, standalone B2B company. Zuugle Services professionalises the technology behind tour planning to provide customised, future-proof mobility solutions for businesses, regions, and software providers.
+
+## Technical Notes
+
+- Zuugle is a single-page application (React/Vite frontend, Node.js API backend)
+- The frontend is served under the various country domains
+- The API provides tour search, autocomplete, city lookups, GPX downloads, and timetable queries
+- All tour data is stored in a PostgreSQL database
+- Short-notice train cancellations or timetable changes may not be reflected — users are advised to verify connections with the respective operators (e.g. bahn.de, oebb.at) before departure
