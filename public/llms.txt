@@ -11,24 +11,24 @@ Zuugle is operated by the non-profit organisation [Bahn zum Berg](https://verein
 
 Zuugle is available in multiple countries and languages under different domains:
 
-- [zuugle.at](https://www.zuugle.at) — Austria (German)
-- [zuugle.de](https://www.zuugle.de) — Germany (German)
-- [zuugle.ch](https://www.zuugle.ch) — Switzerland (German)
-- [zuugle.si](https://www.zuugle.si) — Slovenia (Slovenian)
-- [zuugle.it](https://www.zuugle.it) — Italy (Italian)
-- [zuugle.fr](https://www.zuugle.fr) — France (French)
-- [zuugle.li](https://www.zuugle.li) — Liechtenstein (German)
+- [zuugle.at](https://www.zuugle.at)  -  Austria (German)
+- [zuugle.de](https://www.zuugle.de)  -  Germany (German)
+- [zuugle.ch](https://www.zuugle.ch)  -  Switzerland (German)
+- [zuugle.si](https://www.zuugle.si)  -  Slovenia (Slovenian)
+- [zuugle.it](https://www.zuugle.it)  -  Italy (Italian)
+- [zuugle.fr](https://www.zuugle.fr)  -  France (French)
+- [zuugle.li](https://www.zuugle.li)  -  Liechtenstein (German)
 
-Choosing a domain acts as the first implicit filter: visitors see exactly those tours that are reachable by public transport from anywhere in their country — including cross-border destinations. The feature set is identical across all domains. The interface is available in German, English, Slovenian, Italian, and French.
+Choosing a domain acts as the first implicit filter: visitors see exactly those tours that are reachable by public transport from anywhere in their country  -  including cross-border destinations. The feature set is identical across all domains. The interface is available in German, English, Slovenian, Italian, and French.
 
 ## Key Pages
 
-- `/` — Start page with search bar and featured tours
-- `/search` — Search results with filters and optional map view
-- `/tour/{id}/{city}` — Tour detail page with timetable, GPX, PDF, and map
-- `/{city}` — All tours reachable from a specific city by public transport
-- `/provider/{provider}` — Tours from a specific tour portal
+- `/`  -  Start page with search bar and featured tours
+- `/search`  -  Search results with filters and optional map view
+- `/tour/{id}/{city}`  -  Tour detail page with timetable, GPX, PDF, and map
+- `/{city}`  -  All tours reachable from a specific city by public transport
+- `/provider/{provider}`  -  Tours from a specific tour portal
 
 ## Documentation
 
-- [llms-full.txt](/llms-full.txt) — Detailed description of features, filters, data, and usage
+- [llms-full.txt](/llms-full.txt)  -  Detailed description of features, filters, data, and usage
