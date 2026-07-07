@@ -19,7 +19,7 @@ Zuugle is available in multiple countries and languages under different domains:
 - [zuugle.fr](https://www.zuugle.fr) — France (French)
 - [zuugle.li](https://www.zuugle.li) — Liechtenstein (German)
 
-All domains share the same tour database and feature set. The interface is available in German, English, Slovenian, Italian, and French.
+Choosing a domain acts as the first implicit filter: visitors see exactly those tours that are reachable by public transport from anywhere in their country — including cross-border destinations. The feature set is identical across all domains. The interface is available in German, English, Slovenian, Italian, and French.
 
 ## Key Pages
 

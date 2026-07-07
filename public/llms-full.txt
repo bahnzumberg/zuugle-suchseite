@@ -22,7 +22,7 @@ Zuugle is available under country-specific domains, each pre-filtered for the co
 | zuugle.fr | France | French |
 | zuugle.li | Liechtenstein | German |
 
-All domains share the same underlying tour database. The user interface is available in five languages: German (de), English (en), Slovenian (sl), Italian (it), and French (fr). Users can switch languages via the language menu.
+Choosing a domain acts as the first implicit filter: visitors see exactly those tours that are reachable by public transport from anywhere in their country — including cross-border destinations. The feature set is identical across all domains. The user interface is available in five languages: German (de), English (en), Slovenian (sl), Italian (it), and French (fr). Users can switch languages via the language menu.
 
 ## How Zuugle Works
 
