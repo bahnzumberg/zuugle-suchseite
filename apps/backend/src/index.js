@@ -30,6 +30,7 @@ if (process.env.NODE_ENV === "production") {
 let corsOptions = getZuugleCors();
 
 let app = express();
+app.disable("x-powered-by"); // #917 — hide Express version
 
 process.setMaxListeners(0);
 // app.use(bodyParser.json({limit: '1024mb'}));

@@ -1545,9 +1545,9 @@ export async function generateSitemaps() {
             // Write to file
             await fs.ensureDir(publicPath);
             await fs.writeFile(filePath, xml);
-            await fs.writeFile(filePath, xml);
             // console.log(`Generated ${filePath} with ${rows.length} URLs.`);
         }
+
 
         // console.log("Sitemap generation complete.");
     } catch (e) {
