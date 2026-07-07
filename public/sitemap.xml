@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.zuugle.at/sitemap_at.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.de/sitemap_de.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.ch/sitemap_ch.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.si/sitemap_si.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.it/sitemap_it.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.fr/sitemap_fr.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zuugle.li/sitemap_li.xml</loc>
+  </sitemap>
+</sitemapindex>
