@@ -27,6 +27,10 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
       s = d.getElementsByTagName("script")[0];
     g.defer = true;
     g.src = "https://stats.bahnzumberg.at/js/container_ANAXmMKf.js";
+    // #912 — SRI: update hash when Matomo container config changes
+    g.integrity =
+      "sha384-xq1s4f7tDrv3XAEX/mqNC4jnq/Wx7wyMD3qrENG/QKP9Fnx6BfKIfGVpi8APPRU6";
+    g.crossOrigin = "anonymous";
     s.parentNode?.insertBefore(g, s);
     _mtm.push({ language: i18next.resolvedLanguage });
   }, []);
