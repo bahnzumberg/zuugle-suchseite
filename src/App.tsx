@@ -1,7 +1,15 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate, useSearchParams } from "react-router";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useSearchParams,
+  useParams,
+  useLocation,
+} from "react-router";
 import "./App.css";
 import StartSkeleton from "./views/Start/StartSkeleton";
+import { useGetCitiesQuery } from "./features/apiSlice";
 
 // Lazy load the themed app shell (includes MUI ThemeProvider)
 const ThemedApp = lazy(() => import("./ThemedApp"));
@@ -50,6 +58,67 @@ function StartOrRedirectToSearch() {
   );
 }
 
+/**
+ * Handles /:city — if the slug matches a known city, render SearchResults.
+ * Otherwise redirect to /search?search=<slug>, preserving other query params.
+ */
+function CityOrSearchRedirect() {
+  const { city } = useParams<{ city: string }>();
+  const [params] = useSearchParams();
+  const { data: allCities, isLoading } = useGetCitiesQuery();
+
+  // While cities are loading, show a spinner to avoid a flash redirect
+  if (isLoading || !allCities) {
+    return <SimpleLoader />;
+  }
+
+  const isKnownCity = allCities.some((c) => c.value === city);
+
+  if (isKnownCity) {
+    return (
+      <Suspense fallback={<SimpleLoader />}>
+        <ThemedApp routeKey="city" />
+      </Suspense>
+    );
+  }
+
+  // Unknown slug — redirect to /search?search=<slug> with existing params
+  const newParams = new URLSearchParams(params);
+  newParams.set("search", city || "");
+  return <Navigate to={`/search?${newParams.toString()}`} replace />;
+}
+
+/**
+ * Handles /search/:searchTerm — redirects to /search?search=<searchTerm>,
+ * preserving any other query params.
+ */
+function SearchTermRedirect() {
+  const { searchTerm } = useParams<{ searchTerm: string }>();
+  const [params] = useSearchParams();
+  const newParams = new URLSearchParams(params);
+  newParams.set("search", searchTerm || "");
+  return <Navigate to={`/search?${newParams.toString()}`} replace />;
+}
+
+/**
+ * Catch-all: extracts the unknown path and redirects to /search?search=<path>,
+ * preserving any query params.
+ */
+function CatchAllRedirect() {
+  const location = useLocation();
+  const [params] = useSearchParams();
+
+  // Extract the path without leading slash
+  const slug = location.pathname.replace(/^\/+/, "");
+  if (!slug) {
+    return <Navigate to="/" replace />;
+  }
+
+  const newParams = new URLSearchParams(params);
+  newParams.set("search", slug);
+  return <Navigate to={`/search?${newParams.toString()}`} replace />;
+}
+
 function App() {
   return (
     <main
@@ -73,6 +142,10 @@ function App() {
         <Route
           path="/privacy"
           element={<Navigate to="/search?legal=privacy" replace />}
+        />
+        <Route
+          path="/search/:searchTerm"
+          element={<SearchTermRedirect />}
         />
         <Route
           path="/search"
@@ -100,17 +173,14 @@ function App() {
         />
         <Route
           path="/:city"
-          element={
-            <Suspense fallback={<SimpleLoader />}>
-              <ThemedApp routeKey="city" />
-            </Suspense>
-          }
+          element={<CityOrSearchRedirect />}
         />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<CatchAllRedirect />} />
       </Routes>
     </main>
   );
 }
 
 export default App;
+
