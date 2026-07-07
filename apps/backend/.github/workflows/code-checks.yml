@@ -37,3 +37,7 @@ jobs:
 
             - name: Run TypeScript (tsc)
               run: npm run tsc
+
+            # Fails if a script the server nightly-load calls by name was renamed.
+            - name: Guard cron-invoked npm script names
+              run: node scripts/check-cron-scripts.mjs

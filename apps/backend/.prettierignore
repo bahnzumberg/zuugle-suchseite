@@ -1,1 +1,5 @@
 *.geojson
+
+# Captured server-only state — kept byte-for-byte so `diff <captured> <live>` is
+# clean (Phase 0). Not our code; do not reformat.
+deploy/
