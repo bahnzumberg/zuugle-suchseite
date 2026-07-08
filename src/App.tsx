@@ -143,10 +143,7 @@ function App() {
           path="/privacy"
           element={<Navigate to="/search?legal=privacy" replace />}
         />
-        <Route
-          path="/search/:searchTerm"
-          element={<SearchTermRedirect />}
-        />
+        <Route path="/search/:searchTerm" element={<SearchTermRedirect />} />
         <Route
           path="/search"
           element={
@@ -171,10 +168,7 @@ function App() {
             </Suspense>
           }
         />
-        <Route
-          path="/:city"
-          element={<CityOrSearchRedirect />}
-        />
+        <Route path="/:city" element={<CityOrSearchRedirect />} />
 
         <Route path="*" element={<CatchAllRedirect />} />
       </Routes>
@@ -183,4 +177,3 @@ function App() {
 }
 
 export default App;
-
