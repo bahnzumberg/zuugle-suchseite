@@ -1548,7 +1548,6 @@ export async function generateSitemaps() {
             // console.log(`Generated ${filePath} with ${rows.length} URLs.`);
         }
 
-
         // console.log("Sitemap generation complete.");
     } catch (e) {
         console.error("Error generating sitemaps:", e);

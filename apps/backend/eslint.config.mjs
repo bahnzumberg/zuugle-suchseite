@@ -7,7 +7,12 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
     {
-        ignores: ["package-lock.json", "build/**", "public/headless-leaflet/vendor/**", "deploy/**"],
+        ignores: [
+            "package-lock.json",
+            "build/**",
+            "public/headless-leaflet/vendor/**",
+            "deploy/**",
+        ],
     },
     {
         files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
