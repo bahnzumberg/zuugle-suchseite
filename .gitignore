@@ -1,36 +1,10 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
+# Root monorepo ignores — app-specific ignores live in apps/{frontend,backend}/.gitignore
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.eslintcache
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
+*:Zone.Identifier
 .idea
-
 *.iml
+node_modules/
+.eslintcache
+build/
 playwright-report/
 test-results/
-
-HOWTO-Diana-GreenConnect.md
-.env.diana
-DianaWidget-main
-# WSL Zone.Identifier metadata files
-*:Zone.Identifier
