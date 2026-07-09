@@ -725,12 +725,15 @@ export default function DetailReworked() {
                 >
                   <Box
                     component="span"
-                    sx={{ color: "green", fontWeight: 600 }}
+                    sx={{ color: "#ccd8a1", fontWeight: 600 }}
                   >
                     ■
                   </Box>{" "}
                   {t("details.svg_erreichbar")}&emsp;
-                  <Box component="span" sx={{ color: "red", fontWeight: 600 }}>
+                  <Box
+                    component="span"
+                    sx={{ color: "#712579", fontWeight: 600 }}
+                  >
                     ■
                   </Box>{" "}
                   {t("details.svg_nicht_erreichbar")}&emsp;
