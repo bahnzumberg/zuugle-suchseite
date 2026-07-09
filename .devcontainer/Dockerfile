@@ -1,8 +1,7 @@
 # Node 24 dev image ships with git, curl, sudo and a `node` user.
 FROM mcr.microsoft.com/devcontainers/javascript-node:24
 
-# Only extra packages needed: the egress firewall toolchain (iptables/ipset)
-# plus dig for resolving the allowlist.
+# Extra packages: egress firewall toolchain, dns utils.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends iptables ipset dnsutils \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
