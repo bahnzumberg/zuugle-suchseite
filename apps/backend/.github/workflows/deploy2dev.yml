@@ -1,0 +1,28 @@
+name: DEV Deploy
+on:
+    push:
+        branches:
+            - "dev"
+jobs:
+    deploy:
+        # DEV shares the UAT host/key/user but deploys to its own target dir.
+        uses: ./.github/workflows/deploy-reusable.yml
+        with:
+            environment: DEV
+            api_base_url: https://dev.zuugle.at
+            setup_docker: true
+            # Code-only deploy: apply schema migrations, then restart. Data is
+            # refreshed by the nightly load, not the deploy.
+            run_migrations: true
+            use_basic_auth: true
+            command_timeout: 10m
+            pm2_app_name: dev-zuugle_api
+        secrets:
+            SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
+            REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
+            REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
+            REMOTE_PORT: ${{ secrets.UAT_REMOTE_PORT }}
+            REMOTE_TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
+            DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}
+            BASIC_AUTH_USER: ${{ secrets.UAT_BASIC_AUTH_USER }} # uat and dev use same credentials
+            BASIC_AUTH_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}

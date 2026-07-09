@@ -1,0 +1,54 @@
+server {
+    server_name dev.zuugle.at;
+
+    root /root/suchseite/dev-app;
+    index index.html;
+
+    auth_basic "Geschützter Bereich";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+
+    location /app_static/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /i18n/ {
+        expires 1h;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:7070;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /public/ {
+        alias /root/suchseite/dev-api/public/;
+    }
+
+    location / {
+        rewrite ^/(.+)/$ /$1 permanent;
+        try_files $uri $uri/ /index.html;
+    }
+
+    listen 443 ssl http2; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/dev.zuugle.at/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/dev.zuugle.at/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = dev.zuugle.at) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    server_name dev.zuugle.at;
+    listen 80;
+    return 404; # managed by Certbot
+}
