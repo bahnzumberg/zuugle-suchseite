@@ -66,7 +66,7 @@ jobs:
         uses: easingthemes/ssh-deploy@5d8aeab1a56041e269567e67a08ce00df324a617 # v6.0.1
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
+          ARGS: "-rlgoDzvc -i --delete -n"
           SOURCE: "apps/frontend/build/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}

@@ -8,6 +8,7 @@ on:
       - "apps/frontend/**"
       - ".github/workflows/deploy2dev.yml"
       - ".github/workflows/_deploy.yml"
+  workflow_dispatch:
 
 jobs:
   deploy:
