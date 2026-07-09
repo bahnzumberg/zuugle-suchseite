@@ -17,15 +17,7 @@ module.exports = {
             exec_mode: "fork_mode",
             env: {
                 NODE_ENV: 'production',
-                USE_CDN: 'false',
-                DB_HOST: 'localhost',
-                DB_PORT: 5433,
-                DB_USER: 'postgres',
-                DB_PASSWORD: "${DEV_DB_PASSWORD}",
-                DB_NAME: 'zuugle_suchseite_dev',
-                DB_CONTAINER_NAME: 'zuugle-postgres-dev',
-                DB_POOL_MIN: 2,
-                DB_POOL_MAX: 10,
+                USE_CDN: 'false'
             },
         },
     ],
