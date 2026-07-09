@@ -1,0 +1,38 @@
+# nodejsscan static security scanner — scoped to the Node.js backend.
+name: njsscan sarif
+
+on:
+    push:
+        branches: ["uat"]
+        paths:
+            - "apps/backend/**"
+    pull_request:
+        branches: ["uat"]
+        paths:
+            - "apps/backend/**"
+    schedule:
+        - cron: "15 13 * * 3"
+
+permissions:
+    contents: read
+
+jobs:
+    njsscan:
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        runs-on: ubuntu-latest
+        name: njsscan code scanning
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v6
+            - name: nodejsscan scan
+              id: njsscan
+              uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+              with:
+                  args: "apps/backend --sarif --output results.sarif || true"
+            - name: Upload njsscan report
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: results.sarif

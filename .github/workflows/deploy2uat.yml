@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - "uat"
+    paths:
+      - "apps/frontend/**"
+      - ".github/workflows/deploy2uat.yml"
+      - ".github/workflows/_deploy.yml"
 
 jobs:
   deploy:

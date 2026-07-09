@@ -1,0 +1,23 @@
+name: PROD Deploy (Backend)
+on:
+    push:
+        branches:
+            - "main"
+        paths:
+            - "apps/backend/**"
+            - ".github/workflows/deploy-backend-prod.yml"
+            - ".github/workflows/_deploy-backend.yml"
+jobs:
+    deploy:
+        uses: ./.github/workflows/_deploy-backend.yml
+        with:
+            environment: PROD
+            api_base_url: https://www.zuugle.at
+            do_backup: true
+        secrets:
+            SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+            REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}
+            REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
+            REMOTE_PORT: ${{ secrets.PROD_REMOTE_PORT }}
+            REMOTE_TARGET: ${{ secrets.PROD_REMOTE_TARGET_API }}
+            DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}

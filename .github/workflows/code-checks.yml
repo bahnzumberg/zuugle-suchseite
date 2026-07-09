@@ -2,36 +2,71 @@ name: Code Checks
 
 on:
   push:
-    branches:
-      - "uat"
-      - "main"
-      - "dev"
+    branches: [dev, uat, main]
   pull_request:
-    branches:
-      - "uat"
-      - "main"
-      - "dev"
+    branches: [dev, uat, main]
 
 jobs:
-  lint-and-typecheck:
-    name: Format, Lint, and Type Check
+  changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+              - '.github/workflows/code-checks.yml'
+            backend:
+              - 'apps/backend/**'
+              - '.github/workflows/code-checks.yml'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+  frontend-checks:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    name: Frontend — Format, Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "24.18.0"
           cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
+          cache-dependency-path: apps/frontend/package-lock.json
+      - run: npm ci
       - name: Run format check
         run: npm run format:check
-
       - name: Run lint and type check
         run: npm run lint
+
+  backend-checks:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    name: Backend — Format, Lint, TypeScript, Cron Guard
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.18.0"
+          cache: "npm"
+          cache-dependency-path: apps/backend/package-lock.json
+      - run: npm ci
+      - name: Run Prettier check
+        run: npm run format:check
+      - name: Run ESLint
+        run: npm run lint
+      - name: Run TypeScript (tsc)
+        run: npm run tsc
+      - name: Guard cron-invoked npm script names
+        run: node scripts/check-cron-scripts.mjs
