@@ -1,0 +1,42 @@
+# Representative PROD TLD block. The SAME snippet (zuugle.conf) is included by
+# seven TLDs: www.zuugle.{at,ch,de,fr,it,li,si}. Each is identical to this one
+# except server_name and cert paths (all Certbot-managed). Only the .at block is
+# captured here; see nginx/prod/README.md.
+
+# HTTP → HTTPS redirect (bare domain, www, and IP)
+server {
+    listen 80;
+    server_name zuugle.at www.zuugle.at 91.98.144.30;
+    return 301 https://www.zuugle.at$request_uri;
+}
+
+# HTTPS bare domain → www redirect
+server {
+    listen 443 ssl;
+    server_name zuugle.at;
+
+    ssl_certificate /etc/letsencrypt/live/www.zuugle.at/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.zuugle.at/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    return 301 https://www.zuugle.at$request_uri;
+}
+
+# Main server block
+server {
+    server_name www.zuugle.at;
+    include snippets/zuugle.conf;
+
+    location = /robots.txt {
+        alias /var/www/zuugle/robots.txt;
+        access_log off;
+        log_not_found off;
+    }
+
+    listen 443 ssl http2;
+    ssl_certificate /etc/letsencrypt/live/www.zuugle.at/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.zuugle.at/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}

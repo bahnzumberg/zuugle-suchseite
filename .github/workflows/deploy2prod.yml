@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "apps/frontend/**"
+      - ".github/workflows/deploy2prod.yml"
+      - ".github/workflows/_deploy.yml"
 
 jobs:
   deploy:
