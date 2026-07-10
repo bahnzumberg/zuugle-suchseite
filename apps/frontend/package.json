@@ -56,7 +56,7 @@
     "preview": "vp preview",
     "format": "vp fmt .",
     "format:check": "vp fmt --check .",
-    "prepare": "vp config",
+    "prepare": "vp config --no-hooks",
     "lint-staged": "vp staged",
     "lint": "tsc --noEmit && vp lint",
     "lint:fix": "vp lint --fix",

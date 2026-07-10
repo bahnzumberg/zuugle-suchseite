@@ -30,15 +30,9 @@
         "refresh-search-suggestions": "node build/jobs/refreshSearchSuggestions.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "prepare": "husky || true",
-        "lint-staged": "lint-staged",
         "lint": "eslint --cache",
         "lint:fix": "eslint --cache --fix",
         "tsc": "tsc --noEmit"
-    },
-    "lint-staged": {
-        "**/*.js": "eslint --cache --fix --max-warnings 0 --no-warn-ignored",
-        "**/*": "prettier --write --ignore-unknown"
     },
     "keywords": [],
     "author": "",
@@ -51,9 +45,7 @@
         "eslint": "^10.5.0",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.6.0",
-        "husky": "^9.1.7",
         "jest": "^30.4.2",
-        "lint-staged": "^16.4.0",
         "pixelmatch": "^7.2.0",
         "prettier": "^3.8.4",
         "ts-jest": "^29.4.0",
