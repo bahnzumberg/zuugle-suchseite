@@ -13,6 +13,9 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+    defaults:
+      run:
+        working-directory: apps/frontend
     steps:
       - uses: actions/checkout@v6
 
@@ -30,8 +33,9 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: "24.18.0"
           cache: "npm"
+          cache-dependency-path: apps/frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -48,7 +52,7 @@ jobs:
         uses: mikepenz/action-junit-report@v6
         if: success() || failure() # always run even if the previous step fails
         with:
-          report_paths: "playwright-report/results.xml"
+          report_paths: "apps/frontend/playwright-report/results.xml"
           include_passed: true
           check_name: "Playwright Test Results (${{ steps.set-url.outputs.env_name }})"
           comment: true
@@ -57,5 +61,5 @@ jobs:
         if: success() || failure() # always run even if the previous step fails
         with:
           name: playwright-report-pr-${{ github.event.pull_request.number }}
-          path: playwright-report/
+          path: apps/frontend/playwright-report/
           retention-days: 30

@@ -1,0 +1,23 @@
+# Representative UAT TLD wrapper. The SAME snippet (zuugle-www2.conf) is included
+# by six TLD server blocks: www2.zuugle.{at,ch,de,fr,it,si}. Each is identical to
+# this one except its server_name and cert paths (all Certbot-managed). Only the
+# .at wrapper is captured here; see nginx/uat/README.md.
+server {
+    server_name www2.zuugle.at;
+    include snippets/zuugle-www2.conf;
+
+    listen 443 ssl http2;
+    ssl_certificate /etc/letsencrypt/live/www2.zuugle.at/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www2.zuugle.at/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    if ($host = www2.zuugle.at) {
+        return 301 https://$host$request_uri;
+    }
+    server_name www2.zuugle.at;
+    listen 80;
+    return 404;
+}

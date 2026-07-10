@@ -1,0 +1,26 @@
+# One database stack for every compose-managed environment (local, DEV, UAT).
+# All values come from .env; the environment is selected by COMPOSE_PROJECT_NAME
+# (e.g. zuugle / zuugle-uat / zuugle-dev), which also namespaces the containers,
+# so the SAME file can run several isolated stacks on one host. PROD runs
+# PostgreSQL natively and does not use this file.
+#
+#   local:   docker compose up -d      (.env: COMPOSE_PROJECT_NAME=zuugle)
+#   server:  docker compose up -d      (each app dir has its own .env)
+#
+# Schema is applied by knex migrations (`npm run migrate`), not an init mount.
+services:
+    postgres:
+        image: ${POSTGRES_IMAGE:-pgvector/pgvector:pg18}
+        restart: always
+        ports:
+            - "127.0.0.1:${DB_PORT:-5433}:5432"
+        environment:
+            POSTGRES_DB: ${DB_NAME:-zuugle_suchseite_dev}
+            POSTGRES_USER: ${DB_USER:-postgres}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-docker}
+
+    valkey:
+        image: ${VALKEY_IMAGE:-valkey/valkey:8-alpine}
+        restart: always
+        ports:
+            - "127.0.0.1:${CACHE_PORT:-6379}:6379"
