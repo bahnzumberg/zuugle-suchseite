@@ -24,7 +24,7 @@ jobs:
             REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
             REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
             REMOTE_PORT: ${{ secrets.UAT_REMOTE_PORT }}
-            REMOTE_TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
+            REMOTE_TARGET: ${{ secrets.DEV_REMOTE_TARGET_API }}
             DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}
             BASIC_AUTH_USER: ${{ secrets.UAT_BASIC_AUTH_USER }}
             BASIC_AUTH_PASSWORD: ${{ secrets.UAT_BASIC_AUTH_PASSWORD }}
