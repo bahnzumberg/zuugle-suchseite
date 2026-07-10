@@ -8,3 +8,6 @@ node_modules/
 build/
 playwright-report/
 test-results/
+
+# Local-only dev container — kept on disk, not tracked in the repo
+.devcontainer/
