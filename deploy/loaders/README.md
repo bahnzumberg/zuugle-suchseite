@@ -21,7 +21,7 @@ Both scripts `import mod_jobcontrolcenter` — an external module on the servers
 (`/usr/local/zuugle/mod_jobcontrolcenter.py`, ~6.6 KB, present on uat-zuugle) that
 gates the load on the upstream `hermes2search` dump (waits, gives up past a cutoff).
 It is **not** part of this repo. Capture it too if we replace cron with systemd
-timers (Phase 5.4).
+timers.
 
 ## Schedule (crontab)
 
@@ -44,8 +44,7 @@ timers (Phase 5.4).
 > ⚠️ **Node version in cron ≠ Node 24.** The uat-zuugle crontab pins
 > `PATH=…/root/.nvm/versions/node/v20.5.0/bin:…`, so the nightly `npm run import-files`
 > runs under **Node 20.5.0**, while the PM2 API runs under **24.18.0** (deploy workflow
-> sets `v24.18.0/bin`). "Node 24 everywhere" is **not** actually true on the load path.
-> Unify the cron/timer runtime to 24 as part of Phase 5.4 (systemd timers).
+> sets `v24.18.0/bin`). 
 >
 > ℹ️ `import-files.sh` (referenced, commented out) is **not** in this repo — capture it
 > from the host if it's ever re-enabled.

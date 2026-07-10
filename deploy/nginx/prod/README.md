@@ -41,4 +41,4 @@ Deploy targets on this host: **`app`** (FE) + **`api`** (BE). No `dev-app`/`dev-
   every TLD's HTTP-redirect block lists the shared IP in `server_name`; nginx keeps the
   first and ignores the rest. Harmless, but could be tidied (drop the IP from all but one).
 - PM2 reported an in-memory/local version drift (5.4.2 vs 6.0.14, "run `pm2 update`") —
-  unrelated to this capture; worth resolving during the PROD infra work (Phase 5.6).
+  unrelated to this capture; worth resolving during the PROD infra work.

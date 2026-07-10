@@ -1,9 +1,9 @@
-# zuugle-api
+# zuugle-api (backend)
 
-Node.js backend API for the "Bahn zum Berg" (Zuugle) platform. Manages tour data, GPX files, and images.
+Node.js backend API for the Zuugle platform. Manages tour data, GPX files, and images.
 
-- **Repository:** https://github.com/bahnzumberg/zuugle-api
-- **Frontend:** https://github.com/bahnzumberg/zuugle-suchseite
+This app lives at `apps/backend/` in the **zuugle-suchseite monorepo**; the frontend is at
+[`../frontend`](../frontend). See the repo-root [`README.md`](../../README.md) for the map.
 
 ## Workflow (CRITICAL)
 
@@ -12,10 +12,10 @@ Node.js backend API for the "Bahn zum Berg" (Zuugle) platform. Manages tour data
     ```bash
     git checkout uat && git pull origin uat && git checkout -b feature/name
     ```
-- Pushing to `uat` triggers GitHub Action `UAT Deploy` → Build → SCP to server → PM2 restart
-- `dev` is a parallel deployable branch (pushing it triggers `DEV Deploy` to the same host,
-  a separate target dir/DB). `main` deploys to PROD. Branch/env map: `dev`→dev.zuugle.at,
-  `uat`→www2.zuugle.at, `main`→www.zuugle.at.
+- Pushing a change under `apps/backend/**` to `uat` triggers the `UAT Deploy (Backend)`
+  action (path-filtered): build → rsync to server → docker + `npm run migrate` → PM2 restart.
+- `dev` and `main` deploy the same way to their environments. Branch/env map:
+  `dev`→dev.zuugle.at, `uat`→www2.zuugle.at, `main`→www.zuugle.at.
 
 ## Tech Stack
 
@@ -34,8 +34,8 @@ npm run import-data                     # seed local DB from UAT dump
 npm run start                           # dev server
 ```
 
-Database schema is managed by **knex migrations** in `src/migrations/` (not a
-hand-edited SQL file). Add a change with `npm run migrate:make <name>`; it is applied
+Database schema is managed by **knex migrations** in `src/migrations/`. 
+Add a change with `npm run migrate:make <name>`; it is applied
 by `npm run migrate` locally and automatically on deploy.
 
 ## Before Committing

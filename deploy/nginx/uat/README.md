@@ -9,11 +9,6 @@ Captured with `nginx -T` on 2026-07-07. This host serves **UAT** and **DEV**.
 | UAT | `www2.zuugle.{at,ch,de,fr,it,si}` | `/root/suchseite/app` | `localhost:6060` | `/root/suchseite/api/public/` | `zuugle_api` (PM2) |
 | DEV | `dev.zuugle.at` | `/root/suchseite/dev-app` | `localhost:7070` | `/root/suchseite/dev-api/public/` | `dev-zuugle_api` (PM2) |
 
-> ⚠️ **Deploy-target correction for the plan:** the DEV **frontend** root is
-> `/root/suchseite/dev-app`, *not* `app`. So the real deploy targets on this host are
-> **four**: `app` (UAT FE), `dev-app` (DEV FE), `api` (UAT BE), `dev-api` (DEV BE) —
-> the plan's `{app,api,dev-api}` was missing `dev-app`. Phase 3's frontend caller must
-> deploy the DEV build to `dev-app`.
 
 ## Files
 
@@ -30,8 +25,3 @@ Captured with `nginx -T` on 2026-07-07. This host serves **UAT** and **DEV**.
 - **TLS**: `/etc/letsencrypt/live/<domain>/…` — Certbot-managed (renew cron `0 10 * * *`).
 - `sites-enabled/default` — stock nginx default (`/var/www/html`), unrelated to zuugle.
 
-## The `/api` path contract (must not change during the merge)
-
-Frontend calls the backend at the **relative `/api`** path; nginx maps it to the
-per-env PM2 port (UAT 6060 / DEV 7070) on the same host. The monorepo merge changes
-nothing here — deploy targets stay identical.

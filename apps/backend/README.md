@@ -1,4 +1,7 @@
-# Zuugle API
+# Zuugle API (backend)
+
+Express + Knex API. Part of the **zuugle-suchseite monorepo** — see the repo-root
+[`README.md`](../../README.md) for the overall map.
 
 ## First time installation
 
@@ -49,12 +52,6 @@ This is the one supported local setup — it works the same with or without VS C
     docker compose ps
     ```
 
-> **Prefer a sandbox?** The optional dev container in `.devcontainer/` runs Claude Code
-> with restricted network egress. It ships its own PostgreSQL + pgvector (started
-> automatically on `127.0.0.1:5433`) so it stays self-contained; it has no Valkey, but
-> the cache degrades gracefully so the API still runs (uncached). See the note in
-> `.devcontainer/` — it is a security tool, not a replacement for the Compose setup.
-
 ## Load data and run backend
 
 First, build the project:
@@ -84,16 +81,7 @@ container or on a native host it uses the local `pg_restore` instead.
 > requires `TOUREN_DB_HOST/USER/PASSWORD/NAME` to be set. Local, DEV, and UAT
 > environments all use `import-data` (the dump) and leave those vars blank.
 
-> **Schema changes:** the schema lives in `src/migrations/`. Create a new migration with
-> `npm run migrate:make <name>`, then apply it with `npm run migrate`. There is no
-> `database.sql` file.
 
-### Create GPX files and images
-
-Start the API locally, and in a new terminal run the update script:
-
-    npm run start
-    npm run import-files
 
 ### Execute backend locally
 
@@ -102,38 +90,29 @@ Start the API locally, and in a new terminal run the update script:
 > **Hint:** On the local environment `logger('anytext');` writes to `api.log` in your
 > `zuugle-api/` directory. Helpful when debugging SQL, etc.
 
+### Create GPX files and images
+
+Start the API locally, and in a new terminal run the update script:
+
+    npm run import-files
+
+## Database changes
+The database is built from `src/migrations/`. Create a new migration with
+`npm run migrate:make <name>`, then apply it with `npm run migrate`. 
+
 ## Managing the Docker stack
 
 ```bash
-docker compose down       # stop
-docker compose up -d      # start
-docker compose logs -f    # logs
+docker compose down          # stop
+docker compose up -d         # start
+docker compose logs -f       # logs
+npm run rebuild-docker       # recreate the postgres container + re-apply migrations
 ```
 
-### Rebuild the database container (version upgrade or clean rebuild)
-
-To upgrade the PostgreSQL image or rebuild from scratch:
-
-1. Build: `npm run build`
-2. Rebuild: `npm run rebuild-docker` (recreates the `postgres` container **and** applies migrations)
-3. Import data: `npm run import-data`
+After `rebuild-docker`, re-run `npm run import-data` to repopulate.
 
 ## Branches & deployment
 
-Three branches auto-deploy via GitHub Actions (see `.github/workflows/`). All three
-share one reusable workflow; each environment differs only by its server-side `.env`.
-See `README_UAT.md` for the server setup.
-
-| Branch | Environment | URL            |
-| ------ | ----------- | -------------- |
-| `dev`  | DEV         | dev.zuugle.at  |
-| `uat`  | UAT         | www2.zuugle.at |
-| `main` | PROD        | www.zuugle.at  |
-
-`dev` and `uat` are both deployable development branches (UAT is the primary one — branch
-your feature work from `uat`). **Never push directly to `main`.** See `CLAUDE.md` for the
-full workflow.
-
-## Follow frontend Readme
-
-Follow the steps described at https://github.com/bahnzumberg/zuugle-suchseite#zuugleat-suchseite
+Three branches auto-deploy via path-filtered GitHub Actions: `dev`→dev.zuugle.at,
+`uat`→www2.zuugle.at, `main`→www.zuugle.at. Each environment differs only by its server-side
+`.env`. 

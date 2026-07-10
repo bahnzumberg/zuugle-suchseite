@@ -1,13 +1,6 @@
 # deploy/ — captured server-only state
 
-This directory pulls *how the system runs* out of the servers and into the repo,
-so the whole system is defined and deployed from one versioned place.
-
-| Subdir | What it holds | Source (server) |
-| --- | --- | --- |
-| `nginx/<env>/` | Server blocks: SPA static root + `/api` reverse proxy + `/public` (BunnyCDN origin) + TLS + basic-auth | `sudo nginx -T` on each host |
-| `pm2/<host>/ecosystem.config.js` | PM2 app defs (names, ports, env). **Templated** — secrets are `${VAR}`, filled at deploy time. | `~/suchseite/ecosystem.config.js` |
-| `loaders/` | Nightly-load Python orchestrators + the crontab schedule they run on | `/usr/local/zuugle/` + `crontab -l` |
+This directory reflects *how the system runs* on the servers.
 
 ## Hosts
 
@@ -16,37 +9,96 @@ so the whole system is defined and deployed from one versioned place.
 | `uat-zuugle` | UAT (`zuugle_api` → www2.zuugle.{at,ch,de,fr,it,si}) + DEV (`dev-zuugle_api` → dev.zuugle.at) | `/root/suchseite/{app, dev-app, api, dev-api}` |
 | `zuugle-neu` | PROD (`zuugle_api` → www.zuugle.{at,ch,de,fr,it,li,si}, native PostgreSQL, PM2 cluster) | `/root/suchseite/{app, api}` |
 
-## The `/api` path contract (do NOT change during the merge)
+## The `/api` path contract
 
 The frontend talks to the backend over the **relative `/api` path**; nginx maps
-`/api` → the PM2 app port on the same host (UAT 6060 / DEV 7070). Capturing these
-server blocks documents that contract so it survives the monorepo merge untouched.
+`/api` → the PM2 app port on the same host (UAT 6060 / DEV 7070). 
 
-## Findings that revise the plan (from the 2026-07-07 UAT capture)
+## UAT+DEV setup
 
-1. **Fourth deploy target `dev-app`.** DEV frontend root is `/root/suchseite/dev-app`,
-   not `app`. Real targets on uat-zuugle: `app`, `dev-app`, `api`, `dev-api`.
-   → Phase 3 frontend caller must send the DEV build to `dev-app`.
-2. **Cron runs Node 20.5.0, not 24.** The uat-zuugle crontab PATH pins
-   `node/v20.5.0/bin`; the PM2 API runs 24.18.0. "Node 24 everywhere" is untrue on the
-   nightly-load path. → fold the runtime unification into Phase 5.4 (systemd timers).
-3. **UAT DB creds are in the app-dir `.env`, not the PM2 env block** (only
-   `dev-zuugle_api` carries creds in `ecosystem.config.js`). Contradicts
-   `TODO-server.md`. → affects Phase 5.3 (envsubst deploy) and 5.5 (PROD cutover).
-4. **Multi-TLD:** UAT serves 6 TLDs (`www2.zuugle.{at,ch,de,fr,it,si}`), PROD serves 7
-   (`www.zuugle.{at,ch,de,fr,it,li,si}`, adds `.li`), each via one shared nginx snippet.
-5. **PROD specifics:** public (no basic-auth), PM2 **cluster** mode (`instances: "max"`,
-   4 online), per-TLD HTTP→HTTPS + bare→www redirects, `/robots.txt` served from
-   host-managed `/var/www/zuugle/robots.txt`. PROD `ecosystem.config.js` holds **no**
-   secrets (only `NODE_ENV`) — DB creds live in the app-dir `.env`. See `nginx/prod/README.md`.
+This guide documents the server zuugle-uat, which runs both the `uat` and
+`dev` branches in isolated environmens. Each environment lives in its own app directory with its own `.env`; 
+`COMPOSE_PROJECT_NAME` selects and namespaces its stack, so the two never collide.
 
-## Capture status — Phase 0 COMPLETE (2026-07-07)
+> The commands below run **on the server**, inside each deployed backend app directory
+> (`/root/suchseite/{api,dev-api}`) — the `docker-compose.yaml`, `.env.example`, and
+> `restore_databases.sh` they reference are the ones rsynced there from `apps/backend/`.
+> For nginx and PM2 on this host see [`../nginx/uat/`](../nginx/uat/) and
+> [`../pm2/uat-zuugle/`](../pm2/uat-zuugle/).
 
-- [x] `nginx/uat/` — captured (snippet + www2 wrapper + dev block + README)
-- [x] `nginx/prod/` — captured (snippet + www wrapper + README)
-- [x] `pm2/uat-zuugle/ecosystem.config.js` — captured (templated, `${DEV_DB_PASSWORD}`)
-- [x] `pm2/zuugle-neu/ecosystem.config.js` — captured (verbatim, no secrets)
-- [x] `loaders/start_zuugle_uat_load.py` — captured (matches live, md5-verified)
-- [x] `loaders/start_zuugle_load.py` — captured (PROD, zuugle-neu)
-- [x] `loaders/README.md` schedule — both hosts
-- [x] `scripts/check-cron-scripts.mjs` (Phase 0.4 guard) — done, wired into code-checks
+### Overview
+
+Each environment runs its own PostgreSQL + Valkey stack (one compose file, two projects):
+
+| Environment | App dir `.env` | `COMPOSE_PROJECT_NAME` | `DB_PORT` | `CACHE_PORT` | pm2 app          |
+| ----------- | -------------- | ---------------------- | --------- | ------------ | ---------------- |
+| UAT         | UAT app dir    | `zuugle-uat`           | `5434`    | `6379`       | `zuugle_api`     |
+| DEV         | DEV app dir    | `zuugle-dev`           | `5433`    | `6380`       | `dev-zuugle_api` |
+
+
+### Per-environment setup
+
+Do this **once in each app directory** (UAT and DEV). Deploys rsync everything except
+`.env`, so the server `.env` you create here persists across deploys.
+
+#### 1. Create the `.env`
+
+Copy the template and set the environment's values (secrets never live in git):
+
+```bash
+cp .env.example .env
+```
+
+Set at least: `NODE_ENV`, `COMPOSE_PROJECT_NAME`, `DB_HOST=localhost`, `DB_PORT`,
+`DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `CACHE_PORT` per the tables above. Optionally
+pin `POSTGRES_IMAGE` / `VALKEY_IMAGE`.
+
+#### 2. Start the stack
+
+```bash
+docker compose up -d      # reads this dir's .env (COMPOSE_PROJECT_NAME + ports)
+docker compose ps
+```
+
+#### 3. Schema + initial data
+
+```bash
+npm run build
+npm run migrate           # schema (the container starts empty)
+./restore_databases.sh    # download the daily dump and import it
+```
+
+`restore_databases.sh` downloads the dump and runs `npm run import-data`, which restores
+over the DB connection through the running `postgres` container — **no host database
+client is required**.
+
+> `./restore_databases.sh --structure` runs `npm run migrate` only (schema, no data).
+> The bare `./restore_databases.sh` imports data — this is what the nightly cron runs.
+
+#### 4. Daily cron
+
+```cron
+0 7 * * * /path/to/<env-app-dir>/restore_databases.sh >> /path/to/<env-app-dir>/logs/restore.log 2>&1
+```
+
+### Managing a stack
+
+Run these from the environment's app directory (they act on that env's project):
+
+```bash
+docker compose down       # stop
+docker compose up -d      # start
+docker compose down -v    # reset (deletes this env's data!)
+docker compose logs -f    # logs
+```
+
+#### Rebuild the database container
+
+```bash
+npm run build
+npm run rebuild-docker     # recreates the postgres container + applies migrations
+./restore_databases.sh     # repopulate data
+```
+
+`rebuild-docker` uses `COMPOSE_PROJECT_NAME` from `.env`; it refuses to run where that is
+unset (i.e. a native/PROD host, where PostgreSQL is maintained manually).
