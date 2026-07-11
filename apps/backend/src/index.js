@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import tours from "./routes/tours";
 import cities from "./routes/cities";
 import { cityRouter, cities2tourRouter } from "./routes/cities";
@@ -49,12 +50,12 @@ app.use((req, res, next) => {
 app.use(
     "/public/icons/provider",
     cors(corsOptions),
-    express.static("public/icons/provider", {
+    express.static(path.join(__dirname, "public/icons/provider"), {
         maxAge: "365d",
         immutable: true,
     }),
 );
-app.use("/public", cors(corsOptions), express.static("public"));
+app.use("/public", cors(corsOptions), express.static(path.join(__dirname, "public")));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
