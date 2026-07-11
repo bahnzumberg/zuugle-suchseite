@@ -1,0 +1,34 @@
+# Zuugle
+
+> A search engine for mountain tours reachable by public transport (train & bus) in the Alps.
+
+Zuugle is operated by the non-profit organisation [Bahn zum Berg](https://verein.bahn-zum-berg.at) ([Wikipedia](https://de.wikipedia.org/wiki/Bahn_zum_Berg)). It searches multiple tour portals for outdoor activities and filters for tours that are accessible by public transport. The platform shows verified timetable connections, walking approach routes, and return journey options. Timetable data is provided via the product Diana GreenConnect by [Zuugle Services GmbH](https://www.zuugle-services.com).
+
+**Important:** "Zuugle" (the non-profit search platform) and "Zuugle Services GmbH" (an independent B2B company) are **not the same entity**. See [llms-full.txt](/llms-full.txt) for details.
+
+
+## Domains
+
+Zuugle is available in multiple countries and languages under different domains:
+
+- [zuugle.at](https://www.zuugle.at)  -  Austria (German)
+- [zuugle.de](https://www.zuugle.de)  -  Germany (German)
+- [zuugle.ch](https://www.zuugle.ch)  -  Switzerland (German)
+- [zuugle.si](https://www.zuugle.si)  -  Slovenia (Slovenian)
+- [zuugle.it](https://www.zuugle.it)  -  Italy (Italian)
+- [zuugle.fr](https://www.zuugle.fr)  -  France (French)
+- [zuugle.li](https://www.zuugle.li)  -  Liechtenstein (German)
+
+Choosing a domain acts as the first implicit filter: visitors see exactly those tours that are reachable by public transport from anywhere in their country  -  including cross-border destinations. The feature set is identical across all domains. The interface is available in German, English, Slovenian, Italian, and French.
+
+## Key Pages
+
+- `/`  -  Start page with search bar and featured tours
+- `/search`  -  Search results with filters and optional map view
+- `/tour/{id}/{city}`  -  Tour detail page with timetable, GPX, PDF, and map
+- `/{city}`  -  All tours reachable from a specific city by public transport
+- `/provider/{provider}`  -  Tours from a specific tour portal
+
+## Documentation
+
+- [llms-full.txt](/llms-full.txt)  -  Detailed description of features, filters, data, and usage
