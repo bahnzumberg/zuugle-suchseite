@@ -349,5 +349,13 @@
   "cookie_consent": {
     "text": "Ce site utilise uniquement des cookies techniquement nécessaires. Pour les demandes d'horaires, les données sont transmises à des serveurs au sein de l'UE, mais ne sont pas enregistrées.",
     "accept": "Compris"
+  },
+  "lists": {
+    "default_list_name": "Mes favoris",
+    "list_created": "Liste créée",
+    "tour_added": "Tour ajouté",
+    "tour_removed": "Tour supprimé",
+    "list_empty": "Cette liste est vide",
+    "list_not_found": "Liste introuvable"
   }
 }

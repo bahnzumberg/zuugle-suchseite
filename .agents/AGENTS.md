@@ -1,5 +1,16 @@
 # Zuugle Monorepo — Agent Rules
 
+## Language
+
+All content on GitHub must be written in **English**. This includes commit messages,
+PR titles and descriptions, issue comments, code comments, and code review feedback.
+
+## Git Workflow
+
+- **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
+  local development is to let the user test changes locally first.
+- Never commit directly to `main`. Use feature branches → `dev`/`uat` → `main`.
+
 ## Pre-Push Checklist
 
 **Before every `git push`, run these checks and fix all issues.**
@@ -36,11 +47,10 @@ Each package has its own `AGENTS.md` with detailed guidelines. Read them when
 working in that package:
 
 - [`apps/frontend/AGENTS.md`](../apps/frontend/AGENTS.md) — Vite+, Oxlint, commit guidelines
-- [`apps/backend/AGENTS.md`](../apps/backend/AGENTS.md) — references `CLAUDE.md`, constraints, git workflow
+- [`apps/backend/AGENTS.md`](../apps/backend/AGENTS.md) — tech stack, migrations, deployment, commit guidelines
 
 ## Commit Guidelines
 
 - One logical change per commit.
 - Keep the subject line under 72 characters.
 - Reference GitHub issues when they exist (e.g. `Fixes #42`).
-- Never commit directly to `main`. Use feature branches → `dev`/`uat` → `main`.

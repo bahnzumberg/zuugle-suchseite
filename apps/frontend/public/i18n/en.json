@@ -349,5 +349,13 @@
   "cookie_consent": {
     "text": "This site uses only technically necessary cookies. For timetable queries, request data is transmitted to servers within the EU but is not stored.",
     "accept": "Understood"
+  },
+  "lists": {
+    "default_list_name": "My Favourites",
+    "list_created": "List created",
+    "tour_added": "Tour added",
+    "tour_removed": "Tour removed",
+    "list_empty": "This list is empty",
+    "list_not_found": "List not found"
   }
 }
