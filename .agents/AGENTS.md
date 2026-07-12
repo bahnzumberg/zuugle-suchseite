@@ -2,23 +2,30 @@
 
 ## Pre-Push Checklist
 
-**Before every `git push`, run these checks and fix all issues:**
+**Before every `git push`, run these checks and fix all issues.**
+These mirror the GitHub Actions in `.github/workflows/code-checks.yml`
+and `_deploy-backend.yml`. Do not push code that fails any of these.
 
 ### Frontend (`apps/frontend/`)
 ```bash
 cd apps/frontend
-vp fmt .          # auto-format
-vp lint --fix     # auto-fix lint issues
-vp check          # verify formatting + linting + type-check
+vp fmt .              # auto-format
+vp lint --fix         # auto-fix lint issues
+npm run format:check  # verify formatting (CI runs this)
+npm run lint          # verify lint (CI runs this)
+npm run build         # verify production build succeeds
 ```
 
 ### Backend (`apps/backend/`)
 ```bash
 cd apps/backend
-npm run format    # auto-format (prettier)
-npm run lint      # eslint
-npm run tsc       # type-check
-npm test          # run test suite
+npm run format        # auto-format (Prettier)
+npm run format:check  # verify formatting (CI runs this)
+npm run lint          # ESLint (CI runs this)
+npm run tsc           # TypeScript type-check (CI runs this)
+npm test              # Jest test suite (CI runs this post-deploy)
+npm run build         # verify the build succeeds (CI builds before deploy)
+node scripts/check-cron-scripts.mjs  # guard cron-invoked npm scripts (CI runs this)
 ```
 
 **Do not push code that fails any of these checks.**

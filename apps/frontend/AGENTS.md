@@ -1,12 +1,26 @@
 # Agent Guidelines
 
-## Code Quality Requirements
+## Pre-Push Checklist
 
-All agents and contributors must follow these rules before committing or submitting any changes.
+**Before every `git push`, run ALL of these checks and fix any failures.**
+These mirror the GitHub Actions in `code-checks.yml`. Do not push code
+that fails any of these — it will fail CI.
 
-### Formatting and linting
+```bash
+cd apps/frontend
+vp fmt .              # auto-format (fix issues first)
+vp lint --fix         # auto-fix lint issues
+npm run format:check  # verify formatting (CI runs this — must pass clean)
+npm run lint          # Oxlint lint check (CI runs this — must pass clean)
+npm run build         # verify the production build succeeds
+```
 
-Run `vp fmt .` and `vp lint --fix` to auto-fix issues, then `vp check` to verify. Fix all remaining errors — warnings should also be resolved where possible. Do not use `// oxlint-disable` comments to silence errors without a documented reason. Do not commit unformatted files.
+### What CI runs (for reference)
+
+| GitHub Action step       | Local equivalent         |
+|--------------------------|--------------------------|
+| `npm run format:check`   | `vp fmt --check .`       |
+| `npm run lint`           | `vp lint`                |
 
 ## Commit Guidelines
 
