@@ -12,6 +12,12 @@ Run `vp fmt .` and `vp lint --fix` to auto-fix issues, then `vp check` to verify
 
 Each commit must represent one logical change. Do not bundle unrelated changes into a single commit.
 
+## Language
+
+All content on GitHub must be written in **English**. This includes commit messages,
+PR titles and descriptions, issue comments, code comments, and code review feedback.
+
+
 - **One logical change per commit.** If changes belong together, commit them together — but don't group unrelated work.
 - **Keep the first line under 72 characters.** It is the subject shown in `git log --oneline`, GitHub PR views, and notification emails — long subjects get truncated and are hard to scan. Put extra detail in the body (separated by a blank line) if needed.
 - **Write a high-level commit message** that describes the intention or reason for the change, not just what files were touched.

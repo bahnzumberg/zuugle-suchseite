@@ -21,3 +21,8 @@ darauf.
   `npm run lint`.
 - **Keine Hardcoded Credentials** — alles über Environment-Variablen (`.env` lokal,
   Host-Env auf den Servern).
+
+## Language
+
+All content on GitHub must be written in **English**. This includes commit messages,
+PR titles and descriptions, issue comments, code comments, and code review feedback.
