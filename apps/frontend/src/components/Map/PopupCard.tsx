@@ -59,7 +59,7 @@ function PopupCard({
               <a
                 href={getTourLink(tour, city, provider)}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener"
                 className="updated-title curser-link"
               >
                 {tour.title}

@@ -66,7 +66,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
         width: "100%",
       }}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener"
     >
       <Card
         className="tour-card"
