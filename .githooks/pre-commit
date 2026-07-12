@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#
+# Monorepo pre-commit dispatcher.
+#
+# A clone has exactly one core.hooksPath, but the two apps use different
+# toolchains (frontend: Vite+ / `vp`; backend: npm). Instead of picking one,
+# this single hook looks at what's staged and runs the full check chain only
+# for the app(s) that actually changed — so both toolchains are served without
+# clobbering each other.
+#
+# Enable once per clone:   git config core.hooksPath .githooks
+# Preview without running:  ZUUGLE_HOOK_DRY=1 .githooks/pre-commit
+#
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+# Nothing staged (e.g. `git commit --amend` with no changes) → let git proceed.
+[ -z "$staged" ] && exit 0
+
+# run_app <app-subdir> <command-string>
+# Runs the command chain inside apps/<app-subdir>, but only if something under
+# that subtree is staged. The app's local node_modules/.bin is put on PATH so
+# `vp` and other project binaries resolve exactly as they do in npm scripts.
+run_app() {
+    local app="$1" cmd="$2"
+    grep -q "^apps/$app/" <<<"$staged" || return 0
+
+    if [ -n "${ZUUGLE_HOOK_DRY:-}" ]; then
+        echo "· would run in apps/$app: $cmd"
+        return 0
+    fi
+
+    echo "▶ pre-commit checks: apps/$app"
+    (
+        cd "$repo_root/apps/$app"
+        PATH="$PWD/node_modules/.bin:$PATH" bash -c "$cmd"
+    )
+}
+
+run_app frontend 'vp fmt . && vp lint --fix && vp check'
+run_app backend 'npm run format && npm run lint:fix && npm run tsc'
+
+[ -n "${ZUUGLE_HOOK_DRY:-}" ] && exit 0
+
+# The format / --fix steps may have rewritten files. Re-stage the ones that
+# were already part of this commit so the fixes land in it. Files you did NOT
+# stage stay untouched, even if formatting reached them.
+#
+# Caveat: for a partially-staged file this re-stages the whole file, pulling in
+# any unstaged hunks too. If that matters, unstage and commit those hunks apart.
+mapfile -t restage < <(git diff --name-only --diff-filter=ACMR -- $staged)
+if [ "${#restage[@]}" -gt 0 ]; then
+    echo "↻ re-staging files updated by format/lint:"
+    printf '   %s\n' "${restage[@]}"
+    git add -- "${restage[@]}"
+fi
+
+exit 0

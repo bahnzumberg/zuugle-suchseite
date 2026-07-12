@@ -34,17 +34,11 @@ live UAT API with no local database — see the frontend README for the local-ba
 
 ## Code quality: 
 
-> **Read this before your first commit.** T
 > The [`Code Checks`](.github/workflows/code-checks.yml) workflow runs on every push and pull
 > request and **will fail the build** if formatting, linting, or types are wrong. **Run the
-> checks yourself before pushing** — there is no hook to catch it for you.
+> checks yourself before pushing**.
 
-**Why no hooks?** A single git clone has exactly one `core.hooksPath`, but the two apps use
-different toolchains (frontend: Vite+ / `vp`; backend: husky). One shared hook path can't
-serve both without them clobbering each other, so we removed local hooks entirely and rely
-on CI. This is deliberate, not an oversight.
-
-**Run the same checks CI runs, before you push** 
+**Run the same checks CI runs, before you push:**
 
 ```bash
 # frontend
@@ -54,9 +48,20 @@ cd apps/frontend && vp fmt . && vp lint --fix && vp check
 cd apps/backend && npm run format && npm run lint:fix && npm run tsc && npm test
 ```
 
-If you want a local pre-commit safety net for your own clone you can opt back in per app
-(`vp config` in `apps/frontend`, or reinstate husky in `apps/backend`) — but only one can be
-active at a time in a shared clone. 
+### Optional: local pre-commit hook
+
+A clone has exactly one `core.hooksPath`, and the two apps use different toolchains
+(frontend: Vite+ / `vp`; backend: npm) — but a **single dispatching hook** handles both:
+[`.githooks/pre-commit`](.githooks/pre-commit) looks at what you staged and runs the
+check chain above only for the app(s) that changed. Enable it once per clone (git does not
+copy hook config on clone):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Preview what it would run without committing: `ZUUGLE_HOOK_DRY=1 .githooks/pre-commit`.
+To skip it for a single commit, use `git commit --no-verify`.
 
 ## Branches → environments
 
