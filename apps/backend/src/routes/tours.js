@@ -94,14 +94,289 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
     }
 };
 
+/**
+ * @swagger
+ * /api/tours:
+ *   post:
+ *     summary: Search and list tours
+ *     description: Returns a paginated list of tours matching the given city and search criteria. Results come from city2tour_flat.
+ *     parameters:
+ *       - in: query
+ *         name: domain
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Domain for country filtering (e.g. www.zuugle.at)
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         description: City slug to filter tours by (e.g. "wien")
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Free-text search term
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number (9 results per page)
+ *       - in: query
+ *         name: ranges
+ *         schema:
+ *           type: boolean
+ *         description: If true, include range data in the response
+ *       - in: query
+ *         name: map
+ *         schema:
+ *           type: boolean
+ *         description: If true, include map markers in the response
+ *       - in: query
+ *         name: currLanguage
+ *         schema:
+ *           type: string
+ *           default: de
+ *         description: UI language (de, en, fr, it, sl)
+ *     responses:
+ *       200:
+ *         description: Paginated tour results with optional ranges and markers.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 tours:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 ranges:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 markers:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
 router.post("/", (req, res) => listWrapper(req, res));
+
+/**
+ * @swagger
+ * /api/tours/filter:
+ *   get:
+ *     summary: Get available filter options (deprecated)
+ *     description: Returns available filter values (types, ranges, difficulties etc.) for the current search. Deprecated — use POST /api/tours/filter instead.
+ *     deprecated: true
+ *     parameters:
+ *       - in: query
+ *         name: domain
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Available filter options.
+ *   post:
+ *     summary: Get available filter options (v2)
+ *     description: Returns available filter values for the current search criteria. Uses the same tour-matching logic as POST /api/tours.
+ *     parameters:
+ *       - in: query
+ *         name: domain
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               difficulties:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *               types:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               ranges:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               maxAscent:
+ *                 type: integer
+ *               maxDistance:
+ *                 type: number
+ *               maxTransportDuration:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Filter options with min/max values and available categories.
+ */
 router.get("/filter", (req, res) => filterWrapper(req, res)); // @deprecated — use POST /filter instead (see filterWrapperV2)
 router.post("/filter", (req, res) => filterWrapperV2(req, res));
+
+/**
+ * @swagger
+ * /api/tours/provider/{provider}:
+ *   get:
+ *     summary: Check GPX download permission for a provider
+ *     description: Returns whether GPX downloads are allowed for the given tour provider.
+ *     parameters:
+ *       - in: path
+ *         name: provider
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Provider identifier (e.g. "bergfexat")
+ *     responses:
+ *       200:
+ *         description: Provider found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 allow_gpx_download:
+ *                   type: boolean
+ *       404:
+ *         description: Provider not found.
+ */
 router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
 
+/**
+ * @swagger
+ * /api/tours/total:
+ *   get:
+ *     summary: Get total KPI statistics
+ *     description: Returns aggregated statistics (total tours, connections, ranges, cities, providers). Optionally filtered by city.
+ *     parameters:
+ *       - in: query
+ *         name: domain
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: KPI statistics.
+ */
 router.get("/total", (req, res) => totalWrapper(req, res));
+
+/**
+ * @swagger
+ * /api/tours/{id}/connections-extended:
+ *   get:
+ *     summary: Get extended connection data for a tour
+ *     description: Returns timetable connections (departure, arrival, transfers, return trips) for a specific tour and city, for the next 7 days.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Tour ID
+ *       - in: query
+ *         name: city
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City slug
+ *       - in: query
+ *         name: domain
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Connection schedule data.
+ *       404:
+ *         description: Tour or city not found.
+ */
 router.get("/:id/connections-extended", (req, res) => connectionsExtendedWrapper(req, res));
+
+/**
+ * @swagger
+ * /api/tours/{id}/gpx:
+ *   get:
+ *     summary: Download GPX file for a tour
+ *     description: Streams the GPX track file for the given tour ID. Response is application/gpx+xml.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Tour ID
+ *     responses:
+ *       200:
+ *         description: GPX file stream.
+ *         content:
+ *           application/gpx+xml:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       500:
+ *         description: GPX file not found or read error.
+ */
 router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
+
+/**
+ * @swagger
+ * /api/tours/{id}/{city}:
+ *   get:
+ *     summary: Get full tour details
+ *     description: Returns complete tour information including description, GPX data, difficulty, connections, and stop coordinates.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Tour ID
+ *       - in: path
+ *         name: city
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City slug (use "no-city" for general lookup)
+ *       - in: query
+ *         name: domain
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Full tour detail object.
+ *       404:
+ *         description: Tour not found.
+ */
 router.get("/:id/:city", (req, res) => getWrapper(req, res));
 
 /**
