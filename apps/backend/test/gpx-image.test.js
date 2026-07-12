@@ -26,8 +26,6 @@ const VIEWPORT = { width: 1200, height: 800 };
 const GPX_URL = `${baseUrl}/public/gpx/08/${TEST_TOUR_ID}.gpx`;
 const HEADLESS_URL = `${baseUrl}/public/headless-leaflet/index.html?gpx=${GPX_URL}`;
 
-
-
 describe("GPX Image Generation", () => {
     let browser;
 
@@ -125,8 +123,8 @@ describe("GPX Image Generation", () => {
             .toBuffer({ resolveWithObject: true });
 
         const totalPixels = info.width * info.height;
-        let whitePixels = 0;     // near-white (R,G,B all > 245)
-        let greenishPixels = 0;  // green channel dominates (green > red AND green > 100)
+        let whitePixels = 0; // near-white (R,G,B all > 245)
+        let greenishPixels = 0; // green channel dominates (green > red AND green > 100)
 
         for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
@@ -142,8 +140,8 @@ describe("GPX Image Generation", () => {
 
         console.log(
             `Image analysis: ${info.width}×${info.height}, ` +
-            `white: ${(whiteRatio * 100).toFixed(1)}%, ` +
-            `green: ${(greenRatio * 100).toFixed(1)}%`,
+                `white: ${(whiteRatio * 100).toFixed(1)}%, ` +
+                `green: ${(greenRatio * 100).toFixed(1)}%`,
         );
 
         // Missing tiles: white rectangles would push this ratio above 5 %
@@ -151,7 +149,7 @@ describe("GPX Image Generation", () => {
 
         // London detection: Alpine OpenTopo tiles are very green (typically
         // 30-50 % of pixels). London at zoom 14 is urban gray/beige (<15 %).
-        expect(greenRatio).toBeGreaterThan(0.20);
+        expect(greenRatio).toBeGreaterThan(0.2);
 
         // Update the reference image for visual inspection / future use
         await fs.copy(GENERATED_IMAGE_PATH, REFERENCE_IMAGE_PATH);
