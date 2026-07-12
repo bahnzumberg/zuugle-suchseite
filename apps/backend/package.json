@@ -15,7 +15,7 @@
         "start": "tsx watch src/index.js",
         "build": "npm run build:compile && npm run build:copy && npm run build:patch",
         "build:compile": "tsc -p tsconfig.build.json",
-        "build:copy": "cp docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && cp -r src/migrations build/ && cp -r src/utils/gpx/error-images build/utils/gpx/ && cp -r src/utils/country-geojson build/utils/ && cp -r public build/",
+        "build:copy": "cp docker-compose.yaml restore_databases.sh package.json package-lock.json ./build/ && (test -f .env && cp .env ./build/ || true) && cp -r src/migrations build/ && cp -r src/utils/gpx/error-images build/utils/gpx/ && cp -r src/utils/country-geojson build/utils/ && cp -r public build/",
         "build:patch": "sed -i -e 's|node build/|node |g' -e 's|--knexfile build/|--knexfile |g' ./build/package.json",
         "test": "jest",
         "reset-database": "node build/jobs/resetDatabase.js",

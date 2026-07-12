@@ -22,6 +22,17 @@ export default defineConfig({
   build: {
     outDir: "build",
     assetsDir: "app_static",
+    rollupOptions: {
+      input: {
+        main: "index.html",
+        de: "index-de.html",
+        it: "index-it.html",
+        ch: "index-ch.html",
+        fr: "index-fr.html",
+        li: "index-li.html",
+        si: "index-si.html",
+      },
+    },
   },
   define: {
     __BUILD_HASH__: JSON.stringify(Date.now().toString(36)),
