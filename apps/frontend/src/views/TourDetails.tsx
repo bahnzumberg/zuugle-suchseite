@@ -131,7 +131,17 @@ export default function DetailReworked() {
   const { t } = useTranslation();
 
   const handleCloseTab = () => {
-    window.close();
+    // Did the user arrive from our own site (e.g. search results)?
+    // If so, close the tab — the search page is still open behind it.
+    // Otherwise (WhatsApp, direct URL, …) navigate to /search in this tab.
+    const cameFromOwnSite =
+      document.referrer &&
+      new URL(document.referrer).hostname === window.location.hostname;
+
+    if (cameFromOwnSite) {
+      window.close();
+    }
+    // window.close() may be ignored by the browser; always fall through
     if (!window.closed) {
       goToSearchPage();
     }

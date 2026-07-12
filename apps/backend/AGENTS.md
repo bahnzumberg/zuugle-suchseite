@@ -13,11 +13,31 @@ darauf.
 - [`.agent/safe-editing.md`](./.agent/safe-editing.md) — sichere Bearbeitung bestehender Dateien
 - [`README.md`](./README.md) — lokales Setup (nvm, Docker, Datenbank, Server starten)
 
-## Kurzfassung (Details siehe oben)
+## Pre-Push Checklist
 
-- **UAT-First Workflow:** `uat` ist der Hauptentwicklungszweig. **NIEMALS** direkt auf
-  `main` committen/pushen. Feature-Branches von `uat` abzweigen.
-- **Vor jedem Commit müssen bestehen:** `npm run tsc`, `npm test`, `npm run format`,
-  `npm run lint`.
-- **Keine Hardcoded Credentials** — alles über Environment-Variablen (`.env` lokal,
-  Host-Env auf den Servern).
+**Before every `git push`, run ALL of these checks and fix any failures.**
+These mirror the GitHub Actions in `code-checks.yml` and `_deploy-backend.yml`.
+Do not push code that fails any of these — it will fail CI.
+
+```bash
+cd apps/backend
+npm run format        # auto-format with Prettier (fix issues first)
+npm run format:check  # verify formatting (CI runs this)
+npm run lint          # ESLint (CI runs this)
+npm run tsc           # TypeScript type-check (CI runs this)
+npm test              # Jest test suite (CI runs this post-deploy)
+npm run build         # verify the build succeeds (CI builds before deploy)
+node scripts/check-cron-scripts.mjs  # guard cron-invoked npm scripts (CI runs this)
+```
+
+## Additional Rules
+
+- **UAT-First Workflow:** `uat` is the main development branch. **NEVER** commit
+  or push directly to `main`. Branch off from `uat`.
+- **No hardcoded credentials** — use environment variables (`.env` locally,
+  host env on servers).
+
+## Language
+
+All content on GitHub must be written in **English**. This includes commit messages,
+PR titles and descriptions, issue comments, code comments, and code review feedback.
