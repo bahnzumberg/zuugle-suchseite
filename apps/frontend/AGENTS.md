@@ -17,10 +17,10 @@ npm run build         # verify the production build succeeds
 
 ### What CI runs (for reference)
 
-| GitHub Action step       | Local equivalent         |
-|--------------------------|--------------------------|
-| `npm run format:check`   | `vp fmt --check .`       |
-| `npm run lint`           | `vp lint`                |
+| GitHub Action step     | Local equivalent   |
+| ---------------------- | ------------------ |
+| `npm run format:check` | `vp fmt --check .` |
+| `npm run lint`         | `vp lint`          |
 
 ## Commit Guidelines
 
@@ -30,7 +30,6 @@ Each commit must represent one logical change. Do not bundle unrelated changes i
 
 All content on GitHub must be written in **English**. This includes commit messages,
 PR titles and descriptions, issue comments, code comments, and code review feedback.
-
 
 - **One logical change per commit.** If changes belong together, commit them together — but don't group unrelated work.
 - **Keep the first line under 72 characters.** It is the subject shown in `git log --oneline`, GitHub PR views, and notification emails — long subjects get truncated and are hard to scan. Put extra detail in the body (separated by a blank line) if needed.

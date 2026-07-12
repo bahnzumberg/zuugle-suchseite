@@ -349,5 +349,13 @@
   "cookie_consent": {
     "text": "Ta spletna stran uporablja izključno tehnično nujne piškotke. Pri poizvedbah voznega reda se podatki posredujejo strežnikom v EU, vendar se ne shranjujejo.",
     "accept": "Razumem"
+  },
+  "lists": {
+    "default_list_name": "Moji priljubljeni",
+    "list_created": "Seznam ustvarjen",
+    "tour_added": "Tura dodana",
+    "tour_removed": "Tura odstranjena",
+    "list_empty": "Ta seznam je prazen",
+    "list_not_found": "Seznama ni mogoče najti"
   }
 }
