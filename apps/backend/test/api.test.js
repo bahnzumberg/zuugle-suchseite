@@ -457,7 +457,7 @@ describe("User Lists API", () => {
 
     test("GET /api/lists/:key returns the list with empty tours", async () => {
         const key = createdKeys[0];
-        const response = await fetch(`${baseUrl}/api/lists/${key}?domain=www.zuugle.at`, {
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
             headers: getHeaders(),
         });
         expect(response.status).toBe(200);
@@ -470,12 +470,9 @@ describe("User Lists API", () => {
     });
 
     test("GET /api/lists/:invalidkey returns 404", async () => {
-        const response = await fetch(
-            `${baseUrl}/api/lists/this-key-does-not-exist?domain=www.zuugle.at`,
-            {
-                headers: getHeaders(),
-            },
-        );
+        const response = await fetch(`${baseUrl}/api/lists/this-key-does-not-exist`, {
+            headers: getHeaders(),
+        });
         expect(response.status).toBe(404);
     });
 
@@ -535,7 +532,7 @@ describe("User Lists API", () => {
 
     test("GET /api/lists/:key returns the tour with search-equivalent fields", async () => {
         const key = createdKeys[0];
-        const response = await fetch(`${baseUrl}/api/lists/${key}?domain=www.zuugle.at`, {
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
             headers: getHeaders(),
         });
         expect(response.status).toBe(200);
@@ -564,7 +561,7 @@ describe("User Lists API", () => {
 
     test("GET /api/lists/:key after removal returns empty tours", async () => {
         const key = createdKeys[0];
-        const response = await fetch(`${baseUrl}/api/lists/${key}?domain=www.zuugle.at`, {
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
             headers: getHeaders(),
         });
         expect(response.status).toBe(200);

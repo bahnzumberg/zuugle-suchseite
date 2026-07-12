@@ -16,7 +16,7 @@ exports.up = async function (knex) {
             key         VARCHAR(48)  NOT NULL UNIQUE,
             name        VARCHAR(255) NOT NULL DEFAULT 'Meine Favoriten',
             language    VARCHAR(5)   NOT NULL DEFAULT 'de',
-            domain      VARCHAR(64)  NOT NULL DEFAULT 'zuugle.at',
+            tld         VARCHAR(2)   NOT NULL DEFAULT 'AT',
             created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
             updated_at  TIMESTAMP    NOT NULL DEFAULT NOW()
         );

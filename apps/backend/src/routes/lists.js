@@ -25,19 +25,64 @@ const generateListKey = () => crypto.randomBytes(32).toString("base64url");
 // ─── POST /api/lists ──────────────────────────────────────────────
 // Create a new list.
 // Body: { name?: string, language?: string, domain: string }
+// The domain is converted to a 2-letter TLD (e.g. "www.zuugle.de" → "DE")
+// and stored for direct joins with city2tour_flat.reachable_from_country.
 // Returns: { success, key, name }
+
+/**
+ * @swagger
+ * /api/lists:
+ *   post:
+ *     summary: Create a new tour list
+ *     description: Creates a named tour list with a cryptographically random URL-safe key (~256 bits). The domain is converted to a 2-letter TLD for DB joins.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: List name (defaults to translated "My Favourites")
+ *               language:
+ *                 type: string
+ *                 default: de
+ *                 description: Language code (de, en, fr, it, sl)
+ *               domain:
+ *                 type: string
+ *                 description: Domain for TLD extraction (e.g. www.zuugle.at)
+ *     responses:
+ *       201:
+ *         description: List created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 key:
+ *                   type: string
+ *                   description: URL-safe list key (43 chars)
+ *                 name:
+ *                   type: string
+ *       500:
+ *         description: Server error.
+ */
 router.post("/", async (req, res) => {
     try {
         const language = req.body.language || "de";
         const name = req.body.name || DEFAULT_LIST_NAMES[language] || DEFAULT_LIST_NAMES.de;
-        const domain = req.body.domain || "zuugle.at";
+        const domain = req.body.domain;
+        const tld = get_domain_country(domain).toUpperCase();
         const key = generateListKey();
 
         await knex("user_list").insert({
             key,
             name,
             language,
-            domain,
+            tld,
         });
 
         res.status(201).json({ success: true, key, name });
@@ -49,12 +94,60 @@ router.post("/", async (req, res) => {
 
 // ─── GET /api/lists/:key ──────────────────────────────────────────
 // Get list metadata + tours (from city2tour_flat, same fields as search).
-// Query: domain (required for TLD-based country filtering)
+// No domain parameter needed — uses the TLD stored in user_list.
+
+/**
+ * @swagger
+ * /api/lists/{key}:
+ *   get:
+ *     summary: Get a tour list by key
+ *     description: Returns list metadata and all tours (from city2tour_flat) using the stored TLD. No domain parameter needed.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: URL-safe list key (43 chars)
+ *     responses:
+ *       200:
+ *         description: List with tours.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 list:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     language:
+ *                       type: string
+ *                     tld:
+ *                       type: string
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                 tours:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 total:
+ *                   type: integer
+ *       404:
+ *         description: List not found.
+ */
 router.get("/:key", async (req, res) => {
     try {
         const { key } = req.params;
-        const domain = req.query.domain || "zuugle.at";
-        const tld = get_domain_country(domain).toUpperCase();
 
         // Fetch list metadata
         const list = await knex("user_list").where({ key }).first();
@@ -74,7 +167,7 @@ router.get("/:key", async (req, res) => {
                     key: list.key,
                     name: list.name,
                     language: list.language,
-                    domain: list.domain,
+                    tld: list.tld,
                     created_at: list.created_at,
                     updated_at: list.updated_at,
                 },
@@ -85,10 +178,9 @@ router.get("/:key", async (req, res) => {
 
         const tourIds = tourEntries.map((e) => e.tour_id);
 
-        // Query city2tour_flat with the same fields as the search endpoint.
-        // Tours that are not in city2tour_flat (e.g. inactive with no
-        // connections) are silently excluded from the response but remain
-        // in user_list_tour.
+        // Query city2tour_flat using the stored TLD — same fields as search.
+        // Tours not in city2tour_flat (e.g. inactive with no connections)
+        // are silently excluded from the response but remain in user_list_tour.
         const result = await knex.raw(
             `SELECT
                 t.id,
@@ -115,7 +207,7 @@ router.get("/:key", async (req, res) => {
                      t.min_connection_duration, t.min_connection_no_of_transfers,
                      t.avg_total_tour_duration, t.ascent, t.number_of_days,
                      t.quality_rating, t.traverse`,
-            [tld, ...tourIds],
+            [list.tld, ...tourIds],
         );
 
         const tours = result.rows || [];
@@ -139,7 +231,7 @@ router.get("/:key", async (req, res) => {
                 key: list.key,
                 name: list.name,
                 language: list.language,
-                domain: list.domain,
+                tld: list.tld,
                 created_at: list.created_at,
                 updated_at: list.updated_at,
             },
@@ -152,10 +244,43 @@ router.get("/:key", async (req, res) => {
     }
 });
 
-// ─── POST /api/lists/:key/tours ───────────────────────────────────
+// ─── POST /api/lists/:key/tours ───────────────────────────────────────
 // Add a tour to a list.
 // Body: { tour_id: number }
 // Validates that the tour exists in `tour` or `tour_inactive`.
+
+/**
+ * @swagger
+ * /api/lists/{key}/tours:
+ *   post:
+ *     summary: Add a tour to a list
+ *     description: Adds a tour to the list identified by key. The tour must exist in the `tour` or `tour_inactive` table. Duplicate adds are idempotent.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tour_id
+ *             properties:
+ *               tour_id:
+ *                 type: integer
+ *                 description: ID of the tour to add
+ *     responses:
+ *       200:
+ *         description: Tour added (or already present).
+ *       400:
+ *         description: Invalid or missing tour_id.
+ *       404:
+ *         description: List or tour not found.
+ */
 router.post("/:key/tours", async (req, res) => {
     try {
         const { key } = req.params;
@@ -202,8 +327,34 @@ router.post("/:key/tours", async (req, res) => {
     }
 });
 
-// ─── DELETE /api/lists/:key/tours/:tourId ─────────────────────────
+// ─── DELETE /api/lists/:key/tours/:tourId ─────────────────────────────
 // Remove a tour from a list.
+
+/**
+ * @swagger
+ * /api/lists/{key}/tours/{tourId}:
+ *   delete:
+ *     summary: Remove a tour from a list
+ *     description: Removes the specified tour from the list. Updates the list's updated_at timestamp.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Tour removed.
+ *       400:
+ *         description: Invalid tour ID.
+ *       404:
+ *         description: List not found or tour not in list.
+ */
 router.delete("/:key/tours/:tourId", async (req, res) => {
     try {
         const { key } = req.params;
