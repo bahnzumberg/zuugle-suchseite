@@ -31,6 +31,13 @@ server {
         alias /root/suchseite/dev-api/public/;
     }
 
+    # Serve pre-generated availability SVGs directly; a missing SVG must
+    # return a real 404 so the frontend guard hides the reachability
+    # section, instead of the SPA fallback serving index.html with a 200.
+    location /svg365/ {
+        try_files $uri =404;
+    }
+
     location / {
         rewrite ^/(.+)/$ /$1 permanent;
         try_files $uri $uri/ /index.html;
