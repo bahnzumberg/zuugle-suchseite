@@ -11,16 +11,20 @@ import { Tour } from "../models/Tour";
 import Link from "@mui/material/Link";
 import Chip from "@mui/material/Chip";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import { useSelector } from "react-redux";
+import { RootState } from "..";
 
 const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
-  provider: string | null;
 }
 
-export default function TourCard({ tour, city, provider }: TourCardProps) {
+export default function TourCard({ tour, city }: TourCardProps) {
+  const externalLinks = useSelector(
+    (state: RootState) => state.search.externalLinks,
+  );
   const [image, setImage] = useState(DEFAULT_IMAGE);
 
   // i18next
@@ -40,7 +44,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
     }
   }, [tour]);
 
-  const tourLink = getTourLink(tour, city, provider);
+  const tourLink = getTourLink(tour, city, externalLinks);
 
   const anreisedauer_notlong = t("details.anreisedauer").length < 100;
   const umstiege_notlong = t("start.umstiege").length < 100;

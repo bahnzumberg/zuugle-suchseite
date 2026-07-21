@@ -9,20 +9,23 @@ import { Popup } from "react-leaflet";
 import L from "leaflet";
 import { Marker } from "../../models/mapTypes";
 import { t } from "i18next";
+import { useSelector } from "react-redux";
+import { RootState } from "../..";
 
 function PopupCard({
   tour,
   city,
-  provider,
   activeMarker,
   setActiveMarker,
 }: {
   tour: Tour | null;
   city: string;
-  provider: string | null;
   activeMarker: Marker | null;
   setActiveMarker: (marker: Marker | null) => void;
 }) {
+  const externalLinks = useSelector(
+    (state: RootState) => state.search.externalLinks,
+  );
   if (!activeMarker || !tour) return null;
   return (
     <Popup
@@ -57,7 +60,7 @@ function PopupCard({
           <div className="mt-1" style={{ marginBottom: "40px", width: "100%" }}>
             <Typography style={{ whiteSpace: "break-space", fontSize: "10px" }}>
               <a
-                href={getTourLink(tour, city, provider)}
+                href={getTourLink(tour, city, externalLinks)}
                 target="_blank"
                 rel="noopener"
                 className="updated-title curser-link"
