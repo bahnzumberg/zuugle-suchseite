@@ -22,7 +22,6 @@ export default function TourCardContainer({
   fetchMore,
 }: TourCardContainerProps) {
   const city = useSelector((state: RootState) => state.search.city);
-  const provider = useSelector((state: RootState) => state.search.provider);
   const LOADER_HEIGHT = 40;
 
   useEffect(() => {
@@ -59,11 +58,7 @@ export default function TourCardContainer({
       >
         {tours.map((tour, index) => (
           <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
-            <TourCard
-              tour={tour}
-              city={city?.value || null}
-              provider={provider}
-            />
+            <TourCard tour={tour} city={city?.value || null} />
           </Box>
         ))}
       </Box>

@@ -82,7 +82,6 @@ export function useSearchTours() {
       search_type: search.searchWithType?.type || null,
       bounds: search.bounds || undefined,
       map: showMap || undefined,
-      provider: search.provider || undefined,
       currLanguage: search.language || undefined,
       geolocation: search.geolocation || undefined,
     };
@@ -110,7 +109,6 @@ export function useSearchTours() {
         search_type: search.searchWithType?.type || "",
         bounds: search.bounds || undefined,
         map: showMap || undefined,
-        provider: search.provider || undefined,
         page: pageTours,
         currLanguage: search.language || undefined,
         geolocation: search.geolocation || undefined,

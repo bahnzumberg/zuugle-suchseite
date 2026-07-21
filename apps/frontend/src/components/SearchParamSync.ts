@@ -8,7 +8,7 @@ import {
   cityUpdated,
   mapUpdated,
   geolocationUpdated,
-  providerUpdated,
+  externalLinksUpdated,
   searchWithTypeUpdated,
 } from "../features/searchSlice";
 import {
@@ -19,32 +19,11 @@ import {
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { filterUpdated } from "../features/filterSlice";
 import { FilterObject } from "../models/Filter";
-import { getDefaultFilterValues } from "./Filter/utils";
-
-const SCALAR_FILTER_KEYS = [
-  "singleDayTour",
-  "multipleDayTour",
-  "summerSeason",
-  "winterSeason",
-  "traverse",
-  "minAscent",
-  "maxAscent",
-  "minDescent",
-  "maxDescent",
-  "minTransportDuration",
-  "maxTransportDuration",
-  "minDistance",
-  "maxDistance",
-] as const;
-
-const ARRAY_FILTER_KEYS = [
-  "ranges",
-  "types",
-  "languages",
-  "difficulties",
-  "providers",
-  "countries",
-] as const;
+import {
+  ARRAY_FILTER_KEYS,
+  SCALAR_FILTER_KEYS,
+  writeFilterParams,
+} from "../utils/filterParams";
 
 /**
  * Keeps query parameters in sync with the Redux store.
@@ -100,7 +79,11 @@ export default function SearchParamSync({
     // use Redux value when available, fall back to URL during initialisation (when language is null)
     updateParam(newParams, "lang", search.language ?? params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
-    updateParam(newParams, "p", search.provider);
+    updateParam(
+      newParams,
+      "externalLinks",
+      search.externalLinks ? "true" : null,
+    );
     updateParam(
       newParams,
       "map",
@@ -131,19 +114,7 @@ export default function SearchParamSync({
     }
 
     if (isSearchResultsPage) {
-      const defaults = getDefaultFilterValues();
-      for (const key of SCALAR_FILTER_KEYS) {
-        const val = filter[key];
-        if (val !== undefined && val !== defaults[key]) {
-          newParams.set(key, String(val));
-        }
-      }
-      for (const key of ARRAY_FILTER_KEYS) {
-        const arr = filter[key];
-        if (arr?.length) {
-          newParams.set(key, arr.map(String).join("|"));
-        }
-      }
+      writeFilterParams(newParams, filter);
     }
     setParams(newParams, { replace: true });
   }, [search, filter]);
@@ -180,14 +151,31 @@ export default function SearchParamSync({
       // No ?city= in URL — use localStorage as fallback
       syncCityFromLocalStorage();
     }
-    updateReduxFromParam("p", providerUpdated);
-    const urlProvider = params.get("p");
+
+    // Legacy ?p= embedded-provider param. It is folded into the providers filter
+    // (single source of truth) below and dropped from the URL by the Redux → URL
+    // sync above, so ?p=X is effectively rewritten to ?providers=X. The
+    // bahn-zum-berg embed additionally enables external tour links.
+    const legacyProvider = params.get("p");
+    dispatch(
+      externalLinksUpdated(
+        params.get("externalLinks") === "true" ||
+          legacyProvider === "bahnzumberg",
+      ),
+    );
 
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
       // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (urlProvider) {
-        dispatch(filterUpdated({ ...filter, providers: [urlProvider] }));
+      if (legacyProvider) {
+        dispatch(
+          filterUpdated({
+            ...filter,
+            providers: filter.providers?.includes(legacyProvider)
+              ? filter.providers
+              : [...(filter.providers ?? []), legacyProvider],
+          }),
+        );
       }
     } else {
       const searchPhrase = params.get("search");
@@ -246,11 +234,12 @@ export default function SearchParamSync({
         filterObject.ranges = [range];
       }
       // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (urlProvider && !filterObject.providers?.includes(urlProvider)) {
-        filterObject.providers = [
-          ...(filterObject.providers ?? []),
-          urlProvider,
-        ];
+      if (legacyProvider) {
+        filterObject.providers = filterObject.providers?.includes(
+          legacyProvider,
+        )
+          ? filterObject.providers
+          : [...(filterObject.providers ?? []), legacyProvider];
       }
       dispatch(filterUpdated(filterObject));
     }

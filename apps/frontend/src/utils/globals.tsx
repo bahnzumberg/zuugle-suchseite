@@ -16,16 +16,16 @@ function rewriteBahnZumBergDomain(url: string): string {
 export function getTourLink(
   tour: Tour,
   city: string | null,
-  provider: string | null,
+  externalLinks: boolean,
 ) {
   if (city && city !== "no-city") {
-    if (provider === "bahnzumberg") {
+    if (externalLinks) {
       return `${rewriteBahnZumBergDomain(tour.url)}ab-${city}/`;
     } else {
       return `/tour/${tour.id}/${city}`;
     }
   } else {
-    if (provider === "bahnzumberg") {
+    if (externalLinks) {
       return `${rewriteBahnZumBergDomain(tour.url)}`;
     } else {
       return `/tour/${tour.id}/no-city`;
