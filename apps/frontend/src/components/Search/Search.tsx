@@ -53,7 +53,11 @@ export default function Search({ setFilterOn }: SearchProps) {
       if (isSearchPage) {
         dispatch(searchWithTypeUpdated(null));
       } else {
-        navigate("/search");
+        const searchParams = new URLSearchParams();
+        if (externalLinks) searchParams.set("externalLinks", "true");
+        if (language) searchParams.set("lang", language);
+        const qs = searchParams.toString();
+        navigate(qs ? `/search?${qs}` : "/search");
       }
       return;
     }
