@@ -682,7 +682,6 @@ const getMatchingTourIds = async (req) => {
     const type = req.query.type;
     const domain = req.query.domain;
     const tld = get_domain_country(domain).toUpperCase();
-    const provider = req.query.provider;
     const language = req.query.language;
 
     let searchType = req.query["search_type"];
@@ -714,7 +713,6 @@ const getMatchingTourIds = async (req) => {
     let new_search_where_state = ``;
     let new_search_where_range = ``;
     let new_search_where_type = ``;
-    let new_search_where_provider = ``;
     let new_search_where_map = ``;
     let new_search_where_language = ``;
     let bindings = [];
@@ -969,11 +967,6 @@ const getMatchingTourIds = async (req) => {
         bindings.push(type);
     }
 
-    if (!!provider && provider.length > 0) {
-        new_search_where_provider = `AND t.provider=? `;
-        bindings.push(provider);
-    }
-
     if (!!language && language.length > 0) {
         new_search_where_language = `AND text_lang=?  `;
         bindings.push(language);
@@ -1007,7 +1000,6 @@ const getMatchingTourIds = async (req) => {
                                     ${new_search_where_range}
                                     ${new_search_where_state}
                                     ${new_search_where_type}
-                                    ${new_search_where_provider}
                                     ${new_search_where_language}
                                     ${new_search_where_map}
                                     ${new_filter_where_singleDayTour}
