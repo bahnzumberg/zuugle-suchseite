@@ -61,14 +61,12 @@ export interface StartTourCardContainerProps {
   tours: Tour[];
   city: string;
   isLoading: boolean;
-  provider: string | null;
 }
 
 export default function StartTourCardContainer({
   tours,
   city,
   isLoading,
-  provider,
 }: StartTourCardContainerProps) {
   const { t } = useTranslation();
 
@@ -94,7 +92,7 @@ export default function StartTourCardContainer({
           >
             {displayTours.map((tour, index) => (
               <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
-                <TourCard tour={tour} city={city} provider={provider} />
+                <TourCard tour={tour} city={city} />
               </Box>
             ))}
           </Box>

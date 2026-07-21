@@ -13,6 +13,7 @@ import {
   searchWithTypeUpdated,
 } from "../../features/searchSlice";
 import { filterUpdated } from "../../features/filterSlice";
+import { writeFilterParams } from "../../utils/filterParams";
 import { useAppDispatch } from "../../hooks";
 import { useEffect, useState } from "react";
 import SearchButton from "./SearchButton";
@@ -26,7 +27,9 @@ export const emptySearch: SearchWithType = { term: "", type: "term" };
 export default function Search({ setFilterOn }: SearchProps) {
   const navigate = useNavigate();
   const filter = useSelector((state: RootState) => state.filter);
-  const provider = useSelector((state: RootState) => state.search.provider);
+  const externalLinks = useSelector(
+    (state: RootState) => state.search.externalLinks,
+  );
   const language = useSelector((state: RootState) => state.search.language);
   const city = useSelector((state: RootState) => state.search.city);
   const { data: allCities = [] } = useGetCitiesQuery();
@@ -50,7 +53,11 @@ export default function Search({ setFilterOn }: SearchProps) {
       if (isSearchPage) {
         dispatch(searchWithTypeUpdated(null));
       } else {
-        navigate("/search");
+        const searchParams = new URLSearchParams();
+        if (externalLinks) searchParams.set("externalLinks", "true");
+        if (language) searchParams.set("lang", language);
+        const qs = searchParams.toString();
+        navigate(qs ? `/search?${qs}` : "/search");
       }
       return;
     }
@@ -86,8 +93,8 @@ export default function Search({ setFilterOn }: SearchProps) {
       }
     } else {
       const searchParams = new URLSearchParams();
-      if (provider) {
-        searchParams.set("p", provider);
+      if (externalLinks) {
+        searchParams.set("externalLinks", "true");
       }
       if (language) {
         searchParams.set("lang", language);
@@ -100,6 +107,9 @@ export default function Search({ setFilterOn }: SearchProps) {
         searchParams.set("search_type", search.type);
         searchParams.set("search", search.term);
       }
+      // Carry the active filters over so they survive the landing → /search
+      // navigation (they live in Redux but aren't in the landing page URL).
+      writeFilterParams(searchParams, filter);
       navigate(`/search?${searchParams.toString()}`);
     }
   };
