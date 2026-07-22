@@ -159,8 +159,8 @@ export default function SearchParamSync({
     const legacyProvider = params.get("p");
     dispatch(
       externalLinksUpdated(
-        params.get("externalLinks") === "true" ||
-          legacyProvider === "bahnzumberg",
+        legacyProvider === "bahnzumberg" ||
+          (!legacyProvider && params.get("externalLinks") === "true"),
       ),
     );
 
