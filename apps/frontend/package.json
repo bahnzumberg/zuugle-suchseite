@@ -45,7 +45,7 @@
       "react": ">=17.0.0",
       "react-dom": ">=17.0.0"
     },
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.2",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
   "scripts": {
@@ -65,7 +65,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
+    "@rolldown/plugin-babel": "^0.1.8",
     "@testing-library/jest-dom": "^6.9.1",
+    "@types/babel__core": "^7.20.5",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet.markercluster": "^1.5.6",
     "@types/lodash.debounce": "^4.0.9",
