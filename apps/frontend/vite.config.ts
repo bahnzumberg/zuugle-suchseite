@@ -5,8 +5,7 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [
-    //TODO: fix the type error
-    react() as unknown as any,
+    react(),
      babel({
       presets: [reactCompilerPreset()]
     }),
