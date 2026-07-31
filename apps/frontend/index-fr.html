@@ -1,20 +1,27 @@
 <!doctype html>
 <html lang="fr" id="html-tag">
   <head>
-    <link rel="alternate" href="https://www.zuugle.si" hreflang="sl-si" />
-    <link rel="alternate" href="https://www.zuugle.at" hreflang="de-at" />
-    <link rel="alternate" href="https://www.zuugle.de" hreflang="de-de" />
-    <link rel="alternate" href="https://www.zuugle.it" hreflang="it-it" />
-    <link rel="alternate" href="https://www.zuugle.ch" hreflang="de-ch" />
-    <link rel="alternate" href="https://www.zuugle.li" hreflang="de-li" />
-    <link rel="canonical" href="https://www.zuugle.fr" hreflang="fr-fr" />
+    <link rel="canonical" href="https://www.zuugle.fr/" />
+    <link rel="alternate" href="https://www.zuugle.at/" hreflang="de-at" />
+    <link rel="alternate" href="https://www.zuugle.de/" hreflang="de-de" />
+    <link rel="alternate" href="https://www.zuugle.ch/" hreflang="de-ch" />
+    <link rel="alternate" href="https://www.zuugle.it/" hreflang="it-it" />
+    <link rel="alternate" href="https://www.zuugle.fr/" hreflang="fr-fr" />
+    <link rel="alternate" href="https://www.zuugle.li/" hreflang="de-li" />
+    <link rel="alternate" href="https://www.zuugle.si/" hreflang="sl-si" />
+    <link rel="alternate" href="https://www.zuugle.at/" hreflang="x-default" />
+
+    <link rel="preconnect" href="https://cdn.zuugle.at" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.zuugle.at" />
+    <link rel="preconnect" href="https://cdn.bahn-zum-berg.at" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.bahn-zum-berg.at" />
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
 
     <meta name="author" content="Zuugle" />
-    <meta name="publisher" content="Zuugle" />
+    <meta name="publisher" content="Bahn zum Berg" />
     <meta name="copyright" content="Bahn zum Berg" />
     <meta http-equiv="content-language" content="fr" />
     <meta name="robots" content="index, follow" />
@@ -55,6 +62,13 @@
       property="og:image"
       content="https://cdn.zuugle.at/img/Zuugle_Opengraph.jpg"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Zuugle – le moteur de recherche pour les sorties en montagne sans voiture"
+    />
+    <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -70,6 +84,42 @@
       name="twitter:image"
       content="https://cdn.zuugle.at/img/Zuugle_Opengraph.jpg"
     />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://www.zuugle.fr/#website",
+            "url": "https://www.zuugle.fr/",
+            "name": "Zuugle France",
+            "description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
+            "publisher": {
+              "@id": "https://www.zuugle.fr/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.zuugle.fr/search?search_type=term&search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://www.zuugle.fr/#organization",
+            "name": "Zuugle / Bahn zum Berg",
+            "url": "https://verein.bahn-zum-berg.at",
+            "logo": "https://cdn.bahn-zum-berg.at/wp-content/uploads/2025/03/cropped-bahnzumberg_logo_rgb_bzb_blau.png",
+            "sameAs": ["https://www.bahn-zum-berg.at"]
+          }
+        ]
+      }
+    </script>
+
     <!-- App Shell: inline skeleton to avoid white screen while JS loads -->
     <style>
       .shell-header {
@@ -83,23 +133,41 @@
         align-items: center;
         padding-left: 30px;
         padding-right: 30px;
+        text-align: center;
+        font-family:
+          Source Sans 3,
+          sans-serif;
       }
-      .shell-text {
-        height: 24px;
-        width: 180px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 4px;
-        margin-bottom: 16px;
+      .shell-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        max-width: 800px;
+        color: #ffffff;
       }
-      .shell-text--lg {
-        height: 40px;
-        width: 60%;
-        max-width: 500px;
+      .shell-desc {
+        font-size: 18px;
+        font-weight: 400;
+        margin: 0;
+        max-width: 700px;
+        opacity: 0.9;
+        line-height: 1.4;
+        color: #ffffff;
       }
-      .shell-text--md {
-        height: 32px;
-        width: 40%;
-        max-width: 340px;
+      .shell-countries {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .shell-countries a {
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        font-size: 13px;
+        padding: 4px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
       }
       .shell-search-wrap {
         display: flex;
@@ -163,11 +231,11 @@
           padding-left: 10px;
           padding-right: 10px;
         }
-        .shell-text--lg {
-          width: 80%;
+        .shell-title {
+          font-size: 22px;
         }
-        .shell-text--md {
-          width: 60%;
+        .shell-desc {
+          font-size: 15px;
         }
         .shell-cards-wrap {
           padding: 0 10px;
@@ -181,17 +249,27 @@
   </head>
 
   <body>
-    <noscript
-      >Vous n'avez probablement pas activé Javascript. Notre moteur de recherche
-      a besoin de Javascript pour fonctionner. Vous devez donc activer Javacript
-      sur votre navigateur.</noscript
-    >
     <div id="root">
       <!-- Static skeleton replaced by React on mount -->
       <div class="shell-header">
-        <div class="shell-text shell-pulse"></div>
-        <div class="shell-text shell-text--lg shell-pulse"></div>
-        <div class="shell-text shell-text--md shell-pulse"></div>
+        <h1 class="shell-title">
+          Zuugle – le moteur de recherche pour les sorties en montagne sans
+          voiture
+        </h1>
+        <p class="shell-desc">
+          Zuugle vous indique les correspondances vérifiées en train et en bus
+          pour les sorties en montagne, les randonnées à pied ou à ski, les
+          randonnées en raquettes, etc. au départ de votre domicile.
+        </p>
+        <nav class="shell-countries" aria-label="Sélection du pays">
+          <a href="https://www.zuugle.at">Österreich</a>
+          <a href="https://www.zuugle.de">Deutschland</a>
+          <a href="https://www.zuugle.ch">Schweiz</a>
+          <a href="https://www.zuugle.it">Italia</a>
+          <a href="https://www.zuugle.fr">France</a>
+          <a href="https://www.zuugle.li">Liechtenstein</a>
+          <a href="https://www.zuugle.si">Slovenija</a>
+        </nav>
       </div>
       <div class="shell-search-wrap">
         <div class="shell-search shell-pulse"></div>
@@ -206,6 +284,21 @@
         </div>
       </div>
     </div>
+    <noscript>
+      <div
+        style="
+          background: #fff3cd;
+          color: #856404;
+          padding: 12px;
+          text-align: center;
+          font-family: sans-serif;
+          font-size: 14px;
+        "
+      >
+        Remarque: La recherche interactive nécessite JavaScript. Veuillez
+        activer JavaScript dans votre navigateur.
+      </div>
+    </noscript>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
