@@ -13,19 +13,15 @@ function rewriteBahnZumBergDomain(url: string): string {
   return url.replace(/bahn-zum-berg\.\w+/i, `bahn-zum-berg.${targetTld}`);
 }
 
-export function getTourLink(
-  tour: Tour,
-  city: string | null,
-  provider: string | null,
-) {
+export function getTourLink(tour: Tour, city: string | null) {
   if (city && city !== "no-city") {
-    if (provider === "bahnzumberg") {
+    if (tour.provider === "bahnzumberg") {
       return `${rewriteBahnZumBergDomain(tour.url)}ab-${city}/`;
     } else {
       return `/tour/${tour.id}/${city}`;
     }
   } else {
-    if (provider === "bahnzumberg") {
+    if (tour.provider === "bahnzumberg") {
       return `${rewriteBahnZumBergDomain(tour.url)}`;
     } else {
       return `/tour/${tour.id}/no-city`;

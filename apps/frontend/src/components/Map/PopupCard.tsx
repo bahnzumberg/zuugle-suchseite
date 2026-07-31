@@ -13,13 +13,11 @@ import { t } from "i18next";
 function PopupCard({
   tour,
   city,
-  provider,
   activeMarker,
   setActiveMarker,
 }: {
   tour: Tour | null;
   city: string;
-  provider: string | null;
   activeMarker: Marker | null;
   setActiveMarker: (marker: Marker | null) => void;
 }) {
@@ -57,7 +55,7 @@ function PopupCard({
           <div className="mt-1" style={{ marginBottom: "40px", width: "100%" }}>
             <Typography style={{ whiteSpace: "break-space", fontSize: "10px" }}>
               <a
-                href={getTourLink(tour, city, provider)}
+                href={getTourLink(tour, city)}
                 target="_blank"
                 rel="noopener"
                 className="updated-title curser-link"

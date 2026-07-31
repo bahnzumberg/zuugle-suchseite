@@ -13,6 +13,7 @@ import { useGetCitiesQuery } from "./features/apiSlice";
 
 // Lazy load the themed app shell (includes MUI ThemeProvider)
 const ThemedApp = lazy(() => import("./ThemedApp"));
+const TestLlmSearch = lazy(() => import("./views/TestLlmSearch"));
 
 // Simple loading fallback for non-start routes
 function SimpleLoader() {
@@ -165,6 +166,14 @@ function App() {
           element={
             <Suspense fallback={<SimpleLoader />}>
               <ThemedApp routeKey="provider" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/test-llm-search"
+          element={
+            <Suspense fallback={<SimpleLoader />}>
+              <TestLlmSearch />
             </Suspense>
           }
         />

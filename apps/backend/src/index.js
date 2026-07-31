@@ -11,6 +11,7 @@ import searchAutocomplete from "./routes/searchAutocomplete";
 import diana from "./routes/diana";
 import licenses from "./routes/licenses";
 import lists from "./routes/lists";
+import search from "./routes/search";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
 
@@ -59,6 +60,7 @@ app.use(
 app.use("/public", cors(corsOptions), express.static(path.join(__dirname, "public")));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
+app.use("/api/search", cors(corsOptions), hostMiddleware, authenticate, search);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
 app.use("/api/city", cors(corsOptions), hostMiddleware, authenticate, cityRouter);
 app.use("/api/cities2tour", cors(corsOptions), hostMiddleware, authenticate, cities2tourRouter);

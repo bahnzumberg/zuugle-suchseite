@@ -17,10 +17,9 @@ const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
-  provider: string | null;
 }
 
-export default function TourCard({ tour, city, provider }: TourCardProps) {
+export default function TourCard({ tour, city }: TourCardProps) {
   const [image, setImage] = useState(DEFAULT_IMAGE);
 
   // i18next
@@ -40,7 +39,7 @@ export default function TourCard({ tour, city, provider }: TourCardProps) {
     }
   }, [tour]);
 
-  const tourLink = getTourLink(tour, city, provider);
+  const tourLink = getTourLink(tour, city);
 
   const anreisedauer_notlong = t("details.anreisedauer").length < 100;
   const umstiege_notlong = t("start.umstiege").length < 100;

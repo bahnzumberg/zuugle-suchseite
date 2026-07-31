@@ -68,7 +68,7 @@ export default function StartTourCardContainer({
   tours,
   city,
   isLoading,
-  provider,
+  provider: _provider,
 }: StartTourCardContainerProps) {
   const { t } = useTranslation();
 
@@ -94,7 +94,7 @@ export default function StartTourCardContainer({
           >
             {displayTours.map((tour, index) => (
               <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
-                <TourCard tour={tour} city={city} provider={provider} />
+                <TourCard tour={tour} city={city} />
               </Box>
             ))}
           </Box>

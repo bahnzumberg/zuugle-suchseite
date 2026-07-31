@@ -28,7 +28,6 @@ export interface SearchState {
   language: string | null;
   map: boolean;
   bounds: BoundsObject | null;
-  provider: string | null;
   geolocation: LocationWithRadius | null;
 }
 
@@ -39,7 +38,6 @@ const initialState: SearchState = {
   language: null,
   map: false,
   bounds: null,
-  provider: null,
   geolocation: null,
 };
 
@@ -68,9 +66,6 @@ const searchSlice = createSlice({
     mapUpdated: (state, action: PayloadAction<boolean>) => {
       state.map = action.payload;
     },
-    providerUpdated: (state, action: PayloadAction<string | null>) => {
-      state.provider = action.payload;
-    },
     geolocationUpdated: (
       state,
       action: PayloadAction<LocationWithRadius | null>,
@@ -87,7 +82,6 @@ export const {
   languageUpdated,
   boundsUpdated,
   mapUpdated,
-  providerUpdated,
   geolocationUpdated,
 } = searchSlice.actions;
 export default searchSlice.reducer;

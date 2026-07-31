@@ -312,3 +312,68 @@ export function findCityByCoordinates(lat, lon, countryCode) {
     // See: https://github.com/bahnzumberg/zuugle-api/issues/429
     return null;
 }
+
+// ─── City Resolution from Text (for LLM search) ─────────────────
+
+/**
+ * Resolve a free-text place name to Zuugle city candidates using:
+ * 1. Diana /address-autocomplete → lat/lon + countrycode
+ * 2. findCityByCoordinates → city_slug
+ *
+ * Returns deduplicated candidates. Used when the LLM asks a clarification
+ * about the departure city and the user responds with a place name.
+ *
+ * @param {string} text - User input (e.g. "Graz", "Steiermark", "Wien")
+ * @returns {Promise<{ resolved: boolean, candidates: Array<{ city_slug: string, city_name: string, country_code: string }> }>}
+ */
+export async function resolveCityFromText(text) {
+    if (!text || typeof text !== "string" || text.trim().length === 0) {
+        return { resolved: false, candidates: [] };
+    }
+
+    try {
+        const params = new URLSearchParams({ q: text.trim(), limit: "5", lang: "de" });
+        const result = await proxyGet("/address-autocomplete", params.toString());
+
+        if (result.status !== 200 || !result.body) {
+            logger.warn(`Diana autocomplete failed for "${text}": HTTP ${result.status}`);
+            return { resolved: false, candidates: [] };
+        }
+
+        const features = Array.isArray(result.body) ? result.body : result.body?.features || [];
+
+        // Map each feature to a city via GeoJSON lookup
+        const seen = new Set();
+        const candidates = [];
+
+        for (const feature of features) {
+            const coords = feature?.geometry?.coordinates;
+            const countryCode = feature?.properties?.countrycode;
+            if (!coords || !countryCode) continue;
+
+            const lon = coords[0];
+            const lat = coords[1];
+            const cityInfo = findCityByCoordinates(lat, lon, countryCode);
+            if (!cityInfo || seen.has(cityInfo.city_slug)) continue;
+
+            seen.add(cityInfo.city_slug);
+            candidates.push({
+                city_slug: cityInfo.city_slug,
+                city_name: cityInfo.city_name,
+                country_code: cityInfo.country_code,
+            });
+        }
+
+        logger.info(
+            `City resolve for "${text}": ${candidates.length} candidate(s) → [${candidates.map((c) => c.city_slug).join(", ")}]`,
+        );
+
+        return {
+            resolved: candidates.length === 1,
+            candidates,
+        };
+    } catch (error) {
+        logger.error(`resolveCityFromText error for "${text}":`, error.message);
+        return { resolved: false, candidates: [] };
+    }
+}

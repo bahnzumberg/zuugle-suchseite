@@ -46,7 +46,7 @@ import ResizableCircle from "./ResizableCircle";
 import { MapClickHandler } from "./MapClickHandler";
 import { MapBoundsUpdater } from "./MapBoundsUpdater";
 import { MapBoundsSync } from "./MapBoundsSync";
-import { useSearchParams } from "react-router";
+
 import { renderToStaticMarkup } from "react-dom/server";
 import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
@@ -228,9 +228,6 @@ export default function TourMapContainer({
   const [markersInvalidated, setMarkersInvalidated] = useState(false);
   const [isUserMoving, setIsUserMoving] = useState(false);
   const dispatch = useAppDispatch();
-
-  const [searchParams] = useSearchParams();
-  const provider = searchParams.get("p");
 
   // --- Multi-track state ---
   const [allGpxTracks, setAllGpxTracks] = useState<
@@ -522,7 +519,6 @@ export default function TourMapContainer({
         <MemoizedPopupCard
           tour={selectedTour}
           city={city?.value || ""}
-          provider={provider}
           activeMarker={activeMarker}
           setActiveMarker={setActiveMarker}
         />

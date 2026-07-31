@@ -8,7 +8,6 @@ import {
   cityUpdated,
   mapUpdated,
   geolocationUpdated,
-  providerUpdated,
   searchWithTypeUpdated,
 } from "../features/searchSlice";
 import {
@@ -42,7 +41,6 @@ const ARRAY_FILTER_KEYS = [
   "types",
   "languages",
   "difficulties",
-  "providers",
   "countries",
 ] as const;
 
@@ -100,7 +98,6 @@ export default function SearchParamSync({
     // use Redux value when available, fall back to URL during initialisation (when language is null)
     updateParam(newParams, "lang", search.language ?? params.get("lang"));
     updateParam(newParams, "city", search.citySlug);
-    updateParam(newParams, "p", search.provider);
     updateParam(
       newParams,
       "map",
@@ -128,6 +125,11 @@ export default function SearchParamSync({
       updateParam(newParams, "lat", null);
       updateParam(newParams, "lng", null);
       updateParam(newParams, "radius", null);
+    }
+
+    // Serialize filter.providers as ?p=val1|val2 (always, not just on search page)
+    if (filter.providers?.length) {
+      newParams.set("p", filter.providers.join("|"));
     }
 
     if (isSearchResultsPage) {
@@ -180,14 +182,18 @@ export default function SearchParamSync({
       // No ?city= in URL — use localStorage as fallback
       syncCityFromLocalStorage();
     }
-    updateReduxFromParam("p", providerUpdated);
-    const urlProvider = params.get("p");
+
+    // Parse ?p= as pipe-separated provider list into filter.providers
+    const urlProviders = params.get("p");
+    const providerList = urlProviders
+      ? urlProviders.split("|").filter(Boolean)
+      : [];
 
     if (!isSearchResultsPage) {
       dispatch(searchWithTypeUpdated(null));
-      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (urlProvider) {
-        dispatch(filterUpdated({ ...filter, providers: [urlProvider] }));
+      // Sync ?p= into filter.providers
+      if (providerList.length) {
+        dispatch(filterUpdated({ ...filter, providers: providerList }));
       }
     } else {
       const searchPhrase = params.get("search");
@@ -245,12 +251,14 @@ export default function SearchParamSync({
       if (range && !filterObject.ranges?.length) {
         filterObject.ranges = [range];
       }
-      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (urlProvider && !filterObject.providers?.includes(urlProvider)) {
-        filterObject.providers = [
-          ...(filterObject.providers ?? []),
-          urlProvider,
-        ];
+      // Sync ?p= into filter.providers
+      if (providerList.length) {
+        // Merge with any providers already parsed from filter params
+        const existing = new Set(filterObject.providers ?? []);
+        for (const p of providerList) {
+          existing.add(p);
+        }
+        filterObject.providers = [...existing];
       }
       dispatch(filterUpdated(filterObject));
     }

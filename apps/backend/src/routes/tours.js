@@ -2089,3 +2089,4 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
 };
 
 export default router;
+export { listWrapper, getMatchingTourIds };
