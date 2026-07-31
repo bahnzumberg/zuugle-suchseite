@@ -127,47 +127,48 @@
         background: #1a3a5c;
         padding: 10px;
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding-left: 30px;
-        padding-right: 30px;
-        text-align: center;
         font-family:
           Source Sans 3,
           sans-serif;
       }
+      .shell-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 48px 30px 0 30px;
+        box-sizing: border-box;
+      }
       .shell-title {
-        font-size: 28px;
+        font-size: 38px;
         font-weight: 700;
-        margin: 0 0 16px 0;
-        max-width: 800px;
+        margin: 0 0 12px 0;
+        max-width: 750px;
         color: #ffffff;
+        text-align: left;
+        line-height: 1.25;
       }
       .shell-desc {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 400;
-        margin: 0;
-        max-width: 700px;
+        margin: 0 0 16px 0;
+        max-width: 750px;
         opacity: 0.9;
         line-height: 1.4;
         color: #ffffff;
+        text-align: left;
       }
       .shell-countries {
-        margin-top: 20px;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
-        justify-content: center;
+        margin-top: 12px;
       }
       .shell-countries a {
         color: rgba(255, 255, 255, 0.85);
         text-decoration: none;
-        font-size: 13px;
-        padding: 4px 10px;
+        font-size: 12px;
+        padding: 3px 9px;
         border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 16px;
+        border-radius: 14px;
       }
       .shell-search-wrap {
         display: flex;
@@ -228,14 +229,15 @@
           height: auto;
           min-height: 310px;
           padding-bottom: 50px;
-          padding-left: 10px;
-          padding-right: 10px;
+        }
+        .shell-inner {
+          padding: 10px 10px 0 10px;
         }
         .shell-title {
-          font-size: 22px;
+          font-size: 26px;
         }
         .shell-desc {
-          font-size: 15px;
+          font-size: 14px;
         }
         .shell-cards-wrap {
           padding: 0 10px;
@@ -252,24 +254,26 @@
     <div id="root">
       <!-- Static skeleton replaced by React on mount -->
       <div class="shell-header">
-        <h1 class="shell-title">
-          Zuugle – le moteur de recherche pour les sorties en montagne sans
-          voiture
-        </h1>
-        <p class="shell-desc">
-          Zuugle vous indique les correspondances vérifiées en train et en bus
-          pour les sorties en montagne, les randonnées à pied ou à ski, les
-          randonnées en raquettes, etc. au départ de votre domicile.
-        </p>
-        <nav class="shell-countries" aria-label="Sélection du pays">
-          <a href="https://www.zuugle.at">Österreich</a>
-          <a href="https://www.zuugle.de">Deutschland</a>
-          <a href="https://www.zuugle.ch">Schweiz</a>
-          <a href="https://www.zuugle.it">Italia</a>
-          <a href="https://www.zuugle.fr">France</a>
-          <a href="https://www.zuugle.li">Liechtenstein</a>
-          <a href="https://www.zuugle.si">Slovenija</a>
-        </nav>
+        <div class="shell-inner">
+          <h1 class="shell-title">
+            Zuugle – le moteur de recherche d'itinéraires en montagne
+            accessibles en transports publics
+          </h1>
+          <p class="shell-desc">
+            Zuugle affiche les liaisons vérifiées, en train et en bus, pour les
+            randonnées pédestres, l'alpinisme, le ski de randonnée et les
+            raquettes.
+          </p>
+          <nav class="shell-countries" aria-label="Choix du pays">
+            <a href="https://www.zuugle.at">Österreich</a>
+            <a href="https://www.zuugle.de">Deutschland</a>
+            <a href="https://www.zuugle.ch">Schweiz</a>
+            <a href="https://www.zuugle.it">Italia</a>
+            <a href="https://www.zuugle.fr">France</a>
+            <a href="https://www.zuugle.li">Liechtenstein</a>
+            <a href="https://www.zuugle.si">Slovenija</a>
+          </nav>
+        </div>
       </div>
       <div class="shell-search-wrap">
         <div class="shell-search shell-pulse"></div>
