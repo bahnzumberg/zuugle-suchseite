@@ -10,6 +10,7 @@ import searchPhrases from "./routes/searchPhrases";
 import searchAutocomplete from "./routes/searchAutocomplete";
 import diana from "./routes/diana";
 import licenses from "./routes/licenses";
+import lists from "./routes/lists";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
 
@@ -66,6 +67,7 @@ app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, s
 app.use("/api/searchphrase", cors(corsOptions), hostMiddleware, authenticate, searchAutocomplete);
 app.use("/api/diana", cors(corsOptions), hostMiddleware, authenticate, diana);
 app.use("/api/licenses", cors(corsOptions), licenses);
+app.use("/api/lists", cors(corsOptions), hostMiddleware, lists);
 swaggerDocs(app);
 
 app.listen(port, () => logger.info("Running on localhost:" + port));

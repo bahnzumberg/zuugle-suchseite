@@ -100,7 +100,6 @@ export default function DetailReworked() {
   const { data: allCities = [], isSuccess: areCitiesLoaded } =
     useGetCitiesQuery();
   const city = useSelector((state: RootState) => state.search.city);
-  const provider = useSelector((state: RootState) => state.search.provider);
 
   const [
     triggerLoadTours,
@@ -463,11 +462,7 @@ export default function DetailReworked() {
               >
                 {(suggestedTours?.tours ?? []).slice(0, 3).map((st, i) => (
                   <Box key={i} sx={{ display: "flex", minWidth: 0 }}>
-                    <TourCard
-                      tour={st}
-                      city={city?.value ?? ""}
-                      provider={provider}
-                    />
+                    <TourCard tour={st} city={city?.value ?? ""} />
                   </Box>
                 ))}
               </Box>

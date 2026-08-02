@@ -1,4 +1,16 @@
-# Agent Guidelines
+# Agent Guidelines — Zuugle Frontend
+
+## Language
+
+All content on GitHub must be written in **English**. This includes commit messages,
+PR titles and descriptions, issue comments, code comments, and code review feedback.
+
+## Git Workflow
+
+- **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
+  local development is to let the user test changes locally first.
+- `uat` is the main development branch — **never commit or push directly to `main`**.
+- Feature branches should be created from `uat`.
 
 ## Pre-Push Checklist
 
@@ -17,26 +29,30 @@ npm run build         # verify the production build succeeds
 
 ### What CI runs (for reference)
 
-| GitHub Action step       | Local equivalent         |
-|--------------------------|--------------------------|
-| `npm run format:check`   | `vp fmt --check .`       |
-| `npm run lint`           | `vp lint`                |
+| GitHub Action step     | Local equivalent   |
+| ---------------------- | ------------------ |
+| `npm run format:check` | `vp fmt --check .` |
+| `npm run lint`         | `vp lint`          |
+
+## Code Quality
+
+- Do not commit unformatted files.
+- All lint and TypeScript errors must be fixed before committing.
+- Avoid `// oxlint-disable` comments — fix the underlying issue instead.
 
 ## Commit Guidelines
 
-Each commit must represent one logical change. Do not bundle unrelated changes into a single commit.
-
-## Language
-
-All content on GitHub must be written in **English**. This includes commit messages,
-PR titles and descriptions, issue comments, code comments, and code review feedback.
-
-
-- **One logical change per commit.** If changes belong together, commit them together — but don't group unrelated work.
-- **Keep the first line under 72 characters.** It is the subject shown in `git log --oneline`, GitHub PR views, and notification emails — long subjects get truncated and are hard to scan. Put extra detail in the body (separated by a blank line) if needed.
-- **Write a high-level commit message** that describes the intention or reason for the change, not just what files were touched.
-- **Reference related GitHub issues** in the commit message when they exist (e.g. `Fixes #42`).
-- Use interactive rebase (`git rebase -i`) to clean up a messy history before pushing to `uat` or `main`.
+- **One logical change per commit.** If changes belong together, commit them together —
+  but don't group unrelated work.
+- **Keep the first line under 72 characters.** It is the subject shown in
+  `git log --oneline`, GitHub PR views, and notification emails — long subjects get
+  truncated and are hard to scan. Put extra detail in the body (separated by a blank line).
+- **Write a high-level commit message** that describes the intention or reason for
+  the change, not just what files were touched.
+- **Reference related GitHub issues** in the commit message when they exist
+  (e.g. `Fixes #42`).
+- Use interactive rebase (`git rebase -i`) to clean up a messy history before pushing
+  to `uat` or `main`.
 
 Bad: `fix stuff`, `wip`, `changes`
 Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`

@@ -77,10 +77,29 @@ function filterParams(queryObj, allowedSet) {
 // ─── GET /api/diana/token ────────────────────────────────────────
 
 /**
- * GET /api/diana/token
- *
- * Returns an OAuth2 access token from the Diana API.
- * The token is cached server-side; credentials never reach the frontend.
+ * @swagger
+ * /api/diana/token:
+ *   get:
+ *     summary: Get Diana API access token
+ *     description: Returns an OAuth2 access token for the Diana routing API. Token is cached server-side; credentials never reach the frontend.
+ *     responses:
+ *       200:
+ *         description: Access token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 access_token:
+ *                   type: string
+ *                 expires_in:
+ *                   type: integer
+ *       502:
+ *         description: Diana API unreachable.
+ *       503:
+ *         description: Diana credentials not configured.
  */
 router.get("/token", async (_req, res) => {
     try {
@@ -112,15 +131,41 @@ const AUTOCOMPLETE_CLIENT_LIMIT = 5;
 const AUTOCOMPLETE_DIANA_LIMIT = 7;
 
 /**
- * GET /api/diana/address-autocomplete
- *
- * Proxies the Diana /address-autocomplete endpoint and enriches each
- * result with city information from local GeoJSON files.
- * Results outside the Alpine bounding box are filtered out.
- * The top 5 enriched results are cached in Valkey (24 h TTL).
- *
- * Query params: q, limit, hint_lat, hint_lon, lang, global_search
- * (same as Diana API, see Diana_API_Docs.md)
+ * @swagger
+ * /api/diana/address-autocomplete:
+ *   get:
+ *     summary: Address autocomplete (Diana proxy)
+ *     description: Proxies the Diana address-autocomplete endpoint. Results are filtered to the Alpine bounding box and enriched with Zuugle city data. Cached 24h.
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Address search query
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: hint_lat
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: hint_lon
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: GeoJSON FeatureCollection with enriched Zuugle city properties.
+ *       400:
+ *         description: Missing query parameter.
+ *       502:
+ *         description: Diana API error.
  */
 router.get("/address-autocomplete", async (req, res) => {
     const q = req.query.q;
@@ -230,11 +275,42 @@ const CONNECTIONS_SCROLL_PARAMS = [
 ];
 
 /**
- * GET /api/diana/connections
- *
- * Proxies the Diana /connections endpoint.
- * Initial searches (without pagination cursors) are cached in Valkey for 24 h.
- * Cache key: tour coordinates + user start location + date.
+ * @swagger
+ * /api/diana/connections:
+ *   get:
+ *     summary: Get public transport connections (Diana proxy)
+ *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Initial requests are cached 24h; pagination requests bypass the cache.
+ *     parameters:
+ *       - in: query
+ *         name: user_start_location
+ *         schema:
+ *           type: string
+ *         description: User's starting coordinates (lon,lat)
+ *       - in: query
+ *         name: activity_start_location
+ *         schema:
+ *           type: string
+ *         description: Tour start coordinates
+ *       - in: query
+ *         name: activity_end_location
+ *         schema:
+ *           type: string
+ *         description: Tour end coordinates
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Travel date (YYYY-MM-DD)
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Connection results from Diana.
+ *       502:
+ *         description: Diana API error.
  */
 router.get("/connections", async (req, res) => {
     try {
@@ -319,10 +395,33 @@ router.get("/connections", async (req, res) => {
 // ─── POST /api/diana/generate-ticketshop-link ────────────────────
 
 /**
- * POST /api/diana/generate-ticketshop-link
- *
- * Proxies the Diana /generate-ticketshop-link endpoint.
- * Body: { connection_elements: [...], segment_index?: number }
+ * @swagger
+ * /api/diana/generate-ticketshop-link:
+ *   post:
+ *     summary: Generate ticket shop link (Diana proxy)
+ *     description: Proxies the Diana ticketshop-link endpoint to generate a booking URL for a selected connection.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - connection_elements
+ *             properties:
+ *               connection_elements:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               segment_index:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Ticketshop link.
+ *       400:
+ *         description: Missing connection_elements.
+ *       502:
+ *         description: Diana API error.
  */
 router.post("/generate-ticketshop-link", async (req, res) => {
     const { connection_elements, segment_index } = req.body || {};
@@ -354,10 +453,24 @@ router.post("/generate-ticketshop-link", async (req, res) => {
 // ─── POST /api/diana/share ───────────────────────────────────────
 
 /**
- * POST /api/diana/share
- *
- * Proxies the Diana /share/ endpoint to create a shareable journey link.
- * Body is forwarded as-is (validated by Diana).
+ * @swagger
+ * /api/diana/share:
+ *   post:
+ *     summary: Create a shareable journey link (Diana proxy)
+ *     description: Proxies the Diana /share/ endpoint. The request body is forwarded as-is and validated by Diana.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Share link created.
+ *       400:
+ *         description: Missing request body.
+ *       502:
+ *         description: Diana API error.
  */
 router.post("/share", async (req, res) => {
     if (!req.body || typeof req.body !== "object") {
@@ -382,9 +495,26 @@ router.post("/share", async (req, res) => {
 // ─── GET /api/diana/share/:hashKey ───────────────────────────────
 
 /**
- * GET /api/diana/share/:hashKey
- *
- * Proxies the Diana /share/<uuid>/ endpoint to retrieve a shared journey.
+ * @swagger
+ * /api/diana/share/{hashKey}:
+ *   get:
+ *     summary: Retrieve a shared journey (Diana proxy)
+ *     description: Proxies the Diana /share/<uuid>/ endpoint to retrieve journey details for a previously shared link.
+ *     parameters:
+ *       - in: path
+ *         name: hashKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: UUID of the shared journey
+ *     responses:
+ *       200:
+ *         description: Shared journey data.
+ *       400:
+ *         description: Invalid UUID format.
+ *       502:
+ *         description: Diana API error.
  */
 router.get("/share/:hashKey", async (req, res) => {
     const { hashKey } = req.params;

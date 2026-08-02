@@ -3,6 +3,57 @@ let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
+
+/**
+ * @swagger
+ * /api/searchphrase:
+ *   get:
+ *     summary: Search autocomplete suggestions
+ *     description: Returns ranked autocomplete suggestions (cities, ranges, peaks, types) matching the search term. Results are filtered by TLD and optionally by city.
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: true
+ *         schema:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 128
+ *         description: Search term (min 3, max 128 characters)
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         description: City slug to scope suggestions
+ *       - in: query
+ *         name: tld
+ *         schema:
+ *           type: string
+ *           default: AT
+ *         description: Two-letter country code (e.g. AT, DE, CH)
+ *     responses:
+ *       200:
+ *         description: List of autocomplete suggestions.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         description: Suggestion category (city, range, peak, type)
+ *                       term:
+ *                         type: string
+ *                         description: The suggested term
+ *       400:
+ *         description: Invalid or missing search term.
+ */
 router.get("/", (req, res) => autocompleteWrapper(req, res));
 
 const autocompleteWrapper = async (req, res) => {

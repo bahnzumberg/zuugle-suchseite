@@ -350,5 +350,13 @@
   "cookie_consent": {
     "text": "Diese Seite verwendet ausschließlich technisch notwendige Cookies. Für Fahrplanauskünfte werden Anfragedaten an Server in der EU übermittelt, aber nicht gespeichert.",
     "accept": "Verstanden"
+  },
+  "lists": {
+    "default_list_name": "Meine Favoriten",
+    "list_created": "Liste erstellt",
+    "tour_added": "Tour hinzugefügt",
+    "tour_removed": "Tour entfernt",
+    "list_empty": "Diese Liste ist noch leer",
+    "list_not_found": "Liste nicht gefunden"
   }
 }

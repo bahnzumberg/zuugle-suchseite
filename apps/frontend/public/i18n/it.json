@@ -348,5 +348,13 @@
   "cookie_consent": {
     "text": "Questo sito utilizza esclusivamente cookie tecnicamente necessari. Per le richieste di orari, i dati vengono trasmessi a server nell'UE, ma non vengono memorizzati.",
     "accept": "Capito"
+  },
+  "lists": {
+    "default_list_name": "I miei preferiti",
+    "list_created": "Lista creata",
+    "tour_added": "Tour aggiunto",
+    "tour_removed": "Tour rimosso",
+    "list_empty": "Questa lista è vuota",
+    "list_not_found": "Lista non trovata"
   }
 }

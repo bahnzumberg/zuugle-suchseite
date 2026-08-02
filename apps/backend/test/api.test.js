@@ -399,3 +399,182 @@ describe("Zuugle API UAT Tests", () => {
         });
     });
 });
+
+// ─── User Lists API ───────────────────────────────────────────────
+describe("User Lists API", () => {
+    // Collect keys created during this test run so we can verify them;
+    // there is no delete-list endpoint yet, but the data is harmless.
+    const createdKeys = [];
+
+    beforeAll(async () => {
+        if (baseUrl.startsWith("http")) {
+            await waitForServer(`${baseUrl}/api/cities?domain=www.zuugle.at`);
+        }
+    }, 130000);
+
+    test("POST /api/lists creates a list with default name", async () => {
+        const response = await fetch(`${baseUrl}/api/lists`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({ domain: "www.zuugle.at" }),
+        });
+        expect(response.status).toBe(201);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(data.key).toBeDefined();
+        expect(data.key.length).toBeGreaterThanOrEqual(40);
+        expect(data.name).toBe("Meine Favoriten");
+        createdKeys.push(data.key);
+    });
+
+    test("POST /api/lists with custom name stores it", async () => {
+        const response = await fetch(`${baseUrl}/api/lists`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: "Sommertouren 2026",
+                language: "de",
+                domain: "www.zuugle.at",
+            }),
+        });
+        expect(response.status).toBe(201);
+        const data = await response.json();
+        expect(data.name).toBe("Sommertouren 2026");
+        createdKeys.push(data.key);
+    });
+
+    test("POST /api/lists with language=en uses English default name", async () => {
+        const response = await fetch(`${baseUrl}/api/lists`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({ language: "en", domain: "www.zuugle.at" }),
+        });
+        expect(response.status).toBe(201);
+        const data = await response.json();
+        expect(data.name).toBe("My Favourites");
+        createdKeys.push(data.key);
+    });
+
+    test("GET /api/lists/:key returns the list with empty tours", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(data.list.key).toBe(key);
+        expect(data.list.name).toBe("Meine Favoriten");
+        expect(data.tours).toEqual([]);
+        expect(data.total).toBe(0);
+    });
+
+    test("GET /api/lists/:invalidkey returns 404", async () => {
+        const response = await fetch(`${baseUrl}/api/lists/this-key-does-not-exist`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(404);
+    });
+
+    test("POST /api/lists/:key/tours with invalid tour_id returns 404", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({ tour_id: 999999999 }),
+        });
+        expect(response.status).toBe(404);
+    });
+
+    test("POST /api/lists/:key/tours with missing tour_id returns 400", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+        });
+        expect(response.status).toBe(400);
+    });
+
+    // Find a valid tour ID dynamically from the search results
+    let validTourId;
+    test("find a valid tour ID from search", async () => {
+        const response = await fetch(`${baseUrl}/api/tours?domain=www.zuugle.at&city=wien`, {
+            method: "POST",
+            headers: getHeaders(),
+        });
+        const data = await response.json();
+        expect(data.tours.length).toBeGreaterThan(0);
+        validTourId = data.tours[0].id;
+    });
+
+    test("POST /api/lists/:key/tours adds a valid tour", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({ tour_id: validTourId }),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+    });
+
+    test("POST /api/lists/:key/tours duplicate is idempotent", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours`, {
+            method: "POST",
+            headers: { ...getHeaders(), "Content-Type": "application/json" },
+            body: JSON.stringify({ tour_id: validTourId }),
+        });
+        expect(response.status).toBe(200);
+    });
+
+    test("GET /api/lists/:key returns the tour with search-equivalent fields", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.total).toBeGreaterThanOrEqual(1);
+        const tour = data.tours[0];
+        // Verify search-equivalent fields are present
+        expect(tour.id).toBeDefined();
+        expect(tour.title).toBeDefined();
+        expect(tour.provider).toBeDefined();
+        expect(tour.url).toBeDefined();
+        // Verify list-specific field
+        expect(tour.added_at).toBeDefined();
+    });
+
+    test("DELETE /api/lists/:key/tours/:tourId removes the tour", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours/${validTourId}`, {
+            method: "DELETE",
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+    });
+
+    test("GET /api/lists/:key after removal returns empty tours", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.total).toBe(0);
+    });
+
+    test("DELETE /api/lists/:key/tours/:tourId for missing tour returns 404", async () => {
+        const key = createdKeys[0];
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours/999999999`, {
+            method: "DELETE",
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(404);
+    });
+});

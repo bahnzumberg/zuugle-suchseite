@@ -72,7 +72,6 @@ export interface ToursParams {
   limit?: number;
   city: string;
   ranges?: boolean;
-  provider?: string;
   filter?: FilterObject;
   search?: string;
   search_type?: string;

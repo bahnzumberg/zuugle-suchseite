@@ -28,7 +28,12 @@ export interface SearchState {
   language: string | null;
   map: boolean;
   bounds: BoundsObject | null;
-  provider: string | null;
+  /**
+   * When true, tour links point directly to the provider's own website
+   * (e.g. bahn-zum-berg.at) instead of our internal /tour/ detail pages.
+   * Driven by the ?externalLinks= URL param (and the legacy ?p= param).
+   */
+  externalLinks: boolean;
   geolocation: LocationWithRadius | null;
 }
 
@@ -39,7 +44,7 @@ const initialState: SearchState = {
   language: null,
   map: false,
   bounds: null,
-  provider: null,
+  externalLinks: false,
   geolocation: null,
 };
 
@@ -68,8 +73,8 @@ const searchSlice = createSlice({
     mapUpdated: (state, action: PayloadAction<boolean>) => {
       state.map = action.payload;
     },
-    providerUpdated: (state, action: PayloadAction<string | null>) => {
-      state.provider = action.payload;
+    externalLinksUpdated: (state, action: PayloadAction<boolean>) => {
+      state.externalLinks = action.payload;
     },
     geolocationUpdated: (
       state,
@@ -87,7 +92,7 @@ export const {
   languageUpdated,
   boundsUpdated,
   mapUpdated,
-  providerUpdated,
+  externalLinksUpdated,
   geolocationUpdated,
 } = searchSlice.actions;
 export default searchSlice.reducer;
