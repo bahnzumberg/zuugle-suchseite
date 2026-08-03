@@ -17,8 +17,8 @@ const BackgroundImageLoader = ({
   children,
 }: BackgroundImageLoaderProps) => {
   const imageUrl = isMobileDevice()
-    ? `https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=500:570&width=500`
-    : `https://cdn.bahn-zum-berg.at/wp-content/uploads/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200`;
+    ? `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=500:570&width=500`
+    : `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200`;
 
   // Preload the LCP image for faster loading
   useHead({
