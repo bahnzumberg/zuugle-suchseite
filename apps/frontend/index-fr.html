@@ -1,20 +1,27 @@
 <!doctype html>
 <html lang="fr" id="html-tag">
   <head>
-    <link rel="alternate" href="https://www.zuugle.si" hreflang="sl-si" />
-    <link rel="alternate" href="https://www.zuugle.at" hreflang="de-at" />
-    <link rel="alternate" href="https://www.zuugle.de" hreflang="de-de" />
-    <link rel="alternate" href="https://www.zuugle.it" hreflang="it-it" />
-    <link rel="alternate" href="https://www.zuugle.ch" hreflang="de-ch" />
-    <link rel="alternate" href="https://www.zuugle.li" hreflang="de-li" />
-    <link rel="canonical" href="https://www.zuugle.fr" hreflang="fr-fr" />
+    <link rel="canonical" href="https://www.zuugle.fr/" />
+    <link rel="alternate" href="https://www.zuugle.at/" hreflang="de-at" />
+    <link rel="alternate" href="https://www.zuugle.de/" hreflang="de-de" />
+    <link rel="alternate" href="https://www.zuugle.ch/" hreflang="de-ch" />
+    <link rel="alternate" href="https://www.zuugle.it/" hreflang="it-it" />
+    <link rel="alternate" href="https://www.zuugle.fr/" hreflang="fr-fr" />
+    <link rel="alternate" href="https://www.zuugle.li/" hreflang="de-li" />
+    <link rel="alternate" href="https://www.zuugle.si/" hreflang="sl-si" />
+    <link rel="alternate" href="https://www.zuugle.at/" hreflang="x-default" />
+
+    <link rel="preconnect" href="https://cdn.zuugle.at" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.zuugle.at" />
+    <link rel="preconnect" href="https://cdn.bahn-zum-berg.at" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.bahn-zum-berg.at" />
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
 
     <meta name="author" content="Zuugle" />
-    <meta name="publisher" content="Zuugle" />
+    <meta name="publisher" content="Bahn zum Berg" />
     <meta name="copyright" content="Bahn zum Berg" />
     <meta http-equiv="content-language" content="fr" />
     <meta name="robots" content="index, follow" />
@@ -55,6 +62,13 @@
       property="og:image"
       content="https://cdn.zuugle.at/img/Zuugle_Opengraph.jpg"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Zuugle – le moteur de recherche pour les sorties en montagne sans voiture"
+    />
+    <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -70,6 +84,42 @@
       name="twitter:image"
       content="https://cdn.zuugle.at/img/Zuugle_Opengraph.jpg"
     />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://www.zuugle.fr/#website",
+            "url": "https://www.zuugle.fr/",
+            "name": "Zuugle France",
+            "description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
+            "publisher": {
+              "@id": "https://www.zuugle.fr/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.zuugle.fr/search?search_type=term&search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://www.zuugle.fr/#organization",
+            "name": "Zuugle / Bahn zum Berg",
+            "url": "https://verein.bahn-zum-berg.at",
+            "logo": "https://cdn.bahn-zum-berg.at/2025/03/cropped-bahnzumberg_logo_rgb_bzb_blau.png",
+            "sameAs": ["https://www.bahn-zum-berg.at"]
+          }
+        ]
+      }
+    </script>
+
     <!-- App Shell: inline skeleton to avoid white screen while JS loads -->
     <style>
       .shell-header {
@@ -77,30 +127,55 @@
         background: #1a3a5c;
         padding: 10px;
         box-sizing: border-box;
+        font-family:
+          Source Sans 3,
+          sans-serif;
+      }
+
+      .shell-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 48px 30px 0 30px;
+        box-sizing: border-box;
+      }
+
+      .shell-title {
+        font-size: 38px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        max-width: 750px;
+        color: #ffffff;
+        text-align: left;
+        line-height: 1.25;
+      }
+
+      .shell-desc {
+        font-size: 16px;
+        font-weight: 400;
+        margin: 0 0 16px 0;
+        max-width: 750px;
+        opacity: 0.9;
+        line-height: 1.4;
+        color: #ffffff;
+        text-align: left;
+      }
+
+      .shell-countries {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding-left: 30px;
-        padding-right: 30px;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
       }
-      .shell-text {
-        height: 24px;
-        width: 180px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 4px;
-        margin-bottom: 16px;
+
+      .shell-countries a {
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        font-size: 12px;
+        padding: 3px 9px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
       }
-      .shell-text--lg {
-        height: 40px;
-        width: 60%;
-        max-width: 500px;
-      }
-      .shell-text--md {
-        height: 32px;
-        width: 40%;
-        max-width: 340px;
-      }
+
       .shell-search-wrap {
         display: flex;
         justify-content: center;
@@ -108,6 +183,7 @@
         position: relative;
         padding: 0 20px;
       }
+
       .shell-search {
         height: 56px;
         width: 100%;
@@ -116,24 +192,29 @@
         border-radius: 28px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       }
+
       .shell-pulse {
         animation: shell-pulse 1.5s ease-in-out infinite;
       }
+
       @keyframes shell-pulse {
         0%,
         100% {
           opacity: 1;
         }
+
         50% {
           opacity: 0.5;
         }
       }
+
       .shell-cards-wrap {
         max-width: 1400px;
         margin: 30px auto 0;
         padding: 0 30px;
         box-sizing: border-box;
       }
+
       .shell-cards-title {
         height: 20px;
         width: 160px;
@@ -143,35 +224,44 @@
         margin-left: auto;
         margin-right: auto;
       }
+
       .shell-cards {
         display: flex;
         justify-content: center;
         gap: 16px;
         flex-wrap: wrap;
       }
+
       .shell-card {
         width: 280px;
         height: 320px;
         background: #f2f2f2;
         border-radius: 12px;
       }
+
       @media only screen and (max-width: 600px) {
         .shell-header {
           height: auto;
           min-height: 310px;
           padding-bottom: 50px;
-          padding-left: 10px;
-          padding-right: 10px;
         }
-        .shell-text--lg {
-          width: 80%;
+
+        .shell-inner {
+          padding: 10px 10px 0 10px;
         }
-        .shell-text--md {
-          width: 60%;
+
+        .shell-title {
+          font-size: 26px;
         }
+
+        .shell-desc {
+          font-size: 14px;
+        }
+
         .shell-cards-wrap {
           padding: 0 10px;
         }
+
         .shell-card {
           width: 100%;
           height: 200px;
@@ -181,17 +271,29 @@
   </head>
 
   <body>
-    <noscript
-      >Vous n'avez probablement pas activé Javascript. Notre moteur de recherche
-      a besoin de Javascript pour fonctionner. Vous devez donc activer Javacript
-      sur votre navigateur.</noscript
-    >
     <div id="root">
       <!-- Static skeleton replaced by React on mount -->
       <div class="shell-header">
-        <div class="shell-text shell-pulse"></div>
-        <div class="shell-text shell-text--lg shell-pulse"></div>
-        <div class="shell-text shell-text--md shell-pulse"></div>
+        <div class="shell-inner">
+          <h1 class="shell-title">
+            Zuugle – le moteur de recherche d'itinéraires en montagne
+            accessibles en transports publics
+          </h1>
+          <p class="shell-desc">
+            Zuugle affiche les liaisons vérifiées, en train et en bus, pour les
+            randonnées pédestres, l'alpinisme, le ski de randonnée et les
+            raquettes.
+          </p>
+          <nav class="shell-countries" aria-label="Choix du pays">
+            <a href="https://www.zuugle.at">Österreich</a>
+            <a href="https://www.zuugle.de">Deutschland</a>
+            <a href="https://www.zuugle.ch">Schweiz</a>
+            <a href="https://www.zuugle.it">Italia</a>
+            <a href="https://www.zuugle.fr">France</a>
+            <a href="https://www.zuugle.li">Liechtenstein</a>
+            <a href="https://www.zuugle.si">Slovenija</a>
+          </nav>
+        </div>
       </div>
       <div class="shell-search-wrap">
         <div class="shell-search shell-pulse"></div>
@@ -206,6 +308,21 @@
         </div>
       </div>
     </div>
+    <noscript>
+      <div
+        style="
+          background: #fff3cd;
+          color: #856404;
+          padding: 12px;
+          text-align: center;
+          font-family: sans-serif;
+          font-size: 14px;
+        "
+      >
+        Remarque: La recherche interactive nécessite JavaScript. Veuillez
+        activer JavaScript dans votre navigateur.
+      </div>
+    </noscript>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
