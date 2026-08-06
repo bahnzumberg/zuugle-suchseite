@@ -1,13 +1,13 @@
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [
     react(),
-     babel({
-      presets: [reactCompilerPreset()]
+    babel({
+      presets: [reactCompilerPreset()],
     }),
     svgr(),
   ],
