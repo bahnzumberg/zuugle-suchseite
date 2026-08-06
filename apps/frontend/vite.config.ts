@@ -1,9 +1,16 @@
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
-  plugins: [react(), svgr()],
+  plugins: [
+    react(),
+    babel({
+      presets: [reactCompilerPreset()],
+    }),
+    svgr(),
+  ],
   server: {
     port: 3000,
     open: true,
@@ -56,7 +63,6 @@ export default defineConfig({
       "DianaWidget-main/**",
     ],
     rules: {
-      "react-hooks/exhaustive-deps": "off",
       "react/display-name": "error",
       "react/jsx-key": "error",
       "react/jsx-no-comment-textnodes": "error",

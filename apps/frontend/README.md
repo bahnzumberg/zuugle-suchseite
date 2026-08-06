@@ -9,6 +9,7 @@
 - `/tour/:id/:city`: [TourDetail](src/views/TourDetail.tsx) - Detailseite
 - `/privacy`: [Privacy](src/views/Privacy.tsx) - Datenschutzerkl&auml;rung
 - `/imprint`: [Imprint](src/views/Imprint.tsx) - Impressum
+
 <!-- - `/about`: [About](src/views/Pages/About.tsx) TODO: About.tsx is currently not used -> Clean up or update. -->
 
 ### Query Parameters
