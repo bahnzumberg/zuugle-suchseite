@@ -25,7 +25,8 @@ export default function SearchButton({ handleSearch }: SearchButtonProps) {
           color: theme.palette.common.white,
           height: 40,
           width: 40,
-          transition: "all 0.2s ease-in-out",
+          transition:
+            "background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
           boxShadow: `0 1px 4px ${alpha(theme.palette.secondary.main, 0.2)}`,
           "&:focus, &:focus-visible, &.Mui-focusVisible": {
             backgroundColor: "#712579",
@@ -59,7 +60,8 @@ export default function SearchButton({ handleSearch }: SearchButtonProps) {
           minWidth: 100,
           height: 40,
           fontWeight: 700,
-          transition: "all 0.2s ease-in-out",
+          transition:
+            "background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
           boxShadow: `0 2px 8px ${alpha(buttonTheme.palette.secondary.main, 0.2)}`,
           "@media (hover: hover) and (pointer: fine)": {
             "&:hover": {

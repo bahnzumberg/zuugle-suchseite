@@ -44,7 +44,8 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
           boxShadow: activeFilter
             ? `0 1px 4px rgba(37,73,128,0.25)`
             : `0 1px 4px ${lighten(inactiveColor, 0.7)}`,
-          transition: "all 0.2s ease-in-out",
+          transition:
+            "background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
           "&:hover": {
             backgroundColor: activeFilter
               ? darken(activeBg, 0.06)
@@ -74,7 +75,8 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
             : lighten(inactiveColor, 0.3),
           height: 40,
           fontWeight: 700,
-          transition: "all 0.2s ease-in-out",
+          transition:
+            "background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
           boxShadow: activeFilter
             ? `0 1px 4px rgba(37,73,128,0.25)`
             : `0 1px 4px ${lighten(inactiveColor, 0.7)}`,
