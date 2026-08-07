@@ -28,6 +28,7 @@ export function getSportTypeTranslationMap(
     Rodeln: t("filter.rodeln"),
     Schneeschuh: t("filter.schneeschuh"),
     Skitour: t("filter.skitour"),
+    Trailrunning: t("filter.trailrunning"),
     Wandern: t("filter.wandern"),
     Weitwandern: t("filter.weitwandern"),
   };
