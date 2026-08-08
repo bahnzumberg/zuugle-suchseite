@@ -7,12 +7,12 @@ interface SearchButtonProps {
   handleSearch: () => void;
 }
 
-const restingBg = "#712579";
-const engagedBg = "#254980";
-
 export default function SearchButton({ handleSearch }: SearchButtonProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+
+  const restingBg = theme.palette.secondary.main;
+  const engagedBg = theme.palette.primary.main;
 
   const shadow = (offset: number, blur: number, opacity: number) =>
     `0 ${offset}px ${blur}px ${alpha(theme.palette.secondary.main, opacity)}`;
