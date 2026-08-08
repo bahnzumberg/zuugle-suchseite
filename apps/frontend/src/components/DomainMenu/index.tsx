@@ -1,12 +1,25 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDomainText } from "../../utils/globals";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useTranslation } from "react-i18next";
+import { store } from "../..";
+import { useAppDispatch } from "../../hooks";
+import { languageUpdated } from "../../features/searchSlice";
+import { langChange } from "../../utils/language_Utils";
 import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
+
+const ALL_LANGUAGES = [
+  { key: "de", nativeName: "Deutsch" },
+  { key: "en", nativeName: "English" },
+  { key: "fr", nativeName: "Français" },
+  { key: "it", nativeName: "Italiano" },
+  { key: "sl", nativeName: "Slovenščina" },
+];
 
 // All production domains
 const PROD_DOMAINS = [
@@ -83,7 +96,9 @@ const DOMAIN_CONFIG: Record<
 function DomainMenu() {
   const host = window.location.href;
   const triggerRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dispatch = useAppDispatch();
+  const activeLanguage = i18n.resolvedLanguage ?? "de";
 
   // Find matching domain configuration and reorder with current domain first
   const getDomainsForHost = (
@@ -136,6 +151,22 @@ function DomainMenu() {
   ];
   const [showDomainMenu, setShowDomainMenu] = useState(false);
   const [legalDialog, setLegalDialog] = useState<LegalDialogType>(null);
+
+  // Keep Redux language in sync even without a ?lang= param. Moved here from
+  // the old standalone language menu, which no longer renders in the header.
+  // Reads the store directly instead of subscribing via useSelector, since
+  // this only needs to run once on mount.
+  useEffect(() => {
+    if (!store.getState().search.language) {
+      dispatch(languageUpdated(activeLanguage));
+    }
+  }, []);
+
+  const setLanguage = (lng: string) => {
+    langChange(lng);
+    setShowDomainMenu(false);
+    dispatch(languageUpdated(lng));
+  };
 
   // Compute dropdown position from trigger element
   const getDropdownPosition = (): React.CSSProperties => {
@@ -237,6 +268,39 @@ function DomainMenu() {
                 </span>
               ),
             )}
+            <span className="horizontalBar" />
+            {/* Language selection – a globe label keeps it discoverable now
+                that the standalone language icon is gone. */}
+            <span
+              className="domainItem"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                paddingBottom: 10,
+              }}
+            >
+              <LanguageOutlinedIcon sx={{ fontSize: 18 }} />
+              {t("filter.sprache")}
+            </span>
+            {ALL_LANGUAGES.map((lang) => (
+              <span
+                className="domainItem pointy"
+                key={lang.key}
+                style={{
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                  color:
+                    activeLanguage === lang.key
+                      ? "var(--bzb-bahnblau)"
+                      : undefined,
+                  fontWeight: activeLanguage === lang.key ? 700 : undefined,
+                }}
+                onClick={() => setLanguage(lang.key)}
+              >
+                {lang.nativeName}
+              </span>
+            ))}
             <span className="horizontalBar" />
             {secondMenu.map((item) => (
               <span

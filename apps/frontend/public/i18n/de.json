@@ -1,4 +1,12 @@
 {
+  "favorites": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "save": "Merken",
+    "saved": "Gemerkt",
+    "show": "Favoriten anzeigen",
+    "showing": "Favoriten werden angezeigt"
+  },
   "about": {
     "was_ist_zuugle": "WAS IST ZUUGLE ?",
     "zuugle_erklaerung_1": "Zuugle ist eine Suchmaschine für öffentlich erreichbare Bergtouren.",

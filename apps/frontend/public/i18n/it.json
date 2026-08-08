@@ -1,4 +1,12 @@
 {
+  "favorites": {
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti",
+    "save": "Aggiungi ai preferiti",
+    "saved": "Salvato",
+    "show": "Mostra i preferiti",
+    "showing": "Preferiti mostrati"
+  },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",
     "zuugle_erklaerung_1": "Zuugle è un motore di ricerca per itinerari in montagna raggiungibili con i mezzi pubblici.",

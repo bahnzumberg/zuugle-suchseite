@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import DomainMenu from "../components/DomainMenu";
-import LanguageMenu from "../components/LanguageMenu";
 import MapBtn from "../components/Search/MapBtn";
 import TourCardContainer from "../components/TourCardContainer";
 import Search from "../components/Search/Search";
@@ -14,6 +13,7 @@ import TotalToursHeader from "../components/TotalToursHeader";
 import BackgroundImageLoader from "./Start/BackgroundImageLoader";
 import SearchParamSync from "../components/SearchParamSync";
 import { useSearchTours } from "../hooks/useSearchTours";
+import FavoritesToggle from "../components/Favorites/FavoritesToggle";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -103,7 +103,7 @@ export default function StartNew() {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <DomainMenu />
               </Box>
-              <LanguageMenu />
+              <FavoritesToggle />
             </Box>
           </Box>
           {!!allCities && allCities.length > 0 && (
@@ -129,7 +129,6 @@ export default function StartNew() {
           <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
             <Box className="rowing">
               <DomainMenu />
-              <LanguageMenu />
             </Box>
             <Box className="header-text">
               <Typography variant="h1">{getHeroTitle()}</Typography>

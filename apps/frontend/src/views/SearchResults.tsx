@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import DomainMenu from "../components/DomainMenu";
-import LanguageMenu from "../components/LanguageMenu";
 import MapBtn from "../components/Search/MapBtn";
 import TourCardContainer from "../components/TourCardContainer";
 import Search from "../components/Search/Search";
@@ -11,6 +10,7 @@ import Filter from "../components/Filter/Filter";
 import MaintenanceGuard from "../components/MaintenanceGuard";
 import TotalToursHeader from "../components/TotalToursHeader";
 import SearchParamSync from "../components/SearchParamSync";
+import FavoritesToggle from "../components/Favorites/FavoritesToggle";
 import { useSearchTours } from "../hooks/useSearchTours";
 import { useSearchParams } from "react-router";
 import LegalDialog, {
@@ -99,7 +99,7 @@ export default function SearchResults() {
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <DomainMenu />
                 </Box>
-                <LanguageMenu />
+                <FavoritesToggle />
               </Box>
             </Box>
             {!!allCities && allCities.length > 0 && (
