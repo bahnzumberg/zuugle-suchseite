@@ -134,6 +134,13 @@ export const isMobileDevice = () => {
   );
 };
 
+export function getBackgroundImageUrl(tld: string, mobile = isMobileDevice()) {
+  const dimensions = mobile
+    ? "aspect_ratio=500:570&width=500"
+    : "aspect_ratio=1200:798&width=1200";
+  return `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?${dimensions}`;
+}
+
 export const getTopLevelDomain = () => {
   const domain = window.location.hostname;
   let tld = "at";
