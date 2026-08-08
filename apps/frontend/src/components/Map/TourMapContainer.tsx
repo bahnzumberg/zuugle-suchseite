@@ -95,7 +95,7 @@ function createPoiIcon(type: PoiResult["type"]): L.DivIcon {
  * Displays a home icon on an orange background badge.
  */
 function createSelectedCityIcon(): L.DivIcon {
-  const bg = "#ccd8a1"; // Lindgrün (Corporate Design)
+  const bg = theme.palette.lindgruen.main;
   const homeIconHtml = renderToStaticMarkup(
     <HomeRoundedIcon
       style={{
