@@ -42,10 +42,12 @@ declare module "@mui/material/styles" {
 
   interface Palette {
     white: Palette["primary"];
+    lindgruen: Palette["primary"];
   }
 
   interface PaletteOptions {
     white?: PaletteOptions["primary"];
+    lindgruen?: PaletteOptions["primary"];
   }
 }
 
