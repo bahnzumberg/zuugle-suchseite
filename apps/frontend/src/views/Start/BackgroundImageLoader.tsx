@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { useHead } from "@unhead/react";
-import { isMobileDevice } from "../../utils/globals";
+import { getBackgroundImageUrl } from "../../utils/globals";
 
 const LINEAR_GRADIENT =
   "linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), ";
@@ -16,9 +16,7 @@ const BackgroundImageLoader = ({
   sx,
   children,
 }: BackgroundImageLoaderProps) => {
-  const imageUrl = isMobileDevice()
-    ? `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=500:570&width=500`
-    : `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200`;
+  const imageUrl = getBackgroundImageUrl(tld);
 
   // Preload the LCP image for faster loading
   useHead({
