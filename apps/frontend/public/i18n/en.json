@@ -1,4 +1,12 @@
 {
+  "favorites": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "save": "Save to favorites",
+    "saved": "Saved",
+    "show": "Show favorites",
+    "showing": "Showing favorites"
+  },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",
     "zuugle_erklaerung_1": "Zuugle is a search engine for hikes that can be reached by public transport.",

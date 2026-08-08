@@ -1,4 +1,12 @@
 {
+  "favorites": {
+    "add": "Dodaj med priljubljene",
+    "remove": "Odstrani iz priljubljenih",
+    "save": "Dodaj med priljubljene",
+    "saved": "Shranjeno",
+    "show": "Prikaži priljubljene",
+    "showing": "Prikazane priljubljene"
+  },
   "about": {
     "was_ist_zuugle": "KAJ JE ZUUGLE?",
     "zuugle_erklaerung_1": "Zuugle je iskalnik gorskih tur, dostopnih z javnim prevozom.",
