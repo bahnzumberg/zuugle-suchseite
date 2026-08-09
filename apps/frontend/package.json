@@ -75,7 +75,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "typescript": "^6.0.3",
     "vite-plugin-svgr": "^5.2.0",
-    "vite-plus": "^0.2.2"
+    "vite-plus": "^0.2.8"
   },
   "packageManager": "npm@11.16.0"
 }
