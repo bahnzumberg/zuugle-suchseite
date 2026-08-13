@@ -66,14 +66,14 @@
      ry="7.2428951" />
   <text
      xml:space="preserve"
-     style="font-weight:bold;font-size:13.2402px;font-family:Sans;-inkscape-font-specification:'Sans Bold';text-align:end;writing-mode:lr-tb;direction:ltr;text-anchor:end;fill:#000000;stroke-width:0.413756"
-     x="20.792528"
+     style="font-weight:bold;font-size:13.2402px;font-family:Arial, Helvetica, sans-serif;-inkscape-font-specification:'Sans Bold';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;stroke-width:0.413756"
+     x="17.184246"
      y="20.815277"
      id="text1"
      transform="scale(0.95920456,1.0425305)"><tspan
        sodipodi:role="line"
        id="tspan1"
-       x="20.792528"
+       x="17.184246"
        y="20.815277"
        style="stroke-width:0.413756">2</tspan></text>
 </svg>
