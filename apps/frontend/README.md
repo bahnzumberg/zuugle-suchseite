@@ -65,6 +65,33 @@ This will run the frontend in a browser on http://localhost:3000
 
     VITE_API_URL=https://www2.zuugle.at/api vp dev
 
+## Environment variables
+
+| Variable              | Default                     | Purpose                                                      |
+| --------------------- | --------------------------- | ------------------------------------------------------------ |
+| `VITE_API_URL`        | `http://localhost:8080/api` | Backend API base URL. Only used when running on `localhost`. |
+| `VITE_ASSET_BASE_URL` | `/public`                   | Base URL for static assets (fonts, images, icons).           |
+
+### `VITE_ASSET_BASE_URL`
+
+Static assets live in the backend `public/` folder. Never hardcode an asset
+host — build the URL with the `assetUrl()` helper from `src/utils/assetUrl.ts`:
+
+```ts
+import { assetUrl } from "../utils/assetUrl";
+
+<img src={assetUrl("/img/zuugle.svg")} />;
+```
+
+Only **PROD** sets the variable, to `https://cdn.zuugle.at` — a BunnyCDN pull
+zone whose origin is prod, so `cdn.zuugle.at/img/x.svg` and
+`www.zuugle.at/public/img/x.svg` serve the same file.
+
+UAT, DEV and local builds leave it unset and fall back to the relative
+`/public` prefix, which nginx serves from that environment's own API folder.
+That way no environment loads its assets from production, and asset changes can
+be reviewed on DEV before they are released.
+
 ## Common issues
 
 - `Error: ENOSPC: System limit for number of file watchers reached`
