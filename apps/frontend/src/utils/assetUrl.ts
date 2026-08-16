@@ -25,3 +25,26 @@ const ASSET_BASE = (
 export function assetUrl(path: string): string {
   return `${ASSET_BASE}/${path.replace(/^\/+/, "")}`;
 }
+
+/**
+ * Re-points an asset URL that came from the API at this environment.
+ *
+ * The API builds absolute URLs from the `domain` query parameter the client
+ * sends it, so `dev:main` and `dev:uat` — which run on localhost but talk to a
+ * deployed API — get back unreachable hosts such as
+ * `https://localhost/public/gpx/56/61256.gpx`.
+ *
+ * Accepts absolute and relative URLs, with or without the `/public` prefix,
+ * and keeps any query string (the CDN's `?width=…` image parameters).
+ *
+ * @example
+ * publicAssetUrl("https://localhost/public/gpx/56/61256.gpx")
+ * // → "/public/gpx/56/61256.gpx"
+ */
+export function publicAssetUrl(url: string): string {
+  if (!url) {
+    return url;
+  }
+  const path = url.replace(/^[a-z][a-z\d+.-]*:\/\/[^/]*/i, "");
+  return assetUrl(path.replace(/^\/public(?=\/)/, ""));
+}
