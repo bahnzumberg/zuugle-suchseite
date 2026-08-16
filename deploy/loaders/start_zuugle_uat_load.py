@@ -91,7 +91,6 @@ def run_node_task(npm_command):
         
         env = os.environ.copy()
         env["NODE_ENV"] = "production"
-        env["USE_CDN"] = "false"
 
                 
         # Zuerst DEV
