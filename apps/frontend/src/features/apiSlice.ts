@@ -10,7 +10,7 @@ import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
 import { Connection, ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
-import { publicAssetUrl } from "../utils/assetUrl";
+import { apiImageUrl, publicAssetUrl } from "../utils/assetUrl";
 
 export interface CitiesResponse {
   success: boolean;
@@ -179,13 +179,20 @@ const domain = window.location.hostname;
 /**
  * The API returns GPX links as absolute URLs built from the `domain` above, so
  * on localhost it hands back `https://localhost/public/gpx/…`, which nothing
- * serves.
+ * serves. Its own images arrive host-free and need this environment's asset
+ * base prefixed; bahn-zum-berg images arrive absolute and are left as they are.
  */
-const withLocalGpxUrls = (tour: Tour): Tour => ({
+const withLocalAssetUrls = (tour: Tour): Tour => ({
   ...tour,
   gpx_file: publicAssetUrl(tour.gpx_file),
   totour_gpx_file: publicAssetUrl(tour.totour_gpx_file),
   fromtour_gpx_file: publicAssetUrl(tour.fromtour_gpx_file),
+  image_url: apiImageUrl(tour.image_url),
+});
+
+const withLocalRangeImageUrl = (range: RangeObject): RangeObject => ({
+  ...range,
+  image_url: apiImageUrl(range.image_url),
 });
 
 const withLocalConnectionGpxUrl = (connection: Connection): Connection => ({
@@ -219,7 +226,7 @@ export const api = createApi({
         );
       },
       transformResponse: (response: TourResponse) => {
-        return withLocalGpxUrls(response.tour);
+        return withLocalAssetUrls(response.tour);
       },
     }),
     getTours: build.query<ToursResponse, ToursParams>({
@@ -243,7 +250,8 @@ export const api = createApi({
       },
       transformResponse: (response: ToursResponse) => ({
         ...response,
-        tours: response.tours.map(withLocalGpxUrls),
+        tours: response.tours.map(withLocalAssetUrls),
+        ranges: response.ranges?.map(withLocalRangeImageUrl),
       }),
     }),
     getSearchPhrases: build.query<SuggestionsResponse, SearchParams>({

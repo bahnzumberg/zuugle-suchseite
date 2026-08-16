@@ -37,10 +37,32 @@ export function assetUrl(path: string): string {
  * publicAssetUrl("https://localhost/public/gpx/56/61256.gpx")
  * // → "/public/gpx/56/61256.gpx"
  */
+/** Scheme and host of an absolute URL, e.g. the `https://localhost` above. */
+const SCHEME_AND_HOST = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
+
 export function publicAssetUrl(url: string): string {
   if (!url) {
     return url;
   }
-  const path = url.replace(/^[a-z][a-z\d+.-]*:\/\/[^/]*/i, "");
+  const path = url.replace(SCHEME_AND_HOST, "");
   return assetUrl(path.replace(/^\/public(?=\/)/, ""));
+}
+
+/**
+ * Same, for `image_url` — which, unlike the GPX links, is not always ours.
+ * Some come from (`https://cdn.bahn-zum-berg.at/…?width=784&height=523`).
+ * Those keep their host.
+ * Absolute `cdn.zuugle.at` URLs can still reach us from a production dump that
+ * predates the switch. Those are left alone too.
+ *
+ * @example
+ * apiImageUrl("/range-image/dachstein.webp")
+ * // PROD → "https://cdn.zuugle.at/range-image/dachstein.webp"
+ * // UAT/DEV/local → "/public/range-image/dachstein.webp"
+ */
+export function apiImageUrl(url: string): string {
+  if (!url || SCHEME_AND_HOST.test(url)) {
+    return url;
+  }
+  return publicAssetUrl(url);
 }
