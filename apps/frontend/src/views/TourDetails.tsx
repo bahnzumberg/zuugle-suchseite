@@ -291,7 +291,11 @@ export default function DetailReworked() {
   let description = "";
   if (tour) {
     page_title = "Zuugle: " + tour.title + " (" + tour.provider_name + ")";
-    imageUrl = tour?.image_url ?? "";
+    // og:image/twitter:image have to be absolute for social crawlers, and our
+    // own images resolve to a site-relative /public path off production.
+    imageUrl = tour.image_url
+      ? new URL(tour.image_url, window.location.origin).href
+      : "";
     description = tour?.description ?? "";
   }
 
