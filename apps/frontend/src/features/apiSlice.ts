@@ -9,6 +9,7 @@ import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
 import { ConnectionResult } from "../models/Connections";
+import { API_BASE_URL } from "../utils/apiBase";
 
 export interface CitiesResponse {
   success: boolean;
@@ -172,16 +173,11 @@ export interface LicensesResponse {
   licenses: LicenseEntry[];
 }
 
-const baseURL =
-  window.location.host.indexOf("localhost") >= 0
-    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
-    : `${window.location.protocol}//${window.location.host}/api`;
-
 const domain = window.location.hostname;
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: baseURL,
+    baseUrl: API_BASE_URL,
   }),
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({
