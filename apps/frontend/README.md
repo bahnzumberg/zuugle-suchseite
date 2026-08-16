@@ -121,6 +121,16 @@ backend or database — edit an asset there and reload. Anything missing on disk
 falls back to the environment the API data comes from (UAT for `dev:uat`, PROD
 for `dev:main`, nothing for plain `vp dev`).
 
+### Assets that come from the API
+
+The API returns its own assets host-free too — `/gpx/56/61256.gpx`,
+`/range-image/dachstein.webp` — so the same base applies to them.
+`features/apiSlice.ts` is the one place that resolves them, with
+`publicAssetUrl()` for the GPX links (always ours) and `apiImageUrl()` for
+`image_url`, which leaves the absolute provider URLs
+(`cdn.bahn-zum-berg.at`) alone. Components receive ready-to-use URLs; do not
+re-point them again per render.
+
 ## Common issues
 
 - `Error: ENOSPC: System limit for number of file watchers reached`

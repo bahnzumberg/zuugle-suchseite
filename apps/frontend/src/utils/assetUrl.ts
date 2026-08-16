@@ -22,24 +22,25 @@ export function assetUrl(path: string): string {
   return `${__ASSET_BASE__}/${path.replace(/^\/+/, "")}`;
 }
 
+/** Scheme and host of an absolute URL, e.g. the `https://www.zuugle.at` below. */
+const SCHEME_AND_HOST = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
+
 /**
  * Re-points an asset URL that came from the API at this environment.
  *
- * The API builds absolute URLs from the `domain` query parameter the client
- * sends it, so `dev:main` and `dev:uat` — which run on localhost but talk to a
- * deployed API — get back unreachable hosts such as
- * `https://localhost/public/gpx/56/61256.gpx`.
+ * The API hands out its own assets host-free (`/gpx/56/61256.gpx`), so this is
+ * normally just `assetUrl()`. The host-stripping is a fallback for API
+ * responses that predate that switch: those were built from the `domain` query
+ * parameter the client sends, so `dev:main` and `dev:uat` — which run on
+ * localhost but talk to a deployed API — got back hosts nothing local serves.
  *
  * Accepts absolute and relative URLs, with or without the `/public` prefix,
  * and keeps any query string (the CDN's `?width=…` image parameters).
  *
  * @example
- * publicAssetUrl("https://localhost/public/gpx/56/61256.gpx")
+ * publicAssetUrl("https://www.zuugle.at/public/gpx/56/61256.gpx")
  * // → "/public/gpx/56/61256.gpx"
  */
-/** Scheme and host of an absolute URL, e.g. the `https://localhost` above. */
-const SCHEME_AND_HOST = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
-
 export function publicAssetUrl(url: string): string {
   if (!url) {
     return url;
