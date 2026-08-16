@@ -30,6 +30,77 @@ const BACKEND_PUBLIC_DIR = fileURLToPath(
 );
 
 /**
+ * Base URL of the backend `public/` folder, resolved **once** for the whole
+ * build. PROD sets `VITE_ASSET_BASE_URL=https://cdn.zuugle.at`; UAT, DEV and
+ * local leave it unset and serve `/public` from their own API folder.
+ *
+ * The default lives here rather than in `utils/assetUrl.ts` because HTML and
+ * CSS cannot fall back on their own: a token that expanded to the raw, unset
+ * variable would give them an empty prefix (`/fonts/…` at the site root) while
+ * the app code used `/public/fonts/…`, and the font preload would then warm a
+ * URL no `@font-face` ever requests.
+ */
+const ASSET_BASE = (
+  process.env.VITE_ASSET_BASE_URL?.trim() || "/public"
+).replace(/\/+$/, "");
+
+/**
+ * Warm the connection to the CDN — but only when there is one. A relative base
+ * is the site's own origin, which the browser is already connected to.
+ */
+const ASSET_BASE_HINTS = /^https?:\/\//.test(ASSET_BASE)
+  ? [
+      {
+        tag: "link",
+        attrs: { rel: "preconnect", href: ASSET_BASE, crossorigin: true },
+        injectTo: "head-prepend" as const,
+      },
+      {
+        tag: "link",
+        attrs: { rel: "dns-prefetch", href: ASSET_BASE },
+        injectTo: "head-prepend" as const,
+      },
+    ]
+  : [];
+
+/**
+ * Stands in for {@link ASSET_BASE} wherever `import.meta.env` cannot reach:
+ * the `@font-face` `url()`s in `src/App.css` (Vite expands no env in CSS, and
+ * `url()` cannot read a custom property) and the `index-*.html` entry points.
+ * The app code gets the same value from the `__ASSET_BASE__` define below, so
+ * the font preload and the `@font-face` resolve to the identical URL.
+ */
+const ASSET_BASE_TOKEN = "__ASSET_BASE__";
+
+/** Matches a CSS module id, with or without Vite's `?used`-style suffix. */
+const CSS_ID = /\.css(?:$|\?)/;
+
+function assetBaseUrl(): Plugin {
+  return {
+    name: "zuugle:asset-base-url",
+    // Before `vite:css`, which would otherwise try to resolve the unexpanded
+    // `__ASSET_BASE__/fonts/…` as a relative file reference and fail the build.
+    enforce: "pre",
+    transform: {
+      // Matched natively, so the handler is never called for the rest of the
+      // module graph. The `id` half also keeps this off `.ts` sources, where
+      // the same token is a JS identifier that Vite's `define` substitutes —
+      // splicing a bare string in here would corrupt them.
+      filter: { id: CSS_ID, code: ASSET_BASE_TOKEN },
+      handler(code) {
+        return code.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE);
+      },
+    },
+    transformIndexHtml(html) {
+      return {
+        html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
+        tags: ASSET_BASE_HINTS,
+      };
+    },
+  };
+}
+
+/**
  * Serves the backend's `public/` folder under `/public`, the way nginx aliases
  * it on every deployed environment. Reading it from disk rather than proxying
  * a local backend keeps `vp dev` usable with no API and no database, and lets
@@ -62,6 +133,7 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
     svgr(),
+    assetBaseUrl(),
     backendPublicAssets(),
   ],
   server: {
@@ -98,6 +170,7 @@ export default defineConfig({
   },
   define: {
     __BUILD_HASH__: JSON.stringify(Date.now().toString(36)),
+    __ASSET_BASE__: JSON.stringify(ASSET_BASE),
   },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "react"],

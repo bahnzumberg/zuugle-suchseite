@@ -83,9 +83,30 @@ import { assetUrl } from "../utils/assetUrl";
 <img src={assetUrl("/img/zuugle.svg")} />;
 ```
 
+In HTML and CSS, where `import.meta.env` cannot reach, write the literal token
+`__ASSET_BASE__` instead — the `zuugle:asset-base-url` plugin expands it in the
+`index-*.html` entry points and in `src/App.css`:
+
+```css
+src: url("__ASSET_BASE__/fonts/source-sans-3-400.woff2") format("woff2");
+```
+
 Only **PROD** sets the variable, to `https://cdn.zuugle.at` — a BunnyCDN pull
 zone whose origin is prod, so `cdn.zuugle.at/img/x.svg` and
-`www.zuugle.at/public/img/x.svg` serve the same file.
+`www.zuugle.at/public/img/x.svg` serve the same file. That build also gets a
+`preconnect`/`dns-prefetch` hint for the CDN, injected by the same plugin;
+a relative base is the site's own origin and needs none.
+
+`vite.config.ts` applies the `/public` default **once**, before handing the
+value to the app (via the `__ASSET_BASE__` define), the HTML and the CSS. Do not
+re-apply it per call site: the font preload in `index.html` and the `@font-face`
+in `App.css` have to resolve to the byte-identical URL or the preload is wasted.
+
+Two exceptions stay absolute on every environment. `og:image`/`twitter:image`
+must be absolute for social crawlers, so they use the file's own canonical host
+(`https://www.zuugle.de/public/img/…` in `index-de.html`). `public/site.webmanifest`
+is copied verbatim by Vite and never transformed, so its icons are site-relative
+`/public/…`.
 
 UAT, DEV and local builds leave it unset and fall back to the relative
 `/public` prefix, which nginx serves from that environment's own API folder.
