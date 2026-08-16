@@ -61,6 +61,20 @@ export function connectionGpxPath(direction: "totour" | "fromtour", trackKey: st
  */
 export const PUBLIC_DIR = path.join(__dirname, isProd ? ".." : "../..", "public");
 
+/**
+ * Port this API listens on. UAT and DEV share one host and both run with
+ * `NODE_ENV=production`, so the folder decides: DEV is deployed to `dev-api/`,
+ * UAT and PROD to `api/`.
+ */
+function apiPort() {
+    if (!isProd) {
+        return 8080;
+    }
+    return __dirname.includes("/dev-api") ? 7070 : 6060;
+}
+
+export const API_PORT = apiPort();
+
 /** Absolute form written before image paths became relative. */
 const LEGACY_CDN_URL = /^https?:\/\/cdn\.zuugle\.at\//i;
 

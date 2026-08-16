@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { API_PORT, PUBLIC_DIR } from "./utils/assetPaths";
 import tours from "./routes/tours";
 import cities from "./routes/cities";
 import { cityRouter, cities2tourRouter } from "./routes/cities";
@@ -17,17 +18,8 @@ import logger from "./utils/logger";
 process.env.TZ = "Europe/Berlin";
 
 /* start api */
-let port = 8080;
 logger.info("__dirname=", __dirname);
 logger.info("process.env.NODE_ENV=", process.env.NODE_ENV);
-
-if (process.env.NODE_ENV === "production") {
-    if (__dirname.includes("/dev-api")) {
-        port = 7070;
-    } else {
-        port = 6060;
-    }
-}
 
 let corsOptions = getZuugleCors();
 
@@ -51,12 +43,12 @@ app.use((req, res, next) => {
 app.use(
     "/public/icons/provider",
     cors(corsOptions),
-    express.static(path.join(__dirname, "public/icons/provider"), {
+    express.static(path.join(PUBLIC_DIR, "icons/provider"), {
         maxAge: "365d",
         immutable: true,
     }),
 );
-app.use("/public", cors(corsOptions), express.static(path.join(__dirname, "public")));
+app.use("/public", cors(corsOptions), express.static(PUBLIC_DIR));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
@@ -70,4 +62,4 @@ app.use("/api/licenses", cors(corsOptions), licenses);
 app.use("/api/lists", cors(corsOptions), hostMiddleware, lists);
 swaggerDocs(app);
 
-app.listen(port, () => logger.info("Running on localhost:" + port));
+app.listen(API_PORT, () => logger.info("Running on localhost:" + API_PORT));
