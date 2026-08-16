@@ -75,6 +75,15 @@ function apiPort() {
 
 export const API_PORT = apiPort();
 
+/**
+ * Where this environment serves `PUBLIC_DIR` over HTTP — for the jobs that have
+ * to *fetch* an asset rather than link to one (the headless-leaflet renderer in
+ * `utils/gpx/gpxUtils.js`). Going to express directly rather than through the
+ * public hostname keeps every environment on its own assets and skips the basic
+ * auth nginx puts in front of UAT and DEV.
+ */
+export const API_ORIGIN = `http://localhost:${API_PORT}`;
+
 /** Absolute form written before image paths became relative. */
 const LEGACY_CDN_URL = /^https?:\/\/cdn\.zuugle\.at\//i;
 

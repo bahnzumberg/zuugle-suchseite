@@ -6,7 +6,14 @@ import convertXML from "xml-js";
 import { create } from "xmlbuilder2";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
-import { PLACEHOLDER_IMAGE_PATH, gpxImagePath, rangeImagePath } from "../assetPaths";
+import {
+    API_ORIGIN,
+    PLACEHOLDER_IMAGE_PATH,
+    PUBLIC_DIR,
+    gpxImagePath,
+    rangeImagePath,
+    tourGpxPath,
+} from "../assetPaths";
 import crypto from "crypto";
 import logger from "../logger";
 
@@ -119,9 +126,6 @@ const minimal_args = [
 const queueDbUpdate = (tourId, imageUrl, force = false) => {
     if (!tourId || !imageUrl || imageUrl.length === 0) return;
 
-    // Stored verbatim — see utils/assetPaths.ts. Prefixing a host here (as this
-    // used to do with getHost() outside production) would bake the writing
-    // environment into the row and follow the dump into every other one.
     updateQueue.push({ tourId, imageUrl, force });
 
     // Automatisch flushen wenn BATCH_SIZE erreicht
@@ -258,10 +262,10 @@ const handleImagePlaceholder = async (tourId) => {
 
 // Neue Hilfsfunktion für die Bildgenerierung
 // Returns: 'success' | 'error_image' | 'failed'
-const processAndCreateImage = async (tourId, lastTwoChars, browser, dir_go_up, url) => {
-    let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
+const processAndCreateImage = async (tourId, browser, url) => {
+    let filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourId));
+    let dirPath = path.dirname(filePathSmallWebp);
     let filePath = path.join(dirPath, tourId + "_gpx.png");
-    let filePathSmallWebp = path.join(dirPath, tourId + "_gpx_small.webp");
     const MAX_GENERATION_TIME = 300000;
 
     try {
@@ -272,7 +276,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, dir_go_up, u
         const generationPromise = createImageFromMap(
             browser,
             filePath,
-            url + lastTwoChars + "/" + tourId + ".gpx",
+            url + tourGpxPath(tourId),
             100,
         );
         const timeoutPromise = new Promise((resolve, reject) => {
@@ -321,7 +325,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, dir_go_up, u
                     return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
                     logger.debug("Gpx image small file created:", filePathSmallWebp);
-                    dispatchDbUpdate(tourId, gpxImagePath(tourId, lastTwoChars), true);
+                    dispatchDbUpdate(tourId, gpxImagePath(tourId), true);
                     return "success";
                 }
             } else {
@@ -355,16 +359,8 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, dir_go_up, u
  * @returns {Promise<string|null>} Path to created file, or null on failure
  */
 export const regenerateGpxFile = async (id, hashedUrl, title) => {
-    let dir_go_up = "";
-    if (process.env.NODE_ENV == "production") {
-        dir_go_up = "../../";
-    } else {
-        dir_go_up = "../../../";
-    }
-
-    const lastTwoChars = last_two_characters(id);
-    const dirPath = path.join(__dirname, dir_go_up, "public/gpx/", lastTwoChars, "/");
-    const filePathName = path.join(dirPath, id + ".gpx");
+    const filePathName = path.join(PUBLIC_DIR, tourGpxPath(id));
+    const dirPath = path.dirname(filePathName);
 
     try {
         if (!fs.existsSync(dirPath)) {
@@ -471,7 +467,7 @@ export const regenerateGpxFile = async (id, hashedUrl, title) => {
 };
 
 // Überprüfung und Neuerstellung alter Bilder (inkl. zugehöriger GPX-Dateien)
-const cleanAndRecreateOldImages = async (dir_go_up) => {
+const cleanAndRecreateOldImages = async () => {
     let idsToRecreate = [];
     const allToursWithImages = await knex.raw(
         `SELECT id, hashed_url, title FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
@@ -480,14 +476,7 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
 
     for (const row of allToursWithImages.rows) {
         const id = row.id;
-        const lastTwoChars = last_two_characters(id);
-        const filePath = path.join(
-            __dirname,
-            dir_go_up,
-            "public/gpx-image/",
-            lastTwoChars,
-            id + "_gpx_small.webp",
-        );
+        const filePath = path.join(PUBLIC_DIR, gpxImagePath(id));
 
         try {
             const stats = await fs.promises.stat(filePath);
@@ -500,13 +489,7 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
 
                 // Zugehöriges GPX-File löschen und frisch aus der DB regenerieren,
                 // damit das neue Image auf aktuellen Daten basiert
-                const gpxFilePath = path.join(
-                    __dirname,
-                    dir_go_up,
-                    "public/gpx/",
-                    lastTwoChars,
-                    id + ".gpx",
-                );
+                const gpxFilePath = path.join(PUBLIC_DIR, tourGpxPath(id));
                 try {
                     await fs.promises.unlink(gpxFilePath);
                     logger.info(`Deleted GPX file for tour ID ${id}.`);
@@ -540,12 +523,12 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
 };
 
 export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
-    let addParam = {};
-    let url = "";
     const isProd = process.env.NODE_ENV == "production";
 
-    // We need to distingiush between local development and production (like) server environment
-    const dir_go_up = isProd ? "../../" : "../../../";
+    // Every environment renders its own map from its own tracks: UAT and DEV run
+    // with NODE_ENV=production too, so a "prod" host here made both of them
+    // screenshot www.zuugle.at. See utils/assetPaths.ts.
+    const url = `${API_ORIGIN}/public/headless-leaflet/index.html?gpx=${API_ORIGIN}/public`;
 
     // Initialize error image hashes (London, 502, white, etc.)
     await initErrorImageHashes();
@@ -553,16 +536,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     if (ids) {
         let browser;
         try {
-            if (isProd) {
-                url =
-                    // TODO: shouldn't that depend on the current environment? I.e. dev/uat/prod?
-                    "https://www.zuugle.at/public/headless-leaflet/index.html?gpx=https://www.zuugle.at/public/gpx/";
-                // Puppeteer v24+ automatically manages Chrome downloads, no need to specify executablePath
-            } else {
-                url =
-                    "http://localhost:8080/public/headless-leaflet/index.html?gpx=http://localhost:8080/public/gpx/";
-            }
-
+            // Puppeteer v24+ automatically manages Chrome downloads, no need to
+            // specify executablePath.
             browser = await puppeteer.launch({
                 args: [
                     "--no-sandbox",
@@ -572,7 +547,6 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 ],
                 protocolTimeout: 240000,
                 defaultViewport: { width: 1200, height: 800 },
-                ...addParam,
             });
 
             const idsForUpdate = [];
@@ -581,13 +555,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
             // Dispatcher-Phase: Asynchrone Aufteilung der IDs
             logger.info(`Starting dispatcher to classify ${ids.length} IDs...`);
             const classificationPromises = ids.map(async (tourID) => {
-                let lastTwoChars = last_two_characters(tourID);
-                let dirPath = path.join(
-                    __dirname,
-                    dir_go_up,
-                    "public/gpx-image/" + lastTwoChars + "/",
-                );
-                let filePathSmallWebp = path.join(dirPath, tourID + "_gpx_small.webp");
+                let filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourID));
                 try {
                     await fs.promises.stat(filePathSmallWebp);
                     idsForUpdate.push(tourID);
@@ -611,8 +579,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 // Prozess 1: Datenbank-Updates parallel abarbeiten
                 (async () => {
                     for (const tourID of idsForUpdate) {
-                        let lastTwoChars = last_two_characters(tourID);
-                        dispatchDbUpdate(tourID, gpxImagePath(tourID, lastTwoChars), false);
+                        dispatchDbUpdate(tourID, gpxImagePath(tourID), false);
                     }
                     // Flush alle gepufferten Updates
                     await flushAllPendingUpdates();
@@ -666,14 +633,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         const jitter = Math.floor(Math.random() * 1000);
                         await new Promise((resolve) => setTimeout(resolve, jitter));
 
-                        let lastTwoChars = last_two_characters(tourID);
-                        const result = await processAndCreateImage(
-                            tourID,
-                            lastTwoChars,
-                            browser,
-                            dir_go_up,
-                            url,
-                        );
+                        const result = await processAndCreateImage(tourID, browser, url);
 
                         if (result === "error_image") {
                             errorImageTours.push(tourID);
@@ -712,14 +672,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                             const jitter = Math.floor(Math.random() * 1000);
                             await new Promise((resolve) => setTimeout(resolve, jitter));
 
-                            let lastTwoChars = last_two_characters(tourID);
-                            const result = await processAndCreateImage(
-                                tourID,
-                                lastTwoChars,
-                                browser,
-                                dir_go_up,
-                                url,
-                            );
+                            const result = await processAndCreateImage(tourID, browser, url);
 
                             // If still error_image after retry, set placeholder
                             if (result === "error_image") {
@@ -759,7 +712,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
         if (currentHour < 23) {
             logger.info(`Starting final check for old images...`);
-            await cleanAndRecreateOldImages(dir_go_up);
+            await cleanAndRecreateOldImages();
             logger.info(`Final image check and recreation finished.`);
         } else {
             logger.info("Skipping cleanAndRecreateOldImages due to time limit (23:00+).");
@@ -793,22 +746,6 @@ export const createImageFromMap = async (browser, filePath, url) => {
         logger.error("Error message:", err.message);
     }
 };
-
-export function last_two_characters(original) {
-    if (original) {
-        const new_string = "" + original;
-
-        if (new_string.length >= 2) {
-            return new_string.substring(new_string.length - 2).toString();
-        } else if (new_string.length == 1) {
-            return "0" + new_string;
-        } else {
-            return "00";
-        }
-    } else {
-        return "00";
-    }
-}
 
 export const mergeGpxFilesToOne = async (fileMain, fileAnreise, fileAbreise) => {
     let trackAnreise = await getSequenceFromFile(fileAnreise);
