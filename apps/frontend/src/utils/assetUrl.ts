@@ -66,3 +66,30 @@ export function apiImageUrl(url: string): string {
   }
   return publicAssetUrl(url);
 }
+
+/** The size parameters `sizedImageUrl()` replaces. */
+const SIZE_PARAM = /^(width|height)=/i;
+
+/**
+ * Asks for an image at a given size, replacing any size the URL already carries.
+ *
+ * Only PROD actually resizes: its asset base is the BunnyCDN pull zone, whose
+ * on-the-fly optimizer reads these parameters.
+ *
+ * @example
+ * sizedImageUrl("/public/range-image/dachstein.webp", { width: 600, height: 400 })
+ * // → "/public/range-image/dachstein.webp?width=600&height=400"
+ */
+export function sizedImageUrl(
+  url: string,
+  { width, height }: { width: number; height: number },
+): string {
+  const [path, query] = url.split("?");
+  // Kept verbatim rather than run through URLSearchParams, which would re-encode
+  // them — the provider images carry an `aspect_ratio=500:570` that has always
+  // reached their CDN with the colon intact.
+  const otherParams = (query ?? "")
+    .split("&")
+    .filter((param) => param && !SIZE_PARAM.test(param));
+  return `${path}?${[...otherParams, `width=${width}`, `height=${height}`].join("&")}`;
+}
