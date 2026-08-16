@@ -3,26 +3,17 @@ import Box from "@mui/material/Box";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { RangeObject } from "../features/apiSlice";
 import Paper from "@mui/material/Paper";
-import { parseFileName } from "../utils/globals";
 
 export interface RangeCardProps {
   range: RangeObject;
 }
 
 export default function RangeCard({ range }: RangeCardProps) {
-  let imageUrl = range.image_url;
-  if (imageUrl && imageUrl.includes("null.webp") && range.range) {
-    imageUrl = imageUrl.replace(
-      "null.webp",
-      parseFileName(range.range, "", ".webp"),
-    );
-  }
-
   return (
     <Paper
       sx={{
         height: "228px",
-        backgroundImage: `url('${imageUrl}')`,
+        backgroundImage: `url('${range.image_url}')`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         position: "relative",
