@@ -93,3 +93,19 @@ export function sizedImageUrl(
     .filter((param) => param && !SIZE_PARAM.test(param));
   return `${path}?${[...otherParams, `width=${width}`, `height=${height}`].join("&")}`;
 }
+
+/**
+ * Makes an already re-pointed asset URL absolute, for the consumers that cannot
+ * use a site-relative one — `og:image`/`twitter:image`, which social crawlers
+ * fetch out of any page context.
+ *
+ * On PROD `__ASSET_BASE__` is the CDN, so our own images are absolute already
+ * and this is a no-op; on UAT, DEV and local it resolves the `/public` base
+ * against the page.
+ */
+export function absoluteAssetUrl(url: string): string {
+  if (!url) {
+    return url;
+  }
+  return new URL(url, window.location.origin).href;
+}
