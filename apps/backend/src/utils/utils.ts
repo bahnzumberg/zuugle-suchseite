@@ -24,19 +24,6 @@ export function isNumber(value: unknown) {
     return typeof value === "number";
 }
 
-/**
- * Hosts this API may build absolute URLs for: the seven PROD domains plus the
- * UAT and DEV front ends.
- */
-const KNOWN_HOSTS = /^(www|www2|dev)\.zuugle\.(at|ch|de|fr|it|li|si)$/;
-
-export function getHost(origin: string) {
-    if (process.env.NODE_ENV !== "production") {
-        return "http://localhost:8080";
-    }
-    return KNOWN_HOSTS.test(origin) ? `https://${origin}` : "https://www.zuugle.at";
-}
-
 export const replaceFilePath = (filePath: string) => {
     if (!filePath) {
         return filePath;

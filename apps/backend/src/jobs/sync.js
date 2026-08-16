@@ -1,8 +1,13 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
-import { createImagesFromMap, last_two_characters, regenerateGpxFile } from "../utils/gpx/gpxUtils";
-import { GPX_IMAGE_PREFIX, PLACEHOLDER_IMAGE_PATH, isOwnAssetPath } from "../utils/assetPaths";
+import { createImagesFromMap, regenerateGpxFile } from "../utils/gpx/gpxUtils";
+import {
+    GPX_IMAGE_PREFIX,
+    PLACEHOLDER_IMAGE_PATH,
+    isOwnAssetPath,
+    last_two_characters,
+} from "../utils/assetPaths";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
