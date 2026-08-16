@@ -93,7 +93,9 @@ src: url("__ASSET_BASE__/fonts/source-sans-3-400.woff2") format("woff2");
 
 Only **PROD** sets the variable, to `https://cdn.zuugle.at` — a BunnyCDN pull
 zone whose origin is prod, so `cdn.zuugle.at/img/x.svg` and
-`www.zuugle.at/public/img/x.svg` serve the same file. That build also gets a
+`www.zuugle.at/public/img/x.svg` serve the same file. The value comes from the
+`asset_base_url` input of `.github/workflows/_deploy.yml`, which each
+`deploy2*.yml` sets for its environment. That build also gets a
 `preconnect`/`dns-prefetch` hint for the CDN, injected by the same plugin;
 a relative base is the site's own origin and needs none.
 
