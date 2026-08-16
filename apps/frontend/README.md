@@ -92,6 +92,12 @@ UAT, DEV and local builds leave it unset and fall back to the relative
 That way no environment loads its assets from production, and asset changes can
 be reviewed on DEV before they are released.
 
+In dev there is no nginx, so `vite.config.ts` covers the prefix itself: it
+serves `apps/backend/public` from disk, in every dev mode, without a running
+backend or database — edit an asset there and reload. Anything missing on disk
+falls back to the environment the API data comes from (UAT for `dev:uat`, PROD
+for `dev:main`, nothing for plain `vp dev`).
+
 ## Common issues
 
 - `Error: ENOSPC: System limit for number of file watchers reached`

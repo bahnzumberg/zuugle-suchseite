@@ -76,6 +76,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "babel-plugin-react-compiler": "^1.0.0",
+    "sirv": "^3.0.2",
     "typescript": "^6.0.3",
     "vite-plugin-svgr": "^5.2.0",
     "vite-plus": "^0.2.2"

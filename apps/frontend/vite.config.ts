@@ -1,7 +1,59 @@
+import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
+import sirv from "sirv";
 import svgr from "vite-plugin-svgr";
-import { defineConfig } from "vite-plus";
+import { defineConfig, type Plugin } from "vite-plus";
+
+const uatTarget = process.env.UAT_TARGET;
+
+/** UAT is behind basic auth; PROD is public, and sets no `UAT_AUTH`. */
+const authHeaders = process.env.UAT_AUTH
+  ? {
+      Authorization: `Basic ${Buffer.from(process.env.UAT_AUTH).toString("base64")}`,
+    }
+  : undefined;
+
+/**
+ * Where a `/public` request falls back to when the file is not on disk.
+ * `dev:uat` asks UAT; `dev:main` asks the host it already reads its API data
+ * from (PROD); plain `vp dev` has no remote to ask and stays disk-only.
+ */
+const remoteAssetTarget =
+  uatTarget ??
+  (process.env.VITE_API_URL?.startsWith("http")
+    ? new URL(process.env.VITE_API_URL).origin
+    : undefined);
+
+const BACKEND_PUBLIC_DIR = fileURLToPath(
+  new URL("../backend/public", import.meta.url),
+);
+
+/**
+ * Serves the backend's `public/` folder under `/public`, the way nginx aliases
+ * it on every deployed environment. Reading it from disk rather than proxying
+ * a local backend keeps `vp dev` usable with no API and no database, and lets
+ * an asset be edited and reloaded in place.
+ *
+ * Registered before Vite's proxy, so a local file always wins and only what is
+ * missing on disk is fetched from the remote — the generated trees
+ * (`gpx-image/`, `gpx-track/`, `gpx/`, `range-image/` slugs newer than the last
+ * pull) are gitignored and exist only on a deployed environment.
+ */
+function backendPublicAssets(): Plugin {
+  return {
+    name: "zuugle:backend-public-assets",
+    apply: "serve",
+    configureServer(server) {
+      // `dev` re-reads the folder per request, so a newly added asset is picked
+      // up without a restart; sirv calls next() when it finds no file.
+      server.middlewares.use(
+        "/public",
+        sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
+      );
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
@@ -10,21 +62,24 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
     svgr(),
+    backendPublicAssets(),
   ],
   server: {
     port: 3000,
     open: true,
-    proxy: process.env.UAT_TARGET
-      ? {
-          "/api": {
-            target: process.env.UAT_TARGET,
-            changeOrigin: true,
-            headers: {
-              Authorization: `Basic ${Buffer.from(process.env.UAT_AUTH ?? "").toString("base64")}`,
-            },
-          },
-        }
-      : undefined,
+    proxy: {
+      ...(uatTarget && {
+        "/api": { target: uatTarget, changeOrigin: true, headers: authHeaders },
+      }),
+      // Fallback for the assets that exist only on a deployed environment.
+      ...(remoteAssetTarget && {
+        "/public": {
+          target: remoteAssetTarget,
+          changeOrigin: true,
+          headers: authHeaders,
+        },
+      }),
+    },
   },
   build: {
     outDir: "build",
