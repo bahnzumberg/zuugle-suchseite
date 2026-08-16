@@ -8,6 +8,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { assetUrl } from "../utils/assetUrl";
 
 export interface InteractiveMapProps {
   gpxPositions: L.LatLngExpression[];
@@ -30,17 +31,17 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const startIcon = L.icon({
-    iconUrl: "https://cdn.zuugle.at/img/startpunkt.svg",
+    iconUrl: assetUrl("/img/startpunkt.svg"),
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
   const endIcon = L.icon({
-    iconUrl: "https://cdn.zuugle.at/img/zielpunkt.svg",
+    iconUrl: assetUrl("/img/zielpunkt.svg"),
     iconSize: [33, 45],
     iconAnchor: [16, 46],
   });
   const stopIcon = L.icon({
-    iconUrl: "https://cdn.zuugle.at/img/stopsign.png",
+    iconUrl: assetUrl("/img/stopsign.png"),
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });

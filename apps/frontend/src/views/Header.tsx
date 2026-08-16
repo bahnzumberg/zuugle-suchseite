@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { getDomainText } from "../utils/globals";
+import { assetUrl } from "../utils/assetUrl";
 
 export interface HeaderProps {
   title: string;
@@ -44,7 +45,7 @@ export default function Header({
           sx={{ display: "flex", alignItems: "center", marginBottom: "16px" }}
         >
           <img
-            src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
+            src={assetUrl("/img/zuugle_weiss.svg")}
             height={"16px"}
             width={"29px"}
             alt="Zuugle Logo"

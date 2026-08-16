@@ -8,6 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { usePageHeader } from "../utils/seoPageHelper";
 import { useGetLicensesQuery, LicenseEntry } from "../features/apiSlice";
+import { assetUrl } from "../utils/assetUrl";
 
 /** Group license entries by country_name, both levels sorted alphabetically. */
 function groupByCountry(
@@ -153,7 +154,7 @@ function Imprint() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
+                  src={assetUrl("/img/BMLUK_Logo_Foerderung.svg")}
                   style={{
                     maxWidth: "100%",
                     height: "auto",
@@ -174,7 +175,7 @@ function Imprint() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
+                  src={assetUrl("/img/Alpenkonvention_logo_gruen.webp")}
                   style={{
                     maxWidth: "100%",
                     height: "auto",
@@ -195,7 +196,7 @@ function Imprint() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/Logo_Zuugle_Services_GmbH.svg"
+                  src={assetUrl("/img/Logo_Zuugle_Services_GmbH.svg")}
                   style={{
                     maxWidth: "100%",
                     height: "auto",

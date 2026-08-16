@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useTranslation } from "react-i18next";
 import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
+import { assetUrl } from "../../utils/assetUrl";
 
 // All production domains
 const PROD_DOMAINS = [
@@ -158,7 +159,7 @@ function DomainMenu() {
         onClick={() => setShowDomainMenu(true)}
       >
         <img
-          src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
+          src={assetUrl("/img/zuugle_weiss.svg")}
           height={"19px"}
           width={"34px"}
           alt="Logo Zuugle"
@@ -196,7 +197,7 @@ function DomainMenu() {
                 >
                   <img
                     className="pointy"
-                    src={`https://cdn.zuugle.at/img/zuugle.svg`}
+                    src={assetUrl("/img/zuugle.svg")}
                     height={"19px"}
                     width={"auto"}
                     alt="Logo Zuugle"

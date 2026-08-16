@@ -7,6 +7,7 @@ import App from "./App";
 import i18n from "./translations/i18n";
 import { I18nextProvider } from "react-i18next";
 import { getTLD, isMobileDevice } from "./utils/globals";
+import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import { api, isValidSearchType } from "./features/apiSlice";
@@ -124,22 +125,19 @@ if (!rootElement) {
               <link
                 rel="icon"
                 type="image/png"
-                href="https://cdn.zuugle.at/favicon-96x96.png"
+                href={assetUrl("/favicon-96x96.png")}
                 sizes="96x96"
               />
               <link
                 rel="icon"
                 type="image/svg+xml"
-                href="https://cdn.zuugle.at/favicon.svg"
+                href={assetUrl("/favicon.svg")}
               />
-              <link
-                rel="shortcut icon"
-                href="https://cdn.zuugle.at/favicon.ico"
-              />
+              <link rel="shortcut icon" href={assetUrl("/favicon.ico")} />
               <link
                 rel="apple-touch-icon"
                 sizes="180x180"
-                href="https://cdn.zuugle.at/apple-touch-icon.png"
+                href={assetUrl("/apple-touch-icon.png")}
               />
               <link rel="manifest" href="/site.webmanifest" />
               {shouldPreload && (

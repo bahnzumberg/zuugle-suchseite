@@ -13,8 +13,9 @@ import Chip from "@mui/material/Chip";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import { useSelector } from "react-redux";
 import { RootState } from "..";
+import { assetUrl } from "../utils/assetUrl";
 
-const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
+const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 
 export interface TourCardProps {
   tour: Tour;
@@ -33,7 +34,7 @@ export default function TourCard({ tour, city }: TourCardProps) {
 
   useEffect(() => {
     if (JSON.stringify(tour.image_url) === "null") {
-      setImage("https://cdn.zuugle.at/img/dummy.webp");
+      setImage(DEFAULT_IMAGE);
     } else {
       // Normalize CDN dimensions to 400x150 for consistent tile images
       let url = tour.image_url;
