@@ -4,6 +4,7 @@ import knex from "../knex";
 import cacheService from "../services/cache.js";
 import crypto from "crypto";
 import { last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
+import { PLACEHOLDER_IMAGE_PATH, rangeImagePath } from "../utils/assetPaths";
 import moment from "moment";
 import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
@@ -1250,7 +1251,6 @@ const listWrapper = async (req, res) => {
             const range_sql = `SELECT
                                 t.range_slug,
                                 t.range,
-                                CONCAT('https://cdn.zuugle.at/range-image/', t.range_slug, '.webp') as image_url,
                                 SUM(1.0/(t.min_connection_no_of_transfers+1)) AS attract
                                 FROM city2tour_flat AS t
                                 INNER JOIN tour AS tour ON tour.id=t.id
@@ -1260,7 +1260,7 @@ const listWrapper = async (req, res) => {
                                 AND t.range_slug IS NOT NULL
                                 AND t.range_slug <> 'null'
                                 AND t.range IS NOT NULL
-                                GROUP BY 1, 2, 3
+                                GROUP BY 1, 2
                                 ORDER BY SUM(1.0/(t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
                                 LIMIT 10`;
 
@@ -1268,7 +1268,10 @@ const listWrapper = async (req, res) => {
             // logger.info("range_sql: ", range_sql)
 
             if (!!range_result && !!range_result.rows) {
-                ranges = range_result.rows;
+                ranges = range_result.rows.map((row) => ({
+                    ...row,
+                    image_url: rangeImagePath(row.range_slug),
+                }));
             }
             cacheService.set(cachedKeyRanges, ranges);
         }
@@ -2015,7 +2018,7 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 
     if (!entry.image_url || entry.image_url.length < 5) {
-        entry.image_url = "https://cdn.zuugle.at/img/train_placeholder.webp";
+        entry.image_url = PLACEHOLDER_IMAGE_PATH;
     }
 
     const host = getHost(domain);

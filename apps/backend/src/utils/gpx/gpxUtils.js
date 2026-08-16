@@ -6,7 +6,7 @@ import convertXML from "xml-js";
 import { create } from "xmlbuilder2";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
-import { getHost } from "../utils";
+import { PLACEHOLDER_IMAGE_PATH, gpxImagePath, rangeImagePath } from "../assetPaths";
 import crypto from "crypto";
 import logger from "../logger";
 
@@ -119,15 +119,10 @@ const minimal_args = [
 const queueDbUpdate = (tourId, imageUrl, force = false) => {
     if (!tourId || !imageUrl || imageUrl.length === 0) return;
 
-    // URL normalisieren für lokale Entwicklung
-    let normalizedUrl = imageUrl;
-    if (imageUrl.substring(0, 4) !== "http") {
-        if (process.env.NODE_ENV !== "production") {
-            normalizedUrl = getHost("") + imageUrl;
-        }
-    }
-
-    updateQueue.push({ tourId, imageUrl: normalizedUrl, force });
+    // Stored verbatim — see utils/assetPaths.ts. Prefixing a host here (as this
+    // used to do with getHost() outside production) would bake the writing
+    // environment into the row and follow the dump into every other one.
+    updateQueue.push({ tourId, imageUrl, force });
 
     // Automatisch flushen wenn BATCH_SIZE erreicht
     if (updateQueue.length >= BATCH_SIZE) {
@@ -243,44 +238,27 @@ const dispatchDbUpdate = (tourId, imageUrl, force) => {
 };
 
 // Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
-const handleImagePlaceholder = async (tourId, useCDN) => {
+const handleImagePlaceholder = async (tourId) => {
     try {
         const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`);
         const rangeSlug = result.rows && result.rows.length > 0 ? result.rows[0].range_slug : null;
 
         if (rangeSlug) {
-            const imageUrl = `/public/range-image/${rangeSlug}.webp`;
             logger.info(`Found range_slug "${rangeSlug}", setting specific image URL.`);
-            await dispatchDbUpdate(
-                tourId,
-                useCDN ? `https://cdn.zuugle.at/range-image/${rangeSlug}.webp` : imageUrl,
-                true,
-            );
+            await dispatchDbUpdate(tourId, rangeImagePath(rangeSlug), true);
         } else {
             logger.info("No range_slug found, setting generic placeholder.");
-            await dispatchDbUpdate(
-                tourId,
-                useCDN
-                    ? "https://cdn.zuugle.at/img/train_placeholder.webp"
-                    : "/app_static/img/train_placeholder.webp",
-                true,
-            );
+            await dispatchDbUpdate(tourId, PLACEHOLDER_IMAGE_PATH, true);
         }
     } catch (e) {
         logger.error("Error in handleImagePlaceholder:", e);
-        await dispatchDbUpdate(
-            tourId,
-            useCDN
-                ? "https://cdn.zuugle.at/img/train_placeholder.webp"
-                : "/app_static/img/train_placeholder.webp",
-            true,
-        );
+        await dispatchDbUpdate(tourId, PLACEHOLDER_IMAGE_PATH, true);
     }
 };
 
 // Neue Hilfsfunktion für die Bildgenerierung
 // Returns: 'success' | 'error_image' | 'failed'
-const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_go_up, url) => {
+const processAndCreateImage = async (tourId, lastTwoChars, browser, dir_go_up, url) => {
     let dirPath = path.join(__dirname, dir_go_up, "public/gpx-image/" + lastTwoChars + "/");
     let filePath = path.join(dirPath, tourId + "_gpx.png");
     let filePathSmallWebp = path.join(dirPath, tourId + "_gpx_small.webp");
@@ -343,33 +321,17 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
                     return "error_image"; // Don't set placeholder yet - allow retry
                 } else {
                     logger.debug("Gpx image small file created:", filePathSmallWebp);
-                    if (useCDN) {
-                        dispatchDbUpdate(
-                            tourId,
-                            "https://cdn.zuugle.at/gpx-image/" +
-                                lastTwoChars +
-                                "/" +
-                                tourId +
-                                "_gpx_small.webp",
-                            true,
-                        );
-                    } else {
-                        dispatchDbUpdate(
-                            tourId,
-                            "/public/gpx-image/" + lastTwoChars + "/" + tourId + "_gpx_small.webp",
-                            true,
-                        );
-                    }
+                    dispatchDbUpdate(tourId, gpxImagePath(tourId, lastTwoChars), true);
                     return "success";
                 }
             } else {
                 logger.warn("NO gpx image small file created for tour", tourId);
-                await handleImagePlaceholder(tourId, useCDN);
+                await handleImagePlaceholder(tourId);
                 return "failed";
             }
         } else {
             logger.warn("NO image file created:", filePath);
-            await handleImagePlaceholder(tourId, useCDN);
+            await handleImagePlaceholder(tourId);
             return "failed";
         }
     } catch (e) {
@@ -379,7 +341,7 @@ const processAndCreateImage = async (tourId, lastTwoChars, browser, useCDN, dir_
             logger.error(`Error in processAndCreateImage for ID ${tourId}:`, e);
         }
 
-        await handleImagePlaceholder(tourId, useCDN);
+        await handleImagePlaceholder(tourId);
         return "failed";
     }
 };
@@ -580,23 +542,10 @@ const cleanAndRecreateOldImages = async (dir_go_up) => {
 export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     let addParam = {};
     let url = "";
-    let isProd = false;
-    if (process.env.NODE_ENV == "production") {
-        isProd = true;
-    }
-
-    // useCDN is true only if: isProd=true AND (USE_CDN is not set OR USE_CDN="true")
-    // useCDN is false if: isProd=false OR USE_CDN="false"
-    const useCDN = isProd && process.env.USE_CDN !== "false";
-    logger.info("USE_CDN:", useCDN);
+    const isProd = process.env.NODE_ENV == "production";
 
     // We need to distingiush between local development and production (like) server environment
-    let dir_go_up = "";
-    if (process.env.NODE_ENV == "production") {
-        dir_go_up = "../../";
-    } else {
-        dir_go_up = "../../../";
-    }
+    const dir_go_up = isProd ? "../../" : "../../../";
 
     // Initialize error image hashes (London, 502, white, etc.)
     await initErrorImageHashes();
@@ -663,27 +612,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 (async () => {
                     for (const tourID of idsForUpdate) {
                         let lastTwoChars = last_two_characters(tourID);
-                        if (useCDN) {
-                            dispatchDbUpdate(
-                                tourID,
-                                "https://cdn.zuugle.at/gpx-image/" +
-                                    lastTwoChars +
-                                    "/" +
-                                    tourID +
-                                    "_gpx_small.webp",
-                                false,
-                            );
-                        } else {
-                            dispatchDbUpdate(
-                                tourID,
-                                "/public/gpx-image/" +
-                                    lastTwoChars +
-                                    "/" +
-                                    tourID +
-                                    "_gpx_small.webp",
-                                false,
-                            );
-                        }
+                        dispatchDbUpdate(tourID, gpxImagePath(tourID, lastTwoChars), false);
                     }
                     // Flush alle gepufferten Updates
                     await flushAllPendingUpdates();
@@ -742,7 +671,6 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                             tourID,
                             lastTwoChars,
                             browser,
-                            useCDN,
                             dir_go_up,
                             url,
                         );
@@ -789,7 +717,6 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                                 tourID,
                                 lastTwoChars,
                                 browser,
-                                useCDN,
                                 dir_go_up,
                                 url,
                             );
@@ -799,7 +726,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                                 logger.info(
                                     `Tour ${tourID} still failed after retry - setting placeholder.`,
                                 );
-                                await handleImagePlaceholder(tourID, useCDN);
+                                await handleImagePlaceholder(tourID);
                             }
                         });
 
