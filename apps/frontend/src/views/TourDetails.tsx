@@ -730,7 +730,10 @@ export default function DetailReworked() {
                 >
                   <Box
                     component="span"
-                    sx={{ color: "#ccd8a1", fontWeight: 600 }}
+                    sx={(t) => ({
+                      color: t.palette.lindgruen.main,
+                      fontWeight: 600,
+                    })}
                   >
                     ■
                   </Box>{" "}

@@ -1,6 +1,8 @@
 import { createTheme } from "@mui/material/styles";
 import { buttonClasses } from "@mui/material/Button";
 
+const { augmentColor } = createTheme().palette;
+
 export const theme = createTheme({
   palette: {
     primary: {
@@ -12,6 +14,11 @@ export const theme = createTheme({
     info: {
       main: "#FF7663",
     },
+    // Lindgrün – Corporate Design brand colour (mirrors `--bzb-lindgruen`).
+    lindgruen: augmentColor({
+      color: { main: "#ccd8a1" },
+      name: "lindgruen",
+    }),
   },
   components: {
     MuiCard: {
