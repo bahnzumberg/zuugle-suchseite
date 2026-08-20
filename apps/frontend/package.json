@@ -37,7 +37,7 @@
     "react-infinite-scroll-component": "^7.2.1",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.3.0",
-    "react-router": "^7.17.0",
+    "react-router": "^7.18.2",
     "react-share": "^5.3.0"
   },
   "overrides": {
@@ -75,7 +75,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "typescript": "^6.0.3",
     "vite-plugin-svgr": "^5.2.0",
-    "vite-plus": "^0.2.2"
+    "vite-plus": "^0.2.9"
   },
   "packageManager": "npm@11.16.0"
 }
