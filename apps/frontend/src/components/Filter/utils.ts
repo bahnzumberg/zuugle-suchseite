@@ -28,6 +28,7 @@ export function getSportTypeTranslationMap(
     Rodeln: t("filter.rodeln"),
     Schneeschuh: t("filter.schneeschuh"),
     Skitour: t("filter.skitour"),
+    Trailrunning: t("filter.trailrunning"),
     Wandern: t("filter.wandern"),
     Weitwandern: t("filter.weitwandern"),
   };
@@ -64,14 +65,20 @@ export function getDifficultyTranslationMap(
 interface GetTransformedFilterOptionsInput {
   list: string[];
   translationMap: Record<string, string>;
+  /**
+   * Show the raw value when no translation exists rather
+   * than rendering an unlabelled checkbox.
+   */
+  fallbackToValue?: boolean;
 }
 export function getTransformedFilterOptions({
   list,
   translationMap,
+  fallbackToValue = false,
 }: GetTransformedFilterOptionsInput) {
   return list.map((entry: string) => ({
     value: entry,
-    label: translationMap[entry] ?? "",
+    label: translationMap[entry] ?? (fallbackToValue ? entry : ""),
   }));
 }
 /**
