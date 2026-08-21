@@ -927,12 +927,12 @@ const getMatchingTourIds = async (req) => {
             inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
                                             INNER JOIN pois ON pois.id=p2t.poi_id 
                                             WHERE pois.type='hut'
-                                            AND pois.name=?) as pois 
+                                            AND LOWER(pois.name)=LOWER(?)) as pois 
                                 ON t.id=pois.tour_id `;
             poi_bindings.push(search);
 
             const poiResult = await knex.raw(
-                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND pois.name=?`,
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND LOWER(pois.name)=LOWER(?)`,
                 [search],
             );
             if (poiResult && poiResult.rows) {
@@ -945,12 +945,12 @@ const getMatchingTourIds = async (req) => {
             inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
                                             INNER JOIN pois ON pois.id=p2t.poi_id 
                                             WHERE pois.type='peak'
-                                            AND pois.name=?) as pois 
+                                            AND LOWER(pois.name)=LOWER(?)) as pois 
                                 ON t.id=pois.tour_id `;
             poi_bindings.push(search);
 
             const poiResult = await knex.raw(
-                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND pois.name=?`,
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND LOWER(pois.name)=LOWER(?)`,
                 [search],
             );
             if (poiResult && poiResult.rows) {
