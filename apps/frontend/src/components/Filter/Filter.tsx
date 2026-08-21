@@ -409,6 +409,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                 options={getTransformedFilterOptions({
                   list: fetchedFilter?.types ?? [],
                   translationMap: getSportTypeTranslationMap(t),
+                  fallbackToValue: true,
                 })}
                 isChecked={(value) => displayAsSelected("types", value)}
                 onChange={({ value, checked }) =>

@@ -7,8 +7,14 @@ const filterSlice = createSlice({
   name: "filter",
   initialState,
   reducers: {
+    // Keys are dropped rather than set to `undefined`, so that the presence of
+    // a key always means the filter is set. `hasContent` counts keys.
     filterUpdated: (state, action: PayloadAction<FilterObject>) => {
-      return action.payload;
+      return Object.fromEntries(
+        Object.entries(action.payload).filter(
+          ([, value]) => value !== undefined,
+        ),
+      ) as FilterObject;
     },
   },
 });

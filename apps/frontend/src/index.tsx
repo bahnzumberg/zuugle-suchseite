@@ -6,7 +6,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import App from "./App";
 import i18n from "./translations/i18n";
 import { I18nextProvider } from "react-i18next";
-import { getTLD, isMobileDevice } from "./utils/globals";
+import { getBackgroundImageUrl, getTLD } from "./utils/globals";
 import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
@@ -101,9 +101,7 @@ if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 
 const tld = getTLD();
 
-const preloadUrl = isMobileDevice()
-  ? `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=500:570&width=500`
-  : `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200`;
+const preloadUrl = getBackgroundImageUrl(tld);
 
 const currentPath = window.location.pathname;
 const shouldPreload = currentPath === "/" || currentPath === "/total";

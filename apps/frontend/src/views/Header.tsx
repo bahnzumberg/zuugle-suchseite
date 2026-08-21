@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { getDomainText } from "../utils/globals";
+import { getBackgroundImageUrl, getDomainText, getTLD } from "../utils/globals";
 import { assetUrl } from "../utils/assetUrl";
 
 export interface HeaderProps {
@@ -14,11 +14,6 @@ export default function Header({
   subTitle,
   backgroundColor,
 }: HeaderProps) {
-  let tld = window.location.hostname.slice(-2);
-  if (tld.length !== 2) {
-    tld = "at";
-  }
-
   return (
     <Box
       className={"header-container utils"}
@@ -26,7 +21,7 @@ export default function Header({
         ...(backgroundColor
           ? { backgroundColor }
           : {
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?aspect_ratio=1200:798&width=1200)`,
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.56)), url(${getBackgroundImageUrl(getTLD(), false)})`,
             }),
         paddingLeft: 0,
         height: "300px",
