@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useParams } from "react-router";
 import { RootState } from "..";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../hooks";
@@ -34,6 +34,8 @@ export default function SearchParamSync() {
   const search = useSelector((state: RootState) => state.search);
   const filter = useSelector((state: RootState) => state.filter);
   const [params, setParams] = useSearchParams();
+  // On the /:city route (e.g. /wien) this is the city slug; undefined elsewhere.
+  const { city: pathCitySlug } = useParams<{ city?: string }>();
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery();
 
@@ -74,7 +76,9 @@ export default function SearchParamSync() {
     const newParams = new URLSearchParams();
     // use Redux value when available, fall back to URL during initialisation (when language is null)
     updateParam(newParams, "lang", search.language ?? params.get("lang"));
-    updateParam(newParams, "city", search.citySlug);
+    // On a /:city route the slug already lives in the path — don't duplicate it
+    // into ?city= so the clean /wien URL is preserved.
+    updateParam(newParams, "city", pathCitySlug ? null : search.citySlug);
     updateParam(
       newParams,
       "externalLinks",
@@ -125,13 +129,23 @@ export default function SearchParamSync() {
     }
   }
 
+  // The /:city path segment (e.g. /wien) is the authoritative city for that
+  // page and overrides both the ?city= query param and localStorage.
   useEffect(() => {
-    if (params.get("city")) {
-      // URL ?city= takes precedence
-      updateReduxFromParam("city", citySlugUpdated);
-    } else {
-      // No ?city= in URL — use localStorage as fallback
-      syncCityFromLocalStorage();
+    if (pathCitySlug) {
+      dispatch(citySlugUpdated(pathCitySlug));
+    }
+  }, [pathCitySlug]);
+
+  useEffect(() => {
+    // City precedence: /:city path > ?city= query > localStorage. The path
+    // segment is owned by the effect above; here we resolve the fallback.
+    if (!pathCitySlug) {
+      if (params.get("city")) {
+        updateReduxFromParam("city", citySlugUpdated);
+      } else {
+        syncCityFromLocalStorage();
+      }
     }
 
     // Legacy ?p= embedded-provider param. It is folded into the providers filter
@@ -215,14 +229,14 @@ export default function SearchParamSync() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState !== "visible") return;
-      if (params.get("city")) return; // URL param takes precedence
+      if (pathCitySlug || params.get("city")) return; // URL city takes precedence
       syncCityFromLocalStorage();
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [search.citySlug, params, dispatch]);
+  }, [search.citySlug, params, dispatch, pathCitySlug]);
 
   return null; // invisible sync component
 }
