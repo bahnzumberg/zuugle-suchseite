@@ -132,7 +132,6 @@ function App() {
       <Routes>
         {/* Start page — redirect to /search when ?map=true */}
         <Route path="/" element={<StartOrRedirectToSearch />} />
-        <Route path="/total" element={<StartOrRedirectToSearch />} />
 
         {/* Other routes with simple loader */}
         <Route

@@ -36,7 +36,6 @@ const RESERVED_PATH_SEGMENTS = new Set([
   "provider",
   "imprint",
   "privacy",
-  "total",
 ]);
 
 // A single-segment path like /wien targets a specific city and must override
@@ -124,7 +123,7 @@ const tld = getTLD();
 const preloadUrl = getBackgroundImageUrl(tld);
 
 const currentPath = window.location.pathname;
-const shouldPreload = currentPath === "/" || currentPath === "/total";
+const shouldPreload = currentPath === "/";
 
 const head = createHead();
 
