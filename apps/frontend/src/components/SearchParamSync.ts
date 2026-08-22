@@ -27,14 +27,10 @@ import {
 
 /**
  * Keeps query parameters in sync with the Redux store.
- * On SearchResults page, more query parameters are allowed
- * than on other pages.
+ * Used on both the start page (/) and SearchResults (/search),
+ * which share the same search/filter capabilities.
  */
-export default function SearchParamSync({
-  isSearchResultsPage,
-}: {
-  isSearchResultsPage: boolean;
-}) {
+export default function SearchParamSync() {
   const search = useSelector((state: RootState) => state.search);
   const filter = useSelector((state: RootState) => state.filter);
   const [params, setParams] = useSearchParams();
@@ -84,22 +80,10 @@ export default function SearchParamSync({
       "externalLinks",
       search.externalLinks ? "true" : null,
     );
-    updateParam(
-      newParams,
-      "map",
-      isSearchResultsPage && search.map ? "true" : null,
-    );
-    updateParam(
-      newParams,
-      "search",
-      isSearchResultsPage ? search.searchWithType?.term : null,
-    );
-    updateParam(
-      newParams,
-      "search_type",
-      isSearchResultsPage ? search.searchWithType?.type : null,
-    );
-    if (isSearchResultsPage && search.geolocation) {
+    updateParam(newParams, "map", search.map ? "true" : null);
+    updateParam(newParams, "search", search.searchWithType?.term);
+    updateParam(newParams, "search_type", search.searchWithType?.type);
+    if (search.geolocation) {
       updateParam(newParams, "lat", String(search.geolocation.lat));
       updateParam(newParams, "lng", String(search.geolocation.lng));
       updateParam(
@@ -113,9 +97,7 @@ export default function SearchParamSync({
       updateParam(newParams, "radius", null);
     }
 
-    if (isSearchResultsPage) {
-      writeFilterParams(newParams, filter);
-    }
+    writeFilterParams(newParams, filter);
     setParams(newParams, { replace: true });
   }, [search, filter]);
 
@@ -164,85 +146,68 @@ export default function SearchParamSync({
       ),
     );
 
-    if (!isSearchResultsPage) {
-      dispatch(searchWithTypeUpdated(null));
-      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (legacyProvider) {
-        dispatch(
-          filterUpdated({
-            ...filter,
-            providers: filter.providers?.includes(legacyProvider)
-              ? filter.providers
-              : [...(filter.providers ?? []), legacyProvider],
-          }),
-        );
-      }
+    const searchPhrase = params.get("search");
+    const rawSearchType = params.get("search_type");
+    const searchWithType: SearchWithType | null = searchPhrase
+      ? {
+          term: searchPhrase,
+          type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
+        }
+      : null;
+    dispatch(searchWithTypeUpdated(searchWithType));
+
+    const map = params.get("map");
+    if (map) {
+      dispatch(mapUpdated(Boolean(map)));
     } else {
-      const searchPhrase = params.get("search");
-      const rawSearchType = params.get("search_type");
-      const searchWithType: SearchWithType | null = searchPhrase
-        ? {
-            term: searchPhrase,
-            type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
-          }
-        : null;
-      dispatch(searchWithTypeUpdated(searchWithType));
+      dispatch(mapUpdated(false));
+    }
 
-      const map = params.get("map");
-      if (map) {
-        dispatch(mapUpdated(Boolean(map)));
-      } else {
-        dispatch(mapUpdated(false));
-      }
+    const lat = params.get("lat");
+    const lng = params.get("lng");
+    const radius = params.get("radius");
+    if (lat && lng) {
+      dispatch(
+        geolocationUpdated({
+          lat: Number(lat),
+          lng: Number(lng),
+          radius: radius ? Number(radius) : 100,
+        }),
+      );
+    } else {
+      dispatch(geolocationUpdated(null));
+    }
 
-      const lat = params.get("lat");
-      const lng = params.get("lng");
-      const radius = params.get("radius");
-      if (lat && lng) {
-        dispatch(
-          geolocationUpdated({
-            lat: Number(lat),
-            lng: Number(lng),
-            radius: radius ? Number(radius) : 100,
-          }),
-        );
-      } else {
-        dispatch(geolocationUpdated(null));
-      }
-
-      const filterObject: FilterObject = { ...filter };
-      for (const key of SCALAR_FILTER_KEYS) {
-        const value = params.get(key);
-        if (value === "true") (filterObject[key] as boolean) = true;
-        else if (value === "false") (filterObject[key] as boolean) = false;
-        else if (value !== null && !isNaN(Number(value)))
-          (filterObject[key] as number) = Number(value);
-      }
-      for (const key of ARRAY_FILTER_KEYS) {
-        const raw = params.get(key);
-        if (raw) {
-          const values = raw.split("|").filter(Boolean);
-          if (values.length) {
-            (filterObject[key] as string[] | number[]) =
-              key === "difficulties" ? values.map(Number) : values;
-          }
+    const filterObject: FilterObject = { ...filter };
+    for (const key of SCALAR_FILTER_KEYS) {
+      const value = params.get(key);
+      if (value === "true") (filterObject[key] as boolean) = true;
+      else if (value === "false") (filterObject[key] as boolean) = false;
+      else if (value !== null && !isNaN(Number(value)))
+        (filterObject[key] as number) = Number(value);
+    }
+    for (const key of ARRAY_FILTER_KEYS) {
+      const raw = params.get(key);
+      if (raw) {
+        const values = raw.split("|").filter(Boolean);
+        if (values.length) {
+          (filterObject[key] as string[] | number[]) =
+            key === "difficulties" ? values.map(Number) : values;
         }
       }
-      // ?range=slug from range-card navigation
-      const range = params.get("range");
-      if (range && !filterObject.ranges?.length) {
-        filterObject.ranges = [range];
-      }
-      // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
-      if (legacyProvider) {
-        filterObject.providers = filterObject.providers?.includes(
-          legacyProvider,
-        )
-          ? filterObject.providers
-          : [...(filterObject.providers ?? []), legacyProvider];
-      }
-      dispatch(filterUpdated(filterObject));
     }
+    // ?range=slug from range-card navigation
+    const range = params.get("range");
+    if (range && !filterObject.ranges?.length) {
+      filterObject.ranges = [range];
+    }
+    // Sync ?p= into filter.providers so chip + dialog checkbox reflect it
+    if (legacyProvider) {
+      filterObject.providers = filterObject.providers?.includes(legacyProvider)
+        ? filterObject.providers
+        : [...(filterObject.providers ?? []), legacyProvider];
+    }
+    dispatch(filterUpdated(filterObject));
   }, []);
 
   // Sync city from localStorage when tab becomes visible again.
