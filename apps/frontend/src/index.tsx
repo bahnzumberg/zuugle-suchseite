@@ -84,6 +84,7 @@ function getPreloadedFavoritesState(): FavoritesState {
     // Cached tourIds (even []) mean no server seed is needed.
     hydrated: localStorage.getItem("favoriteTourIds") !== null,
     error: null,
+    favoritesOnly: false,
   };
 }
 

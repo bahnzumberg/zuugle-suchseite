@@ -366,6 +366,8 @@
     "tour_added": "Tura dodana",
     "tour_removed": "Tura odstranjena",
     "list_empty": "Ta seznam je prazen",
-    "list_not_found": "Seznama ni mogoče najti"
+    "list_empty_hint": "Tapni srček pri turi, da jo shraniš sem.",
+    "list_not_found": "Seznama ni mogoče najti",
+    "list_not_found_reset": "Ponastavi seznam priljubljenih"
   }
 }

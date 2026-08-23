@@ -366,6 +366,8 @@
     "tour_added": "Tour ajouté",
     "tour_removed": "Tour supprimé",
     "list_empty": "Cette liste est vide",
-    "list_not_found": "Liste introuvable"
+    "list_empty_hint": "Appuie sur l'icône cœur d'un circuit pour l'enregistrer ici.",
+    "list_not_found": "Liste introuvable",
+    "list_not_found_reset": "Réinitialiser la liste de favoris"
   }
 }

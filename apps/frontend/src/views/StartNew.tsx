@@ -14,6 +14,7 @@ import BackgroundImageLoader from "./Start/BackgroundImageLoader";
 import SearchParamSync from "../components/SearchParamSync";
 import { useSearchTours } from "../hooks/useSearchTours";
 import FavoritesToggle from "../components/Favorites/FavoritesToggle";
+import FavoritesEmptyState from "../components/Favorites/FavoritesEmptyState";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -34,6 +35,8 @@ export default function StartNew() {
     totals,
     isTotalsLoading,
     showMap,
+    favoritesEmptyVariant,
+    resetFavorites,
   } = useSearchTours();
 
   const tld = getTLD();
@@ -192,6 +195,12 @@ export default function StartNew() {
               fetchMore={fetchMore}
             />
           </Box>
+        )}
+        {favoritesEmptyVariant && tours.length === 0 && (
+          <FavoritesEmptyState
+            variant={favoritesEmptyVariant}
+            onReset={resetFavorites}
+          />
         )}
         <MapBtn />
       </div>

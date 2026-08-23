@@ -11,6 +11,7 @@ import MaintenanceGuard from "../components/MaintenanceGuard";
 import TotalToursHeader from "../components/TotalToursHeader";
 import SearchParamSync from "../components/SearchParamSync";
 import FavoritesToggle from "../components/Favorites/FavoritesToggle";
+import FavoritesEmptyState from "../components/Favorites/FavoritesEmptyState";
 import { useSearchTours } from "../hooks/useSearchTours";
 import { useSearchParams } from "react-router";
 import LegalDialog, {
@@ -35,6 +36,8 @@ export default function SearchResults() {
     totals,
     isTotalsLoading,
     showMap,
+    favoritesEmptyVariant,
+    resetFavorites,
   } = useSearchTours();
 
   // Open legal dialog from ?legal=imprint|privacy query param (used by redirects)
@@ -146,6 +149,12 @@ export default function SearchResults() {
                 fetchMore={fetchMore}
               />
             </Box>
+          )}
+          {favoritesEmptyVariant && tours.length === 0 && (
+            <FavoritesEmptyState
+              variant={favoritesEmptyVariant}
+              onReset={resetFavorites}
+            />
           )}
           <MapBtn />
         </div>

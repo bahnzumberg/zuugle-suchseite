@@ -8,6 +8,8 @@ export interface FavoritesState {
   // Once true, a server fetch no longer overwrites tourIds.
   hydrated: boolean;
   error: string | null;
+  // "Show only favorites" toggle — filters the search results down to tourIds.
+  favoritesOnly: boolean;
 }
 
 const initialState: FavoritesState = {
@@ -15,6 +17,7 @@ const initialState: FavoritesState = {
   tourIds: [],
   hydrated: false,
   error: null,
+  favoritesOnly: false,
 };
 
 const favoritesSlice = createSlice({
@@ -43,6 +46,16 @@ const favoritesSlice = createSlice({
     favoritesErrorSet: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    favoritesOnlyToggled: (state) => {
+      state.favoritesOnly = !state.favoritesOnly;
+    },
+    // Recovery for a listKey whose list no longer exists on the server.
+    favoritesReset: (state) => {
+      state.listKey = null;
+      state.tourIds = [];
+      state.hydrated = true;
+      state.error = null;
+    },
   },
 });
 
@@ -52,5 +65,7 @@ export const {
   favoriteAdded,
   favoriteRemoved,
   favoritesErrorSet,
+  favoritesOnlyToggled,
+  favoritesReset,
 } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

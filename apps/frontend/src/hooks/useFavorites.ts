@@ -14,6 +14,8 @@ import {
   favoriteAdded,
   favoriteRemoved,
   favoritesErrorSet,
+  favoritesOnlyToggled,
+  favoritesReset,
 } from "../features/favoritesSlice";
 
 /**
@@ -27,18 +29,38 @@ export function useFavorites() {
   const tourIds = useAppSelector((state) => state.favorites.tourIds);
   const hydrated = useAppSelector((state) => state.favorites.hydrated);
   const error = useAppSelector((state) => state.favorites.error);
+  const favoritesOnly = useAppSelector(
+    (state) => state.favorites.favoritesOnly,
+  );
 
-  const { data: listData } = useGetFavoritesListQuery(listKey ?? skipToken, {
-    // Seeds tourIds once for a device that has no local cache yet.
-    refetchOnFocus: true,
-  });
+  const { data: listData, error: listQueryError } = useGetFavoritesListQuery(
+    listKey ?? skipToken,
+    {
+      // Seeds tourIds once for a device that has no local cache yet.
+      refetchOnFocus: true,
+    },
+  );
   const [createFavoritesList] = useCreateFavoritesListMutation();
   const [addFavoriteTour] = useAddFavoriteTourMutation();
   const [removeFavoriteTour] = useRemoveFavoriteTourMutation();
 
+  // The list this device points to was deleted server-side (e.g. cleanup).
+  // Local tourIds stay authoritative regardless — see module doc above.
+  const listNotFound = Boolean(
+    listKey &&
+    listQueryError &&
+    "status" in listQueryError &&
+    listQueryError.status === 404,
+  );
+
   useEffect(() => {
     if (listData && !hydrated) {
-      dispatch(favoritesHydrated(listData.tours.map((tour) => tour.id)));
+      // GET /api/lists/:key can return one row per originating city for the
+      // same tour — dedupe before this becomes the device's source of truth.
+      const uniqueTourIds = Array.from(
+        new Set(listData.tours.map((tour) => tour.id)),
+      );
+      dispatch(favoritesHydrated(uniqueTourIds));
     }
   }, [listData, hydrated, dispatch]);
 
@@ -108,5 +130,23 @@ export function useFavorites() {
     ],
   );
 
-  return { isFavorite, toggleFavorite, error, clearError };
+  const toggleFavoritesOnly = useCallback(() => {
+    dispatch(favoritesOnlyToggled());
+  }, [dispatch]);
+
+  const resetFavorites = useCallback(() => {
+    dispatch(favoritesReset());
+  }, [dispatch]);
+
+  return {
+    isFavorite,
+    toggleFavorite,
+    error,
+    clearError,
+    tourIds,
+    favoritesOnly,
+    toggleFavoritesOnly,
+    listNotFound,
+    resetFavorites,
+  };
 }

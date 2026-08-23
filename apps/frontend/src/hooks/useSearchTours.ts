@@ -11,6 +11,7 @@ import {
 import { Tour } from "../models/Tour";
 import { cityUpdated } from "../features/searchSlice";
 import { useAppDispatch } from "../hooks";
+import { useFavorites } from "./useFavorites";
 import {
   DirectLink,
   extractCityFromLocation,
@@ -30,6 +31,12 @@ export function useSearchTours() {
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const dispatch = useAppDispatch();
+  const {
+    favoritesOnly,
+    tourIds: favoriteTourIds,
+    listNotFound: favoritesListNotFound,
+    resetFavorites,
+  } = useFavorites();
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -69,15 +76,50 @@ export function useSearchTours() {
     [triggerLoadTours],
   );
 
+  // favoriteTourIds/favoritesListNotFound should only drive a reload while the
+  // toggle is on — gated to stay referentially stable while it's off, so
+  // favoriting an unrelated tour doesn't reset scroll/pagination for no reason.
+  const favoritesReloadTourIds = favoritesOnly ? favoriteTourIds : null;
+  const favoritesReloadNotFound = favoritesOnly && favoritesListNotFound;
+
+  // Which empty state to show in place of the tour grid, if any.
+  let favoritesEmptyVariant: "empty" | "not_found" | "no_matches" | null = null;
+  if (favoritesOnly) {
+    if (favoritesListNotFound) {
+      favoritesEmptyVariant = "not_found";
+    } else if (favoriteTourIds.length === 0) {
+      favoritesEmptyVariant = "empty";
+    } else if (!isToursLoading && tours.length === 0) {
+      favoritesEmptyVariant = "no_matches";
+    }
+  }
+
+  // Nothing to fetch: no favorites saved, or the saved list is gone server-side
+  // — the same two cases that produce the "empty"/"not_found" empty states.
+  const favoritesNothingToFetch =
+    favoritesEmptyVariant === "empty" || favoritesEmptyVariant === "not_found";
+
+  // Favorites-only injects the saved ids as just another filter dimension.
+  const effectiveFilter = useMemo(
+    () => (favoritesOnly ? { ...filter, favoriteTourIds } : filter),
+    [favoritesOnly, filter, favoriteTourIds],
+  );
+
   // Load tours when filter/search changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     setPageTours(1);
     setHasMore(true);
+
+    if (favoritesNothingToFetch) {
+      setTours([]);
+      return;
+    }
+
     const params = {
       city:
         search.citySlug && search.citySlug !== "no-city" ? search.citySlug : "",
-      filter: filter,
+      filter: effectiveFilter,
       search: search.searchWithType?.term || null,
       search_type: search.searchWithType?.type || null,
       bounds: search.bounds || undefined,
@@ -89,12 +131,23 @@ export function useSearchTours() {
     return () => {
       debouncedTrigger.cancel();
     };
-  }, [filter, search]);
+  }, [
+    filter,
+    search,
+    favoritesOnly,
+    favoritesReloadTourIds,
+    favoritesReloadNotFound,
+  ]);
 
-  // Update tours from loaded data
+  // Update tours from loaded data. Skipped while there's nothing to fetch, so a
+  // stale non-favorites response resolving after the user switched to an empty
+  // favorites-only view can't overwrite the empty state with old results.
   useEffect(() => {
+    if (favoritesNothingToFetch) {
+      return;
+    }
     setTours(loadedTours?.tours || []);
-  }, [loadedTours]);
+  }, [loadedTours, favoritesNothingToFetch]);
 
   // Load more tours (pagination)
   useEffect(() => {
@@ -104,7 +157,7 @@ export function useSearchTours() {
           search.citySlug && search.citySlug !== "no-city"
             ? search.citySlug
             : "",
-        filter: filter,
+        filter: effectiveFilter,
         search: search.searchWithType?.term || "",
         search_type: search.searchWithType?.type || "",
         bounds: search.bounds || undefined,
@@ -166,6 +219,9 @@ export function useSearchTours() {
     getHeroTitle,
     totals,
     isTotalsLoading,
+    favoritesOnly,
+    favoritesEmptyVariant,
+    resetFavorites,
     showMap,
     city,
     citySlug,
