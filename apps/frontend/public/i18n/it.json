@@ -5,7 +5,8 @@
     "save": "Aggiungi ai preferiti",
     "saved": "Salvato",
     "show": "Mostra i preferiti",
-    "showing": "Preferiti mostrati"
+    "showing": "Preferiti mostrati",
+    "error": "Salvato su questo dispositivo, ma sincronizzazione online non riuscita."
   },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",

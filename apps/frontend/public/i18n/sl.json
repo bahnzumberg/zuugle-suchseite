@@ -5,7 +5,8 @@
     "save": "Dodaj med priljubljene",
     "saved": "Shranjeno",
     "show": "Prikaži priljubljene",
-    "showing": "Prikazane priljubljene"
+    "showing": "Prikazane priljubljene",
+    "error": "Shranjeno na tej napravi, vendar spletna sinhronizacija ni uspela."
   },
   "about": {
     "was_ist_zuugle": "KAJ JE ZUUGLE?",

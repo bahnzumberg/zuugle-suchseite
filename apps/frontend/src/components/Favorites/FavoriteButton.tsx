@@ -1,9 +1,10 @@
-import { useState, type MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import { useTranslation } from "react-i18next";
+import { useFavorites } from "../../hooks/useFavorites";
 
 interface FavoriteButtonProps {
   tourId: number | string;
@@ -15,23 +16,21 @@ interface FavoriteButtonProps {
   size?: "default" | "compact";
 }
 
-// Design scaffolding only: the saved state lives in local component state so
-// the toggle is interactive to look at. Real persistence (a per-tour favorites
-// store keyed by tourId) is not wired up yet.
 export default function FavoriteButton({
   tourId,
   variant,
   size = "default",
 }: FavoriteButtonProps) {
   const { t } = useTranslation();
-  const [saved, setSaved] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const numericTourId = Number(tourId);
+  const saved = isFavorite(numericTourId);
 
   const toggle = (e: MouseEvent) => {
     // Tour cards wrap the whole tile in a link; keep the click from navigating.
     e.preventDefault();
     e.stopPropagation();
-    setSaved((v) => !v);
-    // TODO: persist favorite for `tourId`
+    void toggleFavorite(numericTourId);
   };
 
   const label =

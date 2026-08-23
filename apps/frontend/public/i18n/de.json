@@ -5,7 +5,8 @@
     "save": "Merken",
     "saved": "Gemerkt",
     "show": "Favoriten anzeigen",
-    "showing": "Favoriten werden angezeigt"
+    "showing": "Favoriten werden angezeigt",
+    "error": "Auf diesem Gerät gespeichert, aber online nicht synchronisiert."
   },
   "about": {
     "was_ist_zuugle": "WAS IST ZUUGLE ?",

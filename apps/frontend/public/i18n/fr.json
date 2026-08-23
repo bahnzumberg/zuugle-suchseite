@@ -5,7 +5,8 @@
     "save": "Ajouter aux favoris",
     "saved": "Enregistré",
     "show": "Afficher les favoris",
-    "showing": "Favoris affichés"
+    "showing": "Favoris affichés",
+    "error": "Enregistré sur cet appareil, mais synchronisation en ligne impossible."
   },
   "about": {
     "was_ist_zuugle": "Qu'est-ce que Zuugle ?",

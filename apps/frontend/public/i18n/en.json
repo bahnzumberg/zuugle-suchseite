@@ -5,7 +5,8 @@
     "save": "Save to favorites",
     "saved": "Saved",
     "show": "Show favorites",
-    "showing": "Showing favorites"
+    "showing": "Showing favorites",
+    "error": "Saved on this device, but couldn't sync it online."
   },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",

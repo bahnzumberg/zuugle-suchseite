@@ -172,6 +172,28 @@ export interface LicensesResponse {
   licenses: LicenseEntry[];
 }
 
+export interface CreateListResponse {
+  success: boolean;
+  key: string;
+  name: string;
+}
+
+export interface FavoriteListTour {
+  id: number;
+}
+
+export interface FavoritesListResponse {
+  success: boolean;
+  list: {
+    key: string;
+    name: string;
+    language: string;
+    tld: string;
+  };
+  tours: FavoriteListTour[];
+  total: number;
+}
+
 const baseURL =
   window.location.host.indexOf("localhost") >= 0
     ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
@@ -310,6 +332,35 @@ export const api = createApi({
       query: () => "licenses",
       transformResponse: (response: LicensesResponse) => response.licenses,
     }),
+    createFavoritesList: build.mutation<CreateListResponse, string>({
+      query: (language) => ({
+        url: "lists",
+        method: "POST",
+        body: { domain, language },
+      }),
+    }),
+    getFavoritesList: build.query<FavoritesListResponse, string>({
+      query: (key) => `lists/${key}`,
+    }),
+    addFavoriteTour: build.mutation<
+      { success: boolean },
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours`,
+        method: "POST",
+        body: { tour_id: tourId },
+      }),
+    }),
+    removeFavoriteTour: build.mutation<
+      { success: boolean },
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours/${tourId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -352,4 +403,9 @@ export const {
 
   useGetCities2TourQuery,
   useGetLicensesQuery,
+
+  useCreateFavoritesListMutation,
+  useGetFavoritesListQuery,
+  useAddFavoriteTourMutation,
+  useRemoveFavoriteTourMutation,
 } = api;
