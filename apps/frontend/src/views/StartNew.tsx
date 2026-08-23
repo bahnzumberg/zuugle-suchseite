@@ -131,7 +131,10 @@ export default function StartNew() {
         <Box ref={heroRef}>
           <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
             <Box className="rowing">
-              <DomainMenu />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <DomainMenu />
+              </Box>
+              <FavoritesToggle />
             </Box>
             <Box className="header-text">
               <Typography variant="h1">{getHeroTitle()}</Typography>
