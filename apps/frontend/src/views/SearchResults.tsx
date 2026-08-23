@@ -37,7 +37,6 @@ export default function SearchResults() {
     isTotalsLoading,
     showMap,
     favoritesEmptyVariant,
-    resetFavorites,
   } = useSearchTours();
 
   // Open legal dialog from ?legal=imprint|privacy query param (used by redirects)
@@ -151,10 +150,7 @@ export default function SearchResults() {
             </Box>
           )}
           {favoritesEmptyVariant && tours.length === 0 && (
-            <FavoritesEmptyState
-              variant={favoritesEmptyVariant}
-              onReset={resetFavorites}
-            />
+            <FavoritesEmptyState variant={favoritesEmptyVariant} />
           )}
           <MapBtn />
         </div>

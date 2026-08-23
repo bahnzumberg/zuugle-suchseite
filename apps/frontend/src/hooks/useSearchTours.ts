@@ -31,12 +31,7 @@ export function useSearchTours() {
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
   const dispatch = useAppDispatch();
-  const {
-    favoritesOnly,
-    tourIds: favoriteTourIds,
-    listNotFound: favoritesListNotFound,
-    resetFavorites,
-  } = useFavorites();
+  const { favoritesOnly, tourIds: favoriteTourIds } = useFavorites();
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -76,28 +71,23 @@ export function useSearchTours() {
     [triggerLoadTours],
   );
 
-  // favoriteTourIds/favoritesListNotFound should only drive a reload while the
-  // toggle is on — gated to stay referentially stable while it's off, so
-  // favoriting an unrelated tour doesn't reset scroll/pagination for no reason.
+  // favoriteTourIds should only drive a reload while the toggle is on — gated to
+  // stay referentially stable while it's off, so favoriting an unrelated tour
+  // doesn't reset scroll/pagination for no reason.
   const favoritesReloadTourIds = favoritesOnly ? favoriteTourIds : null;
-  const favoritesReloadNotFound = favoritesOnly && favoritesListNotFound;
 
   // Which empty state to show in place of the tour grid, if any.
-  let favoritesEmptyVariant: "empty" | "not_found" | "no_matches" | null = null;
+  let favoritesEmptyVariant: "empty" | "no_matches" | null = null;
   if (favoritesOnly) {
-    if (favoritesListNotFound) {
-      favoritesEmptyVariant = "not_found";
-    } else if (favoriteTourIds.length === 0) {
+    if (favoriteTourIds.length === 0) {
       favoritesEmptyVariant = "empty";
     } else if (!isToursLoading && tours.length === 0) {
       favoritesEmptyVariant = "no_matches";
     }
   }
 
-  // Nothing to fetch: no favorites saved, or the saved list is gone server-side
-  // — the same two cases that produce the "empty"/"not_found" empty states.
-  const favoritesNothingToFetch =
-    favoritesEmptyVariant === "empty" || favoritesEmptyVariant === "not_found";
+  // Nothing to fetch: no favorites saved at all.
+  const favoritesNothingToFetch = favoritesEmptyVariant === "empty";
 
   // Favorites-only injects the saved ids as just another filter dimension.
   const effectiveFilter = useMemo(
@@ -131,13 +121,7 @@ export function useSearchTours() {
     return () => {
       debouncedTrigger.cancel();
     };
-  }, [
-    filter,
-    search,
-    favoritesOnly,
-    favoritesReloadTourIds,
-    favoritesReloadNotFound,
-  ]);
+  }, [filter, search, favoritesOnly, favoritesReloadTourIds]);
 
   // Update tours from loaded data. Skipped while there's nothing to fetch, so a
   // stale non-favorites response resolving after the user switched to an empty
@@ -221,7 +205,6 @@ export function useSearchTours() {
     isTotalsLoading,
     favoritesOnly,
     favoritesEmptyVariant,
-    resetFavorites,
     showMap,
     city,
     citySlug,

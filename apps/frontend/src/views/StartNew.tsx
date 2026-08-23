@@ -36,7 +36,6 @@ export default function StartNew() {
     isTotalsLoading,
     showMap,
     favoritesEmptyVariant,
-    resetFavorites,
   } = useSearchTours();
 
   const tld = getTLD();
@@ -200,10 +199,7 @@ export default function StartNew() {
           </Box>
         )}
         {favoritesEmptyVariant && tours.length === 0 && (
-          <FavoritesEmptyState
-            variant={favoritesEmptyVariant}
-            onReset={resetFavorites}
-          />
+          <FavoritesEmptyState variant={favoritesEmptyVariant} />
         )}
         <MapBtn />
       </div>

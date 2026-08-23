@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -15,7 +15,6 @@ import {
   favoriteRemoved,
   favoritesErrorSet,
   favoritesOnlyToggled,
-  favoritesReset,
 } from "../features/favoritesSlice";
 
 /**
@@ -52,6 +51,36 @@ export function useFavorites() {
     "status" in listQueryError &&
     listQueryError.status === 404,
   );
+
+  // Self-heal a deleted server list: recreate it from the local (authoritative)
+  // favorites and adopt the new key, so the server mirror is restored without
+  // the user losing anything. Attempted once per broken key.
+  const healedKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!listNotFound || tourIds.length === 0) return;
+    if (healedKeyRef.current === listKey) return;
+    healedKeyRef.current = listKey;
+
+    (async () => {
+      try {
+        const { key } = await createFavoritesList(i18n.language).unwrap();
+        dispatch(listKeyCreated(key));
+        await Promise.all(
+          tourIds.map((tourId) => addFavoriteTour({ key, tourId }).unwrap()),
+        );
+      } catch {
+        // Best-effort; local stays authoritative and we retry on the next load.
+      }
+    })();
+  }, [
+    listNotFound,
+    listKey,
+    tourIds,
+    createFavoritesList,
+    addFavoriteTour,
+    dispatch,
+    i18n.language,
+  ]);
 
   useEffect(() => {
     if (listData && !hydrated) {
@@ -134,10 +163,6 @@ export function useFavorites() {
     dispatch(favoritesOnlyToggled());
   }, [dispatch]);
 
-  const resetFavorites = useCallback(() => {
-    dispatch(favoritesReset());
-  }, [dispatch]);
-
   return {
     isFavorite,
     toggleFavorite,
@@ -146,7 +171,5 @@ export function useFavorites() {
     tourIds,
     favoritesOnly,
     toggleFavoritesOnly,
-    listNotFound,
-    resetFavorites,
   };
 }

@@ -49,13 +49,6 @@ const favoritesSlice = createSlice({
     favoritesOnlyToggled: (state) => {
       state.favoritesOnly = !state.favoritesOnly;
     },
-    // Recovery for a listKey whose list no longer exists on the server.
-    favoritesReset: (state) => {
-      state.listKey = null;
-      state.tourIds = [];
-      state.hydrated = true;
-      state.error = null;
-    },
   },
 });
 
@@ -66,6 +59,5 @@ export const {
   favoriteRemoved,
   favoritesErrorSet,
   favoritesOnlyToggled,
-  favoritesReset,
 } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

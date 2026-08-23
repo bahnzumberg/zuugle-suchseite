@@ -365,8 +365,6 @@
     "tour_added": "Tour aggiunto",
     "tour_removed": "Tour rimosso",
     "list_empty": "Questa lista è vuota",
-    "list_empty_hint": "Tocca l'icona a forma di cuore su un tour per salvarlo qui.",
-    "list_not_found": "Lista non trovata",
-    "list_not_found_reset": "Reimposta la lista dei preferiti"
+    "list_empty_hint": "Tocca l'icona a forma di cuore su un tour per salvarlo qui."
   }
 }
