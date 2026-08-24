@@ -12,6 +12,7 @@ import { useAppDispatch } from "../../hooks";
 import { languageUpdated } from "../../features/searchSlice";
 import { langChange } from "../../utils/language_Utils";
 import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
+import { assetUrl } from "../../utils/assetUrl";
 
 const ALL_LANGUAGES = [
   { key: "de", nativeName: "Deutsch" },
@@ -189,7 +190,7 @@ function DomainMenu() {
         onClick={() => setShowDomainMenu(true)}
       >
         <img
-          src={`https://cdn.zuugle.at/img/zuugle_weiss.svg`}
+          src={assetUrl("/img/zuugle_weiss.svg")}
           height={"19px"}
           width={"34px"}
           alt="Logo Zuugle"
@@ -227,7 +228,7 @@ function DomainMenu() {
                 >
                   <img
                     className="pointy"
-                    src={`https://cdn.zuugle.at/img/zuugle.svg`}
+                    src={assetUrl("/img/zuugle.svg")}
                     height={"19px"}
                     width={"auto"}
                     alt="Logo Zuugle"

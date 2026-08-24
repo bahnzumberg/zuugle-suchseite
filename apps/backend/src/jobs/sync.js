@@ -1,7 +1,13 @@
 import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
-import { createImagesFromMap, last_two_characters, regenerateGpxFile } from "../utils/gpx/gpxUtils";
+import { createImagesFromMap, regenerateGpxFile } from "../utils/gpx/gpxUtils";
+import {
+    GPX_IMAGE_PREFIX,
+    PLACEHOLDER_IMAGE_PATH,
+    isOwnAssetPath,
+    last_two_characters,
+} from "../utils/assetPaths";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
@@ -281,7 +287,7 @@ export async function fixTours() {
                     ) {
                         await knex.raw(`UPDATE tour SET image_url = NULL WHERE id=${entry.id}`);
                         // logger.info("Id "+entry.id+" wurde auf NULL gesetzt")
-                    } else {
+                    } else if (!isOwnAssetPath(entry.image_url)) {
                         // Null out image_url if the image is unreachable or
                         // returns a non-200 (10s timeout, matching the old default).
                         try {
@@ -472,10 +478,16 @@ export async function restoreDump() {
         });
     });
 
-    // Clear CDN URLs so local `npm run import-files` regenerates images with a local
-    // path — matching how "npm run import-data-prod" leaves the column on production.
+    // The GPX map previews are generated per environment and excluded from the deploy
+    // rsync, so the paths in a restored dump point at files this host does not have.
+    // Clearing them puts those tours back into the `image_url IS NULL` set that
+    // `npm run import-files` regenerates. Range images and the placeholder ship with
+    // the repo and exist everywhere, so they stay.
+    // `https://cdn.zuugle.at%` is the pre-relative-path form and can go once no live
+    // dump carries it any more.
     await knex.raw(
-        `UPDATE tour SET image_url = NULL WHERE image_url LIKE 'https://cdn.zuugle.at%';`,
+        `UPDATE tour SET image_url = NULL
+         WHERE image_url LIKE '${GPX_IMAGE_PREFIX}%' OR image_url LIKE 'https://cdn.zuugle.at%';`,
     );
 }
 
@@ -708,10 +720,10 @@ export async function syncGPXImage() {
         }
 
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
-        // The cdn url can be used, as this is a static image.
+        // Stored host-free so every environment resolves it against its own asset base.
         // city2tour_flat is automatically updated via database trigger trg_update_tour_image
         await knex.raw(
-            `UPDATE tour SET image_url='https://cdn.zuugle.at/img/train_placeholder.webp' WHERE image_url IS NULL OR image_url='null';`,
+            `UPDATE tour SET image_url='${PLACEHOLDER_IMAGE_PATH}' WHERE image_url IS NULL OR image_url='null';`,
         );
     }
     return true;

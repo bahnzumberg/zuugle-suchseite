@@ -12,6 +12,8 @@ on:
 jobs:
   deploy:
     uses: ./.github/workflows/_deploy.yml
+    with:
+      asset_base_url: "/public"
     secrets:
       DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}
       SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}

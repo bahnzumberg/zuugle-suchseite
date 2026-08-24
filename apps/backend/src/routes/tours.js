@@ -3,9 +3,16 @@ let router = express.Router();
 import knex from "../knex";
 import cacheService from "../services/cache.js";
 import crypto from "crypto";
-import { last_two_characters, hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
+import { hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
+import {
+    connectionGpxPath,
+    PLACEHOLDER_IMAGE_PATH,
+    PUBLIC_DIR,
+    rangeImagePath,
+    tourGpxPath,
+} from "../utils/assetPaths";
 import moment from "moment";
-import { getHost, replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
+import { replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
 import { convertDifficulty } from "../utils/utils";
 import logger from "../utils/logger";
@@ -652,7 +659,7 @@ const getWrapper = async (req, res) => {
         }
 
         // The function prepareTourEntry will remove the column hashed_url, so it is not send to frontend
-        entry = await prepareTourEntry(entry, city, domain, true);
+        entry = await prepareTourEntry(entry, city, true);
         const responseData = { success: true, tour: entry };
         cacheService.set(cacheKey, responseData);
         res.status(200).json(responseData);
@@ -931,12 +938,12 @@ const getMatchingTourIds = async (req) => {
             inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
                                             INNER JOIN pois ON pois.id=p2t.poi_id 
                                             WHERE pois.type='hut'
-                                            AND pois.name=?) as pois 
+                                            AND LOWER(pois.name)=LOWER(?)) as pois 
                                 ON t.id=pois.tour_id `;
             poi_bindings.push(search);
 
             const poiResult = await knex.raw(
-                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND pois.name=?`,
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='hut' AND LOWER(pois.name)=LOWER(?)`,
                 [search],
             );
             if (poiResult && poiResult.rows) {
@@ -949,12 +956,12 @@ const getMatchingTourIds = async (req) => {
             inner_join_pois = ` INNER JOIN (SELECT p2t.tour_id FROM poi2tour as p2t     
                                             INNER JOIN pois ON pois.id=p2t.poi_id 
                                             WHERE pois.type='peak'
-                                            AND pois.name=?) as pois 
+                                            AND LOWER(pois.name)=LOWER(?)) as pois 
                                 ON t.id=pois.tour_id `;
             poi_bindings.push(search);
 
             const poiResult = await knex.raw(
-                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND pois.name=?`,
+                `SELECT DISTINCT type, name, lat, lon FROM pois WHERE pois.type='peak' AND LOWER(pois.name)=LOWER(?)`,
                 [search],
             );
             if (poiResult && poiResult.rows) {
@@ -1262,7 +1269,6 @@ const listWrapper = async (req, res) => {
             const range_sql = `SELECT
                                 t.range_slug,
                                 t.range,
-                                CONCAT('https://cdn.zuugle.at/range-image/', t.range_slug, '.webp') as image_url,
                                 SUM(1.0/(t.min_connection_no_of_transfers+1)) AS attract
                                 FROM city2tour_flat AS t
                                 INNER JOIN tour AS tour ON tour.id=t.id
@@ -1272,7 +1278,7 @@ const listWrapper = async (req, res) => {
                                 AND t.range_slug IS NOT NULL
                                 AND t.range_slug <> 'null'
                                 AND t.range IS NOT NULL
-                                GROUP BY 1, 2, 3
+                                GROUP BY 1, 2
                                 ORDER BY SUM(1.0/(t.min_connection_no_of_transfers+1)) DESC, t.range_slug ASC
                                 LIMIT 10`;
 
@@ -1280,7 +1286,10 @@ const listWrapper = async (req, res) => {
             // logger.info("range_sql: ", range_sql)
 
             if (!!range_result && !!range_result.rows) {
-                ranges = range_result.rows;
+                ranges = range_result.rows.map((row) => ({
+                    ...row,
+                    image_url: rangeImagePath(row.range_slug),
+                }));
             }
             cacheService.set(cachedKeyRanges, ranges);
         }
@@ -1751,7 +1760,6 @@ const filterWrapperV2 = async (req, res) => {
 const connectionsExtendedWrapper = async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
-    const domain = req.query.domain;
 
     if (isNaN(id) || !city) {
         res.status(404).json({ success: false });
@@ -1822,7 +1830,7 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
             if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
-                e.gpx_file = `${getHost(domain)}/public/gpx-track/totour/${last_two_characters(e.totour_track_key)}/${e.totour_track_key}.gpx`;
+                e.gpx_file = connectionGpxPath("totour", e.totour_track_key);
                 duplicatesRemoved.push(e);
             }
         });
@@ -1830,7 +1838,7 @@ const connectionsExtendedWrapper = async (req, res) => {
         result.push({
             date: today.format(),
             connections: duplicatesRemoved,
-            returns: getReturnConnectionsByConnection(connections, domain, today),
+            returns: getReturnConnectionsByConnection(connections, today),
         });
         today.add(1, "day");
     }
@@ -1852,11 +1860,10 @@ const connectionsExtendedWrapper = async (req, res) => {
 /**
  * Helper function to filter and map return connections that match the date of the outbound connection.
  * @param {Array} connections - List of all available connections.
- * @param {string} domain - The domain to generate GPX links for.
  * @param {Moment} today - The specific date to filter for.
  * @returns {Array} List of unique return connections for the given date.
  */
-const getReturnConnectionsByConnection = (connections, domain, today) => {
+const getReturnConnectionsByConnection = (connections, today) => {
     let _connections = [];
     let _duplicatesRemoved = [];
 
@@ -1873,7 +1880,7 @@ const getReturnConnectionsByConnection = (connections, domain, today) => {
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
         if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
-            e.gpx_file = `${getHost(domain)}/public/gpx-track/fromtour/${last_two_characters(e.fromtour_track_key)}/${e.fromtour_track_key}.gpx`;
+            e.gpx_file = connectionGpxPath("fromtour", e.fromtour_track_key);
             _duplicatesRemoved.push(e);
         }
     });
@@ -1931,10 +1938,7 @@ const tourGpxWrapper = async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=31557600");
 
     try {
-        let BASE_PATH = process.env.NODE_ENV === "production" ? "../" : "../../";
-        let filePath = replaceFilePath(
-            path.join(__dirname, BASE_PATH, `/public/gpx/${last_two_characters(id)}/${id}.gpx`),
-        );
+        let filePath = replaceFilePath(path.join(PUBLIC_DIR, tourGpxPath(id)));
 
         let stream = fs.createReadStream(filePath);
         stream.on("error", (error) => {
@@ -2019,19 +2023,17 @@ const getTourStopsCoordinates = async (tourId, city) => {
  * Adds full image URLs, provider names, difficulty text, and canonical/alternate links.
  * @param {object} entry - The raw tour entry from the database.
  * @param {string} city - The city slug (optional) to link specific transport tracks.
- * @param {string} domain - The domain for URL generation.
  * @param {boolean} addDetails - Whether to fetch extra details like provider name and canonical links.
  * @returns {object} The formatted tour entry.
  */
-const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
+const prepareTourEntry = async (entry, city, addDetails = true) => {
     if (!(!!entry && !!entry.provider)) return entry;
 
     if (!entry.image_url || entry.image_url.length < 5) {
-        entry.image_url = "https://cdn.zuugle.at/img/train_placeholder.webp";
+        entry.image_url = PLACEHOLDER_IMAGE_PATH;
     }
 
-    const host = getHost(domain);
-    entry.gpx_file = `${host}/public/gpx/${last_two_characters(entry.id)}/${entry.id}.gpx`;
+    entry.gpx_file = tourGpxPath(entry.id);
 
     if (addDetails) {
         if (city) {
@@ -2047,10 +2049,13 @@ const prepareTourEntry = async (entry, city, domain, addDetails = true) => {
                 .first();
 
             if (!!toTour && !!toTour.totour_track_key) {
-                entry.totour_gpx_file = `${host}/public/gpx-track/totour/${last_two_characters(toTour.totour_track_key)}/${toTour.totour_track_key}.gpx`;
+                entry.totour_gpx_file = connectionGpxPath("totour", toTour.totour_track_key);
             }
             if (!!fromTour && !!fromTour.fromtour_track_key) {
-                entry.fromtour_gpx_file = `${host}/public/gpx-track/fromtour/${last_two_characters(fromTour.fromtour_track_key)}/${fromTour.fromtour_track_key}.gpx`;
+                entry.fromtour_gpx_file = connectionGpxPath(
+                    "fromtour",
+                    fromTour.fromtour_track_key,
+                );
             }
         }
 

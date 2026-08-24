@@ -4,7 +4,6 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { convertNumToTime, getTourLink } from "../utils/globals";
 import { tourTypes } from "../utils/language_Utils";
-import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
 import { Tour } from "../models/Tour";
@@ -14,8 +13,9 @@ import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import { useSelector } from "react-redux";
 import { RootState } from "..";
 import FavoriteButton from "./Favorites/FavoriteButton";
+import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
 
-const DEFAULT_IMAGE = "https://cdn.zuugle.at/img/dummy.webp";
+const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 
 export interface TourCardProps {
   tour: Tour;
@@ -26,24 +26,14 @@ export default function TourCard({ tour, city }: TourCardProps) {
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
-  const [image, setImage] = useState(DEFAULT_IMAGE);
+  // Uniform tile size for every card; a no-op off PROD, see sizedImageUrl().
+  const image = tour.image_url
+    ? sizedImageUrl(tour.image_url, { width: 600, height: 400 })
+    : DEFAULT_IMAGE;
 
   // i18next
   const { t } = useTranslation();
   const hm = t("details.hm_hoehenmeter");
-
-  useEffect(() => {
-    if (JSON.stringify(tour.image_url) === "null") {
-      setImage("https://cdn.zuugle.at/img/dummy.webp");
-    } else {
-      // Normalize CDN dimensions to 400x150 for consistent tile images
-      let url = tour.image_url;
-      url = url.replace(/[?&]width=\d+/g, "");
-      url = url.replace(/[?&]height=\d+/g, "");
-      const separator = url.includes("?") ? "&" : "?";
-      setImage(`${url}${separator}width=600&height=400`);
-    }
-  }, [tour]);
 
   const tourLink = getTourLink(tour, city, externalLinks);
 

@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
+import { assetUrl } from "../../utils/assetUrl";
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -39,7 +40,7 @@ export default function Footer() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
+                  src={assetUrl("/img/BMLUK_Logo_Foerderung.svg")}
                   height="100px"
                   alt="Funded by www.bmluk.gv.at"
                   loading="lazy"
@@ -66,7 +67,7 @@ export default function Footer() {
                 rel="noreferrer"
               >
                 <img
-                  src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
+                  src={assetUrl("/img/Alpenkonvention_logo_gruen.webp")}
                   height="75px"
                   width="317px"
                   alt="Logo Alpenkonvention"
@@ -111,7 +112,7 @@ export default function Footer() {
                   }}
                 >
                   <img
-                    src={`https://cdn.zuugle.at/img/bahnzumberg_logo_blue.svg`}
+                    src={assetUrl("/img/bahnzumberg_logo_blue.svg")}
                     width={"45px"}
                     height={"auto"}
                     alt="Bahn zum Berg"
@@ -208,7 +209,7 @@ export default function Footer() {
                   title="Facebook"
                 >
                   <img
-                    src={`https://cdn.zuugle.at/img/logo-facebook.png`}
+                    src={assetUrl("/img/logo-facebook.png")}
                     width={"20px"}
                     height={"20px"}
                     alt="Facebook"
@@ -227,7 +228,7 @@ export default function Footer() {
                   sx={{ marginLeft: "5px" }}
                 >
                   <img
-                    src={`https://cdn.zuugle.at/img/logo-instagram.png`}
+                    src={assetUrl("/img/logo-instagram.png")}
                     width={"20px"}
                     height={"20px"}
                     alt="Instagram"
@@ -246,7 +247,7 @@ export default function Footer() {
                   sx={{ marginLeft: "5px" }}
                 >
                   <img
-                    src={`https://cdn.zuugle.at/img/logo-github.png`}
+                    src={assetUrl("/img/logo-github.png")}
                     width={"20px"}
                     height={"20px"}
                     alt="GitHub"

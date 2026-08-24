@@ -22,8 +22,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("https://cdn.zuugle.at/fonts/source-sans-3-400.woff2")
-    format("woff2");
+  src: url("__ASSET_BASE__/fonts/source-sans-3-400.woff2") format("woff2");
 }
 
 @font-face {
@@ -31,8 +30,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("https://cdn.zuugle.at/fonts/source-sans-3-700.woff2")
-    format("woff2");
+  src: url("__ASSET_BASE__/fonts/source-sans-3-700.woff2") format("woff2");
 }
 
 @font-face {
@@ -40,8 +38,7 @@
   font-style: normal;
   font-weight: 900;
   font-display: swap;
-  src: url("https://cdn.zuugle.at/fonts/source-sans-3-900.woff2")
-    format("woff2");
+  src: url("__ASSET_BASE__/fonts/source-sans-3-900.woff2") format("woff2");
 }
 
 /* Juniper Bay – CD-Handschrift für Zitate und Hervorhebungen */
@@ -51,8 +48,8 @@
   font-weight: 400;
   font-display: swap;
   src:
-    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff2") format("woff2"),
-    url("https://cdn.zuugle.at/fonts/JuniperBay-Regular.woff") format("woff");
+    url("__ASSET_BASE__/fonts/JuniperBay-Regular.woff2") format("woff2"),
+    url("__ASSET_BASE__/fonts/JuniperBay-Regular.woff") format("woff");
 }
 
 * {

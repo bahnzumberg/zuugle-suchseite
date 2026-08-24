@@ -21,6 +21,7 @@ import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
+import { absoluteAssetUrl } from "../utils/assetUrl";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
@@ -291,7 +292,8 @@ export default function DetailReworked() {
   let description = "";
   if (tour) {
     page_title = "Zuugle: " + tour.title + " (" + tour.provider_name + ")";
-    imageUrl = tour?.image_url ?? "";
+    // og:image/twitter:image have to be absolute for social crawlers.
+    imageUrl = absoluteAssetUrl(tour.image_url);
     description = tour?.description ?? "";
   }
 
