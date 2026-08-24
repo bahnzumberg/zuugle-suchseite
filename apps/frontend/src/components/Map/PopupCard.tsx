@@ -81,7 +81,9 @@ function PopupCard({
               <a
                 href={getTourLink(tour, city, externalLinks)}
                 target="_blank"
-                rel="noopener"
+                // Keep our own detail tab as opener so it can detect this
+                // search tab is still open; external links stay noopener.
+                rel={externalLinks ? "noopener" : "opener"}
                 className="updated-title curser-link"
               >
                 {tour.title}
