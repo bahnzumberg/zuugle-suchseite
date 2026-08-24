@@ -9,8 +9,6 @@ import {
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
-import { cityUpdated } from "../features/searchSlice";
-import { useAppDispatch } from "../hooks";
 import {
   DirectLink,
   extractCityFromLocation,
@@ -29,7 +27,6 @@ export function useSearchTours() {
   const showMap = useSelector((state: RootState) => state.search.map);
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
-  const dispatch = useAppDispatch();
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -126,9 +123,10 @@ export function useSearchTours() {
   // Extract city from URL (direct links like /linz)
   useEffect(() => {
     if (!allCities) return;
+    // City selection is owned by SearchParamSync (path > ?city= > localStorage);
+    // here we only derive the SEO header for direct /:city links.
     const cityFromUrl = extractCityFromLocation(location, allCities);
     if (cityFromUrl) {
-      dispatch(cityUpdated(cityFromUrl));
       setDirectLink({
         header: t(`main.oeffi_bergtouren_fuer_cityname`, {
           "city.label": cityFromUrl.label,

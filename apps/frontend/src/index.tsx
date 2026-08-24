@@ -29,10 +29,32 @@ if (getTLD() === "li") {
   cityObject = { label: "Vaduz", value: "vaduz" };
 }
 
+// App routes whose first path segment is not a city slug.
+const RESERVED_PATH_SEGMENTS = new Set([
+  "search",
+  "tour",
+  "provider",
+  "imprint",
+  "privacy",
+]);
+
+// A single-segment path like /wien targets a specific city and must override
+// any city saved in localStorage (matching the /:city route in App.tsx).
+function getCitySlugFromPath(): string | null {
+  const segments = window.location.pathname.split("/").filter(Boolean);
+  if (segments.length === 1 && !RESERVED_PATH_SEGMENTS.has(segments[0])) {
+    return segments[0];
+  }
+  return null;
+}
+
 function getPreloadedSearchState() {
   const params = new URLSearchParams(window.location.search);
   const searchPhrase = params.get("search") ?? "";
   const rawSearchType = params.get("search_type");
+
+  // City precedence: /:city path segment > ?city= query > localStorage.
+  const urlCitySlug = getCitySlugFromPath() ?? params.get("city");
 
   return {
     searchWithType: searchPhrase
@@ -41,12 +63,10 @@ function getPreloadedSearchState() {
           type: isValidSearchType(rawSearchType) ? rawSearchType : "term",
         }
       : null,
-    // URL city param takes precedence; only use stored city object if it matches the URL slug
-    city:
-      !params.get("city") || params.get("city") === cityObject?.value
-        ? cityObject
-        : null,
-    citySlug: params.get("city") ?? cityObject?.value ?? null,
+    // Only reuse the stored city object when it matches the URL slug; otherwise
+    // SearchParamSync resolves the full CityObject once the cities list loads.
+    city: !urlCitySlug || urlCitySlug === cityObject?.value ? cityObject : null,
+    citySlug: urlCitySlug ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
     language: params.get("lang") ?? null,
     // ?p=bahnzumberg is the legacy embed param; it enables external tour links.
@@ -103,7 +123,7 @@ const tld = getTLD();
 const preloadUrl = getBackgroundImageUrl(tld);
 
 const currentPath = window.location.pathname;
-const shouldPreload = currentPath === "/" || currentPath === "/total";
+const shouldPreload = currentPath === "/";
 
 const head = createHead();
 
