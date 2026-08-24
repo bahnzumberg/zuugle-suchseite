@@ -50,6 +50,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import { assetUrl } from "../../utils/assetUrl";
 
 // Re-export Marker for backward compatibility
 export type { Marker };
@@ -408,9 +409,9 @@ export default function TourMapContainer({
     // created once for the whole component lifetime
     () =>
       L.icon({
-        iconUrl: "https://cdn.zuugle.at/img/startpunkt-slim.svg",
-        iconSize: [26, 38],
-        iconAnchor: [13, 38],
+        iconUrl: assetUrl("/img/startpunkt-map.svg"),
+        iconSize: [30, 38],
+        iconAnchor: [15, 38],
       }),
     [],
   );

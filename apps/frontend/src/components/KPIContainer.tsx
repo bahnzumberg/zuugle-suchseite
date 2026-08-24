@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useTranslation } from "react-i18next";
 import Paper from "@mui/material/Paper";
+import { assetUrl } from "../utils/assetUrl";
 
 export interface KPIContainerProps {
   totalTours: number;
@@ -163,7 +164,7 @@ export default function KPIContainer({
             style={{ display: "block" }}
           >
             <img
-              src="https://cdn.zuugle.at/img/bahnzumberg_logo_white.svg"
+              src={assetUrl("/img/bahnzumberg_logo_white.svg")}
               alt="Bahn zum Berg"
               style={{ height: "100px", width: "auto", display: "block" }}
               loading="lazy"

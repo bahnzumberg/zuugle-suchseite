@@ -1,7 +1,130 @@
+import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
+import sirv from "sirv";
 import svgr from "vite-plugin-svgr";
-import { defineConfig } from "vite-plus";
+import { defineConfig, type Plugin } from "vite-plus";
+
+const uatTarget = process.env.UAT_TARGET;
+
+/** UAT is behind basic auth; PROD is public, and sets no `UAT_AUTH`. */
+const authHeaders = process.env.UAT_AUTH
+  ? {
+      Authorization: `Basic ${Buffer.from(process.env.UAT_AUTH).toString("base64")}`,
+    }
+  : undefined;
+
+/**
+ * Where a `/public` request falls back to when the file is not on disk.
+ * `dev:uat` asks UAT; `dev:main` asks the host it already reads its API data
+ * from (PROD); plain `vp dev` has no remote to ask and stays disk-only.
+ */
+const remoteAssetTarget =
+  uatTarget ??
+  (process.env.VITE_API_URL?.startsWith("http")
+    ? new URL(process.env.VITE_API_URL).origin
+    : undefined);
+
+const BACKEND_PUBLIC_DIR = fileURLToPath(
+  new URL("../backend/public", import.meta.url),
+);
+
+/**
+ * Base URL of the backend `public/` folder, resolved **once** for the whole
+ * build. PROD sets `VITE_ASSET_BASE_URL=https://cdn.zuugle.at`; UAT, DEV and
+ * local leave it unset and serve `/public` from their own API folder.
+ *
+ * The default lives here rather than in `utils/assetUrl.ts` because HTML and
+ * CSS cannot fall back on their own: a token that expanded to the raw, unset
+ * variable would give them an empty prefix (`/fonts/…` at the site root) while
+ * the app code used `/public/fonts/…`, and the font preload would then warm a
+ * URL no `@font-face` ever requests.
+ */
+const ASSET_BASE = (
+  process.env.VITE_ASSET_BASE_URL?.trim() || "/public"
+).replace(/\/+$/, "");
+
+/**
+ * Warm the connection to the CDN — but only when there is one. A relative base
+ * is the site's own origin, which the browser is already connected to.
+ */
+const ASSET_BASE_HINTS = /^https?:\/\//.test(ASSET_BASE)
+  ? [
+      {
+        tag: "link",
+        attrs: { rel: "preconnect", href: ASSET_BASE, crossorigin: true },
+        injectTo: "head-prepend" as const,
+      },
+      {
+        tag: "link",
+        attrs: { rel: "dns-prefetch", href: ASSET_BASE },
+        injectTo: "head-prepend" as const,
+      },
+    ]
+  : [];
+
+/**
+ * Stands in for {@link ASSET_BASE} wherever `import.meta.env` cannot reach:
+ * the `@font-face` `url()`s in `src/App.css` (Vite expands no env in CSS, and
+ * `url()` cannot read a custom property) and the `index-*.html` entry points.
+ * The app code gets the same value from the `__ASSET_BASE__` define below, so
+ * the font preload and the `@font-face` resolve to the identical URL.
+ */
+const ASSET_BASE_TOKEN = "__ASSET_BASE__";
+
+/** Matches a CSS module id, with or without Vite's `?used`-style suffix. */
+const CSS_ID = /\.css(?:$|\?)/;
+
+function assetBaseUrl(): Plugin {
+  return {
+    name: "zuugle:asset-base-url",
+    // Before `vite:css`, which would otherwise try to resolve the unexpanded
+    // `__ASSET_BASE__/fonts/…` as a relative file reference and fail the build.
+    enforce: "pre",
+    transform: {
+      // Matched natively, so the handler is never called for the rest of the
+      // module graph. The `id` half also keeps this off `.ts` sources, where
+      // the same token is a JS identifier that Vite's `define` substitutes —
+      // splicing a bare string in here would corrupt them.
+      filter: { id: CSS_ID, code: ASSET_BASE_TOKEN },
+      handler(code) {
+        return code.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE);
+      },
+    },
+    transformIndexHtml(html) {
+      return {
+        html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
+        tags: ASSET_BASE_HINTS,
+      };
+    },
+  };
+}
+
+/**
+ * Serves the backend's `public/` folder under `/public`, the way nginx aliases
+ * it on every deployed environment. Reading it from disk rather than proxying
+ * a local backend keeps `vp dev` usable with no API and no database, and lets
+ * an asset be edited and reloaded in place.
+ *
+ * Registered before Vite's proxy, so a local file always wins and only what is
+ * missing on disk is fetched from the remote — the generated trees
+ * (`gpx-image/`, `gpx-track/`, `gpx/`, `range-image/` slugs newer than the last
+ * pull) are gitignored and exist only on a deployed environment.
+ */
+function backendPublicAssets(): Plugin {
+  return {
+    name: "zuugle:backend-public-assets",
+    apply: "serve",
+    configureServer(server) {
+      // `dev` re-reads the folder per request, so a newly added asset is picked
+      // up without a restart; sirv calls next() when it finds no file.
+      server.middlewares.use(
+        "/public",
+        sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
+      );
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
@@ -10,21 +133,25 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
     svgr(),
+    assetBaseUrl(),
+    backendPublicAssets(),
   ],
   server: {
     port: 3000,
     open: true,
-    proxy: process.env.UAT_TARGET
-      ? {
-          "/api": {
-            target: process.env.UAT_TARGET,
-            changeOrigin: true,
-            headers: {
-              Authorization: `Basic ${Buffer.from(process.env.UAT_AUTH ?? "").toString("base64")}`,
-            },
-          },
-        }
-      : undefined,
+    proxy: {
+      ...(uatTarget && {
+        "/api": { target: uatTarget, changeOrigin: true, headers: authHeaders },
+      }),
+      // Fallback for the assets that exist only on a deployed environment.
+      ...(remoteAssetTarget && {
+        "/public": {
+          target: remoteAssetTarget,
+          changeOrigin: true,
+          headers: authHeaders,
+        },
+      }),
+    },
   },
   build: {
     outDir: "build",
@@ -43,6 +170,7 @@ export default defineConfig({
   },
   define: {
     __BUILD_HASH__: JSON.stringify(Date.now().toString(36)),
+    __ASSET_BASE__: JSON.stringify(ASSET_BASE),
   },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "react"],

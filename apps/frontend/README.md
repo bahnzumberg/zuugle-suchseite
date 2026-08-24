@@ -65,6 +65,72 @@ This will run the frontend in a browser on http://localhost:3000
 
     VITE_API_URL=https://www2.zuugle.at/api vp dev
 
+## Environment variables
+
+| Variable              | Default                     | Purpose                                                      |
+| --------------------- | --------------------------- | ------------------------------------------------------------ |
+| `VITE_API_URL`        | `http://localhost:8080/api` | Backend API base URL. Only used when running on `localhost`. |
+| `VITE_ASSET_BASE_URL` | `/public`                   | Base URL for static assets (fonts, images, icons).           |
+
+### `VITE_ASSET_BASE_URL`
+
+Static assets live in the backend `public/` folder. Never hardcode an asset
+host — build the URL with the `assetUrl()` helper from `src/utils/assetUrl.ts`:
+
+```ts
+import { assetUrl } from "../utils/assetUrl";
+
+<img src={assetUrl("/img/zuugle.svg")} />;
+```
+
+In HTML and CSS, where `import.meta.env` cannot reach, write the literal token
+`__ASSET_BASE__` instead — the `zuugle:asset-base-url` plugin expands it in the
+`index-*.html` entry points and in `src/App.css`:
+
+```css
+src: url("__ASSET_BASE__/fonts/source-sans-3-400.woff2") format("woff2");
+```
+
+Only **PROD** sets the variable, to `https://cdn.zuugle.at` — a BunnyCDN pull
+zone whose origin is prod, so `cdn.zuugle.at/img/x.svg` and
+`www.zuugle.at/public/img/x.svg` serve the same file. The value comes from the
+`asset_base_url` input of `.github/workflows/_deploy.yml`, which each
+`deploy2*.yml` sets for its environment. That build also gets a
+`preconnect`/`dns-prefetch` hint for the CDN, injected by the same plugin;
+a relative base is the site's own origin and needs none.
+
+`vite.config.ts` applies the `/public` default **once**, before handing the
+value to the app (via the `__ASSET_BASE__` define), the HTML and the CSS. Do not
+re-apply it per call site: the font preload in `index.html` and the `@font-face`
+in `App.css` have to resolve to the byte-identical URL or the preload is wasted.
+
+Two exceptions stay absolute on every environment. `og:image`/`twitter:image`
+must be absolute for social crawlers, so they use the file's own canonical host
+(`https://www.zuugle.de/public/img/…` in `index-de.html`). `public/site.webmanifest`
+is copied verbatim by Vite and never transformed, so its icons are site-relative
+`/public/…`.
+
+UAT, DEV and local builds leave it unset and fall back to the relative
+`/public` prefix, which nginx serves from that environment's own API folder.
+That way no environment loads its assets from production, and asset changes can
+be reviewed on DEV before they are released.
+
+In dev there is no nginx, so `vite.config.ts` covers the prefix itself: it
+serves `apps/backend/public` from disk, in every dev mode, without a running
+backend or database — edit an asset there and reload. Anything missing on disk
+falls back to the environment the API data comes from (UAT for `dev:uat`, PROD
+for `dev:main`, nothing for plain `vp dev`).
+
+### Assets that come from the API
+
+The API returns its own assets host-free too — `/gpx/56/61256.gpx`,
+`/range-image/dachstein.webp` — so the same base applies to them.
+`features/apiSlice.ts` is the one place that resolves them, with
+`publicAssetUrl()` for the GPX links (always ours) and `apiImageUrl()` for
+`image_url`, which leaves the absolute provider URLs
+(`cdn.bahn-zum-berg.at`) alone. Components receive ready-to-use URLs; do not
+re-point them again per render.
+
 ## Common issues
 
 - `Error: ENOSPC: System limit for number of file watchers reached`

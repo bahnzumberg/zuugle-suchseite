@@ -7,6 +7,12 @@ on:
         description: "Create a server-side backup before deploying"
         type: boolean
         default: false
+      asset_base_url:
+        description: >-
+          Base URL of the backend public/ folder, baked into the build.
+          PROD points at the CDN pull zone, UAT/DEV serve their own /public.
+        type: string
+        default: "/public"
     secrets:
       DEPLOY_ACCESS:
         required: true
@@ -42,6 +48,8 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_ASSET_BASE_URL: ${{ inputs.asset_base_url }}
         run: npm run build
 
       - name: Unlock network access to server

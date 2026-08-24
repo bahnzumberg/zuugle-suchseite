@@ -8,8 +8,8 @@ is why the schedule is invisible from the repo.
 
 | Script | Host | npm scripts it calls (by name) | Env |
 | --- | --- | --- | --- |
-| `start_zuugle_load.py` | `zuugle-neu` (PROD) | `import-data-prod`, `import-files` | `NODE_ENV=production`, `USE_CDN=true` |
-| `start_zuugle_uat_load.py` | `uat-zuugle` (UAT+DEV) | `import-files` (+ `restore_databases.sh` in `api/` and `dev-api/`) | `NODE_ENV=production`, `USE_CDN=false` |
+| `start_zuugle_load.py` | `zuugle-neu` (PROD) | `import-data-prod`, `import-files` | `NODE_ENV=production` |
+| `start_zuugle_uat_load.py` | `uat-zuugle` (UAT+DEV) | `import-files` (+ `restore_databases.sh` in `api/` and `dev-api/`) | `NODE_ENV=production` |
 
 > The npm-script names above are asserted by `scripts/check-cron-scripts.mjs`
 > (`apps/backend/scripts/…` after the monorepo merge), wired into code-checks so a

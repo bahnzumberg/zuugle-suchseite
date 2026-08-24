@@ -46,7 +46,6 @@ def run_node_task(npm_command):
         # und füge/überschreibe die benötigten Werte
         env = os.environ.copy()
         env["NODE_ENV"] = "production"
-        env["USE_CDN"] = "true"
 
         # subprocess.run wartet auf das Ende des Prozesses
         # shell=True ist für npm unter Linux oft am einfachsten
