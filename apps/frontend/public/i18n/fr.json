@@ -1,4 +1,13 @@
 {
+  "favorites": {
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris",
+    "save": "Ajouter aux favoris",
+    "saved": "Enregistré",
+    "show": "Afficher les favoris",
+    "showing": "Favoris affichés",
+    "error": "Enregistré sur cet appareil, mais synchronisation en ligne impossible."
+  },
   "about": {
     "was_ist_zuugle": "Qu'est-ce que Zuugle ?",
     "zuugle_erklaerung_1": "Zuugle est un moteur de recherche pour les sorties en montagne accessibles sans voiture.",
@@ -357,6 +366,6 @@
     "tour_added": "Tour ajouté",
     "tour_removed": "Tour supprimé",
     "list_empty": "Cette liste est vide",
-    "list_not_found": "Liste introuvable"
+    "list_empty_hint": "Appuie sur l'icône cœur d'un circuit pour l'enregistrer ici."
   }
 }

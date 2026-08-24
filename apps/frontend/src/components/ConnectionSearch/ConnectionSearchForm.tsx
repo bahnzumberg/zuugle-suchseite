@@ -794,12 +794,14 @@ export default function ConnectionSearchForm({
             sx={{
               mt: "16px",
               p: "12px 16px",
-              bgcolor: "#fff3e0",
+              bgcolor: "var(--bzb-warnorange-light)",
               borderRadius: "10px",
-              borderLeft: "4px solid #e65100",
+              borderLeft: "4px solid var(--bzb-warnorange)",
             }}
           >
-            <Typography sx={{ fontSize: "14px", color: "#bf360c" }}>
+            <Typography
+              sx={{ fontSize: "14px", color: "var(--bzb-warnorange-dark)" }}
+            >
               {searchError}
             </Typography>
           </Box>

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query/react";
 import App from "./App";
 import i18n from "./translations/i18n";
 import { I18nextProvider } from "react-i18next";
@@ -10,6 +11,7 @@ import { getBackgroundImageUrl, getTLD } from "./utils/globals";
 import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
+import favoritesReducer, { FavoritesState } from "./features/favoritesSlice";
 import { api, isValidSearchType } from "./features/apiSlice";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
@@ -60,6 +62,33 @@ function getPreloadedSearchState() {
   };
 }
 
+function getPersistedFavoriteTourIds(): number[] {
+  const stored = localStorage.getItem("favoriteTourIds");
+  if (!stored) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error("Error parsing favoriteTourIds from localStorage", e);
+    return [];
+  }
+}
+
+function getPreloadedFavoritesState(): FavoritesState {
+  const listKey = localStorage.getItem("favoritesListKey");
+  const tourIds = getPersistedFavoriteTourIds();
+  return {
+    listKey,
+    tourIds,
+    // Cached tourIds (even []) mean no server seed is needed.
+    hydrated: localStorage.getItem("favoriteTourIds") !== null,
+    error: null,
+    favoritesOnly: false,
+  };
+}
+
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
   // Automatically calls `combineReducers`
@@ -68,8 +97,12 @@ export const store = configureStore({
     [api.reducerPath]: api.reducer,
     search: searchReducer,
     filter: filterReducer,
+    favorites: favoritesReducer,
   },
-  preloadedState: { search: getPreloadedSearchState() },
+  preloadedState: {
+    search: getPreloadedSearchState(),
+    favorites: getPreloadedFavoritesState(),
+  },
   // Add the RTK Query API middleware
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
@@ -80,6 +113,9 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
 
+// Enables the refetchOnFocus/refetchOnReconnect query options.
+setupListeners(store.dispatch);
+
 // TODO: store.subscribe is a rough tool, use middleware instead
 store.subscribe(() => {
   const newCity = store.getState().search.city;
@@ -87,6 +123,23 @@ store.subscribe(() => {
     localStorage.setItem("city", JSON.stringify(newCity));
   } else {
     localStorage.removeItem("city");
+  }
+});
+
+store.subscribe(() => {
+  const listKey = store.getState().favorites.listKey;
+  if (listKey !== null) {
+    localStorage.setItem("favoritesListKey", listKey);
+  } else {
+    localStorage.removeItem("favoritesListKey");
+  }
+});
+
+store.subscribe(() => {
+  const { tourIds, hydrated } = store.getState().favorites;
+  // Skip the pre-hydration empty array.
+  if (hydrated) {
+    localStorage.setItem("favoriteTourIds", JSON.stringify(tourIds));
   }
 });
 

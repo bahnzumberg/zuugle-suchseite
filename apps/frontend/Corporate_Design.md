@@ -477,6 +477,44 @@ RGB: 204, 216, 161
 CMYK: 25, 5, 45, 0
 ```
 
+**Ergänzungsfarbe für digitale Anwendungen**
+
+_Nicht Teil des offiziellen Print-Manuals von deliza design — eine Ergänzung für
+UI-Feedback in der Webanwendung, wo die restliche Farbpalette keine geeignete
+Fehler-/Warnfarbe bietet._
+
+```
+Warnorange
+HEX: #e65100
+RGB: 230, 81, 0
+```
+
+Wird app-weit für Fehler- und Warnhinweise verwendet, z.B. den nicht-blockierenden
+Hinweis, wenn ein Favorit nicht gespeichert werden konnte, oder Zeitkonflikt-Warnungen
+in der Verbindungssuche. Als CSS-Variable verfügbar: `--bzb-warnorange` (siehe
+`src/App.css`).
+
+```
+Warnorange Dunkel
+HEX: #bf360c
+RGB: 191, 54, 12
+```
+
+Dunklere Variante für Fließtext auf einem hell orange eingefärbten Hintergrund (z.B.
+Fehlermeldungs-Box), wo das reine Warnorange zu wenig Kontrast böte. Als CSS-Variable
+verfügbar: `--bzb-warnorange-dark`.
+
+```
+Warnorange Hell
+HEX: #fff3e0
+RGB: 255, 243, 224
+```
+
+Heller Hintergrundton für Fehler-/Warnhinweis-Boxen, kombiniert mit Warnorange als
+Akzent (z.B. linker Rahmen) und Warnorange Dunkel als Textfarbe — so in der
+Verbindungssuche und im Favoriten-Hinweis verwendet. Als CSS-Variable verfügbar:
+`--bzb-warnorange-light`.
+
 Corporate Design Manual • Bahn zum Berg
 Farben
 

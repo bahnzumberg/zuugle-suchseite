@@ -8,7 +8,8 @@ PR titles and descriptions, issue comments, code comments, and code review feedb
 ## Design constraints
 
 1. Match our current design system — before proposing anything, look at
-   [component library / existing pages / design tokens file] and extract
+   [component library / existing pages / design tokens file] as well as
+   our Corporate_Design.md and extract
    the actual patterns in use: color palette, type scale, spacing units,
    border-radius, shadow style, component conventions (buttons, forms,
    cards, etc.)

@@ -1283,7 +1283,7 @@ export default function ConnectionResults({
                 sx={{
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#e65100",
+                  color: "var(--bzb-warnorange)",
                   mt: "4px",
                 }}
               >
