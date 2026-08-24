@@ -5,7 +5,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
 
 interface SearchBarButtonProps {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   onClick: () => void;
   variant?: ButtonProps["variant"];
@@ -33,7 +33,7 @@ export default function SearchBarButton({
   const isXsScreen = useMediaQuery(theme.breakpoints.only("xs"));
   const callerSx = Array.isArray(sx) ? sx : [sx];
 
-  if (isXsScreen) {
+  if (isXsScreen && icon) {
     return (
       <IconButton
         onClick={onClick}

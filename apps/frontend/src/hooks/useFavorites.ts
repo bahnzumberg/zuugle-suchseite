@@ -13,7 +13,8 @@ import {
   favoritesHydrated,
   favoriteAdded,
   favoriteRemoved,
-  favoritesErrorSet,
+  favoritesSyncSuccess,
+  favoritesSyncFailed,
   favoritesOnlyToggled,
 } from "../features/favoritesSlice";
 
@@ -22,12 +23,13 @@ import {
  * is authoritative; the server is a best-effort mirror, not a gate.
  */
 export function useFavorites() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const listKey = useAppSelector((state) => state.favorites.listKey);
   const tourIds = useAppSelector((state) => state.favorites.tourIds);
   const hydrated = useAppSelector((state) => state.favorites.hydrated);
-  const error = useAppSelector((state) => state.favorites.error);
+  const lastSyncedAt = useAppSelector((state) => state.favorites.lastSyncedAt);
+  const isSynced = useAppSelector((state) => state.favorites.isSynced);
   const favoritesOnly = useAppSelector(
     (state) => state.favorites.favoritesOnly,
   );
@@ -68,8 +70,10 @@ export function useFavorites() {
         await Promise.all(
           tourIds.map((tourId) => addFavoriteTour({ key, tourId }).unwrap()),
         );
+        dispatch(favoritesSyncSuccess(new Date().toISOString()));
       } catch {
         // Best-effort; local stays authoritative and we retry on the next load.
+        dispatch(favoritesSyncFailed());
       }
     })();
   }, [
@@ -90,14 +94,28 @@ export function useFavorites() {
         new Set(listData.tours.map((tour) => tour.id)),
       );
       dispatch(favoritesHydrated(uniqueTourIds));
+      dispatch(favoritesSyncSuccess(new Date().toISOString()));
+    } else if (listData && hydrated) {
+      // Server returned successfully. Check if in sync.
+      const serverIds = new Set(listData.tours.map((t) => t.id));
+      const hasUnsynced =
+        tourIds.length !== serverIds.size ||
+        tourIds.some((id) => !serverIds.has(id));
+      if (!hasUnsynced) {
+        dispatch(favoritesSyncSuccess(new Date().toISOString()));
+      }
     }
-  }, [listData, hydrated, dispatch]);
+  }, [listData, hydrated, tourIds, dispatch]);
 
   // Cross-tab sync via the native storage event.
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
       if (event.key === "favoritesListKey" && event.newValue) {
         dispatch(listKeyCreated(event.newValue));
+        return;
+      }
+      if (event.key === "favoritesLastSyncedAt" && event.newValue) {
+        dispatch(favoritesSyncSuccess(event.newValue));
         return;
       }
       if (event.key === "favoriteTourIds" && event.newValue) {
@@ -120,10 +138,6 @@ export function useFavorites() {
     [tourIds],
   );
 
-  const clearError = useCallback(() => {
-    dispatch(favoritesErrorSet(null));
-  }, [dispatch]);
-
   const toggleFavorite = useCallback(
     async (tourId: number) => {
       const wasFavorite = tourIds.includes(tourId);
@@ -143,8 +157,10 @@ export function useFavorites() {
         } else {
           await addFavoriteTour({ key, tourId }).unwrap();
         }
+        dispatch(favoritesSyncSuccess(new Date().toISOString()));
       } catch {
-        dispatch(favoritesErrorSet(t("favorites.error")));
+        // Sync to server failed — recorded in state without showing a popup alert
+        dispatch(favoritesSyncFailed());
       }
     },
     [
@@ -155,7 +171,6 @@ export function useFavorites() {
       removeFavoriteTour,
       dispatch,
       i18n.language,
-      t,
     ],
   );
 
@@ -163,13 +178,17 @@ export function useFavorites() {
     dispatch(favoritesOnlyToggled());
   }, [dispatch]);
 
+  const isOnlyLocal =
+    tourIds.length > 0 && (!listKey || !isSynced || listNotFound);
+
   return {
     isFavorite,
     toggleFavorite,
-    error,
-    clearError,
     tourIds,
     favoritesOnly,
     toggleFavoritesOnly,
+    lastSyncedAt,
+    isSynced,
+    isOnlyLocal,
   };
 }

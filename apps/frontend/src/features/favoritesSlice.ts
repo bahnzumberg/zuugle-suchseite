@@ -10,6 +10,10 @@ export interface FavoritesState {
   error: string | null;
   // "Show only favorites" toggle — filters the search results down to tourIds.
   favoritesOnly: boolean;
+  // ISO timestamp string of the last successful server sync
+  lastSyncedAt: string | null;
+  // Indicates if current local favorites are successfully mirrored on server
+  isSynced: boolean;
 }
 
 const initialState: FavoritesState = {
@@ -18,6 +22,8 @@ const initialState: FavoritesState = {
   hydrated: false,
   error: null,
   favoritesOnly: false,
+  lastSyncedAt: null,
+  isSynced: true,
 };
 
 const favoritesSlice = createSlice({
@@ -36,12 +42,22 @@ const favoritesSlice = createSlice({
     favoriteAdded: (state, action: PayloadAction<number>) => {
       if (!state.tourIds.includes(action.payload)) {
         state.tourIds.push(action.payload);
+        state.isSynced = false;
       }
     },
     favoriteRemoved: (state, action: PayloadAction<number>) => {
       if (state.tourIds.includes(action.payload)) {
         state.tourIds = state.tourIds.filter((id) => id !== action.payload);
+        state.isSynced = false;
       }
+    },
+    favoritesSyncSuccess: (state, action: PayloadAction<string>) => {
+      state.lastSyncedAt = action.payload;
+      state.isSynced = true;
+      state.error = null;
+    },
+    favoritesSyncFailed: (state) => {
+      state.isSynced = false;
     },
     favoritesErrorSet: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
@@ -57,6 +73,8 @@ export const {
   favoritesHydrated,
   favoriteAdded,
   favoriteRemoved,
+  favoritesSyncSuccess,
+  favoritesSyncFailed,
   favoritesErrorSet,
   favoritesOnlyToggled,
 } = favoritesSlice.actions;

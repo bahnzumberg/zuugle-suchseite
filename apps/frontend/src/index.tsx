@@ -79,6 +79,7 @@ function getPersistedFavoriteTourIds(): number[] {
 function getPreloadedFavoritesState(): FavoritesState {
   const listKey = localStorage.getItem("favoritesListKey");
   const tourIds = getPersistedFavoriteTourIds();
+  const lastSyncedAt = localStorage.getItem("favoritesLastSyncedAt");
   return {
     listKey,
     tourIds,
@@ -86,6 +87,8 @@ function getPreloadedFavoritesState(): FavoritesState {
     hydrated: localStorage.getItem("favoriteTourIds") !== null,
     error: null,
     favoritesOnly: false,
+    lastSyncedAt,
+    isSynced: tourIds.length === 0 || Boolean(listKey && lastSyncedAt),
   };
 }
 
@@ -132,6 +135,15 @@ store.subscribe(() => {
     localStorage.setItem("favoritesListKey", listKey);
   } else {
     localStorage.removeItem("favoritesListKey");
+  }
+});
+
+store.subscribe(() => {
+  const lastSyncedAt = store.getState().favorites.lastSyncedAt;
+  if (lastSyncedAt !== null) {
+    localStorage.setItem("favoritesLastSyncedAt", lastSyncedAt);
+  } else {
+    localStorage.removeItem("favoritesLastSyncedAt");
   }
 });
 

@@ -5,8 +5,9 @@
     "save": "Aggiungi ai preferiti",
     "saved": "Salvato",
     "show": "Mostra i preferiti",
-    "showing": "Preferiti mostrati",
-    "error": "Salvato su questo dispositivo, ma sincronizzazione online non riuscita."
+    "showing": "Torna a tutti gli itinerari",
+    "only_local": "Preferiti salvati solo localmente.",
+    "error": "Preferiti salvati solo localmente."
   },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",

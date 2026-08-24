@@ -5,8 +5,9 @@
     "save": "Ajouter aux favoris",
     "saved": "Enregistré",
     "show": "Afficher les favoris",
-    "showing": "Favoris affichés",
-    "error": "Enregistré sur cet appareil, mais synchronisation en ligne impossible."
+    "showing": "Retour à toutes les randonnées",
+    "only_local": "Favoris enregistrés localement uniquement.",
+    "error": "Favoris enregistrés localement uniquement."
   },
   "about": {
     "was_ist_zuugle": "Qu'est-ce que Zuugle ?",

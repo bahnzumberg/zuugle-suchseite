@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
 import { RootState } from "..";
 import {
+  ToursResponse,
   useGetCitiesQuery,
   useGetTotalsQuery,
   useLazyGetToursQuery,
@@ -188,12 +189,16 @@ export function useSearchTours() {
     return `${totals.tours_country.toLocaleString()} ${t("start.tourenanzahl_untertitel")}`;
   };
 
+  const effectiveLoadedTours = favoritesNothingToFetch
+    ? EMPTY_LOADED_TOURS
+    : loadedTours;
+
   const fetchMore = () => setPageTours(pageTours + 1);
 
   return {
     tours,
-    loadedTours,
-    isToursLoading,
+    loadedTours: effectiveLoadedTours,
+    isToursLoading: favoritesNothingToFetch ? false : isToursLoading,
     hasMore,
     fetchMore,
     filterOn,
@@ -210,3 +215,13 @@ export function useSearchTours() {
     citySlug,
   };
 }
+
+const EMPTY_LOADED_TOURS: ToursResponse = {
+  success: true,
+  tours: [],
+  total: 0,
+  page: 1,
+  ranges: [],
+  markers: [],
+  pois: [],
+};

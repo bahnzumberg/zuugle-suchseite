@@ -1,5 +1,7 @@
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
-import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { darken } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -11,13 +13,13 @@ const ACTIVE_BG = "#ccd8a1";
 
 export default function FavoritesToggle() {
   const { t } = useTranslation();
-  const { favoritesOnly, toggleFavoritesOnly } = useFavorites();
+  const { favoritesOnly, toggleFavoritesOnly, isOnlyLocal } = useFavorites();
 
   const label = favoritesOnly ? t("favorites.showing") : t("favorites.show");
   const icon = favoritesOnly ? (
-    <FavoriteRoundedIcon />
+    <ArrowBackRoundedIcon />
   ) : (
-    <FavoriteBorderRoundedIcon />
+    <FavoriteRoundedIcon />
   );
 
   // Active state mirrors the filter button's language (brand Lindgrün, Bahnblau
@@ -34,19 +36,49 @@ export default function FavoritesToggle() {
         "&:hover": { bgcolor: "rgba(255, 255, 255, 0.28)" },
       };
 
+  const showOnlyLocalNotice = favoritesOnly && isOnlyLocal;
+
   return (
-    <SearchBarButton
-      icon={icon}
-      label={label}
-      onClick={toggleFavoritesOnly}
-      ariaPressed={favoritesOnly}
+    <Box
       sx={{
-        borderRadius: "50px",
-        textTransform: "none",
-        px: "18px",
-        whiteSpace: "nowrap",
-        ...stateSx,
+        display: "inline-flex",
+        position: "relative",
+        alignItems: "center",
       }}
-    />
+    >
+      <SearchBarButton
+        icon={icon}
+        label={label}
+        onClick={toggleFavoritesOnly}
+        ariaPressed={favoritesOnly}
+        sx={{
+          borderRadius: "50px",
+          textTransform: "none",
+          px: "18px",
+          fontWeight: 400,
+          whiteSpace: "nowrap",
+          ...stateSx,
+        }}
+      />
+      {showOnlyLocalNotice && (
+        <Typography
+          sx={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            right: 0,
+            fontSize: "11px",
+            lineHeight: 1.2,
+            fontWeight: 400,
+            color: "rgba(255, 255, 255, 0.85)",
+            textAlign: "right",
+            whiteSpace: "nowrap",
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
+        >
+          {t("favorites.only_local")}
+        </Typography>
+      )}
+    </Box>
   );
 }

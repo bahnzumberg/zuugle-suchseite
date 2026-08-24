@@ -4,7 +4,6 @@ import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
 import CookieConsent from "./components/CookieConsent";
-import FavoritesErrorSnackbar from "./components/Favorites/FavoritesErrorSnackbar";
 
 const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
@@ -56,7 +55,6 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
       <LanguageParamSync />
       {renderRoute()}
       <CookieConsent />
-      <FavoritesErrorSnackbar />
     </ThemeProvider>
   );
 }
