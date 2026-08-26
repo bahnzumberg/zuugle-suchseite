@@ -349,8 +349,9 @@
     "kartenansicht_entfernen": "Karte schließen"
   },
   "cookie_consent": {
-    "text": "Diese Seite verwendet ausschließlich technisch notwendige Cookies. Für Fahrplanauskünfte werden Anfragedaten an Server in der EU übermittelt, aber nicht gespeichert.",
-    "accept": "Verstanden"
+    "text": "Wir gehen sorgsam mit deinen Daten um. Diese Seite verwendet technisch notwendige Cookies (z.\u00a0B. Spracheinstellung) und optionale Komfort-Cookies, die dein Erlebnis verbessern — etwa damit du bei der Fahrplanabfrage nicht jedes Mal deinen Abfahrtsort neu eingeben musst.",
+    "accept_essential": "Nur technische Cookies",
+    "accept_all": "Alle akzeptieren"
   },
   "lists": {
     "default_list_name": "Meine Favoriten",

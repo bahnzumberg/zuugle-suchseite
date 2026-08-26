@@ -4,6 +4,7 @@ import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
 import CookieConsent from "./components/CookieConsent";
+import { useConsent } from "./hooks/useConsent";
 
 const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
@@ -14,8 +15,12 @@ interface ThemedAppProps {
 }
 
 export default function ThemedApp({ routeKey }: ThemedAppProps) {
-  // Matomo tracking
+  const { isComfortAllowed } = useConsent();
+
+  // Matomo Tag Manager — only loaded when comfort cookies are accepted
   useEffect(() => {
+    if (!isComfortAllowed) return;
+
     // @ts-expect-error matomo
     const _mtm = (window._mtm = window._mtm || []);
     _mtm.push({
@@ -29,11 +34,11 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     g.src = "https://stats.bahnzumberg.at/js/container_ANAXmMKf.js";
     // #912 — SRI: update hash when Matomo container config changes
     g.integrity =
-      "sha384-xq1s4f7tDrv3XAEX/mqNC4jnq/Wx7wyMD3qrENG/QKP9Fnx6BfKIfGVpi8APPRU6";
+      "sha384-PfmDP5WvAB0aekGzhQUE4QW9O/M6t+rf7IzMkNAHzzlNcE4LfyTzudOzb0XtdPW1";
     g.crossOrigin = "anonymous";
     s.parentNode?.insertBefore(g, s);
     _mtm.push({ language: i18next.resolvedLanguage });
-  }, []);
+  }, [isComfortAllowed]);
 
   const renderRoute = () => {
     switch (routeKey) {
