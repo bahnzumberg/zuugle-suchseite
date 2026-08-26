@@ -357,8 +357,9 @@
     "kartenansicht_entfernen": "Hide map"
   },
   "cookie_consent": {
-    "text": "This site uses only technically necessary cookies. For timetable queries, request data is transmitted to servers within the EU but is not stored.",
-    "accept": "Understood"
+    "text": "We handle your data with care. This site uses technically necessary cookies (e.g. language settings) and optional comfort cookies that improve your experience — for example, so you don't have to re-enter your departure point every time you check a timetable.",
+    "accept_essential": "Essential cookies only",
+    "accept_all": "Accept all"
   },
   "lists": {
     "default_list_name": "My Favourites",

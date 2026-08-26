@@ -1462,15 +1462,7 @@ export async function generateSitemaps() {
             const countryCode = lang.split("-")[1] || lang;
             const fileName = `sitemap_${countryCode}.xml`;
 
-            // Adjust public path based on environment similar to sync.js
-            let publicPath = "";
-            if (process.env.NODE_ENV == "production") {
-                publicPath = path.join(__dirname, "../../public");
-            } else {
-                publicPath = path.join(__dirname, "../../public");
-            }
-            // Ensure public directory exists (it should)
-            const filePath = path.join(publicPath, fileName);
+            const filePath = path.join(PUBLIC_DIR, fileName);
 
             // Fetch URLs for this language using the requested SQL
             const urls = await knex.raw(
@@ -1555,7 +1547,7 @@ export async function generateSitemaps() {
             const xml = root.end({ prettyPrint: true });
 
             // Write to file
-            await fs.ensureDir(publicPath);
+            await fs.ensureDir(PUBLIC_DIR);
             await fs.writeFile(filePath, xml);
             // console.log(`Generated ${filePath} with ${rows.length} URLs.`);
         }

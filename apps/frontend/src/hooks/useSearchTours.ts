@@ -163,9 +163,10 @@ export function useSearchTours() {
   // Extract city from URL (direct links like /linz)
   useEffect(() => {
     if (!allCities) return;
+    // City selection is owned by SearchParamSync (path > ?city= > localStorage);
+    // here we only derive the SEO header for direct /:city links.
     const cityFromUrl = extractCityFromLocation(location, allCities);
     if (cityFromUrl) {
-      dispatch(cityUpdated(cityFromUrl));
       setDirectLink({
         header: t(`main.oeffi_bergtouren_fuer_cityname`, {
           "city.label": cityFromUrl.label,

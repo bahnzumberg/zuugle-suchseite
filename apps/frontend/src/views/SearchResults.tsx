@@ -63,7 +63,7 @@ export default function SearchResults() {
     <>
       <MaintenanceGuard totals={totals} isTotalsLoading={isTotalsLoading}>
         <div>
-          <SearchParamSync isSearchResultsPage={true} />
+          <SearchParamSync />
           <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
 
           {/* Blue bar – sticky at top */}

@@ -356,8 +356,9 @@
     "kartenansicht_entfernen": "Chiudi mappa"
   },
   "cookie_consent": {
-    "text": "Questo sito utilizza esclusivamente cookie tecnicamente necessari. Per le richieste di orari, i dati vengono trasmessi a server nell'UE, ma non vengono memorizzati.",
-    "accept": "Capito"
+    "text": "Trattiamo i tuoi dati con cura. Questo sito utilizza cookie tecnicamente necessari (ad es. impostazioni della lingua) e cookie di comfort opzionali che migliorano la tua esperienza — ad esempio per non dover reinserire il luogo di partenza ogni volta che consulti un orario.",
+    "accept_essential": "Solo cookie essenziali",
+    "accept_all": "Accetta tutti"
   },
   "lists": {
     "default_list_name": "I miei preferiti",

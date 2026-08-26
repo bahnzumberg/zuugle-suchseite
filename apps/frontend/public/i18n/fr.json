@@ -357,8 +357,9 @@
     "kartenansicht_entfernen": "Fermer la carte"
   },
   "cookie_consent": {
-    "text": "Ce site utilise uniquement des cookies techniquement nécessaires. Pour les demandes d'horaires, les données sont transmises à des serveurs au sein de l'UE, mais ne sont pas enregistrées.",
-    "accept": "Compris"
+    "text": "Nous traitons vos données avec soin. Ce site utilise des cookies techniquement nécessaires (p. ex. paramètres de langue) et des cookies de confort optionnels qui améliorent votre expérience — par exemple pour ne pas avoir à ressaisir votre lieu de départ à chaque consultation d'horaire.",
+    "accept_essential": "Cookies essentiels uniquement",
+    "accept_all": "Tout accepter"
   },
   "lists": {
     "default_list_name": "Mes favoris",

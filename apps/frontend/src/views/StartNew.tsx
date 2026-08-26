@@ -63,7 +63,7 @@ export default function StartNew() {
   return (
     <MaintenanceGuard totals={totals} isTotalsLoading={isTotalsLoading}>
       <div>
-        <SearchParamSync isSearchResultsPage={false} />
+        <SearchParamSync />
         <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
 
         {/* Fixed blue bar – always rendered for measurement, visibility toggled.

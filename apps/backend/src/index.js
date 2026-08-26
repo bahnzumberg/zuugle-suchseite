@@ -12,6 +12,7 @@ import searchAutocomplete from "./routes/searchAutocomplete";
 import diana from "./routes/diana";
 import licenses from "./routes/licenses";
 import lists from "./routes/lists";
+import matomoBotTracker from "./middlewares/matomoBotTracker";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
 
@@ -31,6 +32,9 @@ process.setMaxListeners(0);
 // app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json({ limit: "1024mb" }));
 app.use(express.urlencoded({ limit: "1024mb", extended: false }));
+
+// AI bot tracking — must run before CORS rejects non-whitelisted origins
+app.use(matomoBotTracker);
 
 // preflight options requests for json files fail otherwise
 app.use((req, res, next) => {

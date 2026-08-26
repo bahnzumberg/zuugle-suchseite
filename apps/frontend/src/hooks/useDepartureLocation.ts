@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { hasComfortConsent } from "./useConsent";
 
 export interface DepartureLocation {
   displayName: string;
@@ -16,6 +17,8 @@ function readFromStorage(): {
   lat: number | null;
   lon: number | null;
 } {
+  // Only restore persisted departure data when comfort cookies are allowed
+  if (!hasComfortConsent()) return { location: null, lat: null, lon: null };
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     const lat = localStorage.getItem(STORAGE_KEY_LAT);
@@ -34,8 +37,10 @@ function readFromStorage(): {
 }
 
 /**
- * Custom hook for managing the departure location in localStorage.
- * Stores displayName + locationType as JSON, and lat/lon as separate keys.
+ * Custom hook for managing the departure location.
+ *
+ * The location always works in-memory for the current session. Persistence
+ * to localStorage is gated behind comfort cookie consent.
  */
 export function useDepartureLocation() {
   const initial = readFromStorage();
@@ -59,11 +64,14 @@ export function useDepartureLocation() {
       setDepartureLonState(lon);
 
       if (location && lat !== null && lon !== null) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(location));
-        localStorage.setItem(STORAGE_KEY_LAT, String(lat));
-        localStorage.setItem(STORAGE_KEY_LON, String(lon));
+        if (hasComfortConsent()) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(location));
+          localStorage.setItem(STORAGE_KEY_LAT, String(lat));
+          localStorage.setItem(STORAGE_KEY_LON, String(lon));
+        }
 
         // Set city from GeoJSON lookup for tour filtering
+        // (city is a technical cookie — always allowed)
         if (location.citySlug && location.cityName) {
           localStorage.setItem(
             "city",
