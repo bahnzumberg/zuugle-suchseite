@@ -30,13 +30,13 @@ import {
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import TourCard from "../components/TourCard";
+import FavoriteButton from "../components/Favorites/FavoriteButton";
 
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
-import LanguageMenu from "../components/LanguageMenu";
 
 /**
  * Whether the search tab that opened this one is still around. Tour cards open
@@ -408,9 +408,6 @@ export default function DetailReworked() {
               </Box>
               <DomainMenu />
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <LanguageMenu />
-            </Box>
           </Box>
         </Box>
       </Box>
@@ -500,24 +497,57 @@ export default function DetailReworked() {
             }}
           >
             {/* ─── Title ─── */}
-            <Box className="tour-detail-header">
-              <Typography
-                variant="title"
-                component="h1"
-                sx={{ color: "#101010" }}
-              >
-                {tour?.title}
-              </Typography>
-              {tour?.range && (
-                <Chip
-                  label={tour.range}
-                  size="small"
+            <Box
+              className="tour-detail-header"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "16px",
+              }}
+            >
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Typography
+                  variant="title"
+                  component="h1"
+                  sx={{ color: "#101010" }}
+                >
+                  {tour?.title}
+                </Typography>
+                <Box
                   sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                     mt: "8px",
-                    bgcolor: "rgba(37, 73, 128, 0.85)",
-                    color: "#fff",
+                    flexWrap: "wrap",
                   }}
-                />
+                >
+                  {tour?.range && (
+                    <Chip
+                      label={tour.range}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(37, 73, 128, 0.85)",
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                  {tour && (
+                    <Box
+                      sx={{ ml: "auto", display: { xs: "block", md: "none" } }}
+                    >
+                      <FavoriteButton tourId={tour.id} variant="labeled" />
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+              {tour && (
+                <Box
+                  sx={{ display: { xs: "none", md: "block" }, flexShrink: 0 }}
+                >
+                  <FavoriteButton tourId={tour.id} variant="labeled" />
+                </Box>
               )}
             </Box>
 

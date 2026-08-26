@@ -1,4 +1,13 @@
 {
+  "favorites": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "save": "Save to favorites",
+    "saved": "Saved",
+    "show": "Show favorites",
+    "showing": "Showing favorites",
+    "error": "Saved on this device, but couldn't sync it online."
+  },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",
     "zuugle_erklaerung_1": "Zuugle is a search engine for hikes that can be reached by public transport.",
@@ -358,6 +367,6 @@
     "tour_added": "Tour added",
     "tour_removed": "Tour removed",
     "list_empty": "This list is empty",
-    "list_not_found": "List not found"
+    "list_empty_hint": "Tap the heart icon on a tour to save it here."
   }
 }

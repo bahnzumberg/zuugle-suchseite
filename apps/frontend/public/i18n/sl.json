@@ -1,4 +1,13 @@
 {
+  "favorites": {
+    "add": "Dodaj med priljubljene",
+    "remove": "Odstrani iz priljubljenih",
+    "save": "Dodaj med priljubljene",
+    "saved": "Shranjeno",
+    "show": "Prikaži priljubljene",
+    "showing": "Prikazane priljubljene",
+    "error": "Shranjeno na tej napravi, vendar spletna sinhronizacija ni uspela."
+  },
   "about": {
     "was_ist_zuugle": "KAJ JE ZUUGLE?",
     "zuugle_erklaerung_1": "Zuugle je iskalnik gorskih tur, dostopnih z javnim prevozom.",
@@ -358,6 +367,6 @@
     "tour_added": "Tura dodana",
     "tour_removed": "Tura odstranjena",
     "list_empty": "Ta seznam je prazen",
-    "list_not_found": "Seznama ni mogoče najti"
+    "list_empty_hint": "Tapni srček pri turi, da jo shraniš sem."
   }
 }

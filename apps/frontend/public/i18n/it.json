@@ -1,4 +1,13 @@
 {
+  "favorites": {
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti",
+    "save": "Aggiungi ai preferiti",
+    "saved": "Salvato",
+    "show": "Mostra i preferiti",
+    "showing": "Preferiti mostrati",
+    "error": "Salvato su questo dispositivo, ma sincronizzazione online non riuscita."
+  },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",
     "zuugle_erklaerung_1": "Zuugle è un motore di ricerca per itinerari in montagna raggiungibili con i mezzi pubblici.",
@@ -357,6 +366,6 @@
     "tour_added": "Tour aggiunto",
     "tour_removed": "Tour rimosso",
     "list_empty": "Questa lista è vuota",
-    "list_not_found": "Lista non trovata"
+    "list_empty_hint": "Tocca l'icona a forma di cuore su un tour per salvarlo qui."
   }
 }

@@ -9,6 +9,8 @@ interface SearchBarButtonProps {
   label: string;
   onClick: () => void;
   variant?: ButtonProps["variant"];
+  // Set for toggle buttons so assistive tech announces the pressed state.
+  ariaPressed?: boolean;
   sx?: SxProps<Theme>;
 }
 
@@ -24,6 +26,7 @@ export default function SearchBarButton({
   label,
   onClick,
   variant,
+  ariaPressed,
   sx,
 }: SearchBarButtonProps) {
   const theme = useTheme();
@@ -35,6 +38,7 @@ export default function SearchBarButton({
       <IconButton
         onClick={onClick}
         aria-label={label}
+        aria-pressed={ariaPressed}
         sx={[{ height: 40, width: 40, transition: TRANSITION }, ...callerSx]}
       >
         {icon}
@@ -46,6 +50,7 @@ export default function SearchBarButton({
     <Button
       onClick={onClick}
       aria-label={label}
+      aria-pressed={ariaPressed}
       variant={variant}
       startIcon={icon}
       sx={[

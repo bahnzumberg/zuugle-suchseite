@@ -9,6 +9,9 @@ import {
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
+import { cityUpdated } from "../features/searchSlice";
+import { useAppDispatch } from "../hooks";
+import { useFavorites } from "./useFavorites";
 import {
   DirectLink,
   extractCityFromLocation,
@@ -27,6 +30,8 @@ export function useSearchTours() {
   const showMap = useSelector((state: RootState) => state.search.map);
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
+  const dispatch = useAppDispatch();
+  const { favoritesOnly, tourIds: favoriteTourIds } = useFavorites();
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [triggerLoadTours, { data: loadedTours, isFetching: isToursLoading }] =
@@ -66,15 +71,45 @@ export function useSearchTours() {
     [triggerLoadTours],
   );
 
+  // favoriteTourIds should only drive a reload while the toggle is on — gated to
+  // stay referentially stable while it's off, so favoriting an unrelated tour
+  // doesn't reset scroll/pagination for no reason.
+  const favoritesReloadTourIds = favoritesOnly ? favoriteTourIds : null;
+
+  // Which empty state to show in place of the tour grid, if any.
+  let favoritesEmptyVariant: "empty" | "no_matches" | null = null;
+  if (favoritesOnly) {
+    if (favoriteTourIds.length === 0) {
+      favoritesEmptyVariant = "empty";
+    } else if (!isToursLoading && tours.length === 0) {
+      favoritesEmptyVariant = "no_matches";
+    }
+  }
+
+  // Nothing to fetch: no favorites saved at all.
+  const favoritesNothingToFetch = favoritesEmptyVariant === "empty";
+
+  // Favorites-only injects the saved ids as just another filter dimension.
+  const effectiveFilter = useMemo(
+    () => (favoritesOnly ? { ...filter, favoriteTourIds } : filter),
+    [favoritesOnly, filter, favoriteTourIds],
+  );
+
   // Load tours when filter/search changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     setPageTours(1);
     setHasMore(true);
+
+    if (favoritesNothingToFetch) {
+      setTours([]);
+      return;
+    }
+
     const params = {
       city:
         search.citySlug && search.citySlug !== "no-city" ? search.citySlug : "",
-      filter: filter,
+      filter: effectiveFilter,
       search: search.searchWithType?.term || null,
       search_type: search.searchWithType?.type || null,
       bounds: search.bounds || undefined,
@@ -86,12 +121,17 @@ export function useSearchTours() {
     return () => {
       debouncedTrigger.cancel();
     };
-  }, [filter, search]);
+  }, [filter, search, favoritesOnly, favoritesReloadTourIds]);
 
-  // Update tours from loaded data
+  // Update tours from loaded data. Skipped while there's nothing to fetch, so a
+  // stale non-favorites response resolving after the user switched to an empty
+  // favorites-only view can't overwrite the empty state with old results.
   useEffect(() => {
+    if (favoritesNothingToFetch) {
+      return;
+    }
     setTours(loadedTours?.tours || []);
-  }, [loadedTours]);
+  }, [loadedTours, favoritesNothingToFetch]);
 
   // Load more tours (pagination)
   useEffect(() => {
@@ -101,7 +141,7 @@ export function useSearchTours() {
           search.citySlug && search.citySlug !== "no-city"
             ? search.citySlug
             : "",
-        filter: filter,
+        filter: effectiveFilter,
         search: search.searchWithType?.term || "",
         search_type: search.searchWithType?.type || "",
         bounds: search.bounds || undefined,
@@ -164,6 +204,8 @@ export function useSearchTours() {
     getHeroTitle,
     totals,
     isTotalsLoading,
+    favoritesOnly,
+    favoritesEmptyVariant,
     showMap,
     city,
     citySlug,

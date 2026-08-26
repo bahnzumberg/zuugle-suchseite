@@ -54,3 +54,6 @@ working in that package:
 - One logical change per commit.
 - Keep the subject line under 72 characters.
 - Reference GitHub issues when they exist (e.g. `Fixes #42`).
+- If the changed code already carries a docstring or comment explaining it, keep the commit message
+  short. Anyone who needs details reads the changed lines, where the reasoning already is.
+- Add a commit body only for reasoning that exists nowhere in the diff.
