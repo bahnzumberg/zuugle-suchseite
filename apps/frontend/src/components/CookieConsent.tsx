@@ -19,8 +19,7 @@ export default function CookieConsent() {
         left: 0,
         right: 0,
         zIndex: 1300,
-        backgroundColor: "#fff",
-        borderTop: "3px solid var(--bzb-akelei)",
+        backgroundColor: "#ccd8a1",
         boxShadow: "0 -4px 20px rgba(0,0,0,0.12)",
         display: "flex",
         alignItems: "center",
@@ -33,11 +32,11 @@ export default function CookieConsent() {
     >
       <Typography
         sx={{
-          fontSize: "0.9rem",
+          fontSize: "0.875rem",
           lineHeight: 1.5,
           maxWidth: 620,
           textAlign: "center",
-          color: "#333",
+          color: "#000",
         }}
       >
         {t("cookie_consent.text")}
@@ -52,19 +51,21 @@ export default function CookieConsent() {
         }}
       >
         <Button
-          variant="outlined"
+          variant="contained"
+          color="inherit"
           onClick={acceptEssential}
           aria-label={t("cookie_consent.accept_essential")}
           sx={{
-            color: "var(--bzb-bahnblau)",
-            borderColor: "var(--bzb-bahnblau)",
+            backgroundColor: "#aab5d7",
+            color: "#000",
             whiteSpace: "nowrap",
             fontWeight: 600,
             borderRadius: "12px",
             textTransform: "none",
+            boxShadow: "none",
             "&:hover": {
-              backgroundColor: "rgba(37,73,128,0.06)",
-              borderColor: "var(--bzb-bahnblau)",
+              backgroundColor: "#9aa5c7",
+              boxShadow: "none",
             },
           }}
         >
