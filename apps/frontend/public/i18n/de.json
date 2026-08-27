@@ -5,8 +5,9 @@
     "save": "Merken",
     "saved": "Gemerkt",
     "show": "Favoriten anzeigen",
-    "showing": "Favoriten werden angezeigt",
-    "error": "Auf diesem Gerät gespeichert, aber online nicht synchronisiert."
+    "showing": "Zurück zu allen Touren",
+    "only_local": "Favoriten nur lokal gespeichert.",
+    "error": "Favoriten nur lokal gespeichert."
   },
   "about": {
     "was_ist_zuugle": "WAS IST ZUUGLE ?",

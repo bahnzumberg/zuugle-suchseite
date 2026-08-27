@@ -5,8 +5,9 @@
     "save": "Save to favorites",
     "saved": "Saved",
     "show": "Show favorites",
-    "showing": "Showing favorites",
-    "error": "Saved on this device, but couldn't sync it online."
+    "showing": "Back to all tours",
+    "only_local": "Favorites saved locally only.",
+    "error": "Favorites saved locally only."
   },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",

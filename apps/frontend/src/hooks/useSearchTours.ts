@@ -4,13 +4,12 @@ import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
 import { RootState } from "..";
 import {
+  ToursResponse,
   useGetCitiesQuery,
   useGetTotalsQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
-import { cityUpdated } from "../features/searchSlice";
-import { useAppDispatch } from "../hooks";
 import { useFavorites } from "./useFavorites";
 import {
   DirectLink,
@@ -30,7 +29,6 @@ export function useSearchTours() {
   const showMap = useSelector((state: RootState) => state.search.map);
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
-  const dispatch = useAppDispatch();
   const { favoritesOnly, tourIds: favoriteTourIds } = useFavorites();
 
   const [tours, setTours] = useState<Tour[]>([]);
@@ -189,12 +187,16 @@ export function useSearchTours() {
     return `${totals.tours_country.toLocaleString()} ${t("start.tourenanzahl_untertitel")}`;
   };
 
+  const effectiveLoadedTours = favoritesNothingToFetch
+    ? EMPTY_LOADED_TOURS
+    : loadedTours;
+
   const fetchMore = () => setPageTours(pageTours + 1);
 
   return {
     tours,
-    loadedTours,
-    isToursLoading,
+    loadedTours: effectiveLoadedTours,
+    isToursLoading: favoritesNothingToFetch ? false : isToursLoading,
     hasMore,
     fetchMore,
     filterOn,
@@ -211,3 +213,13 @@ export function useSearchTours() {
     citySlug,
   };
 }
+
+const EMPTY_LOADED_TOURS: ToursResponse = {
+  success: true,
+  tours: [],
+  total: 0,
+  page: 1,
+  ranges: [],
+  markers: [],
+  pois: [],
+};

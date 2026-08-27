@@ -64,7 +64,9 @@ export default function TourCard({ tour, city }: TourCardProps) {
           width: "100%",
         }}
         target="_blank"
-        rel="noopener"
+        // Keep our own detail tab as opener so it can detect this search tab is
+        // still open; external (cross-origin) links stay noopener for safety.
+        rel={externalLinks ? "noopener" : "opener"}
       >
         <Card
           className="tour-card"
