@@ -174,7 +174,6 @@ export interface LicensesResponse {
   licenses: LicenseEntry[];
 }
 
-
 export interface CreateListResponse {
   success: boolean;
   key: string;
