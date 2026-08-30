@@ -22,6 +22,7 @@ import Itinerary from "../components/Itinerary/Itinerary";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
 import { absoluteAssetUrl } from "../utils/assetUrl";
+import { fetchAsset } from "../utils/fetchAsset";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
@@ -242,7 +243,7 @@ export default function DetailReworked() {
       return;
     }
     try {
-      const res = await fetch(tour.gpx_file);
+      const res = await fetchAsset(tour.gpx_file);
       if (!res.ok) {
         throw new Error(`GPX download failed with status ${res.status}`);
       }

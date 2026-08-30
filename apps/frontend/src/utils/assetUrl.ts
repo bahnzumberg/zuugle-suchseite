@@ -25,6 +25,11 @@ export function assetUrl(path: string): string {
 /** Scheme and host of an absolute URL, e.g. the `https://www.zuugle.at` below. */
 const SCHEME_AND_HOST = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
 
+/** Strips scheme+host and any `/public` prefix down to the bare asset path. */
+function ownAssetPath(url: string): string {
+  return url.replace(SCHEME_AND_HOST, "").replace(/^\/public(?=\/)/, "");
+}
+
 /**
  * Re-points an asset URL that came from the API at this environment.
  *
@@ -45,8 +50,23 @@ export function publicAssetUrl(url: string): string {
   if (!url) {
     return url;
   }
-  const path = url.replace(SCHEME_AND_HOST, "");
-  return assetUrl(path.replace(/^\/public(?=\/)/, ""));
+  return assetUrl(ownAssetPath(url));
+}
+
+/**
+ * The same asset, served by this environment's own origin instead of
+ * `__ASSET_BASE__`. Off PROD the two are identical; `fetchAsset()` uses that to
+ * skip retrying a URL against itself.
+ *
+ * @example
+ * originAssetUrl("https://cdn.zuugle.at/gpx/56/61256.gpx")
+ * // → "/public/gpx/56/61256.gpx"
+ */
+export function originAssetUrl(url: string): string {
+  if (!url) {
+    return url;
+  }
+  return `/public/${ownAssetPath(url).replace(/^\/+/, "")}`;
 }
 
 /**

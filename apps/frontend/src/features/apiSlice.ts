@@ -11,6 +11,7 @@ import { parseGPX } from "../utils/gpx_utils";
 import { Connection, ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
 import { apiImageUrl, publicAssetUrl } from "../utils/assetUrl";
+import { fetchAsset } from "../utils/fetchAsset";
 
 export interface CitiesResponse {
   success: boolean;
@@ -311,7 +312,7 @@ export const api = createApi({
     getGPX: build.query<[number, number][], string>({
       queryFn: async (url) => {
         try {
-          const res = await fetch(url);
+          const res = await fetchAsset(url);
           const text = await res.text();
           const gpx = parseGPX(text);
           return { data: gpx };
