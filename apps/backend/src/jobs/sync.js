@@ -5,6 +5,7 @@ import { createImagesFromMap, regenerateGpxFile } from "../utils/gpx/gpxUtils";
 import {
     GPX_IMAGE_PREFIX,
     PLACEHOLDER_IMAGE_PATH,
+    PUBLIC_DIR,
     isOwnAssetPath,
     last_two_characters,
 } from "../utils/assetPaths";

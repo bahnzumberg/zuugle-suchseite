@@ -126,7 +126,9 @@ jobs:
                   REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
                   REMOTE_USER: ${{ secrets.REMOTE_USER }}
                   TARGET: ${{ secrets.REMOTE_TARGET }}
-                  EXCLUDE: "/dist/, /node_modules/, /public/gpx/, /public/gpx-image/, /public/gpx-image-with-track/, /public/gpx-track/, /public/robots.txt, *.md, .env"
+                  # Generated on the server, absent from the build: without an
+                  # exclude, --delete would wipe them on every deploy. 
+                  EXCLUDE: "/dist/, /node_modules/, /public/gpx/, /public/gpx-image/, /public/gpx-image-with-track/, /public/gpx-track/, /public/sitemap_*.xml, /public/robots.txt, *.md, .env"
             - name: Restart the API on remote host
               uses: appleboy/ssh-action@v1.2.5
               with:
