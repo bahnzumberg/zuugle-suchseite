@@ -21,6 +21,7 @@ import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
+import { absoluteAssetUrl } from "../utils/assetUrl";
 import {
   useGetCitiesQuery,
   useGetTourQuery,
@@ -36,6 +37,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
 import LanguageMenu from "../components/LanguageMenu";
+
+/**
+ * Whether the search tab that opened this one is still around. Tour cards open
+ * this page with `target="_blank"`, so the search tab is our `window.opener`.
+ */
+function hasOpenSearchTab(): boolean {
+  try {
+    return !!window.opener && !window.opener.closed;
+  } catch {
+    // Cross-origin opener: accessing `.closed` throws.
+    return false;
+  }
+}
 
 export default function DetailReworked() {
   const { cityOne } = useParams();
@@ -129,42 +143,46 @@ export default function DetailReworked() {
   // Translation-related
   const { t } = useTranslation();
 
-  const handleCloseTab = () => {
-    // Did the user arrive from our own site (e.g. search results)?
-    // If so, close the tab — the search page is still open behind it.
-    // Otherwise (WhatsApp, direct URL, …) navigate to /search in this tab.
-    const cameFromOwnSite =
-      document.referrer &&
-      new URL(document.referrer).hostname === window.location.hostname;
-
-    if (cameFromOwnSite) {
-      window.close();
-    }
-    // window.close() may be ignored by the browser; always fall through
-    if (!window.closed) {
-      goToSearchPage();
-    }
-  };
-
   const navigate = useNavigate();
 
-  const goToSearchPage = () => {
+  const goToSearchPage = (options?: { replace?: boolean }) => {
     const langParam = get_currLanguage(i18n);
     const params = new URLSearchParams();
     params.set("lang", langParam);
     if (city) params.set("city", city.value);
-    navigate(`/search?${params}`);
+    navigate(`/search?${params}`, options);
   };
 
-  // Intercept browser back button: navigate to /search with city
+  const handleCloseTab = (options?: { replace?: boolean }) => {
+    // Did the user arrive from our own site (e.g. search results), and is a
+    // search page still open right now (it may have been closed since)?
+    // If so, close this tab — the search page is still there behind it.
+    // Otherwise (WhatsApp, direct URL, search tab closed, …) navigate to
+    // /search in this tab instead of stranding the user.
+    const cameFromOwnSite =
+      document.referrer &&
+      new URL(document.referrer).hostname === window.location.hostname;
+
+    if (cameFromOwnSite && hasOpenSearchTab()) {
+      window.close();
+    }
+    // window.close() may be ignored by the browser; always fall through
+    if (!window.closed) {
+      goToSearchPage(options);
+    }
+  };
+
+  // This tab usually opens with an empty history, so Back would close it
+  // without firing popstate. Push a sentinel entry for Back to consume, so
+  // the listener below can intercept it instead.
   useEffect(() => {
-    const handlePopState = () => {
-      const langParam = get_currLanguage(i18n);
-      const params = new URLSearchParams();
-      params.set("lang", langParam);
-      if (city) params.set("city", city.value);
-      navigate(`/search?${params}`, { replace: true });
-    };
+    window.history.pushState(null, "", window.location.href);
+  }, []);
+
+  // Intercept the back button/gesture and apply the same close-or-redirect
+  // logic as the in-app back arrow.
+  useEffect(() => {
+    const handlePopState = () => handleCloseTab({ replace: true });
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [city, i18n, navigate]);
@@ -291,7 +309,8 @@ export default function DetailReworked() {
   let description = "";
   if (tour) {
     page_title = "Zuugle: " + tour.title + " (" + tour.provider_name + ")";
-    imageUrl = tour?.image_url ?? "";
+    // og:image/twitter:image have to be absolute for social crawlers.
+    imageUrl = absoluteAssetUrl(tour.image_url);
     description = tour?.description ?? "";
   }
 
@@ -380,7 +399,7 @@ export default function DetailReworked() {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
                 sx={{ ml: "-13px", mr: "4px", cursor: "pointer" }}
-                onClick={handleCloseTab}
+                onClick={() => handleCloseTab()}
               >
                 <CustomIcon
                   name="arrowBefore"
@@ -730,7 +749,10 @@ export default function DetailReworked() {
                 >
                   <Box
                     component="span"
-                    sx={{ color: "#ccd8a1", fontWeight: 600 }}
+                    sx={(t) => ({
+                      color: t.palette.lindgruen.main,
+                      fontWeight: 600,
+                    })}
                   >
                     ■
                   </Box>{" "}

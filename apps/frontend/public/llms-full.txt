@@ -39,7 +39,7 @@ Search results can be refined using the following filters:
 
 - **Tour length**: Day tour or multi-day tour
 - **Season**: Summer tour or winter tour
-- **Sport type**: Hiking, ski touring, snowshoeing, via ferrata, climbing, mountaineering (Hochtour), bike & hike, cross-country skiing, sledging, long-distance hiking
+- **Sport type**: Hiking, ski touring, snowshoeing, via ferrata, climbing, mountaineering (Hochtour), bike & hike, cross-country skiing, sledging, long-distance hiking, trail running
 - **Difficulty**: Easy, medium, or hard (consolidated from the difficulty scales of various tour portals)
 - **Regions / Mountain groups**: Filter by Alpine regions
 - **Elevation gain**: Minimum and maximum metres of ascent

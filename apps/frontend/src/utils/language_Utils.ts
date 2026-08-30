@@ -10,6 +10,8 @@ export const tourTypes = [
   "klettersteig",
   "rodeln",
   "weitwandern",
+  "trailrunning",
+  "hochtour",
 ];
 
 export function langChange(language: string) {

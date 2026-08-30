@@ -7,6 +7,7 @@ import { languageUpdated } from "../../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import Modal from "@mui/material/Modal";
+import { assetUrl } from "../../utils/assetUrl";
 
 const ALL_LANGUAGES = [
   { key: "de", nativeName: "Deutsch" },
@@ -73,7 +74,7 @@ function LanguageMenu() {
         }}
       >
         <img
-          src={`https://cdn.zuugle.at/img/langIcon.png`}
+          src={assetUrl("/img/langIcon.png")}
           height={"23px"}
           width={"23px"}
           alt="Change Language here"

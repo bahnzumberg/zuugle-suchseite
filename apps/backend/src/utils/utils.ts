@@ -24,17 +24,6 @@ export function isNumber(value: unknown) {
     return typeof value === "number";
 }
 
-export function getHost(origin: string) {
-    if (process.env.NODE_ENV === "production") {
-        if (origin && origin.length > 0) {
-            return `https://${origin}`;
-        } else {
-            return `https://www.zuugle.at`;
-        }
-    }
-    return "http://localhost:8080";
-}
-
 export const replaceFilePath = (filePath: string) => {
     if (!filePath) {
         return filePath;

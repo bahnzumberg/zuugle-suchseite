@@ -6,6 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
 import { useGetLicensesQuery, LicenseEntry } from "../../features/apiSlice";
+import { assetUrl } from "../../utils/assetUrl";
 
 /** Group license entries by country_name, both levels sorted alphabetically. */
 function groupByCountry(
@@ -131,7 +132,7 @@ export default function ImprintContent() {
         <Grid style={{ textAlign: "center" }} size={{ xs: 12, sm: 6, md: 4 }}>
           <a href="https://www.bmluk.gv.at/" target="_blank" rel="noreferrer">
             <img
-              src="https://cdn.zuugle.at/img/BMLUK_Logo_Foerderung.svg"
+              src={assetUrl("/img/BMLUK_Logo_Foerderung.svg")}
               style={{ maxWidth: "100%", height: "auto", maxHeight: "100px" }}
               alt="Funded by www.bmluk.gv.at"
               loading="lazy"
@@ -141,7 +142,7 @@ export default function ImprintContent() {
         <Grid style={{ textAlign: "center" }} size={{ xs: 12, sm: 6, md: 4 }}>
           <a href="https://www.alpconv.org/" target="_blank" rel="noreferrer">
             <img
-              src="https://cdn.zuugle.at/img/Alpenkonvention_logo_gruen.webp"
+              src={assetUrl("/img/Alpenkonvention_logo_gruen.webp")}
               style={{ maxWidth: "100%", height: "auto", maxHeight: "75px" }}
               alt="Logo Alpenkonvention"
               loading="lazy"
@@ -155,7 +156,7 @@ export default function ImprintContent() {
             rel="noreferrer"
           >
             <img
-              src="https://cdn.zuugle.at/img/Logo_Zuugle_Services_GmbH.svg"
+              src={assetUrl("/img/Logo_Zuugle_Services_GmbH.svg")}
               style={{ maxWidth: "100%", height: "auto", maxHeight: "75px" }}
               alt="Logo Zuugle Services"
               loading="lazy"

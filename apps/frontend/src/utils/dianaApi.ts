@@ -6,11 +6,7 @@
  * and default time window injection.
  */
 
-// Same base-URL logic as apiSlice: dev → localhost:8080, prod → relative
-const API_BASE =
-  window.location.host.indexOf("localhost") >= 0
-    ? (import.meta.env.VITE_API_URL ?? "http://localhost:8080/api")
-    : `${window.location.protocol}//${window.location.host}/api`;
+import { API_BASE_URL } from "./apiBase";
 
 /** Base URL for all Diana proxy endpoints on the Zuugle backend */
-export const DIANA_PROXY_BASE = `${API_BASE}/diana`;
+export const DIANA_PROXY_BASE = `${API_BASE_URL}/diana`;
