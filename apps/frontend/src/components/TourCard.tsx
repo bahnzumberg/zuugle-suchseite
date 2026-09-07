@@ -154,6 +154,9 @@ export default function TourCard({ tour, city }: TourCardProps) {
               fontWeight: "bold",
               lineHeight: { xs: "20px", sm: "24px" },
               marginY: { xs: "7px", sm: "15px" },
+              // Explicit, so the title's color doesn't depend on whether a
+              // Card or a Link is its closest ancestor in the DOM.
+              color: "text.primary",
             }}
           >
             {tour.title}
