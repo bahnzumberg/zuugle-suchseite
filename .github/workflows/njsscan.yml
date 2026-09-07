@@ -33,6 +33,6 @@ jobs:
               with:
                   args: "apps/backend --sarif --output results.sarif || true"
             - name: Upload njsscan report
-              uses: github/codeql-action/upload-sarif@v4.37.3
+              uses: github/codeql-action/upload-sarif@v4.37.9
               with:
                   sarif_file: results.sarif
