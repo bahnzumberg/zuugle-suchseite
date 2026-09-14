@@ -61,6 +61,26 @@ export function connectionGpxPath(direction: "totour" | "fromtour", trackKey: st
  */
 export const PUBLIC_DIR = path.join(__dirname, isProd ? ".." : "../..", "public");
 
+/** Repo-root `assets/public/`, resolvable only running from source — see below. */
+const SHARED_PUBLIC_SOURCE_DIR = path.join(__dirname, "../../../../assets/public");
+
+/**
+ * The hand-maintained half of `public/` — repo-root `assets/public/`. 
+ * Only resolvable running from source: a production deploy never has the monorepo 
+ * checkout on disk, which is exactly why `build:copy` copies its contents into 
+ * `PUBLIC_DIR` at build time instead of this being reachable at runtime there.
+ */
+export const SHARED_PUBLIC_DIR = isProd ? null : SHARED_PUBLIC_SOURCE_DIR;
+
+/**
+ * Range images are hand-curated and tracked, unlike the rest of `PUBLIC_DIR`'s
+ * generated `gpx` trees — they live under `assets/public/` and only end up
+ * inside `PUBLIC_DIR` in production, once `build:copy` has merged the two.
+ */
+export const RANGE_IMAGE_DIR = isProd
+    ? path.join(PUBLIC_DIR, "range-image")
+    : path.join(SHARED_PUBLIC_SOURCE_DIR, "range-image");
+
 /**
  * Port this API listens on. UAT and DEV share one host and both run with
  * `NODE_ENV=production`, so the folder decides: DEV is deployed to `dev-api/`,

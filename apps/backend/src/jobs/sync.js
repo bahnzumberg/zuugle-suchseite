@@ -6,6 +6,7 @@ import {
     GPX_IMAGE_PREFIX,
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
+    RANGE_IMAGE_DIR,
     isOwnAssetPath,
     last_two_characters,
 } from "../utils/assetPaths";
@@ -316,11 +317,7 @@ export async function fixTours() {
 }
 
 export async function copyRangeImage() {
-    let dir_go_up = "../../";
     let ranges = [];
-    if (process.env.NODE_ENV == "production") {
-        dir_go_up = "../";
-    }
 
     try {
         // Check if all existing ranges have a valid image
@@ -334,12 +331,8 @@ export async function copyRangeImage() {
 
     try {
         for (const range of ranges) {
-            const fs_source = path.join(__dirname, dir_go_up, "public/range-image/default.webp");
-            const fs_target = path.join(
-                __dirname,
-                dir_go_up,
-                "public/range-image/" + range.range_slug + ".webp",
-            );
+            const fs_source = path.join(RANGE_IMAGE_DIR, "default.webp");
+            const fs_target = path.join(RANGE_IMAGE_DIR, range.range_slug + ".webp");
 
             if (!fs.existsSync(fs_target)) {
                 await fs.promises.copyFile(fs_source, fs_target);
