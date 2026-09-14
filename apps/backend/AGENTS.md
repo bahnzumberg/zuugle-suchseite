@@ -5,20 +5,11 @@ Node.js backend API for the Zuugle platform. Manages tour data, GPX files, and i
 This app lives at `apps/backend/` in the **zuugle-suchseite monorepo**; the frontend is at
 [`../frontend`](../frontend). See the repo-root [`README.md`](../../README.md) for the map.
 
-## Language
-
-All content on GitHub must be written in **English**. This includes commit messages,
-PR titles and descriptions, issue comments, code comments, and code review feedback.
+See the repo-root [`.agents/AGENTS.md`](../../.agents/AGENTS.md) for language, git
+workflow, and commit guidelines that apply to the whole monorepo.
 
 ## Git Workflow
 
-- **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
-  local development is to let the user test changes locally first.
-- `uat` is the main development branch — **never commit or push directly to `main`**.
-- Always branch from `uat`:
-    ```bash
-    git checkout uat && git pull origin uat && git checkout -b feature/name
-    ```
 - Pushing a change under `apps/backend/**` to `uat` triggers the `UAT Deploy (Backend)`
   action (path-filtered): build → rsync to server → docker + `npm run migrate` → PM2 restart.
 - `dev` and `main` deploy the same way to their environments. Branch/env map:
@@ -77,18 +68,7 @@ git add test/fixtures/gpx_image_reference.webp
 
 ## Commit Guidelines
 
-- **One logical change per commit.** If changes belong together, commit them together —
-  but don't group unrelated work.
-- **Keep the first line under 72 characters.** It's what shows in `git log --oneline`,
-  GitHub PR views, and notification emails — long subjects get truncated. Put extra
-  detail in the body (separated by a blank line).
-- **Write a high-level message** describing the intention or reason, not just what
-  files were touched.
-- **Reference related GitHub issues** when they exist (e.g. `Fixes #42`).
-- Use `git rebase -i` to clean up messy history before pushing to `uat`.
-
-Bad: `fix stuff`, `wip`, `changes`
-Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`
+Use `git rebase -i` to clean up messy history before pushing to `uat`.
 
 ## Additional Guidelines
 

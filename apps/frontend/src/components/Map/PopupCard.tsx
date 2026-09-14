@@ -11,6 +11,7 @@ import { Marker } from "../../models/mapTypes";
 import { t } from "i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
+import { assetUrl } from "../../utils/assetUrl";
 
 function PopupCard({
   tour,
@@ -51,7 +52,7 @@ function PopupCard({
             }}
           >
             <img
-              src={`/icons/provider/logo_${tour.provider}.svg`}
+              src={assetUrl(`icons/provider/logo_${tour.provider}.svg`)}
               alt={tour.provider_name}
               style={{ borderRadius: "100%", height: "13px", width: "13px" }}
             />
