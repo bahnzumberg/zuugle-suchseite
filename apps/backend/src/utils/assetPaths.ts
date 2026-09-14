@@ -8,12 +8,16 @@
  * that reads a path decides its host.
  */
 
+import fs from "fs";
 import path from "path";
 
 const isProd = process.env.NODE_ENV === "production";
 
 /** Shown when a tour has no image of its own. Lives in `public/img/`. */
 export const PLACEHOLDER_IMAGE_PATH = "/img/train_placeholder.webp";
+
+/** Shown for a mountain range whose own image hasn't been curated (yet). */
+const DEFAULT_RANGE_IMAGE_PATH = "/range-image/default.webp";
 
 /**
  * Folder under `public/` holding the generated map previews. Exported so the SQL
@@ -34,9 +38,22 @@ export function last_two_characters(original: string | number | null | undefined
     return asString.length >= 2 ? asString.slice(-2) : `0${asString}`;
 }
 
-/** Pre-rendered image of the tour's mountain range, keyed by `range_slug`. */
+/**
+ * Pre-rendered image of the tour's mountain range, keyed by `range_slug` — or
+ * {@link DEFAULT_RANGE_IMAGE_PATH} when that range has no curated image.
+ *
+ * The fallback has to be decided here, while building the path, rather than
+ * served as a 404 handler: nginx aliases `/public` straight to disk on every
+ * deployed environment, so express never sees the request, and `RangeCard`
+ * renders the URL as a CSS `background-image`, which fires no error event to
+ * recover from. Callers store or hand out this value, so a missing file has
+ * to become the default before it reaches the client.
+ */
 export function rangeImagePath(rangeSlug: string) {
-    return `/range-image/${rangeSlug}.webp`;
+    const imagePath = `/range-image/${rangeSlug}.webp`;
+    return fs.existsSync(path.join(RANGE_IMAGE_DIR, `${rangeSlug}.webp`))
+        ? imagePath
+        : DEFAULT_RANGE_IMAGE_PATH;
 }
 
 /** Map preview generated from the tour's GPX track. */
@@ -61,25 +78,30 @@ export function connectionGpxPath(direction: "totour" | "fromtour", trackKey: st
  */
 export const PUBLIC_DIR = path.join(__dirname, isProd ? ".." : "../..", "public");
 
-/** Repo-root `assets/public/`, resolvable only running from source — see below. */
-const SHARED_PUBLIC_SOURCE_DIR = path.join(__dirname, "../../../../assets/public");
+/**
+ * Where the hand-maintained half of `public/` lives in this environment.
+ * Running from source it's the repo-root `assets/public/` folder directly —
+ * a production deploy never has the monorepo checkout on disk, which is
+ * exactly why `build:copy` copies its contents into `PUBLIC_DIR` at build
+ * time instead, making the two the same folder there.
+ */
+const SHARED_PUBLIC_DIR = isProd
+    ? PUBLIC_DIR
+    : path.join(__dirname, "../../../../assets/public");
 
 /**
- * The hand-maintained half of `public/` — repo-root `assets/public/`. 
- * Only resolvable running from source: a production deploy never has the monorepo 
- * checkout on disk, which is exactly why `build:copy` copies its contents into 
- * `PUBLIC_DIR` at build time instead of this being reachable at runtime there.
+ * Every directory `index.js` mounts under `/public`. In production the two
+ * above are the same folder, so mounting it once is both enough and correct.
  */
-export const SHARED_PUBLIC_DIR = isProd ? null : SHARED_PUBLIC_SOURCE_DIR;
+export const PUBLIC_DIRS = isProd ? [PUBLIC_DIR] : [SHARED_PUBLIC_DIR, PUBLIC_DIR];
 
 /**
  * Range images are hand-curated and tracked, unlike the rest of `PUBLIC_DIR`'s
- * generated `gpx` trees — they live under `assets/public/` and only end up
- * inside `PUBLIC_DIR` in production, once `build:copy` has merged the two.
+ * generated `gpx` trees — they live under `assets/public/`, i.e. wherever
+ * `SHARED_PUBLIC_DIR` resolves to. Read by `rangeImagePath()` above, to tell
+ * a curated image from one that needs the default.
  */
-export const RANGE_IMAGE_DIR = isProd
-    ? path.join(PUBLIC_DIR, "range-image")
-    : path.join(SHARED_PUBLIC_SOURCE_DIR, "range-image");
+const RANGE_IMAGE_DIR = path.join(SHARED_PUBLIC_DIR, "range-image");
 
 /**
  * Port this API listens on. UAT and DEV share one host and both run with

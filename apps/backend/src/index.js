@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { API_PORT, PUBLIC_DIR, SHARED_PUBLIC_DIR } from "./utils/assetPaths";
+import { API_PORT, PUBLIC_DIRS } from "./utils/assetPaths";
 import tours from "./routes/tours";
 import cities from "./routes/cities";
 import { cityRouter, cities2tourRouter } from "./routes/cities";
@@ -39,12 +39,12 @@ app.use((req, res, next) => {
     next();
 });
 // Running from source, the hand-maintained assets (img/, fonts/, icons/,
-// headless-leaflet/, favicons) live in the shared assets/public/ folder, not
-// PUBLIC_DIR.
-if (SHARED_PUBLIC_DIR) {
-    app.use("/public", cors(corsOptions), express.static(SHARED_PUBLIC_DIR));
+// headless-leaflet/, favicons) live in the shared assets/public/ folder,
+// separate from PUBLIC_DIR; in production build:copy has already merged them
+// into the same folder, so PUBLIC_DIRS holds just the one. See assetPaths.ts.
+for (const dir of PUBLIC_DIRS) {
+    app.use("/public", cors(corsOptions), express.static(dir));
 }
-app.use("/public", cors(corsOptions), express.static(PUBLIC_DIR));
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);

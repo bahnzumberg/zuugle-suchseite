@@ -6,7 +6,6 @@ import {
     GPX_IMAGE_PREFIX,
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
-    RANGE_IMAGE_DIR,
     isOwnAssetPath,
     last_two_characters,
 } from "../utils/assetPaths";
@@ -313,34 +312,6 @@ export async function fixTours() {
         } catch (err) {
             logger.info("error: ", err);
         }
-    }
-}
-
-export async function copyRangeImage() {
-    let ranges = [];
-
-    try {
-        // Check if all existing ranges have a valid image
-        const range_result = await knex.raw(
-            `SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`,
-        );
-        ranges = range_result.rows;
-    } catch (error) {
-        logger.error("Error querying the database:", error);
-    }
-
-    try {
-        for (const range of ranges) {
-            const fs_source = path.join(RANGE_IMAGE_DIR, "default.webp");
-            const fs_target = path.join(RANGE_IMAGE_DIR, range.range_slug + ".webp");
-
-            if (!fs.existsSync(fs_target)) {
-                await fs.promises.copyFile(fs_source, fs_target);
-                logger.info("No image for range found. Copying from default: ", fs_target);
-            }
-        }
-    } catch (error) {
-        logger.error("Error copying images:", error);
     }
 }
 

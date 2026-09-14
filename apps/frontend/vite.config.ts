@@ -118,6 +118,18 @@ function assetBaseUrl(): Plugin {
 }
 
 /**
+ * Mounts `dir` under `prefix` for dev — `sirv` re-reads the folder per
+ * request, so a newly added asset is picked up without a restart, and calls
+ * `next()` when it finds no file, falling through to whatever's registered
+ * after it (Vite's own static serving, or another `configureServer` plugin).
+ */
+const sirvDevMiddleware =
+  (prefix: string, dir: string): NonNullable<Plugin["configureServer"]> =>
+  (server) => {
+    server.middlewares.use(prefix, sirv(dir, { dev: true, etag: true }));
+  };
+
+/**
  * Serves what's left in the backend's local `public/` folder under `/public`
  * for dev — `gpx/`, `gpx-image/`, `gpx-track/`, `sitemap_*.xml` (all
  * gitignored, generated per environment) and `range-image/` (tracked, but
@@ -135,15 +147,7 @@ function backendGeneratedAssets(): Plugin {
   return {
     name: "zuugle:backend-generated-assets",
     apply: "serve",
-    configureServer(server) {
-      // `dev` re-reads the folder per request, so a newly added asset is picked
-      // up without a restart; sirv calls next() when it finds no file, falling
-      // through to Vite's own `assets/public/...` static serving.
-      server.middlewares.use(
-        "/public",
-        sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
-      );
-    },
+    configureServer: sirvDevMiddleware("/public", BACKEND_PUBLIC_DIR),
   };
 }
 
@@ -151,12 +155,7 @@ function backendGeneratedAssets(): Plugin {
 function frontendSvg365Assets(): Plugin {
   return {
     name: "zuugle:frontend-svg365-assets",
-    configureServer(server) {
-      server.middlewares.use(
-        "/svg365",
-        sirv(FRONTEND_SVG365_DIR, { dev: true, etag: true }),
-      );
-    },
+    configureServer: sirvDevMiddleware("/svg365", FRONTEND_SVG365_DIR),
     closeBundle() {
       cpSync(FRONTEND_SVG365_DIR, SVG365_OUT_DIR, { recursive: true });
     },
