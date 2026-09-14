@@ -1,3 +1,4 @@
+import { cpSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
@@ -27,6 +28,22 @@ const remoteAssetTarget =
 
 const BACKEND_PUBLIC_DIR = fileURLToPath(
   new URL("../backend/public", import.meta.url),
+);
+
+/** Kept in one place — the `svg365` build-output copy below has to match it. */
+const OUT_DIR = "build";
+
+/**
+ * `svg365/` is the one hand-maintained tree that stayed behind in
+ * `apps/frontend/public` instead of moving into the shared `assets/` folder
+ *  — `scripts/cleanup_svg.py` regenerates it against a path hardcoded 
+ * relative to this checkout.
+ */
+const FRONTEND_SVG365_DIR = fileURLToPath(
+  new URL("./public/svg365", import.meta.url),
+);
+const SVG365_OUT_DIR = fileURLToPath(
+  new URL(`./${OUT_DIR}/svg365`, import.meta.url),
 );
 
 /**
@@ -101,23 +118,27 @@ function assetBaseUrl(): Plugin {
 }
 
 /**
- * Serves the backend's `public/` folder under `/public`, the way nginx aliases
- * it on every deployed environment. Reading it from disk rather than proxying
- * a local backend keeps `vp dev` usable with no API and no database, and lets
- * an asset be edited and reloaded in place.
+ * Serves what's left in the backend's local `public/` folder under `/public`
+ * for dev — `gpx/`, `gpx-image/`, `gpx-track/`, `sitemap_*.xml` (all
+ * gitignored, generated per environment) and `range-image/` (tracked, but
+ * still written there by `jobs/sync.js` at a path this folder move didn't
+ * touch — see task 4/6 of the shared-`public/`-folder issue). Everything
+ * else `/public/...` used to serve from here now comes straight from
+ * `assets/public/` via `publicDir` below; this plugin only has to cover what
+ * isn't there, the same way nginx aliases it on every deployed environment.
  *
  * Registered before Vite's proxy, so a local file always wins and only what is
- * missing on disk is fetched from the remote — the generated trees
- * (`gpx-image/`, `gpx-track/`, `gpx/`, `range-image/` slugs newer than the last
- * pull) are gitignored and exist only on a deployed environment.
+ * missing on disk is fetched from the remote — slugs newer than the last pull
+ * exist only on a deployed environment.
  */
-function backendPublicAssets(): Plugin {
+function backendGeneratedAssets(): Plugin {
   return {
-    name: "zuugle:backend-public-assets",
+    name: "zuugle:backend-generated-assets",
     apply: "serve",
     configureServer(server) {
       // `dev` re-reads the folder per request, so a newly added asset is picked
-      // up without a restart; sirv calls next() when it finds no file.
+      // up without a restart; sirv calls next() when it finds no file, falling
+      // through to Vite's own `assets/public/...` static serving.
       server.middlewares.use(
         "/public",
         sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
@@ -126,7 +147,24 @@ function backendPublicAssets(): Plugin {
   };
 }
 
+/** Dev/build bridge for `svg365/` — see the doc comment on its path above. */
+function frontendSvg365Assets(): Plugin {
+  return {
+    name: "zuugle:frontend-svg365-assets",
+    configureServer(server) {
+      server.middlewares.use(
+        "/svg365",
+        sirv(FRONTEND_SVG365_DIR, { dev: true, etag: true }),
+      );
+    },
+    closeBundle() {
+      cpSync(FRONTEND_SVG365_DIR, SVG365_OUT_DIR, { recursive: true });
+    },
+  };
+}
+
 export default defineConfig({
+  publicDir: "../../assets",
   plugins: [
     react(),
     babel({
@@ -134,7 +172,8 @@ export default defineConfig({
     }),
     svgr(),
     assetBaseUrl(),
-    backendPublicAssets(),
+    backendGeneratedAssets(),
+    frontendSvg365Assets(),
   ],
   server: {
     port: 3000,
@@ -154,7 +193,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "build",
+    outDir: OUT_DIR,
     assetsDir: "app_static",
     rollupOptions: {
       input: {

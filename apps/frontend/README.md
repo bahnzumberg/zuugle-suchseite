@@ -74,8 +74,11 @@ This will run the frontend in a browser on http://localhost:3000
 
 ### `VITE_ASSET_BASE_URL`
 
-Static assets live in the backend `public/` folder. Never hardcode an asset
-host — build the URL with the `assetUrl()` helper from `src/utils/assetUrl.ts`:
+Static assets live in the repo-root `assets/` folder — `assets/public/` for
+the ones this variable prefixes (fonts, images, icons), the rest (`i18n/`,
+`robots.txt`, …) at the top level, served at the site root instead. Never
+hardcode an asset host — build the URL with the `assetUrl()` helper from
+`src/utils/assetUrl.ts`:
 
 ```ts
 import { assetUrl } from "../utils/assetUrl";
@@ -106,7 +109,7 @@ in `App.css` have to resolve to the byte-identical URL or the preload is wasted.
 
 Two exceptions stay absolute on every environment. `og:image`/`twitter:image`
 must be absolute for social crawlers, so they use the file's own canonical host
-(`https://www.zuugle.de/public/img/…` in `index-de.html`). `public/site.webmanifest`
+(`https://www.zuugle.de/public/img/…` in `index-de.html`). `assets/site.webmanifest`
 is copied verbatim by Vite and never transformed, so its icons are site-relative
 `/public/…`.
 
@@ -115,11 +118,14 @@ UAT, DEV and local builds leave it unset and fall back to the relative
 That way no environment loads its assets from production, and asset changes can
 be reviewed on DEV before they are released.
 
-In dev there is no nginx, so `vite.config.ts` covers the prefix itself: it
-serves `apps/backend/public` from disk, in every dev mode, without a running
-backend or database — edit an asset there and reload. Anything missing on disk
-falls back to the environment the API data comes from (UAT for `dev:uat`, PROD
-for `dev:main`, nothing for plain `vp dev`).
+In dev there is no nginx, so `vite.config.ts` covers the prefix itself:
+`publicDir: "../../assets"` serves `assets/public/` directly, no plugin
+needed. A `zuugle:backend-generated-assets` plugin covers what isn't there —
+the backend's still-local, gitignored trees (`gpx/`, `gpx-image/`, `gpx-track/`,
+`sitemap_*.xml`) — in every dev mode, without a running backend or database;
+edit an asset there and reload. Anything missing on disk falls back to the
+environment the API data comes from (UAT for `dev:uat`, PROD for `dev:main`,
+nothing for plain `vp dev`).
 
 ### Assets that come from the API
 
