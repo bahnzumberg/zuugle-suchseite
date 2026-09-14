@@ -85,9 +85,7 @@ export const PUBLIC_DIR = path.join(__dirname, isProd ? ".." : "../..", "public"
  * exactly why `build:copy` copies its contents into `PUBLIC_DIR` at build
  * time instead, making the two the same folder there.
  */
-const SHARED_PUBLIC_DIR = isProd
-    ? PUBLIC_DIR
-    : path.join(__dirname, "../../../../assets/public");
+const SHARED_PUBLIC_DIR = isProd ? PUBLIC_DIR : path.join(__dirname, "../../../../assets/public");
 
 /**
  * Every directory `index.js` mounts under `/public`. In production the two

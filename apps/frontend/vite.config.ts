@@ -36,7 +36,7 @@ const OUT_DIR = "build";
 /**
  * `svg365/` is the one hand-maintained tree that stayed behind in
  * `apps/frontend/public` instead of moving into the shared `assets/` folder
- *  — `scripts/cleanup_svg.py` regenerates it against a path hardcoded 
+ *  — `scripts/cleanup_svg.py` regenerates it against a path hardcoded
  * relative to this checkout.
  */
 const FRONTEND_SVG365_DIR = fileURLToPath(
