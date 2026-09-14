@@ -1,9 +1,7 @@
 # Agent Guidelines — Zuugle Frontend
 
-## Language
-
-All content on GitHub must be written in **English**. This includes commit messages,
-PR titles and descriptions, issue comments, code comments, and code review feedback.
+See the repo-root [`.agents/AGENTS.md`](../../.agents/AGENTS.md) for language, git
+workflow, and commit guidelines that apply to the whole monorepo.
 
 ## Design constraints
 
@@ -28,13 +26,6 @@ Do not duplicate documentation.
 
 - If code is self-evident, write no comment. A comment that restates what the code plainly does is
   a second copy to keep in sync, for no gain.
-
-## Git Workflow
-
-- **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
-  local development is to let the user test changes locally first.
-- `uat` is the main development branch — **never commit or push directly to `main`**.
-- Feature branches should be created from `uat`.
 
 ## Pre-Push Checklist
 
@@ -63,24 +54,6 @@ npm run build         # verify the production build succeeds
 - Do not commit unformatted files.
 - All lint and TypeScript errors must be fixed before committing.
 - Avoid `// oxlint-disable` comments — fix the underlying issue instead.
-
-## Commit Guidelines
-
-- **One logical change per commit.** If changes belong together, commit them together —
-  but don't group unrelated work.
-- **Keep the first line under 72 characters.** It is the subject shown in
-  `git log --oneline`, GitHub PR views, and notification emails — long subjects get
-  truncated and are hard to scan. Put extra detail in the body (separated by a blank line).
-- **Write a high-level commit message** that describes the intention or reason for
-  the change, not just what files were touched.
-- **Reference related GitHub issues** in the commit message when they exist
-  (e.g. `Fixes #42`).
-- If the changed code already carries a docstring or comment explaining it, keep the commit message
-  short. Anyone who needs details reads the changed lines, where the reasoning already is.
-- Add a commit body only for reasoning that exists nowhere in the diff.
-
-Bad: `fix stuff`, `wip`, `changes`
-Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`
 
 <!--VITE PLUS START-->
 
