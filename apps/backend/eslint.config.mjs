@@ -7,12 +7,7 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
     {
-        ignores: [
-            "package-lock.json",
-            "build/**",
-            "public/headless-leaflet/vendor/**",
-            "deploy/**",
-        ],
+        ignores: ["package-lock.json", "build/**", "deploy/**"],
     },
     {
         files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
@@ -51,12 +46,6 @@ export default defineConfig([
     {
         files: ["**/*.test.js"],
         languageOptions: { globals: globals.jest },
-    },
-    {
-        // headless-leaflet/map.js is a browser script loaded after Leaflet;
-        // it uses browser globals (window, document) and the Leaflet global (L).
-        files: ["public/headless-leaflet/map.js"],
-        languageOptions: { globals: { ...globals.browser, L: "readonly" } },
     },
     eslintConfigPrettier,
 ]);

@@ -6,6 +6,7 @@ on:
       - "dev"
     paths:
       - "apps/frontend/**"
+      - "assets/**"
       - ".github/workflows/deploy2dev.yml"
       - ".github/workflows/_deploy.yml"
   workflow_dispatch:

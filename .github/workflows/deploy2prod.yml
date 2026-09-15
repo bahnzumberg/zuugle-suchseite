@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       - "apps/frontend/**"
+      - "assets/**"
       - ".github/workflows/deploy2prod.yml"
       - ".github/workflows/_deploy.yml"
 
