@@ -21,7 +21,7 @@ import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
-import { absoluteAssetUrl } from "../utils/assetUrl";
+import { absoluteAssetUrl, assetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
 import {
   useGetCitiesQuery,
@@ -627,7 +627,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <img
-                    src={`/icons/provider/logo_${tour.provider}.svg`}
+                    src={assetUrl(`icons/provider/logo_${tour.provider}.svg`)}
                     alt={tour.provider_name}
                     style={{
                       borderRadius: "100%",

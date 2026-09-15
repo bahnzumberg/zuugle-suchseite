@@ -111,7 +111,7 @@ export default function TourCard({ tour, city }: TourCardProps) {
             }}
           >
             <img
-              src={`/icons/provider/logo_${tour.provider}.svg`}
+              src={assetUrl(`icons/provider/logo_${tour.provider}.svg`)}
               alt=""
               style={{
                 borderRadius: "100%",

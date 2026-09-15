@@ -19,43 +19,37 @@ syncTours().then(() => {
     console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC CITIES");
     syncCities().then(() => {
         console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE SYNC CITIES");
-        console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FIX TOURS");
-        fixTours().then(() => {
-            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE FIX TOURS");
-            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START WRITE KPIs");
-            writeKPIs().then(() => {
-                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
-                console.log(
-                    moment().format("YYYY.MM.DD HH:mm:ss"),
-                    " START POPULATE city2tour_flat",
-                );
-                populateCity2TourFlat().then(() => {
+        console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FETCH PROVIDER");
+        getProvider().then(() => {
+            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FETCHED PROVIDER");
+            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FIX TOURS");
+            fixTours().then(() => {
+                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE FIX TOURS");
+                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START WRITE KPIs");
+                writeKPIs().then(() => {
+                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
                     console.log(
                         moment().format("YYYY.MM.DD HH:mm:ss"),
-                        " DONE POPULATE city2tour_flat",
+                        " START POPULATE city2tour_flat",
                     );
-                    refreshSearchSuggestions().then(() => {
+                    populateCity2TourFlat().then(() => {
                         console.log(
                             moment().format("YYYY.MM.DD HH:mm:ss"),
-                            " DONE REFRESH SEARCH SUGGESTIONS",
+                            " DONE POPULATE city2tour_flat",
                         );
-                        console.log(
-                            moment().format("YYYY.MM.DD HH:mm:ss"),
-                            " START GENERATE SITEMAPS",
-                        );
-                        generateSitemaps().then(() => {
+                        refreshSearchSuggestions().then(() => {
                             console.log(
                                 moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " DONE GENERATE SITEMAPS",
+                                " DONE REFRESH SEARCH SUGGESTIONS",
                             );
                             console.log(
                                 moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " START FETCH PROVIDER",
+                                " START GENERATE SITEMAPS",
                             );
-                            getProvider().then(async () => {
+                            generateSitemaps().then(async () => {
                                 console.log(
                                     moment().format("YYYY.MM.DD HH:mm:ss"),
-                                    " FETCHED PROVIDER",
+                                    " DONE GENERATE SITEMAPS",
                                 );
 
                                 // Log cache statistics before flushing
