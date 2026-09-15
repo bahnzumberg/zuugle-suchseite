@@ -5,6 +5,7 @@ on:
             - "main"
         paths:
             - "apps/backend/**"
+            - "assets/**"
             - ".github/workflows/deploy-backend-prod.yml"
             - ".github/workflows/_deploy-backend.yml"
 jobs:

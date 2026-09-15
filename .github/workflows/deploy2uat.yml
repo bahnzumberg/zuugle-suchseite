@@ -6,6 +6,7 @@ on:
       - "uat"
     paths:
       - "apps/frontend/**"
+      - "assets/**"
       - ".github/workflows/deploy2uat.yml"
       - ".github/workflows/_deploy.yml"
 
