@@ -195,30 +195,30 @@ export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
  */
 export const ALPS_POLYGON: [number, number][] = [
     [43.5, 6.2], // South of Maritime Alps / Verdon
-    [44.0, 5.4], // Digne / Sisteron approach
-    [45.0, 5.0], // Vercors / Valence outskirts
-    [45.8, 5.2], // Chartreuse / Chambéry / Lyon east
-    [46.4, 5.8], // Jura foothills / Geneva
-    [47.2, 6.6], // Swiss Jura
-    [47.8, 7.5], // Basel / Black Forest south
-    [48.1, 8.8], // Lake Constance north / Hegau
-    [48.2, 10.2], // Allgäu foothills / Memmingen
-    [48.3, 11.6], // Munich south / Starnberg / Rosenheim
-    [48.3, 12.8], // Chiemgau / Traunstein / Salzburg foothills
-    [48.4, 14.2], // Upper Austrian Prealps / Linz south
-    [48.5, 15.2], // Mostviertel / Eisenwurzen / Wachau
-    [48.5, 16.6], // Vienna Woods / Vienna / Danube basin
-    [48.0, 16.8], // Leithagebirge / Neusiedler See / Rosaliengebirge
-    [46.8, 16.4], // Styrian hill country / Koralpe east
-    [46.4, 16.2], // Pohorje / Maribor / Drau
-    [45.9, 15.5], // Lower Carniola / Sava valley
-    [45.6, 14.0], // Postojna / Notranjska / Karst
-    [45.7, 13.0], // Friuli lowlands / Udine south
-    [45.4, 11.8], // Veneto foothills / Vicenza / Bassano
-    [45.2, 10.5], // Lake Garda south / Verona / Brescia
-    [45.3, 9.3], // Bergamo / Como / Milan north
-    [44.8, 7.5], // Piedmont / Turin outskirts / Po valley west
-    [44.0, 7.6], // Ligurian Alps / Cuneo / Imperia
+    [44.0, 5.14], // Digne / Sisteron approach (+20 km W)
+    [45.0, 4.74], // Vercors / Valence outskirts (+20 km W)
+    [45.98, 4.94], // Chartreuse / Chambéry / Lyon east (+20 km N+W)
+    [46.58, 5.54], // Jura foothills / Geneva (+20 km N+W)
+    [47.38, 6.34], // Swiss Jura (+20 km N+W)
+    [47.98, 7.24], // Basel / Black Forest south (+20 km N+W)
+    [48.28, 8.8], // Lake Constance north / Hegau (+20 km N)
+    [48.38, 10.2], // Allgäu foothills / Memmingen (+20 km N)
+    [48.48, 11.6], // Munich south / Starnberg / Rosenheim (+20 km N)
+    [48.48, 12.8], // Chiemgau / Traunstein / Salzburg foothills (+20 km N)
+    [48.58, 14.2], // Upper Austrian Prealps / Linz south (+20 km N)
+    [48.68, 15.2], // Mostviertel / Eisenwurzen / Wachau (+20 km N)
+    [48.68, 16.86], // Vienna Woods / Vienna / Danube basin (+20 km N+E)
+    [48.18, 17.06], // Leithagebirge / Neusiedler See (+20 km N+E)
+    [46.8, 16.66], // Styrian hill country / Koralpe east (+20 km E)
+    [46.4, 16.46], // Pohorje / Maribor / Drau (+20 km E)
+    [45.9, 15.5], // Lower Carniola / Sava valley (south — unchanged)
+    [45.6, 14.0], // Postojna / Notranjska / Karst (south — unchanged)
+    [45.7, 13.0], // Friuli lowlands / Udine south (south — unchanged)
+    [45.4, 11.8], // Veneto foothills / Vicenza / Bassano (south — unchanged)
+    [45.2, 10.5], // Lake Garda south / Verona / Brescia (south — unchanged)
+    [45.3, 9.3], // Bergamo / Como / Milan north (south — unchanged)
+    [44.8, 7.5], // Piedmont / Turin outskirts / Po valley west (south — unchanged)
+    [44.0, 7.6], // Ligurian Alps / Cuneo / Imperia (south — unchanged)
     [43.5, 6.2], // Closing polygon
 ];
 
