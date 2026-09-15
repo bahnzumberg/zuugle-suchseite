@@ -394,11 +394,27 @@ export function interpolateGridToRgba(grid: Float32Array, alpsMask?: Float32Arra
 }
 
 /**
+ * Writes via a temp file and a rename, which is atomic within a directory.
+ * nginx serves this folder straight to clients while the job rewrites it, and
+ * the job shares a process with the GPX pipeline, which can `process.exit()`
+ * mid-write — so a plain write can publish a truncated file under a 6 h cache
+ * header. A reader here sees either the old file or the new one.
+ */
+export async function writeWeatherFile(
+    targetFilePath: string,
+    contents: Buffer | string,
+): Promise<void> {
+    await fs.promises.mkdir(path.dirname(targetFilePath), { recursive: true });
+    const tmpPath = `${targetFilePath}.tmp`;
+    await fs.promises.writeFile(tmpPath, contents);
+    await fs.promises.rename(tmpPath, targetFilePath);
+}
+
+/**
  * Encodes RGBA buffer to WebP and writes it to disk.
  */
 export async function saveRgbaAsWebp(rgbaBuffer: Buffer, targetFilePath: string): Promise<void> {
-    await fs.promises.mkdir(path.dirname(targetFilePath), { recursive: true });
-    await sharp(rgbaBuffer, {
+    const webp = await sharp(rgbaBuffer, {
         raw: {
             width: GRID_CONFIG.width,
             height: GRID_CONFIG.height,
@@ -406,7 +422,9 @@ export async function saveRgbaAsWebp(rgbaBuffer: Buffer, targetFilePath: string)
         },
     })
         .webp({ quality: 85, effort: 4 })
-        .toFile(targetFilePath);
+        .toBuffer();
+
+    await writeWeatherFile(targetFilePath, webp);
 }
 
 /**
@@ -414,17 +432,23 @@ export async function saveRgbaAsWebp(rgbaBuffer: Buffer, targetFilePath: string)
  */
 export function formatDayLabel(
     dateStr: string,
-    dayIndex: number,
+    todayStr: string,
 ): { weekday: string; label: string } {
     const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
     const [year, month, day] = dateStr.split("-").map(Number);
     const dateObj = new Date(Date.UTC(year, month - 1, day));
     const weekday = weekdays[dateObj.getUTCDay()];
 
-    if (dayIndex === 0) {
+    // Against the date, not the position in the list: when the loader is late
+    // the first available forecast is tomorrow's, and calling that one "Heute"
+    // shifts every label in the button bar by a day.
+    const [ty, tm, td] = todayStr.split("-").map(Number);
+    const daysFromToday = Math.round((dateObj.getTime() - Date.UTC(ty, tm - 1, td)) / 86_400_000);
+
+    if (daysFromToday === 0) {
         return { weekday, label: `Heute (${weekday})` };
     }
-    if (dayIndex === 1) {
+    if (daysFromToday === 1) {
         return { weekday, label: `Morgen (${weekday})` };
     }
 
@@ -437,7 +461,10 @@ export function formatDayLabel(
  * Immediately deletes expired overlays (where date < todayStr) and strips them from metadata.
  * "Ungültig ist ungültig." — executes immediately upon script startup.
  */
-export function cleanupOldWeatherOverlays(weatherDir: string, todayStr: string): number {
+export async function cleanupOldWeatherOverlays(
+    weatherDir: string,
+    todayStr: string,
+): Promise<number> {
     if (!fs.existsSync(weatherDir)) {
         return 0;
     }
@@ -473,7 +500,7 @@ export function cleanupOldWeatherOverlays(weatherDir: string, todayStr: string):
                 const filteredDays = data.days.filter((d) => d.date >= todayStr);
                 if (filteredDays.length !== data.days.length) {
                     data.days = filteredDays;
-                    fs.writeFileSync(metadataPath, JSON.stringify(data, null, 2), "utf-8");
+                    await writeWeatherFile(metadataPath, JSON.stringify(data, null, 2));
                     logger.info(`[WeatherOverlay] Cleaned expired days from ${metadataPath}`);
                 }
             }

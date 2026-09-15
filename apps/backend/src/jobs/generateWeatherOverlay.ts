@@ -8,6 +8,7 @@ import {
     interpolateGridToRgba,
     computeAlpsMaskGrid,
     saveRgbaAsWebp,
+    writeWeatherFile,
     formatDayLabel,
     cleanupOldWeatherOverlays,
     GRID_CONFIG,
@@ -32,8 +33,14 @@ function getTodayString(): string {
     return `${year}-${month}-${day}`;
 }
 
+// Postgres code for "relation does not exist".
+const UNDEFINED_TABLE = "42P01";
+
 /**
  * Checks if newest_weather_daily has the required 4 forecast days and full 32,500 rows.
+ *
+ * Fails fast on a missing relation; any other query error is treated as
+ * "not complete yet" so the wait loop below just retries on its next interval.
  */
 async function isTableFullyLoaded(
     todayStr: string,
@@ -45,33 +52,37 @@ async function isTableFullyLoaded(
     minDate: string;
     maxDate: string;
 }> {
+    let query = knex("newest_weather_daily").select(
+        knex.raw("COUNT(DISTINCT weather_date::text) as day_count"),
+        knex.raw("COUNT(*) as total_rows"),
+        knex.raw("MIN(weather_date::text) as min_date"),
+        knex.raw("MAX(weather_date::text) as max_date"),
+    );
+
+    if (!allDates) {
+        query = query.whereRaw("weather_date >= ?::date", [todayStr]);
+    }
+
+    let result;
     try {
-        let query = knex("newest_weather_daily").select(
-            knex.raw("COUNT(DISTINCT weather_date::text) as day_count"),
-            knex.raw("COUNT(*) as total_rows"),
-            knex.raw("MIN(weather_date::text) as min_date"),
-            knex.raw("MAX(weather_date::text) as max_date"),
-        );
-
-        if (!allDates) {
-            query = query.whereRaw("weather_date >= ?::date", [todayStr]);
-        }
-
-        const result = await query;
-        const row = result[0] || {};
-        const dayCount = parseInt(row.day_count, 10) || 0;
-        const totalRows = parseInt(row.total_rows, 10) || 0;
-        const minDate = row.min_date ? row.min_date.slice(0, 10) : "";
-        const maxDate = row.max_date ? row.max_date.slice(0, 10) : "";
-
-        // Complete if: at least 4 days, at least 32,500 data points (4 * 8125), and min date is today or later
-        const isComplete = dayCount >= 4 && totalRows >= 32500 && (allDates || minDate >= todayStr);
-
-        return { isComplete, dayCount, totalRows, minDate, maxDate };
+        result = await query;
     } catch (err) {
+        if ((err as { code?: string }).code === UNDEFINED_TABLE) {
+            throw err;
+        }
         logger.error("[WeatherOverlay] Error querying newest_weather_daily status:", err);
         return { isComplete: false, dayCount: 0, totalRows: 0, minDate: "", maxDate: "" };
     }
+    const row = result[0] || {};
+    const dayCount = parseInt(row.day_count, 10) || 0;
+    const totalRows = parseInt(row.total_rows, 10) || 0;
+    const minDate = row.min_date ? row.min_date.slice(0, 10) : "";
+    const maxDate = row.max_date ? row.max_date.slice(0, 10) : "";
+
+    // Complete if: at least 4 days, at least 32,500 data points (4 * 8125), and min date is today or later
+    const isComplete = dayCount >= 4 && totalRows >= 32500 && (allDates || minDate >= todayStr);
+
+    return { isComplete, dayCount, totalRows, minDate, maxDate };
 }
 
 /**
@@ -95,7 +106,7 @@ export async function syncWeatherOverlays(
 
     // --- STEP 1: SOFORT-CLEANUP ---
     // "Die alten Overlays müssen sofort beim Start des Skripts gelöscht werden - unabhängig von allem anderen. Ungültig, ist ungültig."
-    const deletedCount = cleanupOldWeatherOverlays(weatherDir, todayStr);
+    const deletedCount = await cleanupOldWeatherOverlays(weatherDir, todayStr);
     logger.info(
         `[WeatherOverlay] Immediate cleanup finished: ${deletedCount} expired overlay(s) removed.`,
     );
@@ -188,10 +199,9 @@ export async function syncWeatherOverlays(
     const t0 = Date.now();
     const alpsMask = computeAlpsMaskGrid();
 
-    for (let i = 0; i < availableDates.length; i++) {
-        const dateStr = availableDates[i];
+    for (const dateStr of availableDates) {
         const dateRows = rowsByDate.get(dateStr) || [];
-        const { weekday, label } = formatDayLabel(dateStr, i);
+        const { weekday, label } = formatDayLabel(dateStr, todayStr);
         const fileName = `weather_overlay_${dateStr}.webp`;
         const targetPath = path.join(weatherDir, fileName);
 
@@ -237,7 +247,7 @@ export async function syncWeatherOverlays(
     };
 
     const metadataPath = path.join(weatherDir, "weather_metadata.json");
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), "utf-8");
+    await writeWeatherFile(metadataPath, JSON.stringify(metadata, null, 2));
     logger.info(`[WeatherOverlay] Wrote metadata: ${metadataPath}`);
     logger.info(`[WeatherOverlay] === COMPLETED WEATHER OVERLAYS SYNC ===`);
 

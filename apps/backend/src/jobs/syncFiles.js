@@ -34,12 +34,15 @@ async function run() {
         logger.info("END CREATE GPX IMAGE FILES");
     })();
 
-    // Wait for both independent pipelines to complete
-    await Promise.all([weatherPromise, gpxPipelinePromise]);
+    // The cache holds GPX pipeline results, not overlays, so the flush waits
+    // only on that pipeline.
+    await gpxPipelinePromise;
 
     logger.info("FLUSHING CACHE...");
     await cacheService.flush();
     logger.info("CACHE FLUSHED.");
+
+    await weatherPromise;
     process.exit(0);
 }
 
