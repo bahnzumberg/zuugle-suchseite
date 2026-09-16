@@ -9,6 +9,12 @@ if (config.cache && config.cache.enabled) {
         host: config.cache.host,
         port: config.cache.port,
         retryStrategy: (times) => Math.min(times * 100, 3000), // Retry up to 3s delay
+        // get/set below fail fast on their own (see the status check in each),
+        // so today this only affects middlewares/rateLimit.js's sendCommand,
+        // which has no such guard and would otherwise queue a command for
+        // ioredis's default 20 retries — worst case ~21s — before giving up
+        // during an outage. Applies to any future consumer of this client too.
+        maxRetriesPerRequest: 3,
     });
 
     let errorLogged = false;
@@ -73,6 +79,13 @@ const getStats = async () => {
         return null;
     }
 };
+
+/**
+ * The raw client, for callers that need to issue commands this module doesn't
+ * wrap — currently the rate limiter's shared store (see middlewares/rateLimit).
+ * Null when caching is disabled; may be connecting or down, so check `.status`.
+ */
+export const redisClient = redis;
 
 export default {
     get,

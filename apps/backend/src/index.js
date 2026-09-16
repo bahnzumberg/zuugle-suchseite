@@ -25,6 +25,11 @@ let corsOptions = getZuugleCors();
 
 let app = express();
 app.disable("x-powered-by"); // #917 — hide Express version
+// One hop: nginx proxies to localhost and sets X-Forwarded-For (see
+// deploy/nginx/*/snippets). Without this every request looks like it comes
+// from 127.0.0.1 and the rate limiters in routes/lists.js would count the
+// whole world as one client.
+app.set("trust proxy", 1);
 
 process.setMaxListeners(0);
 // app.use(bodyParser.json({limit: '1024mb'}));
@@ -59,6 +64,8 @@ app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, s
 app.use("/api/searchphrase", cors(corsOptions), hostMiddleware, authenticate, searchAutocomplete);
 app.use("/api/diana", cors(corsOptions), hostMiddleware, authenticate, diana);
 app.use("/api/licenses", cors(corsOptions), licenses);
+// Rate limiting for these routes is applied inside routes/lists.js itself,
+// next to the route definitions it governs.
 app.use("/api/lists", cors(corsOptions), hostMiddleware, lists);
 swaggerDocs(app);
 
