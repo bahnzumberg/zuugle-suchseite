@@ -6,8 +6,30 @@
     "saved": "Salvato",
     "show": "Mostra i preferiti",
     "showing": "Torna a tutti gli itinerari",
-    "only_local": "Preferiti salvati solo localmente.",
-    "error": "Preferiti salvati solo localmente."
+    "sync": {
+      "title": "Condividi i preferiti con un altro dispositivo",
+      "intro": "Apri questa finestra anche sul tuo secondo dispositivo. Inserisci qui il codice mostrato lì. Oppure viceversa, funzionano entrambi. Le due liste di preferiti vengono così unite e restano poi sincronizzate.",
+      "qr_code": "In alternativa puoi inquadrare questo codice QR con la fotocamera del secondo dispositivo.",
+      "new_code": "Mostra un nuovo codice",
+      "expires_in": "Valido ancora per {{time}}",
+      "expired": "Il codice è scaduto.",
+      "this_code": "Codice di questo dispositivo",
+      "enter_code": "Codice dell'altro dispositivo",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Collega i dispositivi",
+      "error_invalid": "Questo codice non è valido o è scaduto.",
+      "error_domain": "I due dispositivi si trovano su siti Zuugle diversi.",
+      "error_failed": "Il collegamento non è riuscito. Riprova.",
+      "code_failed": "Non è stato possibile creare il codice. Riprova."
+    },
+    "notice": {
+      "save_failed": "Non è stato possibile salvare il preferito. Riprova.",
+      "recreated": "Non è stato possibile caricare i tuoi preferiti. Sono stati ricreati su questo dispositivo – il collegamento con gli altri dispositivi è interrotto.",
+      "recreate_failed": "Non è stato possibile caricare i tuoi preferiti. Riprova più tardi.",
+      "merged_none": "I dispositivi sono collegati. Entrambi avevano salvato gli stessi itinerari.",
+      "merged_one": "I dispositivi sono collegati. È stato aggiunto un itinerario.",
+      "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari."
+    }
   },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",
@@ -363,9 +385,6 @@
   },
   "lists": {
     "default_list_name": "I miei preferiti",
-    "list_created": "Lista creata",
-    "tour_added": "Tour aggiunto",
-    "tour_removed": "Tour rimosso",
     "list_empty": "Questa lista è vuota",
     "list_empty_hint": "Tocca l'icona a forma di cuore su un tour per salvarlo qui."
   }

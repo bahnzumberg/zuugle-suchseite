@@ -30,6 +30,7 @@
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "lodash.debounce": "^4.0.8",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-horizontal-scrolling-menu": "^8.3.0",

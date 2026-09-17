@@ -4,6 +4,8 @@ import { lazy, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
 import CookieConsent from "./components/CookieConsent";
+import FavoritesNotice from "./components/Favorites/FavoritesNotice";
+import SyncFavoritesDialog from "./components/Favorites/SyncFavoritesDialog";
 import { useConsent } from "./hooks/useConsent";
 
 const StartNew = lazy(() => import("./views/StartNew"));
@@ -59,6 +61,8 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     <ThemeProvider theme={theme}>
       <LanguageParamSync />
       {renderRoute()}
+      <SyncFavoritesDialog />
+      <FavoritesNotice />
       <CookieConsent />
     </ThemeProvider>
   );

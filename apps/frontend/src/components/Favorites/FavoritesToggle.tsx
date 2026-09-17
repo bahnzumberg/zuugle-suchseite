@@ -1,10 +1,14 @@
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
 import { darken } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "../../hooks/useFavorites";
+import { useAppDispatch } from "../../hooks";
+import { syncDialogOpened } from "../../features/favoritesSlice";
 import SearchBarButton from "../Search/SearchBarButton";
 
 // Lindgrün (Corporate Design) — same literal FilterButton uses for its
@@ -13,7 +17,8 @@ const ACTIVE_BG = "#ccd8a1";
 
 export default function FavoritesToggle() {
   const { t } = useTranslation();
-  const { favoritesOnly, toggleFavoritesOnly, isOnlyLocal } = useFavorites();
+  const dispatch = useAppDispatch();
+  const { favoritesOnly, toggleFavoritesOnly } = useFavorites();
 
   const label = favoritesOnly ? t("favorites.showing") : t("favorites.show");
   const icon = favoritesOnly ? (
@@ -36,16 +41,8 @@ export default function FavoritesToggle() {
         "&:hover": { bgcolor: "rgba(255, 255, 255, 0.28)" },
       };
 
-  const showOnlyLocalNotice = favoritesOnly && isOnlyLocal;
-
   return (
-    <Box
-      sx={{
-        display: "inline-flex",
-        position: "relative",
-        alignItems: "center",
-      }}
-    >
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
       <SearchBarButton
         icon={icon}
         label={label}
@@ -60,25 +57,24 @@ export default function FavoritesToggle() {
           ...stateSx,
         }}
       />
-      {showOnlyLocalNotice && (
-        <Typography
+      {/* Icon-only at every width: the search bar has no room for a second
+          labelled pill on mobile, and the label would wrap the row. */}
+      <Tooltip title={t("favorites.sync.title")}>
+        <IconButton
+          onClick={() => dispatch(syncDialogOpened(null))}
+          aria-label={t("favorites.sync.title")}
           sx={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            right: 0,
-            fontSize: "11px",
-            lineHeight: 1.2,
-            fontWeight: 400,
-            color: "rgba(255, 255, 255, 0.85)",
-            textAlign: "right",
-            whiteSpace: "nowrap",
-            userSelect: "none",
-            pointerEvents: "none",
+            width: 38,
+            height: 38,
+            bgcolor: "rgba(255, 255, 255, 0.15)",
+            color: "#fff",
+            "&:hover": { bgcolor: "rgba(255, 255, 255, 0.28)" },
+            "& svg": { fontSize: 20 },
           }}
         >
-          {t("favorites.only_local")}
-        </Typography>
-      )}
+          <CloudSyncRoundedIcon />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 }

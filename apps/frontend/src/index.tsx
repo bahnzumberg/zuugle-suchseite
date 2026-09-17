@@ -11,7 +11,10 @@ import { getBackgroundImageUrl, getTLD } from "./utils/globals";
 import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
-import favoritesReducer, { FavoritesState } from "./features/favoritesSlice";
+import favoritesReducer, {
+  FavoritesState,
+  initialFavoritesState,
+} from "./features/favoritesSlice";
 import { api, isValidSearchType } from "./features/apiSlice";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
@@ -97,18 +100,13 @@ function getPersistedFavoriteTourIds(): number[] {
 }
 
 function getPreloadedFavoritesState(): FavoritesState {
-  const listKey = localStorage.getItem("favoritesListKey");
-  const tourIds = getPersistedFavoriteTourIds();
-  const lastSyncedAt = localStorage.getItem("favoritesLastSyncedAt");
+  // Left behind by the local-first model this replaced; the server now says
+  // when a list was last changed.
+  localStorage.removeItem("favoritesLastSyncedAt");
   return {
-    listKey,
-    tourIds,
-    // Cached tourIds (even []) mean no server seed is needed.
-    hydrated: localStorage.getItem("favoriteTourIds") !== null,
-    error: null,
-    favoritesOnly: false,
-    lastSyncedAt,
-    isSynced: tourIds.length === 0 || Boolean(listKey && lastSyncedAt),
+    ...initialFavoritesState,
+    listKey: localStorage.getItem("favoritesListKey"),
+    tourIds: getPersistedFavoriteTourIds(),
   };
 }
 
@@ -158,21 +156,14 @@ store.subscribe(() => {
   }
 });
 
+// Subscribers run on every action, and typing in the search box dispatches a
+// lot of them — only touch localStorage when the ids actually changed.
+let persistedTourIds = store.getState().favorites.tourIds;
 store.subscribe(() => {
-  const lastSyncedAt = store.getState().favorites.lastSyncedAt;
-  if (lastSyncedAt !== null) {
-    localStorage.setItem("favoritesLastSyncedAt", lastSyncedAt);
-  } else {
-    localStorage.removeItem("favoritesLastSyncedAt");
-  }
-});
-
-store.subscribe(() => {
-  const { tourIds, hydrated } = store.getState().favorites;
-  // Skip the pre-hydration empty array.
-  if (hydrated) {
-    localStorage.setItem("favoriteTourIds", JSON.stringify(tourIds));
-  }
+  const { tourIds } = store.getState().favorites;
+  if (tourIds === persistedTourIds) return;
+  persistedTourIds = tourIds;
+  localStorage.setItem("favoriteTourIds", JSON.stringify(tourIds));
 });
 
 // Workaround for IE Mobile 10.0

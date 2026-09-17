@@ -6,8 +6,30 @@
     "saved": "Saved",
     "show": "Show favorites",
     "showing": "Back to all tours",
-    "only_local": "Favorites saved locally only.",
-    "error": "Favorites saved locally only."
+    "sync": {
+      "title": "Share favorites with another device",
+      "intro": "Open this dialog on your second device as well. Enter the code shown there. Or the other way round, both work. The two favorites lists are then combined and stay in sync from then on.",
+      "qr_code": "Alternatively, scan this QR code with the second device's camera.",
+      "new_code": "Show a new code",
+      "expires_in": "Valid for another {{time}}",
+      "expired": "This code has expired.",
+      "this_code": "Code from this device",
+      "enter_code": "Code from the other device",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Connect devices",
+      "error_invalid": "This code is invalid or has expired.",
+      "error_domain": "The two devices are on different Zuugle sites.",
+      "error_failed": "Connecting didn't work. Please try again.",
+      "code_failed": "The code could not be created. Please try again."
+    },
+    "notice": {
+      "save_failed": "Your favorite could not be saved. Please try again.",
+      "recreated": "Your favorites could not be loaded. They have been recreated on this device – the link to other devices is broken.",
+      "recreate_failed": "Your favorites could not be loaded. Please try again later.",
+      "merged_none": "The devices are connected. Both had saved the same tours.",
+      "merged_one": "The devices are connected. One tour was added.",
+      "merged_other": "The devices are connected. {{count}} tours were added."
+    }
   },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",
@@ -364,9 +386,6 @@
   },
   "lists": {
     "default_list_name": "My Favourites",
-    "list_created": "List created",
-    "tour_added": "Tour added",
-    "tour_removed": "Tour removed",
     "list_empty": "This list is empty",
     "list_empty_hint": "Tap the heart icon on a tour to save it here."
   }
