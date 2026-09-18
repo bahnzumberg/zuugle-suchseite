@@ -29,7 +29,7 @@ const RETRY_DELAY_MS = 30000; // Wartezeit zwischen Retries (30 Sekunden)
 
 // Batch-Update-Queue für effiziente DB-Updates
 const updateQueue = [];
-let flushPromise = null; // Verhindert parallele Flush-Aufrufe
+let drainPromise = null; // Serialisiert Flush-Aufrufe
 
 const createImageHash = async (imagePath) => {
     try {
@@ -118,6 +118,68 @@ const minimal_args = [
 // Run the Python script before image generation to pre-warm tiles on the tile server.
 
 /**
+ * Führt ein Batch-UPDATE für eine Liste von Updates aus
+ * @param {Array} updates - Liste von { tourId, imageUrl, force }
+ * @param {boolean} isForce - Ob image_url auch überschrieben werden soll wenn nicht NULL
+ * @param {number} retryCount - Aktueller Retry-Versuch
+ */
+const executeUpdate = async (updates, isForce, retryCount = 0) => {
+    if (updates.length === 0) return;
+
+    try {
+        // Baue CASE-Statement für Batch-Update
+        const caseStatements = updates
+            .map(({ tourId, imageUrl }) => `WHEN ${tourId} THEN '${imageUrl.replace(/'/g, "''")}'`)
+            .join(" ");
+        const ids = updates.map((u) => u.tourId).join(",");
+
+        // city2tour_flat wird via Database-Trigger aktualisiert
+        if (isForce) {
+            await knex.raw(`
+                UPDATE tour 
+                SET image_url = CASE id ${caseStatements} END 
+                WHERE id IN (${ids});
+            `);
+        } else {
+            await knex.raw(`
+                UPDATE tour 
+                SET image_url = CASE id ${caseStatements} END 
+                WHERE id IN (${ids}) AND image_url IS NULL;
+            `);
+        }
+
+        logger.info(`Batch update: ${updates.length} tours updated (force=${isForce})`);
+    } catch (e) {
+        if (retryCount < MAX_RETRIES) {
+            logger.warn(
+                `Batch update failed, retrying in ${RETRY_DELAY_MS / 1000}s... (attempt ${retryCount + 1}/${MAX_RETRIES})`,
+            );
+            await delay(RETRY_DELAY_MS);
+            return executeUpdate(updates, isForce, retryCount + 1);
+        } else {
+            logger.error(`Batch update failed after ${MAX_RETRIES} retries:`, e);
+            // Bei totalem Fehlschlag: Einzelne Updates als Fallback
+            logger.info(`Falling back to individual updates for ${updates.length} tours...`);
+            for (const { tourId, imageUrl, force } of updates) {
+                try {
+                    if (force) {
+                        await knex.raw(
+                            `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId};`,
+                        );
+                    } else {
+                        await knex.raw(
+                            `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId} AND image_url IS NULL;`,
+                        );
+                    }
+                } catch (individualError) {
+                    logger.error(`Individual update failed for tour ${tourId}:`, individualError);
+                }
+            }
+        }
+    }
+};
+
+/**
  * Fügt ein Update zur Queue hinzu und flusht automatisch bei BATCH_SIZE
  * @param {number} tourId - Tour ID
  * @param {string} imageUrl - Bild-URL
@@ -135,103 +197,47 @@ const queueDbUpdate = (tourId, imageUrl, force = false) => {
 };
 
 /**
- * Flusht die Update-Queue und führt Batch-UPDATE aus
- * @param {number} retryCount - Aktueller Retry-Versuch
+ * Flusht die Update-Queue strikt seriell und führt Batch-UPDATEs aus
  */
-const flushUpdateQueue = async (retryCount = 0) => {
-    if (updateQueue.length === 0) return;
+const flushUpdateQueue = async () => {
+    if (drainPromise) return drainPromise;
 
-    // Verhindere parallele Flush-Aufrufe
-    if (flushPromise && retryCount === 0) {
-        await flushPromise;
-    }
-
-    const batch = updateQueue.splice(0, Math.min(updateQueue.length, BATCH_SIZE));
-    if (batch.length === 0) return;
-
-    // Trenne force und non-force Updates
-    const forceUpdates = batch.filter((u) => u.force);
-    const normalUpdates = batch.filter((u) => !u.force);
-
-    const executeUpdate = async (updates, isForce) => {
-        if (updates.length === 0) return;
-
+    drainPromise = (async () => {
         try {
-            // Baue CASE-Statement für Batch-Update
-            const caseStatements = updates
-                .map(
-                    ({ tourId, imageUrl }) =>
-                        `WHEN ${tourId} THEN '${imageUrl.replace(/'/g, "''")}'`,
-                )
-                .join(" ");
-            const ids = updates.map((u) => u.tourId).join(",");
+            while (updateQueue.length > 0) {
+                const batch = updateQueue.splice(0, Math.min(updateQueue.length, BATCH_SIZE));
+                if (batch.length === 0) break;
 
-            // city2tour_flat wird via Database-Trigger aktualisiert
-            if (isForce) {
-                await knex.raw(`
-                    UPDATE tour 
-                    SET image_url = CASE id ${caseStatements} END 
-                    WHERE id IN (${ids});
-                `);
-            } else {
-                await knex.raw(`
-                    UPDATE tour 
-                    SET image_url = CASE id ${caseStatements} END 
-                    WHERE id IN (${ids}) AND image_url IS NULL;
-                `);
-            }
+                // Trenne force und non-force Updates
+                const forceUpdates = batch.filter((u) => u.force);
+                const normalUpdates = batch.filter((u) => !u.force);
 
-            logger.info(`Batch update: ${updates.length} tours updated (force=${isForce})`);
-        } catch (e) {
-            if (retryCount < MAX_RETRIES) {
-                logger.warn(
-                    `Batch update failed, retrying in ${RETRY_DELAY_MS / 1000}s... (attempt ${retryCount + 1}/${MAX_RETRIES})`,
-                );
-                await delay(RETRY_DELAY_MS);
-                // Zurück in Queue für Retry
-                updateQueue.unshift(...updates);
-                return flushUpdateQueue(retryCount + 1);
-            } else {
-                logger.error(`Batch update failed after ${MAX_RETRIES} retries:`, e);
-                // Bei totalem Fehlschlag: Einzelne Updates als Fallback
-                logger.info(`Falling back to individual updates for ${updates.length} tours...`);
-                for (const { tourId, imageUrl, force } of updates) {
-                    try {
-                        if (force) {
-                            await knex.raw(
-                                `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId};`,
-                            );
-                        } else {
-                            await knex.raw(
-                                `UPDATE tour SET image_url='${imageUrl.replace(/'/g, "''")}' WHERE id=${tourId} AND image_url IS NULL;`,
-                            );
-                        }
-                    } catch (individualError) {
-                        logger.error(
-                            `Individual update failed for tour ${tourId}:`,
-                            individualError,
-                        );
-                    }
+                if (forceUpdates.length > 0) {
+                    await executeUpdate(forceUpdates, true);
+                }
+                if (normalUpdates.length > 0) {
+                    await executeUpdate(normalUpdates, false);
                 }
             }
+        } finally {
+            drainPromise = null;
         }
-    };
-
-    flushPromise = (async () => {
-        await executeUpdate(forceUpdates, true);
-        await executeUpdate(normalUpdates, false);
     })();
 
-    await flushPromise;
-    flushPromise = null;
+    return drainPromise;
 };
 
 /**
- * Flusht alle verbleibenden Updates am Ende der Verarbeitung
+ * Flusht alle verbleibenden Updates am Ende der Verarbeitung und wartet garantiert,
+ * bis alle Datenbank-Operationen abgeschlossen sind.
  */
 const flushAllPendingUpdates = async () => {
-    while (updateQueue.length > 0) {
-        await flushUpdateQueue();
+    while (updateQueue.length > 0 || drainPromise) {
+        if (drainPromise) {
+            await drainPromise;
+        } else if (updateQueue.length > 0) {
+            await flushUpdateQueue();
+        }
     }
     logger.info("All pending DB updates flushed.");
 };
@@ -580,6 +586,9 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 (async () => {
                     for (const tourID of idsForUpdate) {
                         dispatchDbUpdate(tourID, gpxImagePath(tourID), false);
+                        if (updateQueue.length >= BATCH_SIZE) {
+                            await flushUpdateQueue();
+                        }
                     }
                     // Flush alle gepufferten Updates
                     await flushAllPendingUpdates();
