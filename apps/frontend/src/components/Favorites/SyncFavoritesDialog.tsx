@@ -127,12 +127,20 @@ function SyncFavoritesDialogContent() {
     try {
       const result = await pairList({ code: input, key: listKey }).unwrap();
       dispatch(listKeyCreated(result.key));
+      // Only what this device gained is worth counting out; if it gained
+      // nothing, the message still has to distinguish two lists that were
+      // identical from one that was already a superset of the other.
       dispatch(
-        noticeShown({
-          key: "merged",
-          severity: "success",
-          count: result.merged,
-        }),
+        result.received > 0
+          ? noticeShown({
+              key: "merged",
+              severity: "success",
+              count: result.received,
+            })
+          : noticeShown({
+              key: result.sent > 0 ? "merged_sent" : "merged_none",
+              severity: "success",
+            }),
       );
       dispatch(syncDialogClosed());
     } catch (error) {

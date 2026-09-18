@@ -200,9 +200,12 @@ router.param("key", async (req, res, next, key) => {
  *                 key:
  *                   type: string
  *                   description: Key of the surviving list — store this from now on
- *                 merged:
+ *                 received:
  *                   type: integer
- *                   description: Number of tours the surviving list gained
+ *                   description: Tours the calling device did not have before
+ *                 sent:
+ *                   type: integer
+ *                   description: Tours the other device did not have before
  *                 total:
  *                   type: integer
  *       404:
@@ -268,20 +271,30 @@ router.post("/pair", pairingLimiter, async (req, res) => {
                     .count();
                 return Number(count);
             };
-            const noMerge = async (survivor) => ({
+            // The device that submits a code is the one that reports the
+            // outcome to its user, so both counts are stated from its side:
+            // what this device gains, and what it hands the other one. They
+            // differ whenever the two lists were not subsets of each other.
+            const settled = async (survivor, received, sent) => ({
                 status: 200,
                 body: {
                     success: true,
                     key: survivor.key,
-                    merged: 0,
+                    received,
+                    sent,
                     total: await totalOf(survivor.id),
                 },
             });
 
-            // Nothing to merge: either this device has no list yet, or its list
-            // is already the code's target (it joined this list some other way).
-            if (!source || source.id === target.id) {
-                return noMerge(target);
+            // This device has no list yet, so the target's tours are all new to
+            // it and it has nothing of its own to contribute.
+            if (!source) {
+                const total = await totalOf(target.id);
+                return settled(target, total, 0);
+            }
+            // Already the code's target — it joined this list some other way.
+            if (source.id === target.id) {
+                return settled(target, 0, 0);
             }
 
             // Lock both rows lowest id first so two devices pairing into each
@@ -299,14 +312,19 @@ router.post("/pair", pairingLimiter, async (req, res) => {
             ]);
             if (!sourceNow.list || !targetNow.list) return { status: 404, body: notFound };
             // A concurrent pairing in the opposite direction may have already
-            // merged these two lists while we were waiting for the lock.
+            // merged these two lists while we were waiting for the lock. The
+            // request that did the merging reports the real counts; this one
+            // has nothing left to compare against and reports none.
             if (sourceNow.list.id === targetNow.list.id) {
-                return noMerge(targetNow.list);
+                return settled(targetNow.list, 0, 0);
             }
 
             const from = sourceNow.list;
             const into = targetNow.list;
-            const before = await totalOf(into.id);
+            const [sourceBefore, targetBefore] = await Promise.all([
+                totalOf(from.id),
+                totalOf(into.id),
+            ]);
 
             // Union the tours. A tour in both lists keeps the earlier added_at,
             // because the list is presented sorted by it.
@@ -341,7 +359,13 @@ router.post("/pair", pairingLimiter, async (req, res) => {
 
             return {
                 status: 200,
-                body: { success: true, key: into.key, merged: after - before, total: after },
+                body: {
+                    success: true,
+                    key: into.key,
+                    received: after - sourceBefore,
+                    sent: after - targetBefore,
+                    total: after,
+                },
             };
         });
 

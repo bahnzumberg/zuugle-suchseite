@@ -27,6 +27,7 @@
       "recreated": "Tes favoris n'ont pas pu être chargés. Ils ont été recréés sur cet appareil – le lien avec les autres appareils est rompu.",
       "recreate_failed": "Tes favoris n'ont pas pu être chargés. Réessaie plus tard.",
       "merged_none": "Les appareils sont connectés. Les deux avaient enregistré les mêmes randonnées.",
+      "merged_sent": "Les appareils sont connectés. Cet appareil avait déjà toutes les randonnées ; l'autre a maintenant reçu les tiennes.",
       "merged_one": "Les appareils sont connectés. Une randonnée a été ajoutée.",
       "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées."
     }

@@ -27,6 +27,7 @@
       "recreated": "Deine Favoriten konnten nicht geladen werden. Sie wurden auf diesem Gerät neu angelegt – die Verbindung zu anderen Geräten ist getrennt.",
       "recreate_failed": "Deine Favoriten konnten nicht geladen werden. Bitte versuche es später noch einmal.",
       "merged_none": "Die Geräte sind verbunden. Beide hatten dieselben Touren gemerkt.",
+      "merged_sent": "Die Geräte sind verbunden. Auf diesem Gerät waren schon alle Touren gemerkt; das andere hat deine jetzt dazubekommen.",
       "merged_one": "Die Geräte sind verbunden. Eine Tour ist dazugekommen.",
       "merged_other": "Die Geräte sind verbunden. {{count}} Touren sind dazugekommen."
     }

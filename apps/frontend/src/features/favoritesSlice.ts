@@ -3,7 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // Transient message for the favorites snackbar. Stored as an i18n key rather
 // than a translated string so the text follows a language switch.
 export interface FavoritesNotice {
-  key: "save_failed" | "recreated" | "recreate_failed" | "merged";
+  key:
+    | "save_failed"
+    | "recreated"
+    | "recreate_failed"
+    | "merged"
+    | "merged_none"
+    | "merged_sent";
   severity: "success" | "warning" | "error";
   count?: number;
 }

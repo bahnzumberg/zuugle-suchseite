@@ -715,11 +715,42 @@ describe("User Lists sync", () => {
         expect(result.success).toBe(true);
         // The device that showed the code keeps its key.
         expect(result.key).toBe(keyB);
-        expect(result.merged).toBe(1);
+        // One tour crossed in each direction.
+        expect(result.received).toBe(1);
+        expect(result.sent).toBe(1);
         expect(result.total).toBe(2);
 
         const merged = await getList(keyB);
         expect(merged.tours.map((t) => t.id).sort()).toEqual([tourA, tourB].sort());
+    });
+
+    // The counts are reported to the device that entered the code, so they have
+    // to be stated from its side — not from the surviving list's.
+    test("an empty list entering a code receives that list's tours", async () => {
+        const keyB = await createList();
+        const keyA = await createList(); // enters the code, has nothing
+        await addTour(keyB, tourA);
+        await addTour(keyB, tourB);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, keyA);
+
+        expect(result.received).toBe(2);
+        expect(result.sent).toBe(0);
+        expect(result.total).toBe(2);
+    });
+
+    test("entering a code with nothing on the other side sends, receives none", async () => {
+        const keyB = await createList(); // shows the code, has nothing
+        const keyA = await createList();
+        await addTour(keyA, tourA);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, keyA);
+
+        expect(result.received).toBe(0);
+        expect(result.sent).toBe(1);
+        expect(result.total).toBe(1);
     });
 
     test("the absorbed key is tombstoned, not broken", async () => {
@@ -806,7 +837,8 @@ describe("User Lists sync", () => {
 
         expect(result.status).toBe(200);
         expect(result.key).toBe(key);
-        expect(result.merged).toBe(0);
+        expect(result.received).toBe(0);
+        expect(result.sent).toBe(0);
 
         const list = await getList(key);
         expect(list.tours.map((t) => t.id)).toEqual([tourA]);
@@ -821,6 +853,8 @@ describe("User Lists sync", () => {
 
         expect(result.status).toBe(200);
         expect(result.key).toBe(keyB);
+        expect(result.received).toBe(1);
+        expect(result.sent).toBe(0);
         expect(result.total).toBe(1);
     });
 

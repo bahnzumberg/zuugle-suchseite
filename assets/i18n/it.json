@@ -27,6 +27,7 @@
       "recreated": "Non è stato possibile caricare i tuoi preferiti. Sono stati ricreati su questo dispositivo – il collegamento con gli altri dispositivi è interrotto.",
       "recreate_failed": "Non è stato possibile caricare i tuoi preferiti. Riprova più tardi.",
       "merged_none": "I dispositivi sono collegati. Entrambi avevano salvato gli stessi itinerari.",
+      "merged_sent": "I dispositivi sono collegati. Questo dispositivo aveva già tutti gli itinerari; l'altro ha ora ricevuto i tuoi.",
       "merged_one": "I dispositivi sono collegati. È stato aggiunto un itinerario.",
       "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari."
     }

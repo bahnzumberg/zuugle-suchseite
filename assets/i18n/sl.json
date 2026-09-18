@@ -27,6 +27,7 @@
       "recreated": "Tvojih priljubljenih ni bilo mogoče naložiti. Na tej napravi so bile ustvarjene na novo – povezava z drugimi napravami je prekinjena.",
       "recreate_failed": "Tvojih priljubljenih ni bilo mogoče naložiti. Poskusi pozneje.",
       "merged_none": "Napravi sta povezani. Obe sta imeli shranjene iste ture.",
+      "merged_sent": "Napravi sta povezani. Ta naprava je imela shranjene že vse ture; druga je zdaj prejela tvoje.",
       "merged_one": "Napravi sta povezani. Dodana je bila ena tura.",
       "merged_two": "Napravi sta povezani. Dodani sta bili {{count}} turi.",
       "merged_few": "Napravi sta povezani. Dodane so bile {{count}} ture.",

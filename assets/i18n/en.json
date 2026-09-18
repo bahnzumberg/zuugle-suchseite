@@ -27,6 +27,7 @@
       "recreated": "Your favorites could not be loaded. They have been recreated on this device – the link to other devices is broken.",
       "recreate_failed": "Your favorites could not be loaded. Please try again later.",
       "merged_none": "The devices are connected. Both had saved the same tours.",
+      "merged_sent": "The devices are connected. This device already had all the tours; the other one has now received yours.",
       "merged_one": "The devices are connected. One tour was added.",
       "merged_other": "The devices are connected. {{count}} tours were added."
     }

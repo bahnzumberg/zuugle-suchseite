@@ -17,10 +17,12 @@ export default function FavoritesNotice() {
 
   const dismiss = () => dispatch(noticeDismissed());
 
+  // Only the counted keys may be given a count: passing one to a key without
+  // plural forms would send i18next looking for a `_other` variant.
   const message =
-    notice.key === "merged" && notice.count === 0
-      ? t("favorites.notice.merged_none")
-      : t(`favorites.notice.${notice.key}`, { count: notice.count ?? 0 });
+    notice.count === undefined
+      ? t(`favorites.notice.${notice.key}`)
+      : t(`favorites.notice.${notice.key}`, { count: notice.count });
 
   return (
     <Snackbar

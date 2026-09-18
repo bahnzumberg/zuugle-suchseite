@@ -215,7 +215,10 @@ export interface PairListResponse {
   success: boolean;
   // Key of the surviving list — the caller's device stores this from now on.
   key: string;
-  merged: number;
+  // Both counts are from this device's side: what it gained, and what the
+  // other device gained from it.
+  received: number;
+  sent: number;
   total: number;
 }
 
