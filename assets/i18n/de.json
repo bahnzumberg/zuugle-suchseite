@@ -6,8 +6,30 @@
     "saved": "Gemerkt",
     "show": "Favoriten anzeigen",
     "showing": "Zurück zu allen Touren",
-    "only_local": "Favoriten nur lokal gespeichert.",
-    "error": "Favoriten nur lokal gespeichert."
+    "sync": {
+      "title": "Favoriten mit einem anderen Gerät teilen",
+      "intro": "Öffne diesen Dialog auch auf deinem zweiten Gerät. Gib den dort angezeigten Code hier ein. Oder andersherum, beides funktioniert. Dadurch werden die beiden Favoritenlisten kombiniert und auch weiterhin synchron gehalten.",
+      "qr_code": "Alternativ kannst du mit der Kamera des zweiten Geräts diesen QR Code scannen.",
+      "new_code": "Neuen Code anzeigen",
+      "expires_in": "Noch {{time}} gültig",
+      "expired": "Der Code ist abgelaufen.",
+      "this_code": "Code von diesem Gerät",
+      "enter_code": "Code des anderen Geräts",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Geräte verbinden",
+      "error_invalid": "Dieser Code ist ungültig oder abgelaufen.",
+      "error_domain": "Die beiden Geräte sind auf unterschiedlichen Zuugle-Seiten unterwegs.",
+      "error_failed": "Das Verbinden hat nicht geklappt. Bitte versuche es noch einmal.",
+      "code_failed": "Der Code konnte nicht erstellt werden. Bitte versuche es noch einmal."
+    },
+    "notice": {
+      "save_failed": "Dein Favorit konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+      "recreated": "Deine Favoriten konnten nicht geladen werden. Sie wurden auf diesem Gerät neu angelegt – die Verbindung zu anderen Geräten ist getrennt.",
+      "recreate_failed": "Deine Favoriten konnten nicht geladen werden. Bitte versuche es später noch einmal.",
+      "merged_none": "Die Geräte sind verbunden. Beide hatten dieselben Touren gemerkt.",
+      "merged_one": "Die Geräte sind verbunden. Eine Tour ist dazugekommen.",
+      "merged_other": "Die Geräte sind verbunden. {{count}} Touren sind dazugekommen."
+    }
   },
   "about": {
     "was_ist_zuugle": "WAS IST ZUUGLE ?",
@@ -359,15 +381,12 @@
     "kartenansicht_entfernen": "Karte schließen"
   },
   "cookie_consent": {
-    "text": "Wir gehen sorgsam mit deinen Daten um. Diese Seite verwendet technisch notwendige Cookies (z.\u00a0B. Spracheinstellung) und optionale Komfort-Cookies, die dein Erlebnis verbessern — etwa damit du bei der Fahrplanabfrage nicht jedes Mal deinen Abfahrtsort neu eingeben musst.",
+    "text": "Wir gehen sorgsam mit deinen Daten um. Diese Seite verwendet technisch notwendige Cookies (z. B. Spracheinstellung) und optionale Komfort-Cookies, die dein Erlebnis verbessern — etwa damit du bei der Fahrplanabfrage nicht jedes Mal deinen Abfahrtsort neu eingeben musst.",
     "accept_essential": "Nur technische Cookies",
     "accept_all": "Alle akzeptieren"
   },
   "lists": {
     "default_list_name": "Meine Favoriten",
-    "list_created": "Liste erstellt",
-    "tour_added": "Tour hinzugefügt",
-    "tour_removed": "Tour entfernt",
     "list_empty": "Diese Liste ist noch leer",
     "list_empty_hint": "Tippe bei einer Tour auf das Herz-Symbol, um sie hier zu speichern."
   }

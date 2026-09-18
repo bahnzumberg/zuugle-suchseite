@@ -6,8 +6,30 @@
     "saved": "Enregistré",
     "show": "Afficher les favoris",
     "showing": "Retour à toutes les randonnées",
-    "only_local": "Favoris enregistrés localement uniquement.",
-    "error": "Favoris enregistrés localement uniquement."
+    "sync": {
+      "title": "Partager les favoris avec un autre appareil",
+      "intro": "Ouvre aussi cette fenêtre sur ton deuxième appareil. Saisis ici le code qui y est affiché. Ou l'inverse, les deux fonctionnent. Les deux listes de favoris sont alors fusionnées et restent ensuite synchronisées.",
+      "qr_code": "Tu peux aussi scanner ce code QR avec l'appareil photo du deuxième appareil.",
+      "new_code": "Afficher un nouveau code",
+      "expires_in": "Encore valable {{time}}",
+      "expired": "Ce code a expiré.",
+      "this_code": "Code de cet appareil",
+      "enter_code": "Code de l'autre appareil",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Connecter les appareils",
+      "error_invalid": "Ce code est invalide ou a expiré.",
+      "error_domain": "Les deux appareils sont sur des sites Zuugle différents.",
+      "error_failed": "La connexion n'a pas fonctionné. Réessaie.",
+      "code_failed": "Le code n'a pas pu être créé. Réessaie."
+    },
+    "notice": {
+      "save_failed": "Ton favori n'a pas pu être enregistré. Réessaie.",
+      "recreated": "Tes favoris n'ont pas pu être chargés. Ils ont été recréés sur cet appareil – le lien avec les autres appareils est rompu.",
+      "recreate_failed": "Tes favoris n'ont pas pu être chargés. Réessaie plus tard.",
+      "merged_none": "Les appareils sont connectés. Les deux avaient enregistré les mêmes randonnées.",
+      "merged_one": "Les appareils sont connectés. Une randonnée a été ajoutée.",
+      "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées."
+    }
   },
   "about": {
     "was_ist_zuugle": "Qu'est-ce que Zuugle ?",
@@ -364,9 +386,6 @@
   },
   "lists": {
     "default_list_name": "Mes favoris",
-    "list_created": "Liste créée",
-    "tour_added": "Tour ajouté",
-    "tour_removed": "Tour supprimé",
     "list_empty": "Cette liste est vide",
     "list_empty_hint": "Appuie sur l'icône cœur d'un circuit pour l'enregistrer ici."
   }

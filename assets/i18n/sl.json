@@ -6,8 +6,32 @@
     "saved": "Shranjeno",
     "show": "Prikaži priljubljene",
     "showing": "Nazaj na vse ture",
-    "only_local": "Priljubljene shranjene le lokalno.",
-    "error": "Priljubljene shranjene le lokalno."
+    "sync": {
+      "title": "Deli priljubljene z drugo napravo",
+      "intro": "To okno odpri tudi na svoji drugi napravi. Kodo, ki je prikazana tam, vnesi tukaj. Ali obratno, oboje deluje. Seznama priljubljenih se tako združita in ostaneta tudi v prihodnje sinhronizirana.",
+      "qr_code": "Lahko pa s kamero druge naprave skeniraš to kodo QR.",
+      "new_code": "Prikaži novo kodo",
+      "expires_in": "Veljavna še {{time}}",
+      "expired": "Koda je potekla.",
+      "this_code": "Koda s te naprave",
+      "enter_code": "Koda z druge naprave",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Poveži napravi",
+      "error_invalid": "Ta koda ni veljavna ali je potekla.",
+      "error_domain": "Napravi sta na različnih straneh Zuugle.",
+      "error_failed": "Povezovanje ni uspelo. Poskusi znova.",
+      "code_failed": "Kode ni bilo mogoče ustvariti. Poskusi znova."
+    },
+    "notice": {
+      "save_failed": "Priljubljene ni bilo mogoče shraniti. Poskusi znova.",
+      "recreated": "Tvojih priljubljenih ni bilo mogoče naložiti. Na tej napravi so bile ustvarjene na novo – povezava z drugimi napravami je prekinjena.",
+      "recreate_failed": "Tvojih priljubljenih ni bilo mogoče naložiti. Poskusi pozneje.",
+      "merged_none": "Napravi sta povezani. Obe sta imeli shranjene iste ture.",
+      "merged_one": "Napravi sta povezani. Dodana je bila ena tura.",
+      "merged_two": "Napravi sta povezani. Dodani sta bili {{count}} turi.",
+      "merged_few": "Napravi sta povezani. Dodane so bile {{count}} ture.",
+      "merged_other": "Napravi sta povezani. Dodanih je bilo {{count}} tur."
+    }
   },
   "about": {
     "was_ist_zuugle": "KAJ JE ZUUGLE?",
@@ -364,9 +388,6 @@
   },
   "lists": {
     "default_list_name": "Moji priljubljeni",
-    "list_created": "Seznam ustvarjen",
-    "tour_added": "Tura dodana",
-    "tour_removed": "Tura odstranjena",
     "list_empty": "Ta seznam je prazen",
     "list_empty_hint": "Tapni srček pri turi, da jo shraniš sem."
   }

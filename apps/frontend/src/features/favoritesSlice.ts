@@ -1,81 +1,84 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+// Transient message for the favorites snackbar. Stored as an i18n key rather
+// than a translated string so the text follows a language switch.
+export interface FavoritesNotice {
+  key: "save_failed" | "recreated" | "recreate_failed" | "merged";
+  severity: "success" | "warning" | "error";
+  count?: number;
+}
+
 export interface FavoritesState {
   // Anonymous list key from POST /api/lists.
   listKey: string | null;
-  // Source of truth on this device, independent of server sync.
+  // First-paint cache of the server-held list; every server response wins.
   tourIds: number[];
-  // Once true, a server fetch no longer overwrites tourIds.
-  hydrated: boolean;
-  error: string | null;
   // "Show only favorites" toggle — filters the search results down to tourIds.
   favoritesOnly: boolean;
-  // ISO timestamp string of the last successful server sync
-  lastSyncedAt: string | null;
-  // Indicates if current local favorites are successfully mirrored on server
-  isSynced: boolean;
+  notice: FavoritesNotice | null;
+  // The dialog is mounted once in ThemedApp but opened from several places
+  // (two FavoritesToggle instances, the /sync/:code deep link), so its state
+  // lives here rather than in the component that renders the button.
+  syncDialog: { open: boolean; incomingCode: string | null };
 }
 
-const initialState: FavoritesState = {
+export const initialFavoritesState: FavoritesState = {
   listKey: null,
   tourIds: [],
-  hydrated: false,
-  error: null,
   favoritesOnly: false,
-  lastSyncedAt: null,
-  isSynced: true,
+  notice: null,
+  syncDialog: { open: false, incomingCode: null },
 };
 
 const favoritesSlice = createSlice({
   name: "favorites",
-  initialState,
+  initialState: initialFavoritesState,
   reducers: {
     listKeyCreated: (state, action: PayloadAction<string>) => {
       state.listKey = action.payload;
-      // A new list already matches local state.
-      state.hydrated = true;
     },
-    favoritesHydrated: (state, action: PayloadAction<number[]>) => {
+    listKeyCleared: (state) => {
+      state.listKey = null;
+    },
+    favoritesReceived: (state, action: PayloadAction<number[]>) => {
       state.tourIds = action.payload;
-      state.hydrated = true;
     },
     favoriteAdded: (state, action: PayloadAction<number>) => {
       if (!state.tourIds.includes(action.payload)) {
         state.tourIds.push(action.payload);
-        state.isSynced = false;
       }
     },
     favoriteRemoved: (state, action: PayloadAction<number>) => {
-      if (state.tourIds.includes(action.payload)) {
-        state.tourIds = state.tourIds.filter((id) => id !== action.payload);
-        state.isSynced = false;
-      }
-    },
-    favoritesSyncSuccess: (state, action: PayloadAction<string>) => {
-      state.lastSyncedAt = action.payload;
-      state.isSynced = true;
-      state.error = null;
-    },
-    favoritesSyncFailed: (state) => {
-      state.isSynced = false;
-    },
-    favoritesErrorSet: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
+      state.tourIds = state.tourIds.filter((id) => id !== action.payload);
     },
     favoritesOnlyToggled: (state) => {
       state.favoritesOnly = !state.favoritesOnly;
+    },
+    noticeShown: (state, action: PayloadAction<FavoritesNotice>) => {
+      state.notice = action.payload;
+    },
+    noticeDismissed: (state) => {
+      state.notice = null;
+    },
+    syncDialogOpened: (state, action: PayloadAction<string | null>) => {
+      state.syncDialog = { open: true, incomingCode: action.payload };
+    },
+    syncDialogClosed: (state) => {
+      state.syncDialog = { open: false, incomingCode: null };
     },
   },
 });
 
 export const {
   listKeyCreated,
-  favoritesHydrated,
+  listKeyCleared,
+  favoritesReceived,
   favoriteAdded,
   favoriteRemoved,
-  favoritesSyncSuccess,
-  favoritesSyncFailed,
-  favoritesErrorSet,
   favoritesOnlyToggled,
+  noticeShown,
+  noticeDismissed,
+  syncDialogOpened,
+  syncDialogClosed,
 } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

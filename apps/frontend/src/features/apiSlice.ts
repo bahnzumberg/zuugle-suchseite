@@ -195,6 +195,28 @@ export interface FavoritesListResponse {
   };
   tours: FavoriteListTour[];
   total: number;
+  // Set when the requested key was merged into another list — adopt this key.
+  moved_to: string | null;
+}
+
+export interface FavoriteMutationResponse {
+  success: boolean;
+  moved_to: string | null;
+}
+
+export interface PairingCodeResponse {
+  success: boolean;
+  code: string;
+  expires_at: string;
+  moved_to: string | null;
+}
+
+export interface PairListResponse {
+  success: boolean;
+  // Key of the surviving list — the caller's device stores this from now on.
+  key: string;
+  merged: number;
+  total: number;
 }
 
 const domain = window.location.hostname;
@@ -227,6 +249,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
   }),
+  tagTypes: ["FavoritesList"],
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({
       query: () => {
@@ -372,9 +395,12 @@ export const api = createApi({
     }),
     getFavoritesList: build.query<FavoritesListResponse, string>({
       query: (key) => `lists/${key}`,
+      providesTags: (_result, _error, key) => [
+        { type: "FavoritesList", id: key },
+      ],
     }),
     addFavoriteTour: build.mutation<
-      { success: boolean },
+      FavoriteMutationResponse,
       { key: string; tourId: number }
     >({
       query: ({ key, tourId }) => ({
@@ -382,15 +408,40 @@ export const api = createApi({
         method: "POST",
         body: { tour_id: tourId },
       }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
     }),
     removeFavoriteTour: build.mutation<
-      { success: boolean },
+      FavoriteMutationResponse,
       { key: string; tourId: number }
     >({
       query: ({ key, tourId }) => ({
         url: `lists/${key}/tours/${tourId}`,
         method: "DELETE",
       }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    createPairingCode: build.mutation<PairingCodeResponse, string>({
+      query: (key) => ({
+        url: `lists/${key}/pairing-code`,
+        method: "POST",
+      }),
+    }),
+    // Pairing replaces the device's key, so every cached list is stale
+    // afterwards — both the absorbed one and the survivor.
+    pairList: build.mutation<
+      PairListResponse,
+      { code: string; key: string | null }
+    >({
+      query: ({ code, key }) => ({
+        url: "lists/pair",
+        method: "POST",
+        body: { code, key },
+      }),
+      invalidatesTags: ["FavoritesList"],
     }),
   }),
 });
@@ -439,4 +490,6 @@ export const {
   useGetFavoritesListQuery,
   useAddFavoriteTourMutation,
   useRemoveFavoriteTourMutation,
+  useCreatePairingCodeMutation,
+  usePairListMutation,
 } = api;
