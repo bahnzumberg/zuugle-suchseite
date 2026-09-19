@@ -1,7 +1,8 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, UnknownAction } from "@reduxjs/toolkit";
 
 // Transient message for the favorites snackbar. Stored as an i18n key rather
-// than a translated string so the text follows a language switch.
+// than a translated string so the text follows a language switch; severity and
+// duration are presentation and live with the component that renders it.
 export interface FavoritesNotice {
   key:
     | "save_failed"
@@ -10,7 +11,6 @@ export interface FavoritesNotice {
     | "merged"
     | "merged_none"
     | "merged_sent";
-  severity: "success" | "warning" | "error";
   count?: number;
 }
 
@@ -36,18 +36,33 @@ export const initialFavoritesState: FavoritesState = {
   syncDialog: { open: false, incomingCode: null },
 };
 
+// Any /api/lists response carries `moved_to` when the key this device holds was
+// absorbed by another list. Matching on the shape adopts it for every endpoint
+// at once, so no caller can forget and leave the device on a tombstoned key.
+const isMovedResponse = (
+  action: UnknownAction,
+): action is UnknownAction & { payload: { moved_to: string } } =>
+  typeof (action as { payload?: { moved_to?: unknown } }).payload?.moved_to ===
+  "string";
+
 const favoritesSlice = createSlice({
   name: "favorites",
   initialState: initialFavoritesState,
   reducers: {
-    listKeyCreated: (state, action: PayloadAction<string>) => {
+    listKeySet: (state, action: PayloadAction<string | null>) => {
       state.listKey = action.payload;
     },
-    listKeyCleared: (state) => {
-      state.listKey = null;
-    },
     favoritesReceived: (state, action: PayloadAction<number[]>) => {
-      state.tourIds = action.payload;
+      // Every mounted FavoriteButton runs the effect that dispatches this, so
+      // one fetch arrives here a couple of dozen times with the same ids.
+      // Bailing out keeps the array identity stable, which is what stops the
+      // localStorage write in index.tsx from repeating too.
+      const next = action.payload;
+      const unchanged =
+        next.length === state.tourIds.length &&
+        next.every((id, i) => id === state.tourIds[i]);
+      if (unchanged) return;
+      state.tourIds = next;
     },
     favoriteAdded: (state, action: PayloadAction<number>) => {
       if (!state.tourIds.includes(action.payload)) {
@@ -73,11 +88,15 @@ const favoritesSlice = createSlice({
       state.syncDialog = { open: false, incomingCode: null };
     },
   },
+  extraReducers: (builder) => {
+    builder.addMatcher(isMovedResponse, (state, action) => {
+      state.listKey = action.payload.moved_to;
+    });
+  },
 });
 
 export const {
-  listKeyCreated,
-  listKeyCleared,
+  listKeySet,
   favoritesReceived,
   favoriteAdded,
   favoriteRemoved,

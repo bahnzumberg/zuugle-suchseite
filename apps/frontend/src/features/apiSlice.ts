@@ -222,6 +222,16 @@ export interface PairListResponse {
   total: number;
 }
 
+/**
+ * HTTP status of a rejected RTK Query call, or null when the failure carries
+ * none — a network or parsing error, where `status` is one of RTK's string
+ * markers instead.
+ */
+export const errorStatus = (error: unknown): number | null => {
+  const status = (error as FetchBaseQueryError | undefined)?.status;
+  return typeof status === "number" ? status : null;
+};
+
 const domain = window.location.hostname;
 
 /**
@@ -390,10 +400,12 @@ export const api = createApi({
       transformResponse: (response: LicensesResponse) => response.licenses,
     }),
     createFavoritesList: build.mutation<CreateListResponse, string>({
+      // No domain: the list's TLD comes from the request's Host header, so that
+      // which lists may be paired is not client-settable.
       query: (language) => ({
         url: "lists",
         method: "POST",
-        body: { domain, language },
+        body: { language },
       }),
     }),
     getFavoritesList: build.query<FavoritesListResponse, string>({

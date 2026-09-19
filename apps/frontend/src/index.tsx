@@ -15,6 +15,11 @@ import favoritesReducer, {
   FavoritesState,
   initialFavoritesState,
 } from "./features/favoritesSlice";
+import {
+  FAVORITES_LIST_KEY_STORAGE,
+  FAVORITE_TOUR_IDS_STORAGE,
+  parseFavoriteTourIds,
+} from "./utils/favoritesStorage";
 import { api, isValidSearchType } from "./features/apiSlice";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
@@ -85,28 +90,16 @@ function getPreloadedSearchState() {
   };
 }
 
-function getPersistedFavoriteTourIds(): number[] {
-  const stored = localStorage.getItem("favoriteTourIds");
-  if (!stored) {
-    return [];
-  }
-  try {
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error("Error parsing favoriteTourIds from localStorage", e);
-    return [];
-  }
-}
-
 function getPreloadedFavoritesState(): FavoritesState {
   // Left behind by the local-first model this replaced; the server now says
   // when a list was last changed.
   localStorage.removeItem("favoritesLastSyncedAt");
   return {
     ...initialFavoritesState,
-    listKey: localStorage.getItem("favoritesListKey"),
-    tourIds: getPersistedFavoriteTourIds(),
+    listKey: localStorage.getItem(FAVORITES_LIST_KEY_STORAGE),
+    tourIds: parseFavoriteTourIds(
+      localStorage.getItem(FAVORITE_TOUR_IDS_STORAGE),
+    ),
   };
 }
 
@@ -150,9 +143,9 @@ store.subscribe(() => {
 store.subscribe(() => {
   const listKey = store.getState().favorites.listKey;
   if (listKey !== null) {
-    localStorage.setItem("favoritesListKey", listKey);
+    localStorage.setItem(FAVORITES_LIST_KEY_STORAGE, listKey);
   } else {
-    localStorage.removeItem("favoritesListKey");
+    localStorage.removeItem(FAVORITES_LIST_KEY_STORAGE);
   }
 });
 
@@ -163,7 +156,7 @@ store.subscribe(() => {
   const { tourIds } = store.getState().favorites;
   if (tourIds === persistedTourIds) return;
   persistedTourIds = tourIds;
-  localStorage.setItem("favoriteTourIds", JSON.stringify(tourIds));
+  localStorage.setItem(FAVORITE_TOUR_IDS_STORAGE, JSON.stringify(tourIds));
 });
 
 // Workaround for IE Mobile 10.0

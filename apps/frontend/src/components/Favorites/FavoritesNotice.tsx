@@ -1,12 +1,27 @@
-import Alert from "@mui/material/Alert";
+import Alert, { AlertColor } from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { noticeDismissed } from "../../features/favoritesSlice";
+import {
+  FavoritesNotice as Notice,
+  noticeDismissed,
+} from "../../features/favoritesSlice";
 
-// The "your favorites were rebuilt here" message is a paragraph the user has to
-// read; the rest are short confirmations.
-const LONG_NOTICES = new Set(["recreated", "recreate_failed"]);
+/**
+ * How each notice is presented. The "your favorites were rebuilt here" messages
+ * are a paragraph the user has to read; the rest are short confirmations.
+ */
+const PRESENTATION: Record<
+  Notice["key"],
+  { severity: AlertColor; durationMs: number }
+> = {
+  save_failed: { severity: "error", durationMs: 6000 },
+  recreated: { severity: "warning", durationMs: 15000 },
+  recreate_failed: { severity: "error", durationMs: 15000 },
+  merged: { severity: "success", durationMs: 6000 },
+  merged_none: { severity: "success", durationMs: 6000 },
+  merged_sent: { severity: "success", durationMs: 6000 },
+};
 
 export default function FavoritesNotice() {
   const { t } = useTranslation();
@@ -16,28 +31,24 @@ export default function FavoritesNotice() {
   if (!notice) return null;
 
   const dismiss = () => dispatch(noticeDismissed());
-
-  // Only the counted keys may be given a count: passing one to a key without
-  // plural forms would send i18next looking for a `_other` variant.
-  const message =
-    notice.count === undefined
-      ? t(`favorites.notice.${notice.key}`)
-      : t(`favorites.notice.${notice.key}`, { count: notice.count });
+  const { severity, durationMs } = PRESENTATION[notice.key];
 
   return (
     <Snackbar
       open
-      autoHideDuration={LONG_NOTICES.has(notice.key) ? 15000 : 6000}
+      autoHideDuration={durationMs}
       onClose={dismiss}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
     >
       <Alert
         onClose={dismiss}
-        severity={notice.severity}
+        severity={severity}
         variant="filled"
         sx={{ width: "100%" }}
       >
-        {message}
+        {/* i18next only looks for plural variants when `count` is defined, so
+            the uncounted keys are unaffected by passing it through. */}
+        {t(`favorites.notice.${notice.key}`, { count: notice.count })}
       </Alert>
     </Snackbar>
   );

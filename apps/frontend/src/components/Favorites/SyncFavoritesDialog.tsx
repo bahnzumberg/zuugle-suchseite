@@ -16,12 +16,13 @@ import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
+  errorStatus,
   useCreatePairingCodeMutation,
   useGetFavoritesListQuery,
   usePairListMutation,
 } from "../../features/apiSlice";
 import {
-  listKeyCreated,
+  listKeySet,
   noticeShown,
   syncDialogClosed,
 } from "../../features/favoritesSlice";
@@ -44,11 +45,6 @@ const formatRemaining = (ms: number) => {
   const total = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 };
-
-const errorStatus = (error: unknown): number | null =>
-  typeof error === "object" && error !== null && "status" in error
-    ? Number((error as { status: unknown }).status)
-    : null;
 
 function SyncFavoritesDialogContent() {
   const { t } = useTranslation();
@@ -88,9 +84,6 @@ function SyncFavoritesDialogContent() {
     try {
       const key = await ensureListKey();
       const result = await createPairingCode(key).unwrap();
-      if (result.moved_to) {
-        dispatch(listKeyCreated(result.moved_to));
-      }
       setPairing({
         code: result.code,
         expiresAt: Date.parse(result.expires_at),
@@ -101,7 +94,7 @@ function SyncFavoritesDialogContent() {
     } finally {
       setIsCreatingCode(false);
     }
-  }, [ensureListKey, createPairingCode, dispatch, t]);
+  }, [ensureListKey, createPairingCode, t]);
 
   // A device with no list yet gets an empty one created here — pairing into
   // this device needs a list to point the code at either way.
@@ -110,37 +103,37 @@ function SyncFavoritesDialogContent() {
     void generateCode();
   }, [generateCode]);
 
+  // Drives the countdown, and stops once there is nothing left to count down.
   useEffect(() => {
     if (!pairing) return;
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => {
+      const tick = Date.now();
+      setNow(tick);
+      if (tick >= pairing.expiresAt) clearInterval(timer);
+    }, 1000);
     return () => clearInterval(timer);
   }, [pairing]);
 
-  const expired = pairing !== null && pairing.expiresAt - now <= 0;
-  const syncUrl = pairing
-    ? `${window.location.origin}/sync/${pairing.code}`
-    : null;
+  // The code is showable only while one exists and hasn't run out; everything
+  // else — still fetching, failed, expired — offers a new one instead.
+  const liveCode =
+    !isCreatingCode && pairing && pairing.expiresAt > now ? pairing : null;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setPairError(null);
     try {
       const result = await pairList({ code: input, key: listKey }).unwrap();
-      dispatch(listKeyCreated(result.key));
+      dispatch(listKeySet(result.key));
       // Only what this device gained is worth counting out; if it gained
       // nothing, the message still has to distinguish two lists that were
       // identical from one that was already a superset of the other.
       dispatch(
-        result.received > 0
-          ? noticeShown({
-              key: "merged",
-              severity: "success",
-              count: result.received,
-            })
-          : noticeShown({
-              key: result.sent > 0 ? "merged_sent" : "merged_none",
-              severity: "success",
-            }),
+        noticeShown(
+          result.received > 0
+            ? { key: "merged", count: result.received }
+            : { key: result.sent > 0 ? "merged_sent" : "merged_none" },
+        ),
       );
       dispatch(syncDialogClosed());
     } catch (error) {
@@ -181,7 +174,7 @@ function SyncFavoritesDialogContent() {
 
           {isCreatingCode && <CircularProgress size={28} sx={{ my: 4 }} />}
 
-          {!isCreatingCode && pairing && !expired && syncUrl && (
+          {liveCode && (
             <>
               <Typography
                 sx={{
@@ -192,11 +185,11 @@ function SyncFavoritesDialogContent() {
                   color: "var(--bzb-bahnblau)",
                 }}
               >
-                {groupCode(pairing.code)}
+                {groupCode(liveCode.code)}
               </Typography>
               <Typography sx={{ fontSize: "12px", color: "text.secondary" }}>
                 {t("favorites.sync.expires_in", {
-                  time: formatRemaining(pairing.expiresAt - now),
+                  time: formatRemaining(liveCode.expiresAt - now),
                 })}
               </Typography>
             </>
@@ -204,7 +197,7 @@ function SyncFavoritesDialogContent() {
 
           {/* No code to show: either it ran out, or issuing one failed. Both
               are recovered the same way. */}
-          {!isCreatingCode && (expired || !pairing) && (
+          {!isCreatingCode && !liveCode && (
             <>
               {codeError ? (
                 <Alert severity="error" sx={{ my: 2, textAlign: "left" }}>
@@ -291,7 +284,7 @@ function SyncFavoritesDialogContent() {
 
       {/* Centred under both columns: the QR is a second route to the same
           pairing, not something that belongs to either side. */}
-      {!isCreatingCode && pairing && !expired && syncUrl && (
+      {liveCode && (
         <Box
           sx={{
             mt: 4,
@@ -310,7 +303,11 @@ function SyncFavoritesDialogContent() {
               borderColor: "grey.300",
             }}
           >
-            <QRCodeSVG value={syncUrl} size={148} level="M" />
+            <QRCodeSVG
+              value={`${window.location.origin}/sync/${liveCode.code}`}
+              size={148}
+              level="M"
+            />
           </Box>
           <Typography
             sx={{
@@ -329,14 +326,13 @@ function SyncFavoritesDialogContent() {
   );
 }
 
+// Mounted by ThemedApp only while `syncDialog.open` — this module is loaded on
+// the click that opens the dialog, so it must not be rendered before then.
 export default function SyncFavoritesDialog() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const open = useAppSelector((state) => state.favorites.syncDialog.open);
 
   const close = () => dispatch(syncDialogClosed());
-
-  if (!open) return null;
 
   return (
     <Dialog

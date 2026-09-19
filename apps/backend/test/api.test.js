@@ -454,7 +454,7 @@ describe("User Lists API", () => {
         const response = await fetch(`${baseUrl}/api/lists`, {
             method: "POST",
             headers: { ...getHeaders(), "Content-Type": "application/json" },
-            body: JSON.stringify({ domain: "www.zuugle.at" }),
+            body: JSON.stringify({}),
         });
         expect(response.status).toBe(201);
         const data = await response.json();
@@ -472,7 +472,6 @@ describe("User Lists API", () => {
             body: JSON.stringify({
                 name: "Sommertouren 2026",
                 language: "de",
-                domain: "www.zuugle.at",
             }),
         });
         expect(response.status).toBe(201);
@@ -485,7 +484,7 @@ describe("User Lists API", () => {
         const response = await fetch(`${baseUrl}/api/lists`, {
             method: "POST",
             headers: { ...getHeaders(), "Content-Type": "application/json" },
-            body: JSON.stringify({ language: "en", domain: "www.zuugle.at" }),
+            body: JSON.stringify({ language: "en" }),
         });
         expect(response.status).toBe(201);
         const data = await response.json();
@@ -625,7 +624,7 @@ describe("User Lists sync", () => {
         const response = await fetch(`${baseUrl}/api/lists`, {
             method: "POST",
             headers: { ...getHeaders(), ...json },
-            body: JSON.stringify({ domain: "www.zuugle.at" }),
+            body: JSON.stringify({}),
         });
         return (await response.json()).key;
     };

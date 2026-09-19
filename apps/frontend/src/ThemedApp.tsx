@@ -1,16 +1,22 @@
 import { ThemeProvider } from "@mui/material/styles";
 import i18next from "i18next";
-import { lazy, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { theme } from "./theme";
 import LanguageParamSync from "./components/LanguageParamSync";
 import CookieConsent from "./components/CookieConsent";
 import FavoritesNotice from "./components/Favorites/FavoritesNotice";
-import SyncFavoritesDialog from "./components/Favorites/SyncFavoritesDialog";
+import { useAppSelector } from "./hooks";
 import { useConsent } from "./hooks/useConsent";
 
 const StartNew = lazy(() => import("./views/StartNew"));
 const SearchResults = lazy(() => import("./views/SearchResults"));
 const DetailReworked = lazy(() => import("./views/TourDetails"));
+// This shell loads on every route, and the dialog pulls in a QR renderer plus
+// the MUI dialog and form tree for something opened rarely — so it is fetched
+// on the click that opens it rather than on every page load.
+const SyncFavoritesDialog = lazy(
+  () => import("./components/Favorites/SyncFavoritesDialog"),
+);
 
 interface ThemedAppProps {
   routeKey: "start" | "search" | "tour" | "provider" | "city";
@@ -18,6 +24,9 @@ interface ThemedAppProps {
 
 export default function ThemedApp({ routeKey }: ThemedAppProps) {
   const { isComfortAllowed } = useConsent();
+  const syncDialogOpen = useAppSelector(
+    (state) => state.favorites.syncDialog.open,
+  );
 
   // Matomo Tag Manager — only loaded when comfort cookies are accepted
   useEffect(() => {
@@ -61,7 +70,11 @@ export default function ThemedApp({ routeKey }: ThemedAppProps) {
     <ThemeProvider theme={theme}>
       <LanguageParamSync />
       {renderRoute()}
-      <SyncFavoritesDialog />
+      {syncDialogOpen && (
+        <Suspense fallback={null}>
+          <SyncFavoritesDialog />
+        </Suspense>
+      )}
       <FavoritesNotice />
       <CookieConsent />
     </ThemeProvider>

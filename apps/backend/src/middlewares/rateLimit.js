@@ -1,5 +1,6 @@
 import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
+import config from "../config.js";
 import { redisClient } from "../services/cache.js";
 import logger from "../utils/logger";
 
@@ -11,33 +12,31 @@ import logger from "../utils/logger";
  * rate inside it.
  */
 
-let warnedAboutMemoryStore = false;
+if (!redisClient) {
+    logger.warn(
+        "Rate limiting is using per-process counters: Redis is disabled. " +
+            "On a clustered deployment the effective limit is multiplied by the worker count.",
+    );
+}
 
 /**
  * Builds a counter store for one limiter. Each limiter needs its own instance
- * with its own prefix — express-rate-limit rejects a shared store.
+ * with its own prefix — express-rate-limit rejects a shared store. Keys carry
+ * the cache namespace for the same reason cached values do: UAT and dev share
+ * one Redis, and unnamespaced counters would let one environment's traffic
+ * throttle the other.
  *
  * @param {string} prefix
  * @returns {import("express-rate-limit").Store|undefined} undefined falls back
  *   to express-rate-limit's per-process memory store.
  */
-const buildStore = (prefix) => {
-    if (!redisClient) {
-        if (!warnedAboutMemoryStore) {
-            logger.warn(
-                "Rate limiting is using per-process counters: Redis is disabled. " +
-                    "On a clustered deployment the effective limit is multiplied by the worker count.",
-            );
-            warnedAboutMemoryStore = true;
-        }
-        return undefined;
-    }
-
-    return new RedisStore({
-        prefix: `ratelimit:${prefix}:`,
-        sendCommand: (...args) => redisClient.call(...args),
-    });
-};
+const buildStore = (prefix) =>
+    redisClient
+        ? new RedisStore({
+              prefix: `${config.cache.namespace}:ratelimit:${prefix}:`,
+              sendCommand: (...args) => redisClient.call(...args),
+          })
+        : undefined;
 
 const shared = {
     standardHeaders: "draft-7",
