@@ -22,6 +22,12 @@
       "error_failed": "La connexion n'a pas fonctionné. Réessaie.",
       "code_failed": "Le code n'a pas pu être créé. Réessaie."
     },
+    "reset": {
+      "action": "Réinitialiser les favoris sur cet appareil",
+      "warning": "Cet appareil repartira avec une liste de favoris vide et ne sera plus relié à aucun autre appareil.",
+      "confirm": "Réinitialiser",
+      "cancel": "Annuler"
+    },
     "notice": {
       "save_failed": "Ton favori n'a pas pu être enregistré. Réessaie.",
       "recreated": "Tes favoris n'ont pas pu être chargés. Ils ont été recréés sur cet appareil – le lien avec les autres appareils est rompu.",
@@ -29,7 +35,8 @@
       "merged_none": "Les appareils sont connectés. Les deux avaient enregistré les mêmes randonnées.",
       "merged_sent": "Les appareils sont connectés. Cet appareil avait déjà toutes les randonnées ; l'autre a maintenant reçu les tiennes.",
       "merged_one": "Les appareils sont connectés. Une randonnée a été ajoutée.",
-      "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées."
+      "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées.",
+      "reset": "Les favoris de cet appareil ont été réinitialisés."
     }
   },
   "about": {
@@ -206,7 +213,7 @@
     "favoriten": "Randonnées mises en favoris",
     "favoriten_1": "Lorsque vous mettez une randonnée en favori, nous créons pour cela une liste sur notre serveur. Elle ne contient que les randonnées enregistrées, le moment où vous les avez enregistrées, ainsi que la langue et le site national de Zuugle que vous utilisez. La liste est rattachée à une clé générée aléatoirement et conservée dans votre navigateur. Nous ne savons pas qui vous êtes et ne pouvons associer une liste ni à un nom, ni à une adresse e-mail, ni à une adresse IP. Si vous n'enregistrez aucune randonnée, rien n'est créé.",
     "favoriten_2": "Vous pouvez récupérer vos favoris sur un deuxième appareil. Zuugle affiche pour cela un code court — également sous forme de QR code — valable dix minutes et utilisable une seule fois. Une fois ce code utilisé, les favoris des deux appareils sont définitivement fusionnés en une seule liste commune : les deux appareils voient alors les mêmes randonnées, y compris toutes celles enregistrées par la suite. Cette opération est irréversible. Ne communiquez donc ce code qu'aux appareils et aux personnes avec lesquels vous souhaitez vraiment partager votre liste.",
-    "favoriten_3": "Si vous retirez une randonnée de vos favoris, elle est immédiatement supprimée de la liste sur notre serveur. Si vous supprimez les données du site Zuugle dans votre navigateur, cet appareil perd la clé et repart avec une liste vide ; un deuxième appareil encore relié conserve la liste.",
+    "favoriten_3": "Si vous retirez une randonnée de vos favoris, elle est immédiatement supprimée de la liste sur notre serveur. La fenêtre de connexion des appareils propose également « Réinitialiser les favoris sur cet appareil » : l'appareil abandonne sa liste et repart d'une liste vide — un deuxième appareil encore relié conserve les randonnées. Supprimer les données du site Zuugle dans votre navigateur produit le même effet.",
     "mit_wem_daten_teilen": "Avec qui partageons-nous vos données ?",
     "mit_niemandem": "Avec personne. Nous ne transmettons aucune donnée à des tiers et nous ne vendons aucune donnée. Le seul partage qui existe est celui que vous déclenchez vous-même en reliant vos favoris à un autre appareil.",
     "wie_lange_daten_speichern": "Combien de temps conservons-nous vos données?",

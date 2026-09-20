@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, FormEvent } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import Alert from "@mui/material/Alert";
+import Alert, { alertClasses } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -22,12 +22,26 @@ import {
   usePairListMutation,
 } from "../../features/apiSlice";
 import {
+  favoritesReset,
   listKeySet,
   noticeShown,
   syncDialogClosed,
 } from "../../features/favoritesSlice";
 import { useFavorites } from "../../hooks/useFavorites";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+
+/**
+ * The two alerts in this dialog keep MUI's red instead of the theme's Corporate
+ * Design warn tone — a deliberate exception, chosen on how it looks in place:
+ * inside a dialog that is already Bahnblau, Akelei and Lindgrün, one more warm
+ * surface reads as clutter, and red carries "this did not work" on its own.
+ * Values are MUI's light-mode defaults for a standard error alert.
+ */
+const ALERT_ERROR_SX = {
+  backgroundColor: "#fdeded",
+  color: "#5f2120",
+  [`& .${alertClasses.icon}`]: { color: "#d32f2f" },
+};
 
 const CODE_LENGTH = 8;
 // The other device is the one that merges; this one only finds out by asking.
@@ -45,6 +59,88 @@ const formatRemaining = (ms: number) => {
   const total = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 };
+
+/**
+ * The way out of a pairing, and the only way to clear favorites on a device:
+ * this device lets go of its key, so the next favorite starts a fresh list.
+ * Nothing is deleted on the server.
+ */
+function ResetFavorites() {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const [confirming, setConfirming] = useState(false);
+
+  const reset = () => {
+    dispatch(favoritesReset());
+    dispatch(noticeShown({ key: "reset" }));
+    // Closing is part of the reset: left open, the dialog would ask for a
+    // pairing code again and recreate the list this just let go of.
+    dispatch(syncDialogClosed());
+  };
+
+  return (
+    <Box sx={{ mt: 4 }}>
+      <Divider sx={{ mb: 2 }} />
+      {confirming ? (
+        <Box sx={{ textAlign: "center" }}>
+          <Typography sx={{ fontSize: "13px", color: "text.secondary", mb: 2 }}>
+            {t("favorites.reset.warning")}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="text"
+              onClick={() => setConfirming(false)}
+              sx={{ borderRadius: "12px", textTransform: "none" }}
+            >
+              {t("favorites.reset.cancel")}
+            </Button>
+            {/* Outlined, not contained: Warnorange Dunkel is a supplement the
+                manual sanctions for warning text and accents, not as a filled
+                surface. As a border and label it still marks this as the
+                destructive choice without adding a warm block to a dialog that
+                is otherwise Bahnblau, Akelei and Lindgrün. */}
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={reset}
+              sx={{
+                borderRadius: "12px",
+                textTransform: "none",
+                fontWeight: 600,
+                // MUI draws an outlined border at 50% alpha, which leaves the
+                // label darker than the frame around it.
+                borderColor: "error.main",
+              }}
+            >
+              {t("favorites.reset.confirm")}
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center" }}>
+          <Button
+            variant="text"
+            onClick={() => setConfirming(true)}
+            sx={{
+              textTransform: "none",
+              fontSize: "13px",
+              color: "text.secondary",
+            }}
+          >
+            {t("favorites.reset.action")}
+          </Button>
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 function SyncFavoritesDialogContent() {
   const { t } = useTranslation();
@@ -200,7 +296,10 @@ function SyncFavoritesDialogContent() {
           {!isCreatingCode && !liveCode && (
             <>
               {codeError ? (
-                <Alert severity="error" sx={{ my: 2, textAlign: "left" }}>
+                <Alert
+                  severity="error"
+                  sx={{ my: 2, textAlign: "left", ...ALERT_ERROR_SX }}
+                >
                   {codeError}
                 </Alert>
               ) : (
@@ -278,7 +377,11 @@ function SyncFavoritesDialogContent() {
               t("favorites.sync.submit")
             )}
           </Button>
-          {pairError && <Alert severity="error">{pairError}</Alert>}
+          {pairError && (
+            <Alert severity="error" sx={ALERT_ERROR_SX}>
+              {pairError}
+            </Alert>
+          )}
         </Box>
       </Box>
 
@@ -322,6 +425,8 @@ function SyncFavoritesDialogContent() {
           </Typography>
         </Box>
       )}
+
+      <ResetFavorites />
     </>
   );
 }

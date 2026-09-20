@@ -21,6 +21,7 @@ const PRESENTATION: Record<
   merged: { severity: "success", durationMs: 6000 },
   merged_none: { severity: "success", durationMs: 6000 },
   merged_sent: { severity: "success", durationMs: 6000 },
+  reset: { severity: "success", durationMs: 6000 },
 };
 
 export default function FavoritesNotice() {
@@ -40,11 +41,19 @@ export default function FavoritesNotice() {
       onClose={dismiss}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
     >
+      {/* Standard, not filled: the Corporate Design paints a warning as a light
+          surface with a Warnorange accent, and white on a filled Warnorange bar
+          would not reach an accessible contrast. Colours come from the theme. */}
       <Alert
         onClose={dismiss}
         severity={severity}
-        variant="filled"
-        sx={{ width: "100%" }}
+        sx={{
+          width: "100%",
+          // A light surface floating over the page needs the lift the filled
+          // variant got from its solid colour. Same shadow language as the
+          // cookie banner, which sits in the same corner of the screen.
+          boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+        }}
       >
         {/* i18next only looks for plural variants when `count` is defined, so
             the uncounted keys are unaffected by passing it through. */}

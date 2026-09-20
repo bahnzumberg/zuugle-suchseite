@@ -22,6 +22,12 @@
       "error_failed": "Il collegamento non è riuscito. Riprova.",
       "code_failed": "Non è stato possibile creare il codice. Riprova."
     },
+    "reset": {
+      "action": "Reimposta i preferiti su questo dispositivo",
+      "warning": "Questo dispositivo ripartirà con un elenco di preferiti vuoto e non sarà più collegato ad alcun altro dispositivo.",
+      "confirm": "Reimposta",
+      "cancel": "Annulla"
+    },
     "notice": {
       "save_failed": "Non è stato possibile salvare il preferito. Riprova.",
       "recreated": "Non è stato possibile caricare i tuoi preferiti. Sono stati ricreati su questo dispositivo – il collegamento con gli altri dispositivi è interrotto.",
@@ -29,7 +35,8 @@
       "merged_none": "I dispositivi sono collegati. Entrambi avevano salvato gli stessi itinerari.",
       "merged_sent": "I dispositivi sono collegati. Questo dispositivo aveva già tutti gli itinerari; l'altro ha ora ricevuto i tuoi.",
       "merged_one": "I dispositivi sono collegati. È stato aggiunto un itinerario.",
-      "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari."
+      "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari.",
+      "reset": "I preferiti su questo dispositivo sono stati reimpostati."
     }
   },
   "about": {
@@ -206,7 +213,7 @@
     "favoriten": "TOUR SALVATI",
     "favoriten_1": "Quando salvi un tour, creiamo per esso un elenco sul nostro server. Contiene solo i tour salvati, il momento in cui li hai salvati e la lingua e il sito nazionale di Zuugle che stai usando. L'elenco è collegato a una chiave generata in modo casuale e conservata nel tuo browser. Non sappiamo chi sei e non possiamo associare un elenco a un nome, a un indirizzo e-mail o a un indirizzo IP. Se non salvi alcun tour, non creiamo nulla.",
     "favoriten_2": "Puoi portare i tour salvati su un secondo dispositivo. Per farlo Zuugle mostra un codice breve — anche come codice QR — valido dieci minuti e utilizzabile una sola volta. Quando viene riscattato, i preferiti dei due dispositivi vengono uniti in modo permanente in un unico elenco condiviso: da quel momento entrambi i dispositivi vedono gli stessi tour, compresi tutti quelli salvati in seguito. L'operazione non può essere annullata. Comunica quindi il codice solo a dispositivi e persone con cui vuoi davvero condividere il tuo elenco.",
-    "favoriten_3": "Se togli di nuovo un tour dai preferiti, viene subito cancellato anche dall'elenco sul nostro server. Se cancelli i dati del sito Zuugle nel tuo browser, questo dispositivo perde la chiave e riparte con un elenco vuoto; un secondo dispositivo ancora collegato mantiene l'elenco.",
+    "favoriten_3": "Se togli di nuovo un tour dai preferiti, viene subito cancellato anche dall'elenco sul nostro server. La finestra per collegare i dispositivi offre inoltre «Reimposta i preferiti su questo dispositivo»: il dispositivo lascia il proprio elenco e riparte da uno vuoto — un secondo dispositivo ancora collegato conserva i tour. Cancellare i dati del sito Zuugle nel tuo browser ha lo stesso effetto.",
     "mit_wem_daten_teilen": "CON CHI CONDIVIDIAMO I TUOI DATI",
     "mit_niemandem": "Con nessuno. Non trasmettiamo dati a terzi e non vendiamo dati. L'unica condivisione che avviene è quella che avvii tu stesso collegando i tuoi preferiti a un altro dispositivo.",
     "wie_lange_daten_speichern": "PER QUANTO TEMPO CONSERVIAMO I TUOI DATI",

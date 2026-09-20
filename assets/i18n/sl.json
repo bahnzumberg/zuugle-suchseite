@@ -22,6 +22,12 @@
       "error_failed": "Povezovanje ni uspelo. Poskusi znova.",
       "code_failed": "Kode ni bilo mogoče ustvariti. Poskusi znova."
     },
+    "reset": {
+      "action": "Ponastavi priljubljene na tej napravi",
+      "warning": "Ta naprava bo začela s praznim seznamom priljubljenih in ne bo več povezana z nobeno drugo napravo.",
+      "confirm": "Ponastavi",
+      "cancel": "Prekliči"
+    },
     "notice": {
       "save_failed": "Priljubljene ni bilo mogoče shraniti. Poskusi znova.",
       "recreated": "Tvojih priljubljenih ni bilo mogoče naložiti. Na tej napravi so bile ustvarjene na novo – povezava z drugimi napravami je prekinjena.",
@@ -31,7 +37,8 @@
       "merged_one": "Napravi sta povezani. Dodana je bila ena tura.",
       "merged_two": "Napravi sta povezani. Dodani sta bili {{count}} turi.",
       "merged_few": "Napravi sta povezani. Dodane so bile {{count}} ture.",
-      "merged_other": "Napravi sta povezani. Dodanih je bilo {{count}} tur."
+      "merged_other": "Napravi sta povezani. Dodanih je bilo {{count}} tur.",
+      "reset": "Priljubljene na tej napravi so ponastavljene."
     }
   },
   "about": {
@@ -208,7 +215,7 @@
     "favoriten": "SHRANJENE TURE",
     "favoriten_1": "Ko shraniš turo, zanjo na našem strežniku ustvarimo seznam. V njem so samo shranjene ture, čas, ko si jih shranil/-a, ter jezik in državna stran iskalnika Zuugle, ki jo uporabljaš. Seznam je vezan na naključno ustvarjen ključ, ki se shrani v tvojem brskalniku. Ne vemo, kdo si, in seznama ne moremo povezati z imenom, e-poštnim naslovom ali naslovom IP. Če ne shraniš nobene ture, zate ne ustvarimo ničesar.",
     "favoriten_2": "Shranjene ture lahko preneseš na drugo napravo. Zuugle za to prikaže kratko kodo – tudi kot kodo QR –, ki velja deset minut in jo je mogoče uporabiti samo enkrat. Ko je koda unovčena, se priljubljene ture obeh naprav trajno združijo v en skupen seznam: obe napravi od tedaj vidita iste ture, tudi vse pozneje shranjene. Tega ni mogoče razveljaviti. Kodo zato posreduj samo napravam in osebam, s katerimi res želiš deliti svoj seznam.",
-    "favoriten_3": "Če turo znova odstraniš med priljubljenimi, jo takoj izbrišemo tudi s seznama na našem strežniku. Če v brskalniku izbrišeš podatke spletnega mesta Zuugle, ta naprava izgubi ključ in začne s praznim seznamom; druga, še povezana naprava seznam ohrani.",
+    "favoriten_3": "Če turo znova odstraniš med priljubljenimi, jo takoj izbrišemo tudi s seznama na našem strežniku. V oknu za povezovanje naprav je na voljo tudi »Ponastavi priljubljene na tej napravi«: naprava se odpove svojemu seznamu in začne s praznim – druga, še povezana naprava ture ohrani. Enako se zgodi, če v brskalniku izbrišeš podatke spletnega mesta Zuugle.",
     "mit_wem_daten_teilen": "S KOM DELIMO TVOJE PODATKE",
     "mit_niemandem": "Z nikomer. Podatkov ne posredujemo tretjim osebam in jih ne prodajamo. Edino deljenje, do katerega sploh pride, sprožiš sam/-a, ko svoje priljubljene ture povežeš z drugo napravo.",
     "wie_lange_daten_speichern": "KAKO DOLGO HRANIMO TVOJE PODATKE",

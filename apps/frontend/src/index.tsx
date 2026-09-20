@@ -156,7 +156,15 @@ store.subscribe(() => {
   const { tourIds } = store.getState().favorites;
   if (tourIds === persistedTourIds) return;
   persistedTourIds = tourIds;
-  localStorage.setItem(FAVORITE_TOUR_IDS_STORAGE, JSON.stringify(tourIds));
+  // An empty list is stored as no key at all, so resetting favorites leaves
+  // the browser exactly as a first-time visitor finds it. Both forms read back
+  // as "no favorites" (see parseFavoriteTourIds), including in the other tab's
+  // storage listener.
+  if (tourIds.length === 0) {
+    localStorage.removeItem(FAVORITE_TOUR_IDS_STORAGE);
+  } else {
+    localStorage.setItem(FAVORITE_TOUR_IDS_STORAGE, JSON.stringify(tourIds));
+  }
 });
 
 // Workaround for IE Mobile 10.0

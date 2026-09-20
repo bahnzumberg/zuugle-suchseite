@@ -10,7 +10,8 @@ export interface FavoritesNotice {
     | "recreate_failed"
     | "merged"
     | "merged_none"
-    | "merged_sent";
+    | "merged_sent"
+    | "reset";
   count?: number;
 }
 
@@ -75,6 +76,14 @@ const favoritesSlice = createSlice({
     favoritesOnlyToggled: (state) => {
       state.favoritesOnly = !state.favoritesOnly;
     },
+    // Drops this device's claim on its list without touching the list itself:
+    // the next favorite creates a new one. A device it was paired with keeps
+    // the tours, which is what makes this the way to leave a pairing.
+    favoritesReset: (state) => {
+      state.listKey = null;
+      state.tourIds = [];
+      state.favoritesOnly = false;
+    },
     noticeShown: (state, action: PayloadAction<FavoritesNotice>) => {
       state.notice = action.payload;
     },
@@ -101,6 +110,7 @@ export const {
   favoriteAdded,
   favoriteRemoved,
   favoritesOnlyToggled,
+  favoritesReset,
   noticeShown,
   noticeDismissed,
   syncDialogOpened,
