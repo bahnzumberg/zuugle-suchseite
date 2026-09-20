@@ -95,8 +95,9 @@ const followMerges = async (origin, db = knex) => {
         seen.add(list.merged_into_id);
 
         const next = await db("user_list").where({ id: list.merged_into_id }).first();
-        // Defensive: this app never deletes a user_list row, only tombstones
-        // it, so the chain should never dangle — but the FK allows it.
+        // Defensive: a request never deletes a user_list row, it only tombstones
+        // it, and the retention sweep takes a tombstone away together with the
+        // list it points at — so the chain should never dangle. The FK allows it.
         if (!next) return { list: null, movedTo: null };
         list = next;
     }
@@ -128,6 +129,28 @@ const resolveList = async (db, where, { lock = false } = {}) => {
 };
 
 const listNotFound = { success: false, message: "List not found" };
+
+// How stale `last_seen_at` has to be before a read refreshes it. The favourites
+// view refetches on every window focus and polls while the sync dialog is open,
+// so writing on every read would mean a write per poll for no extra precision —
+// the retention sweep works in months.
+const LAST_SEEN_REFRESH_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Marks a list as still in use, so `jobs/pruneUserLists.js` leaves it alone.
+ * Bookkeeping the caller does not wait for: a read must still succeed if this
+ * write fails, and the next read will try again.
+ * @param {object} list a resolved `user_list` row
+ */
+const touchLastSeen = (list) => {
+    if (Date.now() - new Date(list.last_seen_at).getTime() < LAST_SEEN_REFRESH_MS) return;
+    knex("user_list")
+        .where({ id: list.id })
+        .update({ last_seen_at: knex.fn.now() })
+        .catch((error) =>
+            logger.error(`Could not refresh last_seen_at for list ${list.id}:`, error),
+        );
+};
 
 // ─── POST /api/lists/pair ─────────────────────────────────────────────
 // Merge the caller's list into the list a pairing code points at (#882).
@@ -455,6 +478,8 @@ router.post("/:key/pairing-code", async (req, res) => {
             return res.status(404).json(listNotFound);
         }
 
+        touchLastSeen(list);
+
         const expiresAt = new Date(Date.now() + PAIRING_CODE_TTL_MINUTES * 60 * 1000);
 
         // Retry on the vanishingly unlikely collision with a code that is still
@@ -567,6 +592,8 @@ router.get("/:key", async (req, res) => {
         if (!list) {
             return res.status(404).json(listNotFound);
         }
+
+        touchLastSeen(list);
 
         const tourEntries = await knex("user_list_tour")
             .where({ user_list_id: list.id })

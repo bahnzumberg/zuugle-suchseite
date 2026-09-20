@@ -65,6 +65,14 @@ timers.
 #   06 11 * * * /usr/local/zuugle/import-files.sh >> /var/log/import-data-files.log 2>&1
 ```
 
+### Not scheduled yet — favourites retention
+
+`npm run prune-user-lists` (`apps/backend/src/jobs/pruneUserLists.js`) deletes
+favourites lists nobody has used for 24 months, plus expired pairing codes. The
+privacy policy states that retention period, so the job has to run somewhere:
+add it to the crontab on both API hosts (daily, off-peak, e.g. `30 4 * * *` in
+the app directory). Until that entry exists, nothing prunes.
+
 > Same Node-version caveat as UAT: the zuugle-neu crontab pins
 > `PATH=…/node/v20.5.0/bin:…/node/v20.3.0/bin:…`, so the PROD nightly load runs under
 > **Node 20.5.0**, not 24. `import-data-files.sh`, `import-files.sh`, and the
