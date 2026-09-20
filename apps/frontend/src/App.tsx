@@ -33,7 +33,7 @@ function SimpleLoader() {
           width: "40px",
           height: "40px",
           border: "3px solid #f3f3f3",
-          borderTop: "3px solid #4A7C59",
+          borderTop: "3px solid var(--bzb-bahnblau)",
           borderRadius: "50%",
           animation: "spin 1s linear infinite",
         }}

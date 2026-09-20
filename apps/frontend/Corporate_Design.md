@@ -515,6 +515,38 @@ Akzent (z.B. linker Rahmen) und Warnorange Dunkel als Textfarbe — so in der
 Verbindungssuche und im Favoriten-Hinweis verwendet. Als CSS-Variable verfügbar:
 `--bzb-warnorange-light`.
 
+**Rückmeldungen im UI**
+
+_Ebenfalls nicht Teil des Print-Manuals: die Zuordnung der Farbpalette zu den
+Rückmeldungen der Webanwendung._
+
+Die Palette kennt kein Rot und kein Grün, daher gilt in der Anwendung:
+
+- **Fehler und Warnungen** — heller Warnorange-Hintergrund, Warnorange Dunkel als
+  Text (5,1:1), Warnorange auf dem Symbol. Warnorange selbst ist eine reine
+  Akzentfarbe: Weiß darauf erreicht nur 3,8:1 und ist damit nicht barrierefrei.
+  Fehler und Warnung teilen sich die Farbe; unterschieden wird über Symbol und
+  Formulierung.
+- **Erfolgsmeldungen** — Lindgrün als Fläche mit Bahnblau als Text und Symbol
+  (5,9:1). Dieselbe Kombination wie beim aktiven Favoriten-Filter.
+- **Neutrale Hinweise** — heller Wolkenblau-Ton als Fläche, Wolkenblau auf dem
+  Symbol, Bahnblau als Text.
+
+Der linke Akzentbalken bleibt den größeren Hinweis-Boxen vorbehalten (z.B. in der
+Verbindungssuche); auf kleinen Meldungen konkurriert er mit dem Symbol und lässt
+sie unruhig wirken.
+
+Warnorange Dunkel bleibt auch bei Bedienelementen eine Kontur- und Textfarbe:
+Schaltflächen für abbrechende oder löschende Aktionen (z.B. „Favoriten auf diesem
+Gerät zurücksetzen") werden als Outline-Button mit Warnorange Dunkel als Rahmen
+und Beschriftung gesetzt, nicht als gefüllte Fläche. Gefüllte Flächen bleiben den
+offiziellen Palettenfarben vorbehalten.
+
+Umgesetzt im MUI-Theme (`src/theme.tsx`), damit jede Meldung in der Anwendung
+dieselben Farben verwendet. Bewusste Ausnahme: die Fehlermeldungen im Dialog zum
+Verbinden von Geräten behalten MUIs Rot — in einem Dialog, der bereits Bahnblau,
+Akelei und Lindgrün zeigt, wirkt eine weitere warme Fläche unruhig.
+
 Corporate Design Manual • Bahn zum Berg
 Farben
 
