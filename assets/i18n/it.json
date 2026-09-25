@@ -1,4 +1,44 @@
 {
+  "favorites": {
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti",
+    "save": "Aggiungi ai preferiti",
+    "saved": "Salvato",
+    "show": "Mostra i preferiti",
+    "showing": "Torna a tutti gli itinerari",
+    "sync": {
+      "title": "Condividi i preferiti con un altro dispositivo",
+      "intro": "Apri questa finestra anche sul tuo secondo dispositivo. Inserisci qui il codice mostrato lì. Oppure viceversa, funzionano entrambi. Le due liste di preferiti vengono così unite e restano poi sincronizzate.",
+      "qr_code": "In alternativa puoi inquadrare questo codice QR con la fotocamera del secondo dispositivo.",
+      "new_code": "Mostra un nuovo codice",
+      "expires_in": "Valido ancora per {{time}}",
+      "expired": "Il codice è scaduto.",
+      "this_code": "Codice di questo dispositivo",
+      "enter_code": "Codice dell'altro dispositivo",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Collega i dispositivi",
+      "error_invalid": "Questo codice non è valido o è scaduto.",
+      "error_domain": "I due dispositivi si trovano su siti Zuugle diversi.",
+      "error_failed": "Il collegamento non è riuscito. Riprova.",
+      "code_failed": "Non è stato possibile creare il codice. Riprova."
+    },
+    "reset": {
+      "action": "Reimposta i preferiti su questo dispositivo",
+      "warning": "Questo dispositivo ripartirà con un elenco di preferiti vuoto e non sarà più collegato ad alcun altro dispositivo.",
+      "confirm": "Reimposta",
+      "cancel": "Annulla"
+    },
+    "notice": {
+      "save_failed": "Non è stato possibile salvare il preferito. Riprova.",
+      "recreated": "Non è stato possibile caricare i tuoi preferiti. Sono stati ricreati su questo dispositivo – il collegamento con gli altri dispositivi è interrotto.",
+      "recreate_failed": "Non è stato possibile caricare i tuoi preferiti. Riprova più tardi.",
+      "merged_none": "I dispositivi sono collegati. Entrambi avevano salvato gli stessi itinerari.",
+      "merged_sent": "I dispositivi sono collegati. Questo dispositivo aveva già tutti gli itinerari; l'altro ha ora ricevuto i tuoi.",
+      "merged_one": "I dispositivi sono collegati. È stato aggiunto un itinerario.",
+      "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari.",
+      "reset": "I preferiti su questo dispositivo sono stati reimpostati."
+    }
+  },
   "about": {
     "was_ist_zuugle": "COS’È ZUUGLE?",
     "zuugle_erklaerung_1": "Zuugle è un motore di ricerca per itinerari in montagna raggiungibili con i mezzi pubblici.",
@@ -158,23 +198,29 @@
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protezione dei dati è importante per noi. Per questo abbiamo rinunciato a molte opzioni che, pur essendo tecnicamente fattibili, violerebbero la privacy dei nostri visitatori.",
     "datenschutzerklaerung": "Informativa sulla privacy",
-    "welche_personenbezogenen_daten": "QUALI DATI PERSONALI RACCOGLIAMO E PERCHÉ LI RACCOGLIAMO",
-    "keine_personenbezogenen_daten": "Non raccogliamo dati personali.",
+    "stand": "aggiornato: settembre 2026",
+    "welche_personenbezogenen_daten": "QUALI DATI CONSERVIAMO E PERCHÉ",
+    "ueberblick": "Per usare Zuugle non serve un account: non chiediamo né il tuo nome né il tuo indirizzo e-mail. Vengono memorizzate solo due cose: statistiche di accesso anonimizzate e, se usi questa funzione, i tuoi tour salvati. Entrambe sono descritte in dettaglio qui sotto.",
     "analysedienst": "SERVIZIO DI ANALISI",
     "welcher_dienst": "CHE SERVIZIO UTILIZZIAMO",
     "matomo_1": "Utilizziamo software open source,",
     "matomo_2": "nella variante self-hosted. I dati si trovano pertanto su un server in Germania, nell’UE.",
     "welche_daten": "QUALI DATI RACCOGLIAMO",
     "abgespeichert_werden": "I dati memorizzati sono il nome del sito web visitato, l’orario e le prime due cifre dell’indirizzo IP. Questi dati non consentono di identificare l’utente.",
-    "cookies": "COOKIE",
-    "cookies_erklaerung1": "Zuugle utilizza un cookie per evitare che l’utente debba inserire ogni volta il punto di partenza.",
-    "cookies_erklaerung2": "Utilizzando il sito, acconsenti all'uso di cookie, poiché per ragioni tecniche la funzione può essere resa disponibile solo grazie al cookie.",
+    "cookies": "COOKIE E MEMORIA LOCALE",
+    "cookies_erklaerung1": "Zuugle salva alcune impostazioni direttamente nel tuo browser e non sul nostro server. Sono tecnicamente necessarie la lingua scelta e la tua stessa decisione sui cookie. Sono facoltative le funzioni di comfort — per esempio il fatto che il punto di partenza resti memorizzato per la prossima ricerca di orari — e le statistiche di accesso.",
+    "cookies_erklaerung2": "Attiviamo queste funzioni facoltative solo se scegli «Accetta tutto» nel banner. Se scegli «Solo cookie tecnici» restano disattivate e i dati di comfort già salvati vengono cancellati dal tuo browser. Anche la tua decisione resta soltanto nel tuo browser: per modificarla, cancella i dati del sito Zuugle nel tuo browser e alla visita successiva te lo chiederemo di nuovo.",
+    "favoriten": "TOUR SALVATI",
+    "favoriten_1": "Quando salvi un tour, creiamo per esso un elenco sul nostro server. Contiene solo i tour salvati, il momento in cui li hai salvati e la lingua e il sito nazionale di Zuugle che stai usando. L'elenco è collegato a una chiave generata in modo casuale e conservata nel tuo browser. Non sappiamo chi sei e non possiamo associare un elenco a un nome, a un indirizzo e-mail o a un indirizzo IP. Se non salvi alcun tour, non creiamo nulla.",
+    "favoriten_2": "Puoi portare i tour salvati su un secondo dispositivo. Per farlo Zuugle mostra un codice breve — anche come codice QR — valido dieci minuti e utilizzabile una sola volta. Quando viene riscattato, i preferiti dei due dispositivi vengono uniti in modo permanente in un unico elenco condiviso: da quel momento entrambi i dispositivi vedono gli stessi tour, compresi tutti quelli salvati in seguito. L'operazione non può essere annullata. Comunica quindi il codice solo a dispositivi e persone con cui vuoi davvero condividere il tuo elenco.",
+    "favoriten_3": "Se togli di nuovo un tour dai preferiti, viene subito cancellato anche dall'elenco sul nostro server. La finestra per collegare i dispositivi offre inoltre «Reimposta i preferiti su questo dispositivo»: il dispositivo lascia il proprio elenco e riparte da uno vuoto — un secondo dispositivo ancora collegato conserva i tour. Cancellare i dati del sito Zuugle nel tuo browser ha lo stesso effetto.",
     "mit_wem_daten_teilen": "CON CHI CONDIVIDIAMO I TUOI DATI",
-    "mit_niemandem": "Con nessuno.",
+    "mit_niemandem": "Con nessuno. Non trasmettiamo dati a terzi e non vendiamo dati. L'unica condivisione che avviene è quella che avvii tu stesso collegando i tuoi preferiti a un altro dispositivo.",
     "wie_lange_daten_speichern": "PER QUANTO TEMPO CONSERVIAMO I TUOI DATI",
     "cookie_verfall_drei_monate": "Dopo 3 mesi il cookie scade e viene cancellato dal tuo dispositivo.",
+    "favoriten_speicherdauer": "Un elenco di preferiti che non viene utilizzato per 24 mesi viene cancellato insieme ai tour che contiene.",
     "welche_rechte": "CHE DIRITTI HAI SUI TUOI DATI",
-    "nichts_von_dir_abspeichern": "Non memorizziamo dati che riguardano la tua persona, pertanto non possiamo né esportare né cancellare i tuoi dati."
+    "rechte_auskunft": "Poiché non gestiamo account utente non possiamo identificarti — e quindi non possiamo nemmeno fornire informazioni su di te a nessun altro. Tutto ciò che abbiamo memorizzato sui tuoi tour salvati è visibile nella tua vista dei preferiti, dove puoi anche cancellarlo tu stesso. Se hai altre domande sui tuoi dati, scrivici a <0>kontakt [at] bahn-zum-berg.at</0>."
   },
   "start": {
     "wartungsmodus": "Al momento il sito di Zuugle è in manutenzione. Ti preghiamo di provare più tardi.",
@@ -347,15 +393,13 @@
     "kartenansicht_entfernen": "Chiudi mappa"
   },
   "cookie_consent": {
-    "text": "Questo sito utilizza esclusivamente cookie tecnicamente necessari. Per le richieste di orari, i dati vengono trasmessi a server nell'UE, ma non vengono memorizzati.",
-    "accept": "Capito"
+    "text": "Trattiamo i tuoi dati con cura. Questo sito utilizza cookie tecnicamente necessari (ad es. impostazioni della lingua) e cookie di comfort opzionali che migliorano la tua esperienza — ad esempio per non dover reinserire il luogo di partenza ogni volta che consulti un orario.",
+    "accept_essential": "Solo cookie essenziali",
+    "accept_all": "Accetta tutti"
   },
   "lists": {
     "default_list_name": "I miei preferiti",
-    "list_created": "Lista creata",
-    "tour_added": "Tour aggiunto",
-    "tour_removed": "Tour rimosso",
     "list_empty": "Questa lista è vuota",
-    "list_not_found": "Lista non trovata"
+    "list_empty_hint": "Tocca l'icona a forma di cuore su un tour per salvarlo qui."
   }
 }

@@ -5,10 +5,12 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
 
 interface SearchBarButtonProps {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   onClick: () => void;
   variant?: ButtonProps["variant"];
+  // Set for toggle buttons so assistive tech announces the pressed state.
+  ariaPressed?: boolean;
   sx?: SxProps<Theme>;
 }
 
@@ -24,17 +26,19 @@ export default function SearchBarButton({
   label,
   onClick,
   variant,
+  ariaPressed,
   sx,
 }: SearchBarButtonProps) {
   const theme = useTheme();
   const isXsScreen = useMediaQuery(theme.breakpoints.only("xs"));
   const callerSx = Array.isArray(sx) ? sx : [sx];
 
-  if (isXsScreen) {
+  if (isXsScreen && icon) {
     return (
       <IconButton
         onClick={onClick}
         aria-label={label}
+        aria-pressed={ariaPressed}
         sx={[{ height: 40, width: 40, transition: TRANSITION }, ...callerSx]}
       >
         {icon}
@@ -46,6 +50,7 @@ export default function SearchBarButton({
     <Button
       onClick={onClick}
       aria-label={label}
+      aria-pressed={ariaPressed}
       variant={variant}
       startIcon={icon}
       sx={[

@@ -1,4 +1,44 @@
 {
+  "favorites": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "save": "Save to favorites",
+    "saved": "Saved",
+    "show": "Show favorites",
+    "showing": "Back to all tours",
+    "sync": {
+      "title": "Share favorites with another device",
+      "intro": "Open this dialog on your second device as well. Enter the code shown there. Or the other way round, both work. The two favorites lists are then combined and stay in sync from then on.",
+      "qr_code": "Alternatively, scan this QR code with the second device's camera.",
+      "new_code": "Show a new code",
+      "expires_in": "Valid for another {{time}}",
+      "expired": "This code has expired.",
+      "this_code": "Code from this device",
+      "enter_code": "Code from the other device",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Connect devices",
+      "error_invalid": "This code is invalid or has expired.",
+      "error_domain": "The two devices are on different Zuugle sites.",
+      "error_failed": "Connecting didn't work. Please try again.",
+      "code_failed": "The code could not be created. Please try again."
+    },
+    "reset": {
+      "action": "Reset favourites on this device",
+      "warning": "This device will start with an empty favourites list and will no longer be connected to any other device.",
+      "confirm": "Reset",
+      "cancel": "Cancel"
+    },
+    "notice": {
+      "save_failed": "Your favorite could not be saved. Please try again.",
+      "recreated": "Your favorites could not be loaded. They have been recreated on this device – the link to other devices is broken.",
+      "recreate_failed": "Your favorites could not be loaded. Please try again later.",
+      "merged_none": "The devices are connected. Both had saved the same tours.",
+      "merged_sent": "The devices are connected. This device already had all the tours; the other one has now received yours.",
+      "merged_one": "The devices are connected. One tour was added.",
+      "merged_other": "The devices are connected. {{count}} tours were added.",
+      "reset": "The favourites on this device have been reset."
+    }
+  },
   "about": {
     "was_ist_zuugle": "What is Zuugle ?",
     "zuugle_erklaerung_1": "Zuugle is a search engine for hikes that can be reached by public transport.",
@@ -158,23 +198,29 @@
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Data protection is important to us. Therefore, we have rejected many options that are technically possible but would invade the privacy of our visitors.",
     "datenschutzerklaerung": "Privacy policy",
-    "welche_personenbezogenen_daten": "WHAT PERSONAL DATA WE COLLECT AND WHY",
-    "keine_personenbezogenen_daten": "We do not collect any personal data.",
+    "stand": "last updated: September 2026",
+    "welche_personenbezogenen_daten": "WHAT DATA WE STORE AND WHY",
+    "ueberblick": "You do not need an account to use Zuugle: we ask for neither your name nor your email address. Only two things are stored — anonymised usage statistics and, if you use the feature, the tours you have saved. Both are described in detail below.",
     "analysedienst": "ANALYSIS SERVICE",
     "welcher_dienst": "WHICH SERVICE IS USED",
     "matomo_1": "We use an open-source software",
     "matomo_2": "in the self-hosted version. The data are therefore located on a server in Germany in the EU",
     "welche_daten": "WHAT DATA IS COLLECTED",
     "abgespeichert_werden": "The name of the website accessed, the time and the first two segments of the IP address are stored. It is not possible to track a specific person from such data.",
-    "cookies": "COOKIES",
-    "cookies_erklaerung1": "A cookie is set by Zuugle so that visitors do not have to re-enter the starting location each time.",
-    "cookies_erklaerung2": "By using the site, consent is given to the use of cookies, as for technical reasons the function can only be made available by using this cookie.",
+    "cookies": "COOKIES AND LOCAL STORAGE",
+    "cookies_erklaerung1": "Zuugle stores a few settings directly in your browser rather than on our server. The language you picked and your cookie choice itself are technically necessary. Optional are the convenience features — such as remembering your departure location for the next connection search — and the usage statistics.",
+    "cookies_erklaerung2": "We only start those optional features once you choose “Accept all” in the banner. If you choose “Technically necessary cookies only”, they stay off and any convenience data already stored is deleted from your browser. Your choice itself is likewise kept only in your browser: to change it, delete Zuugle's site data in your browser and we will ask you again on your next visit.",
+    "favoriten": "SAVED TOURS",
+    "favoriten_1": "When you save a tour, we create a list for it on our server. It holds only the saved tours, the time you saved them, and the language and Zuugle country site you are using. The list is tied to a randomly generated key that is stored in your browser. We do not know who you are and cannot link a list to a name, an email address or an IP address. If you never save a tour, nothing is created for you.",
+    "favoriten_2": "You can bring your saved tours over to a second device. Zuugle shows a short code for this — also as a QR code — which is valid for ten minutes and can only be used once. Once it is redeemed, the favourites of both devices are permanently merged into one shared list: from then on both devices see the same tours, including every tour saved later. This cannot be undone. So only pass the code on to devices and people you really want to share your list with.",
+    "favoriten_3": "If you remove a tour from your favourites again, it is deleted from the list on our server straight away. The device pairing dialog also offers “Reset favourites on this device”: the device lets go of its list and starts with an empty one — a second device still connected keeps the tours. Deleting Zuugle's site data in your browser has the same effect.",
     "mit_wem_daten_teilen": "WITH WHOM WE SHARE YOUR DATA",
-    "mit_niemandem": "With no one.",
+    "mit_niemandem": "With no one. We do not pass data on to third parties and we do not sell data. The only sharing that happens at all is the sharing you trigger yourself when you connect your favourites to another device.",
     "wie_lange_daten_speichern": "HOW LONG WE STORE YOUR DATA",
     "cookie_verfall_drei_monate": "After 3 months the cookie on your computer will expire.",
+    "favoriten_speicherdauer": "A favourites list that has not been used for 24 months is deleted, together with the tours saved in it.",
     "welche_rechte": "WHAT RIGHTS YOU HAVE OVER YOUR DATA",
-    "nichts_von_dir_abspeichern": "Since we don't store anything about you, we can't export or delete anything for you."
+    "rechte_auskunft": "Because we do not run user accounts, we cannot identify you — and therefore cannot give anyone else information about you either. Everything we have stored about your saved tours is visible in your favourites view, and you can delete it there yourself. If you have any further question about your data, write to us at <0>kontakt [at] bahn-zum-berg.at</0>."
   },
   "start": {
     "wartungsmodus": "Zuugle is currently in maintenance mode. Please check back later.",
@@ -348,15 +394,13 @@
     "kartenansicht_entfernen": "Hide map"
   },
   "cookie_consent": {
-    "text": "This site uses only technically necessary cookies. For timetable queries, request data is transmitted to servers within the EU but is not stored.",
-    "accept": "Understood"
+    "text": "We handle your data with care. This site uses technically necessary cookies (e.g. language settings) and optional comfort cookies that improve your experience — for example, so you don't have to re-enter your departure point every time you check a timetable.",
+    "accept_essential": "Essential cookies only",
+    "accept_all": "Accept all"
   },
   "lists": {
     "default_list_name": "My Favourites",
-    "list_created": "List created",
-    "tour_added": "Tour added",
-    "tour_removed": "Tour removed",
     "list_empty": "This list is empty",
-    "list_not_found": "List not found"
+    "list_empty_hint": "Tap the heart icon on a tour to save it here."
   }
 }

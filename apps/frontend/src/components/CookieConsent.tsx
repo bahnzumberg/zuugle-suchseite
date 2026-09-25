@@ -1,23 +1,15 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-
-const STORAGE_KEY = "zuugle_cookie_consent";
+import { useConsent } from "../hooks/useConsent";
 
 export default function CookieConsent() {
   const { t } = useTranslation();
-  const [visible, setVisible] = useState(
-    () => localStorage.getItem(STORAGE_KEY) !== "accepted",
-  );
+  const { consentLevel, acceptEssential, acceptAll } = useConsent();
 
-  if (!visible) return null;
-
-  const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY, "accepted");
-    setVisible(false);
-  };
+  // Banner is only visible when the user has not yet decided
+  if (consentLevel !== null) return null;
 
   return (
     <Box
@@ -27,44 +19,77 @@ export default function CookieConsent() {
         left: 0,
         right: 0,
         zIndex: 1300,
-        backgroundColor: "var(--bzb-bahnblau)",
-        color: "#fff",
+        backgroundColor: "#ccd8a1",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.12)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         gap: 2,
-        px: 3,
-        py: 2,
+        px: { xs: 2, sm: 3 },
+        py: { xs: 2, sm: 2.5 },
         flexWrap: "wrap",
       }}
     >
       <Typography
         sx={{
-          fontSize: "0.9rem",
-          lineHeight: 1.4,
-          maxWidth: 700,
+          fontSize: "0.875rem",
+          lineHeight: 1.5,
+          maxWidth: 620,
           textAlign: "center",
+          color: "#000",
         }}
       >
         {t("cookie_consent.text")}
       </Typography>
-      <Button
-        variant="outlined"
-        onClick={handleAccept}
-        aria-label={t("cookie_consent.accept")}
+
+      <Box
         sx={{
-          color: "#fff",
-          borderColor: "#fff",
-          whiteSpace: "nowrap",
-          fontWeight: 600,
-          "&:hover": {
-            backgroundColor: "rgba(255,255,255,0.15)",
-            borderColor: "#fff",
-          },
+          display: "flex",
+          gap: 1.5,
+          flexWrap: "wrap",
+          justifyContent: "center",
         }}
       >
-        {t("cookie_consent.accept")}
-      </Button>
+        <Button
+          variant="contained"
+          color="inherit"
+          onClick={acceptEssential}
+          aria-label={t("cookie_consent.accept_essential")}
+          sx={{
+            backgroundColor: "#aab5d7",
+            color: "#000",
+            whiteSpace: "nowrap",
+            fontWeight: 600,
+            borderRadius: "12px",
+            textTransform: "none",
+            boxShadow: "none",
+            "&:hover": {
+              backgroundColor: "#9aa5c7",
+              boxShadow: "none",
+            },
+          }}
+        >
+          {t("cookie_consent.accept_essential")}
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={acceptAll}
+          aria-label={t("cookie_consent.accept_all")}
+          sx={{
+            backgroundColor: "var(--bzb-akelei)",
+            whiteSpace: "nowrap",
+            fontWeight: 600,
+            borderRadius: "12px",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "var(--bzb-bahnblau)",
+            },
+          }}
+        >
+          {t("cookie_consent.accept_all")}
+        </Button>
+      </Box>
     </Box>
   );
 }

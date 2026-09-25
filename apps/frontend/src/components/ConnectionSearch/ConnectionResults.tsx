@@ -1149,8 +1149,9 @@ export default function ConnectionResults({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "5px",
-                  bgcolor: "#e8f5e9",
-                  border: "1px solid #66bb6a",
+                  // Lindgrün on Bahnblau — the Corporate Design's only green,
+                  // and the same active-pill pairing the favorites toggle uses.
+                  bgcolor: "var(--bzb-lindgruen)",
                   borderRadius: "12px",
                   px: "8px",
                   py: "2px",
@@ -1161,7 +1162,7 @@ export default function ConnectionResults({
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    bgcolor: "#2e7d32",
+                    bgcolor: "var(--bzb-bahnblau)",
                     flexShrink: 0,
                   }}
                 />
@@ -1169,7 +1170,7 @@ export default function ConnectionResults({
                   sx={{
                     fontSize: "11px",
                     fontWeight: 600,
-                    color: "#2e7d32",
+                    color: "var(--bzb-bahnblau)",
                     lineHeight: 1,
                   }}
                 >
@@ -1271,7 +1272,7 @@ export default function ConnectionResults({
                 sx={{
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#c62828",
+                  color: "var(--bzb-warnorange-dark)",
                   mt: "4px",
                 }}
               >
@@ -1283,7 +1284,7 @@ export default function ConnectionResults({
                 sx={{
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#e65100",
+                  color: "var(--bzb-warnorange)",
                   mt: "4px",
                 }}
               >

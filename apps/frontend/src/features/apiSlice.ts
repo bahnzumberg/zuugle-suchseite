@@ -175,6 +175,63 @@ export interface LicensesResponse {
   licenses: LicenseEntry[];
 }
 
+export interface CreateListResponse {
+  success: boolean;
+  key: string;
+  name: string;
+}
+
+export interface FavoriteListTour {
+  id: number;
+}
+
+export interface FavoritesListResponse {
+  success: boolean;
+  list: {
+    key: string;
+    name: string;
+    language: string;
+    tld: string;
+  };
+  tours: FavoriteListTour[];
+  total: number;
+  // Set when the requested key was merged into another list — adopt this key.
+  moved_to: string | null;
+}
+
+export interface FavoriteMutationResponse {
+  success: boolean;
+  moved_to: string | null;
+}
+
+export interface PairingCodeResponse {
+  success: boolean;
+  code: string;
+  expires_at: string;
+  moved_to: string | null;
+}
+
+export interface PairListResponse {
+  success: boolean;
+  // Key of the surviving list — the caller's device stores this from now on.
+  key: string;
+  // Both counts are from this device's side: what it gained, and what the
+  // other device gained from it.
+  received: number;
+  sent: number;
+  total: number;
+}
+
+/**
+ * HTTP status of a rejected RTK Query call, or null when the failure carries
+ * none — a network or parsing error, where `status` is one of RTK's string
+ * markers instead.
+ */
+export const errorStatus = (error: unknown): number | null => {
+  const status = (error as FetchBaseQueryError | undefined)?.status;
+  return typeof status === "number" ? status : null;
+};
+
 const domain = window.location.hostname;
 
 /**
@@ -205,6 +262,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
   }),
+  tagTypes: ["FavoritesList"],
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({
       query: () => {
@@ -341,6 +399,65 @@ export const api = createApi({
       query: () => "licenses",
       transformResponse: (response: LicensesResponse) => response.licenses,
     }),
+    createFavoritesList: build.mutation<CreateListResponse, string>({
+      // No domain: the list's TLD comes from the request's Host header, so that
+      // which lists may be paired is not client-settable.
+      query: (language) => ({
+        url: "lists",
+        method: "POST",
+        body: { language },
+      }),
+    }),
+    getFavoritesList: build.query<FavoritesListResponse, string>({
+      query: (key) => `lists/${key}`,
+      providesTags: (_result, _error, key) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    addFavoriteTour: build.mutation<
+      FavoriteMutationResponse,
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours`,
+        method: "POST",
+        body: { tour_id: tourId },
+      }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    removeFavoriteTour: build.mutation<
+      FavoriteMutationResponse,
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours/${tourId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    createPairingCode: build.mutation<PairingCodeResponse, string>({
+      query: (key) => ({
+        url: `lists/${key}/pairing-code`,
+        method: "POST",
+      }),
+    }),
+    // Pairing replaces the device's key, so every cached list is stale
+    // afterwards — both the absorbed one and the survivor.
+    pairList: build.mutation<
+      PairListResponse,
+      { code: string; key: string | null }
+    >({
+      query: ({ code, key }) => ({
+        url: "lists/pair",
+        method: "POST",
+        body: { code, key },
+      }),
+      invalidatesTags: ["FavoritesList"],
+    }),
   }),
 });
 
@@ -383,4 +500,11 @@ export const {
 
   useGetCities2TourQuery,
   useGetLicensesQuery,
+
+  useCreateFavoritesListMutation,
+  useGetFavoritesListQuery,
+  useAddFavoriteTourMutation,
+  useRemoveFavoriteTourMutation,
+  useCreatePairingCodeMutation,
+  usePairListMutation,
 } = api;

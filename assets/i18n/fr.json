@@ -1,4 +1,44 @@
 {
+  "favorites": {
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris",
+    "save": "Ajouter aux favoris",
+    "saved": "Enregistré",
+    "show": "Afficher les favoris",
+    "showing": "Retour à toutes les randonnées",
+    "sync": {
+      "title": "Partager les favoris avec un autre appareil",
+      "intro": "Ouvre aussi cette fenêtre sur ton deuxième appareil. Saisis ici le code qui y est affiché. Ou l'inverse, les deux fonctionnent. Les deux listes de favoris sont alors fusionnées et restent ensuite synchronisées.",
+      "qr_code": "Tu peux aussi scanner ce code QR avec l'appareil photo du deuxième appareil.",
+      "new_code": "Afficher un nouveau code",
+      "expires_in": "Encore valable {{time}}",
+      "expired": "Ce code a expiré.",
+      "this_code": "Code de cet appareil",
+      "enter_code": "Code de l'autre appareil",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Connecter les appareils",
+      "error_invalid": "Ce code est invalide ou a expiré.",
+      "error_domain": "Les deux appareils sont sur des sites Zuugle différents.",
+      "error_failed": "La connexion n'a pas fonctionné. Réessaie.",
+      "code_failed": "Le code n'a pas pu être créé. Réessaie."
+    },
+    "reset": {
+      "action": "Réinitialiser les favoris sur cet appareil",
+      "warning": "Cet appareil repartira avec une liste de favoris vide et ne sera plus relié à aucun autre appareil.",
+      "confirm": "Réinitialiser",
+      "cancel": "Annuler"
+    },
+    "notice": {
+      "save_failed": "Ton favori n'a pas pu être enregistré. Réessaie.",
+      "recreated": "Tes favoris n'ont pas pu être chargés. Ils ont été recréés sur cet appareil – le lien avec les autres appareils est rompu.",
+      "recreate_failed": "Tes favoris n'ont pas pu être chargés. Réessaie plus tard.",
+      "merged_none": "Les appareils sont connectés. Les deux avaient enregistré les mêmes randonnées.",
+      "merged_sent": "Les appareils sont connectés. Cet appareil avait déjà toutes les randonnées ; l'autre a maintenant reçu les tiennes.",
+      "merged_one": "Les appareils sont connectés. Une randonnée a été ajoutée.",
+      "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées.",
+      "reset": "Les favoris de cet appareil ont été réinitialisés."
+    }
+  },
   "about": {
     "was_ist_zuugle": "Qu'est-ce que Zuugle ?",
     "zuugle_erklaerung_1": "Zuugle est un moteur de recherche pour les sorties en montagne accessibles sans voiture.",
@@ -158,23 +198,29 @@
   "privacy": {
     "datenschutz_ist_uns_wichtig": "La protection de vos données nous tient à cœur. Nous avons pour cette raison renoncé à de nombreuses fonctionnalités qui sont certes techniquement possibles, mais qui porteraient atteinte à la vie privée des visiteurs et visiteuses de notre site.",
     "datenschutzerklaerung": "Déclaration de confidentialité",
-    "welche_personenbezogenen_daten": "Quelles données personnelles nous collectons, et pourquoi nous les collectons",
-    "keine_personenbezogenen_daten": "Nous ne collectons aucune donnée personnelle.",
+    "stand": "mise à jour : septembre 2026",
+    "welche_personenbezogenen_daten": "Quelles données nous conservons, et pourquoi",
+    "ueberblick": "Vous n'avez pas besoin de compte pour utiliser Zuugle : nous ne demandons ni votre nom ni votre adresse e-mail. Deux choses seulement sont enregistrées : des statistiques de fréquentation anonymisées et, si vous utilisez cette fonction, les randonnées que vous avez mises en favoris. Les deux sont décrites en détail ci-dessous.",
     "analysedienst": "Service d'analyse",
     "welcher_dienst": "Quel service utilisons-nous ?",
     "matomo_1": "Nous utilisons le logiciel Open Source",
     "matomo_2": "dans sa variante auto-hébergée. Les données sont donc stockées sur un serveur en Allemagne, dans l'Union européenne.",
     "welche_daten": "Quelles sont les données collectées ?",
     "abgespeichert_werden": "Le nom de la page Web consultée, l'heure et les deux premiers chiffres de l'adresse IP sont enregistrés. Ces données ne permettent pas d'identifier une personne.",
-    "cookies": "Cookies",
-    "cookies_erklaerung1": "Un cookie est installé sur Zuugle pour éviter au visiteur / à la visiteuse de saisir à chaque fois le lieu de départ.",
-    "cookies_erklaerung2": "L'utilisation du site implique le consentement à l'utilisation de cookies. Pour des raisons techniques, cette fonction ne peut en effet être activée qu'au moyen d'un cookie.",
+    "cookies": "Cookies et stockage local",
+    "cookies_erklaerung1": "Zuugle enregistre certains réglages directement dans votre navigateur, et non sur notre serveur. La langue choisie et votre décision concernant les cookies sont techniquement nécessaires. Sont facultatives les fonctions de confort — par exemple la mémorisation de votre lieu de départ pour la prochaine recherche d'horaires — ainsi que les statistiques de fréquentation.",
+    "cookies_erklaerung2": "Ces fonctions facultatives ne sont activées que si vous choisissez « Tout accepter » dans la bannière. Si vous choisissez « Cookies techniques uniquement », elles restent désactivées et les données de confort déjà enregistrées sont supprimées de votre navigateur. Votre décision elle-même ne se trouve également que dans votre navigateur : pour la modifier, supprimez les données du site Zuugle dans votre navigateur et nous vous reposerons la question lors de votre prochaine visite.",
+    "favoriten": "Randonnées mises en favoris",
+    "favoriten_1": "Lorsque vous mettez une randonnée en favori, nous créons pour cela une liste sur notre serveur. Elle ne contient que les randonnées enregistrées, le moment où vous les avez enregistrées, ainsi que la langue et le site national de Zuugle que vous utilisez. La liste est rattachée à une clé générée aléatoirement et conservée dans votre navigateur. Nous ne savons pas qui vous êtes et ne pouvons associer une liste ni à un nom, ni à une adresse e-mail, ni à une adresse IP. Si vous n'enregistrez aucune randonnée, rien n'est créé.",
+    "favoriten_2": "Vous pouvez récupérer vos favoris sur un deuxième appareil. Zuugle affiche pour cela un code court — également sous forme de QR code — valable dix minutes et utilisable une seule fois. Une fois ce code utilisé, les favoris des deux appareils sont définitivement fusionnés en une seule liste commune : les deux appareils voient alors les mêmes randonnées, y compris toutes celles enregistrées par la suite. Cette opération est irréversible. Ne communiquez donc ce code qu'aux appareils et aux personnes avec lesquels vous souhaitez vraiment partager votre liste.",
+    "favoriten_3": "Si vous retirez une randonnée de vos favoris, elle est immédiatement supprimée de la liste sur notre serveur. La fenêtre de connexion des appareils propose également « Réinitialiser les favoris sur cet appareil » : l'appareil abandonne sa liste et repart d'une liste vide — un deuxième appareil encore relié conserve les randonnées. Supprimer les données du site Zuugle dans votre navigateur produit le même effet.",
     "mit_wem_daten_teilen": "Avec qui partageons-nous vos données ?",
-    "mit_niemandem": "Avec personne.",
+    "mit_niemandem": "Avec personne. Nous ne transmettons aucune donnée à des tiers et nous ne vendons aucune donnée. Le seul partage qui existe est celui que vous déclenchez vous-même en reliant vos favoris à un autre appareil.",
     "wie_lange_daten_speichern": "Combien de temps conservons-nous vos données?",
     "cookie_verfall_drei_monate": "Le cookie expire au bout de 3 mois sur votre ordinateur.",
+    "favoriten_speicherdauer": "Une liste de favoris qui n'a pas été utilisée pendant 24 mois est supprimée, avec les randonnées qu'elle contient.",
     "welche_rechte": "Quels sont vos droits sur vos données personnelles ?",
-    "nichts_von_dir_abspeichern": "Du fait que nous ne sauvegardons rien, nous n'avons pas de données à exporter ou à supprimer."
+    "rechte_auskunft": "Comme nous ne gérons pas de comptes utilisateurs, nous ne pouvons pas vous identifier — et ne pouvons donc pas non plus donner d'informations sur vous à qui que ce soit. Tout ce que nous avons enregistré au sujet de vos randonnées favorites est visible dans votre liste de favoris, où vous pouvez également le supprimer vous-même. Pour toute autre question concernant vos données, écrivez-nous à <0>kontakt [at] bahn-zum-berg.at</0>."
   },
   "start": {
     "wartungsmodus": "Zuugle est actuellement en maintenance. Merci de revenir ultérieurement.",
@@ -348,15 +394,13 @@
     "kartenansicht_entfernen": "Fermer la carte"
   },
   "cookie_consent": {
-    "text": "Ce site utilise uniquement des cookies techniquement nécessaires. Pour les demandes d'horaires, les données sont transmises à des serveurs au sein de l'UE, mais ne sont pas enregistrées.",
-    "accept": "Compris"
+    "text": "Nous traitons vos données avec soin. Ce site utilise des cookies techniquement nécessaires (p. ex. paramètres de langue) et des cookies de confort optionnels qui améliorent votre expérience — par exemple pour ne pas avoir à ressaisir votre lieu de départ à chaque consultation d'horaire.",
+    "accept_essential": "Cookies essentiels uniquement",
+    "accept_all": "Tout accepter"
   },
   "lists": {
     "default_list_name": "Mes favoris",
-    "list_created": "Liste créée",
-    "tour_added": "Tour ajouté",
-    "tour_removed": "Tour supprimé",
     "list_empty": "Cette liste est vide",
-    "list_not_found": "Liste introuvable"
+    "list_empty_hint": "Appuie sur l'icône cœur d'un circuit pour l'enregistrer ici."
   }
 }

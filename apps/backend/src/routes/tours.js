@@ -740,6 +740,7 @@ const getMatchingTourIds = async (req) => {
     let new_filter_where_providers = ``;
     let new_filter_where_poi = ``;
     let new_filter_where_countries = ``;
+    let new_filter_where_favoriteTourIds = ``;
     let inner_join_pois = ``;
     let poi_bindings = [];
     let pois = [];
@@ -865,6 +866,16 @@ const getMatchingTourIds = async (req) => {
 
             if (new_filter_where_countries === "AND t.country IN () ") {
                 new_filter_where_countries = ``;
+            }
+        }
+
+        if (Array.isArray(filterJSON["favoriteTourIds"])) {
+            const favoriteTourIds = filterJSON["favoriteTourIds"].filter((id) =>
+                Number.isInteger(id),
+            );
+
+            if (favoriteTourIds.length > 0) {
+                new_filter_where_favoriteTourIds = `AND t.id IN (${favoriteTourIds.join(",")}) `;
             }
         }
     }
@@ -1024,6 +1035,7 @@ const getMatchingTourIds = async (req) => {
                                     ${new_filter_where_difficulties}
                                     ${new_filter_where_providers}
                                     ${new_filter_where_countries}
+                                    ${new_filter_where_favoriteTourIds}
                                     ${new_filter_where_poi}`;
 
     // Create a version with actual values for cache key generation

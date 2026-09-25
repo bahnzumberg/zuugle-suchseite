@@ -1,4 +1,44 @@
 {
+  "favorites": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "save": "Merken",
+    "saved": "Gemerkt",
+    "show": "Favoriten anzeigen",
+    "showing": "Zurück zu allen Touren",
+    "sync": {
+      "title": "Favoriten mit einem anderen Gerät teilen",
+      "intro": "Öffne diesen Dialog auch auf deinem zweiten Gerät. Gib den dort angezeigten Code hier ein. Oder andersherum, beides funktioniert. Dadurch werden die beiden Favoritenlisten kombiniert und auch weiterhin synchron gehalten.",
+      "qr_code": "Alternativ kannst du mit der Kamera des zweiten Geräts diesen QR Code scannen.",
+      "new_code": "Neuen Code anzeigen",
+      "expires_in": "Noch {{time}} gültig",
+      "expired": "Der Code ist abgelaufen.",
+      "this_code": "Code von diesem Gerät",
+      "enter_code": "Code des anderen Geräts",
+      "enter_code_placeholder": "ABCD-EFGH",
+      "submit": "Geräte verbinden",
+      "error_invalid": "Dieser Code ist ungültig oder abgelaufen.",
+      "error_domain": "Die beiden Geräte sind auf unterschiedlichen Zuugle-Seiten unterwegs.",
+      "error_failed": "Das Verbinden hat nicht geklappt. Bitte versuche es noch einmal.",
+      "code_failed": "Der Code konnte nicht erstellt werden. Bitte versuche es noch einmal."
+    },
+    "reset": {
+      "action": "Favoriten auf diesem Gerät zurücksetzen",
+      "warning": "Dieses Gerät startet danach mit einer leeren Favoritenliste und ist mit keinem anderen Gerät mehr verbunden.",
+      "confirm": "Zurücksetzen",
+      "cancel": "Abbrechen"
+    },
+    "notice": {
+      "save_failed": "Dein Favorit konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+      "recreated": "Deine Favoriten konnten nicht geladen werden. Sie wurden auf diesem Gerät neu angelegt – die Verbindung zu anderen Geräten ist getrennt.",
+      "recreate_failed": "Deine Favoriten konnten nicht geladen werden. Bitte versuche es später noch einmal.",
+      "merged_none": "Die Geräte sind verbunden. Beide hatten dieselben Touren gemerkt.",
+      "merged_sent": "Die Geräte sind verbunden. Auf diesem Gerät waren schon alle Touren gemerkt; das andere hat deine jetzt dazubekommen.",
+      "merged_one": "Die Geräte sind verbunden. Eine Tour ist dazugekommen.",
+      "merged_other": "Die Geräte sind verbunden. {{count}} Touren sind dazugekommen.",
+      "reset": "Die Favoriten auf diesem Gerät wurden zurückgesetzt."
+    }
+  },
   "about": {
     "was_ist_zuugle": "WAS IST ZUUGLE ?",
     "zuugle_erklaerung_1": "Zuugle ist eine Suchmaschine für öffentlich erreichbare Bergtouren.",
@@ -158,23 +198,29 @@
   "privacy": {
     "datenschutz_ist_uns_wichtig": "Datenschutz ist uns wichtig. Daher haben wir auf viele Möglichkeiten verzichtet, die technisch zwar möglich sind, jedoch in die Privatsphäre unserer Besucher eindringen würden.",
     "datenschutzerklaerung": "Datenschutzerklärung",
-    "welche_personenbezogenen_daten": "WELCHE PERSONENBEZOGENEN DATEN WIR SAMMELN UND WARUM WIR SIE SAMMELN",
-    "keine_personenbezogenen_daten": "Wir sammeln keine personenbezogenen Daten.",
+    "stand": "aktualisiert: September 2026",
+    "welche_personenbezogenen_daten": "WELCHE DATEN WIR SPEICHERN UND WARUM",
+    "ueberblick": "Du brauchst kein Benutzerkonto, um Zuugle zu verwenden: Wir fragen weder deinen Namen noch deine E-Mail-Adresse ab. Gespeichert werden nur zwei Dinge – eine anonymisierte Zugriffsstatistik und, falls du die Funktion nutzt, deine gemerkten Touren. Beides beschreiben wir unten im Detail.",
     "analysedienst": "ANALYSEDIENST",
     "welcher_dienst": "WELCHER DIENST WIRD EINGESETZT",
     "matomo_1": "Wir setzen die Open Source Software",
     "matomo_2": "in der selbst-gehosteten Variante ein. Die Daten befinden sich daher auf einem Server in Deutschland in der EU.",
     "welche_daten": "WELCHE DATEN WERDEN GESAMMELT",
     "abgespeichert_werden": "Abgespeichert werden der Name der aufgerufenen Webseite, die Uhrzeit und die ersten zwei Stellen der IP-Adresse. Ein Rückschluss auf eine Person ist durch diese Daten nicht möglich.",
-    "cookies": "COOKIES",
-    "cookies_erklaerung1": "Auf Zuugle wird ein Cookies gesetzt, damit der Besucher den Ausgangsorts nicht jedes Mal neu eingeben muss.",
-    "cookies_erklaerung2": "Durch die Nutzung der Seite wird die Zustimmung zur Verwendung von Cookies gegeben, da die Funktion aus technischen Gründen nur mittels Einsatz eines Cookies zur Verfügung gestellt werden kann.",
+    "cookies": "COOKIES UND LOKALE SPEICHERUNG",
+    "cookies_erklaerung1": "Zuugle speichert einige Einstellungen direkt in deinem Browser und nicht auf unserem Server. Technisch notwendig sind dabei die Sprachauswahl und deine Cookie-Entscheidung selbst. Optional sind die Komfort-Funktionen – etwa dass dein Abfahrtsort für die nächste Fahrplanabfrage erhalten bleibt – sowie die Zugriffsstatistik.",
+    "cookies_erklaerung2": "Diese optionalen Funktionen starten wir erst, wenn du im Banner „Alle akzeptieren“ wählst. Bei „Nur technische Cookies“ bleiben sie aus, und bereits gespeicherte Komfort-Daten löschen wir aus deinem Browser. Auch deine Entscheidung selbst liegt nur in deinem Browser: Wenn du sie ändern möchtest, lösche die Website-Daten von Zuugle in deinem Browser – beim nächsten Besuch fragen wir dich erneut.",
+    "favoriten": "GEMERKTE TOUREN",
+    "favoriten_1": "Wenn du eine Tour merkst, legen wir dafür eine Liste auf unserem Server an. Darin stehen nur die gemerkten Touren, der Zeitpunkt, zu dem du sie gemerkt hast, sowie die Sprache und die Zuugle-Länderseite, auf der du unterwegs bist. Die Liste hängt an einem zufällig erzeugten Schlüssel, der in deinem Browser gespeichert wird. Wir wissen nicht, wer du bist, und können eine Liste weder einem Namen noch einer E-Mail- oder IP-Adresse zuordnen. Wer keine Tour merkt, für den legen wir auch nichts an.",
+    "favoriten_2": "Du kannst deine gemerkten Touren auf ein zweites Gerät holen. Dafür zeigt Zuugle einen kurzen Code an – auch als QR-Code –, der zehn Minuten gültig ist und nur einmal verwendet werden kann. Wird er eingelöst, werden die Favoriten beider Geräte dauerhaft zu einer gemeinsamen Liste zusammengeführt: Beide Geräte sehen ab dann dieselben Touren, auch alle künftig gemerkten. Das lässt sich nicht rückgängig machen. Gib den Code deshalb nur an Geräte und Personen weiter, mit denen du deine Liste wirklich teilen möchtest.",
+    "favoriten_3": "Entfernst du eine Tour wieder aus deinen Favoriten, wird sie auch auf unserem Server sofort aus der Liste gelöscht. Im Dialog zum Verbinden von Geräten findest du außerdem „Favoriten auf diesem Gerät zurücksetzen“: Damit gibt dieses Gerät seine Liste frei und startet mit einer leeren – ein noch verbundenes zweites Gerät behält die Touren. Dasselbe passiert, wenn du die Website-Daten von Zuugle in deinem Browser löschst.",
     "mit_wem_daten_teilen": "MIT WEM WIR DEINE DATEN TEILEN",
-    "mit_niemandem": "Mit niemandem.",
+    "mit_niemandem": "Mit niemandem. Wir geben keine Daten an Dritte weiter und wir verkaufen keine Daten. Die einzige Weitergabe, die überhaupt stattfindet, löst du selbst aus, wenn du deine Favoriten mit einem weiteren Gerät verbindest.",
     "wie_lange_daten_speichern": "WIE LANGE WIR DEINE DATEN SPEICHERN",
     "cookie_verfall_drei_monate": "Nach 3 Monaten verfällt das Cookie auf deinem Computer.",
+    "favoriten_speicherdauer": "Eine Favoritenliste, die 24 Monate lang nicht verwendet wurde, löschen wir samt der darin gemerkten Touren.",
     "welche_rechte": "WELCHE RECHTE DU AN DEINEN DATEN HAST",
-    "nichts_von_dir_abspeichern": "Da wir von dir nichts abspeichern, können wir für dich auch nichts exportieren oder löschen."
+    "rechte_auskunft": "Weil wir keine Benutzerkonten führen, können wir dich nicht identifizieren – und damit auch niemandem sonst Auskunft über dich geben. Alles, was wir zu deinen gemerkten Touren gespeichert haben, siehst du in deiner Favoritenansicht, und du kannst es dort selbst wieder löschen. Wenn du darüber hinaus eine Frage zu deinen Daten hast, schreib uns an <0>kontakt [at] bahn-zum-berg.at</0>."
   },
   "start": {
     "wartungsmodus": "Zuugle befindet sich gerade im Wartungsmodus. Bitte schau später wieder vorbei.",
@@ -349,15 +395,13 @@
     "kartenansicht_entfernen": "Karte schließen"
   },
   "cookie_consent": {
-    "text": "Diese Seite verwendet ausschließlich technisch notwendige Cookies. Für Fahrplanauskünfte werden Anfragedaten an Server in der EU übermittelt, aber nicht gespeichert.",
-    "accept": "Verstanden"
+    "text": "Wir gehen sorgsam mit deinen Daten um. Diese Seite verwendet technisch notwendige Cookies (z. B. Spracheinstellung) und optionale Komfort-Cookies, die dein Erlebnis verbessern — etwa damit du bei der Fahrplanabfrage nicht jedes Mal deinen Abfahrtsort neu eingeben musst.",
+    "accept_essential": "Nur technische Cookies",
+    "accept_all": "Alle akzeptieren"
   },
   "lists": {
     "default_list_name": "Meine Favoriten",
-    "list_created": "Liste erstellt",
-    "tour_added": "Tour hinzugefügt",
-    "tour_removed": "Tour entfernt",
     "list_empty": "Diese Liste ist noch leer",
-    "list_not_found": "Liste nicht gefunden"
+    "list_empty_hint": "Tippe bei einer Tour auf das Herz-Symbol, um sie hier zu speichern."
   }
 }

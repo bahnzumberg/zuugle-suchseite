@@ -12,6 +12,7 @@ import { t } from "i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import { assetUrl } from "../../utils/assetUrl";
+import FavoriteButton from "../Favorites/FavoriteButton";
 
 function PopupCard({
   tour,
@@ -47,7 +48,7 @@ function PopupCard({
             style={{
               display: "flex",
               gap: "10px",
-              paddingBottom: "5px",
+              paddingBottom: "12px",
               alignItems: "center",
             }}
           >
@@ -56,10 +57,28 @@ function PopupCard({
               alt={tour.provider_name}
               style={{ borderRadius: "100%", height: "13px", width: "13px" }}
             />
-            <Typography variant="grayP">{tour.provider_name}</Typography>
+            <Typography variant="grayP" style={{ color: "#000" }}>
+              {tour.provider_name}
+            </Typography>
           </div>
-          <div className="mt-1" style={{ marginBottom: "40px", width: "100%" }}>
-            <Typography style={{ whiteSpace: "break-space", fontSize: "10px" }}>
+          <div
+            className="mt-1"
+            style={{
+              marginBottom: "40px",
+              width: "100%",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "4px",
+            }}
+          >
+            <Typography
+              style={{
+                whiteSpace: "break-space",
+                fontSize: "10px",
+                minWidth: 0,
+                margin: "4px 8px 0 0",
+              }}
+            >
               <a
                 href={getTourLink(tour, city, externalLinks)}
                 target="_blank"
@@ -71,6 +90,7 @@ function PopupCard({
                 {tour.title}
               </a>
             </Typography>
+            <FavoriteButton tourId={tour.id} variant="icon" size="compact" />
           </div>
           <Box
             style={{

@@ -11,6 +11,9 @@
   --bzb-veilchenlila: #bcb8dc;
   --bzb-wolkenblau: #aab5d7;
   --bzb-lindgruen: #ccd8a1;
+  --bzb-warnorange: #e65100;
+  --bzb-warnorange-dark: #bf360c;
+  --bzb-warnorange-light: #fff3e0;
 }
 
 /* Source Sans 3 – Standardschriftart (DSGVO-konform, lokal gespeichert) */
@@ -1005,14 +1008,6 @@ ul.about-bullets {
   }
 }
 
-.languageIcon {
-  width: 49px;
-  height: 49px;
-  background: rgba(37, 73, 128, 0.2);
-  border-radius: 35px;
-  cursor: pointer;
-}
-
 .centerMe {
   display: flex;
   align-items: center;
@@ -1033,19 +1028,6 @@ ul.about-bullets {
   flex-direction: column;
 }
 
-.languageMenu {
-  padding-top: 10px;
-  padding-left: 30px;
-  padding-right: 5px;
-  padding-bottom: 10px;
-  background: #ffffff;
-  border-radius: 20px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: row;
-}
-
 .closeIcon {
   background: #ebebeb;
   width: 28px;
@@ -1056,30 +1038,6 @@ ul.about-bullets {
   display: flex;
   cursor: pointer;
   margin-left: 7px;
-}
-
-.languageItem {
-  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 34px;
-  color: #8b8b8b;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.languageItem:hover {
-  color: var(--bzb-akelei);
-}
-
-.languageOptions {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  display: flex;
-  width: 100%;
-  margin-right: 20px;
 }
 
 .colLeft {

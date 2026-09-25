@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -10,6 +10,8 @@ import {
 import "./App.css";
 import StartSkeleton from "./views/Start/StartSkeleton";
 import { useGetCitiesQuery } from "./features/apiSlice";
+import { useAppDispatch } from "./hooks";
+import { syncDialogOpened } from "./features/favoritesSlice";
 
 // Lazy load the themed app shell (includes MUI ThemeProvider)
 const ThemedApp = lazy(() => import("./ThemedApp"));
@@ -31,7 +33,7 @@ function SimpleLoader() {
           width: "40px",
           height: "40px",
           border: "3px solid #f3f3f3",
-          borderTop: "3px solid #4A7C59",
+          borderTop: "3px solid var(--bzb-bahnblau)",
           borderRadius: "50%",
           animation: "spin 1s linear infinite",
         }}
@@ -89,6 +91,23 @@ function CityOrSearchRedirect() {
 }
 
 /**
+ * Handles /sync/:code — the target of the QR code in the favorites sync
+ * dialog. Opens that dialog with the code filled in and hands over to the
+ * search page; the merge itself still has to be confirmed there, so scanning
+ * a code never silently changes someone's favorites.
+ */
+function SyncCodeRoute() {
+  const { code } = useParams<{ code: string }>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(syncDialogOpened(code ?? null));
+  }, [dispatch, code]);
+
+  return <Navigate to="/search" replace />;
+}
+
+/**
  * Handles /search/:searchTerm — redirects to /search?search=<searchTerm>,
  * preserving any other query params.
  */
@@ -142,6 +161,7 @@ function App() {
           path="/privacy"
           element={<Navigate to="/search?legal=privacy" replace />}
         />
+        <Route path="/sync/:code" element={<SyncCodeRoute />} />
         <Route path="/search/:searchTerm" element={<SearchTermRedirect />} />
         <Route
           path="/search"

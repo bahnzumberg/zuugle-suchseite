@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query/react";
 import App from "./App";
 import i18n from "./translations/i18n";
 import { I18nextProvider } from "react-i18next";
@@ -10,6 +11,15 @@ import { getBackgroundImageUrl, getTLD } from "./utils/globals";
 import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
+import favoritesReducer, {
+  FavoritesState,
+  initialFavoritesState,
+} from "./features/favoritesSlice";
+import {
+  FAVORITES_LIST_KEY_STORAGE,
+  FAVORITE_TOUR_IDS_STORAGE,
+  parseFavoriteTourIds,
+} from "./utils/favoritesStorage";
 import { api, isValidSearchType } from "./features/apiSlice";
 import { Head } from "@unhead/react";
 import { createHead, UnheadProvider } from "@unhead/react/client";
@@ -80,6 +90,19 @@ function getPreloadedSearchState() {
   };
 }
 
+function getPreloadedFavoritesState(): FavoritesState {
+  // Left behind by the local-first model this replaced; the server now says
+  // when a list was last changed.
+  localStorage.removeItem("favoritesLastSyncedAt");
+  return {
+    ...initialFavoritesState,
+    listKey: localStorage.getItem(FAVORITES_LIST_KEY_STORAGE),
+    tourIds: parseFavoriteTourIds(
+      localStorage.getItem(FAVORITE_TOUR_IDS_STORAGE),
+    ),
+  };
+}
+
 // Automatically adds the thunk middleware and the Redux DevTools extension
 export const store = configureStore({
   // Automatically calls `combineReducers`
@@ -88,8 +111,12 @@ export const store = configureStore({
     [api.reducerPath]: api.reducer,
     search: searchReducer,
     filter: filterReducer,
+    favorites: favoritesReducer,
   },
-  preloadedState: { search: getPreloadedSearchState() },
+  preloadedState: {
+    search: getPreloadedSearchState(),
+    favorites: getPreloadedFavoritesState(),
+  },
   // Add the RTK Query API middleware
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
@@ -100,6 +127,9 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
 
+// Enables the refetchOnFocus/refetchOnReconnect query options.
+setupListeners(store.dispatch);
+
 // TODO: store.subscribe is a rough tool, use middleware instead
 store.subscribe(() => {
   const newCity = store.getState().search.city;
@@ -107,6 +137,33 @@ store.subscribe(() => {
     localStorage.setItem("city", JSON.stringify(newCity));
   } else {
     localStorage.removeItem("city");
+  }
+});
+
+store.subscribe(() => {
+  const listKey = store.getState().favorites.listKey;
+  if (listKey !== null) {
+    localStorage.setItem(FAVORITES_LIST_KEY_STORAGE, listKey);
+  } else {
+    localStorage.removeItem(FAVORITES_LIST_KEY_STORAGE);
+  }
+});
+
+// Subscribers run on every action, and typing in the search box dispatches a
+// lot of them — only touch localStorage when the ids actually changed.
+let persistedTourIds = store.getState().favorites.tourIds;
+store.subscribe(() => {
+  const { tourIds } = store.getState().favorites;
+  if (tourIds === persistedTourIds) return;
+  persistedTourIds = tourIds;
+  // An empty list is stored as no key at all, so resetting favorites leaves
+  // the browser exactly as a first-time visitor finds it. Both forms read back
+  // as "no favorites" (see parseFavoriteTourIds), including in the other tab's
+  // storage listener.
+  if (tourIds.length === 0) {
+    localStorage.removeItem(FAVORITE_TOUR_IDS_STORAGE);
+  } else {
+    localStorage.setItem(FAVORITE_TOUR_IDS_STORAGE, JSON.stringify(tourIds));
   }
 });
 

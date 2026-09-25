@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import DomainMenu from "../components/DomainMenu";
-import LanguageMenu from "../components/LanguageMenu";
 import MapBtn from "../components/Search/MapBtn";
 import TourCardContainer from "../components/TourCardContainer";
 import Search from "../components/Search/Search";
@@ -14,6 +13,8 @@ import TotalToursHeader from "../components/TotalToursHeader";
 import BackgroundImageLoader from "./Start/BackgroundImageLoader";
 import SearchParamSync from "../components/SearchParamSync";
 import { useSearchTours } from "../hooks/useSearchTours";
+import FavoritesToggle from "../components/Favorites/FavoritesToggle";
+import FavoritesEmptyState from "../components/Favorites/FavoritesEmptyState";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -34,6 +35,7 @@ export default function StartNew() {
     totals,
     isTotalsLoading,
     showMap,
+    favoritesEmptyVariant,
   } = useSearchTours();
 
   const tld = getTLD();
@@ -103,7 +105,7 @@ export default function StartNew() {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <DomainMenu />
               </Box>
-              <LanguageMenu />
+              <FavoritesToggle />
             </Box>
           </Box>
           {!!allCities && allCities.length > 0 && (
@@ -128,8 +130,10 @@ export default function StartNew() {
         <Box ref={heroRef}>
           <BackgroundImageLoader sx={{ position: "relative" }} tld={tld}>
             <Box className="rowing">
-              <DomainMenu />
-              <LanguageMenu />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <DomainMenu />
+              </Box>
+              <FavoritesToggle />
             </Box>
             <Box className="header-text">
               <Typography variant="h1">{getHeroTitle()}</Typography>
@@ -193,6 +197,9 @@ export default function StartNew() {
               fetchMore={fetchMore}
             />
           </Box>
+        )}
+        {favoritesEmptyVariant && tours.length === 0 && (
+          <FavoritesEmptyState variant={favoritesEmptyVariant} />
         )}
         <MapBtn />
       </div>
