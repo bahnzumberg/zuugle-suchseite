@@ -37,7 +37,7 @@ function getTodayString(): string {
 const UNDEFINED_TABLE = "42P01";
 
 /**
- * Checks if newest_weather_daily has the required 4 forecast days and full 32,500 rows.
+ * Checks if overlay_weather_daily has the required 4 forecast days and full 32,500 rows.
  *
  * Fails fast on a missing relation; any other query error is treated as
  * "not complete yet" so the wait loop below just retries on its next interval.
@@ -52,7 +52,7 @@ async function isTableFullyLoaded(
     minDate: string;
     maxDate: string;
 }> {
-    let query = knex("newest_weather_daily").select(
+    let query = knex("overlay_weather_daily").select(
         knex.raw("COUNT(DISTINCT weather_date::text) as day_count"),
         knex.raw("COUNT(*) as total_rows"),
         knex.raw("MIN(weather_date::text) as min_date"),
@@ -70,7 +70,7 @@ async function isTableFullyLoaded(
         if ((err as { code?: string }).code === UNDEFINED_TABLE) {
             throw err;
         }
-        logger.error("[WeatherOverlay] Error querying newest_weather_daily status:", err);
+        logger.error("[WeatherOverlay] Error querying overlay_weather_daily status:", err);
         return { isComplete: false, dayCount: 0, totalRows: 0, minDate: "", maxDate: "" };
     }
     const row = result[0] || {};
@@ -88,7 +88,7 @@ async function isTableFullyLoaded(
 /**
  * Main job function to synchronize weather overlays:
  * 1. Immediate cleanup of expired overlays (< today)
- * 2. If wait=true, polls newest_weather_daily until complete
+ * 2. If wait=true, polls overlay_weather_daily until complete
  * 3. Bilinear interpolation & WebP generation
  * 4. Writes weather_metadata.json
  */
@@ -123,7 +123,7 @@ export async function syncWeatherOverlays(
         while (!initialCheck.isComplete) {
             if (Date.now() - startTime >= timeoutMs) {
                 logger.error(
-                    `[WeatherOverlay] Timeout reached (${Math.round(timeoutMs / 60000)}m). Table newest_weather_daily was not fully populated.`,
+                    `[WeatherOverlay] Timeout reached (${Math.round(timeoutMs / 60000)}m). Table overlay_weather_daily was not fully populated.`,
                 );
                 return false;
             }
@@ -138,14 +138,14 @@ export async function syncWeatherOverlays(
 
     if (!initialCheck.isComplete && !wait) {
         logger.warn(
-            `[WeatherOverlay] Table newest_weather_daily has incomplete data (days: ${initialCheck.dayCount}, rows: ${initialCheck.totalRows}, minDate: ${initialCheck.minDate}). Proceeding with available data anyway.`,
+            `[WeatherOverlay] Table overlay_weather_daily has incomplete data (days: ${initialCheck.dayCount}, rows: ${initialCheck.totalRows}, minDate: ${initialCheck.minDate}). Proceeding with available data anyway.`,
         );
     }
 
     // --- STEP 3: DATEN ABFRAGEN ---
-    logger.info(`[WeatherOverlay] Fetching weather rows from newest_weather_daily...`);
+    logger.info(`[WeatherOverlay] Fetching weather rows from overlay_weather_daily...`);
 
-    let daysQuery = knex("newest_weather_daily")
+    let daysQuery = knex("overlay_weather_daily")
         .select(knex.raw("DISTINCT weather_date::text as weather_date"))
         .orderBy(knex.raw("weather_date::text"), "asc")
         .limit(4);
@@ -168,7 +168,7 @@ export async function syncWeatherOverlays(
         `[WeatherOverlay] Generating overlays for ${availableDates.length} date(s): ${availableDates.join(", ")}`,
     );
 
-    const fullRows: WeatherRow[] = await knex("newest_weather_daily")
+    const fullRows: WeatherRow[] = await knex("overlay_weather_daily")
         .select(
             knex.raw("weather_date::text as weather_date"),
             knex.raw("lat::float as lat"),
