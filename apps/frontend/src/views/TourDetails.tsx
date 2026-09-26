@@ -708,8 +708,6 @@ export default function DetailReworked() {
                 <Box
                   sx={{
                     flex: { md: "1 1 50%" },
-                    minHeight: { xs: "350px", md: "unset" },
-                    height: { md: "calc(100vh - 80px)" },
                     order: { xs: 2, md: 2 },
                     display: "flex",
                     flexDirection: "column",
@@ -718,13 +716,14 @@ export default function DetailReworked() {
                     position: { md: "sticky" },
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
+                    width: { xs: "100%", md: "auto" },
                   }}
                 >
                   {track && (
                     <Box
                       sx={{
-                        flex: { md: 1 },
-                        height: { xs: "350px", md: "auto" },
+                        width: "100%",
+                        aspectRatio: "2 / 3",
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",

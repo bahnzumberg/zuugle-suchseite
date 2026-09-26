@@ -186,188 +186,74 @@ export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
 }
 
 /**
- * Geographic boundary loaded from weather-outline.json, covering the Alpine arc
- * and surrounding regions.
+ * Computes a data-driven presence mask from the grid itself.
+ * Cells with valid data get weight 1.0, cells without data get 0.0.
+ * A separable Gaussian blur is then applied so that edges fade out
+ * smoothly instead of appearing blocky.
+ *
+ * @param grid - The weather score grid (NaN = no data)
+ * @param blurRadius - Blur kernel radius in grid cells (default 3 ≈ 30 km)
  */
-export const DEFAULT_OUTLINE_POLYGON: [number, number][] = [
-    [46.22925, 15.27237],
-    [46.08419, 14.17168],
-    [45.81157, 13.76037],
-    [45.71865, 13.64227],
-    [45.6772806, 13.4255155],
-    [45.6937215, 13.2019405],
-    [45.7142659, 12.760674],
-    [45.7163199, 12.4488456],
-    [45.7430153, 12.2546884],
-    [45.73686, 12.06436],
-    [45.6896118, 11.8546067],
-    [45.6608349, 11.6986926],
-    [45.55806, 11.58302],
-    [45.39411, 11.37703],
-    [45.36686, 11.07628],
-    [45.38784, 10.96092],
-    [45.41195, 10.67322],
-    [45.44279, 10.35805],
-    [45.4259426, 10.2212549],
-    [45.4352528, 10.1151211],
-    [45.4095674, 10.0031865],
-    [45.317172, 9.841336],
-    [45.1604668, 9.5075194],
-    [44.8959425, 9.0927776],
-    [44.6949493, 9.052315],
-    [44.3342918, 8.9106959],
-    [44.17236, 8.78082],
-    [43.6639, 8.456723],
-    [43.43298, 7.723386],
-    [42.70464, 6.660459],
-    [42.69859, 5.96008],
-    [43.00264, 4.842221],
-    [43.9204199, 4.4294614],
-    [44.4066018, 4.439577],
-    [44.7811749, 4.5508492],
-    [45.1247917, 4.7126997],
-    [45.4095674, 5.0060536],
-    [45.671713, 5.3095232],
-    [46.38839, 5.824127],
-    [46.5830642, 5.8658506],
-    [46.8466164, 6.0681678],
-    [47.2875849, 6.5233722],
-    [47.7453178, 7.2618149],
-    [47.9150911, 9.1635578],
-    [48.0369841, 10.4583614],
-    [48.3539042, 11.0653006],
-    [48.6220802, 12.4207982],
-    [49.0879789, 13.9887245],
-    [49.2136893, 14.9497116],
-    [49.1012291, 15.8702478],
-    [48.9752306, 16.3153248],
-    [48.9486671, 16.7098471],
-    [48.595329, 17.2358611],
-    [48.1315935, 17.2763237],
-    [47.8540393, 17.2763237],
-    [47.7317146, 17.2560924],
-    [47.5005, 16.76239],
-    [47.33138, 16.52756],
-    [46.8050912, 16.3153366],
-    [46.42011, 15.64419],
-    [46.3827, 15.6023],
-    [46.2606, 15.43922],
-    [46.24374, 15.36335],
-    [46.22925, 15.27237],
-];
+export function computeDataPresenceMask(grid: Float32Array, blurRadius: number = 3): Float32Array {
+    const { numLats, numLons } = GRID_CONFIG;
+    const size = numLats * numLons;
 
-/** Backwards-compatible alias for existing callers. */
-export const ALPS_POLYGON = DEFAULT_OUTLINE_POLYGON;
-
-/**
- * Loads outline polygon from weather-outline.json if available on disk,
- * otherwise falls back to DEFAULT_OUTLINE_POLYGON.
- */
-export function loadOutlinePolygon(customPath?: string): [number, number][] {
-    const candidatePaths = [
-        customPath,
-        path.join(__dirname, "../../public/weather/weather-outline.json"),
-        path.join(__dirname, "../../../../assets/public/weather/weather-outline.json"),
-        path.join(__dirname, "../../../assets/public/weather/weather-outline.json"),
-    ].filter(Boolean) as string[];
-
-    for (const p of candidatePaths) {
-        if (fs.existsSync(p)) {
-            try {
-                const raw = fs.readFileSync(p, "utf-8");
-                const geojson = JSON.parse(raw);
-                const feature =
-                    geojson.type === "FeatureCollection" ? geojson.features?.[0] : geojson;
-                const ring = feature?.geometry?.coordinates?.[0];
-                if (Array.isArray(ring) && ring.length >= 3) {
-                    return ring.map(([lon, lat]: [number, number]) => [lat, lon]);
-                }
-            } catch (err) {
-                logger.warn(`[WeatherOverlay] Failed to parse outline from ${p}:`, err);
-            }
-        }
+    // Step 1: binary presence (1 where data exists, 0 where NaN)
+    const presence = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+        presence[i] = isNaN(grid[i]) ? 0.0 : 1.0;
     }
-    return DEFAULT_OUTLINE_POLYGON;
-}
 
-function distanceToSegment(
-    lat: number,
-    lon: number,
-    aLat: number,
-    aLon: number,
-    bLat: number,
-    bLon: number,
-): number {
-    const dLat = bLat - aLat;
-    const dLon = bLon - aLon;
-    const lenSq = dLat * dLat + dLon * dLon;
-    if (lenSq === 0) {
-        return Math.hypot(lat - aLat, lon - aLon);
+    // Step 2: build 1D Gaussian kernel
+    const kernelSize = blurRadius * 2 + 1;
+    const kernel = new Float32Array(kernelSize);
+    const sigma = blurRadius / 2;
+    let kernelSum = 0;
+    for (let k = 0; k < kernelSize; k++) {
+        const x = k - blurRadius;
+        kernel[k] = Math.exp(-(x * x) / (2 * sigma * sigma));
+        kernelSum += kernel[k];
     }
-    const t = Math.max(0, Math.min(1, ((lat - aLat) * dLat + (lon - aLon) * dLon) / lenSq));
-    const projLat = aLat + t * dLat;
-    const projLon = aLon + t * dLon;
-    return Math.hypot(lat - projLat, lon - projLon);
-}
-
-function pointInPolygon(lat: number, lon: number, poly: [number, number][]): boolean {
-    let inside = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        const xi = poly[i][0],
-            yi = poly[i][1];
-        const xj = poly[j][0],
-            yj = poly[j][1];
-        const intersect = yi > lon !== yj > lon && lat < ((xj - xi) * (lon - yi)) / (yj - yi) + xi;
-        if (intersect) inside = !inside;
+    // normalise
+    for (let k = 0; k < kernelSize; k++) {
+        kernel[k] /= kernelSum;
     }
-    return inside;
-}
 
-/**
- * Computes a grid containing mask weights (0.0 to 1.0) for the outline polygon,
- * strictly masking out anything outside the GeoJSON outline, with a smooth ~15 km
- * feathering falloff inside the border.
- */
-export function computeAlpsMaskGrid(
-    outlinePoly: [number, number][] = loadOutlinePolygon(),
-): Float32Array {
-    const { numLats, numLons, latMax, lonMin, deltaLat, deltaLon } = GRID_CONFIG;
-    const mask = new Float32Array(numLats * numLons);
-    const fadeDist = 0.15; // ~15 km feathering distance inside the boundary
+    // Step 3: separable 2-pass blur (horizontal then vertical)
+    const tmp = new Float32Array(size);
 
+    // horizontal pass
     for (let r = 0; r < numLats; r++) {
-        const lat = latMax - r * deltaLat;
+        const rowOff = r * numLons;
         for (let c = 0; c < numLons; c++) {
-            const lon = lonMin + c * deltaLon;
-            const inside = pointInPolygon(lat, lon, outlinePoly);
-
-            if (!inside) {
-                mask[r * numLons + c] = 0.0;
-                continue;
+            let sum = 0;
+            for (let k = 0; k < kernelSize; k++) {
+                const cc = Math.min(numLons - 1, Math.max(0, c + k - blurRadius));
+                sum += kernel[k] * presence[rowOff + cc];
             }
-
-            let minDist = Infinity;
-            for (let i = 0; i < outlinePoly.length - 1; i++) {
-                const p1 = outlinePoly[i];
-                const p2 = outlinePoly[i + 1];
-                const d = distanceToSegment(lat, lon, p1[0], p1[1], p2[0], p2[1]);
-                if (d < minDist) minDist = d;
-            }
-
-            if (minDist >= fadeDist) {
-                mask[r * numLons + c] = 1.0;
-            } else {
-                const t = minDist / fadeDist;
-                mask[r * numLons + c] = t * t * (3 - 2 * t); // smoothstep inward
-            }
+            tmp[rowOff + c] = sum;
         }
     }
-    return mask;
+
+    // vertical pass
+    const result = new Float32Array(size);
+    for (let c = 0; c < numLons; c++) {
+        for (let r = 0; r < numLats; r++) {
+            let sum = 0;
+            for (let k = 0; k < kernelSize; k++) {
+                const rr = Math.min(numLats - 1, Math.max(0, r + k - blurRadius));
+                sum += kernel[k] * tmp[rr * numLons + c];
+            }
+            result[r * numLons + c] = sum;
+        }
+    }
+
+    return result;
 }
 
 /**
- * Generates an RGBA buffer (2048 x 1400 x 4) by bilinearly interpolating the 65 x 125 grid.
- * If alpsMask is provided, areas outside the Alpine arc are smoothly feathered to transparent.
+ * Generates an RGBA buffer (2048 x 1544 x 4) by bilinearly interpolating the grid.
+ * If presenceMask is provided, areas without data are smoothly feathered to transparent.
  */
 export function interpolateGridToRgba(grid: Float32Array, alpsMask?: Float32Array): Buffer {
     const { width, height, numLats, numLons } = GRID_CONFIG;

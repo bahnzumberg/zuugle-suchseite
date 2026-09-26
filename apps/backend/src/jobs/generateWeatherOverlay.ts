@@ -6,7 +6,7 @@ import { PUBLIC_DIR } from "../utils/assetPaths";
 import {
     buildGridFromRows,
     interpolateGridToRgba,
-    computeAlpsMaskGrid,
+    computeDataPresenceMask,
     saveRgbaAsWebp,
     writeWeatherFile,
     cleanupOldWeatherOverlays,
@@ -208,7 +208,6 @@ async function generateOverlaysFromRows(
 
     const weatherDaysMetadata: WeatherDay[] = [];
     const t0 = Date.now();
-    const alpsMask = computeAlpsMaskGrid();
 
     for (const dateStr of availableDates) {
         const dateRows = rowsByDate.get(dateStr) || [];
@@ -218,7 +217,8 @@ async function generateOverlaysFromRows(
         logger.info(`[WeatherOverlay] Processing ${dateStr} (${dateRows.length} data points)...`);
 
         const grid = buildGridFromRows(dateRows);
-        const rgba = interpolateGridToRgba(grid, alpsMask);
+        const presenceMask = computeDataPresenceMask(grid);
+        const rgba = interpolateGridToRgba(grid, presenceMask);
         await saveRgbaAsWebp(rgba, targetPath);
 
         const stats = fs.statSync(targetPath);

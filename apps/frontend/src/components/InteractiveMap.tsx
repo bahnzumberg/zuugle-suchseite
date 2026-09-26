@@ -76,6 +76,16 @@ export default function InteractiveMap({
     if (map && poly) {
       map.fitBounds(poly.getBounds());
     }
+  }, [map, poly]);
+
+  // Handle container resizing (e.g. aspect ratio layout calculation)
+  useEffect(() => {
+    if (!map || !containerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, [map]);
 
   // Load weather metadata
@@ -183,7 +193,11 @@ export default function InteractiveMap({
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      }}
     >
       <MapContainer
         ref={setMap}
