@@ -194,6 +194,17 @@ export const WeatherOverlayControl: React.FC<WeatherOverlayControlProps> = ({
 
   const isZoomedOut = currentZoom <= 12;
 
+  // Zeitstempel der Erstellung in CET/CEST (Europe/Vienna) formatieren
+  const formattedGeneratedAt = metadata?.generated_at
+    ? new Date(metadata.generated_at).toLocaleString("de-AT", {
+        timeZone: "Europe/Vienna",
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
   return (
     <Box
       sx={{
@@ -234,6 +245,16 @@ export const WeatherOverlayControl: React.FC<WeatherOverlayControlProps> = ({
           ))}
         </ButtonGroup>
       </Box>
+
+      {/* Aktualitäts-Hinweis in CET/CEST wenn ein Tag ausgewählt ist */}
+      {selectedDate !== null && formattedGeneratedAt && (
+        <Typography
+          variant="caption"
+          sx={{ fontSize: "0.65rem", color: "text.secondary", opacity: 0.85 }}
+        >
+          Stand: {formattedGeneratedAt} Uhr
+        </Typography>
+      )}
 
       {/* Hinweis wenn aktiv, aber Zoom zu tief (Nahansicht) */}
       {selectedDate !== null && !isZoomedOut && (

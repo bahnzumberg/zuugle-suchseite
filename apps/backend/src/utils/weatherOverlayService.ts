@@ -15,27 +15,25 @@ export const COLOR_STOPS: [number, string][] = [
 ];
 
 export const GRID_CONFIG = {
-    latMin: 43.7,
+    latMin: 42.9,
     latMax: 50.1,
     lonMin: 4.8,
     lonMax: 17.2,
     deltaLat: 0.1,
     deltaLon: 0.1,
-    numLats: 65, // (50.1 - 43.7) / 0.1 + 1 = 65
+    numLats: 73, // (50.1 - 42.9) / 0.1 + 1 = 73
     numLons: 125, // (17.2 - 4.8) / 0.1 + 1 = 125
-    boundsLatMin: 43.65,
+    boundsLatMin: 42.85,
     boundsLatMax: 50.15,
     boundsLonMin: 4.75,
     boundsLonMax: 17.25,
     width: 2048,
-    height: 1400,
+    height: 1600,
     alpha: 200, // ~78% opacity baked into WebP
 } as const;
 
 export interface WeatherDay {
     date: string; // YYYY-MM-DD
-    weekday: string; // Mo, Di, Mi...
-    label: string; // "Heute (Mo)", "Morgen (Di)", etc.
     file: string; // "weather_overlay_YYYY-MM-DD.webp"
 }
 
@@ -194,7 +192,8 @@ export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
  * covering all Alpine valleys, foothills, and approach areas.
  */
 export const ALPS_POLYGON: [number, number][] = [
-    [43.5, 6.2], // South of Maritime Alps / Verdon
+    [43.15, 5.2], // South of Marseille / Calanques
+    [43.4, 4.9], // West of Marseille / Étang de Berre / Salon
     [44.0, 5.14], // Digne / Sisteron approach (+20 km W)
     [45.0, 4.74], // Vercors / Valence outskirts (+20 km W)
     [45.98, 4.94], // Chartreuse / Chambéry / Lyon east (+20 km N+W)
@@ -219,7 +218,11 @@ export const ALPS_POLYGON: [number, number][] = [
     [45.3, 9.3], // Bergamo / Como / Milan north (south — unchanged)
     [44.8, 7.5], // Piedmont / Turin outskirts / Po valley west (south — unchanged)
     [44.0, 7.6], // Ligurian Alps / Cuneo / Imperia (south — unchanged)
-    [43.5, 6.2], // Closing polygon
+    [43.7, 7.5], // Nice / Monaco
+    [43.5, 6.9], // Cannes / Esterel
+    [43.1, 6.5], // Massif des Maures / Saint-Tropez
+    [42.95, 6.0], // South of Toulon / Hyères / Cap Sicié
+    [43.15, 5.2], // Closing polygon (Marseille south)
 ];
 
 function distanceToSegment(
@@ -425,36 +428,6 @@ export async function saveRgbaAsWebp(rgbaBuffer: Buffer, targetFilePath: string)
         .toBuffer();
 
     await writeWeatherFile(targetFilePath, webp);
-}
-
-/**
- * German weekday names and labels for the UI button bar.
- */
-export function formatDayLabel(
-    dateStr: string,
-    todayStr: string,
-): { weekday: string; label: string } {
-    const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const dateObj = new Date(Date.UTC(year, month - 1, day));
-    const weekday = weekdays[dateObj.getUTCDay()];
-
-    // Against the date, not the position in the list: when the loader is late
-    // the first available forecast is tomorrow's, and calling that one "Heute"
-    // shifts every label in the button bar by a day.
-    const [ty, tm, td] = todayStr.split("-").map(Number);
-    const daysFromToday = Math.round((dateObj.getTime() - Date.UTC(ty, tm - 1, td)) / 86_400_000);
-
-    if (daysFromToday === 0) {
-        return { weekday, label: `Heute (${weekday})` };
-    }
-    if (daysFromToday === 1) {
-        return { weekday, label: `Morgen (${weekday})` };
-    }
-
-    const dayPad = String(day).padStart(2, "0");
-    const monthPad = String(month).padStart(2, "0");
-    return { weekday, label: `${weekday}, ${dayPad}.${monthPad}.` };
 }
 
 /**

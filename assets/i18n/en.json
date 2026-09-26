@@ -189,7 +189,7 @@
     "oeffi_bergtouren_fuer_cityname": "Hikes reachable from {{city.label}}",
     "alle_bergtouren_von_cityname": "All hikes reachable via public transport from {{city.label}}",
     "tour": "Tour",
-    "areaSearchTrigger": "Find tours that visit this area.",
+    "areaSearchTrigger": "Search tours in this area",
     "areaSearchTooltip": "Only tours that visit the marked area are shown.",
     "top_tour": "Top tour!",
     "gebirgsgruppe": "Mountain range",
@@ -402,5 +402,14 @@
     "default_list_name": "My Favourites",
     "list_empty": "This list is empty",
     "list_empty_hint": "Tap the heart icon on a tour to save it here."
+  },
+  "weather": {
+    "button": "Hiking weather",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "zoom_hint": "Weather only visible up to zoom 12",
+    "legend_dangerous": "Dangerous",
+    "legend_excellent": "Excellent",
+    "as_of": "As of: {{date}}"
   }
 }

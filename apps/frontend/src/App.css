@@ -914,17 +914,60 @@ ul.about-bullets {
   margin: 0;
 }
 
-.leaflet-control {
-  z-index: 0 !important;
+.map-fullscreen-container {
+  isolation: isolate;
+  z-index: 0;
 }
 
-.leaflet-pane {
-  z-index: 0 !important;
+/* Explicit Leaflet pane layering: tilePane (200) < weatherPane (250) < overlayPane (400) < markerPane (600) */
+.leaflet-pane.leaflet-tile-pane {
+  z-index: 200 !important;
+}
+
+.leaflet-pane.leaflet-weatherPane-pane {
+  z-index: 250 !important;
+  pointer-events: none;
+}
+
+.leaflet-pane.leaflet-overlay-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-pane.leaflet-shadow-pane {
+  z-index: 500 !important;
+}
+
+.leaflet-pane.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-pane.leaflet-tooltip-pane {
+  z-index: 650 !important;
+}
+
+.leaflet-pane.leaflet-popup-pane {
+  z-index: 700 !important;
+}
+
+.leaflet-control {
+  z-index: 800 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 0 !important;
+  z-index: 800 !important;
+}
+
+.weather-control-wrapper {
+  z-index: 1000 !important;
+  pointer-events: auto;
+}
+
+/* Weather overlay active: basemap tiles in grayscale */
+.weather-active-map .leaflet-tile-pane,
+.weather-active-map .leaflet-tile-pane img {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
 }
 
 .custom-marker-cluster {

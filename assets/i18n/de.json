@@ -189,7 +189,7 @@
     "oeffi_bergtouren_fuer_cityname": "Öffi-Bergtouren für {{city.label }}",
     "alle_bergtouren_von_cityname": "Alle Bergtouren, die du von {{city.label }} aus, mit Bahn und Bus, erreichen kannst.",
     "tour": "Tour",
-    "areaSearchTrigger": "Finde Touren die diese Gegend besuchen.",
+    "areaSearchTrigger": "Hier nach Touren suchen",
     "areaSearchTooltip": "Es werden nur Touren angezeigt, die die markierte Fläche betreten.",
     "top_tour": "Top Tour!",
     "gebirgsgruppe": "Gebirgsgruppe",
@@ -403,5 +403,14 @@
     "default_list_name": "Meine Favoriten",
     "list_empty": "Diese Liste ist noch leer",
     "list_empty_hint": "Tippe bei einer Tour auf das Herz-Symbol, um sie hier zu speichern."
+  },
+  "weather": {
+    "button": "Wanderwetter",
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "zoom_hint": "Wetter nur bis Zoom 12 sichtbar",
+    "legend_dangerous": "Gefährlich",
+    "legend_excellent": "Ausgezeichnet",
+    "as_of": "Stand: {{date}} Uhr"
   }
 }
