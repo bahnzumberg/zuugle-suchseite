@@ -251,6 +251,15 @@ export default function TourMapContainer({
     };
   }, []);
 
+  // Auto-activate weather overlay when ?weather=true is present in the URL
+  useEffect(() => {
+    if (!weatherMetadata?.days?.length) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("weather") === "true") {
+      setIsWeatherActive(true);
+    }
+  }, [weatherMetadata]);
+
   const toggleWeather = useCallback(() => {
     setIsWeatherActive((prev) => {
       const next = !prev;
