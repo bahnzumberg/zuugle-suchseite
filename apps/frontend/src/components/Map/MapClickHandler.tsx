@@ -15,6 +15,13 @@ export function MapClickHandler({
 }: ClickHandlerProps) {
   const map = useMapEvents({
     click(e) {
+      const target = e.originalEvent?.target as HTMLElement | null;
+      if (
+        target?.closest(".leaflet-control") ||
+        target?.closest(".weather-control-wrapper")
+      ) {
+        return;
+      }
       setClickPosition(e.latlng);
     },
   });

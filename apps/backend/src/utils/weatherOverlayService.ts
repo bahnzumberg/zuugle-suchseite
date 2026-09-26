@@ -15,27 +15,25 @@ export const COLOR_STOPS: [number, string][] = [
 ];
 
 export const GRID_CONFIG = {
-    latMin: 43.7,
-    latMax: 50.1,
-    lonMin: 4.8,
-    lonMax: 17.2,
+    latMin: 42.6,
+    latMax: 49.3,
+    lonMin: 4.4,
+    lonMax: 17.3,
     deltaLat: 0.1,
     deltaLon: 0.1,
-    numLats: 65, // (50.1 - 43.7) / 0.1 + 1 = 65
-    numLons: 125, // (17.2 - 4.8) / 0.1 + 1 = 125
-    boundsLatMin: 43.65,
-    boundsLatMax: 50.15,
-    boundsLonMin: 4.75,
-    boundsLonMax: 17.25,
+    numLats: 68, // (49.3 - 42.6) / 0.1 + 1 = 68
+    numLons: 130, // (17.3 - 4.4) / 0.1 + 1 = 130
+    boundsLatMin: 42.55,
+    boundsLatMax: 49.35,
+    boundsLonMin: 4.35,
+    boundsLonMax: 17.35,
     width: 2048,
-    height: 1400,
+    height: 1544,
     alpha: 200, // ~78% opacity baked into WebP
 } as const;
 
 export interface WeatherDay {
     date: string; // YYYY-MM-DD
-    weekday: string; // Mo, Di, Mi...
-    label: string; // "Heute (Mo)", "Morgen (Di)", etc.
     file: string; // "weather_overlay_YYYY-MM-DD.webp"
 }
 
@@ -43,8 +41,6 @@ export interface WeatherMetadata {
     version: "1.0";
     generated_at: string;
     bounds: [[number, number], [number, number]];
-    minZoom: number;
-    maxZoom: number;
     days: WeatherDay[];
     legend: { score: number; color: string; label: string }[];
 }
@@ -190,112 +186,74 @@ export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
 }
 
 /**
- * Geographic boundary of the Alpine arc including generous buffer (~40-60 km)
- * covering all Alpine valleys, foothills, and approach areas.
+ * Computes a data-driven presence mask from the grid itself.
+ * Cells with valid data get weight 1.0, cells without data get 0.0.
+ * A separable Gaussian blur is then applied so that edges fade out
+ * smoothly instead of appearing blocky.
+ *
+ * @param grid - The weather score grid (NaN = no data)
+ * @param blurRadius - Blur kernel radius in grid cells (default 3 ≈ 30 km)
  */
-export const ALPS_POLYGON: [number, number][] = [
-    [43.5, 6.2], // South of Maritime Alps / Verdon
-    [44.0, 5.14], // Digne / Sisteron approach (+20 km W)
-    [45.0, 4.74], // Vercors / Valence outskirts (+20 km W)
-    [45.98, 4.94], // Chartreuse / Chambéry / Lyon east (+20 km N+W)
-    [46.58, 5.54], // Jura foothills / Geneva (+20 km N+W)
-    [47.38, 6.34], // Swiss Jura (+20 km N+W)
-    [47.98, 7.24], // Basel / Black Forest south (+20 km N+W)
-    [48.28, 8.8], // Lake Constance north / Hegau (+20 km N)
-    [48.38, 10.2], // Allgäu foothills / Memmingen (+20 km N)
-    [48.48, 11.6], // Munich south / Starnberg / Rosenheim (+20 km N)
-    [48.48, 12.8], // Chiemgau / Traunstein / Salzburg foothills (+20 km N)
-    [48.58, 14.2], // Upper Austrian Prealps / Linz south (+20 km N)
-    [48.68, 15.2], // Mostviertel / Eisenwurzen / Wachau (+20 km N)
-    [48.68, 16.86], // Vienna Woods / Vienna / Danube basin (+20 km N+E)
-    [48.18, 17.06], // Leithagebirge / Neusiedler See (+20 km N+E)
-    [46.8, 16.66], // Styrian hill country / Koralpe east (+20 km E)
-    [46.4, 16.46], // Pohorje / Maribor / Drau (+20 km E)
-    [45.9, 15.5], // Lower Carniola / Sava valley (south — unchanged)
-    [45.6, 14.0], // Postojna / Notranjska / Karst (south — unchanged)
-    [45.7, 13.0], // Friuli lowlands / Udine south (south — unchanged)
-    [45.4, 11.8], // Veneto foothills / Vicenza / Bassano (south — unchanged)
-    [45.2, 10.5], // Lake Garda south / Verona / Brescia (south — unchanged)
-    [45.3, 9.3], // Bergamo / Como / Milan north (south — unchanged)
-    [44.8, 7.5], // Piedmont / Turin outskirts / Po valley west (south — unchanged)
-    [44.0, 7.6], // Ligurian Alps / Cuneo / Imperia (south — unchanged)
-    [43.5, 6.2], // Closing polygon
-];
+export function computeDataPresenceMask(grid: Float32Array, blurRadius: number = 3): Float32Array {
+    const { numLats, numLons } = GRID_CONFIG;
+    const size = numLats * numLons;
 
-function distanceToSegment(
-    lat: number,
-    lon: number,
-    aLat: number,
-    aLon: number,
-    bLat: number,
-    bLon: number,
-): number {
-    const dLat = bLat - aLat;
-    const dLon = bLon - aLon;
-    const lenSq = dLat * dLat + dLon * dLon;
-    if (lenSq === 0) {
-        return Math.hypot(lat - aLat, lon - aLon);
+    // Step 1: binary presence (1 where data exists, 0 where NaN)
+    const presence = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+        presence[i] = isNaN(grid[i]) ? 0.0 : 1.0;
     }
-    const t = Math.max(0, Math.min(1, ((lat - aLat) * dLat + (lon - aLon) * dLon) / lenSq));
-    const projLat = aLat + t * dLat;
-    const projLon = aLon + t * dLon;
-    return Math.hypot(lat - projLat, lon - projLon);
-}
 
-function pointInPolygon(lat: number, lon: number, poly: [number, number][]): boolean {
-    let inside = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        const xi = poly[i][0],
-            yi = poly[i][1];
-        const xj = poly[j][0],
-            yj = poly[j][1];
-        const intersect = yi > lon !== yj > lon && lat < ((xj - xi) * (lon - yi)) / (yj - yi) + xi;
-        if (intersect) inside = !inside;
+    // Step 2: build 1D Gaussian kernel
+    const kernelSize = blurRadius * 2 + 1;
+    const kernel = new Float32Array(kernelSize);
+    const sigma = blurRadius / 2;
+    let kernelSum = 0;
+    for (let k = 0; k < kernelSize; k++) {
+        const x = k - blurRadius;
+        kernel[k] = Math.exp(-(x * x) / (2 * sigma * sigma));
+        kernelSum += kernel[k];
     }
-    return inside;
-}
+    // normalise
+    for (let k = 0; k < kernelSize; k++) {
+        kernel[k] /= kernelSum;
+    }
 
-/**
- * Computes a 65 x 125 grid containing mask weights (0.0 to 1.0) for the Alpine arc,
- * with a smooth ~45 km feathering falloff at the borders.
- */
-export function computeAlpsMaskGrid(): Float32Array {
-    const { numLats, numLons, latMax, lonMin, deltaLat, deltaLon } = GRID_CONFIG;
-    const mask = new Float32Array(numLats * numLons);
-    const fadeDist = 0.45; // ~45 km feathering distance
+    // Step 3: separable 2-pass blur (horizontal then vertical)
+    const tmp = new Float32Array(size);
 
+    // horizontal pass
     for (let r = 0; r < numLats; r++) {
-        const lat = latMax - r * deltaLat;
+        const rowOff = r * numLons;
         for (let c = 0; c < numLons; c++) {
-            const lon = lonMin + c * deltaLon;
-            const inside = pointInPolygon(lat, lon, ALPS_POLYGON);
-
-            let minDist = Infinity;
-            for (let i = 0; i < ALPS_POLYGON.length - 1; i++) {
-                const p1 = ALPS_POLYGON[i];
-                const p2 = ALPS_POLYGON[i + 1];
-                const d = distanceToSegment(lat, lon, p1[0], p1[1], p2[0], p2[1]);
-                if (d < minDist) minDist = d;
+            let sum = 0;
+            for (let k = 0; k < kernelSize; k++) {
+                const cc = Math.min(numLons - 1, Math.max(0, c + k - blurRadius));
+                sum += kernel[k] * presence[rowOff + cc];
             }
-
-            const signedDist = inside ? minDist : -minDist;
-
-            if (signedDist >= 0) {
-                mask[r * numLons + c] = 1.0;
-            } else if (signedDist <= -fadeDist) {
-                mask[r * numLons + c] = 0.0;
-            } else {
-                const t = (signedDist + fadeDist) / fadeDist;
-                mask[r * numLons + c] = t * t * (3 - 2 * t); // smoothstep
-            }
+            tmp[rowOff + c] = sum;
         }
     }
-    return mask;
+
+    // vertical pass
+    const result = new Float32Array(size);
+    for (let c = 0; c < numLons; c++) {
+        for (let r = 0; r < numLats; r++) {
+            let sum = 0;
+            for (let k = 0; k < kernelSize; k++) {
+                const rr = Math.min(numLats - 1, Math.max(0, r + k - blurRadius));
+                sum += kernel[k] * tmp[rr * numLons + c];
+            }
+            result[r * numLons + c] = sum;
+        }
+    }
+
+    return result;
 }
 
 /**
- * Generates an RGBA buffer (2048 x 1400 x 4) by bilinearly interpolating the 65 x 125 grid.
- * If alpsMask is provided, areas outside the Alpine arc are smoothly feathered to transparent.
+ * Generates an RGBA buffer (2048 x 1544 x 4) by bilinearly interpolating the grid.
+ * If presenceMask is provided, areas without data are smoothly feathered to transparent.
  */
 export function interpolateGridToRgba(grid: Float32Array, alpsMask?: Float32Array): Buffer {
     const { width, height, numLats, numLons } = GRID_CONFIG;
@@ -425,36 +383,6 @@ export async function saveRgbaAsWebp(rgbaBuffer: Buffer, targetFilePath: string)
         .toBuffer();
 
     await writeWeatherFile(targetFilePath, webp);
-}
-
-/**
- * German weekday names and labels for the UI button bar.
- */
-export function formatDayLabel(
-    dateStr: string,
-    todayStr: string,
-): { weekday: string; label: string } {
-    const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const dateObj = new Date(Date.UTC(year, month - 1, day));
-    const weekday = weekdays[dateObj.getUTCDay()];
-
-    // Against the date, not the position in the list: when the loader is late
-    // the first available forecast is tomorrow's, and calling that one "Heute"
-    // shifts every label in the button bar by a day.
-    const [ty, tm, td] = todayStr.split("-").map(Number);
-    const daysFromToday = Math.round((dateObj.getTime() - Date.UTC(ty, tm - 1, td)) / 86_400_000);
-
-    if (daysFromToday === 0) {
-        return { weekday, label: `Heute (${weekday})` };
-    }
-    if (daysFromToday === 1) {
-        return { weekday, label: `Morgen (${weekday})` };
-    }
-
-    const dayPad = String(day).padStart(2, "0");
-    const monthPad = String(month).padStart(2, "0");
-    return { weekday, label: `${weekday}, ${dayPad}.${monthPad}.` };
 }
 
 /**

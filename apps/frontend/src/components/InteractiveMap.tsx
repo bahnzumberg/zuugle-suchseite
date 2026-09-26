@@ -5,10 +5,20 @@ import {
   Marker,
   Polyline,
   ZoomControl,
+  ImageOverlay,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
+import { fetchAsset } from "../utils/fetchAsset";
+import { WeatherMetadata } from "../models/weatherOverlay";
+import {
+  WeatherButtonAndDays,
+  WeatherLegend,
+  WeatherPane,
+  WeatherClassWatcher,
+  FullscreenControl,
+} from "./Map/WeatherControls";
 
 export interface InteractiveMapProps {
   gpxPositions: L.LatLngExpression[];
@@ -29,6 +39,14 @@ export default function InteractiveMap({
   const [poly, setPoly] = useState<L.Polyline | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // --- Weather overlay state ---
+  const [weatherMetadata, setWeatherMetadata] =
+    useState<WeatherMetadata | null>(null);
+  const [isWeatherActive, setIsWeatherActive] = useState(false);
+  const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
+    null,
+  );
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -58,7 +76,51 @@ export default function InteractiveMap({
     if (map && poly) {
       map.fitBounds(poly.getBounds());
     }
+  }, [map, poly]);
+
+  // Handle container resizing (e.g. aspect ratio layout calculation)
+  useEffect(() => {
+    if (!map || !containerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, [map]);
+
+  // Load weather metadata
+  useEffect(() => {
+    let isMounted = true;
+    fetchAsset(assetUrl("weather/weather_metadata.json"))
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data: WeatherMetadata | null) => {
+        if (!isMounted || !data) return;
+        setWeatherMetadata(data);
+        if (data.days && data.days.length > 0) {
+          setSelectedWeatherDate(data.days[0].date);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load weather metadata:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const activeDay = weatherMetadata?.days?.find(
+    (d) => d.date === selectedWeatherDate,
+  );
+  const activeOverlayUrl = activeDay
+    ? assetUrl(`weather/${activeDay.file}`)
+    : null;
+
+  const toggleWeather = useCallback(() => {
+    setIsWeatherActive((prev) => !prev);
+  }, []);
 
   // Invalidate map size after fullscreen change
   useEffect(() => {
@@ -131,10 +193,15 @@ export default function InteractiveMap({
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      }}
     >
       <MapContainer
         ref={setMap}
+        className={`leaflet-container ${isWeatherActive ? "weather-active-map" : ""}`}
         scrollWheelZoom={scrollWheelZoom}
         maxZoom={15}
         center={[47.800499, 13.04441]}
@@ -142,11 +209,22 @@ export default function InteractiveMap({
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
       >
+        <WeatherPane />
+        <WeatherClassWatcher isActive={isWeatherActive} />
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={17}
           attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
+        {isWeatherActive && activeOverlayUrl && weatherMetadata?.bounds && (
+          <ImageOverlay
+            key={activeOverlayUrl}
+            url={activeOverlayUrl}
+            bounds={weatherMetadata.bounds}
+            opacity={0.65}
+            pane="weatherPane"
+          />
+        )}
         {!!gpxPositions && gpxPositions.length > 0 && (
           <Polyline
             ref={setPoly}
@@ -181,6 +259,18 @@ export default function InteractiveMap({
           />
         )}
         <ZoomControl position="bottomright" />
+        <FullscreenControl
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
+        <WeatherButtonAndDays
+          metadata={weatherMetadata}
+          isActive={isWeatherActive}
+          selectedDate={selectedWeatherDate}
+          onToggleActive={toggleWeather}
+          onSelectDate={setSelectedWeatherDate}
+        />
+        <WeatherLegend metadata={weatherMetadata} isActive={isWeatherActive} />
         {hoveredStop && (
           <Marker
             position={[hoveredStop.lat, hoveredStop.lon]}
@@ -188,31 +278,6 @@ export default function InteractiveMap({
           />
         )}
       </MapContainer>
-      {/* Fullscreen toggle button */}
-      <button
-        onClick={toggleFullscreen}
-        title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-          zIndex: 1000,
-          width: "34px",
-          height: "34px",
-          border: "2px solid rgba(0,0,0,0.2)",
-          borderRadius: "4px",
-          backgroundColor: "#fff",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "18px",
-          lineHeight: 1,
-          padding: 0,
-        }}
-      >
-        {isFullscreen ? "✕" : "⛶"}
-      </button>
     </div>
   );
 }
