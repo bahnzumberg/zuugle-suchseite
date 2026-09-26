@@ -402,5 +402,14 @@
     "default_list_name": "Mes favoris",
     "list_empty": "Cette liste est vide",
     "list_empty_hint": "Appuie sur l'icône cœur d'un circuit pour l'enregistrer ici."
+  },
+  "weather": {
+    "button": "Météo rando",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "zoom_hint": "Météo visible uniquement jusqu'au zoom 12",
+    "legend_dangerous": "Dangereux",
+    "legend_excellent": "Excellent",
+    "as_of": "État : {{date}}"
   }
 }

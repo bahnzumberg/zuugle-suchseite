@@ -7,7 +7,7 @@ import logger from "../utils/logger";
 logger.info("START SYNC FILES PIPELINE");
 
 async function run() {
-    // Weather overlays run in parallel because they only depend on newest_weather_daily,
+    // Weather overlays run in parallel because they only depend on overlay_weather_daily,
     // not on the GPX generation pipeline.
     const weatherPromise = (async () => {
         try {

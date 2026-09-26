@@ -490,7 +490,7 @@ const cleanAndRecreateOldImages = async () => {
             const shouldBeDeleted = Math.random() < 0.1;
 
             if (isOlderThan30Days && shouldBeDeleted) {
-                logger.info(`Deleting old image for tour ID ${id}.`);
+                // logger.info(`Deleting old image for tour ID ${id}.`);
                 await fs.promises.unlink(filePath);
 
                 // Zugehöriges GPX-File löschen und frisch aus der DB regenerieren,

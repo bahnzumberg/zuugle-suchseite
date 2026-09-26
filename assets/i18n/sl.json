@@ -404,5 +404,14 @@
     "default_list_name": "Moji priljubljeni",
     "list_empty": "Ta seznam je prazen",
     "list_empty_hint": "Tapni srček pri turi, da jo shraniš sem."
+  },
+  "weather": {
+    "button": "Pohodno vreme",
+    "today": "Danes",
+    "tomorrow": "Jutri",
+    "zoom_hint": "Vreme je vidno le do povečave 12",
+    "legend_dangerous": "Nevarno",
+    "legend_excellent": "Odlično",
+    "as_of": "Stanje: {{date}}"
   }
 }

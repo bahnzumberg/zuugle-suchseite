@@ -14,6 +14,7 @@ import {
   Marker as LeafletMarker,
   Tooltip,
   useMap,
+  ImageOverlay,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -51,6 +52,15 @@ import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { assetUrl } from "../../utils/assetUrl";
+import { fetchAsset } from "../../utils/fetchAsset";
+import { WeatherMetadata } from "../../models/weatherOverlay";
+import {
+  WeatherButtonAndDays,
+  WeatherLegend,
+  WeatherPane,
+  WeatherClassWatcher,
+  FullscreenControl,
+} from "./WeatherControls";
 
 // Re-export Marker for backward compatibility
 export type { Marker };
@@ -132,60 +142,6 @@ function MapSizeInvalidator({ trigger }: { trigger: number }) {
   return null;
 }
 
-/**
- * Leaflet Control: Fullscreen toggle button rendered inside the map.
- */
-function FullscreenControl({
-  isFullscreen,
-  onToggle,
-}: {
-  isFullscreen: boolean;
-  onToggle: () => void;
-}) {
-  const map = useMap();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Prevent map interactions from propagating through the button
-    L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
-  }, [map]);
-
-  return (
-    // leaflet-top leaflet-left positions the div in the top-left corner.
-    <div className="leaflet-top leaflet-left" style={{ pointerEvents: "auto" }}>
-      <div ref={containerRef} className="leaflet-control leaflet-bar">
-        <button
-          onClick={onToggle}
-          title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
-          style={{
-            width: "30px",
-            height: "30px",
-            backgroundColor: "#fff",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-          }}
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="#333">
-            {isFullscreen ? (
-              <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
-            ) : (
-              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-            )}
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export interface TourMapContainerProps {
   markers: Marker[];
   pois: PoiResult[];
@@ -248,6 +204,14 @@ export default function TourMapContainer({
   const [fullscreenTrigger, setFullscreenTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // --- Weather overlay state ---
+  const [weatherMetadata, setWeatherMetadata] =
+    useState<WeatherMetadata | null>(null);
+  const [isWeatherActive, setIsWeatherActive] = useState(false);
+  const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
+    null,
+  );
+
   const shouldShowTracks = markers.length < 30 && markers.length > 0;
   const markerIds = useMemo(
     () =>
@@ -263,6 +227,53 @@ export default function TourMapContainer({
       setMarkersInvalidated(false);
     }
   }, [isLoading]);
+
+  // Load weather metadata
+  useEffect(() => {
+    let isMounted = true;
+    fetchAsset(assetUrl("weather/weather_metadata.json"))
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data: WeatherMetadata | null) => {
+        if (!isMounted || !data) return;
+        setWeatherMetadata(data);
+        if (data.days && data.days.length > 0) {
+          setSelectedWeatherDate(data.days[0].date);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load weather metadata:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const toggleWeather = useCallback(() => {
+    setIsWeatherActive((prev) => {
+      const next = !prev;
+      if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
+        setSelectedWeatherDate(weatherMetadata.days[0].date);
+      }
+      return next;
+    });
+  }, [selectedWeatherDate, weatherMetadata]);
+
+  const activeWeatherDay = useMemo(() => {
+    if (!weatherMetadata?.days) return null;
+    return (
+      weatherMetadata.days.find((d) => d.date === selectedWeatherDate) ??
+      weatherMetadata.days[0] ??
+      null
+    );
+  }, [weatherMetadata, selectedWeatherDate]);
+
+  const activeOverlayUrl = useMemo(() => {
+    if (!activeWeatherDay) return null;
+    return assetUrl(`weather/${activeWeatherDay.file}`);
+  }, [activeWeatherDay]);
 
   useEffect(() => {
     if (!activeMarker) {
@@ -473,7 +484,7 @@ export default function TourMapContainer({
   return (
     <Box
       ref={containerRef}
-      className="map-fullscreen-container"
+      className={`map-fullscreen-container ${isWeatherActive ? "weather-active-map" : ""}`}
       style={{
         height: isFullscreen ? "100vh" : "600px",
         maxHeight: isFullscreen ? "none" : "60vh",
@@ -484,7 +495,7 @@ export default function TourMapContainer({
       }}
     >
       <MapContainer
-        className="leaflet-container"
+        className={`leaflet-container ${isWeatherActive ? "weather-active-map" : ""}`}
         zoomSnap={1}
         maxZoom={15} //how many times you can zoom
         center={mapCenter}
@@ -492,12 +503,23 @@ export default function TourMapContainer({
         style={{ height: "100%", width: "100%" }} //Size of the map
         zoomControl={false}
       >
+        <WeatherPane />
+        <WeatherClassWatcher isActive={isWeatherActive} />
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={17}
           maxNativeZoom={17}
           attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
+        {isWeatherActive && activeOverlayUrl && weatherMetadata?.bounds && (
+          <ImageOverlay
+            key={activeOverlayUrl}
+            url={activeOverlayUrl}
+            bounds={weatherMetadata.bounds}
+            opacity={0.65}
+            pane="weatherPane"
+          />
+        )}
         {!geolocation && pois.length === 0 && (
           <MapBoundsSync
             setIsUserMoving={setIsUserMoving}
@@ -678,6 +700,14 @@ export default function TourMapContainer({
           isFullscreen={isFullscreen}
           onToggle={toggleFullscreen}
         />
+        <WeatherButtonAndDays
+          metadata={weatherMetadata}
+          isActive={isWeatherActive}
+          selectedDate={selectedWeatherDate}
+          onToggleActive={toggleWeather}
+          onSelectDate={setSelectedWeatherDate}
+        />
+        <WeatherLegend metadata={weatherMetadata} isActive={isWeatherActive} />
       </MapContainer>
     </Box>
   );
