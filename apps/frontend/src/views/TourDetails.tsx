@@ -723,7 +723,7 @@ export default function DetailReworked() {
                     <Box
                       sx={{
                         width: "100%",
-                        aspectRatio: "2 / 3",
+                        aspectRatio: "1 / 1",
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
