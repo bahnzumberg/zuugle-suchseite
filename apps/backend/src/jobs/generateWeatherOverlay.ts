@@ -242,8 +242,6 @@ async function generateOverlaysFromRows(
             [GRID_CONFIG.boundsLatMin, GRID_CONFIG.boundsLonMin],
             [GRID_CONFIG.boundsLatMax, GRID_CONFIG.boundsLonMax],
         ],
-        minZoom: 1,
-        maxZoom: 12,
         days: weatherDaysMetadata,
         legend: [
             { score: 0, color: "#3b0f70", label: "Gefährlich" },

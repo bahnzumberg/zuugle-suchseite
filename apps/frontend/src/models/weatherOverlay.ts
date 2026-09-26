@@ -13,8 +13,6 @@ export interface WeatherMetadata {
   version: string;
   generated_at: string;
   bounds: [[number, number], [number, number]];
-  minZoom: number;
-  maxZoom: number;
   days: WeatherDay[];
   legend: WeatherLegendItem[];
 }

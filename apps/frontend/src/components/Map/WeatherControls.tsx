@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import { useMap, useMapEvents } from "react-leaflet";
+import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
@@ -69,7 +69,6 @@ interface WeatherButtonAndDaysProps {
   metadata: WeatherMetadata | null;
   isActive: boolean;
   selectedDate: string | null;
-  currentZoom: number;
   onToggleActive: () => void;
   onSelectDate: (date: string) => void;
 }
@@ -78,7 +77,6 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
   metadata,
   isActive,
   selectedDate,
-  currentZoom,
   onToggleActive,
   onSelectDate,
 }) => {
@@ -92,9 +90,6 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
   if (!metadata || !metadata.days || metadata.days.length === 0) {
     return null;
   }
-
-  const maxZoom = metadata.maxZoom ?? 12;
-  const isZoomTooDeep = currentZoom > maxZoom;
 
   return (
     <div
@@ -187,24 +182,6 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
                 </button>
               );
             })}
-          </div>
-        )}
-
-        {/* Zoom hint when zoomed deeper than maxZoom */}
-        {isActive && isZoomTooDeep && (
-          <div
-            style={{
-              marginTop: "6px",
-              backgroundColor: "rgba(255, 255, 255, 0.92)",
-              borderRadius: "6px",
-              padding: "3px 8px",
-              fontSize: "0.7rem",
-              color: "#666",
-              fontWeight: 500,
-              boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            {t("weather.zoom_hint", "Wetter nur bis Zoom 12 sichtbar")}
           </div>
         )}
       </div>
@@ -329,25 +306,6 @@ export function WeatherPane() {
       tilePane.parentNode.insertBefore(pane, tilePane.nextSibling);
     }
   }, [map]);
-  return null;
-}
-
-/**
- * Tracks the current map zoom level to warn when zoomed past maxZoom.
- */
-export function MapZoomWatcher({
-  onZoomChange,
-}: {
-  onZoomChange: (zoom: number) => void;
-}) {
-  const map = useMapEvents({
-    zoomend() {
-      onZoomChange(map.getZoom());
-    },
-  });
-  useEffect(() => {
-    onZoomChange(map.getZoom());
-  }, [map, onZoomChange]);
   return null;
 }
 

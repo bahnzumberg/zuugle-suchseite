@@ -15,20 +15,20 @@ export const COLOR_STOPS: [number, string][] = [
 ];
 
 export const GRID_CONFIG = {
-    latMin: 42.9,
-    latMax: 50.1,
-    lonMin: 4.8,
-    lonMax: 17.2,
+    latMin: 42.6,
+    latMax: 49.3,
+    lonMin: 4.4,
+    lonMax: 17.3,
     deltaLat: 0.1,
     deltaLon: 0.1,
-    numLats: 73, // (50.1 - 42.9) / 0.1 + 1 = 73
-    numLons: 125, // (17.2 - 4.8) / 0.1 + 1 = 125
-    boundsLatMin: 42.85,
-    boundsLatMax: 50.15,
-    boundsLonMin: 4.75,
-    boundsLonMax: 17.25,
+    numLats: 68, // (49.3 - 42.6) / 0.1 + 1 = 68
+    numLons: 130, // (17.3 - 4.4) / 0.1 + 1 = 130
+    boundsLatMin: 42.55,
+    boundsLatMax: 49.35,
+    boundsLonMin: 4.35,
+    boundsLonMax: 17.35,
     width: 2048,
-    height: 1600,
+    height: 1544,
     alpha: 200, // ~78% opacity baked into WebP
 } as const;
 
@@ -41,8 +41,6 @@ export interface WeatherMetadata {
     version: "1.0";
     generated_at: string;
     bounds: [[number, number], [number, number]];
-    minZoom: number;
-    maxZoom: number;
     days: WeatherDay[];
     legend: { score: number; color: string; label: string }[];
 }
@@ -188,42 +186,109 @@ export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
 }
 
 /**
- * Geographic boundary of the Alpine arc including generous buffer (~40-60 km)
- * covering all Alpine valleys, foothills, and approach areas.
+ * Geographic boundary loaded from weather-outline.json, covering the Alpine arc
+ * and surrounding regions.
  */
-export const ALPS_POLYGON: [number, number][] = [
-    [43.15, 5.2], // South of Marseille / Calanques
-    [43.4, 4.9], // West of Marseille / Étang de Berre / Salon
-    [44.0, 5.14], // Digne / Sisteron approach (+20 km W)
-    [45.0, 4.74], // Vercors / Valence outskirts (+20 km W)
-    [45.98, 4.94], // Chartreuse / Chambéry / Lyon east (+20 km N+W)
-    [46.58, 5.54], // Jura foothills / Geneva (+20 km N+W)
-    [47.38, 6.34], // Swiss Jura (+20 km N+W)
-    [47.98, 7.24], // Basel / Black Forest south (+20 km N+W)
-    [48.28, 8.8], // Lake Constance north / Hegau (+20 km N)
-    [48.38, 10.2], // Allgäu foothills / Memmingen (+20 km N)
-    [48.48, 11.6], // Munich south / Starnberg / Rosenheim (+20 km N)
-    [48.48, 12.8], // Chiemgau / Traunstein / Salzburg foothills (+20 km N)
-    [48.58, 14.2], // Upper Austrian Prealps / Linz south (+20 km N)
-    [48.68, 15.2], // Mostviertel / Eisenwurzen / Wachau (+20 km N)
-    [48.68, 16.86], // Vienna Woods / Vienna / Danube basin (+20 km N+E)
-    [48.18, 17.06], // Leithagebirge / Neusiedler See (+20 km N+E)
-    [46.8, 16.66], // Styrian hill country / Koralpe east (+20 km E)
-    [46.4, 16.46], // Pohorje / Maribor / Drau (+20 km E)
-    [45.9, 15.5], // Lower Carniola / Sava valley (south — unchanged)
-    [45.6, 14.0], // Postojna / Notranjska / Karst (south — unchanged)
-    [45.7, 13.0], // Friuli lowlands / Udine south (south — unchanged)
-    [45.4, 11.8], // Veneto foothills / Vicenza / Bassano (south — unchanged)
-    [45.2, 10.5], // Lake Garda south / Verona / Brescia (south — unchanged)
-    [45.3, 9.3], // Bergamo / Como / Milan north (south — unchanged)
-    [44.8, 7.5], // Piedmont / Turin outskirts / Po valley west (south — unchanged)
-    [44.0, 7.6], // Ligurian Alps / Cuneo / Imperia (south — unchanged)
-    [43.7, 7.5], // Nice / Monaco
-    [43.5, 6.9], // Cannes / Esterel
-    [43.1, 6.5], // Massif des Maures / Saint-Tropez
-    [42.95, 6.0], // South of Toulon / Hyères / Cap Sicié
-    [43.15, 5.2], // Closing polygon (Marseille south)
+export const DEFAULT_OUTLINE_POLYGON: [number, number][] = [
+    [46.22925, 15.27237],
+    [46.08419, 14.17168],
+    [45.81157, 13.76037],
+    [45.71865, 13.64227],
+    [45.6772806, 13.4255155],
+    [45.6937215, 13.2019405],
+    [45.7142659, 12.760674],
+    [45.7163199, 12.4488456],
+    [45.7430153, 12.2546884],
+    [45.73686, 12.06436],
+    [45.6896118, 11.8546067],
+    [45.6608349, 11.6986926],
+    [45.55806, 11.58302],
+    [45.39411, 11.37703],
+    [45.36686, 11.07628],
+    [45.38784, 10.96092],
+    [45.41195, 10.67322],
+    [45.44279, 10.35805],
+    [45.4259426, 10.2212549],
+    [45.4352528, 10.1151211],
+    [45.4095674, 10.0031865],
+    [45.317172, 9.841336],
+    [45.1604668, 9.5075194],
+    [44.8959425, 9.0927776],
+    [44.6949493, 9.052315],
+    [44.3342918, 8.9106959],
+    [44.17236, 8.78082],
+    [43.6639, 8.456723],
+    [43.43298, 7.723386],
+    [42.70464, 6.660459],
+    [42.69859, 5.96008],
+    [43.00264, 4.842221],
+    [43.9204199, 4.4294614],
+    [44.4066018, 4.439577],
+    [44.7811749, 4.5508492],
+    [45.1247917, 4.7126997],
+    [45.4095674, 5.0060536],
+    [45.671713, 5.3095232],
+    [46.38839, 5.824127],
+    [46.5830642, 5.8658506],
+    [46.8466164, 6.0681678],
+    [47.2875849, 6.5233722],
+    [47.7453178, 7.2618149],
+    [47.9150911, 9.1635578],
+    [48.0369841, 10.4583614],
+    [48.3539042, 11.0653006],
+    [48.6220802, 12.4207982],
+    [49.0879789, 13.9887245],
+    [49.2136893, 14.9497116],
+    [49.1012291, 15.8702478],
+    [48.9752306, 16.3153248],
+    [48.9486671, 16.7098471],
+    [48.595329, 17.2358611],
+    [48.1315935, 17.2763237],
+    [47.8540393, 17.2763237],
+    [47.7317146, 17.2560924],
+    [47.5005, 16.76239],
+    [47.33138, 16.52756],
+    [46.8050912, 16.3153366],
+    [46.42011, 15.64419],
+    [46.3827, 15.6023],
+    [46.2606, 15.43922],
+    [46.24374, 15.36335],
+    [46.22925, 15.27237],
 ];
+
+/** Backwards-compatible alias for existing callers. */
+export const ALPS_POLYGON = DEFAULT_OUTLINE_POLYGON;
+
+/**
+ * Loads outline polygon from weather-outline.json if available on disk,
+ * otherwise falls back to DEFAULT_OUTLINE_POLYGON.
+ */
+export function loadOutlinePolygon(customPath?: string): [number, number][] {
+    const candidatePaths = [
+        customPath,
+        path.join(__dirname, "../../public/weather/weather-outline.json"),
+        path.join(__dirname, "../../../../assets/public/weather/weather-outline.json"),
+        path.join(__dirname, "../../../assets/public/weather/weather-outline.json"),
+    ].filter(Boolean) as string[];
+
+    for (const p of candidatePaths) {
+        if (fs.existsSync(p)) {
+            try {
+                const raw = fs.readFileSync(p, "utf-8");
+                const geojson = JSON.parse(raw);
+                const feature =
+                    geojson.type === "FeatureCollection" ? geojson.features?.[0] : geojson;
+                const ring = feature?.geometry?.coordinates?.[0];
+                if (Array.isArray(ring) && ring.length >= 3) {
+                    return ring.map(([lon, lat]: [number, number]) => [lat, lon]);
+                }
+            } catch (err) {
+                logger.warn(`[WeatherOverlay] Failed to parse outline from ${p}:`, err);
+            }
+        }
+    }
+    return DEFAULT_OUTLINE_POLYGON;
+}
 
 function distanceToSegment(
     lat: number,
@@ -259,37 +324,41 @@ function pointInPolygon(lat: number, lon: number, poly: [number, number][]): boo
 }
 
 /**
- * Computes a 65 x 125 grid containing mask weights (0.0 to 1.0) for the Alpine arc,
- * with a smooth ~45 km feathering falloff at the borders.
+ * Computes a grid containing mask weights (0.0 to 1.0) for the outline polygon,
+ * strictly masking out anything outside the GeoJSON outline, with a smooth ~15 km
+ * feathering falloff inside the border.
  */
-export function computeAlpsMaskGrid(): Float32Array {
+export function computeAlpsMaskGrid(
+    outlinePoly: [number, number][] = loadOutlinePolygon(),
+): Float32Array {
     const { numLats, numLons, latMax, lonMin, deltaLat, deltaLon } = GRID_CONFIG;
     const mask = new Float32Array(numLats * numLons);
-    const fadeDist = 0.45; // ~45 km feathering distance
+    const fadeDist = 0.15; // ~15 km feathering distance inside the boundary
 
     for (let r = 0; r < numLats; r++) {
         const lat = latMax - r * deltaLat;
         for (let c = 0; c < numLons; c++) {
             const lon = lonMin + c * deltaLon;
-            const inside = pointInPolygon(lat, lon, ALPS_POLYGON);
+            const inside = pointInPolygon(lat, lon, outlinePoly);
+
+            if (!inside) {
+                mask[r * numLons + c] = 0.0;
+                continue;
+            }
 
             let minDist = Infinity;
-            for (let i = 0; i < ALPS_POLYGON.length - 1; i++) {
-                const p1 = ALPS_POLYGON[i];
-                const p2 = ALPS_POLYGON[i + 1];
+            for (let i = 0; i < outlinePoly.length - 1; i++) {
+                const p1 = outlinePoly[i];
+                const p2 = outlinePoly[i + 1];
                 const d = distanceToSegment(lat, lon, p1[0], p1[1], p2[0], p2[1]);
                 if (d < minDist) minDist = d;
             }
 
-            const signedDist = inside ? minDist : -minDist;
-
-            if (signedDist >= 0) {
+            if (minDist >= fadeDist) {
                 mask[r * numLons + c] = 1.0;
-            } else if (signedDist <= -fadeDist) {
-                mask[r * numLons + c] = 0.0;
             } else {
-                const t = (signedDist + fadeDist) / fadeDist;
-                mask[r * numLons + c] = t * t * (3 - 2 * t); // smoothstep
+                const t = minDist / fadeDist;
+                mask[r * numLons + c] = t * t * (3 - 2 * t); // smoothstep inward
             }
         }
     }

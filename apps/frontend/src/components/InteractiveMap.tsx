@@ -17,7 +17,6 @@ import {
   WeatherLegend,
   WeatherPane,
   WeatherClassWatcher,
-  MapZoomWatcher,
   FullscreenControl,
 } from "./Map/WeatherControls";
 
@@ -48,7 +47,6 @@ export default function InteractiveMap({
   const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
     null,
   );
-  const [currentZoom, setCurrentZoom] = useState(12);
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -199,24 +197,20 @@ export default function InteractiveMap({
       >
         <WeatherPane />
         <WeatherClassWatcher isActive={isWeatherActive} />
-        <MapZoomWatcher onZoomChange={setCurrentZoom} />
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={17}
           attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
-        {isWeatherActive &&
-          activeOverlayUrl &&
-          weatherMetadata?.bounds &&
-          currentZoom <= (weatherMetadata.maxZoom ?? 12) && (
-            <ImageOverlay
-              key={activeOverlayUrl}
-              url={activeOverlayUrl}
-              bounds={weatherMetadata.bounds}
-              opacity={0.65}
-              pane="weatherPane"
-            />
-          )}
+        {isWeatherActive && activeOverlayUrl && weatherMetadata?.bounds && (
+          <ImageOverlay
+            key={activeOverlayUrl}
+            url={activeOverlayUrl}
+            bounds={weatherMetadata.bounds}
+            opacity={0.65}
+            pane="weatherPane"
+          />
+        )}
         {!!gpxPositions && gpxPositions.length > 0 && (
           <Polyline
             ref={setPoly}
@@ -259,7 +253,6 @@ export default function InteractiveMap({
           metadata={weatherMetadata}
           isActive={isWeatherActive}
           selectedDate={selectedWeatherDate}
-          currentZoom={currentZoom}
           onToggleActive={toggleWeather}
           onSelectDate={setSelectedWeatherDate}
         />

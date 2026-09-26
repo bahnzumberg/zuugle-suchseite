@@ -11,10 +11,9 @@ Das Backend stellt unter `/public/weather/` (bzw. via `assetUrl()`) die vorberec
 * **Overlays:** `assetUrl("/weather/weather_overlay_YYYY-MM-DD.webp")`
 
 ### Kernanforderungen
-1. **Zoomlevel-Steuerung:** Das Overlay darf **nur von Zoom 1 bis 12** gerendert werden. Ab Zoom 13 (Nahansicht) wird es automatisch ausgeblendet, damit Wanderwege und topografische Details vollständig sichtbar sind.
-2. **Tag-Auswahl:** Ein Schalter auf der Karte: `[ Wetter: Aus | Mo | Di | Mi | Do ]`.
-3. **Hinweis bei Nahzoom:** Ist ein Wetter-Tag aktiv, der Nutzer zoomt aber auf Stufe $\ge 13$, erscheint ein dezenter Badge/Hinweis: *(„Wetter nur bis Zoom 12 sichtbar“)*.
-4. **Z-Index:** Das Overlay liegt über der Basiskarte (OpenTopoMap/OSM), aber **unter** den GPX-Tracks und Touren-Pins (`zIndex: 250`).
+1. **Volle Zoom-Unterstützung:** Das Overlay wird auf allen Zoomstufen über der Basiskarte angezeigt.
+2. **Tag-Auswahl:** Schnellauswahl der Tage ("Heute", "Morgen", Datum mit Wochentagskürzel).
+3. **Z-Index:** Das Overlay liegt über der Basiskarte (OpenTopoMap/OSM), aber **unter** den GPX-Tracks und Touren-Pins (`zIndex: 250`).
 
 ---
 
@@ -23,13 +22,11 @@ Das Backend stellt unter `/public/weather/` (bzw. via `assetUrl()`) die vorberec
 ```json
 {
   "version": "1.0",
-  "generated_at": "2026-09-14T09:36:33.139Z",
+  "generated_at": "2026-09-26T03:19:20.267Z",
   "bounds": [
-    [43.65, 4.75],
+    [42.85, 4.75],
     [50.15, 17.25]
   ],
-  "minZoom": 1,
-  "maxZoom": 12,
   "days": [
     {
       "date": "2026-09-14",
