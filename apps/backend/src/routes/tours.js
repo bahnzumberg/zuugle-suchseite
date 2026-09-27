@@ -67,6 +67,50 @@ const bindValues = (sql, bindings) => {
     return result.replace(/\s+/g, " ").trim();
 };
 
+/** Today + the next 3 days are shown on every result card. */
+const WEATHER_FORECAST_DAYS = 4;
+
+/**
+ * SQL fragment attaching a `weather` JSON array to each row of `tourAlias`:
+ * one entry per day, starting today, WEATHER_FORECAST_DAYS long. A day the
+ * weather import has no row for keeps its slot with a null icon and score, so
+ * every card shows the same date in the same column.
+ *
+ * Three details that look incidental but are load-bearing:
+ *   - Europe/Vienna, not CURRENT_DATE. No session timezone is set (knexfile.js),
+ *     so CURRENT_DATE is UTC and would still read "yesterday" for the first
+ *     hour or two after local midnight.
+ *   - ::text on the date, or node-postgres hands back a Date that res.json()
+ *     emits as "2026-09-26T22:00:00.000Z".
+ *   - ::float on the score, or decimal(4,1) arrives as the string "82.4".
+ *
+ * @param {string} tourAlias - Alias of the tour table in the outer query.
+ * @returns {string} A LEFT JOIN LATERAL clause exposing `weather.forecast`.
+ */
+const weatherForecastJoin = (tourAlias) => `
+                        LEFT JOIN LATERAL (
+                            SELECT JSON_AGG(
+                                       JSON_BUILD_OBJECT(
+                                           'date',  d.day::date::text,
+                                           'icon',  w.tour_weather_icon,
+                                           'score', w.tour_weather_score::float
+                                       ) ORDER BY d.day
+                                   ) AS forecast
+                            FROM generate_series(
+                                     (now() AT TIME ZONE 'Europe/Vienna')::date,
+                                     (now() AT TIME ZONE 'Europe/Vienna')::date + ${WEATHER_FORECAST_DAYS - 1},
+                                     INTERVAL '1 day'
+                                 ) AS d(day)
+                            LEFT JOIN tour_weather_daily AS w
+                                   ON w.provider     = ${tourAlias}.provider
+                                  AND w.hashed_url   = ${tourAlias}.hashed_url
+                                  AND w.weather_date = d.day::date
+                            -- No GROUP BY, so this aggregates to exactly one
+                            -- row; HAVING drops even that one when the tour has
+                            -- no forecast at all.
+                            HAVING COUNT(w.tour_weather_icon) > 0
+                        ) AS weather ON TRUE`;
+
 /**
  * Logs search phrases to the database asynchronously (fire & forget).
  * @param {string} search - The search term.
@@ -160,6 +204,36 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
  *                   type: array
  *                   items:
  *                     type: object
+ *                     description: Tour row from city2tour_flat, plus the weather strip.
+ *                     properties:
+ *                       weather:
+ *                         type: array
+ *                         nullable: true
+ *                         minItems: 4
+ *                         maxItems: 4
+ *                         description: >
+ *                           Forecast for today and the next 3 days in Europe/Vienna, always
+ *                           exactly 4 ascending entries, or null when the tour has no forecast
+ *                           at all. Days the weather import has no data for keep their slot
+ *                           with a null icon and score. `icon` is the 1..18 id from the
+ *                           meteocons reference; the client maps it to both the icon file and the grade word.
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             date:
+ *                               type: string
+ *                               format: date
+ *                               example: "2026-09-27"
+ *                             icon:
+ *                               type: integer
+ *                               nullable: true
+ *                               minimum: 1
+ *                               maximum: 18
+ *                             score:
+ *                               type: number
+ *                               nullable: true
+ *                               minimum: 0
+ *                               maximum: 100
  *                 total:
  *                   type: integer
  *                 page:
@@ -1174,11 +1248,14 @@ const listWrapper = async (req, res) => {
                         t.ascent,
                         t.number_of_days,
                         quality_rating,
-                        traverse
-                        FROM city2tour_flat AS t 
+                        traverse,
+                        weather.forecast AS weather
+                        FROM city2tour_flat AS t
+                        ${weatherForecastJoin("t")}
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
-                        AND t.id IN (${pagedTourIds.join(", ")});`;
+                        AND t.id IN (${pagedTourIds.join(", ")})
+                        ORDER BY ARRAY_POSITION(ARRAY[${pagedTourIds.join(", ")}]::int[], t.id);`;
 
     // logger.info("new_search_sql: ", new_search_sql);
 
@@ -1192,7 +1269,8 @@ const listWrapper = async (req, res) => {
             // logger.info("knex.raw(new_search_sql): result or result.rows is null or undefined.");
         }
     } catch (error) {
-        logger.info("Error firing new_search_sql:", error);
+        // Without this the page silently degrades to 200 {tours: []}.
+        logger.error("Error firing new_search_sql:", error);
     }
 
     // ****************************************************************
