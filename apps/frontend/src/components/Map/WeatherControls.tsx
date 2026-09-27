@@ -5,6 +5,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
+import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
 
 export function formatWeatherDayLabel(
   dateStr: string,
@@ -308,8 +309,7 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
               style={{
                 height: "10px",
                 borderRadius: "5px",
-                background:
-                  "linear-gradient(to right, #3b0f70 0%, #7b1fa2 15%, #b52a8f 30%, #e04a5f 45%, #f07d1a 58%, #e3b41c 72%, #8cbf2f 86%, #2f9e44 100%)",
+                background: WEATHER_GRADIENT_CSS,
               }}
             />
 
@@ -324,8 +324,8 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
                 fontWeight: 500,
               }}
             >
-              <span>{t("weather.legend_dangerous", "Gefährlich")}</span>
-              <span>{t("weather.legend_excellent", "Ausgezeichnet")}</span>
+              <span>{t("weather.grade.dangerous", "Gefährlich")}</span>
+              <span>{t("weather.grade.excellent", "Ausgezeichnet")}</span>
             </div>
 
             {/* Divider */}

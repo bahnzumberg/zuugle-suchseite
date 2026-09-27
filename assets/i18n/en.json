@@ -144,7 +144,8 @@
     "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> is a \"Mountain Tour Search Engine Plus\" in the Alpine region (finds mountain tours and displays the corresponding timetables) and is 100% owned by the non-profit association <1>Bahn zum Berg</1>. As an NGO, the association focuses exclusively on promoting sustainable travel to outdoor activities. For timetable queries, the product <2>Diana GreenConnect</2> is used, which is provided free of charge to Bahn zum Berg by <3>Zuugle Services</3>.",
     "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> is an independent B2B company. Zuugle Services professionalises the technology behind tour planning to provide tailored, future-proof mobility solutions for businesses, regions and software providers.",
     "anfuehrung_quellen": "The various sources and licence terms of timetable data used are listed here.",
-    "gefoerdert_von": "PARTNERS & SUPPORTERS"
+    "gefoerdert_von": "PARTNERS & SUPPORTERS",
+    "icons_meteocons": "Weather icons: <0>Meteocons</0> by Bas Milius (MIT licence)."
   },
   "index": {
     "zuugle_description": "Zuugle shows you verified connections by train and bus to mountain tours, hikes, ski tours, snowshoe hikes, etc. which you can reach from your residence.",
@@ -408,9 +409,26 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "zoom_hint": "Weather only visible up to zoom 12",
-    "legend_dangerous": "Dangerous",
-    "legend_excellent": "Excellent",
     "legend_title": "Weather Legend",
-    "as_of": "As of: {{date}}"
+    "as_of": "As of: {{date}}",
+    "grade": {
+      "excellent": "Excellent",
+      "very_good": "Very good",
+      "good": "Good",
+      "moderate": "Moderate",
+      "poor": "Poor",
+      "dangerous": "Dangerous"
+    },
+    "condition": {
+      "clear": "Clear",
+      "cloudy": "Cloudy",
+      "overcast": "Overcast",
+      "cloudy_rain": "Cloudy, rain",
+      "cloudy_snow": "Cloudy, snow",
+      "overcast_rain": "Overcast, rain",
+      "overcast_snow": "Overcast, snow",
+      "thunderstorm": "Thunderstorm",
+      "extreme": "Extreme"
+    }
   }
 }

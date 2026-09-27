@@ -146,7 +146,8 @@
     "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> je \"iskalnik gorskih tur Plus\" v alpskem prostoru (najde gorske ture in prikaže pripadajoče vozne rede) in je v 100-odstotni lasti neprofitnega društva <1>Bahn zum Berg</1>. Kot nevladna organizacija se društvo osredotoča izključno na spodbujanje trajnostnega potovanja do aktivnosti na prostem. Za poizvedbe voznih redov se uporablja produkt <2>Diana GreenConnect</2>, ki ga društvu Bahn zum Berg brezplačno zagotavlja <3>Zuugle Services</3>.",
     "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> je neodvisno B2B-podjetje. Zuugle Services profesionalizira tehnologijo za načrtovanje tur, da bi zagotovil prilagojene in trajnostne rešitve mobilnosti za podjetja, regije in ponudnike programske opreme.",
     "anfuehrung_quellen": "Tukaj so navedeni različni viri in licenčni pogoji za uporabljene podatke o voznih redih.",
-    "gefoerdert_von": "PARTNERJI IN PODPORNIKI"
+    "gefoerdert_von": "PARTNERJI IN PODPORNIKI",
+    "icons_meteocons": "Vremenske ikone: <0>Meteocons</0> avtorja Bas Milius (licenca MIT)."
   },
   "index": {
     "zuugle_description": "Zuugle ti prikaže preverjene povezave z vlakom in avtobusom do gorskih tur, pohodniških poti, turnega smučanja, krpljanja, itn. z izhodiščem iz tvojega kraja bivanja.",
@@ -410,9 +411,26 @@
     "today": "Danes",
     "tomorrow": "Jutri",
     "zoom_hint": "Vreme je vidno le do povečave 12",
-    "legend_dangerous": "Nevarno",
-    "legend_excellent": "Odlično",
     "legend_title": "Legenda vremena",
-    "as_of": "Stanje: {{date}}"
+    "as_of": "Stanje: {{date}}",
+    "grade": {
+      "excellent": "Odlično",
+      "very_good": "Zelo dobro",
+      "good": "Dobro",
+      "moderate": "Zmerno",
+      "poor": "Slabo",
+      "dangerous": "Nevarno"
+    },
+    "condition": {
+      "clear": "Jasno",
+      "cloudy": "Delno oblačno",
+      "overcast": "Oblačno",
+      "cloudy_rain": "Delno oblačno, dež",
+      "cloudy_snow": "Delno oblačno, sneg",
+      "overcast_rain": "Oblačno, dež",
+      "overcast_snow": "Oblačno, sneg",
+      "thunderstorm": "Nevihta",
+      "extreme": "Ekstremno"
+    }
   }
 }
