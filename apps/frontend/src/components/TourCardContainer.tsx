@@ -6,6 +6,7 @@ import { Tour } from "../models/Tour";
 import { RootState } from "..";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import { visibleWeatherDays } from "../models/tourWeather";
 
 export interface TourCardContainerProps {
   tours: Tour[];
@@ -23,6 +24,12 @@ export default function TourCardContainer({
 }: TourCardContainerProps) {
   const city = useSelector((state: RootState) => state.search.city);
   const LOADER_HEIGHT = 40;
+
+  // Once any tour shows a weather strip, the ones without a forecast reserve the
+  // same height, so the stats rows stay aligned across a grid row.
+  const anyWeather = tours.some(
+    (tour) => visibleWeatherDays(tour.weather).length > 0,
+  );
 
   useEffect(() => {
     function needsMoreContent() {
@@ -58,7 +65,11 @@ export default function TourCardContainer({
       >
         {tours.map((tour, index) => (
           <Box key={index} sx={{ display: "flex", minWidth: 0 }}>
-            <TourCard tour={tour} city={city?.value || null} />
+            <TourCard
+              tour={tour}
+              city={city?.value || null}
+              reserveWeatherSpace={anyWeather}
+            />
           </Box>
         ))}
       </Box>

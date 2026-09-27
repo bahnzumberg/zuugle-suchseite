@@ -69,11 +69,64 @@ const TOURS_API_FILTER_BODY = {
     ],
 };
 
+/** Today in Europe/Vienna as YYYY-MM-DD — the same idiom the frontend uses. */
+const todayInVienna = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+
+const WEATHER_FORECAST_DAYS = 4;
+
+/**
+ * The weather strip contract: null, or exactly WEATHER_FORECAST_DAYS ascending
+ * entries starting today. Individual entries may carry a null icon/score where
+ * the weather import has no data for that day.
+ */
+function assertValidTourWeather(tour) {
+    if (tour.weather === null || tour.weather === undefined) return;
+
+    expect(Array.isArray(tour.weather)).toBe(true);
+    expect(tour.weather).toHaveLength(WEATHER_FORECAST_DAYS);
+    expect(tour.weather[0].date).toBe(todayInVienna());
+
+    let previousDate = null;
+    for (const day of tour.weather) {
+        expect(day.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        if (previousDate !== null) expect(day.date > previousDate).toBe(true);
+        previousDate = day.date;
+
+        if (day.icon !== null) {
+            expect(Number.isInteger(day.icon)).toBe(true);
+            expect(day.icon).toBeGreaterThanOrEqual(1);
+            expect(day.icon).toBeLessThanOrEqual(18);
+        }
+        if (day.score !== null) {
+            expect(typeof day.score).toBe("number");
+            expect(day.score).toBeGreaterThanOrEqual(0);
+            expect(day.score).toBeLessThanOrEqual(100);
+        }
+    }
+}
+
 function assertValidToursResponse({ response, data }) {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.tours).toBeDefined();
     expect(Array.isArray(data.tours)).toBe(true);
+
+    // `total` comes from the cached tour-ID list, `tours` from the main search
+    // query — so an empty page 1 alongside a non-zero total means that query
+    // failed. Without this check a broken join (e.g. tour_weather_daily missing)
+    // looks exactly like a search that legitimately matched nothing, and every
+    // assertion below passes vacuously over an empty array. Page > 1 is exempt:
+    // requesting a page past the end returns [] with the full total by design.
+    if (Number(data.page) === 1 && data.total > 0) {
+        expect(data.tours.length).toBeGreaterThan(0);
+    }
+
+    for (const tour of data.tours) {
+        // The list path does not run prepareTourEntry, so nothing strips
+        // hashed_url for it — it must never be selected in the first place.
+        expect(tour.hashed_url).toBeUndefined();
+        assertValidTourWeather(tour);
+    }
 }
 
 describe("Zuugle API UAT Tests", () => {
@@ -152,6 +205,48 @@ describe("Zuugle API UAT Tests", () => {
                 maxTransportDuration: expect.any(Number),
             }),
         );
+    });
+
+    test("POST /api/tours returns a 4-day weather strip", async () => {
+        /**
+         * tour_weather_daily is filled by the external weather import and is
+         * truncated by `npm run import-data`, so a local database legitimately
+         * has no weather at all. Warn and skip rather than fail — this suite
+         * also runs against environments where the import has not run yet.
+         */
+        const url = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: getHeaders(),
+        });
+        const data = await response.json();
+
+        assertValidToursResponse({ response, data });
+
+        const withWeather = data.tours.filter((tour) => Array.isArray(tour.weather));
+        if (withWeather.length === 0) {
+            console.warn("No tour on page 1 has weather data — skipping populated-path assertions");
+            return;
+        }
+
+        const icons = withWeather.flatMap((tour) =>
+            tour.weather.map((day) => day.icon).filter((icon) => icon !== null),
+        );
+        expect(icons.length).toBeGreaterThan(0);
+    });
+
+    test("POST /api/tours returns page 1 in a stable order", async () => {
+        const url = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const fetchIds = async () => {
+            const response = await fetch(url, { method: "POST", headers: getHeaders() });
+            const data = await response.json();
+            assertValidToursResponse({ response, data });
+            return data.tours.map((tour) => tour.id);
+        };
+
+        const first = await fetchIds();
+        expect(first.length).toBeLessThanOrEqual(9);
+        expect(await fetchIds()).toEqual(first);
     });
 
     test("POST /api/tours with ranges=true returns tours and ranges", async () => {
