@@ -412,6 +412,7 @@
     "zoom_hint": "Vreme je vidno le do povečave 12",
     "legend_dangerous": "Nevarno",
     "legend_excellent": "Odlično",
+    "legend_title": "Legenda vremena",
     "as_of": "Stanje: {{date}}"
   }
 }
