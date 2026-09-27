@@ -1,13 +1,13 @@
-# Frontend-Integrationsanleitung: Zuugle Wetter-Overlay
+# Zuugle Wetter-Overlay im Frontend
 
-Dieses Dokument beschreibt Schritt für Schritt die Einbindung des Wetter-Overlays in das Zuugle-Frontend (`apps/frontend/`).
+Dieses Dokument beschreibt, wie das Wetter-Overlay im Zuugle-Frontend (`apps/frontend/`) eingebunden ist: welche Daten das Backend liefert und welche Komponenten sie darstellen.
 
 ---
 
 ## 1. Übersicht & Funktionsweise
 
 Das Backend stellt unter `/public/weather/` (bzw. via `assetUrl()`) die vorberechneten WebP-Overlays und eine Metadaten-Datei bereit:
-* **Metadaten:** [`assetUrl("/weather/weather_metadata.json")`](file:///home/martin/develop/zuugle-suchseite/apps/backend/public/weather/weather_metadata.json)
+* **Metadaten:** `assetUrl("/weather/weather_metadata.json")`
 * **Overlays:** `assetUrl("/weather/weather_overlay_YYYY-MM-DD.webp")`
 
 ### Kernanforderungen
@@ -19,39 +19,21 @@ Das Backend stellt unter `/public/weather/` (bzw. via `assetUrl()`) die vorberec
 
 ## 2. Metadaten-Format (`weather_metadata.json`)
 
+`bounds` stammt aus `GRID_CONFIG` (`apps/backend/src/utils/weatherOverlayService.ts`) und ist die maßgebliche Quelle — die Werte unten sind nur ein Beispielstand.
+
 ```json
 {
   "version": "1.0",
   "generated_at": "2026-09-26T03:19:20.267Z",
   "bounds": [
-    [42.85, 4.75],
-    [50.15, 17.25]
+    [42.55, 4.35],
+    [49.35, 17.35]
   ],
   "days": [
-    {
-      "date": "2026-09-14",
-      "weekday": "Mo",
-      "label": "Heute (Mo)",
-      "file": "weather_overlay_2026-09-14.webp"
-    },
-    {
-      "date": "2026-09-15",
-      "weekday": "Di",
-      "label": "Morgen (Di)",
-      "file": "weather_overlay_2026-09-15.webp"
-    },
-    {
-      "date": "2026-09-16",
-      "weekday": "Mi",
-      "label": "Mi, 16.09.",
-      "file": "weather_overlay_2026-09-16.webp"
-    },
-    {
-      "date": "2026-09-17",
-      "weekday": "Do",
-      "label": "Do, 17.09.",
-      "file": "weather_overlay_2026-09-17.webp"
-    }
+    { "date": "2026-09-14", "file": "weather_overlay_2026-09-14.webp" },
+    { "date": "2026-09-15", "file": "weather_overlay_2026-09-15.webp" },
+    { "date": "2026-09-16", "file": "weather_overlay_2026-09-16.webp" },
+    { "date": "2026-09-17", "file": "weather_overlay_2026-09-17.webp" }
   ],
   "legend": [
     { "score": 0, "color": "#3b0f70", "label": "Gefährlich" },
@@ -60,6 +42,8 @@ Das Backend stellt unter `/public/weather/` (bzw. via `assetUrl()`) die vorberec
   ]
 }
 ```
+
+Die Tages-Labels ("Heute", "Morgen", "Mi, 16.09.") werden im Frontend aus `date` berechnet, nicht vom Backend geliefert.
 
 ---
 
@@ -70,8 +54,6 @@ In `apps/frontend/src/models/weatherOverlay.ts`:
 ```typescript
 export interface WeatherDay {
   date: string;       // "2026-09-14"
-  weekday: string;    // "Mo"
-  label: string;      // "Heute (Mo)"
   file: string;       // "weather_overlay_2026-09-14.webp"
 }
 
@@ -79,199 +61,53 @@ export interface WeatherMetadata {
   version: string;
   generated_at: string;
   bounds: [[number, number], [number, number]];
-  minZoom: number;
-  maxZoom: number;
   days: WeatherDay[];
-  legend: { score: number; color: string; label: string }[];
+  legend: WeatherLegendItem[];
 }
 ```
 
----
-
-## 4. Einbindung in `TourMapContainer.tsx`
-
-Die primäre Kartenkomponente ist:  
-[`apps/frontend/src/components/Map/TourMapContainer.tsx`](file:///home/martin/develop/zuugle-suchseite/apps/frontend/src/components/Map/TourMapContainer.tsx)
-
-### 4.1 Imports
-```tsx
-import { ImageOverlay, useMapEvents } from "react-leaflet";
-import { assetUrl } from "../../utils/assetUrl";
-import { WeatherMetadata, WeatherDay } from "../../models/weatherOverlay";
-```
-
-### 4.2 Zoom-Überwachung (Innerhalb `MapContainer`)
-Erstelle einen kleinen Helper für die Zoom-Level-Überwachung:
-
-```tsx
-function MapZoomWatcher({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
-  useMapEvents({
-    zoomend: (e) => {
-      onZoomChange(e.target.getZoom());
-    },
-  });
-  return null;
-}
-```
-
-### 4.3 State & Metadaten-Laden
-```tsx
-const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata | null>(null);
-const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(null);
-const [currentZoom, setCurrentZoom] = useState<number>(8); // Initialer Zoom
-
-useEffect(() => {
-  fetch(assetUrl("/weather/weather_metadata.json"))
-    .then((res) => {
-      if (!res.ok) throw new Error("Metadata not found");
-      return res.json();
-    })
-    .then((data: WeatherMetadata) => setWeatherMetadata(data))
-    .catch((err) => console.debug("No weather overlay available:", err));
-}, []);
-
-// URL des aktiven Overlays ermitteln:
-const activeWeatherFile = weatherMetadata?.days.find(
-  (d) => d.date === selectedWeatherDate
-)?.file;
-
-const activeOverlayUrl = activeWeatherFile
-  ? assetUrl(`/weather/${activeWeatherFile}`)
-  : null;
-```
-
-### 4.4 ImageOverlay rendern (Innerhalb von `MapContainer`)
-```tsx
-{/* Zoom-Watcher */}
-<MapZoomWatcher onZoomChange={setCurrentZoom} />
-
-{/* Wetter-Overlay: Nur anzeigen wenn gewählt und Zoom <= 12 */}
-{selectedWeatherDate && activeOverlayUrl && weatherMetadata && currentZoom <= 12 && (
-  <ImageOverlay
-    url={activeOverlayUrl}
-    bounds={weatherMetadata.bounds}
-    opacity={0.55} // Sanfte Deckkraft, Basiskarte schimmert durch
-    zIndex={250}   // Über der Basiskarte, unter den Tour-Pins (300+) und GPX-Tracks
-  />
-)}
-```
+Dort liegt außerdem `filterPastDays()`, das beim Laden alle Tage vor "heute" (Zeitzone Europe/Vienna) aus den Metadaten entfernt.
 
 ---
 
-## 5. UI-Komponente: Tag-Umschalter (`WeatherOverlayControl.tsx`)
+## 4. Umsetzung im Frontend
 
-Erstelle eine neue Komponente:  
-`apps/frontend/src/components/Map/WeatherOverlayControl.tsx`
+Das Overlay ist umgesetzt; die Bausteine liegen in
+`apps/frontend/src/components/Map/WeatherControls.tsx`:
+
+| Export | Aufgabe |
+| --- | --- |
+| `WeatherButtonAndDays` | "Wanderwetter"-Button oben links, darunter die Tagesauswahl |
+| `WeatherLegend` | (i)-Button oben rechts mit Legenden-Popup und Stand-Zeitstempel |
+| `WeatherPane` | legt das Leaflet-Pane `weatherPane` (z-index 250) an |
+| `WeatherClassWatcher` | setzt `weather-active-map` auf den Kartencontainer (Basiskarte in Graustufen) |
+| `formatWeatherDayLabel` | "Heute" / "Morgen" / "Mi, 16.09." aus dem Datum |
+
+Eingebunden sind sie in beiden Karten:
+
+* `apps/frontend/src/components/Map/TourMapContainer.tsx` (Suchergebnis-Karte)
+* `apps/frontend/src/components/InteractiveMap.tsx` (Detailseiten-Karte)
+
+Beide laden die Metadaten per `fetchAsset()` und rendern das aktive Overlay als:
 
 ```tsx
-import React from "react";
-import Box from "@mui/material/Box";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
-import { WeatherMetadata } from "../../models/weatherOverlay";
-
-interface WeatherOverlayControlProps {
-  metadata: WeatherMetadata | null;
-  selectedDate: string | null;
-  currentZoom: number;
-  onSelectDate: (date: string | null) => void;
-}
-
-export const WeatherOverlayControl: React.FC<WeatherOverlayControlProps> = ({
-  metadata,
-  selectedDate,
-  currentZoom,
-  onSelectDate,
-}) => {
-  if (!metadata || metadata.days.length === 0) {
-    return null;
-  }
-
-  const isZoomedOut = currentZoom <= 12;
-
-  // Zeitstempel der Erstellung in CET/CEST (Europe/Vienna) formatieren
-  const formattedGeneratedAt = metadata?.generated_at
-    ? new Date(metadata.generated_at).toLocaleString("de-AT", {
-        timeZone: "Europe/Vienna",
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
-
-  return (
-    <Box
-      sx={{
-        position: "absolute",
-        top: 12,
-        right: 56, // Neben den Standard-Leaflet-Controls
-        zIndex: 1000,
-        backgroundColor: "rgba(255, 255, 255, 0.92)",
-        backdropFilter: "blur(6px)",
-        borderRadius: "8px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-        padding: "4px 8px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 0.5,
-      }}
-    >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <WbSunnyRoundedIcon sx={{ fontSize: 16, color: "orange" }} />
-        <ButtonGroup size="small" variant="outlined">
-          <Button
-            variant={selectedDate === null ? "contained" : "outlined"}
-            onClick={() => onSelectDate(null)}
-            sx={{ textTransform: "none", fontSize: "0.75rem", py: 0.3, px: 0.8 }}
-          >
-            Aus
-          </Button>
-          {metadata.days.map((day) => (
-            <Button
-              key={day.date}
-              variant={selectedDate === day.date ? "contained" : "outlined"}
-              onClick={() => onSelectDate(day.date)}
-              sx={{ textTransform: "none", fontSize: "0.75rem", py: 0.3, px: 0.8 }}
-            >
-              {day.weekday}
-            </Button>
-          ))}
-        </ButtonGroup>
-      </Box>
-
-      {/* Aktualitäts-Hinweis in CET/CEST wenn ein Tag ausgewählt ist */}
-      {selectedDate !== null && formattedGeneratedAt && (
-        <Typography
-          variant="caption"
-          sx={{ fontSize: "0.65rem", color: "text.secondary", opacity: 0.85 }}
-        >
-          Stand: {formattedGeneratedAt} Uhr
-        </Typography>
-      )}
-
-      {/* Hinweis wenn aktiv, aber Zoom zu tief (Nahansicht) */}
-      {selectedDate !== null && !isZoomedOut && (
-        <Typography
-          variant="caption"
-          sx={{ fontSize: "0.68rem", color: "text.secondary", fontWeight: 500 }}
-        >
-          Wetter nur bis Zoom 12 sichtbar
-        </Typography>
-      )}
-    </Box>
-  );
-};
+<ImageOverlay
+  key={activeOverlayUrl}
+  url={activeOverlayUrl}
+  bounds={weatherMetadata.bounds}
+  opacity={0.65}
+  pane="weatherPane"
+/>
 ```
+
+Auf der Suchergebnis-Karte aktiviert der URL-Parameter `?weather=true` das Overlay
+automatisch, sobald die Metadaten geladen sind.
 
 ---
 
-## 6. Verifikation & Testing im Browser
+## 5. Verifikation im Browser
 
-1. **Backend-Server starten:**
+1. **Overlays erzeugen und Backend starten:**
    ```bash
    cd apps/backend
    npm run generate-weather-overlay
@@ -280,10 +116,11 @@ export const WeatherOverlayControl: React.FC<WeatherOverlayControlProps> = ({
 2. **Frontend starten:**
    ```bash
    cd apps/frontend
-   npm start
+   npm run dev
    ```
 3. **Funktionstests:**
-   * Klick auf `[Mo]` $\rightarrow$ Farbverlauf legt sich passgenau über die Alpen.
-   * Hineinzoomen auf Zoom $\ge 13$ $\rightarrow$ Overlay blendet weich aus, Text *(„Wetter nur bis Zoom 12 sichtbar“)* erscheint.
-   * Herauszoomen auf Zoom $\le 12$ $\rightarrow$ Overlay erscheint wieder.
-   * Klick auf `[Aus]` $\rightarrow$ Overlay verschwindet vollständig.
+   * Klick auf "Wanderwetter" → Overlay erscheint, Basiskarte wird grau, Tagesauswahl klappt auf.
+   * Wechsel zwischen den Tagen → Overlay tauscht sich aus.
+   * Hinein- und Herauszoomen → Overlay bleibt auf allen Zoomstufen sichtbar.
+   * Klick auf (i) → Legende mit Farbverlauf und "Stand:"-Zeitstempel.
+   * Erneuter Klick auf "Wanderwetter" → Overlay und Tagesauswahl verschwinden.
