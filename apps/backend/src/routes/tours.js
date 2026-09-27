@@ -1232,6 +1232,10 @@ const listWrapper = async (req, res) => {
         return res.status(200).json(responseData);
     }
 
+    // Built once: the `IN` list and the `ARRAY_POSITION` list have to stay
+    // identical, or the ordering stops being total.
+    const idList = pagedTourIds.join(", ");
+
     /**
      * The tour list, optionally enriched with the weather strip. `withWeather:
      * false` selects a literal NULL for `weather` — the same shape the join
@@ -1260,15 +1264,15 @@ const listWrapper = async (req, res) => {
                         ${withWeather ? weatherForecastJoin("t") : ""}
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
-                        AND t.id IN (${pagedTourIds.join(", ")})
-                        ORDER BY ARRAY_POSITION(ARRAY[${pagedTourIds.join(", ")}]::int[], t.id);`;
+                        AND t.id IN (${idList})
+                        ORDER BY ARRAY_POSITION(ARRAY[${idList}]::int[], t.id);`;
 
-    // logger.info("new_search_sql: ", buildSearchSql(true));
+    const runSearch = async (withWeather) =>
+        (await knex.raw(buildSearchSql(withWeather)))?.rows ?? [];
 
-    let result = [];
+    let result;
     try {
-        const result_sql = await knex.raw(buildSearchSql(true)); // fire the DB call here
-        result = result_sql?.rows ?? [];
+        result = await runSearch(true);
     } catch (weatherError) {
         // The forecast is an enrichment, not part of the search: it must never
         // cost us the results. tour_weather_daily is created by migrations
@@ -1277,8 +1281,7 @@ const listWrapper = async (req, res) => {
         // — retry once without the join and serve weatherless cards.
         logger.error("Error firing new_search_sql, retrying without weather:", weatherError);
         try {
-            const result_sql = await knex.raw(buildSearchSql(false));
-            result = result_sql?.rows ?? [];
+            result = await runSearch(false);
         } catch (error) {
             // Not a weather problem, then. Fail loudly: a 200 {tours: []} here
             // is indistinguishable from a search that legitimately matched

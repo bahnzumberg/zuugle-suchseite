@@ -63,8 +63,8 @@ export default function TourCard({
 
   const isTopTour = tour?.quality_rating >= 9 && tour?.traverse === 1;
 
-  const hasWeather = visibleWeatherDays(tour.weather).length > 0;
-  const showsWeatherStrip = hasWeather || reserveWeatherSpace;
+  const weatherDays = visibleWeatherDays(tour.weather);
+  const showsWeatherStrip = weatherDays.length > 0 || reserveWeatherSpace;
 
   return (
     <Card
@@ -273,7 +273,7 @@ export default function TourCard({
          CardContent still absorbs the grid's stretch and the stats row stays
          bottom-anchored. */}
       <WanderwetterStrip
-        days={tour.weather}
+        days={weatherDays}
         reserveSpace={reserveWeatherSpace}
       />
       {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.

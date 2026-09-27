@@ -3,22 +3,28 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import {
   formatWeatherWeekday,
-  visibleWeatherDays,
   weatherIconUrl,
   WEATHER_ICONS,
   WEATHER_STRIP_DAYS,
   type TourWeatherDay,
+  type WeatherIcon,
 } from "../../models/tourWeather";
 import { scoreToColor } from "../../models/weatherScore";
 
 export interface WanderwetterStripProps {
+  /** Already narrowed by `visibleWeatherDays` — the card needs the same list for its padding. */
   days?: TourWeatherDay[] | null;
   /** Hold the strip's height without a forecast, so stats rows stay aligned across a grid row. */
   reserveSpace?: boolean;
 }
 
-/** Any icon works for the placeholder; it is never painted. */
-const PLACEHOLDER_ICON_ID = 5;
+/** One rendered column. The placeholder is a row of empty cells, not fake weather. */
+interface StripCell {
+  key: string;
+  label: string;
+  icon: WeatherIcon | null;
+  score: number | null;
+}
 
 /** The hairline already used between the stat columns above. */
 const RULE = "#DDDDDD";
@@ -31,28 +37,34 @@ export default function WanderwetterStrip({
   reserveSpace = false,
 }: WanderwetterStripProps) {
   const { t, i18n } = useTranslation();
-  const visibleDays = visibleWeatherDays(days);
+  const visibleDays = days ?? [];
 
   if (visibleDays.length === 0 && !reserveSpace) {
     return null;
   }
 
   const isPlaceholder = visibleDays.length === 0;
-  const cells: TourWeatherDay[] = isPlaceholder
+  const cells: StripCell[] = isPlaceholder
     ? Array.from({ length: WEATHER_STRIP_DAYS }, (_, index) => ({
-        date: String(index),
-        icon: PLACEHOLDER_ICON_ID,
-        score: 50,
+        key: String(index),
+        label: " ",
+        icon: null,
+        score: null,
       }))
-    : visibleDays;
+    : visibleDays.map((day) => ({
+        key: day.date,
+        label: formatWeatherWeekday(day.date, t, i18n.language),
+        icon: day.icon === null ? null : WEATHER_ICONS[day.icon],
+        score: day.score,
+      }));
 
   return (
     <Box
       className="wanderwetter-strip"
-      role={isPlaceholder ? undefined : "group"}
-      aria-label={
-        isPlaceholder ? undefined : t("weather.button", "Wanderwetter")
-      }
+      role="group"
+      aria-label={t("weather.button", "Wanderwetter")}
+      // Hides the whole subtree from assistive tech, so the cells below need no
+      // placeholder handling of their own.
       aria-hidden={isPlaceholder || undefined}
       sx={{
         containerType: "inline-size",
@@ -86,13 +98,13 @@ export default function WanderwetterStrip({
           alignItems: "stretch",
         }}
       >
-        {cells.map((day) => {
+        {cells.map((cell) => {
           // Days with no imported data keep their column, so dates stay
           // aligned with the cards either side of this one.
-          const icon = day.icon === null ? null : WEATHER_ICONS[day.icon];
+          const { icon } = cell;
           return (
             <Box
-              key={day.date}
+              key={cell.key}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -112,9 +124,7 @@ export default function WanderwetterStrip({
                   color: "rgba(0, 0, 0, 0.45)",
                 }}
               >
-                {isPlaceholder
-                  ? " "
-                  : formatWeatherWeekday(day.date, t, i18n.language)}
+                {cell.label}
               </Typography>
               {icon === null ? (
                 <Box sx={{ width: ICON_SIZE, height: ICON_SIZE }} aria-hidden />
@@ -122,11 +132,7 @@ export default function WanderwetterStrip({
                 <Box
                   component="img"
                   src={weatherIconUrl(icon)}
-                  alt={
-                    isPlaceholder
-                      ? ""
-                      : t(`weather.condition.${icon.condition}`)
-                  }
+                  alt={t(`weather.condition.${icon.condition}`)}
                   width={34}
                   height={34}
                   loading="lazy"
@@ -163,9 +169,9 @@ export default function WanderwetterStrip({
                   height: "3px",
                   borderRadius: "2px",
                   backgroundColor:
-                    icon === null || day.score === null
+                    icon === null || cell.score === null
                       ? RULE
-                      : scoreToColor(day.score),
+                      : scoreToColor(cell.score),
                 }}
               />
             </Box>

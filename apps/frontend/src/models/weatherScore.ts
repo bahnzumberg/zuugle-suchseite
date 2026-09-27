@@ -6,7 +6,7 @@
  * job bakes into the daily WebP tiles. Keep the two in sync or the map legend
  * will stop describing its own tiles.
  */
-export const WEATHER_COLOR_STOPS: [number, string][] = [
+const WEATHER_COLOR_STOPS: [number, string][] = [
   [0.0, "#3b0f70"], // dark violet — Gefährlich
   [0.15, "#7b1fa2"],
   [0.3, "#b52a8f"],
@@ -41,11 +41,12 @@ function scoreToRgb(score: number): [number, number, number] {
     const high = PARSED_STOPS[i + 1];
     if (t > high.position) continue;
 
-    const span = high.position - low.position;
-    const ratio = span === 0 ? 0 : (t - low.position) / span;
-    return [0, 1, 2].map((c) =>
-      Math.round(low.rgb[c] + ratio * (high.rgb[c] - low.rgb[c])),
-    ) as [number, number, number];
+    const ratio = (t - low.position) / (high.position - low.position);
+    const mix = (channel: number) =>
+      Math.round(
+        low.rgb[channel] + ratio * (high.rgb[channel] - low.rgb[channel]),
+      );
+    return [mix(0), mix(1), mix(2)];
   }
   return PARSED_STOPS[PARSED_STOPS.length - 1].rgb;
 }
