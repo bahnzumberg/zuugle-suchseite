@@ -410,6 +410,7 @@
     "zoom_hint": "Météo visible uniquement jusqu'au zoom 12",
     "legend_dangerous": "Dangereux",
     "legend_excellent": "Excellent",
+    "legend_title": "Légende météo",
     "as_of": "État : {{date}}"
   }
 }
