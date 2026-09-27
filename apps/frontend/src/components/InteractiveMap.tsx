@@ -11,7 +11,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
-import { WeatherMetadata } from "../models/weatherOverlay";
+import { WeatherMetadata, filterPastDays } from "../models/weatherOverlay";
 import {
   WeatherButtonAndDays,
   WeatherLegend,
@@ -96,10 +96,11 @@ export default function InteractiveMap({
         if (!res.ok) return null;
         return res.json();
       })
-      .then((data: WeatherMetadata | null) => {
-        if (!isMounted || !data) return;
+      .then((raw: WeatherMetadata | null) => {
+        if (!isMounted || !raw) return;
+        const data = filterPastDays(raw);
         setWeatherMetadata(data);
-        if (data.days && data.days.length > 0) {
+        if (data.days.length > 0) {
           setSelectedWeatherDate(data.days[0].date);
         }
       })
