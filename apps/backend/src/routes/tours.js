@@ -1232,7 +1232,13 @@ const listWrapper = async (req, res) => {
         return res.status(200).json(responseData);
     }
 
-    const new_search_sql = `SELECT
+    /**
+     * The tour list, optionally enriched with the weather strip. `withWeather:
+     * false` selects a literal NULL for `weather` — the same shape the join
+     * produces for a tour the import has no forecast for, which the frontend
+     * already renders as a card without a strip.
+     */
+    const buildSearchSql = (withWeather) => `SELECT
                         t.id,
                         t.provider,
                         t.provider_name,
@@ -1249,28 +1255,41 @@ const listWrapper = async (req, res) => {
                         t.number_of_days,
                         quality_rating,
                         traverse,
-                        weather.forecast AS weather
+                        ${withWeather ? "weather.forecast" : "NULL::json"} AS weather
                         FROM city2tour_flat AS t
-                        ${weatherForecastJoin("t")}
+                        ${withWeather ? weatherForecastJoin("t") : ""}
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
                         AND t.id IN (${pagedTourIds.join(", ")})
                         ORDER BY ARRAY_POSITION(ARRAY[${pagedTourIds.join(", ")}]::int[], t.id);`;
 
-    // logger.info("new_search_sql: ", new_search_sql);
+    // logger.info("new_search_sql: ", buildSearchSql(true));
 
-    let result_sql = null;
     let result = [];
     try {
-        result_sql = await knex.raw(new_search_sql); // fire the DB call here
-        if (result_sql && result_sql.rows) {
-            result = result_sql.rows;
-        } else {
-            // logger.info("knex.raw(new_search_sql): result or result.rows is null or undefined.");
+        const result_sql = await knex.raw(buildSearchSql(true)); // fire the DB call here
+        result = result_sql?.rows ?? [];
+    } catch (weatherError) {
+        // The forecast is an enrichment, not part of the search: it must never
+        // cost us the results. tour_weather_daily is created by migrations
+        // 0005/0008 and refilled by the external weather import, so it can be
+        // missing or mid-rebuild while the tours themselves are perfectly fine
+        // — retry once without the join and serve weatherless cards.
+        logger.error("Error firing new_search_sql, retrying without weather:", weatherError);
+        try {
+            const result_sql = await knex.raw(buildSearchSql(false));
+            result = result_sql?.rows ?? [];
+        } catch (error) {
+            // Not a weather problem, then. Fail loudly: a 200 {tours: []} here
+            // is indistinguishable from a search that legitimately matched
+            // nothing, so it would render an empty grid under a "652 Bergtouren"
+            // headline and never show up in error monitoring.
+            logger.error("Error firing new_search_sql without weather:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error: " + error,
+            });
         }
-    } catch (error) {
-        // Without this the page silently degrades to 200 {tours: []}.
-        logger.error("Error firing new_search_sql:", error);
     }
 
     // ****************************************************************

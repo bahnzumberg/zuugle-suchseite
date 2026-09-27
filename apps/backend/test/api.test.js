@@ -111,6 +111,16 @@ function assertValidToursResponse({ response, data }) {
     expect(data.tours).toBeDefined();
     expect(Array.isArray(data.tours)).toBe(true);
 
+    // `total` comes from the cached tour-ID list, `tours` from the main search
+    // query — so an empty page 1 alongside a non-zero total means that query
+    // failed. Without this check a broken join (e.g. tour_weather_daily missing)
+    // looks exactly like a search that legitimately matched nothing, and every
+    // assertion below passes vacuously over an empty array. Page > 1 is exempt:
+    // requesting a page past the end returns [] with the full total by design.
+    if (Number(data.page) === 1 && data.total > 0) {
+        expect(data.tours.length).toBeGreaterThan(0);
+    }
+
     for (const tour of data.tours) {
         // The list path does not run prepareTourEntry, so nothing strips
         // hashed_url for it — it must never be selected in the first place.
