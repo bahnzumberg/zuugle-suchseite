@@ -365,6 +365,9 @@ export async function truncateAll() {
         "city2tour_flat",
         "pois",
         "poi2tour",
+        "overlay_weather_daily",
+        "tour_weather_daily",
+        "tour_weather_1h",
     ];
     for (const tbl of tables) {
         try {

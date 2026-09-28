@@ -85,6 +85,7 @@ export default function SearchParamSync() {
       search.externalLinks ? "true" : null,
     );
     updateParam(newParams, "map", search.map ? "true" : null);
+    updateParam(newParams, "weather", params.get("weather"));
     updateParam(newParams, "search", search.searchWithType?.term);
     updateParam(newParams, "search_type", search.searchWithType?.type);
     if (search.geolocation) {
