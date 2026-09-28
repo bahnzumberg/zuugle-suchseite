@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
+import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
 
 export function formatWeatherDayLabel(
   dateStr: string,
@@ -199,11 +200,18 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
   isActive,
 }) => {
   const { t, i18n } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const initContainer = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
     L.DomEvent.disableScrollPropagation(node);
+    L.DomEvent.disableClickPropagation(node);
   }, []);
+
+  // Close popup when weather overlay is deactivated
+  useEffect(() => {
+    if (!isActive) setIsOpen(false);
+  }, [isActive]);
 
   if (!isActive || !metadata) {
     return null;
@@ -216,74 +224,161 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
   );
 
   return (
-    <div
-      ref={initContainer}
-      className="leaflet-top leaflet-right weather-control-wrapper leaflet-control"
-      style={{
-        pointerEvents: "auto",
-        marginTop: "12px",
-        marginRight: "12px",
-        zIndex: 1000,
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <>
+      {/* (i) button in the top-right corner, styled like a leaflet-bar control */}
       <div
+        ref={initContainer}
+        className="leaflet-top leaflet-right weather-control-wrapper leaflet-control"
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.94)",
-          backdropFilter: "blur(4px)",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-          padding: "8px 12px",
-          minWidth: "175px",
-          maxWidth: "220px",
+          pointerEvents: "auto",
+          marginTop: "12px",
+          marginRight: "12px",
+          zIndex: 1000,
         }}
       >
-        {/* Gradient Bar */}
-        <div
-          style={{
-            height: "8px",
-            borderRadius: "4px",
-            background:
-              "linear-gradient(to right, #3b0f70 0%, #7b1fa2 15%, #b52a8f 30%, #e04a5f 45%, #f07d1a 58%, #e3b41c 72%, #8cbf2f 86%, #2f9e44 100%)",
-          }}
-        />
-
-        {/* Labels below gradient */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "4px",
-            fontSize: "0.72rem",
-            color: "#666666",
-            fontWeight: 500,
-          }}
-        >
-          <span>{t("weather.legend_dangerous", "Gefährlich")}</span>
-          <span>{t("weather.legend_excellent", "Ausgezeichnet")}</span>
-        </div>
-
-        {/* Subtle Divider */}
-        <div
-          style={{
-            height: "1px",
-            backgroundColor: "#ebebeb",
-            margin: "6px 0",
-          }}
-        />
-
-        {/* As of timestamp */}
-        <div
-          style={{
-            fontSize: "0.7rem",
-            color: "#666666",
-            lineHeight: 1.2,
-          }}
-        >
-          {formattedGeneratedAt}
+        <div className="leaflet-bar">
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            title={t("weather.legend_title", "Wetter-Legende")}
+            style={{
+              width: "30px",
+              height: "30px",
+              backgroundColor: "#fff",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              fontSize: "16px",
+              fontWeight: 700,
+              fontStyle: "italic",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              color: "#333",
+              lineHeight: 1,
+            }}
+            aria-label={t("weather.legend_title", "Wetter-Legende")}
+          >
+            i
+          </button>
         </div>
       </div>
-    </div>
+
+      {/* Centered modal popup with legend content */}
+      {isOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+          }}
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
+              padding: "20px 24px",
+              minWidth: "240px",
+              maxWidth: "320px",
+              width: "85vw",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Title */}
+            <div
+              style={{
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                color: "#333",
+                marginBottom: "12px",
+                textAlign: "center",
+              }}
+            >
+              {t("weather.legend_title", "Wetter-Legende")}
+            </div>
+
+            {/* Gradient Bar */}
+            <div
+              style={{
+                height: "10px",
+                borderRadius: "5px",
+                background: WEATHER_GRADIENT_CSS,
+              }}
+            />
+
+            {/* Labels below gradient */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "6px",
+                fontSize: "0.78rem",
+                color: "#666",
+                fontWeight: 500,
+              }}
+            >
+              <span>{t("weather.grade.dangerous", "Gefährlich")}</span>
+              <span>{t("weather.grade.excellent", "Ausgezeichnet")}</span>
+            </div>
+
+            {/* Divider */}
+            <div
+              style={{
+                height: "1px",
+                backgroundColor: "#ebebeb",
+                margin: "10px 0",
+              }}
+            />
+
+            {/* As of timestamp */}
+            <div
+              style={{
+                fontSize: "0.76rem",
+                color: "#666",
+                lineHeight: 1.3,
+                textAlign: "center",
+              }}
+            >
+              {formattedGeneratedAt}
+            </div>
+
+            {/* OK button */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "16px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  padding: "6px 32px",
+                  borderRadius: "6px",
+                  border: "none",
+                  backgroundColor: "#254980",
+                  color: "#fff",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background-color 0.15s ease",
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

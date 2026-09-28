@@ -144,7 +144,8 @@
     "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> è un \"motore di ricerca di itinerari in montagna Plus\" nello spazio alpino (trova itinerari in montagna e mostra i relativi orari dei trasporti) ed è di proprietà al 100 % dell'associazione senza scopo di lucro <1>Bahn zum Berg</1>. In quanto ONG, l'associazione si dedica esclusivamente alla promozione della mobilità sostenibile per le attività outdoor. Per le ricerche degli orari viene utilizzato il prodotto <2>Diana GreenConnect</2>, messo gratuitamente a disposizione di Bahn zum Berg da <3>Zuugle Services</3>.",
     "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> è un'azienda B2B indipendente. Zuugle Services professionalizza la tecnologia alla base della pianificazione degli itinerari per offrire soluzioni di mobilità su misura e orientate al futuro per aziende, regioni e fornitori di software.",
     "anfuehrung_quellen": "Le diverse fonti e condizioni di licenza degli orari dei servizi di trasporto pubblico utilizzati sono visibili qui.",
-    "gefoerdert_von": "PARTNER E SOSTENITORI"
+    "gefoerdert_von": "PARTNER E SOSTENITORI",
+    "icons_meteocons": "Icone meteo: <0>Meteocons</0> di Bas Milius (licenza MIT)."
   },
   "index": {
     "zuugle_description": "Zuugle mostra i collegamenti verificati, in treno e autobus, per itinerari alpinistici, escursionistici, scialpinistici e ciaspolistici.",
@@ -407,8 +408,26 @@
     "today": "Oggi",
     "tomorrow": "Domani",
     "zoom_hint": "Meteo visibile solo fino a zoom 12",
-    "legend_dangerous": "Pericoloso",
-    "legend_excellent": "Eccellente",
-    "as_of": "Aggiornato al: {{date}}"
+    "legend_title": "Legenda meteo",
+    "as_of": "Aggiornato al: {{date}}",
+    "grade": {
+      "excellent": "Eccellente",
+      "very_good": "Molto buono",
+      "good": "Buono",
+      "moderate": "Moderato",
+      "poor": "Scarso",
+      "dangerous": "Pericoloso"
+    },
+    "condition": {
+      "clear": "Sereno",
+      "cloudy": "Nuvoloso",
+      "overcast": "Coperto",
+      "cloudy_rain": "Nuvoloso, pioggia",
+      "cloudy_snow": "Nuvoloso, neve",
+      "overcast_rain": "Coperto, pioggia",
+      "overcast_snow": "Coperto, neve",
+      "thunderstorm": "Temporale",
+      "extreme": "Estremo"
+    }
   }
 }
