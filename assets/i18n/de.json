@@ -144,7 +144,8 @@
     "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> ist eine \"Bergtouren Suchmaschine Plus\" im Alpenraum (findet Bergtouren und zeigt die zugehörigen Fahrpläne an) und gehört zu 100 % dem gemeinnützigen Verein <1>Bahn zum Berg</1>. Als NGO konzentriert sich der Verein ausschließlich darauf, die nachhaltige Anreise zu Outdoor-Aktivitäten zu fördern. Für die Fahrplanabfrage wird das Produkt <2>Diana GreenConnect</2> eingesetzt, das von <3>Zuugle Services</3> Bahn zum Berg kostenfrei zur Verfügung gestellt wird.",
     "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> ist ein eigenständiges, unabhängiges B2B-Unternehmen. Zuugle Services professionalisiert die Technologie hinter der Tourenplanung, um maßgeschneiderte, zukunftsfähige Mobilitätslösungen für Unternehmen, Regionen und Softwareanbieter zur Verfügung zu stellen.",
     "anfuehrung_quellen": "Die unterschiedlichen Quellen und Lizenzbedingungen der eingesetzten Fahrplandaten sind hier angeführt.",
-    "gefoerdert_von": "PARTNER & FÖRDERER"
+    "gefoerdert_von": "PARTNER & FÖRDERER",
+    "icons_meteocons": "Wettersymbole: <0>Meteocons</0> von Bas Milius (MIT-Lizenz)."
   },
   "index": {
     "zuugle_description": "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.",
@@ -408,9 +409,26 @@
     "button": "Wanderwetter",
     "today": "Heute",
     "tomorrow": "Morgen",
-    "legend_dangerous": "Gefährlich",
-    "legend_excellent": "Ausgezeichnet",
     "legend_title": "Wetter-Legende",
-    "as_of": "Stand: {{date}} Uhr"
+    "as_of": "Stand: {{date}} Uhr",
+    "grade": {
+      "excellent": "Aus\u00adge\u00adzeich\u00adnet",
+      "very_good": "Sehr gut",
+      "good": "Gut",
+      "moderate": "Mäßig",
+      "poor": "Schlecht",
+      "dangerous": "Gefährlich"
+    },
+    "condition": {
+      "clear": "Klar",
+      "cloudy": "Bewölkt",
+      "overcast": "Bedeckt",
+      "cloudy_rain": "Bewölkt, Regen",
+      "cloudy_snow": "Bewölkt, Schnee",
+      "overcast_rain": "Bedeckt, Regen",
+      "overcast_snow": "Bedeckt, Schnee",
+      "thunderstorm": "Gewitter",
+      "extreme": "Extrem"
+    }
   }
 }

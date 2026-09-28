@@ -144,7 +144,8 @@
     "lizenz_absatz1": "<4><0>{{domain}}</0> (Zuugle)</4> est un « moteur de recherche de randonnées en montagne Plus » dans l'espace alpin (trouve des randonnées en montagne et affiche les horaires correspondants) et appartient à 100 % à l'association à but non lucratif <1>Bahn zum Berg</1>. En tant qu'ONG, l'association se consacre exclusivement à la promotion de la mobilité durable pour les activités de plein air. Pour les recherches d'horaires, le produit <2>Diana GreenConnect</2> est utilisé, mis gratuitement à la disposition de Bahn zum Berg par <3>Zuugle Services</3>.",
     "lizenz_absatz2": "<1><0>Zuugle Services GmbH</0> (Zuugle Services)</1> est une entreprise B2B indépendante. Zuugle Services professionnalise la technologie de la planification de randonnées afin de proposer des solutions de mobilité sur mesure et durables aux entreprises, régions et fournisseurs de logiciels.",
     "anfuehrung_quellen": "Les différentes sources et les conditions de licence pour les données d'horaires utilisées sont indiquées ici.",
-    "gefoerdert_von": "PARTENAIRES & SOUTIENS"
+    "gefoerdert_von": "PARTENAIRES & SOUTIENS",
+    "icons_meteocons": "Icônes météo : <0>Meteocons</0> de Bas Milius (licence MIT)."
   },
   "index": {
     "zuugle_description": "Zuugle vous indique les correspondances vérifiées en train et en bus pour les sorties en montagne, les randonnées à pied ou à ski, les randonnées en raquettes, etc. au départ de votre domicile.",
@@ -407,9 +408,26 @@
     "button": "Météo rando",
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
-    "legend_dangerous": "Dangereux",
-    "legend_excellent": "Excellent",
     "legend_title": "Légende météo",
-    "as_of": "État : {{date}}"
+    "as_of": "État : {{date}}",
+    "grade": {
+      "excellent": "Excellent",
+      "very_good": "Très bon",
+      "good": "Bon",
+      "moderate": "Modéré",
+      "poor": "Médiocre",
+      "dangerous": "Dangereux"
+    },
+    "condition": {
+      "clear": "Dégagé",
+      "cloudy": "Nuageux",
+      "overcast": "Couvert",
+      "cloudy_rain": "Nuageux, pluie",
+      "cloudy_snow": "Nuageux, neige",
+      "overcast_rain": "Couvert, pluie",
+      "overcast_snow": "Couvert, neige",
+      "thunderstorm": "Orage",
+      "extreme": "Extrême"
+    }
   }
 }

@@ -5,6 +5,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
+import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
 
 export function formatWeatherDayLabel(
   dateStr: string,
@@ -121,16 +122,15 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
             gap: "7px",
             padding: "7px 16px",
             borderRadius: "9999px",
-            border: isActive ? "none" : "1px solid rgba(0, 0, 0, 0.12)",
+            border: `1px solid ${isActive ? "#712579" : "rgba(0, 0, 0, 0.12)"}`,
             backgroundColor: isActive ? "#712579" : "rgba(255, 255, 255, 0.95)",
             color: isActive ? "#ffffff" : "#254980",
             cursor: "pointer",
             fontWeight: 700,
             fontSize: "0.85rem",
-            boxShadow: isActive
-              ? "0 2px 8px rgba(113, 37, 121, 0.4)"
-              : "0 2px 6px rgba(0, 0, 0, 0.15)",
-            transition: "all 0.18s ease-in-out",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+            transition:
+              "background-color 0.18s ease-in-out, border-color 0.18s ease-in-out, color 0.18s ease-in-out",
           }}
         >
           <CloudQueueOutlinedIcon
@@ -165,19 +165,16 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
                     borderRadius: "16px",
                     padding: "4px 12px",
                     fontSize: "0.75rem",
-                    fontWeight: isSelected ? 700 : 600,
-                    border: isSelected
-                      ? "none"
-                      : "1px solid rgba(0, 0, 0, 0.15)",
+                    fontWeight: 600,
+                    border: `1px solid ${isSelected ? "#712579" : "rgba(0, 0, 0, 0.15)"}`,
                     backgroundColor: isSelected
                       ? "#712579"
                       : "rgba(255, 255, 255, 0.95)",
                     color: isSelected ? "#ffffff" : "#333333",
                     cursor: "pointer",
-                    boxShadow: isSelected
-                      ? "0 2px 6px rgba(113, 37, 121, 0.4)"
-                      : "0 1px 4px rgba(0, 0, 0, 0.1)",
-                    transition: "all 0.15s ease-in-out",
+                    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
+                    transition:
+                      "background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out",
                   }}
                 >
                   {label}
@@ -310,8 +307,7 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
               style={{
                 height: "10px",
                 borderRadius: "5px",
-                background:
-                  "linear-gradient(to right, #3b0f70 0%, #7b1fa2 15%, #b52a8f 30%, #e04a5f 45%, #f07d1a 58%, #e3b41c 72%, #8cbf2f 86%, #2f9e44 100%)",
+                background: WEATHER_GRADIENT_CSS,
               }}
             />
 
@@ -326,8 +322,8 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
                 fontWeight: 500,
               }}
             >
-              <span>{t("weather.legend_dangerous", "Gefährlich")}</span>
-              <span>{t("weather.legend_excellent", "Ausgezeichnet")}</span>
+              <span>{t("weather.grade.dangerous", "Gefährlich")}</span>
+              <span>{t("weather.grade.excellent", "Ausgezeichnet")}</span>
             </div>
 
             {/* Divider */}

@@ -14,15 +14,23 @@ import { useSelector } from "react-redux";
 import { RootState } from "..";
 import FavoriteButton from "./Favorites/FavoriteButton";
 import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
+import WanderwetterStrip from "./Weather/WanderwetterStrip";
+import { visibleWeatherDays } from "../models/tourWeather";
 
 const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
+  /** See `WanderwetterStrip`'s `reserveSpace`. */
+  reserveWeatherSpace?: boolean;
 }
 
-export default function TourCard({ tour, city }: TourCardProps) {
+export default function TourCard({
+  tour,
+  city,
+  reserveWeatherSpace = false,
+}: TourCardProps) {
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
@@ -54,6 +62,9 @@ export default function TourCard({ tour, city }: TourCardProps) {
   }
 
   const isTopTour = tour?.quality_rating >= 9 && tour?.traverse === 1;
+
+  const weatherDays = visibleWeatherDays(tour.weather);
+  const showsWeatherStrip = weatherDays.length > 0 || reserveWeatherSpace;
 
   return (
     <Card
@@ -98,7 +109,10 @@ export default function TourCard({ tour, city }: TourCardProps) {
             flexDirection: "column",
             flexGrow: 1,
             "&:last-child": {
-              paddingBottom: { xs: "16px", sm: "24px" },
+              // The strip below owns the card's bottom padding when it renders.
+              paddingBottom: showsWeatherStrip
+                ? { xs: "10px", sm: "12px" }
+                : { xs: "16px", sm: "24px" },
             },
           }}
         >
@@ -252,6 +266,16 @@ export default function TourCard({ tour, city }: TourCardProps) {
           </Box>
         </CardContent>
       </Link>
+      {/* Outside the card-wide Link on purpose: the weather is information about
+         the tour, not a second way to navigate to it, and folding four days of
+         weekday/condition/grade text into the link's accessible name would bury
+         the title. It also keeps the strip a fixed-height Card footer, so
+         CardContent still absorbs the grid's stretch and the stats row stays
+         bottom-anchored. */}
+      <WanderwetterStrip
+        days={weatherDays}
+        reserveSpace={reserveWeatherSpace}
+      />
       {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.
          pointerEvents let clicks fall through to the card except on the heart. */}
       <Box

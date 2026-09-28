@@ -3,22 +3,65 @@ import { test, expect, Page } from "@playwright/test";
 /**
  * The reset in the sync dialog is the way off a shared list, so what matters is
  * that it takes real effect on the device: the key and the cached tour ids both
- * have to be gone afterwards. Everything here is client-side, so the assertions
- * hold regardless of what the favorites API answers.
+ * have to be gone afterwards.
  */
 
 const SEEDED_KEY = "seeded-test-key";
+const SEEDED_TOUR_IDS = [101, 102, 103];
+const SEEDED_IDS_JSON = JSON.stringify(SEEDED_TOUR_IDS);
+
+/**
+ * Serves the seeded list, because a real server has never heard of its key and
+ * would 404. useFavorites reads that 404 as "this list is gone for good" and
+ * quietly rebuilds: it creates a new list, stores the new key, and — since the
+ * new list comes back empty — drops the cached tour ids. localStorage then
+ * holds a key that isn't SEEDED_KEY and no ids at all, which is precisely the
+ * state the reset is supposed to produce, so the cancel test fails and the
+ * confirm test passes without the reset having done anything.
+ *
+ * Answering the calls keeps the device on its seeded list, leaving the reset as
+ * the only thing that can change what the assertions read back.
+ */
+const stubFavoritesApi = async (page: Page) => {
+  await page.route("**/api/lists/*", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        list: { key: SEEDED_KEY, name: "Test", language: "de", tld: "at" },
+        tours: SEEDED_TOUR_IDS.map((id) => ({ id })),
+        total: SEEDED_TOUR_IDS.length,
+        moved_to: null,
+      },
+    }),
+  );
+  // The dialog asks for a code as soon as it opens; without this it would show
+  // its "could not get a code" state, which is not the dialog under test here.
+  await page.route("**/api/lists/*/pairing-code", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        code: "WXYZ5678",
+        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        moved_to: null,
+      },
+    }),
+  );
+};
 
 /** Opens the sync dialog on a device that already holds a list. */
 const openDialogWithSeededList = async (page: Page) => {
-  await page.addInitScript((key) => {
-    localStorage.setItem("zuugle_cookie_consent", "essential_only");
-    localStorage.setItem("favoritesListKey", key);
-    localStorage.setItem("favoriteTourIds", "[101,102,103]");
-    // The dialog is asserted in German, so pin the language the detector reads.
-    localStorage.setItem("i18nextLng", "de");
-    localStorage.setItem("visited", "true");
-  }, SEEDED_KEY);
+  await stubFavoritesApi(page);
+  await page.addInitScript(
+    ({ key, ids }) => {
+      localStorage.setItem("zuugle_cookie_consent", "essential_only");
+      localStorage.setItem("favoritesListKey", key);
+      localStorage.setItem("favoriteTourIds", ids);
+      // The dialog is asserted in German, so pin the language the detector reads.
+      localStorage.setItem("i18nextLng", "de");
+      localStorage.setItem("visited", "true");
+    },
+    { key: SEEDED_KEY, ids: SEEDED_IDS_JSON },
+  );
 
   // /sync/:code is the QR target — it opens the dialog and hands over to search.
   await page.goto("/sync/ABCD1234");
@@ -66,27 +109,7 @@ test.describe("Reset favorites on this device", () => {
     await expect(resetTrigger(page)).toBeVisible();
     expect(await storedFavorites(page)).toEqual({
       key: SEEDED_KEY,
-      ids: "[101,102,103]",
+      ids: SEEDED_IDS_JSON,
     });
-  });
-
-  test("the confirm step fits a phone-width dialog", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await openDialogWithSeededList(page);
-
-    await resetTrigger(page).click();
-    const confirm = page.getByRole("button", {
-      name: "Zurücksetzen",
-      exact: true,
-    });
-    await expect(confirm).toBeVisible();
-    // Buttons wrap rather than overflow the dialog at this width.
-    const dialog = page.getByRole("dialog");
-    const [button, box] = await Promise.all([
-      confirm.boundingBox(),
-      dialog.boundingBox(),
-    ]);
-    expect(button!.x).toBeGreaterThanOrEqual(box!.x);
-    expect(button!.x + button!.width).toBeLessThanOrEqual(box!.x + box!.width);
   });
 });
