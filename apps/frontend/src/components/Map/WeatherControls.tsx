@@ -86,6 +86,8 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
   const initContainer = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
     L.DomEvent.disableScrollPropagation(node);
+    // Without this the map underneath unexpectedly reacts to mousedown/touchstart/dblclick
+    L.DomEvent.disableClickPropagation(node);
   }, []);
 
   if (!metadata || !metadata.days || metadata.days.length === 0) {

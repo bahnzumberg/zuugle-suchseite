@@ -410,7 +410,6 @@
     "button": "Pohodno vreme",
     "today": "Danes",
     "tomorrow": "Jutri",
-    "zoom_hint": "Vreme je vidno le do povečave 12",
     "legend_title": "Legenda vremena",
     "as_of": "Stanje: {{date}}",
     "grade": {

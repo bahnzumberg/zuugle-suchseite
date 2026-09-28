@@ -407,7 +407,6 @@
     "button": "Meteo escursioni",
     "today": "Oggi",
     "tomorrow": "Domani",
-    "zoom_hint": "Meteo visibile solo fino a zoom 12",
     "legend_title": "Legenda meteo",
     "as_of": "Aggiornato al: {{date}}",
     "grade": {

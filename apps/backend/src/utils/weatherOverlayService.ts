@@ -68,7 +68,7 @@ const parsedStops = COLOR_STOPS.map(([pos, hex]) => ({
 
 /**
  * Precomputed lookup table for scores from 0.0 to 100.0 with 0.1 resolution.
- * Index 0..1000 -> Uint8ClampedArray of 4 bytes [R, G, B, A].
+ * Index 0..1000 -> 4 bytes [R, G, B, A].
  */
 const COLOR_LUT: Uint8Array = (() => {
     const lut = new Uint8Array(1001 * 4);
@@ -101,8 +101,8 @@ const COLOR_LUT: Uint8Array = (() => {
 
 /**
  * Precompute 1D coordinate transformations:
- * X -> longitude -> fractional grid column (0..124)
- * Y -> Web Mercator -> latitude -> fractional grid row (0..64)
+ * X -> longitude -> fractional grid column (0..numLons - 1)
+ * Y -> Web Mercator -> latitude -> fractional grid row (0..numLats - 1)
  */
 interface ProjectionArrays {
     colIndex: Int32Array;
@@ -155,7 +155,7 @@ const PROJECTION: ProjectionArrays = (() => {
 })();
 
 /**
- * Creates a 65 x 125 Float32Array grid from database rows for one day.
+ * Creates a numLats x numLons Float32Array grid from database rows for one day.
  */
 export function buildGridFromRows(rows: WeatherRow[]): Float32Array {
     const { numLats, numLons, latMax, lonMin, deltaLat, deltaLon } = GRID_CONFIG;
@@ -252,10 +252,10 @@ export function computeDataPresenceMask(grid: Float32Array, blurRadius: number =
 }
 
 /**
- * Generates an RGBA buffer (2048 x 1544 x 4) by bilinearly interpolating the grid.
+ * Generates an RGBA buffer (width x height x 4) by bilinearly interpolating the grid.
  * If presenceMask is provided, areas without data are smoothly feathered to transparent.
  */
-export function interpolateGridToRgba(grid: Float32Array, alpsMask?: Float32Array): Buffer {
+export function interpolateGridToRgba(grid: Float32Array, presenceMask?: Float32Array): Buffer {
     const { width, height, numLats, numLons } = GRID_CONFIG;
     const { colIndex, colFrac, rowIndex, rowFrac } = PROJECTION;
     const rgba = Buffer.alloc(width * height * 4);
@@ -277,13 +277,13 @@ export function interpolateGridToRgba(grid: Float32Array, alpsMask?: Float32Arra
             const dc = colFrac[px];
             const invDc = 1 - dc;
 
-            // Optional Alpine mask interpolation
+            // Optional presence mask interpolation
             let maskWeight = 1.0;
-            if (alpsMask) {
-                const m00 = alpsMask[r0Offset + c0];
-                const m01 = alpsMask[r0Offset + c1];
-                const m10 = alpsMask[r1Offset + c0];
-                const m11 = alpsMask[r1Offset + c1];
+            if (presenceMask) {
+                const m00 = presenceMask[r0Offset + c0];
+                const m01 = presenceMask[r0Offset + c1];
+                const m10 = presenceMask[r1Offset + c0];
+                const m11 = presenceMask[r1Offset + c1];
                 maskWeight =
                     invDr * invDc * m00 + invDr * dc * m01 + dr * invDc * m10 + dr * dc * m11;
             }

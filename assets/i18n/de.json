@@ -409,7 +409,6 @@
     "button": "Wanderwetter",
     "today": "Heute",
     "tomorrow": "Morgen",
-    "zoom_hint": "Wetter nur bis Zoom 12 sichtbar",
     "legend_title": "Wetter-Legende",
     "as_of": "Stand: {{date}} Uhr",
     "grade": {

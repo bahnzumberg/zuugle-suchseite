@@ -408,7 +408,6 @@
     "button": "Météo rando",
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
-    "zoom_hint": "Météo visible uniquement jusqu'au zoom 12",
     "legend_title": "Légende météo",
     "as_of": "État : {{date}}",
     "grade": {

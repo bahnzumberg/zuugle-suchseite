@@ -408,7 +408,6 @@
     "button": "Hiking weather",
     "today": "Today",
     "tomorrow": "Tomorrow",
-    "zoom_hint": "Weather only visible up to zoom 12",
     "legend_title": "Weather Legend",
     "as_of": "As of: {{date}}",
     "grade": {
