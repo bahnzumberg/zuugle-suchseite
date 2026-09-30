@@ -22,7 +22,7 @@ and install all dependencies.
 ### Configure the environment
 
 All settings are read from a gitignored `.env` (see `src/knexfile.js`,
-`src/knexfileTourenDb.js`, `src/config.js`). Create one from the template:
+`src/config.js`). Create one from the template:
 
     cp ./.env.example ./.env
 
@@ -76,10 +76,10 @@ npm run import-data
 running Compose `postgres` container (no local `psql`/`pg_restore` needed); in the dev
 container or on a native host it uses the local `pg_restore` instead.
 
-> **PROD only:** `import-data-prod` (`syncDataProd.js`) is the production sync path — it
-> reads tour data directly from the live MySQL source database via `knexTourenDb` and
-> requires `TOUREN_DB_HOST/USER/PASSWORD/NAME` to be set. Local, DEV, and UAT
-> environments all use `import-data` (the dump) and leave those vars blank.
+> **PROD only:** `import-data-prod` (`syncDataProd.js`) is the production sync path.
+> It expects the `tour_load` staging table to be already populated (by an external
+> loader) and then applies image-URL fixes and swaps the data into the live `tour`
+> table. Local, DEV, and UAT environments use `import-data` (the dump) instead.
 
 
 
