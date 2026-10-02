@@ -704,6 +704,27 @@ async function createFileFromGpx(
 }
 
 export async function syncTours() {
+    const [{ cnt: loadCount }] = await knex("tour_load").count("* as cnt");
+    const [{ cnt: liveCount }] = await knex("tour").count("* as cnt");
+
+    const numLoad = Number(loadCount);
+    const numLive = Number(liveCount);
+
+    if (numLoad === 0) {
+        logger.error(
+            "SYNC TOURS ABORT: tour_load is empty — refusing to truncate tour. Continuing with tours from previous day.",
+        );
+        return false;
+    }
+    if (numLive > 0 && numLoad < numLive * 0.8) {
+        logger.error(
+            `SYNC TOURS ABORT: tour_load has ${numLoad} rows vs ${numLive} live (>20% drop) — refusing swap. Continuing with tours from previous day.`,
+        );
+        return false;
+    }
+
+    logger.info(`Validating tour_load OK: ${numLoad} incoming rows vs ${numLive} live rows.`);
+
     // ── Step 1: Apply image_url fixes on staging table ───────────
     await knex.raw(`UPDATE tour_load SET image_url=NULL WHERE image_url='null';`);
     await knex.raw(
@@ -715,6 +736,7 @@ export async function syncTours() {
     await knex.raw(`TRUNCATE tour;`);
     await knex.raw(`INSERT INTO tour SELECT * FROM tour_load;`);
     // ── Site downtime ends here ──────────────────────────────────
+    return true;
 }
 
 export async function syncCities() {
