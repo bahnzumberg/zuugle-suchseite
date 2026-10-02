@@ -22,16 +22,16 @@ import {
 
 export interface InteractiveMapProps {
   gpxPositions: L.LatLngExpression[];
-  anreiseGpxPositions: L.LatLngExpression[];
-  abreiseGpxPositions: L.LatLngExpression[];
+  anreiseGpxPositions?: L.LatLngExpression[];
+  abreiseGpxPositions?: L.LatLngExpression[];
   scrollWheelZoom?: boolean;
   hoveredStop?: { lat: number; lon: number } | null;
 }
 
 export default function InteractiveMap({
   gpxPositions,
-  anreiseGpxPositions,
-  abreiseGpxPositions,
+  anreiseGpxPositions = [],
+  abreiseGpxPositions = [],
   scrollWheelZoom = false,
   hoveredStop,
 }: InteractiveMapProps) {
