@@ -27,14 +27,11 @@ export function formatWeatherDayLabel(
   if (diffDays === 0) {
     return t("weather.today", { defaultValue: "Heute" });
   }
-  if (diffDays === 1) {
-    return t("weather.tomorrow", { defaultValue: "Morgen" });
-  }
 
   const weekday = targetDate.toLocaleDateString(locale, { weekday: "short" });
   const padDay = String(dd).padStart(2, "0");
   const padMonth = String(dm).padStart(2, "0");
-  return `${weekday}, ${padDay}.${padMonth}.`;
+  return `${weekday} ${padDay}.${padMonth}.`;
 }
 
 export function formatWeatherGeneratedAt(
@@ -153,7 +150,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
               maxWidth: "340px",
             }}
           >
-            {metadata.days.map((day) => {
+            {metadata.days.slice(0, 4).map((day) => {
               const isSelected = selectedDate === day.date;
               const label = formatWeatherDayLabel(day.date, t, i18n.language);
               return (
