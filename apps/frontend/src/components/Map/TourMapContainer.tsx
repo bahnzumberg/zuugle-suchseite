@@ -61,6 +61,7 @@ import {
   WeatherClassWatcher,
   FullscreenControl,
 } from "./WeatherControls";
+import { useWeatherOverlayPrefetch } from "../../hooks/useWeatherOverlayPrefetch";
 
 // Re-export Marker for backward compatibility
 export type { Marker };
@@ -267,6 +268,14 @@ export default function TourMapContainer({
       if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
         setSelectedWeatherDate(weatherMetadata.days[0].date);
       }
+      // Sync ?weather= URL parameter
+      const url = new URL(window.location.href);
+      if (next) {
+        url.searchParams.set("weather", "true");
+      } else {
+        url.searchParams.delete("weather");
+      }
+      window.history.replaceState(null, "", url.toString());
       return next;
     });
   }, [selectedWeatherDate, weatherMetadata]);
@@ -284,6 +293,12 @@ export default function TourMapContainer({
     if (!activeWeatherDay) return null;
     return assetUrl(`weather/${activeWeatherDay.file}`);
   }, [activeWeatherDay]);
+
+  const { onOverlayLoad } = useWeatherOverlayPrefetch(
+    weatherMetadata,
+    isWeatherActive,
+    activeWeatherDay?.file,
+  );
 
   useEffect(() => {
     if (!activeMarker) {
@@ -528,6 +543,9 @@ export default function TourMapContainer({
             bounds={weatherMetadata.bounds}
             opacity={0.65}
             pane="weatherPane"
+            eventHandlers={{
+              load: onOverlayLoad,
+            }}
           />
         )}
         {!geolocation && pois.length === 0 && (
