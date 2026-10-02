@@ -16,6 +16,7 @@ import {
 } from "../assetPaths";
 import crypto from "crypto";
 import logger from "../logger";
+import { isCutoffReached } from "../timeCutoff";
 
 // Error image detection - stores hashes of known error images (London, 502, white, etc.)
 // To add a new error image: just add the filename to ERROR_IMAGE_FILES
@@ -629,10 +630,9 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         if (stopProcessing) return;
 
                         // Check time limit
-                        const currentHour = new Date().getHours();
-                        if (currentHour >= 23) {
+                        if (isCutoffReached()) {
                             if (!stopProcessing) {
-                                logger.info("Stopping image creation due to time limit (23:00).");
+                                logger.info("Stopping image creation due to time cutoff (23:00).");
                                 stopProcessing = true;
                             }
                             return;
@@ -672,8 +672,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                         await asyncPool(PARALLEL_LIMIT, errorImageTours, async (tourID) => {
                             if (stopProcessing) return;
 
-                            const currentHour = new Date().getHours();
-                            if (currentHour >= 23) {
+                            if (isCutoffReached()) {
                                 stopProcessing = true;
                                 return;
                             }
@@ -717,14 +716,12 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
     // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
     // Nur ausführen wenn: nicht rekursiv UND vor 23:00
     if (!isRecursiveCall) {
-        const currentHour = new Date().getHours();
-
-        if (currentHour < 23) {
+        if (!isCutoffReached()) {
             logger.info(`Starting final check for old images...`);
             await cleanAndRecreateOldImages();
             logger.info(`Final image check and recreation finished.`);
         } else {
-            logger.info("Skipping cleanAndRecreateOldImages due to time limit (23:00+).");
+            logger.info("Skipping cleanAndRecreateOldImages due to time cutoff (23:00).");
         }
 
         // Note: Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
