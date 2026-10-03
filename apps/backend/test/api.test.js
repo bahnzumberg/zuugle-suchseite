@@ -86,8 +86,13 @@ function assertValidTourWeather(tour) {
     expect(tour.weather).toHaveLength(WEATHER_FORECAST_DAYS);
     expect(tour.weather[0].date).toBe(todayInVienna());
 
+    assertValidWeatherDays(tour.weather);
+}
+
+/** Shared by the card strip and the detail endpoint: ascending dates, icon 1..18, score 0..100. */
+function assertValidWeatherDays(days) {
     let previousDate = null;
-    for (const day of tour.weather) {
+    for (const day of days) {
         expect(day.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         if (previousDate !== null) expect(day.date > previousDate).toBe(true);
         previousDate = day.date;
@@ -101,6 +106,53 @@ function assertValidTourWeather(tour) {
             expect(typeof day.score).toBe("number");
             expect(day.score).toBeGreaterThanOrEqual(0);
             expect(day.score).toBeLessThanOrEqual(100);
+        }
+    }
+}
+
+const TOUR_WEATHER_HOUR_FIELDS = [
+    "temp_high_c",
+    "temp_low_c",
+    "sunshine_h",
+    "precipitation_mm",
+    "wind_speed_kmh",
+    "wind_direction_deg",
+    "thunderstorm_pct",
+    "freezing_level_m",
+];
+
+/**
+ * The detail endpoint contract: [] or WEATHER_FORECAST_DAYS days starting today,
+ * each with local HH:MM sunrise/sunset and unique ascending local hours 0..23.
+ */
+function assertValidTourWeatherDetail(days) {
+    expect(Array.isArray(days)).toBe(true);
+    if (days.length === 0) return;
+
+    expect(days).toHaveLength(WEATHER_FORECAST_DAYS);
+    expect(days[0].date).toBe(todayInVienna());
+    assertValidWeatherDays(days);
+
+    for (const day of days) {
+        for (const time of [day.sunrise, day.sunset]) {
+            if (time !== null) expect(time).toMatch(/^\d{2}:\d{2}$/);
+        }
+
+        expect(Array.isArray(day.hours)).toBe(true);
+        let previousHour = -1;
+        for (const hour of day.hours) {
+            expect(Number.isInteger(hour.hour)).toBe(true);
+            expect(hour.hour).toBeGreaterThan(previousHour);
+            expect(hour.hour).toBeLessThanOrEqual(23);
+            previousHour = hour.hour;
+
+            if (hour.icon !== null) {
+                expect(hour.icon).toBeGreaterThanOrEqual(1);
+                expect(hour.icon).toBeLessThanOrEqual(18);
+            }
+            for (const field of TOUR_WEATHER_HOUR_FIELDS) {
+                expect(hour[field] === null || typeof hour[field] === "number").toBe(true);
+            }
         }
     }
 }
@@ -233,6 +285,47 @@ describe("Zuugle API UAT Tests", () => {
             tour.weather.map((day) => day.icon).filter((icon) => icon !== null),
         );
         expect(icons.length).toBeGreaterThan(0);
+    });
+
+    test("GET /api/tours/:id/weather rejects invalid and unknown ids", async () => {
+        for (const id of ["abc", "0", "2147483648"]) {
+            const response = await fetch(`${baseUrl}/api/tours/${id}/weather`, {
+                headers: getHeaders(),
+            });
+            expect(response.status).toBe(400);
+        }
+        const response = await fetch(`${baseUrl}/api/tours/2147483647/weather`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(404);
+    });
+
+    test("GET /api/tours/:id/weather returns the hourly forecast", async () => {
+        /**
+         * Like the strip test above: the weather import may not have run on
+         * this environment, so a missing forecast warns instead of failing.
+         */
+        const searchUrl = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const search = await (
+            await fetch(searchUrl, { method: "POST", headers: getHeaders() })
+        ).json();
+        const tour = search.tours?.find((candidate) => Array.isArray(candidate.weather));
+        if (!tour) {
+            console.warn("No tour on page 1 has weather data — skipping /weather assertions");
+            return;
+        }
+
+        const response = await fetch(`${baseUrl}/api/tours/${tour.id}/weather`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        assertValidTourWeatherDetail(data.days);
+
+        // Same source table as the card strip, so the daily icons must agree.
+        expect(data.days.map((day) => day.icon)).toEqual(tour.weather.map((day) => day.icon));
+        expect(data.days.some((day) => day.hours.length > 0)).toBe(true);
     });
 
     test("POST /api/tours returns page 1 in a stable order", async () => {
