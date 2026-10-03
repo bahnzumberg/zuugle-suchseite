@@ -32,9 +32,9 @@ const RETRY_DELAY_MS = 30000; // Wartezeit zwischen Retries (30 Sekunden)
 const updateQueue = [];
 let drainPromise = null; // Serialisiert Flush-Aufrufe
 
-const createImageHash = async (imagePath) => {
+const createImageHash = async (imageInput) => {
     try {
-        const imageBuffer = await sharp(imagePath).toBuffer();
+        const imageBuffer = await sharp(imageInput).toBuffer();
         const hash = crypto.createHash("sha256").update(imageBuffer).digest("hex");
         return hash;
     } catch (e) {
@@ -62,14 +62,14 @@ const initErrorImageHashes = async () => {
 };
 
 // Check if an image matches any known error image
-const isErrorImage = async (imagePath) => {
+const isErrorImage = async (imageInput) => {
     if (errorImageHashes.size === 0) {
         logger.error("Error image hashes not initialized.");
         return false;
     }
 
     try {
-        const hash = await createImageHash(imagePath);
+        const hash = await createImageHash(imageInput);
         return errorImageHashes.has(hash);
     } catch (e) {
         logger.error("Error checking image:", e);
@@ -267,81 +267,58 @@ const handleImagePlaceholder = async (tourId) => {
     }
 };
 
-// Neue Hilfsfunktion für die Bildgenerierung
+// Hilfsfunktion für die Bildgenerierung
 // Returns: 'success' | 'error_image' | 'failed'
-const processAndCreateImage = async (tourId, browser, url) => {
-    let filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourId));
-    let dirPath = path.dirname(filePathSmallWebp);
-    let filePath = path.join(dirPath, tourId + "_gpx.png");
+const processAndCreateImage = async (tourId, pageOrBrowser, url) => {
+    const filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourId));
+    const dirPath = path.dirname(filePathSmallWebp);
     const MAX_GENERATION_TIME = 300000;
 
     try {
         if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath);
+            fs.mkdirSync(dirPath, { recursive: true });
         }
 
+        // In-Memory-Screenshot (Ad 1D): kein temporäres PNG auf der Festplatte
         const generationPromise = createImageFromMap(
-            browser,
-            filePath,
+            pageOrBrowser,
+            null,
             url + tourGpxPath(tourId),
-            100,
         );
         const timeoutPromise = new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error("Image generation timeout")), MAX_GENERATION_TIME);
         });
 
-        await Promise.race([generationPromise, timeoutPromise]);
+        const pngBuffer = await Promise.race([generationPromise, timeoutPromise]);
 
-        if (fs.existsSync(filePath)) {
+        if (pngBuffer && Buffer.isBuffer(pngBuffer)) {
+            let webpBuffer;
             try {
-                await sharp(filePath)
+                webpBuffer = await sharp(pngBuffer)
                     .resize({
                         width: 784,
                         height: 523,
                         fit: "inside",
                     })
                     .webp({ quality: 15 })
-                    .toFile(filePathSmallWebp);
+                    .toBuffer();
             } catch (e) {
                 logger.warn(`gpxUtils.sharp.resize error for tour ${tourId}: ${e.message}`);
-                // Try to delete corrupt source file
-                try {
-                    if (await fs.pathExists(filePath)) {
-                        await fs.unlink(filePath);
-                    }
-                } catch {
-                    // ignore
-                }
                 return "error_image"; // Trigger retry
             }
 
-            if (fs.existsSync(filePathSmallWebp)) {
-                try {
-                    await fs.unlink(filePath);
-                } catch {
-                    // ignore ENOENT
-                }
-                const isError = await isErrorImage(filePathSmallWebp);
-                if (isError) {
-                    logger.info(`Detected error image for tour ${tourId} - will retry later.`);
-                    try {
-                        await fs.unlink(filePathSmallWebp);
-                    } catch {
-                        // ignore ENOENT
-                    }
-                    return "error_image"; // Don't set placeholder yet - allow retry
-                } else {
-                    logger.debug("Gpx image small file created:", filePathSmallWebp);
-                    dispatchDbUpdate(tourId, gpxImagePath(tourId), true);
-                    return "success";
-                }
+            const isError = await isErrorImage(webpBuffer);
+            if (isError) {
+                logger.info(`Detected error image for tour ${tourId} - will retry later.`);
+                return "error_image"; // Don't set placeholder yet - allow retry
             } else {
-                logger.warn("NO gpx image small file created for tour", tourId);
-                await handleImagePlaceholder(tourId);
-                return "failed";
+                await fs.promises.writeFile(filePathSmallWebp, webpBuffer);
+                logger.debug("Gpx image small file created:", filePathSmallWebp);
+                dispatchDbUpdate(tourId, gpxImagePath(tourId), true);
+                return "success";
             }
         } else {
-            logger.warn("NO image file created:", filePath);
+            logger.warn("NO image buffer created for tour", tourId);
             await handleImagePlaceholder(tourId);
             return "failed";
         }
@@ -597,110 +574,145 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
 
                 // Prozess 2: Bildgenerierung (ohne Tile Pre-Warming)
                 // Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
+                // Prozess 2: Bildgenerierung mit Worker-Pool langlebiger Tabs (Ad 2B)
                 (async () => {
                     const PARALLEL_LIMIT = isProd ? 5 : 2;
+                    const workerCount = Math.min(PARALLEL_LIMIT, idsForCreation.length);
 
-                    logger.info(`Starting image generation for ${idsForCreation.length} tours...`);
+                    logger.info(
+                        `Starting image generation for ${idsForCreation.length} tours (workers: ${workerCount})...`,
+                    );
 
-                    // Simple parallel processing without tile checking
-                    async function asyncPool(poolLimit, array, iteratorFn) {
-                        const ret = [];
-                        const executing = [];
-                        for (const item of array) {
-                            const p = Promise.resolve().then(() => iteratorFn(item, array));
-                            ret.push(p);
+                    if (workerCount === 0) {
+                        logger.info("All image creations finished.");
+                        return;
+                    }
 
-                            if (poolLimit <= array.length) {
-                                const e = p.then(() => executing.splice(executing.indexOf(e), 1));
-                                executing.push(e);
-                                if (executing.length >= poolLimit) {
-                                    await Promise.race(executing);
+                    // Helper zum Erstellen und Konfigurieren eines Worker-Tabs
+                    const createWorkerPage = async () => {
+                        const page = await browser.newPage();
+                        await page.emulateMediaType("print");
+                        await page.setCacheEnabled(true); // Ad 1B: Browser-Cache aktiv
+                        return page;
+                    };
+
+                    const pages = await Promise.all(
+                        Array.from({ length: workerCount }, () => createWorkerPage()),
+                    );
+
+                    let currentIndex = 0;
+                    let stopProcessing = false;
+                    const errorImageTours = [];
+                    let successCount = 0;
+
+                    const runWorker = async (page, workerIdx) => {
+                        if (workerIdx > 0) {
+                            await delay(workerIdx * 200);
+                        }
+
+                        while (currentIndex < idsForCreation.length) {
+                            if (stopProcessing) break;
+
+                            if (isCutoffReached()) {
+                                if (!stopProcessing) {
+                                    logger.info(
+                                        "Stopping image creation due to time cutoff (23:00).",
+                                    );
+                                    stopProcessing = true;
+                                }
+                                break;
+                            }
+
+                            const tourID = idsForCreation[currentIndex++];
+
+                            let result;
+                            try {
+                                if (page.isClosed()) {
+                                    logger.warn(
+                                        `Worker ${workerIdx} page was closed, recreating for tour ${tourID}...`,
+                                    );
+                                    page = await createWorkerPage();
+                                }
+                                result = await processAndCreateImage(tourID, page, url);
+                            } catch (pageErr) {
+                                logger.error(
+                                    `Worker ${workerIdx} error processing tour ${tourID}:`,
+                                    pageErr,
+                                );
+                                result = "failed";
+                            }
+
+                            if (result === "error_image") {
+                                errorImageTours.push(tourID);
+                            } else if (result === "success") {
+                                successCount++;
+                                if (successCount % 100 === 0) {
+                                    logger.info(
+                                        `Progress: ${successCount}/${idsForCreation.length} images generated.`,
+                                    );
                                 }
                             }
                         }
-                        return Promise.all(ret);
-                    }
+                    };
 
-                    let stopProcessing = false;
-                    const errorImageTours = []; // Tours that generated error images
-                    let successCount = 0; // Counter for successfully generated images
+                    try {
+                        await Promise.all(pages.map((page, idx) => runWorker(page, idx)));
 
-                    // Main processing loop
-                    await asyncPool(PARALLEL_LIMIT, idsForCreation, async (tourID) => {
-                        if (stopProcessing) return;
-
-                        // Check time limit
-                        if (isCutoffReached()) {
-                            if (!stopProcessing) {
-                                logger.info("Stopping image creation due to time cutoff (23:00).");
-                                stopProcessing = true;
-                            }
-                            return;
-                        }
-
-                        // Small jitter to avoid thundering herd
-                        const jitter = Math.floor(Math.random() * 1000);
-                        await new Promise((resolve) => setTimeout(resolve, jitter));
-
-                        const result = await processAndCreateImage(tourID, browser, url);
-
-                        if (result === "error_image") {
-                            errorImageTours.push(tourID);
-                        } else if (result === "success") {
-                            successCount++;
-                            if (successCount % 1000 === 0) {
-                                logger.info(
-                                    `Progress: ${successCount} images successfully generated.`,
-                                );
-                            }
-                        }
-                    });
-
-                    logger.info(
-                        `Main image generation finished. ${errorImageTours.length} tours had error images.`,
-                    );
-
-                    // Retry loop for tours that had error images
-                    if (errorImageTours.length > 0 && !stopProcessing) {
                         logger.info(
-                            `Waiting 60 seconds before retrying ${errorImageTours.length} failed tours...`,
+                            `Main image generation finished. ${errorImageTours.length} tours had error images.`,
                         );
-                        await new Promise((resolve) => setTimeout(resolve, 60000));
 
-                        logger.info(`Starting retry for ${errorImageTours.length} tours...`);
+                        // Retry loop for tours that had error images (Ad 4: 10s wait instead of 60s)
+                        if (errorImageTours.length > 0 && !stopProcessing) {
+                            logger.info(
+                                `Waiting 10 seconds before retrying ${errorImageTours.length} failed tours...`,
+                            );
+                            await delay(10000);
 
-                        await asyncPool(PARALLEL_LIMIT, errorImageTours, async (tourID) => {
-                            if (stopProcessing) return;
+                            logger.info(`Starting retry for ${errorImageTours.length} tours...`);
 
-                            if (isCutoffReached()) {
-                                stopProcessing = true;
-                                return;
-                            }
+                            let retryIndex = 0;
+                            const runRetryWorker = async (page) => {
+                                while (retryIndex < errorImageTours.length) {
+                                    if (stopProcessing || isCutoffReached()) {
+                                        stopProcessing = true;
+                                        break;
+                                    }
 
-                            const jitter = Math.floor(Math.random() * 1000);
-                            await new Promise((resolve) => setTimeout(resolve, jitter));
+                                    const tourID = errorImageTours[retryIndex++];
+                                    let result;
+                                    try {
+                                        if (page.isClosed()) {
+                                            page = await createWorkerPage();
+                                        }
+                                        result = await processAndCreateImage(tourID, page, url);
+                                    } catch (retryErr) {
+                                        logger.error(
+                                            `Error in retry for tour ${tourID}:`,
+                                            retryErr,
+                                        );
+                                        result = "failed";
+                                    }
 
-                            const result = await processAndCreateImage(tourID, browser, url);
+                                    if (result === "error_image") {
+                                        logger.info(
+                                            `Tour ${tourID} still failed after retry - setting placeholder.`,
+                                        );
+                                        await handleImagePlaceholder(tourID);
+                                    }
+                                }
+                            };
 
-                            // If still error_image after retry, set placeholder
-                            if (result === "error_image") {
-                                logger.info(
-                                    `Tour ${tourID} still failed after retry - setting placeholder.`,
-                                );
-                                await handleImagePlaceholder(tourID);
-                            }
-                        });
-
-                        logger.info("Retry loop finished.");
+                            await Promise.all(pages.map((page, idx) => runRetryWorker(page, idx)));
+                            logger.info("Retry loop finished.");
+                        }
+                    } finally {
+                        await Promise.all(pages.map((p) => p.close().catch(() => {})));
                     }
 
                     logger.info("All image creations finished.");
                 })(),
             ]);
-
-            // Track if there were pending tours (for final cleanup decision)
-            // This is a simplified check - in practice pendingTours from the async block
-            // would need to be communicated differently, but time check is the main gate
 
             // Finales Flush der Update-Queue (falls noch Updates ausstehen)
             await flushAllPendingUpdates();
@@ -723,33 +735,59 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         } else {
             logger.info("Skipping cleanAndRecreateOldImages due to time cutoff (23:00).");
         }
-
-        // Note: Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
-        // Run it before image generation with: python3 scripts/prewarm_tiles.py
     }
 };
 
-export const createImageFromMap = async (browser, filePath, url) => {
+export const createImageFromMap = async (pageOrBrowser, filePath, url) => {
+    let page;
+    let shouldClose = false;
     try {
-        if (filePath) {
-            const page = await browser.newPage();
-            if (page) {
-                await page.emulateMediaType("print");
-                await page.setCacheEnabled(false);
-                const safeUrl = url.replace("localhost", "127.0.0.1");
-                await page.goto(safeUrl, {
-                    timeout: 30000,
-                    waitUntil: "networkidle2",
-                });
-                await delay(10000);
-                await page.bringToFront();
-                await page.screenshot({ path: filePath, type: "png" });
-                await page.close();
-            }
+        if (pageOrBrowser && typeof pageOrBrowser.newPage === "function") {
+            page = await pageOrBrowser.newPage();
+            shouldClose = true;
+            await page.emulateMediaType("print");
+            await page.setCacheEnabled(true);
+        } else {
+            page = pageOrBrowser;
         }
+
+        if (page) {
+            const safeUrl = url.replaceAll("localhost", "127.0.0.1");
+            await page.goto(safeUrl, {
+                timeout: 30000,
+                waitUntil: "load",
+            });
+
+            // Ad 1A: Warte auf Event vom headless Leaflet (__MAP_READY__)
+            try {
+                await page.waitForFunction(
+                    "window.__MAP_READY__ === true || window.__MAP_ERROR__ === true",
+                    { timeout: 15000 },
+                );
+            } catch {
+                logger.warn(`Wait for map ready timed out on ${safeUrl}`);
+            }
+
+            // Sicherheitsabstand von 100ms
+            await delay(100);
+
+            await page.bringToFront();
+
+            const screenshotOpts = { type: "png" };
+            if (filePath) {
+                screenshotOpts.path = filePath;
+            }
+            const result = await page.screenshot(screenshotOpts);
+            return result;
+        }
+        return null;
     } catch (err) {
-        logger.error("Error in createImageFromMap, could not generate:", filePath);
-        logger.error("Error message:", err.message);
+        logger.error("Error in createImageFromMap:", err.message);
+        return null;
+    } finally {
+        if (shouldClose && page) {
+            await page.close().catch(() => {});
+        }
     }
 };
 
