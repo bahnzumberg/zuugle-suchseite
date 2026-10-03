@@ -125,6 +125,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
             cursor: "pointer",
             fontWeight: 700,
             fontSize: "0.85rem",
+            whiteSpace: "nowrap",
             boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
             transition:
               "background-color 0.18s ease-in-out, border-color 0.18s ease-in-out, color 0.18s ease-in-out",
@@ -147,7 +148,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
               gap: "6px",
               flexWrap: "wrap",
               marginTop: "8px",
-              maxWidth: "340px",
+              maxWidth: "min(600px, calc(100vw - 70px))",
             }}
           >
             {metadata.days.slice(0, 4).map((day) => {
@@ -163,6 +164,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
                     padding: "4px 12px",
                     fontSize: "0.75rem",
                     fontWeight: 600,
+                    whiteSpace: "nowrap",
                     border: `1px solid ${isSelected ? "#712579" : "rgba(0, 0, 0, 0.15)"}`,
                     backgroundColor: isSelected
                       ? "#712579"
@@ -195,9 +197,16 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
   isActive,
 }) => {
   const { t, i18n } = useTranslation();
+  const map = useMap();
   const [isOpen, setIsOpen] = useState(false);
 
   const initContainer = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    L.DomEvent.disableScrollPropagation(node);
+    L.DomEvent.disableClickPropagation(node);
+  }, []);
+
+  const initOverlay = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
     L.DomEvent.disableScrollPropagation(node);
     L.DomEvent.disableClickPropagation(node);
@@ -207,6 +216,33 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
   useEffect(() => {
     if (!isActive) setIsOpen(false);
   }, [isActive]);
+
+  // Disable all map interactions and listen to Escape while the legend modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      map.dragging.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+      map.boxZoom.enable();
+      map.keyboard.enable();
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, map]);
 
   if (!isActive || !metadata) {
     return null;
@@ -260,19 +296,30 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
         </div>
       </div>
 
-      {/* Centered modal popup with legend content */}
+      {/* Centered modal popup over the map */}
       {isOpen && (
         <div
+          ref={initOverlay}
+          className="weather-legend-overlay"
           style={{
-            position: "fixed",
+            position: "absolute",
             inset: 0,
             zIndex: 10000,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "rgba(0, 0, 0, 0.4)",
+            cursor: "default",
+            pointerEvents: "auto",
           }}
-          onClick={() => setIsOpen(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(false);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
         >
           <div
             style={{
@@ -285,6 +332,9 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
               width: "85vw",
             }}
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
           >
             {/* Title */}
             <div
