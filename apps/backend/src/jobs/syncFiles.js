@@ -1,5 +1,5 @@
 #!/usr/bin/node
-import { syncConnectionGPX, syncGPX, syncGPXImage } from "./sync";
+import { syncGPX, syncGPXImage } from "./sync";
 import { syncWeatherOverlays } from "./generateWeatherOverlay";
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
@@ -30,17 +30,6 @@ async function run() {
         logger.info("START CREATE GPX FILES");
         await syncGPX();
         logger.info("END CREATE GPX FILES");
-
-        if (isCutoffReached()) {
-            logger.info(
-                "Time cutoff (23:00) reached. Stopping GPX pipeline gracefully before connection GPX.",
-            );
-            return;
-        }
-
-        logger.info("START CREATE GPX ANREISE/ABREISE FILES");
-        await syncConnectionGPX("dev");
-        logger.info("END CREATE GPX ANREISE/ABREISE FILES");
 
         if (isCutoffReached()) {
             logger.info(

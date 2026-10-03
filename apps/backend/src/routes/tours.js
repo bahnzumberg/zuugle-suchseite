@@ -5,7 +5,6 @@ import cacheService from "../services/cache.js";
 import crypto from "crypto";
 import { hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
 import {
-    connectionGpxPath,
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
     rangeImagePath,
@@ -1930,7 +1929,6 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
             if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
-                e.gpx_file = connectionGpxPath("totour", e.totour_track_key);
                 duplicatesRemoved.push(e);
             }
         });
@@ -1980,7 +1978,6 @@ const getReturnConnectionsByConnection = (connections, today) => {
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
         if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
-            e.gpx_file = connectionGpxPath("fromtour", e.fromtour_track_key);
             _duplicatesRemoved.push(e);
         }
     });
@@ -2136,29 +2133,6 @@ const prepareTourEntry = async (entry, city, addDetails = true) => {
     entry.gpx_file = tourGpxPath(entry.id);
 
     if (addDetails) {
-        if (city) {
-            const toTour = await knex("fahrplan")
-                .select("totour_track_key")
-                .where({ hashed_url: entry.hashed_url, city_slug: city })
-                .whereNotNull("totour_track_key")
-                .first();
-            const fromTour = await knex("fahrplan")
-                .select("fromtour_track_key")
-                .where({ hashed_url: entry.hashed_url, city_slug: city })
-                .whereNotNull("fromtour_track_key")
-                .first();
-
-            if (!!toTour && !!toTour.totour_track_key) {
-                entry.totour_gpx_file = connectionGpxPath("totour", toTour.totour_track_key);
-            }
-            if (!!fromTour && !!fromTour.fromtour_track_key) {
-                entry.fromtour_gpx_file = connectionGpxPath(
-                    "fromtour",
-                    fromTour.fromtour_track_key,
-                );
-            }
-        }
-
         /** add provider_name to result */
         let provider_result = await knex("provider")
             .select("provider_name")

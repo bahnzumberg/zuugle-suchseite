@@ -121,7 +121,7 @@ be reviewed on DEV before they are released.
 In dev there is no nginx, so `vite.config.ts` covers the prefix itself:
 `publicDir: "../../assets"` serves `assets/public/` directly, no plugin
 needed. A `zuugle:backend-generated-assets` plugin covers what isn't there —
-the backend's still-local, gitignored trees (`gpx/`, `gpx-image/`, `gpx-track/`,
+the backend's still-local, gitignored trees (`gpx/`, `gpx-image/`,
 `sitemap_*.xml`) — in every dev mode, without a running backend or database;
 edit an asset there and reload. Anything missing on disk falls back to the
 environment the API data comes from (UAT for `dev:uat`, PROD for `dev:main`,

@@ -30,6 +30,7 @@
         "refresh-search-suggestions": "node build/jobs/refreshSearchSuggestions.js",
         "generate-weather-overlay": "node build/jobs/generateWeatherOverlay.js",
         "prune-user-lists": "node build/jobs/pruneUserLists.js",
+        "cleanup-orphaned-files": "node build/jobs/cleanupOrphanedFiles.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "lint": "eslint --cache",
