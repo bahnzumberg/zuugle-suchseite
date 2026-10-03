@@ -25,9 +25,9 @@ import { absoluteAssetUrl, assetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
 import {
   useGetCitiesQuery,
+  useGetGPXQuery,
+  useGetProviderGpxOkQuery,
   useGetTourQuery,
-  useLazyGetGPXQuery,
-  useLazyGetProviderGpxOkQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import TourCard from "../components/TourCard";
@@ -103,18 +103,20 @@ export default function DetailReworked() {
       });
   }, [idOne, tour]);
 
-  const [triggerProviderPermit, { data: providerPermit }] =
-    useLazyGetProviderGpxOkQuery();
-
-  const [triggerGPX, { data: track, isLoading: isGpxLoading }] =
-    useLazyGetGPXQuery();
-  const [triggerFromTourGPX, { data: fromTourTrack }] = useLazyGetGPXQuery();
-  const [triggerToTourGPX, { data: toTourTrack }] = useLazyGetGPXQuery();
-
   const dispatch = useAppDispatch();
   const { data: allCities = [], isSuccess: areCitiesLoaded } =
     useGetCitiesQuery();
   const city = useSelector((state: RootState) => state.search.city);
+
+  const { data: providerPermit } = useGetProviderGpxOkQuery(
+    tour?.provider ?? "",
+    { skip: !tour?.provider },
+  );
+
+  const { data: track, isLoading: isGpxLoading } = useGetGPXQuery(
+    tour?.gpx_file ?? "",
+    { skip: !tour?.gpx_file },
+  );
 
   const [
     triggerLoadTours,
@@ -200,19 +202,6 @@ export default function DetailReworked() {
       <CircularProgress size={50} />
     </div>
   );
-
-  useEffect(() => {
-    if (tour?.provider) {
-      triggerProviderPermit(tour.provider);
-    }
-    if (tour && idOne) {
-      triggerGPX(tour.gpx_file);
-      if (city) {
-        triggerFromTourGPX(tour.fromtour_gpx_file);
-        triggerToTourGPX(tour.totour_gpx_file);
-      }
-    }
-  }, [tour, city]);
 
   useEffect(() => {
     if (!isTourLoading && !tour) {
@@ -732,8 +721,6 @@ export default function DetailReworked() {
                     >
                       <InteractiveMap
                         gpxPositions={track || []}
-                        anreiseGpxPositions={toTourTrack || []}
-                        abreiseGpxPositions={fromTourTrack || []}
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
                       />

@@ -7,15 +7,17 @@ import {
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
     isOwnAssetPath,
-    last_two_characters,
+    tourGpxPath,
 } from "../utils/assetPaths";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
 import { spawn } from "cross-spawn";
 import logger from "../utils/logger";
+import { isCutoffReached } from "../utils/timeCutoff";
 
 const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
+const inFlightGpxWrites = new Set(); // Verhindert parallele Doppel-Generierung für dieselbe Datei
 const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
 
 async function update_tours_from_tracks() {
@@ -317,30 +319,13 @@ export async function fixTours() {
 
 const prepareDirectories = () => {
     // We need a basic set of directories, which are created now, if they do not exist yet
-    let filePath = "";
-    let dirPaths = [
-        "public/gpx/",
-        "public/gpx-image/",
-        "public/gpx-image-with-track/",
-        "public/gpx-track/",
-        "public/gpx-track/totour/",
-        "public/gpx-track/fromtour/",
-    ];
+    const dirPaths = ["gpx/", "gpx-image/"];
 
-    logger.info(" Start deleting old files");
-    for (const i in dirPaths) {
-        // On server (production): __dirname = /root/suchseite/api/jobs/
-        //   -> We need to go up one level to /root/suchseite/api/ where public/ is
-        // On local (development): __dirname = .../src/jobs/
-        //   -> We need to go up two levels to project root where public/ is
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", dirPaths[i]);
-        } else {
-            filePath = path.join(__dirname, "../../", dirPaths[i]);
-        }
-
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath, { recursive: true });
+    logger.info(" Preparing directories");
+    for (const dirRel of dirPaths) {
+        const targetDir = path.join(PUBLIC_DIR, dirRel);
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
         }
     }
 };
@@ -522,110 +507,25 @@ export async function getProvider(retryCount = 0, maxRetries = 3) {
     }
 }
 
-async function _syncConnectionGPX(key, partFilePath, fileName, title) {
-    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
-    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    try {
-        var filePath = "";
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", partFilePath);
-        } else {
-            filePath = path.join(__dirname, "../../", partFilePath);
-        }
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath);
-        }
-        filePath = path.join(filePath, fileName);
-        if (key) {
-            var trackPoints = null;
-            if (!fs.existsSync(filePath)) {
-                // Schritt 1: Serielle Datenbankabfrage.
-                trackPoints = await knex("tracks")
-                    .select()
-                    .where({ track_key: key })
-                    .orderBy("track_point_sequence", "asc");
-                if (!!trackPoints && trackPoints.length > 0) {
-                    const writePromise = createFileFromGpx(
-                        trackPoints,
-                        filePath,
-                        title,
-                        "track_point_lat",
-                        "track_point_lon",
-                        "track_point_elevation",
-                    );
-                    // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
-                    activeFileWrites.push(writePromise);
-                    writePromise.finally(() => {
-                        const index = activeFileWrites.indexOf(writePromise);
-                        if (index > -1) {
-                            activeFileWrites.splice(index, 1);
-                        }
-                    });
-                }
-            }
-        }
-    } catch (e) {
-        logger.error("Error in _syncConnectionGPX:", e);
-    }
-}
-
-export async function syncConnectionGPX() {
-    // var mod = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var toTourFahrplan = await knex("fahrplan")
-        .select(["totour_track_key"])
-        .whereNotNull("totour_track_key")
-        .groupBy("totour_track_key");
-    if (toTourFahrplan) {
-        // Serielle Verarbeitung der "toTour"-Fahrpläne
-        for (const entry of toTourFahrplan) {
-            await _syncConnectionGPX(
-                entry.totour_track_key,
-                "public/gpx-track/totour/" + last_two_characters(entry.totour_track_key) + "/",
-                entry.totour_track_key + ".gpx",
-                "Station zur Tour",
-            );
-        }
-    }
-
-    var fromTourFahrplan = await knex("fahrplan")
-        .select(["fromtour_track_key"])
-        .whereNotNull("fromtour_track_key")
-        .groupBy("fromtour_track_key");
-    if (fromTourFahrplan) {
-        // Serielle Verarbeitung der "fromTour"-Fahrpläne
-        for (const entry of fromTourFahrplan) {
-            await _syncConnectionGPX(
-                entry.fromtour_track_key,
-                "public/gpx-track/fromtour/" + last_two_characters(entry.fromtour_track_key) + "/",
-                entry.fromtour_track_key + ".gpx",
-                "Tour zur Station",
-            );
-        }
-    }
-
-    // Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
-    while (activeFileWrites.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    return true;
-}
-
-export async function syncGPX() {
+export async function syncGPX(options = {}) {
+    const force = Boolean(options && options.force);
     prepareDirectories();
     var allTours = null;
-    logger.info(" Creating gpx files for all tours");
+    logger.info(` Creating gpx files for all tours${force ? " (force mode)" : ""}`);
     allTours = await knex("tour").select(["title", "id", "hashed_url"]);
     var allTourlength = allTours.length;
     if (!!allTours && allTours.length > 0) {
         for (var i = 0; i < allTourlength; i++) {
+            if (isCutoffReached()) {
+                logger.info(
+                    `Stopping syncGPX early due to time cutoff (23:00). Processed ${i}/${allTourlength} tours.`,
+                );
+                break;
+            }
             try {
                 var entry = allTours[i];
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
-                await _syncGPX(entry.id, entry.hashed_url, entry.title);
+                await _syncGPX(entry.id, entry.hashed_url, entry.title, force);
             } catch (error) {
                 logger.info(" Error in syncGPX: ", error);
             }
@@ -638,25 +538,25 @@ export async function syncGPX() {
     return true;
 }
 
-async function _syncGPX(id, h_url, title) {
+async function _syncGPX(id, h_url, title, force = false) {
     // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
     while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
         await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
     try {
-        var filePath = "";
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
-        } else {
-            filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
+        const filePathName = path.join(PUBLIC_DIR, tourGpxPath(id));
+        if (inFlightGpxWrites.has(filePathName)) {
+            return;
         }
-        var filePathName = path.join(filePath, id + ".gpx");
-        if (!fs.existsSync(filePathName)) {
+
+        if (force || !fs.existsSync(filePathName)) {
+            inFlightGpxWrites.add(filePathName);
             const writePromise = regenerateGpxFile(id, h_url, title);
             // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
             activeFileWrites.push(writePromise);
             writePromise.finally(() => {
+                inFlightGpxWrites.delete(filePathName);
                 const index = activeFileWrites.indexOf(writePromise);
                 if (index > -1) {
                     activeFileWrites.splice(index, 1);
@@ -670,6 +570,10 @@ async function _syncGPX(id, h_url, title) {
 }
 
 export async function syncGPXImage() {
+    if (isCutoffReached()) {
+        logger.info("Skipping syncGPXImage due to time cutoff (23:00).");
+        return true;
+    }
     let allIDs = await knex.raw(
         "SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as id FROM tour WHERE image_url IS NULL OR image_url='null';",
     );
@@ -687,6 +591,13 @@ export async function syncGPXImage() {
             await createImagesFromMap(toCreate.map((e) => e.id));
         }
 
+        if (isCutoffReached()) {
+            logger.info(
+                "Skipping placeholder image fallback because image creation was stopped due to time cutoff (23:00). Remaining tours will be processed in the next run.",
+            );
+            return true;
+        }
+
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
         // Stored host-free so every environment resolves it against its own asset base.
         // city2tour_flat is automatically updated via database trigger trg_update_tour_image
@@ -695,44 +606,6 @@ export async function syncGPXImage() {
         );
     }
     return true;
-}
-
-async function createFileFromGpx(
-    data,
-    filePath,
-    title,
-    fieldLat = "lat",
-    fieldLng = "lon",
-    fieldEle = "ele",
-) {
-    if (data) {
-        // logger.info(`createFileFromGpx ${filePath}`)
-
-        const root = create({ version: "1.0" })
-            .ele("gpx", {
-                version: "1.1",
-                xmlns: "http://www.topografix.com/GPX/1/1",
-                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            })
-            .ele("trk")
-            .ele("name")
-            .txt(title)
-            .up()
-            .ele("trkseg");
-
-        data.forEach((wp) => {
-            root.ele("trkpt", { lat: wp[fieldLat], lon: wp[fieldLng] })
-                .ele("ele")
-                .txt(wp[fieldEle]);
-        });
-
-        const xml = root.end({ prettyPrint: true });
-        if (xml) {
-            await fs.writeFileSync(filePath, xml);
-            const filedisc = fs.openSync(filePath);
-            fs.close(filedisc);
-        }
-    }
 }
 
 export async function syncTours() {

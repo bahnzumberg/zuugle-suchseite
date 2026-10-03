@@ -1,12 +1,18 @@
 #!/usr/bin/node
-import { syncConnectionGPX, syncGPX, syncGPXImage } from "./sync";
+import { syncGPX, syncGPXImage } from "./sync";
 import { syncWeatherOverlays } from "./generateWeatherOverlay";
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
+import { isCutoffReached } from "../utils/timeCutoff";
 
 logger.info("START SYNC FILES PIPELINE");
 
 async function run() {
+    if (isCutoffReached()) {
+        logger.info("Time cutoff (23:00) is already active. Exiting syncFiles gracefully.");
+        process.exit(0);
+    }
+
     // Weather overlays run in parallel because they only depend on overlay_weather_daily,
     // not on the GPX generation pipeline.
     const weatherPromise = (async () => {
@@ -25,9 +31,12 @@ async function run() {
         await syncGPX();
         logger.info("END CREATE GPX FILES");
 
-        logger.info("START CREATE GPX ANREISE/ABREISE FILES");
-        await syncConnectionGPX("dev");
-        logger.info("END CREATE GPX ANREISE/ABREISE FILES");
+        if (isCutoffReached()) {
+            logger.info(
+                "Time cutoff (23:00) reached. Stopping GPX pipeline gracefully before GPX images.",
+            );
+            return;
+        }
 
         logger.info("START CREATE GPX IMAGE FILES");
         await syncGPXImage();
@@ -42,7 +51,28 @@ async function run() {
     await cacheService.flush();
     logger.info("CACHE FLUSHED.");
 
-    await weatherPromise;
+    // Wait for weather overlays (if still running and not past cutoff)
+    await Promise.race([
+        weatherPromise,
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (isCutoffReached()) {
+                    clearInterval(interval);
+                    logger.info(
+                        "Time cutoff (23:00) reached. Not waiting further for weather overlays.",
+                    );
+                    resolve(undefined);
+                }
+            }, 1000);
+            weatherPromise.finally(() => clearInterval(interval));
+        }),
+    ]);
+
+    if (isCutoffReached()) {
+        logger.info("SYNC FILES PIPELINE STOPPED GRACEFULLY DUE TO TIME CUTOFF (23:00).");
+    } else {
+        logger.info("SYNC FILES PIPELINE COMPLETED SUCCESSFULLY.");
+    }
     process.exit(0);
 }
 

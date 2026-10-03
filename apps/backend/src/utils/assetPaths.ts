@@ -66,11 +66,6 @@ export function tourGpxPath(tourId: string | number) {
     return `/gpx/${last_two_characters(tourId)}/${tourId}.gpx`;
 }
 
-/** The walking track between the station and the tour. */
-export function connectionGpxPath(direction: "totour" | "fromtour", trackKey: string | number) {
-    return `/gpx-track/${direction}/${last_two_characters(trackKey)}/${trackKey}.gpx`;
-}
-
 /**
  * Where the paths above live on disk. `build:copy` puts `public/` next to the
  * compiled code, so in production it sits one level above this module; running

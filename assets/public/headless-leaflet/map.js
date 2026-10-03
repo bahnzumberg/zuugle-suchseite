@@ -43,25 +43,54 @@ function hideEndMarkerIfRoundTrip(gpxLayer) {
     }
 }
 
-// Coordinates of London. This is easy to check and to replace with a valid image.
-var map = L.map("map", { zoomControl: false, attributionControl: false }).setView(
-    [51.505, -0.09],
-    14,
-);
+// Coordinates of London. This is used as fallback on error to detect invalid images.
+var map = L.map("map", { zoomControl: false, attributionControl: false });
 
-L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
+window.__MAP_READY__ = false;
+window.__MAP_ERROR__ = false;
+
+var tileLayer = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
     maxZoom: 17,
     attribution: "",
-}).addTo(map);
+});
+
+var fired = false;
+function markReady() {
+    if (fired) return;
+    fired = true;
+    window.__MAP_READY__ = true;
+}
+
+function attachTileListeners() {
+    tileLayer.on("load", markReady);
+
+    var tileTimer;
+    tileLayer.on("tileload tileerror", function () {
+        clearTimeout(tileTimer);
+        tileTimer = setTimeout(function () {
+            if (!tileLayer._loading) {
+                markReady();
+            }
+        }, 300);
+    });
+
+    setTimeout(function () {
+        if (!tileLayer._loading) {
+            markReady();
+        }
+    }, 200);
+
+    // Maximaler Sicherheits-Timeout nach fitBounds (3s):
+    // Verhindert langes Warten, falls eine einzelne Kachel am Server trödelt
+    setTimeout(markReady, 3000);
+}
 
 if (gpxTrackUrls.length > 0) {
     new L.GPX(gpxTrackUrls[0], {
         async: true,
         marker_options: {
-            startIconUrl:
-                gpxTrackUrls.length == 1 ? "../img/startpunkt.svg" : "../img/transparent.png",
-            endIconUrl:
-                gpxTrackUrls.length == 1 ? "../img/zielpunkt.svg" : "../img/transparent.png",
+            startIconUrl: "../img/startpunkt.svg",
+            endIconUrl: "../img/zielpunkt.svg",
             shadowUrl: "../img/pin-shadow.png",
         },
         polyline_options: {
@@ -72,44 +101,31 @@ if (gpxTrackUrls.length > 0) {
         },
     })
         .on("loaded", function (e) {
-            map.fitBounds(e.target.getBounds().pad(0.15));
+            map.fitBounds(e.target.getBounds().pad(0.15), { animate: false });
             hideEndMarkerIfRoundTrip(e.layers);
+            attachTileListeners();
+            tileLayer.addTo(map);
+        })
+        .on("error", function () {
+            map.setView([51.505, -0.09], 14);
+            attachTileListeners();
+            tileLayer.addTo(map);
+            window.__MAP_ERROR__ = true;
         })
         .addTo(map);
+
+    // Sicherheits-Timeout (10s): Falls GPX-Download komplett hängt
+    setTimeout(function () {
+        if (!window.__MAP_READY__) {
+            map.setView([51.505, -0.09], 14);
+            attachTileListeners();
+            tileLayer.addTo(map);
+            window.__MAP_ERROR__ = true;
+        }
+    }, 10000);
+} else {
+    map.setView([51.505, -0.09], 14);
+    attachTileListeners();
+    tileLayer.addTo(map);
 }
 
-if (gpxTrackUrls.length > 1) {
-    new L.GPX(gpxTrackUrls[1], {
-        async: true,
-        marker_options: {
-            startIconUrl: "transparent.png",
-            endIconUrl: "../img/zielpunkt.svg",
-        },
-        polyline_options: {
-            color: "#001D47",
-            opacity: 1,
-            weight: 6,
-            lineCap: "round",
-        },
-    }).addTo(map);
-}
-
-if (gpxTrackUrls.length > 2) {
-    new L.GPX(gpxTrackUrls[2], {
-        async: true,
-        marker_options: {
-            startIconUrl: "../img/startpunkt.svg",
-            endIconUrl: "../img/zielpunkt.svg",
-        },
-        polyline_options: {
-            color: "#001D47",
-            opacity: 1,
-            weight: 6,
-            lineCap: "round",
-        },
-    })
-        .on("loaded", function (e) {
-            hideEndMarkerIfRoundTrip(e.layers);
-        })
-        .addTo(map);
-}
