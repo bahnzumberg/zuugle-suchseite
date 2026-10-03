@@ -476,14 +476,14 @@ router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
  *                           type: object
  *                           properties:
  *                             hour: { type: integer, description: "Local hour 0..23" }
- *                             icon: { type: integer, nullable: true }
+ *                             icon: { type: integer, nullable: true, description: "1..18, for this hour to the next" }
  *                             temp_high_c: { type: number, nullable: true }
  *                             temp_low_c: { type: number, nullable: true }
- *                             sunshine_h: { type: number, nullable: true, description: "Hours of sunshine in the preceding hour (0..1)" }
- *                             precipitation_mm: { type: number, nullable: true, description: "Sum over the preceding hour" }
+ *                             sunshine_h: { type: number, nullable: true, description: "Hours of sunshine from this hour to the next (0..1)" }
+ *                             precipitation_mm: { type: number, nullable: true, description: "Sum from this hour to the next" }
  *                             wind_speed_kmh: { type: number, nullable: true }
  *                             wind_direction_deg: { type: number, nullable: true }
- *                             thunderstorm_pct: { type: number, nullable: true }
+ *                             thunderstorm_pct: { type: number, nullable: true, description: "From this hour to the next" }
  *                             freezing_level_m: { type: number, nullable: true }
  *       400:
  *         description: Invalid tour ID.
@@ -648,6 +648,15 @@ const TOUR_WEATHER_CACHE_TTL = 30 * 60;
  * converted to Europe/Vienna before they are grouped into days. Sunrise and
  * sunset in `tour_weather_daily` are already local.
  *
+ * Everything that describes a span of time (sunshine, precipitation, the
+ * thunderstorm probability derived from it, and the icon derived from those)
+ * is stamped at the end of its hour, as in the source models: the 09:00 row
+ * holds 08:00-09:00. But the way the table is read by users, hour 8 means
+ * 08:00-09:00; temperature, wind and freezing level are instantaneous and
+ * stay. An hour without a successor (the forecast's end, a gap) gets NULL
+ * for the moved values. On the autumn DST change the repeated local hour
+ * keeps its first instance.
+ *
  * Kept apart from `getWrapper` on purpose: the detail response is cached for
  * 24h, the forecast only for TOUR_WEATHER_CACHE_TTL, and a failing weather
  * query must not cost the detail page.
@@ -697,27 +706,41 @@ const tourWeatherWrapper = async (req, res) => {
 
         const hourRows = (
             await knex.raw(
-                `SELECT h.local_ts::date::text                     AS date,
+                `SELECT DISTINCT ON (h.local_ts)
+                        h.local_ts::date::text                     AS date,
                         EXTRACT(HOUR FROM h.local_ts)::int         AS hour,
-                        h.tour_weather_icon                        AS icon,
+                        CASE WHEN h.has_next THEN h.next_icon END  AS icon,
                         h.tour_temperature_2m_high::float          AS temp_high_c,
                         h.tour_temperature_2m_low::float           AS temp_low_c,
-                        h.tour_sunshine_duration::float            AS sunshine_h,
-                        h.tour_precipitation::float                AS precipitation_mm,
+                        CASE WHEN h.has_next THEN h.next_sunshine::float END
+                                                                   AS sunshine_h,
+                        CASE WHEN h.has_next THEN h.next_precipitation::float END
+                                                                   AS precipitation_mm,
                         h.tour_wind_speed_10m::float               AS wind_speed_kmh,
                         h.tour_wind_direction_10m::float           AS wind_direction_deg,
-                        h.tour_thunderstorm_probability::float     AS thunderstorm_pct,
+                        CASE WHEN h.has_next THEN h.next_thunderstorm::float END
+                                                                   AS thunderstorm_pct,
                         h.tour_freezing_level::float               AS freezing_level_m
                  FROM (
-                     SELECT *,
-                            (weather_date + make_interval(hours => weather_timeslot))
-                                AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Vienna' AS local_ts
-                     FROM tour_weather_1h
-                     WHERE provider = ? AND hashed_url = ?
+                     SELECT u.*,
+                            u.utc_ts AT TIME ZONE 'Europe/Vienna' AS local_ts,
+                            LEAD(u.utc_ts) OVER w = u.utc_ts + INTERVAL '1 hour' AS has_next,
+                            LEAD(u.tour_weather_icon) OVER w AS next_icon,
+                            LEAD(u.tour_sunshine_duration) OVER w AS next_sunshine,
+                            LEAD(u.tour_precipitation) OVER w AS next_precipitation,
+                            LEAD(u.tour_thunderstorm_probability) OVER w AS next_thunderstorm
+                     FROM (
+                         SELECT *,
+                                (weather_date + make_interval(hours => weather_timeslot))
+                                    AT TIME ZONE 'UTC' AS utc_ts
+                         FROM tour_weather_1h
+                         WHERE provider = ? AND hashed_url = ?
+                     ) AS u
+                     WINDOW w AS (ORDER BY u.utc_ts)
                  ) AS h
                  WHERE h.local_ts::date BETWEEN ${VIENNA_TODAY_SQL}
                                             AND ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1}
-                 ORDER BY h.local_ts`,
+                 ORDER BY h.local_ts, h.utc_ts`,
                 bindings,
             )
         ).rows;
