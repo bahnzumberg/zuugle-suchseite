@@ -18,7 +18,8 @@ export function MapClickHandler({
       const target = e.originalEvent?.target as HTMLElement | null;
       if (
         target?.closest(".leaflet-control") ||
-        target?.closest(".weather-control-wrapper")
+        target?.closest(".weather-control-wrapper") ||
+        target?.closest(".weather-legend-overlay")
       ) {
         return;
       }
