@@ -8,6 +8,27 @@ export interface TourWeatherDay {
   score: number | null; // 0..100
 }
 
+/** One local hour of `/tours/:id/weather`. Sunshine and precipitation are sums from this hour to the next. */
+export interface TourWeatherHour {
+  hour: number; // local 0..23, Europe/Vienna
+  icon: number | null;
+  temp_high_c: number | null;
+  temp_low_c: number | null;
+  sunshine_h: number | null; // 0..1
+  precipitation_mm: number | null;
+  wind_speed_kmh: number | null;
+  wind_direction_deg: number | null;
+  thunderstorm_pct: number | null;
+  freezing_level_m: number | null;
+}
+
+/** One day of `/tours/:id/weather`: the strip day plus local sun times and its hours. */
+export interface TourWeatherDetailDay extends TourWeatherDay {
+  sunrise: string | null; // "HH:MM", local
+  sunset: string | null;
+  hours: TourWeatherHour[];
+}
+
 export type WeatherGradeKey =
   | "excellent"
   | "very_good"
@@ -99,7 +120,7 @@ export function weatherIconUrl(icon: WeatherIcon): string {
 }
 
 /** Today in Europe/Vienna as "YYYY-MM-DD", matching `filterPastDays`. */
-function todayInVienna(): string {
+export function todayInVienna(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
 }
 
@@ -156,4 +177,56 @@ export function formatWeatherWeekday(
     weekday: "short",
     timeZone: "Europe/Vienna",
   });
+}
+
+/** "07:44" → 7.733… */
+export function timeToHours(time: string): number {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours + minutes / 60;
+}
+
+/** Used when a day lacks sunrise/sunset: a typical hiking day. */
+const FALLBACK_WINDOW: [number, number] = [6, 20];
+
+/**
+ * The hours the detail table shows: from the hour before sunrise to the hour
+ * after sunset, clamped to 5–22. That is ~6–20 in October, ~5–21 in summer
+ * and ~7–17 in winter.
+ */
+export function hourWindow(day: TourWeatherDetailDay): [number, number] {
+  if (!day.sunrise || !day.sunset) return FALLBACK_WINDOW;
+  return [
+    Math.max(5, Math.floor(timeToHours(day.sunrise)) - 1),
+    Math.min(22, Math.ceil(timeToHours(day.sunset)) + 1),
+  ];
+}
+
+/** The day's hours inside `hourWindow`; empty when the import has none there. */
+export function hoursInWindow(day: TourWeatherDetailDay): TourWeatherHour[] {
+  const [from, to] = hourWindow(day);
+  return day.hours.filter((hour) => hour.hour >= from && hour.hour <= to);
+}
+
+/** Before sunrise or after sunset, judged at the full hour the column stands for. */
+export function isNightHour(hour: number, day: TourWeatherDetailDay): boolean {
+  if (!day.sunrise || !day.sunset) return false;
+  return hour < timeToHours(day.sunrise) || hour > timeToHours(day.sunset);
+}
+
+/** Highest max / lowest min over the given hours, or null without values. */
+export function tempRange(
+  hours: TourWeatherHour[],
+): { max: number; min: number } | null {
+  const highs = hours.flatMap((hour) => hour.temp_high_c ?? []);
+  const lows = hours.flatMap((hour) => hour.temp_low_c ?? []);
+  if (highs.length === 0 || lows.length === 0) return null;
+  return { max: Math.max(...highs), min: Math.min(...lows) };
+}
+
+export type CompassKey = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+const COMPASS: CompassKey[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+
+/** The 8-point sector wind comes from; the letters are translated (O/E, Z/V…). */
+export function windCompassKey(degrees: number): CompassKey {
+  return COMPASS[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
 }

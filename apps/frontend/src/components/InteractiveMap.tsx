@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -10,8 +10,8 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
-import { fetchAsset } from "../utils/fetchAsset";
-import { WeatherMetadata, filterPastDays } from "../models/weatherOverlay";
+import { filterPastDays } from "../models/weatherOverlay";
+import { useGetWeatherMetadataQuery } from "../features/apiSlice";
 import {
   WeatherButtonAndDays,
   WeatherLegend,
@@ -41,8 +41,11 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- Weather overlay state ---
-  const [weatherMetadata, setWeatherMetadata] =
-    useState<WeatherMetadata | null>(null);
+  const { data: rawWeatherMetadata } = useGetWeatherMetadataQuery();
+  const weatherMetadata = useMemo(
+    () => (rawWeatherMetadata ? filterPastDays(rawWeatherMetadata) : null),
+    [rawWeatherMetadata],
+  );
   const [isWeatherActive, setIsWeatherActive] = useState(false);
   const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
     null,
@@ -88,29 +91,11 @@ export default function InteractiveMap({
     return () => observer.disconnect();
   }, [map]);
 
-  // Load weather metadata
+  // Preselect the first forecast day once the metadata arrives
   useEffect(() => {
-    let isMounted = true;
-    fetchAsset(assetUrl("weather/weather_metadata.json"))
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((raw: WeatherMetadata | null) => {
-        if (!isMounted || !raw) return;
-        const data = filterPastDays(raw);
-        setWeatherMetadata(data);
-        if (data.days.length > 0) {
-          setSelectedWeatherDate(data.days[0].date);
-        }
-      })
-      .catch((err) => {
-        console.warn("Could not load weather metadata:", err);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    const firstDay = weatherMetadata?.days[0]?.date;
+    if (firstDay) setSelectedWeatherDate((current) => current ?? firstDay);
+  }, [weatherMetadata]);
 
   const activeDay = weatherMetadata?.days?.find(
     (d) => d.date === selectedWeatherDate,
