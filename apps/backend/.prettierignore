@@ -1,4 +1,5 @@
 *.geojson
+public/
 
 # Prose docs (READMEs, CLAUDE.md, AGENTS.md, .agent/*.md) are hand-formatted —
 # don't enforce Prettier on Markdown.

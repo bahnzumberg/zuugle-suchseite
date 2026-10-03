@@ -19,19 +19,20 @@ import {
   WeatherClassWatcher,
   FullscreenControl,
 } from "./Map/WeatherControls";
+import { useWeatherOverlayPrefetch } from "../hooks/useWeatherOverlayPrefetch";
 
 export interface InteractiveMapProps {
   gpxPositions: L.LatLngExpression[];
-  anreiseGpxPositions: L.LatLngExpression[];
-  abreiseGpxPositions: L.LatLngExpression[];
+  anreiseGpxPositions?: L.LatLngExpression[];
+  abreiseGpxPositions?: L.LatLngExpression[];
   scrollWheelZoom?: boolean;
   hoveredStop?: { lat: number; lon: number } | null;
 }
 
 export default function InteractiveMap({
   gpxPositions,
-  anreiseGpxPositions,
-  abreiseGpxPositions,
+  anreiseGpxPositions = [],
+  abreiseGpxPositions = [],
   scrollWheelZoom = false,
   hoveredStop,
 }: InteractiveMapProps) {
@@ -118,6 +119,12 @@ export default function InteractiveMap({
   const activeOverlayUrl = activeDay
     ? assetUrl(`weather/${activeDay.file}`)
     : null;
+
+  const { onOverlayLoad } = useWeatherOverlayPrefetch(
+    weatherMetadata,
+    isWeatherActive,
+    activeDay?.file,
+  );
 
   const toggleWeather = useCallback(() => {
     setIsWeatherActive((prev) => !prev);
@@ -224,6 +231,9 @@ export default function InteractiveMap({
             bounds={weatherMetadata.bounds}
             opacity={0.65}
             pane="weatherPane"
+            eventHandlers={{
+              load: onOverlayLoad,
+            }}
           />
         )}
         {!!gpxPositions && gpxPositions.length > 0 && (
