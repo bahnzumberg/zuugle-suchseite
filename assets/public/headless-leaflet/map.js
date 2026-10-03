@@ -43,11 +43,8 @@ function hideEndMarkerIfRoundTrip(gpxLayer) {
     }
 }
 
-// Coordinates of London. This is easy to check and to replace with a valid image.
-var map = L.map("map", { zoomControl: false, attributionControl: false }).setView(
-    [51.505, -0.09],
-    14,
-);
+// Coordinates of London. This is used as fallback on error to detect invalid images.
+var map = L.map("map", { zoomControl: false, attributionControl: false });
 
 window.__MAP_READY__ = false;
 window.__MAP_ERROR__ = false;
@@ -55,7 +52,38 @@ window.__MAP_ERROR__ = false;
 var tileLayer = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
     maxZoom: 17,
     attribution: "",
-}).addTo(map);
+});
+
+var fired = false;
+function markReady() {
+    if (fired) return;
+    fired = true;
+    window.__MAP_READY__ = true;
+}
+
+function attachTileListeners() {
+    tileLayer.on("load", markReady);
+
+    var tileTimer;
+    tileLayer.on("tileload tileerror", function () {
+        clearTimeout(tileTimer);
+        tileTimer = setTimeout(function () {
+            if (!tileLayer._loading) {
+                markReady();
+            }
+        }, 300);
+    });
+
+    setTimeout(function () {
+        if (!tileLayer._loading) {
+            markReady();
+        }
+    }, 200);
+
+    // Maximaler Sicherheits-Timeout nach fitBounds (3s):
+    // Verhindert langes Warten, falls eine einzelne Kachel am Server trödelt
+    setTimeout(markReady, 3000);
+}
 
 if (gpxTrackUrls.length > 0) {
     new L.GPX(gpxTrackUrls[0], {
@@ -73,58 +101,31 @@ if (gpxTrackUrls.length > 0) {
         },
     })
         .on("loaded", function (e) {
-            map.fitBounds(e.target.getBounds().pad(0.15));
+            map.fitBounds(e.target.getBounds().pad(0.15), { animate: false });
             hideEndMarkerIfRoundTrip(e.layers);
-
-            var fired = false;
-            function markReady() {
-                if (fired) return;
-                fired = true;
-                window.__MAP_READY__ = true;
-            }
-
-            // Wenn alle Kacheln regulär geladen sind
-            tileLayer.on("load", markReady);
-
-            // Debounce: Wenn die meisten Kacheln da sind und keine neuen Kacheln mehr laden
-            var tileTimer;
-            tileLayer.on("tileload tileerror", function () {
-                clearTimeout(tileTimer);
-                tileTimer = setTimeout(function () {
-                    if (!tileLayer._loading) {
-                        markReady();
-                    }
-                }, 600);
-            });
-
-            // Schneller Fallback falls die Kacheln bereits geladen / gecached sind
-            setTimeout(function () {
-                if (!tileLayer._loading) {
-                    markReady();
-                }
-            }, 300);
-
-            // Maximaler Sicherheits-Timeout nach fitBounds (3s):
-            // Verhindert langes Warten, falls eine einzelne Kachel am Server trödelt
-            setTimeout(markReady, 3000);
+            attachTileListeners();
+            tileLayer.addTo(map);
         })
         .on("error", function () {
+            map.setView([51.505, -0.09], 14);
+            attachTileListeners();
+            tileLayer.addTo(map);
             window.__MAP_ERROR__ = true;
         })
         .addTo(map);
 
-    // Sicherheits-Timeout (15s): Falls GPX-Download komplett hängt oder 404/500 liefert
+    // Sicherheits-Timeout (10s): Falls GPX-Download komplett hängt
     setTimeout(function () {
         if (!window.__MAP_READY__) {
+            map.setView([51.505, -0.09], 14);
+            attachTileListeners();
+            tileLayer.addTo(map);
             window.__MAP_ERROR__ = true;
         }
-    }, 15000);
+    }, 10000);
 } else {
-    tileLayer.on("load", function () {
-        window.__MAP_READY__ = true;
-    });
-    if (!tileLayer._loading) {
-        window.__MAP_READY__ = true;
-    }
+    map.setView([51.505, -0.09], 14);
+    attachTileListeners();
+    tileLayer.addTo(map);
 }
 
