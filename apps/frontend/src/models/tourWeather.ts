@@ -161,8 +161,8 @@ export function visibleWeatherDays(
  * The column heading for one strip cell: "Heute" for today, otherwise a short
  * weekday.
  *
- * Deliberately shorter than `formatWeatherDayLabel` in `WeatherControls.tsx`,
- * which returns "Mi, 24.09." — that does not fit the ~50px cell the strip gets
+ * Deliberately shorter than `formatWeatherDayLabel` below,
+ * which returns "Mi 24.09." — that does not fit the ~50px cell the strip gets
  * at the `sm` breakpoint.
  */
 export function formatWeatherWeekday(
@@ -207,10 +207,27 @@ export function hoursInWindow(day: TourWeatherDetailDay): TourWeatherHour[] {
   return day.hours.filter((hour) => hour.hour >= from && hour.hour <= to);
 }
 
-/** Before sunrise or after sunset, judged at the full hour the column stands for. */
-export function isNightHour(hour: number, day: TourWeatherDetailDay): boolean {
-  if (!day.sunrise || !day.sunset) return false;
-  return hour < timeToHours(day.sunrise) || hour > timeToHours(day.sunset);
+/** Half the length of dawn and dusk, in hours: the light changes from 30 min before to 30 min after. */
+const TWILIGHT_HALF_H = 0.5;
+
+/**
+ * How dark it is at local time `time` (hours, e.g. 7.5 = 07:30): 1 at night,
+ * 0 in daylight, and a smooth ramp through dawn and dusk that is half-way at
+ * sunrise and sunset. 0 throughout when the day lacks sun times.
+ */
+export function darkness(time: number, day: TourWeatherDetailDay): number {
+  if (!day.sunrise || !day.sunset) return 0;
+  const light = (sinceSunEvent: number) => {
+    const x = Math.min(
+      1,
+      Math.max(0, (sinceSunEvent + TWILIGHT_HALF_H) / (2 * TWILIGHT_HALF_H)),
+    );
+    return x * x * (3 - 2 * x);
+  };
+  return Math.max(
+    1 - light(time - timeToHours(day.sunrise)),
+    light(time - timeToHours(day.sunset)),
+  );
 }
 
 /** Highest max / lowest min over the given hours, or null without values. */
@@ -229,4 +246,36 @@ const COMPASS: CompassKey[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
 /** The 8-point sector wind comes from; the letters are translated (O/E, Z/V…). */
 export function windCompassKey(degrees: number): CompassKey {
   return COMPASS[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
+}
+
+/**
+ * The label of a forecast day: "Heute", "Morgen", otherwise a short weekday
+ * and "dd.mm." in every language. Shared by the map's day buttons and the
+ * detail page's weather panel.
+ */
+export function formatWeatherDayLabel(
+  dateStr: string,
+  t: TFunction,
+  locale = "de-AT",
+): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+  const nowDate = new Date(year, month, day);
+
+  const [dy, dm, dd] = dateStr.split("-").map(Number);
+  const targetDate = new Date(dy, dm - 1, dd);
+
+  const diffMs = targetDate.getTime() - nowDate.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return t("weather.today", { defaultValue: "Heute" });
+  }
+
+  const weekday = targetDate.toLocaleDateString(locale, { weekday: "short" });
+  const padDay = String(dd).padStart(2, "0");
+  const padMonth = String(dm).padStart(2, "0");
+  return `${weekday} ${padDay}.${padMonth}.`;
 }

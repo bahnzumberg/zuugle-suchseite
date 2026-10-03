@@ -429,6 +429,67 @@
       "overcast_snow": "Bedeckt, Schnee",
       "thunderstorm": "Gewitter",
       "extreme": "Extrem"
+    },
+    "detail": {
+      "info_label": "Erklärung und Datenstand",
+      "info_title": "So liest du das Wanderwetter",
+      "info_intro": "Stündliche Vorhersage für die Tour. Spalte „08“ steht für 08 bis 09 Uhr: Sonne, Niederschlag und Gewitter gelten für diese Stunde, Temperatur und Wind für ihren Beginn.",
+      "condition_help": "Symbol je Stunde; im Tageskopf die Einschätzung für den ganzen Tag.",
+      "condition_label": "Wetter",
+      "daylight_help": "Die Zeit vor Sonnenaufgang und nach Sonnenuntergang ist blaugrau hinterlegt.",
+      "daylight_label": "Tageslicht",
+      "empty_help": "Leere Felder: Für diese Stunde liegt keine Vorhersage vor.",
+      "hour": "Uhr",
+      "no_hours": "Stündliche Vorhersage für diesen Tag nicht verfügbar.",
+      "outside_window": "Für dein Aktivitätsdatum gibt es noch keine Vorhersage – sie reicht 4 Tage voraus.",
+      "sunrise": "Sonnenaufgang",
+      "sunset": "Sonnenuntergang",
+      "tour_day": "Tourentag",
+      "rows": {
+        "temp_max": {
+          "label": "Temperatur max",
+          "help": "Am tiefsten Punkt der Tour, höhenkorrigiert."
+        },
+        "temp_min": {
+          "label": "Temperatur min",
+          "help": "Am höchsten Punkt der Tour."
+        },
+        "sunshine": {
+          "label": "Sonnenschein",
+          "help": "Minuten Sonne in dieser Stunde."
+        },
+        "wind_direction": {
+          "label": "Windrichtung",
+          "unit": "Rtg.",
+          "help": "Der Pfeil zeigt, wohin der Wind weht, die Buchstaben, woher er kommt."
+        },
+        "wind_speed": {
+          "label": "Wind",
+          "help": "Windgeschwindigkeit in 10 m Höhe."
+        },
+        "precipitation": {
+          "label": "Niederschlag",
+          "help": "Regen bzw. Schnee in dieser Stunde."
+        },
+        "thunderstorm": {
+          "label": "Gewitter",
+          "help": "Wahrscheinlichkeit für ein Gewitter, ab 15 % orange hinterlegt."
+        },
+        "freezing_level": {
+          "label": "Nullgradgrenze",
+          "help": "Orange hinterlegt, wenn sie unter dem höchsten Punkt der Tour ({{elevation}} m) liegt."
+        }
+      },
+      "compass": {
+        "n": "N",
+        "ne": "NO",
+        "e": "O",
+        "se": "SO",
+        "s": "S",
+        "sw": "SW",
+        "w": "W",
+        "nw": "NW"
+      }
     }
   }
 }
