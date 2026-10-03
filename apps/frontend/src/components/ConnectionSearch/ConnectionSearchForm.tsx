@@ -34,11 +34,14 @@ import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
 interface ConnectionSearchFormProps {
   tour: Tour;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
+  /** Called with "YYYY-MM-DD" whenever the activity (or departure) date changes. */
+  onDateChange?: (date: string) => void;
 }
 
 export default function ConnectionSearchForm({
   tour,
   onStopHover,
+  onDateChange,
 }: ConnectionSearchFormProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.substring(0, 2);
@@ -107,6 +110,11 @@ export default function ConnectionSearchForm({
     }
     return selectedDate.format("YYYY-MM-DD");
   };
+
+  const activityDate = getSelectedDate();
+  useEffect(() => {
+    onDateChange?.(activityDate);
+  }, [activityDate, onDateChange]);
 
   const activityDurationMinutes = Math.round(
     parseFloat(tour.avg_total_tour_duration) * 60,

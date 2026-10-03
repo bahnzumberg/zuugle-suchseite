@@ -5,37 +5,8 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
+import { formatWeatherDayLabel } from "../../models/tourWeather";
 import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
-
-export function formatWeatherDayLabel(
-  dateStr: string,
-  t: TFunction,
-  locale = "de-AT",
-): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const day = now.getDate();
-  const nowDate = new Date(year, month, day);
-
-  const [dy, dm, dd] = dateStr.split("-").map(Number);
-  const targetDate = new Date(dy, dm - 1, dd);
-
-  const diffMs = targetDate.getTime() - nowDate.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return t("weather.today", { defaultValue: "Heute" });
-  }
-  if (diffDays === 1) {
-    return t("weather.tomorrow", { defaultValue: "Morgen" });
-  }
-
-  const weekday = targetDate.toLocaleDateString(locale, { weekday: "short" });
-  const padDay = String(dd).padStart(2, "0");
-  const padMonth = String(dm).padStart(2, "0");
-  return `${weekday}, ${padDay}.${padMonth}.`;
-}
 
 export function formatWeatherGeneratedAt(
   isoString: string,

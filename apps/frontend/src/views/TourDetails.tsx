@@ -19,6 +19,7 @@ import DomainMenu from "../components/DomainMenu";
 import Footer from "../components/Footer/Footer";
 import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
+import TourWeatherPanel from "../components/Weather/TourWeatherPanel";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
 import { absoluteAssetUrl, assetUrl } from "../utils/assetUrl";
@@ -61,6 +62,9 @@ export default function DetailReworked() {
     lat: number;
     lon: number;
   } | null>(null);
+
+  // "YYYY-MM-DD" chosen in the connection search; opens that day in the weather panel
+  const [activityDate, setActivityDate] = useState<string | null>(null);
 
   // Whether the last GPX download attempt failed
   const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
@@ -700,8 +704,18 @@ export default function DetailReworked() {
                       tour={tour}
                       tourId={idOne}
                       onStopHover={setHoveredStop}
+                      onDateChange={setActivityDate}
                     />
                   </Box>
+                  {idOne && (
+                    <Box sx={{ mt: "16px" }}>
+                      <TourWeatherPanel
+                        tourId={idOne}
+                        activityDate={activityDate}
+                        maxEle={tour?.max_ele}
+                      />
+                    </Box>
+                  )}
                 </Box>
 
                 {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
