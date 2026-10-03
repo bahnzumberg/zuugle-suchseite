@@ -49,7 +49,10 @@ var map = L.map("map", { zoomControl: false, attributionControl: false }).setVie
     14,
 );
 
-L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
+window.__MAP_READY__ = false;
+window.__MAP_ERROR__ = false;
+
+var tileLayer = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
     maxZoom: 17,
     attribution: "",
 }).addTo(map);
@@ -58,10 +61,8 @@ if (gpxTrackUrls.length > 0) {
     new L.GPX(gpxTrackUrls[0], {
         async: true,
         marker_options: {
-            startIconUrl:
-                gpxTrackUrls.length == 1 ? "../img/startpunkt.svg" : "../img/transparent.png",
-            endIconUrl:
-                gpxTrackUrls.length == 1 ? "../img/zielpunkt.svg" : "../img/transparent.png",
+            startIconUrl: "../img/startpunkt.svg",
+            endIconUrl: "../img/zielpunkt.svg",
             shadowUrl: "../img/pin-shadow.png",
         },
         polyline_options: {
@@ -74,42 +75,56 @@ if (gpxTrackUrls.length > 0) {
         .on("loaded", function (e) {
             map.fitBounds(e.target.getBounds().pad(0.15));
             hideEndMarkerIfRoundTrip(e.layers);
+
+            var fired = false;
+            function markReady() {
+                if (fired) return;
+                fired = true;
+                window.__MAP_READY__ = true;
+            }
+
+            // Wenn alle Kacheln regulär geladen sind
+            tileLayer.on("load", markReady);
+
+            // Debounce: Wenn die meisten Kacheln da sind und keine neuen Kacheln mehr laden
+            var tileTimer;
+            tileLayer.on("tileload tileerror", function () {
+                clearTimeout(tileTimer);
+                tileTimer = setTimeout(function () {
+                    if (!tileLayer._loading) {
+                        markReady();
+                    }
+                }, 600);
+            });
+
+            // Schneller Fallback falls die Kacheln bereits geladen / gecached sind
+            setTimeout(function () {
+                if (!tileLayer._loading) {
+                    markReady();
+                }
+            }, 300);
+
+            // Maximaler Sicherheits-Timeout nach fitBounds (5s):
+            // Verhindert langes Warten, falls eine einzelne Kachel am Server trödelt
+            setTimeout(markReady, 5000);
+        })
+        .on("error", function () {
+            window.__MAP_ERROR__ = true;
         })
         .addTo(map);
+
+    // Sicherheits-Timeout: Falls GPX-Download komplett hängt oder fehlschlägt
+    setTimeout(function () {
+        if (!window.__MAP_READY__) {
+            window.__MAP_ERROR__ = true;
+        }
+    }, 8000);
+} else {
+    tileLayer.on("load", function () {
+        window.__MAP_READY__ = true;
+    });
+    if (!tileLayer._loading) {
+        window.__MAP_READY__ = true;
+    }
 }
 
-if (gpxTrackUrls.length > 1) {
-    new L.GPX(gpxTrackUrls[1], {
-        async: true,
-        marker_options: {
-            startIconUrl: "transparent.png",
-            endIconUrl: "../img/zielpunkt.svg",
-        },
-        polyline_options: {
-            color: "#001D47",
-            opacity: 1,
-            weight: 6,
-            lineCap: "round",
-        },
-    }).addTo(map);
-}
-
-if (gpxTrackUrls.length > 2) {
-    new L.GPX(gpxTrackUrls[2], {
-        async: true,
-        marker_options: {
-            startIconUrl: "../img/startpunkt.svg",
-            endIconUrl: "../img/zielpunkt.svg",
-        },
-        polyline_options: {
-            color: "#001D47",
-            opacity: 1,
-            weight: 6,
-            lineCap: "round",
-        },
-    })
-        .on("loaded", function (e) {
-            hideEndMarkerIfRoundTrip(e.layers);
-        })
-        .addTo(map);
-}
