@@ -35,8 +35,6 @@ export interface Tour {
   quality_rating: number;
   month_order: number;
   gpx_file: string;
-  totour_gpx_file: string;
-  fromtour_gpx_file: string;
   provider_name: string;
   valid_tour?: number;
   description?: string;
