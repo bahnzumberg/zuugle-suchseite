@@ -79,7 +79,6 @@ const isErrorImage = async (imageInput) => {
 
 const minimal_args = [
     "--autoplay-policy=user-gesture-required",
-    "--disable-background-networking",
     "--disable-background-timer-throttling",
     "--disable-backgrounding-occluded-windows",
     "--disable-breakpad",
@@ -752,6 +751,7 @@ export const createImageFromMap = async (pageOrBrowser, filePath, url) => {
         }
 
         if (page) {
+            await page.bringToFront();
             const safeUrl = url.replaceAll("localhost", "127.0.0.1");
             await page.goto(safeUrl, {
                 timeout: 30000,
@@ -762,7 +762,7 @@ export const createImageFromMap = async (pageOrBrowser, filePath, url) => {
             try {
                 await page.waitForFunction(
                     "window.__MAP_READY__ === true || window.__MAP_ERROR__ === true",
-                    { timeout: 15000 },
+                    { timeout: 25000 },
                 );
             } catch {
                 logger.warn(`Wait for map ready timed out on ${safeUrl}`);
@@ -770,8 +770,6 @@ export const createImageFromMap = async (pageOrBrowser, filePath, url) => {
 
             // Sicherheitsabstand von 100ms
             await delay(100);
-
-            await page.bringToFront();
 
             const screenshotOpts = { type: "png" };
             if (filePath) {
