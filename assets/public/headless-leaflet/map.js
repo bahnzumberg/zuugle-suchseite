@@ -104,21 +104,21 @@ if (gpxTrackUrls.length > 0) {
                 }
             }, 300);
 
-            // Maximaler Sicherheits-Timeout nach fitBounds (5s):
+            // Maximaler Sicherheits-Timeout nach fitBounds (3s):
             // Verhindert langes Warten, falls eine einzelne Kachel am Server trödelt
-            setTimeout(markReady, 5000);
+            setTimeout(markReady, 3000);
         })
         .on("error", function () {
             window.__MAP_ERROR__ = true;
         })
         .addTo(map);
 
-    // Sicherheits-Timeout: Falls GPX-Download komplett hängt oder fehlschlägt
+    // Sicherheits-Timeout (15s): Falls GPX-Download komplett hängt oder 404/500 liefert
     setTimeout(function () {
         if (!window.__MAP_READY__) {
             window.__MAP_ERROR__ = true;
         }
-    }, 8000);
+    }, 15000);
 } else {
     tileLayer.on("load", function () {
         window.__MAP_READY__ = true;
