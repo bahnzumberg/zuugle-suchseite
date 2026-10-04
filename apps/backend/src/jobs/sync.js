@@ -727,8 +727,10 @@ export async function syncTours() {
 
     // ── Step 1: Apply image_url fixes on staging table ───────────
     await knex.raw(`UPDATE tour_load SET image_url=NULL WHERE image_url='null';`);
+    // tour_load is filled externally and not reset here, so a missed load leaves
+    // yesterday's rows (already suffixed) in place — skip those to stay idempotent.
     await knex.raw(
-        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
+        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg' AND image_url NOT LIKE '%width=784&height=523';`,
     ); // This is the needed size for the tour detail page
 
     // ── Step 2: Fast swap — site downtime starts here ────────────
