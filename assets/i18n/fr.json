@@ -428,6 +428,67 @@
       "overcast_snow": "Couvert, neige",
       "thunderstorm": "Orage",
       "extreme": "Extrême"
+    },
+    "detail": {
+      "info_label": "Explications et date des données",
+      "info_title": "Comment lire la météo rando",
+      "info_intro": "Prévisions heure par heure pour la randonnée. La colonne « 08 » correspond à 08 h – 09 h : soleil, précipitations et orages valent pour cette heure, température et vent pour son début.",
+      "condition_help": "Un symbole par heure ; l’en-tête du jour donne l’évaluation pour toute la journée.",
+      "condition_label": "Météo",
+      "daylight_help": "Le temps avant le lever et après le coucher du soleil est grisé.",
+      "daylight_label": "Lumière du jour",
+      "empty_help": "Cases vides : aucune prévision pour cette heure.",
+      "hour": "Heure",
+      "no_hours": "Prévisions horaires non disponibles pour ce jour.",
+      "outside_window": "Pas encore de prévisions pour ta date d’activité – elles couvrent les 4 prochains jours.",
+      "sunrise": "Lever du soleil",
+      "sunset": "Coucher du soleil",
+      "tour_day": "Jour de rando",
+      "rows": {
+        "temp_max": {
+          "label": "Température max",
+          "help": "Au point le plus bas de la randonnée, corrigée selon l’altitude."
+        },
+        "temp_min": {
+          "label": "Température min",
+          "help": "Au point le plus haut de la randonnée."
+        },
+        "sunshine": {
+          "label": "Ensoleillement",
+          "help": "Minutes de soleil dans cette heure."
+        },
+        "wind_direction": {
+          "label": "Direction du vent",
+          "unit": "Dir.",
+          "help": "La flèche indique où souffle le vent, les lettres d’où il vient."
+        },
+        "wind_speed": {
+          "label": "Vent",
+          "help": "Vitesse du vent à 10 m du sol."
+        },
+        "precipitation": {
+          "label": "Précipitations",
+          "help": "Pluie ou neige dans cette heure."
+        },
+        "thunderstorm": {
+          "label": "Orage",
+          "help": "Probabilité d’orage, surlignée en orange à partir de 15 %."
+        },
+        "freezing_level": {
+          "label": "Isotherme 0 °C",
+          "help": "Surlignée en orange lorsqu’elle est sous le point le plus haut de la randonnée ({{elevation}} m)."
+        }
+      },
+      "compass": {
+        "n": "N",
+        "ne": "NE",
+        "e": "E",
+        "se": "SE",
+        "s": "S",
+        "sw": "SO",
+        "w": "O",
+        "nw": "NO"
+      }
     }
   }
 }

@@ -430,6 +430,67 @@
       "overcast_snow": "Oblačno, sneg",
       "thunderstorm": "Nevihta",
       "extreme": "Ekstremno"
+    },
+    "detail": {
+      "info_label": "Pojasnilo in stanje podatkov",
+      "info_title": "Kako brati pohodno vreme",
+      "info_intro": "Urna napoved za turo. Stolpec »08« pomeni od 08. do 09. ure: sonce, padavine in nevihte veljajo za to uro, temperatura in veter za njen začetek.",
+      "condition_help": "En simbol na uro; glava dneva prikazuje oceno za ves dan.",
+      "condition_label": "Vreme",
+      "daylight_help": "Čas pred sončnim vzhodom in po sončnem zahodu je obarvan modrosivo.",
+      "daylight_label": "Dnevna svetloba",
+      "empty_help": "Prazna polja: za to uro ni napovedi.",
+      "hour": "Ura",
+      "no_hours": "Urna napoved za ta dan ni na voljo.",
+      "outside_window": "Za tvoj datum aktivnosti napovedi še ni – sega 4 dni vnaprej.",
+      "sunrise": "Sončni vzhod",
+      "sunset": "Sončni zahod",
+      "tour_day": "Dan ture",
+      "rows": {
+        "temp_max": {
+          "label": "Temperatura maks.",
+          "help": "Na najnižji točki ture, popravljena glede na višino."
+        },
+        "temp_min": {
+          "label": "Temperatura min.",
+          "help": "Na najvišji točki ture."
+        },
+        "sunshine": {
+          "label": "Sončno obsevanje",
+          "help": "Minute sonca v tej uri."
+        },
+        "wind_direction": {
+          "label": "Smer vetra",
+          "unit": "Smer",
+          "help": "Puščica kaže, kam piha veter, črke, od kod piha."
+        },
+        "wind_speed": {
+          "label": "Veter",
+          "help": "Hitrost vetra na 10 m nad tlemi."
+        },
+        "precipitation": {
+          "label": "Padavine",
+          "help": "Dež ali sneg v tej uri."
+        },
+        "thunderstorm": {
+          "label": "Nevihta",
+          "help": "Verjetnost nevihte, od 15 % označena oranžno."
+        },
+        "freezing_level": {
+          "label": "Ničta izoterma",
+          "help": "Označena oranžno, ko je pod najvišjo točko ture ({{elevation}} m)."
+        }
+      },
+      "compass": {
+        "n": "S",
+        "ne": "SV",
+        "e": "V",
+        "se": "JV",
+        "s": "J",
+        "sw": "JZ",
+        "w": "Z",
+        "nw": "SZ"
+      }
     }
   }
 }

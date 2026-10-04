@@ -10,15 +10,25 @@ export interface ItineraryProps {
   tour?: Tour;
   tourId?: string;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
+  onDateChange?: (date: string) => void;
 }
-const Itinerary = ({ tour, tourId: _tourId, onStopHover }: ItineraryProps) => {
+const Itinerary = ({
+  tour,
+  tourId: _tourId,
+  onStopHover,
+  onDateChange,
+}: ItineraryProps) => {
   const city = useSelector((state: RootState) => state.search.city);
 
   return (
     <div className="tour-detail-itinerary-container">
       <div className="tour-detail-itinerary">
         {tour ? (
-          <ConnectionSearchForm tour={tour} onStopHover={onStopHover} />
+          <ConnectionSearchForm
+            tour={tour}
+            onStopHover={onStopHover}
+            onDateChange={onDateChange}
+          />
         ) : (
           <>
             <p className="tour-detail-itinerary-header">

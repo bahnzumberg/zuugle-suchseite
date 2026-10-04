@@ -2,16 +2,17 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import {
-  formatWeatherWeekday,
+  weatherDayLabelParts,
   weatherIconUrl,
   WEATHER_ICONS,
   WEATHER_STRIP_DAYS,
   type TourWeatherDay,
+  type WeatherDayLabel,
   type WeatherIcon,
 } from "../../models/tourWeather";
 import { scoreToColor } from "../../models/weatherScore";
 
-export interface WanderwetterStripProps {
+export interface TourWeatherStripProps {
   /** Already narrowed by `visibleWeatherDays` — the card needs the same list for its padding. */
   days?: TourWeatherDay[] | null;
   /** Hold the strip's height without a forecast, so stats rows stay aligned across a grid row. */
@@ -21,7 +22,7 @@ export interface WanderwetterStripProps {
 /** One rendered column. The placeholder is a row of empty cells, not fake weather. */
 interface StripCell {
   key: string;
-  label: string;
+  label: WeatherDayLabel;
   icon: WeatherIcon | null;
   score: number | null;
 }
@@ -32,10 +33,22 @@ const RULE = "#DDDDDD";
 /** The icon separates the days at a glance, so it scales with the strip (`cqi`). */
 const ICON_SIZE = "clamp(26px, 14cqi, 34px)";
 
-export default function WanderwetterStrip({
+const CELL_GAP_PX = 10;
+
+/**
+ * From this strip width on, every day label fits on one line ("Mi 07.10.").
+ * The longest, "MER. 28.08." (fr/sl), is 55px in the label font, so each cell
+ * needs 58px. Narrower strips (two-column grid at `sm`) stack the date under
+ * the weekday in every cell, so the icons stay level.
+ */
+const ONE_LINE_LABEL_QUERY = `@container (min-width: ${
+  WEATHER_STRIP_DAYS * 58 + (WEATHER_STRIP_DAYS - 1) * CELL_GAP_PX
+}px)`;
+
+export default function TourWeatherStrip({
   days,
   reserveSpace = false,
-}: WanderwetterStripProps) {
+}: TourWeatherStripProps) {
   const { t, i18n } = useTranslation();
   const visibleDays = days ?? [];
 
@@ -47,20 +60,20 @@ export default function WanderwetterStrip({
   const cells: StripCell[] = isPlaceholder
     ? Array.from({ length: WEATHER_STRIP_DAYS }, (_, index) => ({
         key: String(index),
-        label: " ",
+        label: { weekday: " ", date: null },
         icon: null,
         score: null,
       }))
     : visibleDays.map((day) => ({
         key: day.date,
-        label: formatWeatherWeekday(day.date, t, i18n.language),
+        label: weatherDayLabelParts(day.date, t, i18n.language),
         icon: day.icon === null ? null : WEATHER_ICONS[day.icon],
         score: day.score,
       }));
 
   return (
     <Box
-      className="wanderwetter-strip"
+      className="tour-weather-strip"
       role="group"
       aria-label={t("weather.button", "Wanderwetter")}
       // Hides the whole subtree from assistive tech, so the cells below need no
@@ -94,7 +107,7 @@ export default function WanderwetterStrip({
           // row would break to 3+1 at `sm`, where a card is only ~223px wide.
           display: "grid",
           gridTemplateColumns: `repeat(${WEATHER_STRIP_DAYS}, minmax(0, 1fr))`,
-          gap: "10px",
+          gap: `${CELL_GAP_PX}px`,
           alignItems: "stretch",
         }}
       >
@@ -121,10 +134,23 @@ export default function WanderwetterStrip({
                   textTransform: "uppercase",
                   letterSpacing: "0.06em",
                   whiteSpace: "nowrap",
+                  textAlign: "center",
                   color: "rgba(0, 0, 0, 0.45)",
+                  "& .day-date": { display: "block" },
+                  [ONE_LINE_LABEL_QUERY]: {
+                    "& .day-date": { display: "inline" },
+                    // "Heute" has no date: a blank second line only when stacked.
+                    "& .day-date[data-empty]": { display: "none" },
+                  },
                 }}
               >
-                {cell.label}
+                {cell.label.weekday}{" "}
+                <span
+                  className="day-date"
+                  data-empty={cell.label.date === null || undefined}
+                >
+                  {cell.label.date ?? " "}
+                </span>
               </Typography>
               {icon === null ? (
                 <Box sx={{ width: ICON_SIZE, height: ICON_SIZE }} aria-hidden />

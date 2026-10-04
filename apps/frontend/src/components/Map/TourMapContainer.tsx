@@ -53,8 +53,7 @@ import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { assetUrl } from "../../utils/assetUrl";
-import { fetchAsset } from "../../utils/fetchAsset";
-import { WeatherMetadata, filterPastDays } from "../../models/weatherOverlay";
+import { useWeatherOverlay } from "../../hooks/useWeatherOverlay";
 import {
   WeatherButtonAndDays,
   WeatherLegend,
@@ -199,13 +198,10 @@ export default function TourMapContainer({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- Weather overlay state ---
-  const [weatherMetadata, setWeatherMetadata] =
-    useState<WeatherMetadata | null>(null);
+  const { weatherMetadata, selectedWeatherDate, setSelectedWeatherDate } =
+    useWeatherOverlay();
   const isWeatherActive = useSelector(
     (state: RootState) => state.search.weather,
-  );
-  const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
-    null,
   );
 
   const shouldShowTracks = markers.length < 30 && markers.length > 0;
@@ -224,37 +220,19 @@ export default function TourMapContainer({
     }
   }, [isLoading]);
 
-  // Load weather metadata
-  useEffect(() => {
-    let isMounted = true;
-    fetchAsset(assetUrl("weather/weather_metadata.json"))
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((raw: WeatherMetadata | null) => {
-        if (!isMounted || !raw) return;
-        const data = filterPastDays(raw);
-        setWeatherMetadata(data);
-        if (data.days.length > 0) {
-          setSelectedWeatherDate(data.days[0].date);
-        }
-      })
-      .catch((err) => {
-        console.warn("Could not load weather metadata:", err);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const toggleWeather = useCallback(() => {
     const next = !isWeatherActive;
     dispatch(weatherUpdated(next));
     if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
       setSelectedWeatherDate(weatherMetadata.days[0].date);
     }
-  }, [dispatch, isWeatherActive, selectedWeatherDate, weatherMetadata]);
+  }, [
+    dispatch,
+    isWeatherActive,
+    selectedWeatherDate,
+    setSelectedWeatherDate,
+    weatherMetadata,
+  ]);
 
   const activeWeatherDay = useMemo(() => {
     if (!weatherMetadata?.days) return null;

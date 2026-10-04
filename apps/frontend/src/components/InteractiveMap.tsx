@@ -10,8 +10,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
-import { fetchAsset } from "../utils/fetchAsset";
-import { WeatherMetadata, filterPastDays } from "../models/weatherOverlay";
+import { useWeatherOverlay } from "../hooks/useWeatherOverlay";
 import {
   WeatherButtonAndDays,
   WeatherLegend,
@@ -42,12 +41,9 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- Weather overlay state ---
-  const [weatherMetadata, setWeatherMetadata] =
-    useState<WeatherMetadata | null>(null);
+  const { weatherMetadata, selectedWeatherDate, setSelectedWeatherDate } =
+    useWeatherOverlay();
   const [isWeatherActive, setIsWeatherActive] = useState(false);
-  const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
-    null,
-  );
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -88,30 +84,6 @@ export default function InteractiveMap({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [map]);
-
-  // Load weather metadata
-  useEffect(() => {
-    let isMounted = true;
-    fetchAsset(assetUrl("weather/weather_metadata.json"))
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((raw: WeatherMetadata | null) => {
-        if (!isMounted || !raw) return;
-        const data = filterPastDays(raw);
-        setWeatherMetadata(data);
-        if (data.days.length > 0) {
-          setSelectedWeatherDate(data.days[0].date);
-        }
-      })
-      .catch((err) => {
-        console.warn("Could not load weather metadata:", err);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const activeDay = weatherMetadata?.days?.find(
     (d) => d.date === selectedWeatherDate,
