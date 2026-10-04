@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
@@ -22,7 +22,8 @@ interface TourWeatherPanelProps {
  * Today and the next three days for one tour, each expandable to an hourly
  * table. Renders nothing while loading, on error or without a forecast.
  */
-export default function TourWeatherPanel({
+// Memoized: TourDetails re-renders on every connection-stop hover, and the open table is large.
+export default memo(function TourWeatherPanel({
   tourId,
   activityDate,
   maxEle,
@@ -110,4 +111,4 @@ export default function TourWeatherPanel({
       />
     </Box>
   );
-}
+});

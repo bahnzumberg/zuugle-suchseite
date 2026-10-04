@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -52,7 +53,7 @@ export default function TourWeatherDay({
   const locale = numberLocale(i18n.language);
 
   const icon = weatherIcon(day.icon);
-  const hours = hoursInWindow(day);
+  const hours = useMemo(() => hoursInWindow(day), [day]);
   const range = tempRange(hours);
   const dateLabel = formatWeatherDayLabel(day.date, t, i18n.language);
   const id = `tour-weather-${day.date}`;

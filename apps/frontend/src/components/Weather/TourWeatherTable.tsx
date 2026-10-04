@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useMemo,
   useState,
   type ReactNode,
   type ComponentType,
@@ -97,7 +98,7 @@ interface RowDef {
 
 function buildRows(
   t: TFunction,
-  format: (value: number, digits?: number) => string,
+  format: (value: number, digits?: 0 | 1) => string,
   maxEle: number | undefined,
   hours: TourWeatherHour[],
 ): RowDef[] {
@@ -235,6 +236,26 @@ function buildRows(
   return rows;
 }
 
+/**
+ * The night shading of each column. A column stands for hour..hour+1; sampling
+ * the darkness across it keeps dawn and dusk a continuous gradient over the
+ * column borders.
+ */
+function nightShading(day: TourWeatherDetailDay, hours: TourWeatherHour[]) {
+  return hours.map((hour) => {
+    const samples = [0, 0.25, 0.5, 0.75, 1].map((offset) =>
+      darkness(hour.hour + offset, day),
+    );
+    if (samples.every((level) => level === 0)) return {};
+    if (samples.every((level) => level === 1)) return { bgcolor: NIGHT };
+    const stops = samples.map(
+      (level, i) =>
+        `rgba(${NIGHT_RGB}, ${(NIGHT_ALPHA * level).toFixed(3)}) ${i * 25}%`,
+    );
+    return { background: `linear-gradient(90deg, ${stops.join(", ")})` };
+  });
+}
+
 interface TourWeatherTableProps {
   day: TourWeatherDetailDay;
   /** The day's `hoursInWindow`, one column each. */
@@ -251,12 +272,18 @@ export default function TourWeatherTable({
   const { t, i18n } = useTranslation();
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
 
-  const locale = numberLocale(i18n.language);
-  const format = (value: number, digits = 0) =>
-    value.toLocaleString(locale, {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    });
+  const format = useMemo(() => {
+    const locale = numberLocale(i18n.language);
+    const formatters = [0, 1].map(
+      (digits) =>
+        new Intl.NumberFormat(locale, {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+        }),
+    );
+    return (value: number, digits: 0 | 1 = 0) =>
+      formatters[digits].format(value);
+  }, [i18n.language]);
 
   const trackScroll = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
@@ -269,20 +296,7 @@ export default function TourWeatherTable({
   }, []);
 
   const rows = buildRows(t, format, maxEle, hours);
-  // A column stands for hour..hour+1; sampling the darkness across it keeps
-  // dawn and dusk a continuous gradient over the column borders.
-  const nightSx = (hour: TourWeatherHour) => {
-    const samples = [0, 0.25, 0.5, 0.75, 1].map((offset) =>
-      darkness(hour.hour + offset, day),
-    );
-    if (samples.every((level) => level === 0)) return {};
-    if (samples.every((level) => level === 1)) return { bgcolor: NIGHT };
-    const stops = samples.map(
-      (level, i) =>
-        `rgba(${NIGHT_RGB}, ${(NIGHT_ALPHA * level).toFixed(3)}) ${i * 25}%`,
-    );
-    return { background: `linear-gradient(90deg, ${stops.join(", ")})` };
-  };
+  const night = useMemo(() => nightShading(day, hours), [day, hours]);
 
   return (
     <Box
@@ -333,7 +347,7 @@ export default function TourWeatherTable({
               >
                 {t("weather.detail.hour")}
               </Box>
-              {hours.map((hour) => (
+              {hours.map((hour, col) => (
                 <Box
                   component="th"
                   scope="col"
@@ -343,7 +357,7 @@ export default function TourWeatherTable({
                     fontSize: 13,
                     fontWeight: 700,
                     pt: "2px",
-                    ...nightSx(hour),
+                    ...night[col],
                   }}
                 >
                   {String(hour.hour).padStart(2, "0")}
@@ -356,13 +370,13 @@ export default function TourWeatherTable({
                   {t("weather.detail.condition_label")}
                 </Box>
               </Box>
-              {hours.map((hour) => {
+              {hours.map((hour, col) => {
                 const icon = weatherIcon(hour.icon);
                 return (
                   <Box
                     component="td"
                     key={hour.hour}
-                    sx={{ ...CELL, py: "2px", ...nightSx(hour) }}
+                    sx={{ ...CELL, py: "2px", ...night[col] }}
                   >
                     {icon && (
                       <Box
@@ -430,7 +444,7 @@ export default function TourWeatherTable({
                       {row.label}
                     </Box>
                   </Box>
-                  {hours.map((hour) => {
+                  {hours.map((hour, col) => {
                     const alert = row.alert?.(hour) ?? false;
                     return (
                       <Box
@@ -446,7 +460,7 @@ export default function TourWeatherTable({
                                 color: "var(--bzb-warnorange-dark)",
                                 fontWeight: 700,
                               }
-                            : nightSx(hour)),
+                            : night[col]),
                         }}
                       >
                         {row.render(hour)}
