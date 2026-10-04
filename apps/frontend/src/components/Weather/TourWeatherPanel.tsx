@@ -56,7 +56,7 @@ export default memo(function TourWeatherPanel({
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", mx: "2px", mb: 1.25 }}>
-        {/* Exactly the map's Wanderwetter button, so both read as the same feature. */}
+        {/* Styled like the map's Wanderwetter button, so both read as the same feature. */}
         <CloudQueueOutlinedIcon
           aria-hidden
           sx={{ fontSize: 20, color: "var(--bzb-akelei)", mr: "7px" }}
@@ -66,7 +66,7 @@ export default memo(function TourWeatherPanel({
           component="h2"
           sx={{
             flex: 1,
-            fontSize: "0.85rem",
+            fontSize: 16,
             fontWeight: 700,
             color: "var(--bzb-bahnblau)",
           }}

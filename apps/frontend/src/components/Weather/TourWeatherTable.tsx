@@ -162,7 +162,7 @@ function buildRows(
             />
             <Box
               component="span"
-              sx={{ fontSize: 11, color: MUTED, mt: "2px" }}
+              sx={{ fontSize: 11, color: "#101010", mt: "2px" }}
             >
               {t(
                 `weather.detail.compass.${windCompassKey(hour.wind_direction_deg)}`,
@@ -191,10 +191,7 @@ function buildRows(
         if (mm === 0) return NONE;
         if (mm < 0.1) return faint(`<${format(0.1, 1)}`);
         return (
-          <Box
-            component="span"
-            sx={{ color: "var(--bzb-bahnblau)", fontWeight: 700 }}
-          >
+          <Box component="span" sx={{ color: "var(--bzb-bahnblau)" }}>
             {format(mm, 1)}
           </Box>
         );
@@ -320,6 +317,8 @@ export default function TourWeatherTable({
         ref={trackScroll}
         sx={{
           overflowX: "auto",
+          // Otherwise CSS turns overflow-y into auto as well and shows a stray vertical scrollbar.
+          overflowY: "hidden",
           scrollbarWidth: "thin",
           overscrollBehaviorX: "contain",
         }}
@@ -330,7 +329,7 @@ export default function TourWeatherTable({
             borderCollapse: "separate",
             borderSpacing: 0,
             minWidth: "100%",
-            fontSize: { xs: 13, sm: 14 },
+            fontSize: 14,
             fontVariantNumeric: "tabular-nums",
             color: "#101010",
           }}
@@ -354,7 +353,6 @@ export default function TourWeatherTable({
                   key={hour.hour}
                   sx={{
                     ...CELL,
-                    fontSize: 13,
                     fontWeight: 700,
                     pt: "2px",
                     ...night[col],

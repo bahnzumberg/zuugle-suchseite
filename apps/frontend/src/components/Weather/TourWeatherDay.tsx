@@ -24,14 +24,17 @@ import {
   TWILIGHT_COLOR,
 } from "./weatherStyles";
 
+/** A status tag, not a button: tinted, no fill, barely rounded. */
 const TAG = {
   fontSize: 11,
   fontWeight: 700,
   lineHeight: 1.6,
-  px: "7px",
-  borderRadius: "999px",
+  px: "6px",
+  borderRadius: "4px",
   letterSpacing: "0.02em",
   whiteSpace: "nowrap",
+  bgcolor: "rgba(113, 38, 122, 0.1)",
+  color: "var(--bzb-akelei)",
 } as const;
 
 interface TourWeatherDayProps {
@@ -76,6 +79,8 @@ export default function TourWeatherDay({
         aria-controls={`${id}-content`}
         expandIcon={<ExpandMoreIcon sx={{ color: "var(--bzb-bahnblau)" }} />}
         sx={{
+          // A native <button>, which browsers don't let inherit the page font.
+          fontFamily: "inherit",
           px: { xs: 1, sm: 1.25 },
           minHeight: 56,
           "& .MuiAccordionSummary-content": {
@@ -113,14 +118,14 @@ export default function TourWeatherDay({
               flexWrap: "wrap",
             }}
           >
-            <Box component="span" sx={{ fontWeight: 700, fontSize: 16 }}>
+            <Box
+              component="span"
+              sx={{ fontSize: 16, fontWeight: 700, color: "#101010" }}
+            >
               {dateLabel}
             </Box>
             {isTourDay && (
-              <Box
-                component="span"
-                sx={{ ...TAG, bgcolor: "var(--bzb-akelei)", color: "#fff" }}
-              >
+              <Box component="span" sx={TAG}>
                 {t("weather.detail.tour_day")}
               </Box>
             )}
@@ -128,8 +133,8 @@ export default function TourWeatherDay({
           {icon && (
             <Box
               sx={{
-                fontSize: { xs: 13, sm: 14 },
-                color: MUTED,
+                fontSize: 15,
+                color: "#101010",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -142,8 +147,7 @@ export default function TourWeatherDay({
         {range && (
           <Box
             sx={{
-              fontSize: 16,
-              fontWeight: 700,
+              fontSize: 15,
               whiteSpace: "nowrap",
               color: MUTED,
               fontVariantNumeric: "tabular-nums",
@@ -152,7 +156,7 @@ export default function TourWeatherDay({
             <Box component="span" sx={{ color: TEMP_HIGH_COLOR }}>
               {Math.round(range.max).toLocaleString(locale)}°
             </Box>
-            <Box component="span" sx={{ fontWeight: 400, mx: "4px" }}>
+            <Box component="span" sx={{ mx: "4px" }}>
               /
             </Box>
             <Box component="span" sx={{ color: TEMP_LOW_COLOR }}>
@@ -184,12 +188,12 @@ export default function TourWeatherDay({
                 alignItems: "center",
                 gap: 0.6,
               },
-              "& b": { color: "#101010", fontWeight: 700 },
+              "& time": { color: "#101010" },
             }}
           >
             <span>
               <WbTwilightIcon sx={{ fontSize: 18, color: TWILIGHT_COLOR }} />
-              {t("weather.detail.sunrise")} <b>{day.sunrise}</b>
+              {t("weather.detail.sunrise")} <time>{day.sunrise}</time>
             </span>
             <span>
               <WbTwilightIcon
@@ -199,7 +203,7 @@ export default function TourWeatherDay({
                   transform: "scaleY(-1)",
                 }}
               />
-              {t("weather.detail.sunset")} <b>{day.sunset}</b>
+              {t("weather.detail.sunset")} <time>{day.sunset}</time>
             </span>
           </Box>
         )}

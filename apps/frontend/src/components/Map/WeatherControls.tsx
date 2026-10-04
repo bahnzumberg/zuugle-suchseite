@@ -5,6 +5,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import { WeatherMetadata } from "../../models/weatherOverlay";
+import { theme } from "../../theme";
 import { formatWeatherDayLabel } from "../../models/tourWeather";
 import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
 
@@ -97,8 +98,10 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
             backgroundColor: isActive ? "#712579" : "rgba(255, 255, 255, 0.95)",
             color: isActive ? "#ffffff" : "#254980",
             cursor: "pointer",
+            // Explicit: inheriting would pick up Leaflet's Helvetica from the map container.
+            fontFamily: theme.typography.fontFamily,
             fontWeight: 700,
-            fontSize: "0.85rem",
+            fontSize: 14,
             whiteSpace: "nowrap",
             boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
             transition:

@@ -163,7 +163,7 @@ export default function TourWeatherInfoDialog({
         {metadata && (
           <Typography
             sx={{
-              fontSize: 13,
+              fontSize: 14,
               color: MUTED,
               mt: 2,
               pt: 1.5,
