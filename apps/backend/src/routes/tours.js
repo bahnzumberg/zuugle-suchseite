@@ -76,6 +76,13 @@ const WEATHER_FORECAST_DAYS = 4;
  */
 const VIENNA_TODAY_SQL = "(now() AT TIME ZONE 'Europe/Vienna')::date";
 
+/** The forecast window as a FROM item: `d.day` runs from today, WEATHER_FORECAST_DAYS long. */
+const FORECAST_DAYS_SQL = `generate_series(
+                              ${VIENNA_TODAY_SQL},
+                              ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1},
+                              INTERVAL '1 day'
+                          ) AS d(day)`;
+
 /**
  * SQL fragment attaching a `weather` JSON array to each row of `tourAlias`:
  * one entry per day, starting today, WEATHER_FORECAST_DAYS long. A day the
@@ -100,11 +107,7 @@ const weatherForecastJoin = (tourAlias) => `
                                            'score', w.tour_weather_score::float
                                        ) ORDER BY d.day
                                    ) AS forecast
-                            FROM generate_series(
-                                     ${VIENNA_TODAY_SQL},
-                                     ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1},
-                                     INTERVAL '1 day'
-                                 ) AS d(day)
+                            FROM ${FORECAST_DAYS_SQL}
                             LEFT JOIN tour_weather_daily AS w
                                    ON w.provider     = ${tourAlias}.provider
                                   AND w.hashed_url   = ${tourAlias}.hashed_url
@@ -683,29 +686,22 @@ const tourWeatherWrapper = async (req, res) => {
         }
         const bindings = [tour.provider, tour.hashed_url];
 
-        const dayRows = (
-            await knex.raw(
+        const [dayResult, hourResult] = await Promise.all([
+            knex.raw(
                 `SELECT d.day::date::text                  AS date,
                         w.tour_weather_icon                AS icon,
                         w.tour_weather_score::float        AS score,
                         to_char(w.tour_sunrise, 'HH24:MI') AS sunrise,
                         to_char(w.tour_sunset, 'HH24:MI')  AS sunset
-                 FROM generate_series(
-                          ${VIENNA_TODAY_SQL},
-                          ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1},
-                          INTERVAL '1 day'
-                      ) AS d(day)
+                 FROM ${FORECAST_DAYS_SQL}
                  LEFT JOIN tour_weather_daily AS w
                         ON w.provider     = ?
                        AND w.hashed_url   = ?
                        AND w.weather_date = d.day::date
                  ORDER BY d.day`,
                 bindings,
-            )
-        ).rows;
-
-        const hourRows = (
-            await knex.raw(
+            ),
+            knex.raw(
                 `SELECT DISTINCT ON (h.local_ts)
                         h.local_ts::date::text                     AS date,
                         EXTRACT(HOUR FROM h.local_ts)::int         AS hour,
@@ -742,8 +738,10 @@ const tourWeatherWrapper = async (req, res) => {
                                             AND ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1}
                  ORDER BY h.local_ts, h.utc_ts`,
                 bindings,
-            )
-        ).rows;
+            ),
+        ]);
+        const dayRows = dayResult.rows;
+        const hourRows = hourResult.rows;
 
         const hoursByDate = new Map();
         for (const { date, ...hour } of hourRows) {
