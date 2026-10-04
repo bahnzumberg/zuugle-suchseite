@@ -17,9 +17,13 @@ import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import WbTwilightIcon from "@mui/icons-material/WbTwilight";
 import { useTranslation } from "react-i18next";
 import { useGetWeatherMetadataQuery } from "../../features/apiSlice";
-import { weatherIconUrl, WEATHER_ICONS } from "../../models/tourWeather";
+import {
+  numberLocale,
+  weatherIconUrl,
+  WEATHER_ICONS,
+} from "../../models/tourWeather";
 import { formatWeatherGeneratedAt } from "../Map/WeatherControls";
-import { numberLocale } from "./TourWeatherTable";
+import { MUTED, RULE, TWILIGHT_COLOR } from "./weatherStyles";
 
 const ROWS: {
   key: string;
@@ -85,7 +89,7 @@ export default function TourWeatherInfoDialog({
     })),
     {
       key: "daylight",
-      icon: <WbTwilightIcon sx={{ fontSize: 18, color: "#f8af18" }} />,
+      icon: <WbTwilightIcon sx={{ fontSize: 18, color: TWILIGHT_COLOR }} />,
       title: t("weather.detail.daylight_label"),
       help: t("weather.detail.daylight_help"),
     },
@@ -153,17 +157,17 @@ export default function TourWeatherInfoDialog({
             </Box>
           ))}
         </Box>
-        <Typography sx={{ fontSize: 14, color: "#777", mt: 2 }}>
+        <Typography sx={{ fontSize: 14, color: MUTED, mt: 2 }}>
           {t("weather.detail.empty_help")}
         </Typography>
         {metadata && (
           <Typography
             sx={{
               fontSize: 13,
-              color: "#777",
+              color: MUTED,
               mt: 2,
               pt: 1.5,
-              borderTop: "1px solid #e4e6ee",
+              borderTop: `1px solid ${RULE}`,
             }}
           >
             {formatWeatherGeneratedAt(metadata.generated_at, t, i18n.language)}

@@ -17,29 +17,19 @@ import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
-  hoursInWindow,
   darkness,
+  numberLocale,
+  weatherIcon,
   weatherIconUrl,
-  WEATHER_ICONS,
   windCompassKey,
   type TourWeatherDetailDay,
   type TourWeatherHour,
 } from "../../models/tourWeather";
+import { MUTED, RULE, TEMP_HIGH_COLOR, TEMP_LOW_COLOR } from "./weatherStyles";
 
-/** German uses the Austrian format, so 2000 reads "2 000" as on the rest of the page. */
-export function numberLocale(language: string): string {
-  return language.startsWith("de") ? "de-AT" : language;
-}
-
-const MUTED = "#777";
-const RULE = "#e4e6ee";
 const NIGHT_RGB = "170, 181, 215";
 const NIGHT_ALPHA = 0.16;
 const NIGHT = `rgba(${NIGHT_RGB}, ${NIGHT_ALPHA})`;
-
-/** Weather-app convention: warm for the high, cold for the low. A brick red, so it isn't read as the warning orange. */
-export const TEMP_HIGH_COLOR = "#b23a26";
-export const TEMP_LOW_COLOR = "var(--bzb-bahnblau)";
 const LABEL_WIDTH = 44;
 
 /** Thunderstorm risk from which a cell is highlighted. */
@@ -247,12 +237,15 @@ function buildRows(
 
 interface TourWeatherTableProps {
   day: TourWeatherDetailDay;
+  /** The day's `hoursInWindow`, one column each. */
+  hours: TourWeatherHour[];
   /** Highest point of the tour, for the freezing-level highlight. */
   maxEle?: number;
 }
 
 export default function TourWeatherTable({
   day,
+  hours,
   maxEle,
 }: TourWeatherTableProps) {
   const { t, i18n } = useTranslation();
@@ -275,7 +268,6 @@ export default function TourWeatherTable({
     node.addEventListener("scroll", update, { passive: true });
   }, []);
 
-  const hours = hoursInWindow(day);
   const rows = buildRows(t, format, maxEle, hours);
   // A column stands for hour..hour+1; sampling the darkness across it keeps
   // dawn and dusk a continuous gradient over the column borders.
@@ -365,8 +357,7 @@ export default function TourWeatherTable({
                 </Box>
               </Box>
               {hours.map((hour) => {
-                const icon =
-                  hour.icon === null ? undefined : WEATHER_ICONS[hour.icon];
+                const icon = weatherIcon(hour.icon);
                 return (
                   <Box
                     component="td"

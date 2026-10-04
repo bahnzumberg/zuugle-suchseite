@@ -63,7 +63,7 @@ export interface TourResponse {
   tour: Tour;
 }
 
-export interface TourWeatherResponse {
+interface TourWeatherResponse {
   success: boolean;
   days: TourWeatherDetailDay[];
 }
@@ -366,8 +366,8 @@ export const api = createApi({
 
     /**
      * The map overlay's metadata; its `generated_at` is also the "Stand" of the
-     * detail page's weather panel. Unfiltered: run it through `filterPastDays`
-     * where it is used, so a cache that outlives midnight drops yesterday.
+     * detail page's weather panel. Unfiltered; the maps read it through
+     * `useWeatherOverlay`.
      */
     getWeatherMetadata: build.query<WeatherMetadata, void>({
       queryFn: async () => {

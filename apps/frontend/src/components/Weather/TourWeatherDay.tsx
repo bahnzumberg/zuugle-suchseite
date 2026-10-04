@@ -8,18 +8,20 @@ import { useTranslation } from "react-i18next";
 import {
   formatWeatherDayLabel,
   hoursInWindow,
+  numberLocale,
   tempRange,
+  weatherIcon,
   weatherIconUrl,
-  WEATHER_ICONS,
   type TourWeatherDetailDay,
 } from "../../models/tourWeather";
-import TourWeatherTable, {
-  numberLocale,
+import TourWeatherTable from "./TourWeatherTable";
+import {
+  MUTED,
+  RULE,
   TEMP_HIGH_COLOR,
   TEMP_LOW_COLOR,
-} from "./TourWeatherTable";
-
-const MUTED = "#777";
+  TWILIGHT_COLOR,
+} from "./weatherStyles";
 
 const TAG = {
   fontSize: 11,
@@ -49,7 +51,7 @@ export default function TourWeatherDay({
   const { t, i18n } = useTranslation();
   const locale = numberLocale(i18n.language);
 
-  const icon = day.icon === null ? undefined : WEATHER_ICONS[day.icon];
+  const icon = weatherIcon(day.icon);
   const hours = hoursInWindow(day);
   const range = tempRange(hours);
   const dateLabel = formatWeatherDayLabel(day.date, t, i18n.language);
@@ -164,7 +166,7 @@ export default function TourWeatherDay({
           px: { xs: 1, sm: 1.25 },
           pt: 0,
           pb: 1.25,
-          borderTop: "1px solid #e4e6ee",
+          borderTop: `1px solid ${RULE}`,
         }}
       >
         {day.sunrise && day.sunset && (
@@ -185,19 +187,23 @@ export default function TourWeatherDay({
             }}
           >
             <span>
-              <WbTwilightIcon sx={{ fontSize: 18, color: "#f8af18" }} />
+              <WbTwilightIcon sx={{ fontSize: 18, color: TWILIGHT_COLOR }} />
               {t("weather.detail.sunrise")} <b>{day.sunrise}</b>
             </span>
             <span>
               <WbTwilightIcon
-                sx={{ fontSize: 18, color: "#f8af18", transform: "scaleY(-1)" }}
+                sx={{
+                  fontSize: 18,
+                  color: TWILIGHT_COLOR,
+                  transform: "scaleY(-1)",
+                }}
               />
               {t("weather.detail.sunset")} <b>{day.sunset}</b>
             </span>
           </Box>
         )}
         {hours.length > 0 ? (
-          <TourWeatherTable day={day} maxEle={maxEle} />
+          <TourWeatherTable day={day} hours={hours} maxEle={maxEle} />
         ) : (
           <Box sx={{ fontSize: 14, color: MUTED, py: 0.75 }}>
             {t("weather.detail.no_hours")}

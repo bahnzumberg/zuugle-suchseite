@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -10,8 +10,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
-import { filterPastDays } from "../models/weatherOverlay";
-import { useGetWeatherMetadataQuery } from "../features/apiSlice";
+import { useWeatherOverlay } from "../hooks/useWeatherOverlay";
 import {
   WeatherButtonAndDays,
   WeatherLegend,
@@ -42,15 +41,9 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- Weather overlay state ---
-  const { data: rawWeatherMetadata } = useGetWeatherMetadataQuery();
-  const weatherMetadata = useMemo(
-    () => (rawWeatherMetadata ? filterPastDays(rawWeatherMetadata) : null),
-    [rawWeatherMetadata],
-  );
+  const { weatherMetadata, selectedWeatherDate, setSelectedWeatherDate } =
+    useWeatherOverlay();
   const [isWeatherActive, setIsWeatherActive] = useState(false);
-  const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
-    null,
-  );
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -91,12 +84,6 @@ export default function InteractiveMap({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [map]);
-
-  // Preselect the first forecast day once the metadata arrives
-  useEffect(() => {
-    const firstDay = weatherMetadata?.days[0]?.date;
-    if (firstDay) setSelectedWeatherDate((current) => current ?? firstDay);
-  }, [weatherMetadata]);
 
   const activeDay = weatherMetadata?.days?.find(
     (d) => d.date === selectedWeatherDate,

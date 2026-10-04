@@ -119,9 +119,28 @@ export function weatherIconUrl(icon: WeatherIcon): string {
   return assetUrl(`icons/weather/${icon.file}.svg`);
 }
 
-/** Today in Europe/Vienna as "YYYY-MM-DD", matching `filterPastDays`. */
+/** The icon for an id from the weather import; undefined for no data or an unknown id. */
+export function weatherIcon(id: number | null): WeatherIcon | undefined {
+  return id === null ? undefined : WEATHER_ICONS[id];
+}
+
+/** German uses the Austrian format, so 2000 reads "2 000" as on the rest of the page. */
+export function numberLocale(language: string): string {
+  return language.startsWith("de") ? "de-AT" : language;
+}
+
+/** Today in Europe/Vienna as "YYYY-MM-DD". */
 export function todayInVienna(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+}
+
+/**
+ * Drops the days before today (Europe/Vienna). RTK Query's cache can outlive
+ * midnight, so every forecast is run through this where it is rendered.
+ */
+export function upcomingDays<T extends { date: string }>(days: T[]): T[] {
+  const today = todayInVienna();
+  return days.filter((day) => day.date >= today);
 }
 
 /**
@@ -143,9 +162,7 @@ export function visibleWeatherDays(
 ): TourWeatherDay[] {
   if (!days) return [];
 
-  const today = todayInVienna();
-  const upcoming = days
-    .filter((day) => day.date >= today)
+  const upcoming = upcomingDays(days)
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, WEATHER_STRIP_DAYS)
     .map((day) =>
@@ -180,7 +197,7 @@ export function formatWeatherWeekday(
 }
 
 /** "07:44" → 7.733… */
-export function timeToHours(time: string): number {
+function timeToHours(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
   return hours + minutes / 60;
 }
@@ -193,7 +210,7 @@ const FALLBACK_WINDOW: [number, number] = [6, 20];
  * after sunset, clamped to 5–22. That is ~6–20 in October, ~5–21 in summer
  * and ~7–17 in winter.
  */
-export function hourWindow(day: TourWeatherDetailDay): [number, number] {
+function hourWindow(day: TourWeatherDetailDay): [number, number] {
   if (!day.sunrise || !day.sunset) return FALLBACK_WINDOW;
   return [
     Math.max(5, Math.floor(timeToHours(day.sunrise)) - 1),
@@ -240,7 +257,7 @@ export function tempRange(
   return { max: Math.max(...highs), min: Math.min(...lows) };
 }
 
-export type CompassKey = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+type CompassKey = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
 const COMPASS: CompassKey[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
 
 /** The 8-point sector wind comes from; the letters are translated (O/E, Z/V…). */
@@ -256,7 +273,7 @@ export function windCompassKey(degrees: number): CompassKey {
 export function formatWeatherDayLabel(
   dateStr: string,
   t: TFunction,
-  locale = "de-AT",
+  locale: string,
 ): string {
   const now = new Date();
   const year = now.getFullYear();

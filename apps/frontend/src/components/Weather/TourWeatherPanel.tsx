@@ -6,9 +6,10 @@ import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
 import { useGetTourWeatherQuery } from "../../features/apiSlice";
-import { todayInVienna } from "../../models/tourWeather";
+import { upcomingDays } from "../../models/tourWeather";
 import TourWeatherDay from "./TourWeatherDay";
 import TourWeatherInfoDialog from "./TourWeatherInfoDialog";
+import { MUTED } from "./weatherStyles";
 
 interface TourWeatherPanelProps {
   tourId: string;
@@ -36,9 +37,7 @@ export default function TourWeatherPanel({
     if (activityDate) setOpenDay(activityDate);
   }, [activityDate]);
 
-  // RTK Query's cache can outlive midnight, so drop days that are already past.
-  const today = todayInVienna();
-  const days = (data ?? []).filter((day) => day.date >= today);
+  const days = upcomingDays(data ?? []);
   if (days.length === 0) return null;
 
   const activityOutsideForecast =
@@ -85,7 +84,7 @@ export default function TourWeatherPanel({
       </Box>
       {activityOutsideForecast && (
         <Typography
-          sx={{ fontSize: 14, color: "#777", mx: "2px", mt: -0.5, mb: 1.25 }}
+          sx={{ fontSize: 14, color: MUTED, mx: "2px", mt: -0.5, mb: 1.25 }}
         >
           {t("weather.detail.outside_window")}
         </Typography>
